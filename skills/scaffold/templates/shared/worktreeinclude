@@ -1,0 +1,11 @@
+# .worktreeinclude — files copied from main repo into fresh Claude Code worktrees.
+# Syntax: .gitignore format. Only files matching a pattern AND also gitignored get copied;
+# tracked files are never duplicated.
+# Docs: https://code.claude.com/docs/en/common-workflows#copy-gitignored-files-to-worktrees
+
+# Cloudflare Workers local dev secrets
+.dev.vars
+
+# Claude Code local configuration
+.claude/settings.local.json
+CLAUDE.local.md

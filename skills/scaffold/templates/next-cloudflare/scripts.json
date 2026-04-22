@@ -1,0 +1,19 @@
+{
+  "dev": "next dev --turbopack",
+  "build": "next build",
+  "start": "next start",
+  "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+  "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+  "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+  "check": "biome check --write .",
+  "check:ci": "biome ci .",
+  "typecheck": "tsc --noEmit",
+  "lint": "biome check --write . && tsc --noEmit",
+  "db:push": "drizzle-kit push",
+  "db:generate": "drizzle-kit generate",
+  "db:migrate": "drizzle-kit migrate",
+  "db:studio": "drizzle-kit studio",
+  "test": "vitest run",
+  "test:watch": "vitest",
+  "test:e2e": "playwright test"
+}

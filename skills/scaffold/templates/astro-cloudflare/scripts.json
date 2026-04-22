@@ -1,0 +1,11 @@
+{
+  "dev": "astro dev",
+  "build": "astro build",
+  "preview": "astro preview",
+  "deploy": "astro build && wrangler deploy",
+  "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+  "check": "biome check --write .",
+  "check:ci": "biome ci .",
+  "typecheck": "astro check && tsc --noEmit",
+  "lint": "biome check --write . && astro check && tsc --noEmit"
+}

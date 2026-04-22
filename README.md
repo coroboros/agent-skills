@@ -1,0 +1,658 @@
+<div align="center">
+
+<img src="assets/logo.png" width="288" height="288" alt="Coroboros"/>
+
+<!-- omit in toc -->
+# Agent Skills
+
+**AI agent skills for Claude Code and compatible agents**
+
+From brainstorming to structured specs to implementation, with design systems, project scaffolding, and writing utilities.
+
+[![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
+[![branch](https://img.shields.io/badge/branch-stable-000000?style=flat-square)](https://github.com/coroboros/agent-skills)
+[![license](https://img.shields.io/badge/license-MIT-000000?style=flat-square)](https://opensource.org/licenses/MIT)
+[![stars](https://img.shields.io/github/stars/coroboros/agent-skills?style=flat-square&label=stars&color=000000)](https://github.com/coroboros/agent-skills)
+[![coroboros.com](https://img.shields.io/badge/coroboros.com-000000?style=flat-square&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiLz48cGF0aCBkPSJNMiAxMmgyME0xMiAyYTE1LjMgMTUuMyAwIDAgMSA0IDEwIDE1LjMgMTUuMyAwIDAgMS00IDEwIDE1LjMgMTUuMyAwIDAgMS00LTEwIDE1LjMgMTUuMyAwIDAgMSA0LTEweiIvPjwvc3ZnPg==)](https://coroboros.com)
+
+</div>
+
+- [Install](#install)
+- [Skills](#skills)
+  - [Workflow Skills](#workflow-skills)
+  - [Design Skills](#design-skills)
+  - [Claude Code Skills](#claude-code-skills)
+  - [Media Skills](#media-skills)
+  - [Writing Skills](#writing-skills)
+- [Pipeline](#pipeline)
+- [Standards](#standards)
+- [License](#license)
+
+---
+
+## Install
+
+Install via [skills.sh](https://skills.sh):
+
+```bash
+# All skills
+npx skills add coroboros/agent-skills
+
+# Individual skill
+npx skills add coroboros/agent-skills --skill <name>
+```
+
+---
+
+## Skills
+
+Skills are grouped by plugin. Each plugin collects related skills — expand any section below to see usage, flags, and behavior.
+
+| Plugin | Skill | Model | Description | Scope |
+|--------|-------|-------|-------------|-------|
+| Workflow | [brainstorm](#brainstorm) | opus | Strategic analysis and deep thinking before implementation | Claude Code |
+| Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude Code |
+| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude Code |
+| Workflow | [oneshot](#oneshot) | sonnet | Ultra-fast Explore, Code, Test workflow | Claude Code |
+| Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude Code |
+| Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude Code |
+| Design | [design-system](#design-system) | opus | Enforce DESIGN.md tokens across UI — updates DESIGN.md first | Claude Code |
+| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude Code |
+| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude Code |
+| Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude Code |
+| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude Code |
+| Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude Code |
+| Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude Code |
+
+**About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill to give predictable results regardless of your session default. Opus-tier skills consume more tokens — if you're on a tight plan, you can override with the Claude Code `--model` flag or skip those skills entirely.
+
+---
+
+### Workflow Skills
+
+Strategic thinking, planning, and implementation — `brainstorm`, `spec`, `apex`, `oneshot`.
+
+<details>
+<summary><em>Expand — brainstorm · spec · apex · oneshot</em></summary>
+
+<br>
+
+#### brainstorm
+
+Strategic analysis and deep thinking before implementation. Researches the problem space, challenges assumptions, and produces a strategic brief.
+
+**Usage**
+
+```bash
+/brainstorm should we use Neon or PlanetScale for our database?
+/brainstorm -s which auth strategy for our multi-tenant SaaS?
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-s` | Save report to `.claude/output/brainstorm/{slug}/brainstorm.md` |
+
+**What it does**
+
+1. **Frame** — clarifies the problem, success criteria, and constraints
+2. **Research** — parallel subagents investigate from multiple angles (codebase, technical, external)
+3. **Challenge** — stress-tests the emerging recommendation (risks, hidden costs, simpler alternatives)
+4. **Synthesize** — produces a structured brief (summary, analysis, recommendation, alternatives, risks, next steps)
+5. **Discuss** — presents findings and waits — never implements
+
+Bridges to `/spec -f` for planning or `/apex -f` for direct implementation. Both optional.
+
+---
+
+#### spec
+
+Transform ideas into structured execution specs with prioritized workstreams, dependencies, and acceptance criteria.
+
+**Usage**
+
+```bash
+# From an idea
+/spec -s add user authentication with OAuth and email/password
+
+# From a brainstorm report
+/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md
+
+# Auto mode + create GitHub issues
+/spec -s -a -i migrate from REST to GraphQL
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-s` / `-S` | Save spec to `.claude/output/spec/{slug}/spec.md` / force no-save |
+| `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
+| `-a` / `-A` | Auto mode — skip Q&A, make reasonable assumptions / disable |
+| `-e` / `-E` | Economy mode — no subagents / disable |
+| `-f` | Load prior context (brainstorm report, RFC, GitHub issue URL) |
+
+Uppercase forms disable the ambient default when the skill runs with a pre-set mode. Requires `gh` authenticated when using `-i` or passing a GitHub URL to `-f`.
+
+**What it does**
+
+1. **Discover** — reads prior docs (`-f`), explores the codebase, asks clarifying questions
+2. **Specify** — writes workstreams (WS-1, WS-2…), priorities (P0-P2), complexity (S/M/L/XL), dependencies, acceptance criteria
+3. **Issues** (optional `-i`) — creates a parent epic + one issue per workstream via `gh`
+
+Chains: `/brainstorm` → `/spec` → `/apex -f spec.md` or `/apex -f "#42"`.
+
+---
+
+#### apex
+
+Systematic implementation using the APEX methodology — Analyze, Plan, Execute, eXamine — with parallel subagents and self-validation.
+
+**Usage**
+
+```bash
+# Autonomous + save outputs
+/apex -a -s implement user registration
+
+# From a GitHub issue
+/apex -f "#42"
+
+# From a prior spec or brainstorm report
+/apex -f .claude/output/spec/auth-system/spec.md implement WS-1
+
+# Resume a previous task
+/apex -r 01-auth-middleware
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-a` / `-A` | Autonomous mode — skip confirmations / disable |
+| `-s` / `-S` | Save outputs to `.claude/output/apex/{task-id}/` / force no-save |
+| `-e` / `-E` | Economy mode — no subagents / disable |
+| `-b` / `-B` | Branch mode — verify not on main, create branch if needed / disable |
+| `-f` | Load prior context (GitHub issue `#N`, spec, brainstorm report, RFC) |
+| `-r` | Resume a previous task by ID |
+| `-i` | Interactive flag configuration |
+
+Uppercase forms disable the ambient default when the skill runs with a pre-set mode.
+
+**What it does**
+
+- **Analyze** — launches 1–10 parallel subagents based on task complexity
+- **Plan** — file-by-file implementation strategy with acceptance criteria
+- **Execute** — todo-driven implementation with progressive step loading
+- **eXamine** — self-check against acceptance criteria, lint, and typecheck
+
+Accepts output from `spec` or `brainstorm` via `-f`. Works standalone.
+
+---
+
+#### oneshot
+
+Ultra-fast feature implementation — Explore, Code, Test. Ship fast, iterate later.
+
+**Usage**
+
+```bash
+/oneshot add dark mode toggle to the navbar
+/oneshot #42
+```
+
+**What it does**
+
+1. **Resolve** — if input is a GitHub issue (`#N` or URL), fetches via `gh` and uses the title/body
+2. **Explore** — finds 2–3 key files, searches for patterns (no tours)
+3. **Complexity check** — if >5 files or multiple systems, suggests `/apex` or `/spec` instead
+4. **Code** — follows existing codebase patterns exactly
+5. **Test** — runs lint and typecheck, fixes only what it broke
+
+One task only. No tangential improvements, no refactoring outside scope. Stops after 2 failed attempts.
+
+</details>
+
+---
+
+### Design Skills
+
+Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI — `scaffold`, `award-design`, `design-system`.
+
+<details>
+<summary><em>Expand — scaffold · award-design · design-system</em></summary>
+
+<br>
+
+#### scaffold
+
+Scaffold new web projects with an opinionated stack on Cloudflare Workers.
+
+**Requirements**
+
+- `pnpm` — enable via Corepack: `corepack enable && corepack prepare pnpm@latest --activate`
+- Node.js ≥ 22
+
+**Usage**
+
+```bash
+/scaffold next-cloudflare my-saas
+/scaffold astro-cloudflare landing-page
+/scaffold next-cf                        # alias
+```
+
+**Scaffolds**
+
+| Scaffold | Framework | Infra | Key stack |
+|----------|-----------|-------|-----------|
+| `next-cloudflare` | Next.js 16 (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
+| `astro-cloudflare` | Astro 6 (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
+
+Shared: TypeScript strict, pnpm, Biome, Tailwind CSS, Node.js 22.
+
+**What it does**
+
+1. Runs the official framework CLI (`create-next-app` / `create astro`)
+2. Overlays opinionated config — Biome, Cloudflare Workers, CLAUDE.md, `.worktreeinclude` (copies dev-critical gitignored files into Claude Code worktrees)
+3. Adds pnpm scripts (dev, build, deploy, check, typecheck, db, test)
+4. Installs the full dependency stack
+5. Suggests `/award-design` for visual design tokens
+
+Optionally chains to `award-design` and `design-system`.
+
+---
+
+#### award-design
+
+Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recommends a design archetype, calibrates atmosphere, and produces a complete DESIGN.md following the Google Stitch 9-section standard.
+
+**Usage**
+
+```bash
+/award-design landing page for a sustainable coffee brand
+/award-design -u https://linear.app portfolio for a motion designer
+```
+
+`-u <url>` reverse-engineers a DESIGN.md from a live site as the archetype seed. The extracted observation informs the recommendation but doesn't constrain it — the brief is still the destination.
+
+**Archetypes**
+
+| Archetype | Ideal for |
+|-----------|-----------|
+| Minimalist | SaaS, luxury, architecture, portfolios |
+| Brutalist | Creative agencies, indie tech, streetwear |
+| Editorial | Media, fashion, cultural institutions |
+| Bold / Maximal | Entertainment, music, Gen Z brands |
+| Immersive / Cinematic | Automotive, luxury, gaming, museums |
+| Experimental | Developer portfolios, art institutions |
+| Corporate Luxury | High-end fashion, hotels, jewelry, wealth |
+| Bento / Card | SaaS product pages, feature comparisons |
+| Spatial Organic | Sustainability brands, post-2025 creative studios |
+
+**Key features**
+
+- **Atmosphere Calibration** — Density, Variance, Motion scores (1–10) make design measurable
+- **Anti-AI tells** — axiomatic rejections (any hit is stop-and-fix) + full catalog of patterns that betray AI generation (visual, typography, layout, content, technical)
+- **Audit rubric** — quantitative 0–10 scoring across 7 dimensions (Hierarchy, Spacing, Typography, Color, Motion, Accessibility, Anti-slop) with P0/P1 punch list and CSS fixes
+- **Exemplars** — 2–4 real-world brand anchors per archetype (Linear, Hermès, Anthropic, Arc, Pitchfork, Bruno Simon…) shared during recommendation
+- **Archetype remixing** — arbitration framework for briefs that refuse a single archetype (parent DNA percentage, 7 arbitration rules, worked example)
+- **Brand extraction from URL** — `-u <url>` reverse-engineers a DESIGN.md observation from a live site as the archetype seed
+- **UX quality rules** — touch targets, safe areas, form behavior, animation precision (from Vercel Web Interface Guidelines)
+- **Judging criteria** — Design 40%, Usability 30%, Creativity 20%, Content 10%
+- **Performance targets** — LCP < 1.5s, CLS < 0.05, INP < 100ms
+- **Modern stack** — OKLCH, Scroll-Driven Animations, View Transitions API, GSAP + Lenis, WebGPU
+- **Production hardening** — viewport units, cross-browser video autoplay, scroll-restoration, fail-safe reveal logic (loaded only for video/scroll projects)
+- **Visual review** — optional `dev-browser` CLI integration for screenshot-based iteration
+
+**Sources**
+
+- [Awwwards](https://www.awwwards.com), [FWA](https://thefwa.com), [CSSDA](https://www.cssdesignawards.com) — judging criteria and SOTD/SOTY patterns
+- [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
+- [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration, DESIGN.md standard
+- [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
+- [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
+- Studio analysis: Locomotive, Active Theory, Resn, Immersive Garden, Cuberto
+
+Produces `DESIGN.md` consumed by `design-system` for ongoing governance. Token-level changes go through `/design-system` — this skill is for initial creation and complete re-architecting only.
+
+---
+
+#### design-system
+
+Enforce DESIGN.md tokens when creating or modifying UI components. Ensures brand consistency. When a UI/UX change is requested, DESIGN.md is updated first — then propagates to code.
+
+**Usage**
+
+Auto-activates when editing:
+- `src/components/**`, `src/app/**`, `src/pages/**`, `src/layouts/**`, `src/styles/**`
+- `src/features/*/components/**`
+- `DESIGN.md`, `tailwind.config.*`
+
+Also invocable directly: `/design-system`.
+
+**What it does**
+
+- Reads `DESIGN.md` before writing any UI code
+- Enforces colors, fonts, and spacing come exclusively from DESIGN.md tokens
+- Maps tokens to CSS custom properties and `tailwind.config.ts` `theme.extend`
+- Prevents arbitrary Tailwind values when a token exists
+- Handles dark mode, framework detection, shared brand across projects
+- Maps award-design archetype output to each of the 9 DESIGN.md sections
+
+**DESIGN.md structure (Google Stitch standard)**
+
+1. Visual Theme & Atmosphere
+2. Color Palette & Roles
+3. Typography Rules
+4. Component Stylings
+5. Layout Principles
+6. Depth, Elevation & Material
+7. Do's and Don'ts
+8. Responsive Behavior
+9. Agent Prompt Guide
+
+Ships with two complete example DESIGN.md files (Claude-inspired and Stripe-inspired) in `references/`. Delegates to `award-design` when no DESIGN.md exists.
+
+</details>
+
+---
+
+### Claude Code Skills
+
+Meta skills for configuring Claude Code itself — `claude-md`, `agent-creator`.
+
+<details>
+<summary><em>Expand — claude-md · agent-creator</em></summary>
+
+<br>
+
+#### claude-md
+
+Create and optimize CLAUDE.md memory files and `.claude/rules/` modular rules for Claude Code projects.
+
+**Usage**
+
+```bash
+/claude-md init        # Scaffold a new CLAUDE.md
+/claude-md optimize    # Deep cleanup of existing CLAUDE.md
+/claude-md revise      # Capture session learnings
+```
+
+**What it does**
+
+- **`init`** — detects stack, scripts, and architecture-critical files. Generates a minimal CLAUDE.md (20–50 lines)
+- **`optimize`** — research-backed cleanup using 6 bloat categories (ETH Zurich study). Target: < 100 lines
+- **`revise`** — reviews the current session for commands, patterns, and corrections. Drafts additions with diffs for approval
+
+**Key features**
+
+- File hierarchy (enterprise > project > user > local)
+- Modular `.claude/rules/` with path-scoped YAML frontmatter
+- Size limits guidance (< 100 ideal, < 150 max, > 200 = directives get lost)
+- Writing rules — prohibitions over positive guidance, emphasis hierarchy, show don't tell
+
+---
+
+#### agent-creator
+
+Expert guidance for creating, configuring, and orchestrating Claude Code subagents.
+
+**Usage**
+
+```bash
+/agent-creator
+```
+
+**What it does**
+
+- Walks through creating new agents with proper YAML frontmatter (`name`, `description`, `tools`, `model`)
+- Covers tool restrictions, model selection, permission modes, hooks, memory, isolation
+- Explains the execution model (subagents are black boxes — no user interaction)
+- Provides system prompt writing guidelines with anti-patterns
+- Documents scope and priority resolution (managed > CLI > project > user > plugin)
+- Background execution patterns for parallel agent workflows
+- Includes reference files for orchestration, evaluation, error handling, context management, and debugging
+
+</details>
+
+---
+
+### Media Skills
+
+Media conversion and polishing — `video-loop`, `markitdown`.
+
+<details>
+<summary><em>Expand — video-loop · markitdown</em></summary>
+
+<br>
+
+#### video-loop
+
+Create seamless looping background videos — crossfade, optimize, multi-format encode. The ffmpeg pipeline runs via a bundled `scripts/video-loop.sh` for deterministic, typo-proof execution.
+
+**Requirements**
+
+- `ffmpeg` and `ffprobe` on PATH
+  - macOS: `brew install ffmpeg`
+  - Debian/Ubuntu: `sudo apt install ffmpeg`
+  - Windows: https://ffmpeg.org/download.html
+
+**Usage**
+
+```bash
+/video-loop hero.mp4                    # Crossfade + optimize + encode MP4/WebM
+/video-loop hero.mp4 -d 2.0             # Custom crossfade duration (default: 1.5s)
+/video-loop hero.mp4 -q 23 -w 28        # Higher quality (lower CRF = bigger file)
+/video-loop hero.mp4 -p                 # Also extract poster frame
+/video-loop hero.mp4 -n                 # Skip crossfade — optimize/encode only
+/video-loop hero.mp4 -o public/videos/  # Custom output directory
+```
+
+**Flags**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-d` | `1.5` | Crossfade duration (seconds) |
+| `-q` | `26` | H.264 CRF (18 = high, 28 = small) |
+| `-w` | `32` | VP9 WebM CRF |
+| `-o` | input dir | Output directory |
+| `-p` | off | Extract poster frame (JPEG) |
+| `-n` | off | No crossfade, encode only |
+
+**What it does**
+
+1. Validates ffmpeg and reads source metadata
+2. Extracts first/last frames to assess loop visibility (VLM decides whether crossfade is warranted)
+3. Invokes `scripts/video-loop.sh`, which builds a lossless intermediate with `xfade` crossfade at the **start** — the loop point (`end → start`) lands on identical frames, making the transition invisible
+4. Encodes optimized H.264 MP4 (`-movflags +faststart`, audio stripped)
+5. Encodes VP9 WebM as an alternative format
+6. Optionally extracts a poster frame
+7. Parses `RESULT: key=value` lines from the script and reports a size table + suggested HTML `<video>` markup
+
+Output duration = original − crossfade duration (e.g. 8s video with 2s fade → 6s loop). Rejects `-d >= duration/2` with a hard error.
+
+---
+
+#### markitdown
+
+Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://github.com/microsoft/markitdown) — PDF, DOCX, PPTX, XLSX, HTML, CSV, JSON, XML, ZIP, EPub, images (OCR/EXIF), audio (transcription), and YouTube URLs.
+
+**Requirements**
+
+- Python ≥ 3.10 with the `markitdown` CLI on PATH:
+  - Full install: `pip install 'markitdown[all]'`
+  - Selective: `pip install 'markitdown[pdf,docx,pptx,xlsx]'` (groups: `pdf`, `docx`, `pptx`, `xlsx`, `xls`, `outlook`, `audio-transcription`, `youtube-transcription`, `az-doc-intel`)
+- For Azure Document Intelligence (`-d`): export `MARKITDOWN_DOCINTEL_ENDPOINT=https://<resource>.cognitiveservices.azure.com/`
+
+**Usage**
+
+```bash
+/markitdown ~/Downloads/report.pdf            # convert and print to terminal
+/markitdown -s ~/Downloads/report.pdf         # convert + save under .claude/output/markitdown/report/
+/markitdown -s -p deck.pptx                   # use third-party plugins (e.g. markitdown-ocr)
+/markitdown -d invoice.pdf                    # Azure Document Intelligence
+/markitdown -k brand.html                     # keep base64 images inline
+/markitdown https://youtu.be/dQw4w9WgXcQ      # YouTube transcript
+/markitdown -l                                # list installed plugins, then exit
+```
+
+**Flags**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-s` | off | Save Markdown to `.claude/output/markitdown/{slug}/{stem}.md` |
+| `-S` | — | Force no-save (override an ambient save mode) |
+| `-d` | off | Use Azure Document Intelligence (needs `MARKITDOWN_DOCINTEL_ENDPOINT`) |
+| `-p` | off | Enable installed third-party `markitdown` plugins |
+| `-k` | off | Keep data URIs (base64 images) inline in the output |
+| `-l` | — | List installed plugins and exit |
+
+**What it does**
+
+1. Validates that `markitdown` is installed; if not, prints the install command and stops (never auto-installs)
+2. Detects whether the input is a local file or an `http(s)://` URL (YouTube etc.) and validates the file exists
+3. Composes the right `markitdown` invocation based on the flags above
+4. Streams the converted Markdown to the terminal, or — when `-s` — writes it under `.claude/output/markitdown/{slug}/{stem}.md` for downstream skills to consume via `-f`
+5. Reports a one-line summary: `markitdown: <input> → <bytes> bytes of Markdown`
+
+The deterministic work (install check, validation, slug, save path, command composition) runs in `scripts/markitdown.sh`, which emits `RESULT: key=value` lines parsed by the skill — same pattern as `video-loop`.
+
+</details>
+
+---
+
+### Writing Skills
+
+Structural and prose writing for project documentation — `write-clear-readme`, `fix-grammar`.
+
+<details>
+<summary><em>Expand — write-clear-readme · fix-grammar</em></summary>
+
+<br>
+
+#### write-clear-readme
+
+Author, audit, or polish a project README — clarity, scannable structure (Pattern A grouped collapse / Pattern B per-entry collapse), wording concision, anchor integrity. Reads the repo first; proposes diffs and applies on approval.
+
+**Usage**
+
+```bash
+/write-clear-readme                      # Default — audit if README.md exists, author if not
+/write-clear-readme author               # Create or fully restructure README.md
+/write-clear-readme audit                # Review existing README for structure + clarity issues
+/write-clear-readme polish               # Wording-only pass — structure stays, prose tightens
+/write-clear-readme audit docs/GUIDE.md  # Audit a specific file
+```
+
+**What it does**
+
+1. **Inspects the repo** — `package.json`, top-level folders, entry points, `CLAUDE.md` — to understand what the README must cover
+2. **Picks the pattern** — Pattern A for 5+ peer items clustered into ≤7 groups; Pattern B for dozens of API entries; no collapse for short docs
+3. **Drafts (author mode)** — overview table at top with anchors, Install / Quick Start uncollapsed, grouped or per-entry collapse below; applies Clarity rules as it writes
+4. **Audits (audit mode)** — scores against Universal rules (structure: overview visibility, anchor integrity, nested-details, `<br>` after `<summary>`) AND Clarity rules (prose: filler phrases, marketing voice, verbose passages, unbackticked tokens)
+5. **Polishes (polish mode)** — wording-only pass; structure stays, prose tightens. Drops filler, replaces marketing voice, splits compound sentences, backticks code-like tokens
+6. **Applies on approval** — edits `README.md` only after explicit user approval
+
+**Key rules**
+
+- Group / section anchors go OUTSIDE `<details>` — GitHub auto-expands parent collapsibles on hash navigation
+- Install / Quick Start / Requirements never inside `<details>`
+- One level of `<details>` max — nested collapsibles confuse navigation
+- Signature-first `<summary>` for Pattern B so `Ctrl+F` hits the right entry
+- One idea per sentence; front-load the verb; drop filler ("in order to", "it's important to note that")
+- No marketing voice ("powerful", "robust", "leverage", "seamlessly")
+
+---
+
+#### fix-grammar
+
+Fix grammar and spelling errors in files while preserving formatting, meaning, and technical terms.
+
+**Usage**
+
+```bash
+/fix-grammar docs/guide.md
+/fix-grammar README.md CHANGELOG.md docs/api.md
+```
+
+**What it does**
+
+- Fixes **only** spelling and grammar errors — no rephrasing, no style improvements
+- Preserves code blocks, MDX tags, frontmatter, and custom syntax
+- Handles multilingual content naturally (e.g., French text with English technical terms)
+- Processes multiple files in parallel using subagents
+- Reports corrections count per file
+
+</details>
+
+---
+
+## Pipeline
+
+Skills are designed to chain together. Each works standalone, but they're more powerful combined.
+
+### Thinking → Planning → Building
+
+```
+/brainstorm -s "topic"     explore and analyze
+      |
+/spec -s -f brief.md       structure into workstreams
+      |
+/apex -f spec.md           implement systematically
+```
+
+Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` without brainstorming, or `/oneshot` for trivial tasks.
+
+### Design → Develop
+
+```
+/scaffold next-cloudflare   bootstrap project
+      |
+/award-design "brief"       create DESIGN.md with archetype
+      |
+/design-system              enforce tokens in code
+```
+
+<details>
+<summary><strong>Dependency Graph</strong></summary>
+
+<br>
+
+All dependencies are optional — each skill works standalone.
+
+```mermaid
+graph LR
+  brainstorm -->|"-f"| spec
+  brainstorm -->|"-f"| apex
+  spec -->|"-f"| apex
+  spec -->|"-i"| issues(GitHub Issues)
+  issues -->|"-f #N"| apex
+
+  scaffold --> award-design
+  award-design <-->|DESIGN.md| design-system
+
+  style issues fill:#2d333b,stroke:#8b949e,stroke-dasharray: 5 5
+```
+
+`oneshot` optionally escalates to `apex` or `spec` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `write-clear-readme`, `fix-grammar`) are standalone.
+
+</details>
+
+---
+
+## Standards
+
+This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus Claude Code extensions (`when_to_use`, `argument-hint`, `model`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable.
+
+Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
+
+- [`agentskills-spec.md`](./.claude/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
+- [`claude-code-skills.md`](./.claude/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
+- [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`
+- [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace
+
+---
+
+## License
+
+[MIT](LICENSE.md)

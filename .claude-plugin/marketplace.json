@@ -1,0 +1,66 @@
+{
+  "name": "coroboros-agent-skills",
+  "owner": {
+    "name": "coroboros",
+    "email": "hello@coroboros.com"
+  },
+  "metadata": {
+    "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code tooling, media, and writing",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "workflow-skills",
+      "description": "Strategic thinking, planning, and implementation — brainstorm, spec, apex, oneshot",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/brainstorm",
+        "./skills/spec",
+        "./skills/apex",
+        "./skills/oneshot"
+      ]
+    },
+    {
+      "name": "design-skills",
+      "description": "Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/scaffold",
+        "./skills/award-design",
+        "./skills/design-system"
+      ]
+    },
+    {
+      "name": "claude-code-skills",
+      "description": "Meta skills for configuring Claude Code itself — CLAUDE.md authoring, subagent creation",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/claude-md",
+        "./skills/agent-creator"
+      ]
+    },
+    {
+      "name": "media-skills",
+      "description": "Media conversion and polishing — file-to-Markdown, looping videos",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/video-loop",
+        "./skills/markitdown"
+      ]
+    },
+    {
+      "name": "writing-skills",
+      "description": "Structural writing for project documentation — READMEs, grammar polish",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/write-clear-readme",
+        "./skills/fix-grammar"
+      ]
+    }
+  ]
+}
