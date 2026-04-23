@@ -10,7 +10,7 @@ See @README.md for project overview and @package.json for available scripts.
 - Validation: Zod schemas colocated with features in `src/features/[name]/schemas.ts`
 
 ## UI
-- Design: see DESIGN.md at project root (Google Stitch format)
+- Design: see DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections; lint with `npx @google/design.md lint DESIGN.md`)
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
 - Tailwind utilities mapped to DESIGN.md tokens via `tailwind.config.ts`
 - CSS custom properties in `src/styles/global.css`

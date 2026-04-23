@@ -104,13 +104,13 @@ Net: Brutalist 61%, Corporate Luxury 39%. Declared 60/40 — close enough.
 
 ## How this feeds DESIGN.md
 
-A remix produces a single DESIGN.md, not two. All 9 sections are written as if the remix is one system. The only visible trace of the remix in the DESIGN.md itself should be:
+A remix produces a single DESIGN.md, not two. All sections are written as if the remix is one system. The only visible trace of the remix in the DESIGN.md itself should be:
 
-- Section 1 (Visual Theme) mentions both parents in the atmosphere paragraph.
-- Section 7 (Do's and Don'ts) has a few rules explicitly about the tension (the remix-specific rule above).
-- An optional final section (after section 9) called **Parent DNA** that records the arbitration decisions for future maintainers.
+- Section 1 (Overview) mentions both parents in the atmosphere paragraph.
+- Section 8 (Do's and Don'ts) has a few rules explicitly about the tension (the remix-specific rule above).
+- An optional final section (after Do's and Don'ts) called **Parent DNA** that records the arbitration decisions for future maintainers. Unknown sections are preserved by the spec; they don't break `@google/design.md lint`.
 
-This section is for team memory, not agent instruction. The agent prompt guide (section 9) still reads like a single system — the agent shouldn't be deciding which parent to invoke, that decision is frozen into the tokens.
+This section is for team memory, not agent instruction. The YAML tokens and prose still read like a single system — the agent shouldn't be deciding which parent to invoke at render time; that decision is frozen into the tokens.
 
 ## Adapted from
 
