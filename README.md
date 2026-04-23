@@ -56,7 +56,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [oneshot](#oneshot) | sonnet | Ultra-fast Explore, Code, Test workflow | Claude |
 | Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
-| Design | [design-system](#design-system) | opus | Govern DESIGN.md — enforce tokens across UI, audit, diff, export, migrate | Claude |
+| Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 6 CLI subcommands (audit/diff/export/spec/migrate/init) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |

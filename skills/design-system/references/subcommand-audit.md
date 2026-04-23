@@ -20,7 +20,12 @@ Aliases: `check`, `lint` — route to this same workflow.
 | `-S` | Force no-save (override ambient save mode) |
 | `--json` | Skip report composition; print the raw CLI JSON |
 
-`{slug}` is the basename of the audited file, kebab-cased.
+`{slug}` — strip the `.md` extension from the file basename, then kebab-case the remainder:
+- `./DESIGN.md` → `design`
+- `./docs/custom-design.md` → `custom-design`
+- `./brand/Theme.md` → `theme`
+
+The script exits `0` when the lint has zero errors, `1` when errors are present — usable directly as a CI gate (`bash scripts/audit.sh DESIGN.md || exit 1`). This matches the underlying `@google/design.md lint` exit semantics.
 
 ## Workflow
 

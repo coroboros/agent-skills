@@ -57,3 +57,5 @@ echo "RESULT: after=$after"
 echo "RESULT: regression=$regression"
 echo "RESULT: exit-code=$rc"
 echo "RESULT: json=$json_tmp"
+# Propagate rc so the script is CI-gate friendly: exit 0 no regression, 1 on regression.
+exit "$rc"

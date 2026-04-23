@@ -29,14 +29,18 @@ components:
 
 The frontmatter begins with a line containing exactly `---` and ends with a line containing exactly `---`. YAML inside is parsed to the schema above.
 
+`<scale-level>` is a named level in a sizing or spacing scale. Common names include `xs`, `sm`, `md`, `lg`, `xl`, and `full`, but **any descriptive string key is valid** — `base`, `gutter`, `margin`, `container-padding` are all acceptable per the spec.
+
 ### Token types
 
 | Type | Format | Example |
 |------|--------|---------|
-| **Color** | `#` + hex (sRGB), quoted string | `"#1A1C1E"` |
+| **Color** (in `colors:`) | `#` + hex (sRGB), quoted string | `"#1A1C1E"` |
 | **Dimension** | number + unit (`px`, `em`, `rem`) | `48px`, `-0.02em`, `1.5rem` |
 | **Typography** | object | see below |
 | **Token reference** | `{path.to.token}` wrapped in braces | `{colors.primary}`, `{rounded.sm}` |
+
+In the `colors:` palette, values must be hex. Inside a `components:` entry, property values accept **any string** — hex, token reference, or a raw CSS string like `rgba(255, 255, 255, 0.1)` or `oklch(0.7 0.2 200)`. This lets components express translucency, gradients, or modern color syntaxes that the palette schema doesn't accept directly.
 
 ### Typography object
 
@@ -132,7 +136,11 @@ Used across many design systems. Not required but provided for consistency:
 
 ## Interoperability
 
-DESIGN.md tokens are inspired by the [W3C Design Token Format](https://www.designtokens.org/) and convert cleanly:
+DESIGN.md tokens are inspired by the [W3C Design Token Format](https://www.designtokens.org/) — specifically the concept of typed token groups and the `{path.to.token}` reference syntax. They convert cleanly to other formats:
 
 - **Tailwind theme config** — `npx @google/design.md export --format tailwind DESIGN.md`
-- **DTCG tokens.json** — `npx @google/design.md export --format dtcg DESIGN.md`
+- **DTCG tokens.json** (W3C Design Tokens Community Group) — `npx @google/design.md export --format dtcg DESIGN.md`
+- **Figma variables** — via the DTCG output and the Tokens Studio plugin
+- **Style Dictionary** — via the DTCG output
+
+Currently one-way (DESIGN.md → target). Round-tripping from external formats back to DESIGN.md is not in the official CLI.

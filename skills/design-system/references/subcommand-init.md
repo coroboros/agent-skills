@@ -14,7 +14,7 @@ Scaffold a minimal valid DESIGN.md from scratch. Fallback path for projects wher
 
 | Flag | Meaning |
 |------|---------|
-| `<archetype>` positional | Optional — one of: `minimalist`, `brutalist`, `editorial`, `bold`, `cinematic`, `experimental`, `corporate-luxury`, `bento`, `spatial-organic` |
+| `<archetype>` positional | Optional hint — if given, recommend `/award-design` for archetype-aware creation instead of a generic scaffold (see *On archetype flavors* below) |
 | `-o <path>` | Output path (default: `./DESIGN.md`) |
 
 ## Priority — use `/award-design` when available
@@ -35,7 +35,7 @@ If `/award-design` is installed, the best init path is:
 2. **Check `/award-design` availability**. If present and user hasn't opted into `init`, surface the suggestion.
 3. **Select template**:
    - No archetype → generic minimal template (primary neutral palette, Inter typography, 4px radius scale, 8px spacing base, button + card + input components)
-   - Archetype given → archetype-flavored template (see mapping below)
+   - Archetype given → recommend `/award-design` (see *On archetype flavors* below) and only proceed with the generic template if the user confirms
 4. **Write** the file to `-o <path>` or `./DESIGN.md`.
 5. **Run audit** on the new file: `bash ${CLAUDE_SKILL_DIR}/scripts/audit.sh <output>`. A minimal template should lint with ≤ 2 warnings (`orphaned-tokens`, `missing-sections` is acceptable for placeholders).
 6. **Report** to the user:
@@ -127,21 +127,15 @@ components:
 
 The template is intentionally sparse — enough to lint green with info-level findings, but no more. It exists to give the user a valid shape to fill in, not to prescribe design.
 
-## Archetype templates
+## On archetype flavors
 
-For each archetype, the template follows the generic shape but with archetype-appropriate defaults:
+`init` ships only the generic template above. Archetype-flavored starters — Minimalist, Brutalist, Editorial, Bold, Cinematic, Experimental, Corporate Luxury, Bento, Spatial Organic — are `/award-design`'s job. That skill already has per-archetype reference files, atmosphere calibration, and brief-aware prose; duplicating its templating here would drift over time.
 
-- **minimalist** — monochrome palette (`#000`, `#fff`, 1-2 grays), Inter or system sans, radius 4px, generous spacing (`xl: 96px`), 4 components
-- **brutalist** — flat palette with one saturated accent, sans-serif at heavy weights, radius 0, tight spacing, borders everywhere (no shadows)
-- **editorial** — serif display + sans body, warm parchment surface, radius `sm`, terracotta accent
-- **bold** — 4-6 saturated colors, heavy display weights, radius `lg` to `full`
-- **cinematic** — dark base (surface `#0a0a0a`), single bright accent, large display sizes, shadow-heavy
-- **experimental** — placeholder tokens with explicit "customize me" comments, loose component definitions
-- **corporate-luxury** — restrained neutrals, custom serif placeholder, radius 0-4px, tight spacing
-- **bento** — modular component-first, radius `lg` to `xl`, generous padding inside each tile
-- **spatial-organic** — organic spacing (no rigid scale), `rounded.full` for organic corners, soft gradients
+If a user runs `/design-system init <archetype>`, treat the archetype argument as a hint and recommend the richer path:
 
-Each archetype template mirrors the tone of the corresponding `/award-design` reference file — the goal is that a user running `init <archetype>` gets a starting point consistent with what `/award-design` would produce, minus the brief and archetype debate.
+> `/award-design` would produce a complete, archetype-flavored DESIGN.md for a `<archetype>` design — with a full palette tuned to the archetype, typography pairing, component specs, and atmosphere scores. Proceed with `/design-system init` (generic template) only if you want a bare-bones scaffold to hand-edit.
+
+If the user confirms the generic path, proceed with the template above (no archetype flavor). If they redirect to `/award-design`, delegate there.
 
 ## Post-init guidance
 
@@ -155,5 +149,5 @@ After creating the file, tell the user:
 ## Edge cases
 
 - **Target path exists**: always abort by default. Offer overwrite (with `.legacy.<timestamp>` backup), `audit`, or `migrate` depending on what's already there.
-- **Invalid archetype name**: suggest the nine valid options; don't silently fall back to generic.
+- **Archetype given but `/award-design` not installed**: proceed with the generic template and note that archetype flavor would have required `/award-design`.
 - **Directory doesn't exist** (e.g., `-o docs/DESIGN.md` with no `docs/`): surface the error, suggest `mkdir -p` or a different path.

@@ -23,6 +23,8 @@ Smart defaults keep the common case (reviewing local changes before commit) a si
 | `--json` | Skip report composition; print raw CLI JSON |
 | `--base <ref>` | Git comparison base for the single-arg mode (default: `HEAD`) |
 
+`{slug}` — same derivation as `audit`: strip `.md`, kebab-case the basename of the `<after>` file. The script exits `0` on no regression, `1` on regression — CI-gate friendly (`bash scripts/diff.sh before.md after.md || exit 1`).
+
 ## Workflow
 
 **Two-file mode** (2 positional args):

@@ -42,7 +42,9 @@ if [[ $rc -gt 1 ]]; then
 fi
 
 # CLI succeeded. The JSON contains .summary.errors, .summary.warnings, .summary.infos, .findings[]
+# Propagate rc so the script is CI-gate friendly: exit 0 if no errors, 1 if errors found.
 echo "RESULT: status=ok"
 echo "RESULT: path=$path"
 echo "RESULT: exit-code=$rc"
 echo "RESULT: json=$json_tmp"
+exit "$rc"

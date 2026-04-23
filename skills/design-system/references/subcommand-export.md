@@ -36,12 +36,10 @@ Convert DESIGN.md tokens to other token formats — Tailwind theme config or W3C
 
 ## Tailwind integration
 
-`export --format tailwind` produces a JSON config ready to merge into `tailwind.config.ts` `theme.extend`. The shape is compatible with Tailwind CSS v3 and v4.
-
-After running `/design-system export tailwind`:
+`export --format tailwind` produces a JSON config shaped for Tailwind's `theme.extend`. It fits naturally into Tailwind CSS v3's JS-config model:
 
 ```typescript
-// tailwind.config.ts
+// tailwind.config.ts (Tailwind v3)
 import theme from './tailwind.theme.json';
 
 export default {
@@ -52,7 +50,9 @@ export default {
 };
 ```
 
-This preserves Tailwind's defaults and layers DESIGN.md tokens on top. If the user wants to REPLACE defaults (strict token-only mode), omit `extend` and use `theme:` directly — but doing so breaks responsive utilities, grayscale scale, and built-in spacing that projects rely on. Default to `extend` unless the user explicitly asks for strict replacement.
+Tailwind **v4** uses a CSS-first `@theme` block instead of a JS config object, so the JSON isn't consumed directly. For v4, use the exported JSON as a reference when writing the `@theme` declaration, or run the DTCG export (`--format dtcg`) and transform via Style Dictionary into a v4-compatible CSS file. Either way, DESIGN.md stays the single source of truth.
+
+For v3, merging under `extend` preserves Tailwind's defaults (responsive utilities, grayscale, built-in spacing) and layers DESIGN.md tokens on top. Replacing `theme:` directly (strict token-only) breaks those defaults — keep `extend` unless the user explicitly wants the strict path.
 
 **Regenerate after edits.** Every DESIGN.md mutation should be followed by a re-export if Tailwind is consumed downstream:
 

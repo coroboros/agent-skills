@@ -31,7 +31,7 @@ cat DESIGN.md | npx @google/design.md lint -
 | `file` | positional | required | Path to DESIGN.md (or `-` for stdin) |
 | `--format` | `json` | `json` | Output format |
 
-Exit code `1` if errors are found, `0` otherwise — usable in CI gates.
+**Exit codes**: `0` when the lint reports zero errors (warnings and info findings are allowed). `1` when one or more errors are present. `1` also when the CLI itself fails (bad input, malformed YAML). Direct CI gate: `npx @google/design.md lint DESIGN.md || exit 1`. The `scripts/audit.sh` wrapper preserves this exit semantics.
 
 Output shape:
 
@@ -60,7 +60,7 @@ npx @google/design.md diff DESIGN.md DESIGN-v2.md
 | `after` | positional | required | "After" DESIGN.md |
 | `--format` | `json` | `json` | Output format |
 
-Reports added/removed/modified tokens per group and sets `regression: true` if the "after" file has more errors or warnings. Exit code `1` on regression, `0` otherwise.
+Reports added/removed/modified tokens per group and sets `regression: true` if the "after" file has more errors or warnings than the "before" file. **Exit codes**: `0` when there's no regression, `1` on regression (usable as a CI gate: `npx @google/design.md diff main.md head.md || exit 1`). The `scripts/diff.sh` wrapper preserves this exit semantics.
 
 ### `export` — convert to other token formats
 

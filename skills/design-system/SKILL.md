@@ -103,8 +103,9 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 - Map tokens to `tailwind.config.ts theme.extend` — or generate via `/design-system export tailwind`
 - Never use arbitrary Tailwind values (`text-[13px]`, `bg-[#abc]`) when a token exists
 - Never introduce values absent from DESIGN.md — use the closest token and flag to the user
-- Dark mode: define alternate color tokens in YAML; implement via `dark:` variants or `prefers-color-scheme`
+- Dark mode: the Google spec has no dedicated mode concept. Use **semantic tokens** in a single DESIGN.md (e.g., `surface`, `on-surface`, `inverse-surface`, `inverse-on-surface`) and let the framework's CSS custom properties map each semantic name to the right value per mode. The Google-published `atmospheric-glass` example follows this pattern — one file, both modes via semantic naming. Avoid dual-file setups (DESIGN.md + DESIGN.dark.md) unless the brand truly diverges between modes
 - Shared brand across projects: same DESIGN.md, framework-specific implementation
+- Monorepo: the spec and this skill assume a single root `DESIGN.md` per project. For monorepos with per-package brand variations, keep each package's DESIGN.md at the package root and adjust the invocation path (`/design-system audit packages/web/DESIGN.md`). The `paths:` auto-activation matches the root file by default
 - **Post-edit invariant** — after any DESIGN.md mutation (token update during the enforcement flow, `migrate`, `init`, or manual edit via this skill), run `/design-system audit <path>` and surface findings. A mutation that leaves errors behind is not done
 - Duplicate section headings are a spec error — reject the file
 - Unknown section headings are preserved (don't error); unknown component properties are accepted with a warning
