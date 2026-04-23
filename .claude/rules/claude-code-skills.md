@@ -33,4 +33,11 @@ Reference: `coroboros/archivist/docs/code/code-skills.md`.
 
 ## Portability note
 
-A skill using `argument-hint`, `when_to_use`, `paths`, `$ARGUMENTS`, or `` !`cmd` `` works on Claude Code only. To mark a skill as Claude Code-scoped, say so explicitly in its description or via the repo's skills table.
+Claude Code-only extensions (`argument-hint`, `when_to_use`, `$ARGUMENTS`, `paths`, `hooks`, `` !`cmd` ``, `shell`, `context`, `agent`, `model`, `effort`, `disable-model-invocation`, `user-invocable`) do not travel to Claude.ai, Claude desktop, or the SDK. `allowed-tools` is also Claude Code CLI-only per the SDK skills doc. Per the official spec, skills are portable by default (`name` + `description` only); any extension narrows scope.
+
+**Repo scope convention** for the root README skills table:
+
+- **`All agents`** — uses only open-standard fields (`name`, `description`, `license`, `compatibility`, `metadata`). Portable across any agent honoring the Agent Skills spec.
+- **`Claude`** — uses Claude Code-specific extensions. Optimized for Claude Code CLI per Anthropic's docs; degrades gracefully in Claude.ai, Claude desktop, and other agents supporting the open standard.
+
+Every SKILL.md declares its intended environment via the top-level spec-canonical `compatibility:` field. See `skill-authoring.md` → *Post-generation conformance → Frontmatter* for the exact text to use.

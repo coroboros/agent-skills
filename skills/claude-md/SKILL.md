@@ -5,6 +5,7 @@ when_to_use: When the user wants to create, clean up, or update Claude Code memo
 argument-hint: [init | optimize | revise | task description]
 model: opus
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

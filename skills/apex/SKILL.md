@@ -5,6 +5,7 @@ when_to_use: When the task is non-trivial and benefits from analysis before codi
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-f <context>] [-r <task-id>] <task description>"
 model: opus
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

@@ -50,22 +50,24 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 
 | Plugin | Skill | Model | Description | Scope |
 |--------|-------|-------|-------------|-------|
-| Workflow | [brainstorm](#brainstorm) | opus | Strategic analysis and deep thinking before implementation | Claude Code |
-| Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude Code |
-| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude Code |
-| Workflow | [oneshot](#oneshot) | sonnet | Ultra-fast Explore, Code, Test workflow | Claude Code |
-| Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude Code |
-| Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude Code |
-| Design | [design-system](#design-system) | opus | Enforce DESIGN.md tokens across UI — updates DESIGN.md first | Claude Code |
-| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude Code |
-| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude Code |
-| Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude Code |
-| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude Code |
-| Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude Code |
-| Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude Code |
-| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging | Claude Code |
+| Workflow | [brainstorm](#brainstorm) | opus | Strategic analysis and deep thinking before implementation | Claude |
+| Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude |
+| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
+| Workflow | [oneshot](#oneshot) | sonnet | Ultra-fast Explore, Code, Test workflow | Claude |
+| Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
+| Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
+| Design | [design-system](#design-system) | opus | Enforce DESIGN.md tokens across UI — updates DESIGN.md first | Claude |
+| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
+| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
+| Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |
+| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
+| Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
+| Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
+| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging | Claude |
 
 **About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill to give predictable results regardless of your session default. Opus-tier skills consume more tokens — if you're on a tight plan, you can override with the Claude Code `--model` flag or skip those skills entirely.
+
+**About the Scope column.** Skills labeled `Claude` are optimized for Claude Code CLI per the [Agent Skills spec](https://agentskills.io) — they use Claude Code-specific frontmatter extensions (`$ARGUMENTS`, `argument-hint`, `when_to_use`, `paths`, `hooks`, inline shell) and degrade gracefully in Claude.ai, Claude desktop, and other agents supporting the open standard. `All agents` means the skill uses only open-standard fields (`name`, `description`, `license`, `compatibility`, `metadata`) and is fully portable. Each SKILL.md declares its intended environment via the spec-canonical top-level `compatibility:` field.
 
 ---
 
@@ -472,6 +474,10 @@ Create seamless looping background videos — crossfade, optimize, multi-format 
 
 Output duration = original − crossfade duration (e.g. 8s video with 2s fade → 6s loop). Rejects `-d >= duration/2` with a hard error.
 
+**Sources**
+
+- [FFmpeg](https://ffmpeg.org) — the video pipeline this skill orchestrates
+
 ---
 
 #### markitdown
@@ -517,6 +523,10 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 5. Reports a one-line summary: `markitdown: <input> → <bytes> bytes of Markdown`
 
 The deterministic work (install check, validation, slug, save path, command composition) runs in `scripts/markitdown.sh`, which emits `RESULT: key=value` lines parsed by the skill — same pattern as `video-loop`.
+
+**Sources**
+
+- [Microsoft `markitdown`](https://github.com/microsoft/markitdown) (MIT) — the CLI this skill wraps
 
 </details>
 

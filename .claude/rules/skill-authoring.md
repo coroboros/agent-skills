@@ -49,6 +49,14 @@ Once the loop returns GREEN, align the skill with this repo before committing:
    - Keep only: `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools` (from [agentskills-spec](./agentskills-spec.md)), plus Claude Code extensions (from [claude-code-skills](./claude-code-skills.md)) if the skill is Claude Code-scoped.
    - Any custom fields go under `metadata:`.
    - Add `metadata.author: coroboros`. Do **not** add `metadata.version` — skills are co-versioned through the repo tags and the `marketplace.json` version. Per-skill versions create drift (every release, only touched skills get bumped, others lag behind — confusing to readers). `git log skills/<name>/` is the authoritative change history.
+   - Declare intended environment via the top-level spec-canonical `compatibility:` field (max 500 chars). For this repo, use exactly: `"Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."` — same text across all skills so readers can scan it consistently.
+   - When the skill wraps or adapts external work (a CLI, a published methodology, another skill), cite via `metadata.sources` as a YAML list of URLs or short references. Example:
+     ```yaml
+     metadata:
+       sources:
+         - github.com/microsoft/markitdown
+     ```
+     Skip when the skill is an original internal methodology with no external source.
 
 2. **Body**
    - Plain Markdown headings only. No XML sections (`<objective>`, `<workflow>`, etc.).

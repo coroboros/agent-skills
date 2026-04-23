@@ -5,6 +5,7 @@ when_to_use: When the task is simple, focused, and well-defined. Quick fixes, sm
 argument-hint: "<description or #issue>"
 model: sonnet
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---
