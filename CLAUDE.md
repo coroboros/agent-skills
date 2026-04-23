@@ -25,13 +25,9 @@ Global rules (`~/.claude/rules/*`) inherit automatically — tech-standards, wri
 
 ## When creating or updating a skill
 
-1. Read the relevant rules above.
-2. Invoke the official skill-creator: *"Use the skill-creator skill to help me build/update a skill for [use case]"*.
-3. Conform the output to this repo's shape — see `.claude/rules/skill-authoring.md` for the post-generation checklist.
-4. Update the root `README.md` skills table and per-skill details.
-5. Verify pipeline chaining (`-f` contracts, output paths) across related skills.
-6. **Audit before PR** — for any refactor touching more than one skill, spawn an Explore-agent audit with the skill-creator checklist + repo rules. Require GREEN per skill. See `.claude/rules/skill-authoring.md` → *Audit before PR*.
-7. Open a PR — significant changes only; minor tweaks can go straight to `main`.
+1. Follow the strict `/skill-creator` loop in `@.claude/rules/skill-authoring.md` — mandatory. Every edit triggers a fresh invocation until all 8 canonical axes are GREEN, then apply the *Post-generation conformance* checklist.
+2. Keep the root `README.md` in sync — skills table, per-skill details, pipeline diagram. Audit for staleness on every SKILL.md touch.
+3. For multi-skill refactors, run *Audit before PR* before opening. Every change ships as a PR.
 
 ## Reference docs in the monorepo
 

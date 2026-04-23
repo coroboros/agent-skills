@@ -121,6 +121,15 @@ Whether authoring, auditing, or polishing — the prose itself follows these:
 - **Lists over paragraphs** when the content is enumerable (≥3 items of the same kind).
 - **Headings as questions or commands**, not topics. "Installation" is fine; "How do I install?" or "Install" reads quicker than "About installation".
 
+## Remove AI traces
+
+After any author or polish pass on English content, strip residual AI tells (em-dash overuse, rule of three, negative parallelisms, AI vocabulary, vague attributions, promotional tone, conjunctive padding like "moreover", "furthermore", "indeed").
+
+- **Invoke `/humanize-en` if installed** — detects and fixes all 29 patterns in a single pass. Run it after clarity edits land but before presenting the diff. The skill preserves structure, code blocks, links, anchors, and frontmatter.
+- **If the skill is not available**, scan manually for those patterns (see `humanize-en` or [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) for the full list) before shipping. Do not block on a missing skill.
+- **Audit mode:** flag suspected AI tells in the findings but do not auto-rewrite.
+- **Non-English content** — skip this step entirely; `humanize-en` is English-only.
+
 ## Author mode
 
 1. **Inspect repo** — read `package.json` / `Cargo.toml`, top-level folders, entry points, `CLAUDE.md` if present. Identify what the README must cover (install, usage, API surface, architecture, license).
@@ -129,8 +138,9 @@ Whether authoring, auditing, or polishing — the prose itself follows these:
    - Pattern B if the doc is reference-heavy (dozens of API entries, CLI commands, config options)
    - Short doc (< 5 sections) → no collapse
 3. **Draft** — overview table at top with anchor links, Install / Quick Start / Requirements uncollapsed, grouped or per-entry collapse below. Apply Clarity rules as you write.
-4. **Verify** — every TOC anchor resolves. Every `<details>` has a `<br>` after `<summary>`. No nested collapsibles. Install block is never inside `<details>`.
-5. **Write** — overwrite or create `README.md`. Present the diff if it existed before.
+4. **Remove AI traces** — for English content, invoke `/humanize-en` on the draft (see *Remove AI traces* below). Skip if the skill is unavailable or the content is non-English.
+5. **Verify** — every TOC anchor resolves. Every `<details>` has a `<br>` after `<summary>`. No nested collapsibles. Install block is never inside `<details>`.
+6. **Write** — overwrite or create `README.md`. Present the diff if it existed before.
 
 ## Audit mode
 
@@ -167,8 +177,9 @@ Wording-only pass. Structure stays as-is — only the prose changes.
    - Tighten verbose passages into bullets when enumerable
    - Backtick code-like tokens
    - Replace `(parens)` with em-dashes where they're aside-context
-3. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
-4. **Report** — propose a diff. NEVER apply without explicit approval.
+3. **Remove AI traces** — for English content, invoke `/humanize-en` on the result (see *Remove AI traces* below). Skip if the skill is unavailable or the content is non-English.
+4. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
+5. **Report** — propose a diff. NEVER apply without explicit approval.
 
 ## Rules
 
