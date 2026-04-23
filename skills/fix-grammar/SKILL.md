@@ -6,6 +6,7 @@ argument-hint: "<file-path> [additional-files...]"
 model: haiku
 allowed-tools: Read Edit Agent
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

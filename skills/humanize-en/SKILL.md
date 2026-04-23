@@ -6,9 +6,12 @@ argument-hint: "[file-path | inline text]"
 model: sonnet
 allowed-tools: Read Write Edit Grep Glob
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
-  sources: "en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing; github.com/blader/humanizer"
+  sources:
+    - en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
+    - github.com/blader/humanizer
 ---
 
 # Humanize EN

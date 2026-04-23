@@ -4,6 +4,7 @@ description: Create, configure, and orchestrate Claude Code subagents — specia
 when_to_use: When the user wants to create, edit, configure, or orchestrate a Claude Code subagent. Keywords — subagent, agent, delegate, specialist, `/agents`, `.claude/agents/`, agent config, background agent, parallel agents, orchestration, multi-agent workflow. Also trigger when the user asks how subagents work, which tools/models to choose, or how to restrict agent permissions. Skip when the user is working on a non-delegating skill or an API-level tool that has no subagent primitive.
 model: opus
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

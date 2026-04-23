@@ -5,8 +5,22 @@ when_to_use: When starting a new web project that needs a design direction. When
 argument-hint: "[-u <url>] <what to build>"
 model: opus
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - awwwards.com
+    - thefwa.com
+    - cssdesignawards.com
+    - github.com/vercel-labs/web-interface-guidelines
+    - github.com/google-labs-code/stitch-skills
+    - github.com/rohitg00/awesome-claude-design
+    - github.com/SawyerHood/dev-browser
+    - locomotive.ca
+    - activetheory.net
+    - resn.co.nz
+    - immersive-g.com
+    - cuberto.com
 ---
 
 # Award Design

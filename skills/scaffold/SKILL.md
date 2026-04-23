@@ -5,6 +5,7 @@ when_to_use: When the user wants to start a new web project from scratch with a 
 argument-hint: "<scaffold> [project-name]  — scaffolds: next-cloudflare, astro-cloudflare"
 model: haiku
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

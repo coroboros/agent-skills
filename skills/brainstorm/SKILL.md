@@ -5,6 +5,7 @@ when_to_use: When the user needs to explore options before deciding. Architectur
 argument-hint: "[-s] <question or topic>"
 model: opus
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

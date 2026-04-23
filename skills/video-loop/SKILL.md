@@ -6,8 +6,11 @@ argument-hint: "<input.mp4> [options] — e.g. /video-loop hero.mp4 -d 1.5"
 model: sonnet
 allowed-tools: Bash(ffmpeg *) Bash(ffprobe *) Bash(command *) Bash(bash *) Bash(stat *) Read
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - ffmpeg.org
 ---
 
 # Video Loop

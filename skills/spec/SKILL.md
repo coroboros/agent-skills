@@ -5,6 +5,7 @@ when_to_use: When work needs to be structured into actionable workstreams before
 argument-hint: "[-s] [-i] [-a] [-e] [-f <path>] <idea>"
 model: opus
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

@@ -7,6 +7,7 @@ model: opus
 disable-model-invocation: true
 allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *)
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---

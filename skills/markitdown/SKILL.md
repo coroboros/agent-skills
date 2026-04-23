@@ -6,8 +6,11 @@ argument-hint: "<file-or-url> [-s] [-S] [-d] [-p] [-k] [-l]"
 model: sonnet
 allowed-tools: Bash(bash *) Bash(markitdown *) Bash(command *) Read
 license: MIT
+compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - github.com/microsoft/markitdown
 ---
 
 # MarkItDown
