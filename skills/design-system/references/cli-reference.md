@@ -3,7 +3,7 @@
 The canonical validator for DESIGN.md files. Read this before running the CLI or interpreting its output.
 
 - **Package**: [`@google/design.md`](https://github.com/google-labs-code/design.md/tree/main/packages/cli)
-- **Invocation**: `npx @google/design.md <command>` (zero-install) or `npm install @google/design.md` + `design.md <command>`
+- **Invocation**: `npx @google/design.md <command>` (zero-install) or install first (`pnpm add @google/design.md` / `npm install @google/design.md` / `bun add @google/design.md`) and run `design.md <command>`
 - **Status**: alpha — commands, flags, and rules may change between releases
 
 Before running, verify availability:
@@ -157,3 +157,51 @@ npx @google/design.md export --format tailwind DESIGN.md > tailwind.theme.json
 ```bash
 npx @google/design.md spec --rules > .claude/context/design-md-spec.md
 ```
+
+### GitHub Actions gate
+
+A minimal workflow that blocks PRs with a broken or regressing DESIGN.md:
+
+```yaml
+# .github/workflows/design-md.yml
+name: DESIGN.md
+on:
+  pull_request:
+    paths: [DESIGN.md]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # need history for the diff step
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Lint DESIGN.md
+        run: npx -y @google/design.md@latest lint DESIGN.md
+      - name: Diff against base branch
+        run: |
+          git fetch origin ${{ github.base_ref }} --depth=1
+          git show origin/${{ github.base_ref }}:DESIGN.md > /tmp/DESIGN.base.md
+          npx -y @google/design.md@latest diff /tmp/DESIGN.base.md DESIGN.md
+```
+
+The `lint` step fails on `broken-ref` errors. The `diff` step fails when the PR introduces a regression (more errors or warnings than the base). Combine both for a full safety gate on any DESIGN.md-touching PR.
+
+### Pre-commit hook
+
+Block local commits that leave the DESIGN.md broken:
+
+```bash
+# .git/hooks/pre-commit (chmod +x)
+#!/usr/bin/env bash
+if git diff --cached --name-only | grep -q '^DESIGN\.md$'; then
+  npx -y @google/design.md@latest lint DESIGN.md || {
+    echo "DESIGN.md has errors — fix before committing."
+    exit 1
+  }
+fi
+```
+
+Or use a hook manager like `husky` / `lefthook` / `pre-commit` to wire the same check across a team.

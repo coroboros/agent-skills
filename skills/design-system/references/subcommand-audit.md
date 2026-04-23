@@ -19,6 +19,7 @@ Aliases: `check`, `lint` — route to this same workflow.
 | `-s` | Save the formatted report to `.claude/output/design-system/audit/{slug}/report.md` |
 | `-S` | Force no-save (override ambient save mode) |
 | `--json` | Skip report composition; print the raw CLI JSON |
+| `--strict` | Cross-check against `/award-design`'s anti-patterns catalog and surface exemplar suggestions when the CLI lint is clean (see *Strict mode* below) |
 
 `{slug}` — strip the `.md` extension from the file basename, then kebab-case the remainder:
 - `./DESIGN.md` → `design`
@@ -172,6 +173,80 @@ List the missing sections. No fix is strictly required — sections are optional
 
 **`token-summary`** (info).
 Relay the counts verbatim. No fix.
+
+## Strict mode — `--strict`
+
+Extends the default audit with cross-checks against the broader Coroboros design toolkit. The Google CLI validates spec conformance; `--strict` layers design-quality checks that live in `/award-design`'s reference catalog. Requires `/award-design` installed as a sibling skill.
+
+### What `--strict` adds
+
+1. **Anti-slop scan**. Reads `/award-design`'s `references/anti-patterns.md` catalog and cross-checks the DESIGN.md prose for patterns that betray AI-generated design — generic gradient heroes, pure-white "clean" backgrounds without rationale, `Inter` claimed as the display face without intent, 4-color palettes with no signature accent, symmetric centered layouts with no asymmetric moments, `border-radius: 16px` everywhere without tonal variation. Findings append to the report as `Strict findings` at severity `warning`.
+
+2. **Exemplar suggestion**. When the CLI lint is clean (zero errors), reads `/award-design`'s `references/exemplars.md` and appends a one-block "For inspiration" section pointing to the catalog. Non-actionable, pedagogical — anchors the user's aesthetic judgment against 30+ real-world brand references across nine archetypes.
+
+### Probe logic
+
+Locate `/award-design`'s reference files via this order:
+
+1. `${CLAUDE_SKILL_DIR}/../award-design/references/anti-patterns.md` (sibling install — the standard case when both skills come from `coroboros/agent-skills`)
+2. `.claude/skills/award-design/references/anti-patterns.md` (project-local install)
+3. `~/.claude/skills/award-design/references/anti-patterns.md` (user install)
+
+Use `Glob` to check each location. First match wins. Same probe pattern for `exemplars.md`.
+
+If neither anti-patterns.md nor exemplars.md is found at any location, report to the user:
+
+> `--strict` requires `/award-design` installed. Install with `npx skills add coroboros/agent-skills --skill award-design`, or run the standard audit (drop `--strict`).
+
+Then fall back to the standard audit flow — do not silently ignore the flag.
+
+### Strict findings block
+
+Add a new section between the CLI findings and Next steps when anti-patterns surface:
+
+```markdown
+## Strict findings — anti-slop cross-check (from /award-design)
+
+### Generic gradient hero detected
+**Location**: Overview prose
+**Pattern**: "linear-gradient from-purple-500 to-pink-500" — flagged by anti-patterns.md as a generic AI-generated hero motif without brand specificity.
+**Fix proposal**: Ground the gradient in the brand's specific atmosphere. Either (a) constrain to two brand-owned stops from `colors:` rather than generic utility names, (b) replace with a single brand accent on a warm/cool neutral, or (c) use an asymmetric compositional device instead of a gradient.
+
+### Inter as display face without intent
+**Location**: Typography prose + `typography:` block
+**Pattern**: `fontFamily: Inter` on display, headline, and body levels without a stated design reason.
+**Fix proposal**: Pair Inter with a contrasting face for display (serif or geometric sans) to create hierarchy, OR state the intent explicitly ("Inter across all levels — precision + performance optimized for scanning") in Typography prose.
+```
+
+Compose findings from the actual catalog hits — don't invent patterns that aren't in anti-patterns.md.
+
+### Exemplar block (when lint is clean)
+
+Append after the Next steps:
+
+```markdown
+## For inspiration — `/award-design`'s exemplars catalog
+
+This design lints clean against the Google spec. For aesthetic calibration, `/award-design` catalogs 30+ real-world brands across nine archetypes. See `references/exemplars.md` in that skill — Linear (restrained Minimalist), Hermès (Corporate Luxury), Anthropic (warm Editorial), Arc (Bento), and more.
+
+Pick the one or two exemplars closest to your archetype and compare: how do they handle primary-color restraint, typography pairing, whitespace, signature moments?
+```
+
+### When `--strict` is the right call
+
+- Before shipping a new DESIGN.md to production — catches AI-tells the CLI can't see.
+- When the CLI lint is clean but the design "feels generic" — exemplar lookup grounds the aesthetic against real benchmarks.
+- For design reviews: the Strict findings block gives reviewers testable critique anchors.
+
+Skip `--strict` for quick WIP checks or when `/award-design` isn't installed — the Google-spec-only audit is already rigorous for spec conformance.
+
+## Visual review — auto-suggested when `dev-browser` is installed
+
+After composing the report, probe `command -v dev-browser`. If `dev-browser` is on PATH, append to the Next steps:
+
+> **Visual verification** — `dev-browser` is installed. To check the rendered output matches DESIGN.md's Components section, run the dev server and screenshot each component state (default / hover / active) via `dev-browser screenshot <url> <selector>`. See [github.com/SawyerHood/dev-browser](https://github.com/SawyerHood/dev-browser) for usage.
+
+This is a suggestion, not an auto-invocation — `dev-browser` needs a running dev server which audit can't assume. Skip silently if `dev-browser` is absent.
 
 ## Post-edit rule
 

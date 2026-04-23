@@ -2,7 +2,7 @@
 name: design-system
 description: Govern the DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius. Also exposes six CLI-backed subcommands — audit (lint + fix proposals), diff (regression check), export (Tailwind / DTCG), spec (canonical spec emission), migrate (port from legacy Stitch format), init (minimal scaffold). When a UI/UX change is requested, DESIGN.md is updated first, audited, then code propagates.
 when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. Keywords — audit, check, lint, diff, export, spec, migrate, init, DESIGN.md, tokens.
-argument-hint: "[audit|diff|export|spec|migrate|init] [path]"
+argument-hint: "[audit|diff|export|spec|migrate|init] [flags] [path]"
 paths:
   - src/components/**
   - src/app/**
@@ -104,7 +104,11 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 - Never use arbitrary Tailwind values (`text-[13px]`, `bg-[#abc]`) when a token exists
 - Never introduce values absent from DESIGN.md — use the closest token and flag to the user
 - Dark mode: the Google spec has no dedicated mode concept. Use **semantic tokens** in a single DESIGN.md (e.g., `surface`, `on-surface`, `inverse-surface`, `inverse-on-surface`) and let the framework's CSS custom properties map each semantic name to the right value per mode. The Google-published `atmospheric-glass` example follows this pattern — one file, both modes via semantic naming. Avoid dual-file setups (DESIGN.md + DESIGN.dark.md) unless the brand truly diverges between modes
-- Shared brand across projects: same DESIGN.md, framework-specific implementation
+- Shared brand across projects: same DESIGN.md, framework-specific implementation. Distribution patterns — pick one and document in each project's CLAUDE.md:
+  - **Monorepo** — `packages/brand/DESIGN.md` consumed by all apps; single PR for cross-cutting changes
+  - **Git submodule** — canonical brand repo included as submodule; atomic updates via submodule bump
+  - **Published package** — `@org/design-tokens` on npm with DESIGN.md + build outputs; versioned, works cross-repo
+  - **Copy + periodic `/design-system diff`** — copies in each repo; periodic diff against the canonical catches drift; simplest tooling, highest drift risk
 - Monorepo: the spec and this skill assume a single root `DESIGN.md` per project. For monorepos with per-package brand variations, keep each package's DESIGN.md at the package root and adjust the invocation path (`/design-system audit packages/web/DESIGN.md`). The `paths:` auto-activation matches the root file by default
 - **Post-edit invariant** — after any DESIGN.md mutation (token update during the enforcement flow, `migrate`, `init`, or manual edit via this skill), run `/design-system audit <path>` and surface findings. A mutation that leaves errors behind is not done
 - Duplicate section headings are a spec error — reject the file

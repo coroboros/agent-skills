@@ -368,10 +368,13 @@ Also invocable directly via `/design-system` with one of six subcommands:
 | `-s` | `audit`, `diff` | Save the report to `.claude/output/design-system/{sub}/{slug}/report.md` |
 | `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
 | `--json` | `audit`, `diff`, `spec` | Raw CLI JSON instead of the formatted report |
+| `--strict` | `audit` | Cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog + append exemplar suggestions when lint is clean (requires `/award-design` installed) |
 | `--rules` | `spec` | Append the active lint rules table |
 | `--rules-only` | `spec` | Output only the lint rules |
 | `--format tailwind\|dtcg` | `export` | Target format (default: `tailwind`) |
 | `--base <ref>` | `diff` | Git comparison base (default: `HEAD`) |
+
+When `dev-browser` is installed globally (`pnpm add -g dev-browser` / `npm i -g dev-browser` / `bun add -g dev-browser`), `audit` auto-suggests visual verification in its Next steps — no flag needed. Skip silently otherwise.
 
 **What it does**
 

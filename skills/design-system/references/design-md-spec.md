@@ -1,10 +1,14 @@
 # DESIGN.md Spec Reference
 
+<!-- Synchronized from github.com/google-labs-code/design.md docs/spec.md on 2026-04-23 (CLI v0.1.1). -->
+<!-- Refresh when Google bumps a minor: `/design-system spec -o references/design-md-spec.md` and reconcile, or fetch `docs/spec.md` raw and re-condense. -->
+
 Condensed reference for the Google DESIGN.md open standard. Read this when authoring a new DESIGN.md, re-architecting an existing one, or auditing one for spec conformance.
 
 - **Canonical source**: [github.com/google-labs-code/design.md](https://github.com/google-labs-code/design.md) — `docs/spec.md`
 - **Version**: `alpha` (v0.1.x) — format may still change
 - **Live spec via CLI**: `npx @google/design.md spec` — always reflects the installed CLI version
+- **This file is a snapshot** — see the header comment above for the synchronization date and the refresh procedure. Treat the CLI + canonical source as authoritative when they diverge.
 
 A DESIGN.md has two layers. YAML frontmatter holds **normative** design tokens; the markdown body holds **contextual** prose that explains when and why to apply them. Prose may use descriptive names ("Midnight Forest Green") that correspond to systematic token names (`primary`).
 
@@ -133,6 +137,43 @@ Used across many design systems. Not required but provided for consistency:
 - **Colors**: `primary`, `secondary`, `tertiary`, `neutral`, `surface`, `on-surface`, `error`
 - **Typography**: `headline-display`, `headline-lg`, `headline-md`, `body-lg`, `body-md`, `body-sm`, `label-lg`, `label-md`, `label-sm`
 - **Rounded**: `none`, `sm`, `md`, `lg`, `xl`, `full`
+
+## Extending the spec — custom top-level YAML keys
+
+The spec defines five token groups (`colors`, `typography`, `rounded`, `spacing`, `components`) plus three top-level fields (`version`, `name`, `description`). The spec's Consumer Behavior table lists rules for unknown sections, color/typography/spacing names, and component properties, but **does not explicitly forbid unknown top-level YAML keys** — the linter (v0.1.1) ignores them, and standard YAML parsers preserve them, so consumers (agents, exporters) can read them. Treat this as convention rather than a hard spec guarantee; re-verify if Google tightens the schema in a later version.
+
+Two deliberate spec gaps worth extending via custom namespaces:
+
+**Motion tokens.** The spec has no `transitions:`, `durations:`, or `easings:` group, yet motion is a first-class design dimension. Add a custom namespace:
+
+```yaml
+motion:
+  duration-fast: 150ms
+  duration-base: 250ms
+  duration-slow: 400ms
+  easing-standard: cubic-bezier(0.4, 0, 0.2, 1)
+  easing-enter: cubic-bezier(0, 0, 0.2, 1)
+  easing-exit: cubic-bezier(0.4, 0, 1, 1)
+```
+
+These tokens are preserved in the file. Agents that understand your project's conventions can consume them; the CLI won't validate them. Document the intended usage in the Overview or Layout prose.
+
+**Breakpoints.** The spec folds breakpoints into Layout prose. If tooling needs them as tokens:
+
+```yaml
+breakpoints:
+  sm: 640px
+  md: 768px
+  lg: 1024px
+  xl: 1280px
+```
+
+Same behavior — preserved but unvalidated.
+
+**Rules when extending**:
+- Pick distinct namespaces (`motion:`, `breakpoints:`, `z-index:`, `elevation-scale:`) — never shadow or collide with spec-defined groups.
+- Keep the shape consistent with the spec's map-of-strings convention so a future DTCG or Tailwind exporter could pick them up.
+- Document the namespace in the Overview or Do's and Don'ts so future maintainers know it's intentional, not drift.
 
 ## Interoperability
 
