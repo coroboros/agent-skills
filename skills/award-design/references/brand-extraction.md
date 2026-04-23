@@ -93,7 +93,7 @@ The extracted observation is the *seed*. The brief is the *destination*.
 
 ## Output when the user wants the extracted DESIGN.md directly
 
-If the user's intent is "give me a DESIGN.md that captures site X so I can use it later" (not "design my site in the style of X"), skip steps 2+ of the main workflow and produce the DESIGN.md directly from the observation, using all 9 sections (per `/design-system`'s `design-md-structure.md`). Include a final note:
+If the user's intent is "give me a DESIGN.md that captures site X so I can use it later" (not "design my site in the style of X"), skip steps 2+ of the main workflow and produce the DESIGN.md directly from the observation — YAML frontmatter tokens plus the eight prose sections (see `/design-system`'s `references/design-md-spec.md`). Include a final note:
 
 > ## Source
 > Extracted from <URL> on <date>. Observed values only — no invented tokens. Brands belong to their respective owners; this DESIGN.md is for design analysis and inspiration.

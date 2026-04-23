@@ -1,7 +1,8 @@
 ---
 name: design-system
-description: Enforce DESIGN.md tokens when creating or modifying UI components. Ensures brand consistency across all code touching styles, components, layouts, or pages. When a UI/UX change is requested, DESIGN.md must be updated first — then propagate to code.
-when_to_use: When the user asks to change colors, typography, spacing, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens.
+description: Govern the DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius. Also exposes six CLI-backed subcommands — audit (lint + fix proposals), diff (regression check), export (Tailwind / DTCG), spec (canonical spec emission), migrate (port from legacy Stitch format), init (minimal scaffold). When a UI/UX change is requested, DESIGN.md is updated first, audited, then code propagates.
+when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. Keywords — audit, check, lint, diff, export, spec, migrate, init, DESIGN.md, tokens.
+argument-hint: "[audit|diff|export|spec|migrate|init] [flags] [path]"
 paths:
   - src/components/**
   - src/app/**
@@ -14,142 +15,175 @@ paths:
 model: opus
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+allowed-tools: Read Write Edit Grep Glob Bash(npx *) Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
 metadata:
   author: coroboros
+  sources:
+    - github.com/google-labs-code/design.md
+    - designtokens.org
 ---
 
 # Design System
 
+Two modes for governing a project's visual identity:
+
+1. **Auto-activate** — when editing UI files (components, pages, layouts, styles, `DESIGN.md`, `tailwind.config.*`), the skill reads `DESIGN.md` first and enforces token-only sourcing for colors, typography, spacing, and corner radius.
+2. **Subcommands** — `/design-system <verb> [path]` exposes the full DESIGN.md lifecycle, built on the canonical `@google/design.md` CLI.
+
+## Subcommand routing
+
+Parse the first positional token of `$ARGUMENTS`. If it matches a verb below, load the referenced file and follow its workflow. Otherwise proceed with the token-enforcement workflow at the end of this document.
+
+| First token | Mode | Reference |
+|-------------|------|-----------|
+| `audit` (aliases: `check`, `lint`) | Lint + fix proposals, human-readable report | `references/subcommand-audit.md` |
+| `diff` | Regression check between versions (git-aware) | `references/subcommand-diff.md` |
+| `export` | Tokens → Tailwind theme or W3C DTCG `tokens.json` | `references/subcommand-export.md` |
+| `spec` | Emit the canonical spec from the installed CLI | `references/subcommand-spec.md` |
+| `migrate` | Port legacy Stitch 9-section DESIGN.md → Google standard | `references/subcommand-migrate.md` |
+| `init` | Scaffold a minimal valid DESIGN.md (fallback from `/award-design`) | `references/subcommand-init.md` |
+| (none, or a UI file path) | Token enforcement — see the default workflow at the end | (this file) |
+
 ## Source of truth
 
-Read `DESIGN.md` at the project root **before** writing any UI code. Every color, font, spacing value, and component style must come from this file.
+Read `DESIGN.md` at the project root **before** writing any UI code. Every color, font, spacing value, corner radius, and component style must come from this file — either the YAML frontmatter tokens (the normative values) or the prose sections that explain when and why to apply them.
 
-If no `DESIGN.md` exists and you are building a new project, use `/award-design` to create the design — it will produce a DESIGN.md as part of its workflow. If `/award-design` is not available, create the DESIGN.md manually following the Stitch standard (see `references/design-md-structure.md` for the full 9-section spec and `references/design-system-*-example.md` for complete examples).
+If no `DESIGN.md` exists:
+- `/award-design` available → delegate (preferred — archetype + atmosphere + complete DESIGN.md)
+- `/award-design` unavailable → `/design-system init [archetype]` for a minimal scaffold
 
-## Writing Principles
+If a legacy Stitch-format `DESIGN.md` is detected (9 numbered sections, `## Agent Prompt Guide` heading, no YAML frontmatter): suggest `/design-system migrate <path>` to port it before proceeding.
 
-A DESIGN.md is written for both AI agents and human designers. These principles govern every section:
+## The standard
 
-- **Descriptive over technical**: Write `"whisper-soft shadow"` alongside the exact value, not just `box-shadow: ...`. Translate CSS concepts into spatial language — `rounded-full` becomes "pill-shaped", `rounded-lg` becomes "subtly rounded corners". This gives AI agents semantic intent, not just values to copy.
-- **Every value has a role**: Never list a color without explaining when and why to use it. `#5e5d59` means nothing; `Olive Gray (#5e5d59): secondary body text — warm medium-dark gray` is actionable.
-- **Name tokens semantically**: `Parchment`, `Border Cream`, `Whisper Shadow` — not `bg-primary`, `border-1`, `shadow-sm`. Semantic names carry design intent across contexts.
-- **Show the personality**: Section 1 sets the tone for the entire file. If it reads like a template, every section after it will be generic. Describe what makes this design *this design* — what would a human designer notice first?
-- **Exact values are non-negotiable**: Prose without values is a mood board. Values without prose are a spreadsheet. Both are required for every token.
+DESIGN.md is Google's open format for describing a design system to coding agents. Canonical source: [github.com/google-labs-code/design.md](https://github.com/google-labs-code/design.md). A file has two layers:
 
-## DESIGN.md structure (Stitch standard)
+1. **YAML frontmatter** — machine-readable design tokens (`colors`, `typography`, `rounded`, `spacing`, `components`). Normative values.
+2. **Markdown body** — eight `##` sections explaining rationale. Present sections must appear in order:
 
-A DESIGN.md follows the Google Stitch standard with 9 sections:
+| # | Section | Aliases | YAML tokens |
+|---|---------|---------|-------------|
+| 1 | **Overview** | Brand & Style | — |
+| 2 | **Colors** | — | `colors:` |
+| 3 | **Typography** | — | `typography:` |
+| 4 | **Layout** | Layout & Spacing | `spacing:` |
+| 5 | **Elevation & Depth** | Elevation | — |
+| 6 | **Shapes** | — | `rounded:` |
+| 7 | **Components** | — | `components:` |
+| 8 | **Do's and Don'ts** | — | — |
 
-1. Visual Theme & Atmosphere
-2. Color Palette & Roles
-3. Typography Rules
-4. Component Stylings
-5. Layout Principles
-6. Depth, Elevation & Material
-7. Do's and Don'ts
-8. Responsive Behavior
-9. Agent Prompt Guide
+Full schema, token types, reference syntax, and consumer behavior for unknown content: `references/design-md-spec.md`. Concrete examples: `references/example-claude.md` (warm editorial), `references/example-stripe.md` (minimalist gradient).
 
-When creating a new DESIGN.md, re-architecting an existing one, or auditing completeness, read `references/design-md-structure.md` — it covers what each section must include, good/bad examples, and the enforcement rationale. Day-to-day token lookups (colors, spacing, component specs) don't need it — they go through the Rules and UI/UX change flow below.
+## Token references and schema (at a glance)
 
-Complete example files: `references/design-system-claude-example.md` and `references/design-system-stripe-example.md`.
+- **Colors**: hex (sRGB) quoted — `primary: "#1A1C1E"`
+- **Dimensions**: `px` / `em` / `rem` — `48px`, `-0.02em`, `1.5rem`
+- **Typography**: object — `fontFamily`, `fontSize`, `fontWeight`, `lineHeight`, `letterSpacing`, `fontFeature`, `fontVariation`
+- **Token references**: `{path.to.token}` wrapped in braces — `"{colors.tertiary}"`, `"{rounded.sm}"`
+- **Component property tokens** (the only accepted set): `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`
+- **Variants** (hover, active, pressed): separate entries with related keys — `button-primary`, `button-primary-hover`
+
+Recommended but non-normative names: `primary`, `secondary`, `tertiary`, `neutral`, `surface`, `on-surface`, `error`; `headline-lg`, `body-md`, `label-sm`; `none`, `sm`, `md`, `lg`, `xl`, `full`.
+
+## Writing principles
+
+DESIGN.md is written for both agents and humans. These principles govern every section:
+
+- **Tokens are normative, prose is context.** YAML values are what agents render. Prose tells them *when* and *why*. Both are required — prose without values is a mood board; values without prose is a spreadsheet.
+- **Descriptive over technical.** Write "whisper-soft shadow" alongside the exact value. Translate CSS into spatial language — `rounded-full` → "pill-shaped".
+- **Every value has a role.** `#5e5d59` alone is meaningless; `Olive Gray (#5e5d59): secondary body text — warm medium-dark gray` is actionable.
+- **Name tokens semantically.** `primary`, `tertiary`, `button-primary-hover` — not `blue-500`, `shadow-sm`.
+- **Show the personality in Overview.** Section 1 sets the tone; every later section should feel written by the same person.
+- **Exact values are non-negotiable.** Every color, dimension, component property is a concrete token.
 
 ## Rules
 
-- Colors, fonts, and spacing come **only** from DESIGN.md tokens
+- Colors, fonts, spacing, corner radius come **only** from DESIGN.md YAML tokens
 - Map tokens to CSS custom properties in the global stylesheet
-- Map tokens to `tailwind.config.ts` `theme.extend` when using Tailwind
+- Map tokens to `tailwind.config.ts theme.extend` — or generate via `/design-system export tailwind`
 - Never use arbitrary Tailwind values (`text-[13px]`, `bg-[#abc]`) when a token exists
-- Never introduce values not in DESIGN.md — if a case isn't covered, use the closest token and flag it to the user
-- Dark mode: define variants in DESIGN.md, implement with `dark:` or `prefers-color-scheme`
-- Shared brand across projects: same DESIGN.md tokens, framework-specific implementation
+- Never introduce values absent from DESIGN.md — use the closest token and flag to the user
+- Dark mode: the Google spec has no dedicated mode concept. Use **semantic tokens** in a single DESIGN.md (e.g., `surface`, `on-surface`, `inverse-surface`, `inverse-on-surface`) and let the framework's CSS custom properties map each semantic name to the right value per mode. The Google-published `atmospheric-glass` example follows this pattern — one file, both modes via semantic naming. Avoid dual-file setups (DESIGN.md + DESIGN.dark.md) unless the brand truly diverges between modes
+- Shared brand across projects: same DESIGN.md, framework-specific implementation. Distribution patterns — pick one and document in each project's CLAUDE.md:
+  - **Monorepo** — `packages/brand/DESIGN.md` consumed by all apps; single PR for cross-cutting changes
+  - **Git submodule** — canonical brand repo included as submodule; atomic updates via submodule bump
+  - **Published package** — `@org/design-tokens` on npm with DESIGN.md + build outputs; versioned, works cross-repo
+  - **Copy + periodic `/design-system diff`** — copies in each repo; periodic diff against the canonical catches drift; simplest tooling, highest drift risk
+- Monorepo: the spec and this skill assume a single root `DESIGN.md` per project. For monorepos with per-package brand variations, keep each package's DESIGN.md at the package root and adjust the invocation path (`/design-system audit packages/web/DESIGN.md`). The `paths:` auto-activation matches the root file by default
+- **Post-edit invariant** — after any DESIGN.md mutation (token update during the enforcement flow, `migrate`, `init`, or manual edit via this skill), run `/design-system audit <path>` and surface findings. A mutation that leaves errors behind is not done
+- Duplicate section headings are a spec error — reject the file
+- Unknown section headings are preserved (don't error); unknown component properties are accepted with a warning
+
+## CLI validator — shared surface
+
+The canonical `@google/design.md` CLI powers the `audit`, `diff`, `export`, and `spec` subcommands. Each subcommand wraps one CLI invocation with richer UX (fix proposals, git-awareness, human-readable reports). Raw invocations:
+
+```bash
+npx @google/design.md lint DESIGN.md                    # validate
+npx @google/design.md diff before.md after.md           # regression check (exit 1 on regression)
+npx @google/design.md export --format tailwind DESIGN.md
+npx @google/design.md spec --rules                      # emit spec + lint rules
+```
+
+Eight linting rules: `broken-ref` (error), `missing-primary`, `contrast-ratio`, `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. Full table with severity, interpretation, and fix strategies: `references/cli-reference.md`.
+
+Every subcommand verifies CLI availability first (`command -v npx` + a dry `--help` probe). When unavailable or offline: fall back to manual validation against `references/design-md-spec.md`. The skill still enforces the spec without the CLI — it loses only the deterministic check.
 
 ## Framework behavior
 
-Detect the framework from config files (`astro.config.*`, `next.config.*`, etc.), then follow the project's instructions (CLAUDE.md, AGENTS.md, or equivalent) for implementation specifics (component library, font loading, file structure).
+Detect framework from config files (`astro.config.*`, `next.config.*`, etc.), then follow project instructions (`CLAUDE.md`, `AGENTS.md`, or equivalent) for implementation specifics (component library, font loading, file structure).
 
-## Creating a new DESIGN.md
+## Default workflow — token enforcement
 
-### 1. Gather context
+When no subcommand is matched — either auto-activated via `paths:` during a UI edit, or invoked directly to discuss enforcement — follow this workflow.
 
-Ask for brand direction: reference site, mood, target audience, archetype preference. If the user provides a reference site, analyze its visual language before writing.
+### Creating a new DESIGN.md
 
-### 2. Establish foundations
+1. **Check for an existing file.** If present → use the change flow below. If absent:
+   - `/award-design` available → delegate (preferred)
+   - `/award-design` unavailable → `/design-system init [archetype]`
+2. **Establish foundations** from `/award-design` output if used. Atmosphere scores (Density, Variance, Motion) go into Overview prose, not YAML.
 
-If `/award-design` is available and an archetype applies → use it. It will produce the archetype selection, atmosphere calibration (Density/Variance/Motion scores), and design foundations. These feed into all 9 sections of the DESIGN.md — see the mapping table below.
+**How award-design feeds into DESIGN.md:**
 
-If `/award-design` is not available → ask the user to describe the atmosphere in concrete terms (not "modern and clean" but "dark surfaces, single accent, editorial typography, motion score 6/10").
+| award-design output | DESIGN.md section | YAML tokens |
+|---------------------|-------------------|-------------|
+| Archetype + atmosphere (Density/Variance/Motion) | 1. Overview (prose) | — |
+| Color palette | 2. Colors | `colors:` |
+| Typography | 3. Typography | `typography:` |
+| Spacing, grid, responsive breakpoints | 4. Layout | `spacing:` |
+| Shadow system, surface material | 5. Elevation & Depth | — |
+| Corner radius language | 6. Shapes | `rounded:` |
+| Component specs (buttons, cards, inputs, nav) | 7. Components | `components:` |
+| Archetype guardrails + AI-tell rejections | 8. Do's and Don'ts | — |
 
-**How award-design feeds into DESIGN.md sections:**
+3. **Audit** — run `/design-system audit <path>` (post-edit invariant). Fix errors before proceeding.
+4. **Wire into the framework**: `/design-system export tailwind` → merge the result into `tailwind.config.ts theme.extend`; set up CSS custom properties in the global stylesheet.
 
-| award-design output | DESIGN.md section |
-|---------------------|-------------------|
-| Archetype selection + atmosphere prose | **1. Visual Theme & Atmosphere** — key characteristics, atmosphere scores (Density/Variance/Motion), visual DNA |
-| Color palette from archetype reference | **2. Color Palette & Roles** — semantic names, exact values, usage context |
-| Typography from archetype reference | **3. Typography Rules** — font families, hierarchy table, principles |
-| Component specs from archetype reference | **4. Component Stylings** — buttons, cards, inputs, navigation, icons |
-| Layout patterns from archetype reference | **5. Layout Principles** — spacing scale, grid strategy, whitespace philosophy |
-| Shadow/material from archetype reference | **6. Depth, Elevation & Material** — shadow levels, surface treatment |
-| Anti-patterns + archetype guardrails | **7. Do's and Don'ts** — testable rules from archetype constraints + AI tells |
-| Responsive strategy | **8. Responsive Behavior** — breakpoints, touch targets, collapsing strategy |
-| Atmosphere scores + color/type quick ref | **9. Agent Prompt Guide** — quick reference, example prompts, iteration rules |
+### When UI/UX changes are requested
 
-Every section must be complete for the design-system skill to govern ongoing changes. Incomplete sections lead to token gaps that agents fill with defaults — defeating the purpose.
+Any visual change — colors, typography, spacing, radius, shadows, component styles, layout, responsive behavior — follows this flow.
 
-### 3. Write the DESIGN.md
+1. **Check whether the change affects tokens.** New value, modified value, or altered visual system → DESIGN.md first. Pure layout bugs, alt text, content reordering → code only.
+2. **Update DESIGN.md first.**
+   - Open DESIGN.md, locate the affected YAML tokens and prose sections
+   - Update values, semantic names, reference paths
+   - Cascade — if the primary color changes, update every `components:` entry referencing it
+   - Sync Do's and Don'ts if the change contradicts an existing guardrail
+3. **Audit** — `/design-system audit <path>` to verify no broken references or contrast regressions (post-edit invariant).
+4. **Propagate to code**:
+   - Re-export Tailwind theme (`/design-system export tailwind`) or update `theme.extend` by hand
+   - Update CSS custom properties in the global stylesheet
+   - Update components using raw values — components referencing tokens by name pick up the new value automatically
+5. **Shared brand** — if the DESIGN.md is shared across projects, propagate to all, then step 4 in each.
 
-Follow the 9-section structure with the writing principles above. Work through sections in order — section 1 establishes the voice, and every section after it should feel like it was written by the same person.
+Examples of token-affecting changes:
+- "Change CTA color" → `colors.*` + Colors prose + every `components:` entry referencing the old color
+- "Make cards more rounded" → `rounded.*` + Shapes prose + `components.card.rounded`
+- "Darker theme" → `colors.*` + Overview + Elevation & Depth prose
+- "New badge component" → `components.*` + Components prose
+- "Increase section spacing" → `spacing.*` + Layout prose
 
-**Refinement process** (adapted from Google Stitch):
-- Replace vague language with design-specific terminology: "nice header" → "sticky navigation with glassmorphism and centered wordmark"
-- Every color, every spacing value, every shadow must be an explicit token with a semantic name
-- Test the Agent Prompt Guide (section 9) mentally: could an agent build a correct component from these prompts alone?
+### Re-architecting
 
-### 4. Place and configure
-
-- Place at the project root
-- Configure `tailwind.config.ts` to map all tokens under `theme.extend` (if Tailwind is used)
-- Set up CSS custom properties in the global stylesheet
-- Verify the first component built matches the DESIGN.md exactly
-
-## When UI/UX changes are requested
-
-When the user asks for any visual change — colors, typography, spacing, shadows, component styles, layout, theme, or responsive behavior — follow this mandatory flow:
-
-### 1. Check if the change affects DESIGN.md tokens
-
-Ask: does this change introduce a new value, modify an existing token, or alter the visual system? If yes → DESIGN.md must be updated first.
-
-Examples that require DESIGN.md updates:
-- "Change the CTA color to blue" → update Color Palette & Roles
-- "Make the cards more rounded" → update Component Stylings + Layout Principles
-- "Switch to a darker theme" → update Visual Theme & Atmosphere + Color Palette + Depth/Elevation
-- "Add a new badge component" → update Component Stylings
-- "Increase section spacing" → update Layout Principles
-
-Examples that do NOT require DESIGN.md updates:
-- "Fix the button alignment on mobile" → layout bug, no token change
-- "Add alt text to images" → accessibility, no visual token
-- "Move the CTA above the fold" → content reordering, not a design system change
-
-### 2. Update DESIGN.md first — it is the source of truth
-
-1. Open DESIGN.md, locate the affected section(s)
-2. Update the token values, semantic names, and usage descriptions
-3. If the change cascades (e.g., a primary color change affects buttons, links, focus rings), update all affected sections
-4. If the change conflicts with Do's and Don'ts (section 7), update the guardrails to match
-
-### 3. Propagate to code
-
-1. Update `tailwind.config.ts` to match the new tokens (if Tailwind is used)
-2. Update CSS custom properties in the global stylesheet
-3. Update components that use the changed tokens
-4. Verify existing components still render correctly with the new values
-
-### 4. Shared brand propagation
-
-If the design is shared across projects: propagate DESIGN.md changes to all related projects, then run step 3 in each.
-
-### Re-architecting the design
-
-If the user wants a fundamental visual change (new archetype, different atmosphere, complete restyle), this is not a token update — it's a new design. Use `/award-design` to restart the archetype selection and produce a new DESIGN.md. The old DESIGN.md is replaced entirely.
+A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Use `/award-design` to restart the archetype selection and produce a new DESIGN.md. The old file is replaced entirely; do not patch it.

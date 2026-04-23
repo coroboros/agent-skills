@@ -56,7 +56,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [oneshot](#oneshot) | sonnet | Ultra-fast Explore, Code, Test workflow | Claude |
 | Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
-| Design | [design-system](#design-system) | opus | Enforce DESIGN.md tokens across UI — updates DESIGN.md first | Claude |
+| Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 6 CLI subcommands (audit/diff/export/spec/migrate/init) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |
@@ -267,7 +267,7 @@ Optionally chains to `award-design` and `design-system`.
 
 #### award-design
 
-Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recommends a design archetype, calibrates atmosphere, and produces a complete DESIGN.md following the Google Stitch 9-section standard.
+Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recommends a design archetype, calibrates atmosphere, and produces a complete DESIGN.md following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter design tokens plus eight prose sections, validated by the `@google/design.md` CLI.
 
 **Usage**
 
@@ -311,7 +311,8 @@ Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recomme
 
 - [Awwwards](https://www.awwwards.com), [FWA](https://thefwa.com), [CSSDA](https://www.cssdesignawards.com) — judging criteria and SOTD/SOTY patterns
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
-- [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration, DESIGN.md standard
+- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
+- [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
 - Studio analysis: Locomotive, Active Theory, Resn, Immersive Garden, Cuberto
@@ -322,7 +323,11 @@ Produces `DESIGN.md` consumed by `design-system` for ongoing governance. Token-l
 
 #### design-system
 
-Enforce DESIGN.md tokens when creating or modifying UI components. Ensures brand consistency. When a UI/UX change is requested, DESIGN.md is updated first — then propagates to code.
+Govern `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing, and exposes six CLI-backed subcommands for the full DESIGN.md lifecycle.
+
+**Requirements**
+
+- `npx` (for the `@google/design.md` CLI wrapped by `audit`, `diff`, `export`, `spec`). Missing → subcommands fall back to manual validation against the bundled spec.
 
 **Usage**
 
@@ -331,30 +336,81 @@ Auto-activates when editing:
 - `src/features/*/components/**`
 - `DESIGN.md`, `tailwind.config.*`
 
-Also invocable directly: `/design-system`.
+Also invocable directly via `/design-system` with one of six subcommands:
+
+```bash
+/design-system audit                                # lint ./DESIGN.md, report with fix proposals
+/design-system audit ./docs/DESIGN.md -s            # save the report under .claude/output/
+/design-system diff                                 # diff ./DESIGN.md vs HEAD (git-aware)
+/design-system diff old.md new.md                   # two-file diff
+/design-system export tailwind                      # → tailwind.theme.json
+/design-system export dtcg -o tokens.json           # W3C DTCG format
+/design-system spec --rules                         # emit canonical spec + lint rules
+/design-system migrate ./legacy-DESIGN.md           # Stitch 9-section → Google standard
+/design-system init editorial                       # scaffold a minimal DESIGN.md
+```
+
+**Subcommands**
+
+| Subcommand | Purpose | Output |
+|------------|---------|--------|
+| `audit` (aliases `check`, `lint`) | Lint DESIGN.md + produce fix proposals per finding | Markdown report |
+| `diff` | Regression check between versions — git-aware default | Markdown report |
+| `export` | Convert tokens to Tailwind theme or W3C DTCG | `tailwind.theme.json` / `tokens.json` |
+| `spec` | Emit the canonical spec from the installed CLI | Markdown or JSON |
+| `migrate` | Port legacy Stitch 9-section DESIGN.md → Google standard | New DESIGN.md + backup + migration report |
+| `init` | Scaffold a minimal valid DESIGN.md (fallback from `/award-design`) | New DESIGN.md |
+
+**Flags**
+
+| Flag | Subcommand | Description |
+|------|------------|-------------|
+| `-s` | `audit`, `diff` | Save the report to `.claude/output/design-system/{sub}/{slug}/report.md` |
+| `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
+| `--json` | `audit`, `diff`, `spec` | Raw CLI JSON instead of the formatted report |
+| `--strict` | `audit` | Cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog + append exemplar suggestions when lint is clean (requires `/award-design` installed) |
+| `--rules` | `spec` | Append the active lint rules table |
+| `--rules-only` | `spec` | Output only the lint rules |
+| `--format tailwind\|dtcg` | `export` | Target format (default: `tailwind`) |
+| `--base <ref>` | `diff` | Git comparison base (default: `HEAD`) |
+
+When `dev-browser` is installed globally (`pnpm add -g dev-browser` / `npm i -g dev-browser` / `bun add -g dev-browser`), `audit` auto-suggests visual verification in its Next steps — no flag needed. Skip silently otherwise.
 
 **What it does**
 
 - Reads `DESIGN.md` before writing any UI code
-- Enforces colors, fonts, and spacing come exclusively from DESIGN.md tokens
-- Maps tokens to CSS custom properties and `tailwind.config.ts` `theme.extend`
-- Prevents arbitrary Tailwind values when a token exists
+- Enforces colors, fonts, spacing, and corner radius come exclusively from DESIGN.md YAML tokens
+- Maps tokens to CSS custom properties and `tailwind.config.ts theme.extend` — or generates via `/design-system export tailwind`
+- Prevents arbitrary Tailwind values (`text-[13px]`) when a token exists
 - Handles dark mode, framework detection, shared brand across projects
-- Maps award-design archetype output to each of the 9 DESIGN.md sections
+- Maps award-design archetype output to each of the eight DESIGN.md sections
+- **Post-edit invariant**: after any DESIGN.md mutation (token update, `migrate`, `init`), runs `audit` and surfaces findings — a mutation that leaves errors behind is never done
 
-**DESIGN.md structure (Google Stitch standard)**
+**DESIGN.md structure**
 
-1. Visual Theme & Atmosphere
-2. Color Palette & Roles
-3. Typography Rules
-4. Component Stylings
-5. Layout Principles
-6. Depth, Elevation & Material
-7. Do's and Don'ts
-8. Responsive Behavior
-9. Agent Prompt Guide
+A DESIGN.md has two layers: YAML frontmatter (normative design tokens) + eight ordered prose sections (rationale).
 
-Ships with two complete example DESIGN.md files (Claude-inspired and Stripe-inspired) in `references/`. Delegates to `award-design` when no DESIGN.md exists.
+YAML token groups: `colors`, `typography`, `rounded`, `spacing`, `components` — with `{path.to.token}` cross-references.
+
+Section order:
+
+1. **Overview** (alias: *Brand & Style*)
+2. **Colors** — `colors:` tokens
+3. **Typography** — `typography:` tokens
+4. **Layout** (alias: *Layout & Spacing*) — `spacing:` tokens + responsive strategy
+5. **Elevation & Depth** — shadow system, surface material
+6. **Shapes** — `rounded:` tokens
+7. **Components** — `components:` tokens, variants as related keys (`button-primary`, `button-primary-hover`)
+8. **Do's and Don'ts** — testable guardrails
+
+**CLI-backed lint rules** — eight rules run by `audit` (and `diff` for regression detection): `broken-ref` (error), `missing-primary`, `contrast-ratio` (WCAG AA 4.5:1), `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. See `references/cli-reference.md` for severities and fix strategies, and `references/subcommand-audit.md` for the per-rule fix-proposal logic used to compose audit reports.
+
+Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference (`references/cli-reference.md`), six subcommand reference files (`references/subcommand-*.md`), three deterministic scripts (`scripts/{audit,diff,export}.sh` matching the video-loop/markitdown pattern), and two complete example DESIGN.md files (`references/example-claude.md` — warm editorial, `references/example-stripe.md` — minimalist gradient). Delegates to `/award-design` when a DESIGN.md needs to be created from a brief.
+
+**Sources**
+
+- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — the canonical open standard this skill enforces; `@google/design.md` CLI for `lint`, `diff`, `export`, `spec`
+- [W3C Design Token Format](https://www.designtokens.org/) — token schema inspiration; `export --format dtcg` produces a compatible `tokens.json`
 
 </details>
 
@@ -649,12 +705,26 @@ Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` w
 
 ### Design → Develop
 
+Happy path, new project:
+
 ```
-/scaffold next-cloudflare   bootstrap project
+/scaffold next-cloudflare       bootstrap project
       |
-/award-design "brief"       create DESIGN.md with archetype
+/award-design "brief"           create DESIGN.md with archetype
       |
-/design-system              enforce tokens in code
+/design-system audit            lint the result, fix findings
+      |
+/design-system export tailwind  generate tailwind.theme.json
+      |
+/design-system                  enforce tokens going forward (auto-activate on UI edits)
+```
+
+Legacy project with a Stitch 9-section DESIGN.md:
+
+```
+/design-system migrate ./DESIGN.md     port to Google standard (auto-audits, writes backup)
+      |
+/design-system                         enforce tokens going forward
 ```
 
 <details>
