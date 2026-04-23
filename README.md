@@ -63,6 +63,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude Code |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude Code |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude Code |
+| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging | Claude Code |
 
 **About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill to give predictable results regardless of your session default. Opus-tier skills consume more tokens — if you're on a tight plan, you can override with the Claude Code `--model` flag or skip those skills entirely.
 
@@ -523,10 +524,10 @@ The deterministic work (install check, validation, slug, save path, command comp
 
 ### Writing Skills
 
-Structural and prose writing for project documentation — `write-clear-readme`, `fix-grammar`.
+Structural and prose writing for project documentation — `write-clear-readme`, `fix-grammar`, `humanize-en`.
 
 <details>
-<summary><em>Expand — write-clear-readme · fix-grammar</em></summary>
+<summary><em>Expand — write-clear-readme · fix-grammar · humanize-en</em></summary>
 
 <br>
 
@@ -583,6 +584,39 @@ Fix grammar and spelling errors in files while preserving formatting, meaning, a
 - Processes multiple files in parallel using subagents
 - Reports corrections count per file
 
+---
+
+#### humanize-en
+
+Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (*delve*, *tapestry*, *crucial*, *pivotal*, *underscore*, *showcase*), vague attributions, promotional tone, conjunctive padding (*moreover*, *furthermore*, *indeed*), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing.
+
+**Usage**
+
+```bash
+/humanize-en README.md                        # file — propose diff, apply on approval
+/humanize-en "paste any text to humanize"     # inline — return rewritten text
+/humanize-en                                  # ask for input
+```
+
+**What it does**
+
+1. **Detects** against a 32-pattern catalogue grouped into six families — content, language, style, communication, filler/hedging, structure
+2. **Rewrites** flagged phrasing with direct, specific alternatives — preserves code, links, anchors, quoted material, technical terms
+3. **Self-audits** — runs a second pass asking *"what still reads as AI?"* and revises
+4. **Reports** which patterns (by number) were touched, for re-auditability
+
+Invoked as a subroutine by [`write-clear-readme`](#write-clear-readme) after clarity edits, before presenting the diff. Other skills that produce substantial English prose can invoke it the same way.
+
+**Scope**
+
+- **In** — neutral pattern removal on docs, READMEs, release notes, blog drafts, PR bodies, commentary
+- **Out** — voice/personality injection (only on explicit request, via opt-in `references/voice.md`); grammar-only fixes (use `fix-grammar`); structural restructuring (use `write-clear-readme`); non-English text
+
+**Sources**
+
+- [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) (maintained by WikiProject AI Cleanup) — canonical pattern taxonomy
+- [`blader/humanizer`](https://github.com/blader/humanizer) (MIT) — pattern extensions (filler phrases, hedging, signposting, authority tropes, fragmented headers) and the voice-calibration approach used in `references/voice.md`
+
 </details>
 
 ---
@@ -631,10 +665,12 @@ graph LR
   scaffold --> award-design
   award-design <-->|DESIGN.md| design-system
 
+  write-clear-readme -.->|if installed| humanize-en
+
   style issues fill:#2d333b,stroke:#8b949e,stroke-dasharray: 5 5
 ```
 
-`oneshot` optionally escalates to `apex` or `spec` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `write-clear-readme`, `fix-grammar`) are standalone.
+`oneshot` optionally escalates to `apex` or `spec` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `humanize-en` also works standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `fix-grammar`) are standalone too.
 
 </details>
 
