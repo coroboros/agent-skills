@@ -1,25 +1,29 @@
 #!/usr/bin/env python3
 """
-prescan.py — deterministic pre-scan for the 10 highest-signal AI tells.
+prescan.py — deterministic pre-scan for 8 of the 10 highest-signal AI tells.
 
 Usage:
     prescan.py <file>
     cat file.md | prescan.py -
 
-Scans for mechanical, high-confidence patterns so the model starts from
-a hit-list rather than re-deriving the catalogue on every run. Skips
-content inside fenced code blocks, backticks, URLs, and YAML frontmatter
-— those must never be rewritten.
+Scans for the mechanical, high-confidence patterns so the model starts
+from a hit-list rather than re-deriving the catalogue on every run.
+Skips content inside fenced code blocks, backticks, URLs, and YAML
+frontmatter — those must never be rewritten.
 
-Patterns (numbered per references/patterns.md):
+Patterns covered (numbered per references/patterns.md):
    1  Significance inflation     — pivotal, testament, evolving landscape
    4  Promotional vocabulary     — nestled, breathtaking, vibrant, stunning
    7  AI vocabulary wordlist     — delve, tapestry, crucial, underscore, ...
    8  Copula avoidance           — serves as / stands as / features / boasts
    9  Negative parallelism       — "It's not just X, it's Y" / "not only ... but"
-  14  Em-dash density            — ≥ 4 em-dashes per 100 words (flagged as area hit)
+  14  Em-dash density            — ≥ 3 em-dashes per line (cheap heuristic for ≥ 4 per 100 words)
   23  Filler phrases             — in order to / it is important to note / at this point in time
   28  Signposting                — Let's dive in / Without further ado / Here's what
+
+Patterns #3 (Superficial -ing) and #10 (Rule of three) from the top-10
+SKILL.md Quick reference are deliberately LLM-only — too context-dependent
+for regex without false positives.
 
 Output (stdout):
   JSON array of hits — [{"pattern": N, "line": L, "snippet": "..."}]
