@@ -30,6 +30,8 @@ All ffmpeg work happens in `scripts/video-loop.sh` — this skill validates inpu
 | `-p` | off | Also extract a poster frame (first frame as JPEG) |
 | `-n` | off | No crossfade — optimize and encode only |
 
+> **No `-s/-S` save-mode flag.** Unlike media-cluster siblings (`/audio-loop`, `/markitdown`), video-loop outputs are web assets (MP4 / WebM / poster) the user drops directly into their site's video directory. No downstream skill consumes video files via `-f`, so the `.claude/output/<skill>/<slug>/` convention would add ceremony without enabling anything — `-o <dir>` is the direct path.
+
 ## Workflow
 
 ### 1. Validate tools
