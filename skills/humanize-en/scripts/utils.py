@@ -52,7 +52,8 @@ def mask_protected_regions(text):
     same regions the prescan did."""
 
     def _blank(m):
-        return " " * len(m.group(0))
+        # Preserve newlines so multi-line fences don't shift line numbers.
+        return "".join("\n" if c == "\n" else " " for c in m.group(0))
 
     text = re.sub(r"\A---\n.*?\n---\n", _blank, text, count=1, flags=re.DOTALL)
     text = re.sub(r"```.*?```", _blank, text, flags=re.DOTALL)

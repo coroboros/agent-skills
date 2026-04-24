@@ -22,7 +22,16 @@ Output (stdout): JSON object
     "anchors": { "unresolved": [...], "inside_details_info": [...] },
     "details": { "nested": [...], "summary_missing_br": [...] },
     "bloat": [ {"line": L, "token": "..."}, ... ],
-    "summary": { "ok": bool, "findings": N }
+    "summary": {
+      "ok": bool,
+      "findings": N,
+      "rules": {
+        "anchors":        { "findings": N, "pass": bool },
+        "nested_details": { "findings": N, "pass": bool },
+        "summary_br":     { "findings": N, "pass": bool },
+        "bloat":          { "findings": N, "pass": bool }
+      }
+    }
   }
 
 Exit:
@@ -82,7 +91,8 @@ def slugify(heading):
 # --- Masking ---------------------------------------------------------------
 
 def _blank(m):
-    return " " * len(m.group(0))
+    # Preserve newlines so line counting survives multi-line code fences.
+    return "".join("\n" if c == "\n" else " " for c in m.group(0))
 
 
 def mask_code_only(text):
@@ -198,12 +208,13 @@ def audit(text):
             if regex.search(line):
                 bloat_hits.append({"line": lineno, "token": token})
 
-    findings = (
-        len(unresolved)
-        + len(nested_lines)
-        + len(summary_missing_br)
-        + len(bloat_hits)
-    )
+    per_rule = {
+        "anchors":        {"findings": len(unresolved),          "pass": not unresolved},
+        "nested_details": {"findings": len(nested_lines),        "pass": not nested_lines},
+        "summary_br":     {"findings": len(summary_missing_br),  "pass": not summary_missing_br},
+        "bloat":          {"findings": len(bloat_hits),          "pass": not bloat_hits},
+    }
+    findings = sum(rule["findings"] for rule in per_rule.values())
 
     return {
         "anchors": {
@@ -215,7 +226,11 @@ def audit(text):
             "summary_missing_br": summary_missing_br,
         },
         "bloat": bloat_hits,
-        "summary": {"ok": findings == 0, "findings": findings},
+        "summary": {
+            "ok": findings == 0,
+            "findings": findings,
+            "rules": per_rule,
+        },
     }
 
 

@@ -157,7 +157,8 @@ def mask_protected_regions(text):
     stay intact."""
 
     def _blank(m):
-        return " " * len(m.group(0))
+        # Preserve newlines so multi-line fences don't shift line numbers.
+        return "".join("\n" if c == "\n" else " " for c in m.group(0))
 
     # YAML frontmatter at file head
     text = re.sub(r"\A---\n.*?\n---\n", _blank, text, count=1, flags=re.DOTALL)
