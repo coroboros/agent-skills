@@ -127,8 +127,9 @@ Print:
 
 **Next steps:**
 1. Configure `.dev.vars` with your Cloudflare bindings.
-2. Run `/award-design` to create DESIGN.md; `/design-system` will auto-enforce its tokens during development.
-3. `pnpm dev` to start developing.
+2. Create DESIGN.md — run `/award-design <one-line brief>`, then `/design-system audit DESIGN.md` to lint the result.
+3. `/design-system` auto-enforces the resulting tokens during subsequent UI edits.
+4. `pnpm dev` to start developing.
 ```
 
 ## Rules
