@@ -309,13 +309,12 @@ Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recomme
 
 **Sources**
 
-- [Awwwards](https://www.awwwards.com), [FWA](https://thefwa.com), [CSSDA](https://www.cssdesignawards.com) — judging criteria and SOTD/SOTY patterns
+- [Building award-winning websites (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/building-award-winning-websites-2025-2026.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
-- Studio analysis: Locomotive, Active Theory, Resn, Immersive Garden, Cuberto
 
 Produces `DESIGN.md` consumed by `design-system` for ongoing governance. Token-level changes go through `/design-system` — this skill is for initial creation and complete re-architecting only.
 

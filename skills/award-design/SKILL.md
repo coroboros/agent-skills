@@ -9,19 +9,12 @@ compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in
 metadata:
   author: coroboros
   sources:
-    - awwwards.com
-    - thefwa.com
-    - cssdesignawards.com
+    - github.com/coroboros/research/blob/main/articles/building-award-winning-websites-2025-2026.md
     - github.com/vercel-labs/web-interface-guidelines
     - github.com/google-labs-code/design.md
     - github.com/google-labs-code/stitch-skills
     - github.com/rohitg00/awesome-claude-design
     - github.com/SawyerHood/dev-browser
-    - locomotive.ca
-    - activetheory.net
-    - resn.co.nz
-    - immersive-g.com
-    - cuberto.com
 ---
 
 # Award Design
