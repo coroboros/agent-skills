@@ -1,7 +1,7 @@
 ---
 name: fix-grammar
 description: Fix grammar, spelling, and typos in files while preserving formatting, meaning, and technical terms. Corrections only — no rephrasing, no style improvements, no translation. Use whenever the user wants proofreading, typo fixes, or spelling/grammar corrections in prose files (Markdown, docs, copy) — even when they just say "proofread this", "fix typos", or "clean up the grammar".
-when_to_use: When the user wants grammar, spelling, or typo corrections in one or more prose files. Keywords — fix grammar, proofread, typos, spelling, grammar errors, corrections, clean up, check grammar. Skip when the user wants rewriting, style edits, or translation — those are different jobs. For AI-tell stripping (em-dash overuse, rule-of-three, AI vocabulary) use /humanize-en. For README restructure or clarity pass use /write-clear-readme. Skip on code files unless the request is specifically about comment/docstring grammar.
+when_to_use: When the user wants grammar, spelling, or typo corrections in one or more prose files. Keywords — fix grammar, proofread, typos, spelling, grammar errors, corrections, clean up, check grammar. Skip when the user wants rewriting, style edits, or translation — those are different jobs. For AI-tell stripping (em-dash overuse, rule-of-three, AI vocabulary) use `/humanize-en`. For README restructure or clarity pass use `/write-clear-readme`. Skip on code files unless the request is specifically about comment/docstring grammar.
 argument-hint: "<file-path> [additional-files...]"
 model: haiku
 allowed-tools: Read Edit Agent
