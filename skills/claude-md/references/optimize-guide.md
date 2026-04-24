@@ -209,7 +209,7 @@ Show before/after with line counts. Explain what was removed and why (cite categ
 
 | Metric | Target | Research Basis |
 |--------|--------|----------------|
-| Total lines | < 100 ideal, < 150 max | >200 lines = 30% directive loss |
+| Total lines | Under 200, shorter is better | >200 lines = 30% directive loss (SFEIR, 2026) |
 | Sections | 5-7 | Minimal requirements only |
 | Filler words | 0 | +45% corrections when vague |
 | Linter-duplicate rules | 0 | Already enforced = wasted tokens |

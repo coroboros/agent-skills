@@ -276,7 +276,7 @@ Don't repeat the same rules in multiple files. If a rule applies globally, put i
 - CLAUDE.md exceeds 200 lines
 
 **Use CLAUDE.md when:**
-- Project is small/simple (< 100 lines of instructions)
+- Project is small/simple (fits comfortably in a single file under 200 lines)
 - All rules are universal across the project
 - You prefer a single source of truth
 - Quick setup is priority
