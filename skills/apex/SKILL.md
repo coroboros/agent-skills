@@ -52,7 +52,7 @@ See **Parameters** below for the complete flag list.
 | `-r` | `--resume` | Resume mode: continue from a previous task |
 | `-b` | `--branch` | Branch mode: verify not on main, create branch if needed |
 | `-i` | `--interactive` | Interactive mode: configure flags via AskUserQuestion |
-| `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), spec, brainstorm report, or any file as foundational input for analysis |
+| `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), spec, brainstorm report, or any file as foundational input for analysis. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
 **Disable flags (turn OFF):**
 
