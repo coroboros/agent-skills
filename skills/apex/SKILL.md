@@ -126,14 +126,17 @@ All outputs saved to PROJECT directory (where Claude Code is running):
 
 **Resume mode (`-r {task-id}`):**
 
-When provided, step-00 will:
+Resolve the partial ID deterministically, then restore state:
 
-1. Locate the task folder in `.claude/output/apex/`
-2. Restore state from `00-context.md`
-3. Find the last completed step
-4. Continue from the next step
+```bash
+bash ${CLAUDE_SKILL_DIR}/scripts/resume_lookup.sh {partial_id}
+```
 
-Supports partial matching (e.g., `-r 01` finds `01-add-auth-middleware`).
+- Exit 0 → absolute task path on stdout; continue.
+- Exit 1 → ambiguous; candidates print on stderr. Show them to the user, ask which one.
+- Exit 2 → no match; halt with a clear error.
+
+Step-00 then restores state from `{task_dir}/00-context.md` and continues from the next pending step.
 
 For implementation details, see `steps/step-00-init.md`.
 
@@ -233,9 +236,10 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 
 **Each step then:**
 
-1. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "in_progress"`
-2. Append findings/outputs to the pre-created step file
-3. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
+1. Validate prior state: `bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {task_id} {step_num}` — exit ≠ 0 halts with the failing step named on stderr.
+2. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "in_progress"`
+3. Append findings/outputs to the pre-created step file
+4. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
 
 **Template system benefits:**
 

@@ -143,6 +143,7 @@ Progressive loading — load only the current step file:
 
 - `templates/spec.md` — the canonical spec document format used by step-02
 - `scripts/setup-labels.sh` — idempotent GitHub label creation (used by step-03)
+- `scripts/validate_spec.py` — schema + dependency-graph validator (used by step-02; requires Python 3.7+)
 
 ## Rules
 
@@ -151,6 +152,7 @@ Progressive loading — load only the current step file:
 - **Persist state variables** across all steps.
 - **ULTRA THINK** before decomposing work into workstreams.
 - **Always include concrete acceptance criteria** — every workstream, every time.
+- **Validate before finalizing.** Run `bash ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` after writing — exit 0 required. Rewrite flagged workstreams until the schema clears (3-7 workstreams; Priority/Complexity set; deps resolve; no cycles).
 
 ## Success criteria
 
