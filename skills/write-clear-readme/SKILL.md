@@ -12,6 +12,14 @@ metadata:
   author: coroboros
 ---
 
+<!--
+Exception — `disable-model-invocation: true`. READMEs are high-stakes, user-facing
+artifacts; Claude should never autonomously decide to rewrite one based on a casual
+keyword. The user must explicitly invoke via `/write-clear-readme`. The `when_to_use`
+keywords still help the user discover the skill in the `/` menu listing (per
+`claude-code-skills.md`, skill listing is independent from model auto-invocation).
+-->
+
 # Write Clear README
 
 Author, audit, or polish a README.md for clarity, conciseness, and scannable structure. Reads the repo state first; uses `<details>` collapse patterns where appropriate; proposes diffs and applies on approval.
@@ -131,7 +139,7 @@ Whether authoring, auditing, or polishing — the prose itself follows these:
 
 After any author or polish pass on English content, strip residual AI tells (em-dash overuse, rule of three, negative parallelisms, AI vocabulary, vague attributions, promotional tone, conjunctive padding like "moreover", "furthermore", "indeed").
 
-- **Invoke `/humanize-en` if installed** — detects and fixes all 29 patterns in a single pass. Run it after clarity edits land but before presenting the diff. The skill preserves structure, code blocks, links, anchors, and frontmatter.
+- **Invoke `/humanize-en` if installed** — detects and fixes all 32 patterns in a single pass. Run it after clarity edits land but before presenting the diff. The skill preserves structure, code blocks, links, anchors, and frontmatter.
 - **If the skill is not available**, scan manually for those patterns (see `humanize-en` or [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) for the full list) before shipping. Do not block on a missing skill.
 - **Audit mode:** flag suspected AI tells in the findings but do not auto-rewrite.
 - **Non-English content** — skip this step entirely; `humanize-en` is English-only.
