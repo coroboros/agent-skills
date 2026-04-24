@@ -1,7 +1,7 @@
 ---
 name: spec
 description: Transform ideas into structured execution specs with prioritized workstreams, complexity ratings, dependencies, and acceptance criteria. Use this whenever the user needs to decompose work before building — even when they don't explicitly say "spec" (e.g. "break this down", "plan this out", "create issues for", "what are the steps"). The bridge between thinking and building.
-when_to_use: When work needs to be structured into actionable workstreams before implementation. After brainstorming when the direction is clear but the work needs shape. When the user asks to "plan", "break down", "spec out", "create issues for", or "map out the steps" of a feature. NOT for exploring options — use /brainstorm. NOT for direct implementation — use /apex or /oneshot.
+when_to_use: When work needs to be structured into actionable workstreams before implementation. After brainstorming when the direction is clear but the work needs shape. When the user asks to "plan", "break down", "spec out", "create issues for", or "map out the steps" of a feature. NOT for exploring options — use `/brainstorm`. NOT for direct implementation — use `/apex` or `/oneshot`.
 argument-hint: "[-s] [-i] [-a] [-e] [-f <path>] <idea>"
 model: opus
 license: MIT
