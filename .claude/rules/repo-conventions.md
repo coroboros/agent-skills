@@ -53,13 +53,15 @@ The repo ships a Claude Code plugin marketplace manifest at `.claude-plugin/mark
 
 **Current plugins:**
 
-| Plugin | Category label | Skills |
-|--------|----------------|--------|
-| `workflow-skills` | Workflow Skills | `brainstorm`, `spec`, `apex`, `oneshot` |
-| `design-skills` | Design Skills | `scaffold`, `award-design`, `design-system` |
-| `claude-code-skills` | Claude Code Skills | `claude-md`, `agent-creator` |
-| `media-skills` | Media Skills | `video-loop`, `markitdown` |
-| `writing-skills` | Writing Skills | `write-clear-readme`, `fix-grammar` |
+| Plugin | Category label |
+|--------|----------------|
+| `workflow-skills` | Workflow Skills |
+| `design-skills` | Design Skills |
+| `claude-code-skills` | Claude Code Skills |
+| `media-skills` | Media Skills |
+| `writing-skills` | Writing Skills |
+
+See `.claude-plugin/marketplace.json` for the authoritative per-plugin skill list.
 
 **Rules:**
 

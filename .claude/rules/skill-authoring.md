@@ -8,6 +8,13 @@ Creating, updating, or evaluating a skill in this repo requires the **official A
 - Installed path (typical): `~/.agents/skills/skill-creator/`
 - Reference docs: invoke skill `/ask-analyst` if present
 
+Up-to-date mirrors of the official Anthropic documentation in the monorepo:
+
+- `coroboros/archivist/docs/insights/skills-complete-guide-to-building-skills-for-claude.md` — authoring guide
+- `coroboros/archivist/docs/insights/skills-how-anthropic-uses-skills.md` — skill categories + internal patterns
+- `coroboros/archivist/docs/developer/developer-agents-and-tools-agent-skills-*.md` — API spec + best practices
+- `coroboros/archivist/docs/code/code-skills.md` — Claude Code skill features
+
 ## When to invoke skill-creator — strict loop
 
 **Every edit to a `SKILL.md` or any of its bundled files (`references/`, `scripts/`, `templates/`, `assets/`) triggers a fresh `/skill-creator` invocation before commit.** No exceptions. No trivial-change carve-out. If the edit was not worth a review pass, it was not worth making.
