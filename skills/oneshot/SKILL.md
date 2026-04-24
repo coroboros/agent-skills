@@ -1,7 +1,7 @@
 ---
 name: oneshot
-description: Ultra-fast feature implementation using Explore → Code → Test. Ships focused changes at maximum speed, with a built-in circuit breaker that stops and recommends /apex or /spec when the task turns out more complex than it looked. Use this whenever the user wants a quick win on a single, focused task — even when they don't say "oneshot" (e.g. "just", "quickly", "small change", "#42", or a GitHub issue URL for a small fix).
-when_to_use: When the task is simple, focused, and well-defined. Quick fixes, small features, single-concern changes. When the user says "quickly", "just do", "simple change", provides a GitHub issue reference for a small fix, or describes a clearly scoped task. NOT for multi-file refactors or unfamiliar codebases — use /apex. NOT for planning — use /spec. NOT for exploring options or weighing approaches — use /brainstorm.
+description: Ultra-fast feature implementation using Explore → Code → Test. Ships focused changes at maximum speed, with a built-in circuit breaker that stops and recommends `/apex` or `/spec` when the task turns out more complex than it looked. Use this whenever the user wants a quick win on a single, focused task — even when they don't say "oneshot" (e.g. "just", "quickly", "small change", "#42", or a GitHub issue URL for a small fix).
+when_to_use: When the task is simple, focused, and well-defined. Quick fixes, small features, single-concern changes. When the user says "quickly", "just do", "simple change", provides a GitHub issue reference for a small fix, or describes a clearly scoped task. NOT for multi-file refactors or unfamiliar codebases — use `/apex`. NOT for planning — use `/spec`. NOT for exploring options or weighing approaches — use `/brainstorm`.
 argument-hint: "<description or #issue>"
 model: sonnet
 license: MIT
