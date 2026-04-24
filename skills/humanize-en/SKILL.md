@@ -51,10 +51,11 @@ The two middle branches are what actually prevent data / source-code / unknown f
 ## Process
 
 1. **Read fully** — the whole text, not one paragraph at a time. Patterns compound across sentences (rule-of-three + synonym cycling + promotional tone often ride together).
-2. **Detect** — scan against the 32 patterns in [`references/patterns.md`](./references/patterns.md). For each hit, note the pattern number and the phrase.
-3. **Draft rewrite** — replace flagged phrasing with direct, specific alternatives. Keep sentence-level meaning intact. See *Preservation rules* below for what stays verbatim and what may still be adjusted.
-4. **Self-audit** — ask: *"What still reads as obviously AI-generated?"* List remaining tells in 2–4 bullets. Revise.
-5. **Report** — present the final rewrite plus a short changelog of which patterns were touched (by number from the catalog). For file inputs, propose the diff and wait for approval before `Edit`.
+2. **Prescan mechanically** — for file inputs, run `${CLAUDE_SKILL_DIR}/scripts/prescan.py <file>` (or pipe inline text via `-`). It emits a JSON hit-list for the 8 highest-signal mechanical patterns (#1, #4, #7, #8, #9, #14, #23, #28). Start the rewrite from the flagged lines. Subjective patterns (tone, rule-of-three in context, vague attributions) stay LLM-only.
+3. **Full detect pass** — scan against the 32 patterns in [`references/patterns.md`](./references/patterns.md). The prescan catches roughly 60-70% of real hits; the full catalog catches the rest.
+4. **Draft rewrite** — replace flagged phrasing with direct, specific alternatives. Keep sentence-level meaning intact. See *Preservation rules* below for what stays verbatim and what may still be adjusted.
+5. **Self-audit** — ask: *"What still reads as obviously AI-generated?"* List remaining tells in 2–4 bullets. Revise.
+6. **Report** — present the final rewrite plus a short changelog of which patterns were touched (by number from the catalog). For file inputs, propose the diff and wait for approval before `Edit`.
 
 ## Quick reference — the 10 highest-signal tells
 
@@ -140,3 +141,4 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 
 - `references/patterns.md` — full 32-pattern catalogue with before/after examples. Load when a hit needs context or a reviewer asks *why* a phrase was flagged.
 - `references/voice.md` — optional voice calibration for opinion pieces or personal writing. Load only when the user explicitly asks for voice, personality, or a sample-matching pass.
+- `scripts/prescan.py` — regex-based pre-scan emitting a JSON hit-list for the 8 highest-signal mechanical patterns. Python 3.7+, no third-party deps. Called in Process step 2 above.
