@@ -34,6 +34,12 @@ Fix grammar and spelling errors in: $ARGUMENTS
 
 Grammar checks are per-file independent work with no shared state, so parallelism is pure latency win — N files finish in ~1× file time instead of N×.
 
+## Examples
+
+- English typos — "Thier cat wos hungrey" → "Their cat was hungry" (3 typos fixed)
+- Multilingual + accents — "J'ai deployé la fonction useEffect" → "J'ai déployé la fonction useEffect" (accent restored; code identifier untouched)
+- Code blocks stay verbatim — any fenced block is preserved even if spelling looks odd inside
+
 ## Output
 
 One line per file, aggregated at the end for multi-file runs:
