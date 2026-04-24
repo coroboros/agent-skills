@@ -60,6 +60,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |
+| Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
@@ -309,13 +310,12 @@ Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recomme
 
 **Sources**
 
-- [Awwwards](https://www.awwwards.com), [FWA](https://thefwa.com), [CSSDA](https://www.cssdesignawards.com) — judging criteria and SOTD/SOTY patterns
+- [Building award-winning websites (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/building-award-winning-websites-2025-2026.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
-- Studio analysis: Locomotive, Active Theory, Resn, Immersive Garden, Cuberto
 
 Produces `DESIGN.md` consumed by `design-system` for ongoing governance. Token-level changes go through `/design-system` — this skill is for initial creation and complete re-architecting only.
 
@@ -478,10 +478,10 @@ Expert guidance for creating, configuring, and orchestrating Claude Code subagen
 
 ### Media Skills
 
-Media conversion and polishing — `video-loop`, `markitdown`.
+Media conversion and polishing — `video-loop`, `audio-loop`, `markitdown`.
 
 <details>
-<summary><em>Expand — video-loop · markitdown</em></summary>
+<summary><em>Expand — video-loop · audio-loop · markitdown</em></summary>
 
 <br>
 
@@ -533,6 +533,59 @@ Output duration = original − crossfade duration (e.g. 8s video with 2s fade �
 **Sources**
 
 - [FFmpeg](https://ffmpeg.org) — the video pipeline this skill orchestrates
+
+---
+
+#### audio-loop
+
+Produce a gapless web-ready ambient audio loop from a source clip — auto-balance stereo, normalize loudness, encode lossless FLAC, emit the Web Audio JS pattern that unlocks playback on the first user gesture. The ffmpeg pipeline runs via a bundled `scripts/audio-loop.sh` for deterministic, typo-proof execution.
+
+**Requirements**
+
+- `ffmpeg` and `ffprobe` on PATH
+  - macOS: `brew install ffmpeg`
+  - Debian/Ubuntu: `sudo apt install ffmpeg`
+  - Windows: https://ffmpeg.org/download.html
+
+**Usage**
+
+```bash
+/audio-loop breeze.wav                  # Balance + normalize + FLAC encode
+/audio-loop breeze.wav -t -24           # Louder target (default -28 LUFS)
+/audio-loop breeze.wav -v 0.4           # Lower volume in the emitted JS snippet
+/audio-loop breeze.wav -B               # Skip stereo balance auto-correction
+/audio-loop breeze.wav -o public/audio/ # Custom output directory
+/audio-loop -s breeze.wav               # Save under .claude/output/audio-loop/breeze/
+```
+
+**Flags**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-t <LUFS>` | `-28` | Integrated loudness target |
+| `-v <0..1>` | `0.6` | Target volume baked into the emitted JS snippet |
+| `-o <dir>` | input dir | Output directory |
+| `-s` / `-S` | off | Save to `.claude/output/audio-loop/{slug}/` / force no-save |
+| `-B` | off | Disable stereo balance auto-correction |
+
+**What it does**
+
+1. Validates ffmpeg and probes the source (duration, sample rate, channels, per-channel RMS)
+2. Measures stereo imbalance — if the L/R delta exceeds 1 dB, wires a `pan` filter that attenuates the louder channel (skipped below 0.3 dB as jitter, or with `-B`)
+3. Invokes `scripts/audio-loop.sh` which chains `pan` (if needed) → `loudnorm=I=<target>:TP=-2:LRA=7` → `aresample=<source_rate>` → FLAC encode
+4. Parses `RESULT: key=value` lines from the script and reports size, final loudness, per-channel balance
+5. Emits a drop-in `<script>` snippet implementing the Web Audio unlock-on-first-gesture pattern with fade-in, tuned to the `-v` target
+
+**Why FLAC and not AAC.** Web Audio's `AudioBufferSourceNode{loop:true}` loops sample-accurate by spec, but it loops the buffer that `decodeAudioData` returned — AAC's priming samples are baked into that buffer on most browser decoders, producing an audible gap at the loop boundary. FLAC is lossless with no priming, so the decoded buffer is byte-identical to the source WAV. Trade: FLAC is ~6–8× larger than AAC 128 kbps on noise-heavy content, but still modest for typical ambient loops (a few hundred KB to low MB).
+
+**No crossfade flag.** If the user reports a lingering bump and a crossfade fix makes it *worse*, the discontinuity is at the codec layer, not the signal — the fix is format (FLAC), not masking. The skill's absence of a crossfade flag enforces this diagnostic.
+
+Ships with `references/scroll-tied-pattern.md` documenting the multiplicative factors architecture (`gain = TARGET × fadeInFactor × scrollVolumeFactor`) for cases where audio should track a visual transition like a hero video contracting out of view.
+
+**Sources**
+
+- [FFmpeg](https://ffmpeg.org) — the audio pipeline this skill orchestrates
+- [MDN Web Audio API](https://developer.mozilla.org/docs/Web/API/Web_Audio_API) — `AudioContext`, `AudioBufferSourceNode`, `GainNode` reference
 
 ---
 
@@ -696,7 +749,7 @@ Skills are designed to chain together. Each works standalone, but they're more p
 ```
 /brainstorm -s "topic"     explore and analyze
       |
-/spec -s -f brief.md       structure into workstreams
+/spec -s -f brainstorm.md  structure into workstreams
       |
 /apex -f spec.md           implement systematically
 ```

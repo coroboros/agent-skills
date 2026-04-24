@@ -1,7 +1,7 @@
 ---
 name: award-design
 description: Build award-winning websites (Awwwards SOTD 7.5+, FWA, CSSDA). Recommends the best design archetype for the brief, calibrates atmosphere, and produces a complete DESIGN.md. Applies anti-AI-slop rules and targets real judging criteria. Use when building landing pages, portfolios, product sites, or any web interface that needs to look exceptional — not for dashboards or internal tools.
-when_to_use: When starting a new web project that needs a design direction. When the user says "design this", "make it look great", "award-winning", "premium design", or asks for a visual identity. When no DESIGN.md exists and UI work is about to begin. When the user wants to change the entire visual direction of an existing project (not just token tweaks — use /design-system for those).
+when_to_use: When starting a new web project that needs a design direction. When the user says "design this", "make it look great", "award-winning", "premium design", or asks for a visual identity. When no DESIGN.md exists and UI work is about to begin. When the user wants to change the entire visual direction of an existing project (not just token tweaks — use /design-system for those). For empty directories, run /scaffold first to bootstrap the project stack, then return here.
 argument-hint: "[-u <url>] <what to build>"
 model: opus
 license: MIT
@@ -9,19 +9,12 @@ compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in
 metadata:
   author: coroboros
   sources:
-    - awwwards.com
-    - thefwa.com
-    - cssdesignawards.com
+    - github.com/coroboros/research/blob/main/articles/building-award-winning-websites-2025-2026.md
     - github.com/vercel-labs/web-interface-guidelines
     - github.com/google-labs-code/design.md
     - github.com/google-labs-code/stitch-skills
     - github.com/rohitg00/awesome-claude-design
     - github.com/SawyerHood/dev-browser
-    - locomotive.ca
-    - activetheory.net
-    - resn.co.nz
-    - immersive-g.com
-    - cuberto.com
 ---
 
 # Award Design

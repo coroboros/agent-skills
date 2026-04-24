@@ -1,6 +1,8 @@
 <project_patterns>
 CLAUDE.md patterns optimized for specific project types.
 
+**Note on Directory Structure sections.** The patterns below include a Directory Structure block for illustration. Include that section in your *actual* CLAUDE.md **only if your layout deviates from framework conventions**. For standard layouts (Next.js default, Express MVC, Vite + React), skip it — the agent discovers the structure via `ls`. See `optimize-guide.md` Category 2 for the full rationale and exception rule.
+
 <nextjs_app_router>
 ```markdown
 # [Project Name] - Next.js App Router

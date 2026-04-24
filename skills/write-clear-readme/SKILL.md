@@ -122,6 +122,11 @@ Whether authoring, auditing, or polishing — the prose itself follows these:
 - **Lists over paragraphs** when the content is enumerable (≥3 items of the same kind).
 - **Headings as questions or commands**, not topics. "Installation" is fine; "How do I install?" or "Install" reads quicker than "About installation".
 
+## Adjacent skills
+
+- **`/fix-grammar`** — optional typo / spelling pre-pass before authoring, or post-pass after polish when the source has obvious errors. Skip when the text is already clean — this skill never introduces grammar errors.
+- **`/humanize-en`** — AI-tell stripping (see next section). Called internally after clarity edits; also usable standalone.
+
 ## Remove AI traces
 
 After any author or polish pass on English content, strip residual AI tells (em-dash overuse, rule of three, negative parallelisms, AI vocabulary, vague attributions, promotional tone, conjunctive padding like "moreover", "furthermore", "indeed").
@@ -146,25 +151,24 @@ After any author or polish pass on English content, strip residual AI tells (em-
 ## Audit mode
 
 1. **Read existing README** in full.
-2. **Score against Universal rules** (structure):
+2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, and the Universal bloat token list. Exit 1 on findings; the JSON is your hit-list. Subjective prose issues (First-3-lines test, verbose passages, marketing voice in context) still need your read.
+3. **Score against Universal rules** (structure — use the script output first):
    - Is the overview (TOC / index / table) visible without clicking?
    - Do all anchors resolve? (Every heading referenced in the TOC must exist and be outside `<details>`.)
    - Are any `<details>` blocks nested?
    - Is `<br>` present after every `<summary>`?
-3. **Score against Clarity rules** (prose):
+4. **Score against Clarity rules** (prose — the script covers mechanical bloat, you cover the rest):
    - First 3 lines tell the reader what/who/why?
-   - Filler phrases present? ("in order to", "it's important to note", "please make sure to")
-   - Marketing voice present? ("powerful", "robust", "leverage", "seamlessly")
    - Verbose passages where bullets would do?
    - Code-like tokens unbacktick'd?
-4. **Detect anti-patterns**:
+5. **Detect anti-patterns**:
    - Flat signature list 50+ lines deep → recommend Pattern B
    - 10+ peer sections without grouping → recommend Pattern A
    - `<details>` wrapping a group/section heading → broken anchor, must move heading outside
-   - Nested `<details>` → flatten to one level
+   - Nested `<details>` → flatten to one level (flagged by the script)
    - Install / Quick Start / Requirements inside a `<details>` → must surface
-5. **Report** — bullet list of findings (split structure vs clarity) + proposed diff.
-6. **Apply on request** — edit `README.md` only after explicit user approval.
+6. **Report** — bullet list of findings (split structure vs clarity) + proposed diff.
+7. **Apply on request** — edit `README.md` only after explicit user approval.
 
 ## Polish mode
 

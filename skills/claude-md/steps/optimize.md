@@ -31,8 +31,7 @@ The 6 categories (full examples in the guide):
 
 - Project purpose (1–3 lines)
 - Tech stack (compact, non-obvious only)
-- Core commands (non-obvious only)
-- Testing commands
+- Commands including testing (non-obvious only)
 - Important files (non-obvious only)
 - Project-specific rules (prohibitions + constraints)
 - Workflow (only if non-standard)
@@ -48,4 +47,4 @@ The 6 categories (full examples in the guide):
 
 Show before/after with line counts. For each removal, cite which bloat category it falls under. Let the user approve before applying changes.
 
-**Target:** < 100 lines ideal, < 150 max.
+**Target:** under 200 lines per file (current Claude Code guidance). Shorter is better — adherence drops measurably past 200.

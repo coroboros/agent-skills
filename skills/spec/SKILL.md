@@ -28,7 +28,7 @@ Transform any starting point — raw text, a brainstorm report, a GitHub issue, 
 | `-i` / `--issues` | `-I` / `--no-issues` | Create GitHub issues from workstreams (implies `-s`) |
 | `-a` / `--auto` | `-A` / `--no-auto` | Skip Q&A, make reasonable assumptions |
 | `-e` / `--economy` | `-E` / `--no-economy` | No subagents, direct tools only |
-| `-f <path>` / `--from <path>` | — | Prior context — file, GitHub issue (`#N`), or URL as foundational input |
+| `-f <path>` / `--from <path>` | — | Prior context — file, GitHub issue (`#N`), or URL as foundational input. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
 Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. `{slug}` is kebab-case from `{idea}`, max 5 words.
 
@@ -143,6 +143,7 @@ Progressive loading — load only the current step file:
 
 - `templates/spec.md` — the canonical spec document format used by step-02
 - `scripts/setup-labels.sh` — idempotent GitHub label creation (used by step-03)
+- `scripts/validate_spec.py` — schema + dependency-graph validator (used by step-02; requires Python 3.7+)
 
 ## Rules
 
@@ -151,6 +152,7 @@ Progressive loading — load only the current step file:
 - **Persist state variables** across all steps.
 - **ULTRA THINK** before decomposing work into workstreams.
 - **Always include concrete acceptance criteria** — every workstream, every time.
+- **Validate before finalizing.** Run `bash ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` after writing — exit 0 required. Rewrite flagged workstreams until the schema clears (3-7 workstreams; Priority/Complexity set; deps resolve; no cycles).
 
 ## Success criteria
 

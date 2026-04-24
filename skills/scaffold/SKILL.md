@@ -14,6 +14,8 @@ metadata:
 
 Bootstrap `$ARGUMENTS` with the opinionated stack.
 
+The deterministic work — environment preflight, template overlay, `package.json` merge, post-scaffold verification — happens in three bundled scripts. This skill parses `$ARGUMENTS`, runs the framework CLI, invokes the scripts in order, and turns their `RESULT:` lines into a concise report.
+
 ## Available scaffolds
 
 | Scaffold | Framework | Infra | Stack highlights |
@@ -27,27 +29,30 @@ If the user does not specify a scaffold or is ambiguous, show this table and ask
 
 ## Workflow
 
-### 0. Verify requirements
+### 1. Preflight — environment check
 
-Before running any CLI, confirm the required tools are available. Never auto-install — ask the user.
+```bash
+bash ${CLAUDE_SKILL_DIR}/scripts/preflight.sh {project_dir}
+```
 
-- `command -v pnpm` → if missing, suggest: `! corepack enable && corepack prepare pnpm@latest --activate`
-- `node --version` → must be ≥ 22; if lower, stop and ask the user to upgrade (suggest `fnm`, `nvm`, or Volta)
+Parse `RESULT:` lines. Stop-conditions:
+- `pnpm=no` → suggest `corepack enable && corepack prepare pnpm@latest --activate`, then ask the user to retry.
+- `node=too-old` → ask the user to upgrade (suggest `fnm`, `nvm`, or Volta). Do not auto-install.
+- `target=occupied` → warn that `package.json` / framework config already exists; ask before proceeding.
+- `ok=true` → continue.
 
-Stop if anything is missing or below the minimum version.
-
-### 1. Parse arguments
+### 2. Parse arguments
 
 Extract `{scaffold}` and `{project_name}` from `$ARGUMENTS`.
 
-- If `{scaffold}` is missing or not recognized, show the table above and ask.
-- If `{project_name}` is missing, derive from current directory name or ask.
-- Accept aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`.
-- `{project_dir}` defaults to `.` (current directory). If the user specifies a path, use it.
+- `{scaffold}` missing or unknown → show the table and ask.
+- `{project_name}` missing → derive from current directory name or ask.
+- Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`.
+- `{project_dir}` defaults to `.`; respect a user-supplied path.
 
-### 2. Run the official scaffolding CLI
+### 3. Run the framework CLI
 
-Use the framework's official CLI to create the project boilerplate. This handles tsconfig, tailwind config, directory structure, and framework-version-specific files.
+Use the framework's own CLI to create the boilerplate — `tsconfig`, Tailwind config, directory structure, version-specific files.
 
 **next-cloudflare:**
 ```bash
@@ -57,54 +62,31 @@ pnpm create next-app@latest {project_dir} --typescript --tailwind --eslint=false
 **astro-cloudflare:**
 ```bash
 pnpm create astro@latest {project_dir} -- --template minimal --typescript strictest --install --no-git
-```
-Then add Cloudflare and Tailwind integrations:
-```bash
 cd {project_dir} && pnpm astro add cloudflare tailwind sitemap --yes
 ```
 
-### 3. Clean up conflicting files
+### 4. Remove conflicts
 
-Remove files that conflict with the opinionated stack:
+Delete files that conflict with the opinionated stack. The framework CLI may or may not have created them — delete idempotently.
 
-- Delete: `.eslintrc*`, `eslint.config.*`, `.prettierrc*`, `prettier.config.*`
-- Delete default CSS that will be replaced: `src/app/globals.css` content (keep file, empty it), `src/app/page.module.css`
-- For Astro: remove any default `src/pages/index.astro` content (replace with minimal placeholder)
+- `.eslintrc*`, `eslint.config.*`, `.prettierrc*`, `prettier.config.*`
+- Empty `src/app/globals.css` (keep the file, clear its contents)
+- `src/app/page.module.css`
+- For astro: replace the default `src/pages/index.astro` with a minimal placeholder
 
-### 4. Overlay shared config and rules
+### 5. Overlay templates + merge package.json scripts
 
-Read template files from `{skill_dir}/templates/shared/` and write to the project:
+```bash
+bash ${CLAUDE_SKILL_DIR}/scripts/overlay_templates.sh {scaffold} {project_name} {project_dir}
+```
 
-- Read `{skill_dir}/templates/shared/biome.json.template` → write as `biome.json`
-- Read `{skill_dir}/templates/shared/gitignore` → write as `.gitignore`
-- Read `{skill_dir}/templates/shared/worktreeinclude` → write as `.worktreeinclude`. Tells Claude Code which gitignored files to copy into fresh worktrees — see [common-workflows](https://code.claude.com/docs/en/common-workflows#copy-gitignored-files-to-worktrees).
-- Read `{skill_dir}/templates/shared/cloudflare-tooling.md` → write to `.claude/rules/cloudflare-tooling.md` (create `.claude/rules/` directory if needed). Applies to both `next-cloudflare` and `astro-cloudflare` — both ship on Workers and share the `wrangler` + `cf` CLI workflow.
+Writes `biome.json`, `.gitignore`, `.worktreeinclude`, `.claude/rules/cloudflare-tooling.md`, `CLAUDE.md`, `wrangler.jsonc`, framework-specific configs; merges opinionated scripts into `package.json` and sets `"type": "module"` / `"private": true`. Idempotent — skips existing files unless called with `--force`. Requires `jq` (brew install jq).
 
-### 5. Overlay framework-specific files
+Parse `RESULT:` lines:
+- `ok=true` → proceed.
+- `ok=partial` → some files existed; show the skipped list, ask the user whether to rerun with `--force` or keep the partial overlay.
 
-Read template files from `{skill_dir}/templates/{scaffold}/` and write to the project:
-
-**next-cloudflare:**
-- Read `CLAUDE.md` → write to project root, replace `[Project Name]` with `{project_name}`
-- Read `wrangler.jsonc.template` → write as `wrangler.jsonc`, replace `project-name` with `{project_name}`
-- Read `open-next.config.ts.template` → write as `open-next.config.ts`
-
-**astro-cloudflare:**
-- Read `CLAUDE.md` → write to project root, replace `[Project Name]` with `{project_name}`
-- Read `seo.md` → write to `.claude/rules/seo.md` (create `.claude/rules/` directory)
-- Read `astro.config.mjs.template` → write as `astro.config.mjs` (overwrite the CLI's default), replace `project-name.example` with the project's real domain if known, else leave as placeholder for the user
-- Read `wrangler.jsonc.template` → write as `wrangler.jsonc`, replace `project-name` with `{project_name}`
-
-### 6. Configure package.json scripts
-
-Read the existing `package.json` created by the CLI, read the scripts template for the selected scaffold, then merge the scripts into `package.json`:
-
-- `next-cloudflare` → `{skill_dir}/templates/next-cloudflare/scripts.json`
-- `astro-cloudflare` → `{skill_dir}/templates/astro-cloudflare/scripts.json`
-
-Also ensure `"type": "module"` and `"private": true` are set.
-
-### 7. Install additional dependencies
+### 6. Install additional dependencies
 
 **next-cloudflare:**
 ```bash
@@ -117,41 +99,48 @@ pnpm add -D wrangler @biomejs/biome drizzle-kit vitest @playwright/test
 pnpm add -D wrangler @biomejs/biome
 ```
 
-### 8. Final setup
+### 7. Init remaining files
 
-- Write `.node-version` containing `22`
-- Write `.dev.vars.example` with a comment explaining its purpose
-- Create `src/styles/global.css` if it doesn't exist (empty, for CSS custom properties)
-- Run `pnpm biome check --write .` to format everything
-- Run `pnpm typecheck` to verify clean state
+- Write `.node-version` containing `22`.
+- Write `.dev.vars.example` with a short comment explaining its purpose.
+- Create `src/styles/global.css` (empty — for CSS custom properties) if absent.
+
+### 8. Verify
+
+```bash
+bash ${CLAUDE_SKILL_DIR}/scripts/verify_scaffold.sh {project_dir}
+```
+
+Runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surfaces the first 60 diagnostic lines on stderr. `biome=fail` or `typecheck=fail` → report the diagnostics to the user with a suggested fix. Do not mark the scaffold as complete.
 
 ### 9. Summary
 
-Print a concise summary:
+Print:
 
 ```
 ## Scaffolded: {project_name} ({scaffold})
 
 **Files created/modified:**
 - CLAUDE.md, biome.json, .gitignore, .worktreeinclude, .node-version
-- [framework-specific files list]
+- [framework-specific list from overlay_templates output]
 - .claude/rules/ [if applicable]
 
 **Next steps:**
-1. Configure `.dev.vars` with your Cloudflare bindings
-2. Run `/award-design` to create your DESIGN.md (the `/design-system` skill will auto-enforce its tokens during development)
-3. `pnpm dev` to start developing
+1. Configure `.dev.vars` with your Cloudflare bindings.
+2. Create DESIGN.md — run `/award-design <one-line brief>`, then `/design-system audit DESIGN.md` to lint the result.
+3. `/design-system` auto-enforces the resulting tokens during subsequent UI edits.
+4. `pnpm dev` to start developing.
 ```
 
 ## Rules
 
-- NEVER install ESLint or Prettier — Biome handles everything
-- NEVER use CommonJS — ES modules only (`"type": "module"`)
-- ALWAYS use pnpm as package manager
-- If the target directory is not empty, warn the user and ask before proceeding
-- Do NOT create README.md — the user will write it
-- Do NOT initialize git — the user manages their own git workflow
+- NEVER install ESLint or Prettier — Biome handles everything.
+- NEVER use CommonJS — ES modules only (`"type": "module"`).
+- ALWAYS use pnpm as package manager.
+- `target=occupied` is a warning, not a hard stop — ask before proceeding.
+- Do NOT create `README.md` — the user writes it.
+- Do NOT initialize git — the user manages their own git workflow.
 
 ### astro-cloudflare specifics
 
-When scaffolding `astro-cloudflare` or later editing its `astro.config.mjs` / `wrangler.jsonc`, read `{skill_dir}/references/astro-cloudflare-notes.md` — covers `imageService`, `assets.directory`, the pre-build shim, and the Sharp pitfall.
+When scaffolding `astro-cloudflare` or later editing its `astro.config.mjs` / `wrangler.jsonc`, read `${CLAUDE_SKILL_DIR}/references/astro-cloudflare-notes.md` — covers `imageService`, `assets.directory`, the pre-build shim, and the Sharp pitfall.

@@ -2,7 +2,11 @@
 .astro/
 .open-next/
 .wrangler/
+.env
+.env.*
+!.env.example
 .dev.vars
+.claude/output/
 .claude/settings.local.json
 CLAUDE.local.md
 dist
@@ -19,3 +23,11 @@ node_modules/
 .npm
 test/node_modules/
 coverage/
+*.key
+*.pem
+*.p12
+*.pfx
+**/credentials*.json
+**/secrets*.json
+**/*-credentials.json
+**/*-secrets.json

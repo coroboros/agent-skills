@@ -1,7 +1,7 @@
 ---
 name: design-system
 description: Govern the DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius. Also exposes six CLI-backed subcommands — audit (lint + fix proposals), diff (regression check), export (Tailwind / DTCG), spec (canonical spec emission), migrate (port from legacy Stitch format), init (minimal scaffold). When a UI/UX change is requested, DESIGN.md is updated first, audited, then code propagates.
-when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. Keywords — audit, check, lint, diff, export, spec, migrate, init, DESIGN.md, tokens.
+when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. Keywords — audit, check, lint, diff, export, spec, migrate, init, DESIGN.md, tokens. For empty directories, run /scaffold first (then /award-design for a DESIGN.md) before invoking this skill.
 argument-hint: "[audit|diff|export|spec|migrate|init] [flags] [path]"
 paths:
   - src/components/**

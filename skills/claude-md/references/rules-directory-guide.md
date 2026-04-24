@@ -21,9 +21,9 @@ your-project/
 ```
 
 **Key points:**
-- All `.md` files in `.claude/rules/` are automatically loaded as project memory
-- Same priority as `.claude/CLAUDE.md`
-- No imports or configuration needed
+- All `.md` files in `.claude/rules/` are discovered automatically — no imports needed
+- Rules **without** `paths:` frontmatter load at launch, same priority as `.claude/CLAUDE.md`
+- Rules **with** `paths:` frontmatter load on-demand when Claude reads matching files (see *Path-Specific Rules* below)
 
 ## Path-Specific Rules
 
@@ -276,7 +276,7 @@ Don't repeat the same rules in multiple files. If a rule applies globally, put i
 - CLAUDE.md exceeds 200 lines
 
 **Use CLAUDE.md when:**
-- Project is small/simple (< 100 lines of instructions)
+- Project is small/simple (fits comfortably in a single file under 200 lines)
 - All rules are universal across the project
 - You prefer a single source of truth
 - Quick setup is priority
@@ -295,4 +295,4 @@ When CLAUDE.md grows too large (200+ lines):
 ## Reference
 
 Based on official Claude Code documentation:
-https://code.claude.com/docs/mcp/claude-md#modular-rules-with-clauderules
+https://code.claude.com/docs/en/memory#organize-rules-with-claude/rules/

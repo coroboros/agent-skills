@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code tooling, media, and writing",
-    "version": "1.3.0"
+    "version": "1.4.0"
   },
   "plugins": [
     {
@@ -44,11 +44,12 @@
     },
     {
       "name": "media-skills",
-      "description": "Media conversion and polishing — file-to-Markdown, looping videos",
+      "description": "Media conversion and polishing — file-to-Markdown, looping videos and audio",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/video-loop",
+        "./skills/audio-loop",
         "./skills/markitdown"
       ]
     },

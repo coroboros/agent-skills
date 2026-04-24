@@ -192,3 +192,7 @@ A well-configured agent has:
 - Description field optimized for automatic routing
 - Model selection appropriate for task complexity
 - Successfully tested on representative tasks
+
+## See also
+
+- **`/claude-md`** — author and optimize `CLAUDE.md` / `.claude/rules/*.md`. Project-wide instructions pair naturally with `.claude/agents/*.md` definitions; use this skill for the agent specs and `/claude-md` for the surrounding project memory.
