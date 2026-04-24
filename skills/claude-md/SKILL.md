@@ -250,6 +250,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 - **Section templates**: [references/section-templates.md](references/section-templates.md) — copy-paste templates for each section type
 - **Comprehensive example**: [references/comprehensive-example.md](references/comprehensive-example.md) — full production SaaS CLAUDE.md
 - **Project patterns**: [references/project-patterns.md](references/project-patterns.md) — Next.js, Express, Python, Monorepo patterns
+- **Script schemas**: [references/schemas.md](references/schemas.md) — JSON / RESULT shapes for the three deterministic scripts (audit, validate, init)
 
 ## Deterministic scripts
 
