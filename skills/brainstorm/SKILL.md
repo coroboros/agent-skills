@@ -1,7 +1,7 @@
 ---
 name: brainstorm
 description: Strategic analysis and deep thinking before implementation. Researches the problem space, challenges assumptions, weighs tradeoffs, and produces a written strategic brief with a recommendation. Use this whenever the user needs to explore options, compare approaches, or pressure-test an idea before committing — even when they don't say "brainstorm" (e.g. "should we", "what's the best way", "evaluate", "pros and cons", "think through"). Not for implementation.
-when_to_use: When the user needs to explore options before deciding. Architecture decisions, technology comparisons, strategy questions, "should we vs. should we not". When the user says "should we", "what's the best approach", "compare", "evaluate", "think through", "pros and cons", or asks an open-ended question that needs weighing. NOT for breaking down work into tasks — use /spec. NOT for implementation — use /apex or /oneshot.
+when_to_use: When the user needs to explore options before deciding. Architecture decisions, technology comparisons, strategy questions, "should we vs. should we not". When the user says "should we", "what's the best approach", "compare", "evaluate", "think through", "pros and cons", or asks an open-ended question that needs weighing. NOT for breaking down work into tasks — use `/spec`. NOT for implementation — use `/apex` or `/oneshot`.
 argument-hint: "[-s] <question or topic>"
 model: opus
 license: MIT
