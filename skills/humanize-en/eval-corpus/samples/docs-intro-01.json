@@ -1,0 +1,12 @@
+{
+  "id": "docs-intro-01",
+  "description": "API documentation intro — signposting, filler, AI vocabulary.",
+  "input": "Let's dive in. It is important to note that this endpoint is a pivotal moment in the request lifecycle and serves as the gateway to all downstream processing. Needless to say, it is crucial to underscore the importance of proper authentication.",
+  "expected_hits": [
+    {"pattern": 1, "label": "significance-inflation"},
+    {"pattern": 7, "label": "ai-vocabulary"},
+    {"pattern": 8, "label": "copula-avoidance"},
+    {"pattern": 23, "label": "filler"},
+    {"pattern": 28, "label": "signposting"}
+  ]
+}

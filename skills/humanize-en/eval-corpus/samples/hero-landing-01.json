@@ -1,0 +1,11 @@
+{
+  "id": "hero-landing-01",
+  "description": "SaaS homepage hero — em-dash overuse, AI vocabulary, negative parallelism, filler phrases.",
+  "input": "Our platform — truly powerful, endlessly scalable, and genuinely delightful — lets you delve into the intricacies of your data — effortlessly. It's not just analytics, it's insight. In order to get started, simply sign up and furthermore explore the dashboard.",
+  "expected_hits": [
+    {"pattern": 7, "label": "ai-vocabulary"},
+    {"pattern": 9, "label": "negative-parallelism"},
+    {"pattern": 14, "label": "em-dash-density"},
+    {"pattern": 23, "label": "filler"}
+  ]
+}

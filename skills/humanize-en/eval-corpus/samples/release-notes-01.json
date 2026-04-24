@@ -1,0 +1,10 @@
+{
+  "id": "release-notes-01",
+  "description": "Release notes — promotional vocabulary, copula avoidance, AI vocabulary.",
+  "input": "This release boasts a vibrant new dashboard, nestled inside our breathtaking app shell. The redesigned experience features a stunning typography system and a meticulously crafted color palette. Moreover, the interplay between light and dark modes has been showcased.",
+  "expected_hits": [
+    {"pattern": 4, "label": "promotional"},
+    {"pattern": 7, "label": "ai-vocabulary"},
+    {"pattern": 8, "label": "copula-avoidance"}
+  ]
+}

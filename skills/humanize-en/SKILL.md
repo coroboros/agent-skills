@@ -141,4 +141,7 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 
 - `references/patterns.md` — full 32-pattern catalogue with before/after examples. Load when a hit needs context or a reviewer asks *why* a phrase was flagged.
 - `references/voice.md` — optional voice calibration for opinion pieces or personal writing. Load only when the user explicitly asks for voice, personality, or a sample-matching pass.
+- `references/schemas.md` — JSON shapes for prescan hit lists, eval samples, and eval results. Consult when editing any script that produces structured output.
 - `scripts/prescan.py` — regex-based pre-scan emitting a JSON hit-list for the 8 highest-signal mechanical patterns. Python 3.7+, no third-party deps. Called in Process step 2 above.
+- `scripts/utils.py` — shared I/O helpers (`read_text`, `read_json`, `write_json`, `mask_protected_regions`, `seeded_rng`) used by the other scripts. Not invoked directly.
+- `scripts/eval_patterns.py` — runs prescan over the eval corpus (`eval-corpus/samples/*.json`), scores per-sample pass/fail, emits a JSON report per `references/schemas.md` § *eval result*. Exit 0 on full pass, 1 on any failure. Run before editing prescan patterns to baseline current coverage, then re-run to confirm no regression.
