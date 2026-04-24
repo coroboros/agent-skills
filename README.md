@@ -97,6 +97,7 @@ Strategic analysis and deep thinking before implementation. Researches the probl
 | Flag | Description |
 |------|-------------|
 | `-s` | Save report to `.claude/output/brainstorm/{slug}/brainstorm.md` |
+| `-S` | Force no-save (override any ambient save mode) |
 
 **What it does**
 
@@ -679,8 +680,8 @@ Author, audit, or polish a project README — clarity, scannable structure (Patt
 - Install / Quick Start / Requirements never inside `<details>`
 - One level of `<details>` max — nested collapsibles confuse navigation
 - Signature-first `<summary>` for Pattern B so `Ctrl+F` hits the right entry
-- One idea per sentence; front-load the verb; drop filler ("in order to", "it's important to note that")
-- No marketing voice ("powerful", "robust", "leverage", "seamlessly")
+- One idea per sentence; front-load the verb; drop filler (`in order to`, `it's important to note that`)
+- No marketing voice (`powerful`, `robust`, `leverage`, `seamlessly`)
 
 ---
 
@@ -742,7 +743,7 @@ Invoked as a subroutine by [`write-clear-readme`](#write-clear-readme) after cla
 
 ## Pipeline
 
-Skills are designed to chain together. Each works standalone, but they're more powerful combined.
+Skills are designed to chain together. Each works standalone; chaining them covers longer workflows without extra tooling.
 
 ### Thinking → Planning → Building
 
