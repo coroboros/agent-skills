@@ -26,7 +26,7 @@ Based on "Evaluating AGENTS.md" (ETH Zurich, arXiv 2602.11988, Feb 2026) — the
 - Documented test/build commands: 30% reduction in back-and-forth
 - 3-5 concrete code examples: 40% reduction in correction requests
 
-## The 7 Essential Sections
+## The 6 Essential Sections
 
 Every optimized CLAUDE.md should contain ONLY these. Nothing else.
 
@@ -53,8 +53,8 @@ Only technologies the agent can't detect from package.json/config files.
 
 **Kill:** Version numbers from lockfiles, obvious deps (React in Next.js), descriptions of what each lib does.
 
-### 3. Core Commands
-Commands the agent needs. Only non-obvious ones.
+### 3. Commands (dev, build, testing)
+Commands the agent needs. Only non-obvious ones. **Include testing commands explicitly** — research shows documented test commands reduce back-and-forth 30%.
 
 ```markdown
 ## Commands
@@ -62,21 +62,14 @@ Commands the agent needs. Only non-obvious ones.
 - `pnpm build` - Production build
 - `pnpm db:push` - Push schema changes
 - `pnpm db:seed` - Seed database
-```
-
-**Kill:** `pnpm install` (obvious), `pnpm start` (obvious), self-explanatory package.json scripts.
-
-### 4. Testing Commands
-How to run tests. The research shows documented test commands reduce back-and-forth 30%.
-
-```markdown
-## Testing
 - `pnpm test` - Run all tests
 - `pnpm test:e2e` - E2E tests (needs running dev server)
 - Single file: `pnpm vitest run path/to/file.test.ts`
 ```
 
-### 5. Important Files
+**Kill:** `pnpm install` (obvious), `pnpm start` (obvious), self-explanatory package.json scripts.
+
+### 4. Important Files
 Only files the agent wouldn't find naturally. Architecture-critical, non-obvious files.
 
 ```markdown
@@ -87,7 +80,7 @@ Only files the agent wouldn't find naturally. Architecture-critical, non-obvious
 
 **Kill:** `package.json`, `tsconfig.json`, `next.config.js`, any standard framework file the agent already knows.
 
-### 6. Project-Specific Rules (Highest Value)
+### 5. Project-Specific Rules (Highest Value)
 Prohibitions and constraints that prevent recurring mistakes. Research shows explicit prohibitions are more effective than positive guidance.
 
 ```markdown
@@ -100,7 +93,7 @@ Prohibitions and constraints that prevent recurring mistakes. Research shows exp
 
 **These are the most valuable lines in the entire file.** Each rule should encode a mistake that was made before and must not be repeated.
 
-### 7. Workflow (optional)
+### 6. Workflow (optional)
 Only if the project has a non-standard workflow.
 
 ```markdown
@@ -127,14 +120,16 @@ Delete anything ESLint, Prettier, Biome, or TypeScript strict mode handles:
 **Test:** Does `.eslintrc`, `biome.json`, or `tsconfig.json` enforce this? → Delete from CLAUDE.md.
 
 ### Category 2: Repository Overviews
-The paper proved these are useless — agents discover repo structure themselves with zero performance benefit:
+The paper proved these are useless for *standard* layouts — agents discover repo structure themselves with zero performance benefit:
 
-- Directory structure descriptions (agent can `ls`)
+- **Standard** directory structure descriptions (agent can `ls`; `src/components/` is obvious in a React project)
 - Folder explanations (`src/components/ contains React components`)
 - Architecture diagrams in text
 - "This is a monorepo" (agent sees `packages/` or `apps/`)
 - Framework defaults ("Next.js uses file-based routing")
 - Feature descriptions ("The auth module handles login")
+
+**Exception — custom or non-obvious layouts.** If your project deviates from framework conventions (feature-based `src/features/<name>/{actions,queries,schemas}/` split, unusual `packages/` boundary, custom `app/` structure), a short Directory section *does* help. The test: could the agent figure out where to put a new file without it? If yes, delete. If no, document briefly.
 
 ### Category 3: Marketing / Goals / Vision
 Zero value for code generation:
@@ -196,8 +191,7 @@ If yes → delete.
 ### Step 6: Verify essentials remain
 - [ ] Project purpose (1-3 lines)
 - [ ] Tech stack (compact, non-obvious only)
-- [ ] Core commands (non-obvious only)
-- [ ] Testing commands
+- [ ] Commands including testing (non-obvious only)
 - [ ] Important files (non-obvious only)
 - [ ] Project-specific rules (prohibitions + constraints)
 - [ ] Workflow (only if non-standard)

@@ -163,7 +163,7 @@ return (
 This example demonstrates:
 
 - Clear tech stack documentation
-- Directory structure visualization
+- Directory structure visualization — **justified here** because `src/features/` is a custom feature-based layout that deviates from Next.js defaults (per `optimize-guide.md` Category 2 exception). Standard framework layouts should skip this section.
 - Critical command distinctions (CI vs interactive)
 - Specific code patterns with examples
 - Emphasis on critical rules

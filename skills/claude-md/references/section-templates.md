@@ -100,6 +100,8 @@ Copy and adapt these section templates for your CLAUDE.md file.
 </commands_templates>
 
 <directory_structure_templates>
+*Include a Directory Structure section in your CLAUDE.md **only** if your layout deviates from framework conventions. Standard layouts (Next.js default, Express MVC, Vite + React) are bloat — the agent discovers them via `ls`. See `optimize-guide.md` Category 2.*
+
 <simple>
 ```markdown
 ## Directory Structure

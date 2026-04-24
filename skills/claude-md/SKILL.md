@@ -1,7 +1,7 @@
 ---
 name: claude-md
 description: Create and optimize CLAUDE.md memory files or .claude/rules/ modular rules for Claude Code projects. Covers file hierarchy, content structure, path-scoped rules, best practices, and anti-patterns. Use when working with CLAUDE.md files, .claude/rules directories, setting up new projects, or improving Claude Code's context awareness — even when the user just says "memory file" or mentions Claude instructions without naming the filename.
-when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE. Without a subcommand, treat the argument as free-form guidance about memory files.
+when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE, auto memory, MEMORY.md, subagent memory. Without a subcommand, treat the argument as free-form guidance about memory files.
 argument-hint: [init | optimize | revise | task description]
 model: opus
 license: MIT
@@ -70,6 +70,8 @@ All discovered files are concatenated, not overridden. More specific locations t
 Claude recurses UP from the CWD, loading all files found. Subtree `CLAUDE.md` files load on-demand when Claude reads files in those directories.
 
 `AGENTS.md` is **not** read directly. If your repo uses it for other agents, import it from CLAUDE.md with `@AGENTS.md` so both tools share one source.
+
+**Managed CLAUDE.md ≠ managed settings.** Enterprise deployments can push both, and they serve different purposes. Settings enforce (blocked tools, sandbox, auth, env); CLAUDE.md guides (coding standards, compliance reminders, behavioral instructions). Security-critical rules belong in settings — CLAUDE.md shapes Claude's behavior but is *not* a hard enforcement layer.
 
 **Monorepo strategy:** Root file defines WHEN; subtree files define HOW.
 
@@ -184,6 +186,8 @@ Claude Code v2.1.59+ adds a parallel memory system: **auto memory**. Claude save
 
 Auto memory and CLAUDE.md complement each other. CLAUDE.md is for "always do X" rules you author. Auto memory is for "Claude noticed Y" notes Claude writes. Run `/memory` to see both in one place.
 
+Subagents can maintain their own memory too — configure via `memory: user|project|local` in the subagent frontmatter. Stored at `~/.claude/agent-memory/<name>/`. See Claude Code subagent docs (`/en/sub-agents#enable-persistent-memory`) for details.
+
 ## Workflow
 
 **ALWAYS ASK FIRST: Storage Strategy**
@@ -194,7 +198,7 @@ Before creating or updating memory files, use AskUserQuestion:
 - **Option 2: Hybrid (CLAUDE.md slim + `.claude/rules/`)** *(recommended default)* — CLAUDE.md stays small: intro + `@`-imports of the active rules + a short *At a glance* for repo-specific divergences. Rules carry the actual content and can be path-scoped. Zero duplication, since rules load eager and CLAUDE.md doesn't repeat them.
 - **Option 3: Mostly `.claude/rules/`** — every rule is path-scoped and CLAUDE.md has nothing universal worth stating at the top level.
 
-*Both CLAUDE.md and `.claude/rules/*.md` load at launch — the slim-hub pattern doesn't lose content, it places it in focused files instead of one long CLAUDE.md.*
+*CLAUDE.md and non-path-scoped `.claude/rules/*.md` load at launch; path-scoped rules (`paths:` frontmatter) load on-demand when Claude reads matching files. Either way the slim-hub pattern doesn't lose content, it places it in focused files instead of one long CLAUDE.md.*
 
 **Creating new memory:**
 
@@ -220,6 +224,8 @@ Before creating or updating memory files, use AskUserQuestion:
 | Path rules not applying | Verify glob pattern matches target files |
 | Debug which instructions load | Use the `InstructionsLoaded` hook to log files, timing, and reasons |
 | Monorepo picks up irrelevant files | Add `claudeMdExcludes` glob patterns in `.claude/settings.local.json` |
+| Memory files not loading from `--add-dir` | Set `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` — `--add-dir` alone gives file access, this env var adds CLAUDE.md/rules loading |
+| CLAUDE.md guidance ignored for security-critical rules | CLAUDE.md is guidance, not enforcement. Use `--append-system-prompt` for strict-compliance automation, or push rules into `permissions.deny`/`sandbox.enabled` settings |
 
 **Tips:**
 

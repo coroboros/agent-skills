@@ -31,8 +31,7 @@ The 6 categories (full examples in the guide):
 
 - Project purpose (1–3 lines)
 - Tech stack (compact, non-obvious only)
-- Core commands (non-obvious only)
-- Testing commands
+- Commands including testing (non-obvious only)
 - Important files (non-obvious only)
 - Project-specific rules (prohibitions + constraints)
 - Workflow (only if non-standard)
