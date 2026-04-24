@@ -749,7 +749,7 @@ Skills are designed to chain together. Each works standalone, but they're more p
 ```
 /brainstorm -s "topic"     explore and analyze
       |
-/spec -s -f brief.md       structure into workstreams
+/spec -s -f brainstorm.md  structure into workstreams
       |
 /apex -f spec.md           implement systematically
 ```
