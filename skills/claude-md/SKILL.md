@@ -236,8 +236,8 @@ Before creating or updating memory files, use AskUserQuestion:
 
 The skill supports three argument-driven workflows via `$ARGUMENTS`. Load the matching step file when the argument is present:
 
-- **`init`** — Scaffold a minimal CLAUDE.md. See [steps/init.md](steps/init.md).
-- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). **Always read `references/optimize-guide.md` first.**
+- **`init`** — Scaffold a minimal CLAUDE.md. See [steps/init.md](steps/init.md). Uses `bash ${CLAUDE_SKILL_DIR}/scripts/init_structure.sh <mode>` for the file layout.
+- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `bash ${CLAUDE_SKILL_DIR}/scripts/audit_claude_md.py <path>` — the JSON hit-list is your fix list. Read `references/optimize-guide.md` for the WHY behind each category.
 - **`revise`** — Capture session learnings into CLAUDE.md. See [steps/revise.md](steps/revise.md).
 
 Without a subcommand, treat the argument as free-form guidance about memory files and answer from the sections above.
@@ -250,3 +250,13 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 - **Section templates**: [references/section-templates.md](references/section-templates.md) — copy-paste templates for each section type
 - **Comprehensive example**: [references/comprehensive-example.md](references/comprehensive-example.md) — full production SaaS CLAUDE.md
 - **Project patterns**: [references/project-patterns.md](references/project-patterns.md) — Next.js, Express, Python, Monorepo patterns
+
+## Deterministic scripts
+
+- `scripts/audit_claude_md.py` — line-count + 6-category bloat scan + `@import` resolver. Run first before optimize/revise — the JSON output is your hit-list. Python 3.7+.
+- `scripts/validate_rule_file.py` — YAML frontmatter + `paths:` glob validator for `.claude/rules/*.md`. Python 3.7+.
+- `scripts/init_structure.sh` — idempotent scaffold for the three storage strategies (`single`, `hybrid`, `rules-only`). Never overwrites.
+
+## See also
+
+- **`/agent-creator`** — subagent configuration and orchestration. A CLAUDE.md that defines project-wide instructions often pairs with `.claude/agents/*.md` files; use `/agent-creator` to author those.
