@@ -1,0 +1,6 @@
+{
+  "id": "clean-prose-01",
+  "description": "Negative control — human-edited prose with no AI tells. Verifies no false positives.",
+  "input": "The function returns a promise that resolves when the fetch completes. If the server responds with a 4xx or 5xx status, the promise rejects with the status code and the response body. Callers can catch both cases with a single try/catch block.",
+  "expected_hits": []
+}

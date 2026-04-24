@@ -1,7 +1,7 @@
 ---
 name: humanize-en
 description: Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (delve, tapestry, crucial, pivotal, underscore, showcase), vague attributions, promotional tone, conjunctive padding (moreover, furthermore, indeed), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing. Operates on inline text or a prose file path. Based on Wikipedia's Signs of AI writing (canonical taxonomy) with pattern extensions and the voice-calibration approach from github.com/blader/humanizer.
-when_to_use: Invoke whenever English prose needs to sound less machine-generated — READMEs, docs, release notes, blog drafts, PR bodies, marketing copy, commit messages, commentary. Triggers on phrases like "humanize this", "remove AI tells", "clean up the AI slop", "sounds like ChatGPT", "make this less AI-sounding", "polish the English", "strip AI patterns". Also invoked as a subroutine by other writing skills (e.g., write-clear-readme) to scrub drafts before shipping. Skip for grammar-only fixes (use fix-grammar instead), structural restructuring of a README (use write-clear-readme instead), non-English text, or content where AI-authored tone is intentional (transcripts, dataset labels).
+when_to_use: Invoke whenever English prose needs to sound less machine-generated — READMEs, docs, release notes, blog drafts, PR bodies, marketing copy, commit messages, commentary. Triggers on phrases like "humanize this", "remove AI tells", "clean up the AI slop", "sounds like ChatGPT", "make this less AI-sounding", "polish the English", "strip AI patterns". Also invoked as a subroutine by other writing skills (e.g., `/write-clear-readme`) to scrub drafts before shipping. Skip for grammar-only fixes (use `/fix-grammar` instead), structural restructuring of a README (use `/write-clear-readme` instead), non-English text, or content where AI-authored tone is intentional (transcripts, dataset labels).
 argument-hint: "[file-path | inline text]"
 model: sonnet
 allowed-tools: Read Write Edit Grep Glob
@@ -32,7 +32,7 @@ Resolve `$ARGUMENTS` as follows:
 |-------------|----------|
 | Empty | Ask the user to paste text or provide a file path. Do not guess. |
 | Prose file path | `Read` the file. Audit, propose a diff, apply only on explicit approval via `Edit`. |
-| Non-prose file path | Refuse: *"Non-prose file — this skill targets prose documents, not structured data or source code."* Direct the user to `fix-grammar` for docstring grammar, or to rewrite comments manually. |
+| Non-prose file path | Refuse: *"Non-prose file — this skill targets prose documents, not structured data or source code."* Direct the user to `/fix-grammar` for docstring grammar, or to rewrite comments manually. |
 | Inline text (anything else) | Humanize in place and return the rewritten text in the chat. |
 
 **Prose extensions** (treat as file): `.md`, `.mdx`, `.txt`, `.rst`, `.tex`, `.html`, `.adoc`.
@@ -133,12 +133,15 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 
 ## When to defer to another skill
 
-- Pure spelling or grammar errors → `fix-grammar`.
-- Structural problems (wrong headings, missing TOC, collapse patterns) → `write-clear-readme`.
+- Pure spelling or grammar errors → `/fix-grammar`.
+- Structural problems (wrong headings, missing TOC, collapse patterns) → `/write-clear-readme`.
 - The text is in a non-English language → stop and tell the user; this skill is English-only by design.
 
 ## Reference
 
 - `references/patterns.md` — full 32-pattern catalogue with before/after examples. Load when a hit needs context or a reviewer asks *why* a phrase was flagged.
 - `references/voice.md` — optional voice calibration for opinion pieces or personal writing. Load only when the user explicitly asks for voice, personality, or a sample-matching pass.
+- `references/schemas.md` — JSON shapes for prescan hit lists, eval samples, and eval results. Consult when editing any script that produces structured output.
 - `scripts/prescan.py` — regex-based pre-scan emitting a JSON hit-list for the 8 highest-signal mechanical patterns. Python 3.7+, no third-party deps. Called in Process step 2 above.
+- `scripts/utils.py` — shared I/O helpers (`read_text`, `read_json`, `write_json`, `mask_protected_regions`, `seeded_rng`) used by the other scripts. Not invoked directly.
+- `scripts/eval_patterns.py` — runs prescan over the eval corpus (`eval-corpus/samples/*.json`), scores per-sample pass/fail, emits a JSON report per `references/schemas.md` § *eval result*. Exit 0 on full pass, 1 on any failure. Run before editing prescan patterns to baseline current coverage, then re-run to confirm no regression.
