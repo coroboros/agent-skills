@@ -44,11 +44,12 @@
     },
     {
       "name": "media-skills",
-      "description": "Media conversion and polishing — file-to-Markdown, looping videos",
+      "description": "Media conversion and polishing — file-to-Markdown, looping videos and audio",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/video-loop",
+        "./skills/audio-loop",
         "./skills/markitdown"
       ]
     },
