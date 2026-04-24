@@ -1,7 +1,7 @@
 ---
 name: video-loop
 description: Create a seamless looping background video — crossfade the loop point, encode optimized MP4 + WebM, optional poster frame. Use whenever the user has a video that needs to loop for web use (hero sections, backgrounds, landing-page ambience), wants to fix a visible jump at the loop point, or needs to optimize a clip for web delivery — even if they just say "make this loop smoothly" or "compress this for the site".
-when_to_use: When the user has a video that needs to loop seamlessly on the web (hero sections, backgrounds). When the end-to-start transition is visible and needs a crossfade fix. When optimizing video assets for web delivery (MP4 + WebM). Keywords — loop, video, background, hero, seamless, crossfade, encode, webm, mp4, ffmpeg, compress video, optimize video. Skip when the user needs audio processing, cuts/trimming beyond looping, or motion-graphics work — those are different jobs.
+when_to_use: When the user has a video that needs to loop seamlessly on the web (hero sections, backgrounds). When the end-to-start transition is visible and needs a crossfade fix. When optimizing video assets for web delivery (MP4 + WebM). Keywords — loop, video, background, hero, seamless, crossfade, encode, webm, mp4, ffmpeg, compress video, optimize video. For audio loops use /audio-loop (sibling skill, parallel architecture — loudness + gapless FLAC + Web Audio snippet). Skip when the user needs audio processing, cuts/trimming beyond looping, or motion-graphics work — those are different jobs.
 argument-hint: "<input.mp4> [options] — e.g. /video-loop hero.mp4 -d 1.5"
 model: sonnet
 allowed-tools: Bash(ffmpeg *) Bash(ffprobe *) Bash(command *) Bash(bash *) Bash(stat *) Read

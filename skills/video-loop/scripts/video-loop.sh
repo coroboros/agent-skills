@@ -22,6 +22,12 @@
 #
 # Emits a machine-readable summary on stdout prefixed with "RESULT:", one
 # key=value per line. Consumers parse these to report file sizes and deltas.
+#
+# Exit codes:
+#   0   success — output matches expected duration and codec
+#   1   input / tool validation error, or `-d >= duration/2`
+#   3   encoded successfully but post-condition check failed (output
+#       duration off by more than 0.2s, or MP4 codec not H.264)
 
 set -euo pipefail
 
@@ -129,6 +135,30 @@ if [[ $POSTER -eq 1 ]]; then
   ffmpeg -y -loglevel warning -ss 0 -i "$MP4" -frames:v 1 -q:v 3 -update 1 "$POSTER_JPG"
 fi
 
+# --- Post-condition checks --------------------------------------------------
+
+# Expected output duration = input − FADE when a crossfade was applied,
+# or = input when -n was passed. Tolerance 0.2s for codec rounding.
+MP4_DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$MP4")
+if [[ $NO_FADE -eq 1 ]]; then
+  EXPECTED_DURATION=$DURATION
+else
+  EXPECTED_DURATION=$(awk -v d="$DURATION" -v f="$FADE" 'BEGIN { printf "%.6f", d - f }')
+fi
+DURATION_DELTA=$(awk -v a="$MP4_DURATION" -v e="$EXPECTED_DURATION" 'BEGIN { d = a - e; printf "%.3f", (d < 0 ? -d : d) }')
+
+MP4_CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$MP4")
+WEBM_CODEC=$(ffprobe -v error -select_streams v:0 -show_entries stream=codec_name -of csv=p=0 "$WEBM")
+
+DURATION_OK=1
+CODEC_OK=1
+if awk -v d="$DURATION_DELTA" 'BEGIN { exit !(d > 0.2) }'; then
+  DURATION_OK=0
+fi
+if [[ "$MP4_CODEC" != "h264" ]] || [[ "$WEBM_CODEC" != "vp9" ]]; then
+  CODEC_OK=0
+fi
+
 # --- Summary ----------------------------------------------------------------
 
 MP4_BYTES=$(stat -f%z "$MP4" 2>/dev/null || stat -c%s "$MP4")
@@ -140,10 +170,28 @@ echo "RESULT: fade_seconds=$FADE"
 echo "RESULT: no_fade=$NO_FADE"
 echo "RESULT: mp4_path=$MP4"
 echo "RESULT: mp4_bytes=$MP4_BYTES"
+echo "RESULT: mp4_codec=$MP4_CODEC"
+echo "RESULT: mp4_duration=$MP4_DURATION"
+echo "RESULT: expected_duration=$EXPECTED_DURATION"
+echo "RESULT: duration_delta=$DURATION_DELTA"
 echo "RESULT: webm_path=$WEBM"
 echo "RESULT: webm_bytes=$WEBM_BYTES"
+echo "RESULT: webm_codec=$WEBM_CODEC"
 if [[ $POSTER -eq 1 ]]; then
   POSTER_BYTES=$(stat -f%z "$POSTER_JPG" 2>/dev/null || stat -c%s "$POSTER_JPG")
   echo "RESULT: poster_path=$POSTER_JPG"
   echo "RESULT: poster_bytes=$POSTER_BYTES"
 fi
+
+if [[ "$DURATION_OK" -eq 0 ]]; then
+  echo "RESULT: error=duration-mismatch actual=$MP4_DURATION expected=$EXPECTED_DURATION delta=$DURATION_DELTA"
+  echo "RESULT: ok=false"
+  exit 3
+fi
+if [[ "$CODEC_OK" -eq 0 ]]; then
+  echo "RESULT: error=codec-mismatch mp4=$MP4_CODEC webm=$WEBM_CODEC expected=h264/vp9"
+  echo "RESULT: ok=false"
+  exit 3
+fi
+
+echo "RESULT: ok=true"

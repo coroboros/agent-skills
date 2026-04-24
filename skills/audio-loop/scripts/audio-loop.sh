@@ -23,6 +23,12 @@
 #
 # Emits a machine-readable summary on stdout prefixed with "RESULT:", one
 # key=value per line. Consumers parse these to compose the user-facing report.
+#
+# Exit codes:
+#   0   success — output within post-condition tolerance
+#   1   input / tool validation error, or self-overwrite guard hit
+#   3   encoded successfully but post-condition check failed (output LUFS
+#       more than ±1 from target — indicates a loudnorm regression)
 
 set -euo pipefail
 
@@ -143,6 +149,20 @@ fi
 
 OUTPUT_BYTES=$(stat -f%z "$OUTPUT" 2>/dev/null || stat -c%s "$OUTPUT")
 
+# --- Post-condition checks --------------------------------------------------
+
+# Integrated loudness within ±1 LUFS of the target. Outside this window
+# suggests loudnorm failed to converge — surface loud and fail the call so
+# the caller doesn't ship a mis-leveled loop.
+LUFS_OK=1
+LUFS_DELTA=""
+if [[ -n "${OUT_LUFS:-}" ]]; then
+  LUFS_DELTA=$(awk -v o="$OUT_LUFS" -v t="$LUFS_TARGET" 'BEGIN { d = o - t; printf "%.3f", (d < 0 ? -d : d) }')
+  if awk -v d="$LUFS_DELTA" 'BEGIN { exit !(d > 1.0) }'; then
+    LUFS_OK=0
+  fi
+fi
+
 # --- Summary ----------------------------------------------------------------
 
 echo "RESULT: input_path=$INPUT_ABS"
@@ -160,6 +180,15 @@ if [[ "$CHANNELS" -eq 2 ]]; then
 fi
 echo "RESULT: lufs_target=$LUFS_TARGET"
 echo "RESULT: lufs_out=${OUT_LUFS:-}"
+echo "RESULT: lufs_delta=${LUFS_DELTA:-}"
 echo "RESULT: peak_out=${OUT_PEAK:-}"
 echo "RESULT: output_path=$OUTPUT"
 echo "RESULT: output_bytes=$OUTPUT_BYTES"
+
+if [[ "$LUFS_OK" -eq 0 ]]; then
+  echo "RESULT: error=lufs-out-of-range actual=$OUT_LUFS target=$LUFS_TARGET delta=$LUFS_DELTA"
+  echo "RESULT: ok=false"
+  exit 3
+fi
+
+echo "RESULT: ok=true"
