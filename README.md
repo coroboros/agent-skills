@@ -62,9 +62,10 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
+| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
-| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging | Claude |
+| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; optional `-f BRAND-VOICE.md` | Claude |
 
 **About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill to give predictable results regardless of your session default. Opus-tier skills consume more tokens — if you're on a tight plan, you can override with the Claude Code `--model` flag or skip those skills entirely.
 
@@ -644,12 +645,80 @@ The deterministic work (install check, validation, slug, save path, command comp
 
 ### Writing Skills
 
-Structural and prose writing for project documentation — `write-clear-readme`, `fix-grammar`, `humanize-en`.
+Structural and prose writing for project documentation — `brand-voice`, `write-clear-readme`, `fix-grammar`, `humanize-en`.
 
 <details>
-<summary><em>Expand — write-clear-readme · fix-grammar · humanize-en</em></summary>
+<summary><em>Expand — brand-voice · write-clear-readme · fix-grammar · humanize-en</em></summary>
 
 <br>
+
+#### brand-voice
+
+Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mirrors the `design-system` pattern: a canonical file at the project root, four CLI-style subcommands. Produces a YAML frontmatter (machine-readable rules) plus eleven prose sections (human rationale). Consumed by writing skills via `-f`.
+
+**Usage**
+
+```bash
+/brand-voice extract -u https://example.com/about               # ingest URL → ./BRAND-VOICE.md
+/brand-voice extract -f ~/notes/style.md                        # ingest a local MD file
+/brand-voice extract -d ~/style-archive/                        # ingest a folder of MDs
+/brand-voice extract -n <notion-page-id>                        # ingest a Notion page (MCP)
+/brand-voice extract                                            # interview mode (8 questions)
+/brand-voice extract -u https://x.com -f ./notes.md             # combine multiple sources
+/brand-voice extract -o ./assets/voice.md -u https://x.com      # override output path
+
+/brand-voice update -u https://example.com/v2                   # refresh from new sources
+/brand-voice diff HEAD~5 HEAD                                   # show what changed (git-aware)
+/brand-voice validate                                           # lint ./BRAND-VOICE.md against canonical format
+/brand-voice lint ./assets/voice.md                             # alias on a custom path
+/brand-voice show --rules                                       # print testable rules
+/brand-voice show --all                                         # rules + examples + counter-examples
+```
+
+**Subcommands**
+
+| Subcommand | Purpose |
+|------------|---------|
+| `extract` | Ingest sources, synthesise canonical voice doc, write to `./BRAND-VOICE.md` |
+| `update` | Refresh an existing voice doc; preserves manual sections; shows diff before write |
+| `diff` | Read-only — what changed between two versions or two refs (git-aware) |
+| `validate` (aliases: `lint`, `check`) | Lint a voice doc against the canonical format — verdict + errors + warnings + fix suggestions, CI-friendly exit codes |
+| `show` | Print the flat list of testable rules from the voice doc |
+
+**Flags**
+
+| Flag | Meaning |
+|------|---------|
+| `-u <url>` | URL source — `WebFetch` direct, fallback to `/markitdown -s <url>` |
+| `-n <id\|url>` | Notion page — via `mcp__claude_ai_Notion__notion-fetch` |
+| `-d <dir>` | Folder of MD/MDX — `Glob` aggregate |
+| `-f <file>` | Single MD/MDX/TXT file |
+| `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
+| `-s` / `-S` | Save / disable save under `.claude/output/brand-voice/{slug}/voice.md` |
+
+**What it does**
+
+1. **Ingests** sources from URL, Notion, MD file, MD directory, or interactive interview
+2. **Synthesises** the canonical format — YAML normative rules (forbidden lexicon, rewrite rules with stable `rule_id`s, sentence norms, forbidden patterns, contexts, pronouns) plus eleven prose sections explaining each rule
+3. **Lints** every write through `voice_lint.py` — RED never reaches disk
+4. **Diffs** semantically — shows added/removed lexicon, modified rules, prose changes, manual-section preservation
+5. **Surfaces** the rules — `show --rules` emits 30-60 lines of flat rules consumed by `humanize-en -f` and pipeable to other tooling
+
+**Pipeline**
+
+```
+/brand-voice extract -u https://example.com/about
+      |
+/humanize-en -f ./BRAND-VOICE.md draft.md
+      → universal AI-tells + brand-specific rewrite rules applied
+```
+
+**Sources**
+
+- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — the architectural pattern this skill mirrors (canonical project-root file, lifecycle subcommands)
+- [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) — overlap with universal AI-tells; `humanize-en` consumes the brand voice rules in addition
+
+---
 
 #### write-clear-readme
 
@@ -781,6 +850,20 @@ Legacy project with a Stitch 9-section DESIGN.md:
 /design-system                         enforce tokens going forward
 ```
 
+### Voice → Write
+
+Define a brand voice once; apply it on every prose draft.
+
+```
+/brand-voice extract -u <brand-url>      ingest sources → ./BRAND-VOICE.md (lints automatically)
+      |
+/humanize-en -f BRAND-VOICE.md draft.md  apply universal AI-tells + brand-specific rules
+      |
+/brand-voice update -u <new-source>      refresh as the voice evolves; diff before merge
+```
+
+`/brand-voice extract` accepts URL (`-u`), Notion (`-n`), MD file (`-f`), MD directory (`-d`), or interview mode when no source is provided.
+
 <details>
 <summary><strong>Dependency Graph</strong></summary>
 
@@ -799,12 +882,13 @@ graph LR
   scaffold --> award-design
   award-design <-->|DESIGN.md| design-system
 
+  brand-voice -->|"BRAND-VOICE.md / -f"| humanize-en
   write-clear-readme -.->|if installed| humanize-en
 
   style issues fill:#2d333b,stroke:#8b949e,stroke-dasharray: 5 5
 ```
 
-`oneshot` optionally escalates to `apex` or `spec` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `humanize-en` also works standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `fix-grammar`) are standalone too.
+`oneshot` optionally escalates to `apex` or `spec` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `brand-voice` produces `BRAND-VOICE.md` consumed by `humanize-en -f` for brand-aware rewriting; both work standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `fix-grammar`) are standalone too.
 
 </details>
 
