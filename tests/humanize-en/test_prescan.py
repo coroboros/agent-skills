@@ -38,9 +38,13 @@ class TestSignificanceInflation(unittest.TestCase):
 
     def test_does_not_trigger_pivotal_alone(self):
         """`pivotal` outside the `pivotal moment/role` collocation belongs to pattern 7
-        (ai-vocabulary), not pattern 1."""
-        hits = _hits_for_pattern("That decision was pivotal.", 1)
-        self.assertEqual(hits, [])
+        (ai-vocabulary), not pattern 1. We assert BOTH directions so this test
+        cannot quietly lie if pattern 1 regex breaks (the filter would mask the
+        regression). Pattern 7 must still trigger on bare `pivotal`."""
+        text = "That decision was pivotal."
+        self.assertEqual(_hits_for_pattern(text, 1), [])
+        self.assertGreater(len(_hits_for_pattern(text, 7)), 0,
+                           "pattern 7 should trigger on bare 'pivotal'")
 
 
 class TestPromotional(unittest.TestCase):

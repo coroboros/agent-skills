@@ -86,5 +86,64 @@ class TestArchetypeSelectorTable(unittest.TestCase):
         self.assertEqual(len(rows), 9, f"expected 9 archetype rows, found {len(rows)}")
 
 
+class TestAtmosphereCalibration(unittest.TestCase):
+    """Atmosphere Calibration in SKILL.md has two tables that drive design decisions:
+    (1) the axis-range table (3 axes × 3 ranges) and (2) the default-scores table
+    (9 archetypes × 3 axes). Both must stay aligned with the archetype list — drift
+    here corrupts the calibration step of the workflow silently."""
+
+    AXES = ["Density", "Variance", "Motion"]
+
+    def _atmosphere_section(self):
+        text = SKILL_MD.read_text(encoding="utf-8")
+        m = re.search(r"### Atmosphere Calibration\s*\n(.*?)(?=^##|\Z)",
+                      text, re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "Atmosphere Calibration section missing")
+        return m.group(1)
+
+    def test_axis_table_lists_three_axes(self):
+        """The axis-range table has one body row per axis (Density, Variance, Motion)."""
+        section = self._atmosphere_section()
+        for axis in self.AXES:
+            with self.subTest(axis=axis):
+                pattern = rf"\|\s*\*\*{axis}\*\*\s*\|"
+                self.assertRegex(section, pattern, f"axis row for '{axis}' missing")
+
+    def test_default_scores_row_per_archetype(self):
+        """Each archetype must have a row in the default-scores table with three numeric scores."""
+        section = self._atmosphere_section()
+        # Map kebab → display name as it appears in the scores table (Title Case with separators)
+        display_names = {
+            "minimalist": "Minimalist",
+            "brutalist": "Brutalist",
+            "editorial": "Editorial",
+            "bold-maximal": "Bold / Maximal",
+            "immersive-cinematic": "Immersive / Cinematic",
+            "experimental": "Experimental",
+            "corporate-luxury": "Corporate Luxury",
+            "bento-card": "Bento / Card",
+            "spatial-organic": "Spatial Organic",
+        }
+        for archetype in ARCHETYPES:
+            display = display_names[archetype]
+            with self.subTest(archetype=archetype):
+                # Match `| Display | <int> | <int> | <int> |` row
+                pattern = rf"\|\s*{re.escape(display)}\s*\|\s*\d+\s*\|\s*\d+\s*\|\s*\d+\s*\|"
+                self.assertRegex(section, pattern,
+                                 f"default-scores row for '{display}' missing or malformed")
+
+    def test_score_values_in_range(self):
+        """Default scores are 1-10 per the axis-range table."""
+        section = self._atmosphere_section()
+        # Pick all rows that look like `| Name | N | N | N |` — three integer cells
+        rows = re.findall(r"\|\s*[\w /]+?\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|", section)
+        self.assertGreaterEqual(len(rows), 9, "expected at least 9 score rows")
+        for row in rows:
+            for score in row:
+                value = int(score)
+                self.assertGreaterEqual(value, 1, f"score {value} below 1")
+                self.assertLessEqual(value, 10, f"score {value} above 10")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -47,6 +47,18 @@ class TestBloatCategories(unittest.TestCase):
         ):
             self.assertIn(cat, BLOAT_CATEGORIES, f"{cat} category missing")
 
+    def test_every_category_has_patterns(self):
+        """Catches a subtle regression where a category key exists but the pattern
+        list is empty — the bloat scan would silently skip the category. Without
+        this assertion, deletion of patterns goes undetected."""
+        for cat, patterns in BLOAT_CATEGORIES.items():
+            with self.subTest(category=cat):
+                self.assertGreater(len(patterns), 0,
+                                   f"{cat}: pattern list is empty — scan would skip silently")
+                for pattern in patterns:
+                    self.assertIsInstance(pattern, str)
+                    self.assertGreater(len(pattern), 0)
+
     def test_linter_enforced_triggers_eslint(self):
         hits = scan_bloat(["Use eslint and prettier"])
         cats = [h["category"] for h in hits]

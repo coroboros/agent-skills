@@ -105,6 +105,24 @@ class TestCompatibilityField(unittest.TestCase):
                                  f"{skill.name}: non-canonical compatibility text")
 
 
+class TestModelEnum(unittest.TestCase):
+    """If `model:` is declared, it must be one of haiku|sonnet|opus per Claude Code
+    convention. Free-form strings (or typos like 'sonett') silently ignored at runtime —
+    this test pins the enum so a typo surfaces in CI, not in production session start."""
+
+    ALLOWED_MODELS = {"haiku", "sonnet", "opus"}
+
+    def test_model_in_allowed_set(self):
+        for skill in get_skill_dirs():
+            with self.subTest(skill=skill.name):
+                fm, _ = load_frontmatter(skill)
+                model = fm.get("model")
+                if model is None:
+                    continue  # model is optional
+                self.assertIn(model, self.ALLOWED_MODELS,
+                              f"{skill.name}: model='{model}' not in {self.ALLOWED_MODELS}")
+
+
 class TestNoXMLMarkupInFrontmatter(unittest.TestCase):
     """The spec forbids XML markup in frontmatter (e.g., `<workflow>...</workflow>`).
     Angle brackets inside argument-hint placeholders (`<file-path>`) are conventional

@@ -67,6 +67,33 @@ class TestSplitBlocks(unittest.TestCase):
         blocks = split_blocks(content)
         self.assertEqual([b[0] for b in blocks], ["WS-1"])
 
+    def test_heading_without_colon_silently_skipped(self):
+        """WS_HEADING regex requires a colon: `### WS-1: title`. A malformed heading
+        like `### WS-1 title` silently fails to register as a workstream — pinning
+        this so a future regex relaxation surfaces in CI."""
+        content = (
+            "# Spec\n\n## Workstreams\n\n"
+            "### WS-1 no colon here\n\n"  # malformed
+            "| Priority | P0 |\n| Complexity | M |\n| Depends on | — |\n\n"
+            "**Acceptance criteria:**\n\n- [ ] x\n\n"
+            + _ws("WS-2") + _ws("WS-3")
+        )
+        blocks = split_blocks(content)
+        ids = [b[0] for b in blocks]
+        self.assertNotIn("WS-1", ids,
+                         "malformed heading should not register as workstream")
+        self.assertEqual(ids, ["WS-2", "WS-3"])
+
+    def test_workstream_section_at_eof_no_trailing_newline(self):
+        """The `\\Z` branch of `(?=^## |\\Z)` — Workstreams is the last section
+        and the file has no trailing newline."""
+        content = (
+            "# Spec\n\n## Workstreams\n\n"
+            + _ws("WS-1") + _ws("WS-2") + _ws("WS-3").rstrip("\n")
+        )
+        blocks = split_blocks(content)
+        self.assertEqual([b[0] for b in blocks], ["WS-1", "WS-2", "WS-3"])
+
 
 class TestValidateWorkstream(unittest.TestCase):
     def test_valid_returns_no_errors(self):

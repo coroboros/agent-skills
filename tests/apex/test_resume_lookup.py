@@ -56,7 +56,7 @@ class TestResumeLookup(unittest.TestCase):
             cwd=str(self.root),
             env=env,
         )
-        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(result.returncode, 1, msg=result.stderr)
         self.assertIn("usage", result.stderr.lower())
 
     def test_missing_apex_dir_exits_2(self):

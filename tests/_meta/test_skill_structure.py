@@ -8,7 +8,12 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _helpers import get_skill_dirs  # noqa: E402
 
-REF_PATTERN = re.compile(r"(?:^|[\s(\[])(?:steps|references|scripts|templates|assets)/([\w./-]+\.[\w]+)")
+REF_PATTERN = re.compile(
+    r"(?:^|[\s(\[])"                                     # boundary: line start, whitespace, (, [
+    r"((?:steps|references|scripts|templates|assets)"    # capture starts at root subdir
+    r"(?:/[\w.-]+)+"                                     # one or more path segments (handles nested)
+    r"\.[\w]+)"                                          # required extension
+)
 
 
 class TestNoSkillReadme(unittest.TestCase):
@@ -32,20 +37,46 @@ class TestReferencedFilesExist(unittest.TestCase):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
                 content = (skill / "SKILL.md").read_text(encoding="utf-8")
-                # Find every "steps/x.md", "references/y.md", etc. mentioned in the body
+                # Find every "steps/x.md", "references/sub/y.md", etc. in the body
                 for match in REF_PATTERN.finditer(content):
-                    full_match = match.group(0).strip()
-                    # Reconstruct the relative path: "steps/x.md"
-                    # match.group(0) may include leading whitespace; normalise
-                    rel_path = re.search(r"(steps|references|scripts|templates|assets)/[\w./-]+\.[\w]+", full_match)
-                    if not rel_path:
-                        continue
-                    rel = rel_path.group(0)
-                    # Strip trailing punctuation that's likely prose, not filename
-                    rel = rel.rstrip(".,;:)]")
+                    rel = match.group(1).rstrip(".,;:)]")
                     target = skill / rel
                     self.assertTrue(target.exists(),
                                     f"{skill.name}: referenced file '{rel}' missing on disk")
+
+
+class TestRefPatternRegex(unittest.TestCase):
+    """Self-tests for REF_PATTERN — covers the cases the production scan must catch
+    and the cases it must skip. Without these tests the regex could silently drift."""
+
+    def test_matches_flat_reference(self):
+        m = REF_PATTERN.search("Read references/foo.md for context.")
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group(1), "references/foo.md")
+
+    def test_matches_nested_reference(self):
+        """Nested subdirs (`references/sub/foo.md`) must be caught."""
+        m = REF_PATTERN.search("Run scripts/sub/utils.sh now.")
+        self.assertIsNotNone(m)
+        self.assertEqual(m.group(1), "scripts/sub/utils.sh")
+
+    def test_skips_inline_code_refs(self):
+        """Refs inside inline backticks (`scripts/x.sh`) are deliberately skipped.
+        They're often cross-skill mentions (e.g., `its references/x.md`) referring
+        to a sibling skill's tree, not a local reference. Catching them produces
+        false positives. The boundary class excludes backtick by design."""
+        m = REF_PATTERN.search("Use `templates/page.tsx` to start.")
+        self.assertIsNone(m)
+
+    def test_skips_unrelated_paths(self):
+        """`src/foo.ts` doesn't match — only the named subdirs do."""
+        self.assertIsNone(REF_PATTERN.search("Edit src/foo.ts here."))
+
+    def test_skips_url_paths(self):
+        """`https://example.com/scripts/x.sh` should NOT match — it's a URL,
+        not a relative skill reference. Boundary class excludes /."""
+        m = REF_PATTERN.search("https://example.com/scripts/x.sh")
+        self.assertIsNone(m)
 
 
 class TestSubdirContentExpectations(unittest.TestCase):

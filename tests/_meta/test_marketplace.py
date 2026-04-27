@@ -89,13 +89,15 @@ class TestPluginShape(unittest.TestCase):
                                 f"{plugin['name']} doesn't end with '-skills'")
 
     def test_plugin_description_under_120(self):
+        """Per repo-conventions.md: plugin descriptions are 'one line, under ~120 chars'.
+        Soft margin of 5 chars allowed for the tilde — hard ceiling 125."""
         data = _load()
         for plugin in data["plugins"]:
             with self.subTest(plugin=plugin["name"]):
                 desc = plugin.get("description", "")
                 self.assertGreater(len(desc), 0)
-                self.assertLessEqual(len(desc), 200,
-                                     f"{plugin['name']} description too long ({len(desc)} chars)")
+                self.assertLessEqual(len(desc), 125,
+                                     f"{plugin['name']} description too long ({len(desc)} chars, cap ~120)")
 
     def test_plugin_has_skills(self):
         data = _load()
