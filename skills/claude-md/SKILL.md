@@ -8,6 +8,10 @@ license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - code.claude.com/docs/en/memory
+    - github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management
+    - github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/claude-memory
 ---
 
 # CLAUDE.md

@@ -1,7 +1,7 @@
 ---
 name: brand-voice
-description: Govern the BRAND-VOICE.md — extract a brand's writing voice from external sources (URL, Notion page, MD file or directory, optional interview when no source is provided) into a structured, executable doc; update it incrementally; diff two versions; validate against the canonical format; show its testable rules. The doc is the single source of truth consumed by writing skills (e.g. `humanize-en -f BRAND-VOICE.md`) to enforce voice on prose. Mirrors the design-system pattern — canonical file at the project root, five CLI-style subcommands.
-when_to_use: When the user wants to define, ingest, refresh, validate, or inspect a brand's writing voice. Triggers on "create a brand voice doc", "extract voice from this site", "extract voice from a Notion page", "update the brand voice", "validate / lint / check the brand voice doc", "what's our voice", "voice guidelines", "tone of voice", "writing style guide", "BRAND-VOICE.md". Routes via `$ARGUMENTS` first token — `extract` (ingest sources → BRAND-VOICE.md), `update` (incremental refresh from new sources), `diff` (regression check between versions), `validate` / `lint` / `check` (lint against canonical format), `show` (print testable do/don't rules). Skip when the user wants to *humanize* a text against an existing voice — invoke `/humanize-en -f BRAND-VOICE.md` instead.
+description: Govern the BRAND-VOICE.md — extract a brand's writing voice from URL, Notion page, MD file/directory, or interview into a structured executable doc; update incrementally; diff versions; validate the canonical format; show testable rules. Supports multi-voice via `voice.extends` (founder on corporate, persona on institutional, multi-host) with `_replace`/`_remove` overrides. Consumed by writing skills (e.g. `humanize-en -f BRAND-VOICE.md`). Mirrors the design-system pattern.
+when_to_use: When the user wants to define, ingest, refresh, validate, or inspect a brand's writing voice. Triggers on "create a brand voice doc", "extract voice from this site", "extract from Notion", "update the brand voice", "validate the voice doc", "what's our voice", "tone of voice", "writing style guide", "BRAND-VOICE.md", "founder voice", "persona voice", "multi-voice", "voice inheritance". Routes via `$ARGUMENTS` first token — `extract` (sources → BRAND-VOICE.md; `--extends <parent>` scaffolds a child), `update` (refresh from new sources), `diff` (regression check; single-arg form when child has `voice.extends`), `validate` / `lint` / `check` (walks chain), `show` (testable rules; `--chain`/`--explain`/`--raw` for inheritance). Skip when the user wants to *humanize* prose against an existing voice — invoke `/humanize-en -f BRAND-VOICE.md` instead.
 argument-hint: "[extract|update|diff|validate|show] [-s] [-o <path>] [-u <url>] [-n <id|url>] [-d <dir>] [-f <file>] [refs|paths]"
 model: opus
 license: MIT
@@ -33,7 +33,7 @@ Parse the first positional token of `$ARGUMENTS`. If it matches a verb below, lo
 | `show` | Print the flat list of testable rules from the voice doc | [`steps/show.md`](./steps/show.md) |
 | (none) | See *Default workflow* below | (this file) |
 
-There is no `apply` subcommand. Application of the voice — rewriting prose to match it — is the consumer skill's job. Today that consumer is `humanize-en -f BRAND-VOICE.md`. Tomorrow it can be any skill that reads the YAML frontmatter via `scripts/extract_rules.py`.
+There is no `apply` subcommand. Application of the voice — rewriting prose to match it — is the consumer skill's job. The current consumer is `humanize-en -f BRAND-VOICE.md`, which calls `scripts/extract_rules.py --full` for chain-resolved flat rules. Any other skill that needs the voice contract follows the same path; alternative consumers can read the YAML frontmatter directly when their `allowed-tools` excludes Bash.
 
 ## Canonical file location
 
@@ -70,7 +70,9 @@ Different contexts share the same lexicon, the same forbidden patterns, the same
 
 **Multiple voice files are warranted only when** the brand has genuinely separate sub-brands with separate voices: a luxury group that owns Maison X Couture (institutional, French-rooted) and Maison X Beauty (more accessible, broader audience). Each sub-brand gets its own `BRAND-VOICE.md`. The skills consume each independently — `humanize-en -f maison-x-couture.md` for one, `humanize-en -f maison-x-beauty.md` for the other.
 
-When in doubt, start with one file. Adding `contexts.foo` later is cheaper than splitting two files later.
+**Inheritance via `voice.extends`** — when sub-voices share a common substrate (founder voice on top of corporate, persona on top of institutional, multi-host media brand), declare `voice.extends: ./BRAND-VOICE.md` on the child file. The child inherits the parent's rules and overrides only what differs. Per-field merge policy, `_replace` / `_remove` overrides, cycle detection, and validation order live in [`references/canonical-format.md`](./references/canonical-format.md) § Inheritance; a worked example sits in [`references/example-multi-voice.md`](./references/example-multi-voice.md).
+
+When in doubt, start with one file. Adding `contexts.foo` later is cheaper than splitting two files later. Adding `voice.extends` later, when a real second voice emerges, is cheaper than over-engineering inheritance up front.
 
 ## Source resolution
 
@@ -108,7 +110,7 @@ The Notion MCP is authorised through Claude Code's permission layer, not via thi
 
 Full schema, field constraints, manual-section markers, and section-heading normalisation rules: [`references/canonical-format.md`](./references/canonical-format.md). A complete reference example: [`references/example-chanel.md`](./references/example-chanel.md).
 
-The split is deliberate. Tooling reads YAML; humans read prose. `humanize-en -f BRAND-VOICE.md` only loads the frontmatter (~50 lines via `extract_rules.py`), not the full doc, so the voice doc can be richly explained without bloating downstream contexts.
+The split is deliberate. Tooling reads YAML; humans read prose. Consumers like `humanize-en -f BRAND-VOICE.md` load only the rule block (50–150 lines via `extract_rules.py --full`), not the full doc, so the voice doc can be richly explained without bloating downstream contexts.
 
 ## Pipeline integration
 
@@ -124,14 +126,15 @@ Brand voice is consumed by writing skills via `-f`. The current consumer is `hum
 
 Two ways for a consumer to read the rules:
 
-- **`Read` the YAML frontmatter directly** — preferred when the consumer's `allowed-tools` does not include `Bash`. The consumer parses the YAML and uses `forbidden_lexicon`, `rewrite_rules`, `sentence_norms`, `forbidden_patterns`, `pronouns` directly. This is what `humanize-en -f` does.
-- **Invoke `extract_rules.py`** — when the consumer has Bash and wants the canonical flat-text view:
+- **Invoke `extract_rules.py --full`** — preferred. The script flattens the YAML to plain text, automatically resolves any `voice.extends` chain, applies `_replace` and `_remove` overrides, and emits a 50–150 line block ready for inclusion in an LLM prompt. This is what `humanize-en -f` does as of the inheritance release.
 
-```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py ./BRAND-VOICE.md
-```
+  ```bash
+  python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py --full ./BRAND-VOICE.md
+  ```
 
-Output is line-oriented plain text (30–80 lines for a typical voice doc). Schema in [`references/schemas.md`](./references/schemas.md) § extract_rules.py. Used by the `show` subcommand of this skill.
+- **`Read` the YAML frontmatter directly** — fallback when the consumer's `allowed-tools` does not include `Bash`, or when the consumer wants raw structure. The consumer parses the YAML and uses `forbidden_lexicon`, `rewrite_rules`, `sentence_norms`, `forbidden_patterns`, `pronouns`, `core_attributes`, `contexts` directly. This path does **not** resolve `voice.extends` — child files appear as-written.
+
+Both shapes are documented in [`references/schemas.md`](./references/schemas.md) § extract_rules.py. The `--legacy` flag emits the v1 minimal output (byte-identical to the pre-inheritance shape) for any external consumer pinned to it.
 
 When a brand voice rule conflicts with a universal AI-tell pattern (e.g., the voice *requires* em-dashes vs pattern #14), the brand rule wins — it is the user's contract. Conflicts are logged in the consumer's report.
 
@@ -177,11 +180,13 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 ## Reference
 
 - [`steps/extract.md`](./steps/extract.md), [`steps/update.md`](./steps/update.md), [`steps/diff.md`](./steps/diff.md), [`steps/validate.md`](./steps/validate.md), [`steps/show.md`](./steps/show.md) — per-subcommand workflows, flags, edge cases.
-- [`references/canonical-format.md`](./references/canonical-format.md) — full schema, required vs recommended sections, section ordering, manual-section markers. The contract.
+- [`references/canonical-format.md`](./references/canonical-format.md) — full schema, required vs recommended sections, section ordering, manual-section markers, inheritance via `voice.extends`. The contract.
 - [`references/example-chanel.md`](./references/example-chanel.md) — complete reference voice doc, anchored on chanel.com primary sources (Métiers d'art savoir-faire page, House of Chanel history, founder page) plus Met Museum and Wikipedia as cross-references. Use as a structural template.
+- [`references/example-multi-voice.md`](./references/example-multi-voice.md) — worked example of `voice.extends`: a fictional founder-led startup with parent + child + merged result side-by-side, plus when to use `_replace` vs `_remove` vs default merge.
 - [`references/source-resolution.md`](./references/source-resolution.md) — how each `-u/-n/-d/-f` flag resolves, failure modes, conflict handling.
 - [`references/interview-questions.md`](./references/interview-questions.md) — eight canonical questions for `extract` with no source flag.
 - [`references/schemas.md`](./references/schemas.md) — JSON shape for `voice_lint.py`, plain-text shape for `extract_rules.py`. Stable contract for downstream consumers.
-- [`scripts/voice_lint.py`](./scripts/voice_lint.py) — validates a `BRAND-VOICE.md`. Python 3.7+, no third-party deps.
-- [`scripts/extract_rules.py`](./scripts/extract_rules.py) — emits flat testable rules. Consumed by `humanize-en -f`.
-- [`scripts/utils.py`](./scripts/utils.py) — shared I/O helpers (mirrors `humanize-en/scripts/utils.py`). Not invoked directly.
+- [`scripts/voice_lint.py`](./scripts/voice_lint.py) — validates a `BRAND-VOICE.md`, walks `voice.extends` chain, emits `chain` and `merged_stats` when inheritance applies. Python 3.7+, no third-party deps.
+- [`scripts/extract_rules.py`](./scripts/extract_rules.py) — emits flat testable rules. Resolves `voice.extends` chain by default. `--full` (default) includes `core_attributes`/`contexts`/`source_urls`; `--legacy` emits the v1 minimal output. Consumed by `humanize-en -f`.
+- [`scripts/lint_all.py`](./scripts/lint_all.py) — globs every `BRAND-VOICE*.md` under a root and lints each. Single-command audit for the parent-change blast-radius problem: a parent edit that breaks N children surfaces as N RED verdicts. CI-friendly; recommended in pre-merge hooks.
+- [`scripts/utils.py`](./scripts/utils.py) — shared I/O helpers, chain resolution (`resolve_extends_chain`), merge engine (`merge_voice_dicts`, `apply_replace_overrides`, `apply_remove_overrides`). Not invoked directly.

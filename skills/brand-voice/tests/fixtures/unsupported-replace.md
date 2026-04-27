@@ -1,0 +1,37 @@
+---
+voice:
+  name: "UnsupportedReplace"
+  extends: "./parent-corp.md"
+  last_updated: "2026-04-27"
+
+forbidden_lexicon: []
+voice_replace:
+  name: "this targets the voice block which is NOT in REPLACE_ALLOWED_FIELDS"
+
+rewrite_rules:
+  - reject: "stub"
+    accept: "stub"
+    rule_id: stub-rule
+sentence_norms:
+  word_count_min: 8
+  word_count_max: 22
+  sentence_max_hard: 30
+---
+
+# Brand Voice — UnsupportedReplace
+
+## 1. Core voice attributes
+
+`voice_replace` is not on the whitelist — lint emits `replace-on-unsupported-field`.
+
+## 2. Rewrite rules — do/don't
+
+Stub.
+
+## 3. Forbidden lexicon and patterns
+
+Stub.
+
+## 4. Sentence-level norms
+
+Stub.

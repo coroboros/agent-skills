@@ -17,12 +17,14 @@ This document is the contract. `voice_lint.py` validates against it.
 ---
 voice:                            # required
   name: string                    # required — brand name
+  extends: string                 # optional — relative or absolute path to a parent BRAND-VOICE.md (see § Inheritance)
   source_urls: [string]           # optional — URLs/paths of ingested sources (no internal IDs in committed examples)
   last_updated: string            # optional — ISO date "YYYY-MM-DD"
   source: string                  # optional — "extract" | "interview" | "manual"
 
 core_attributes:                  # optional but recommended
-  - name: string                  # short identifier (e.g. "authoritative")
+  - attribute_id: string          # kebab-case stable ID; required when voice.extends is set, recommended otherwise
+    name: string                  # display label (e.g. "Authoritative")
     failure_mode: string          # what failure looks like
 
 forbidden_lexicon: [string]       # required — list of words/phrases to reject
@@ -32,6 +34,7 @@ rewrite_rules:                    # required
   - reject: string                # the bad pattern
     accept: string                # the good replacement (placeholder allowed: "<…>")
     rule_id: string               # stable identifier, kebab-case
+    override: boolean             # optional — when true, silences `rewrite-rule-overridden-by-child` warning under inheritance
 
 sentence_norms:                   # required
   word_count_min: integer
@@ -57,19 +60,39 @@ contexts:                         # optional — register adjustments per contex
 pronouns:                         # optional but recommended
   default: string                 # e.g. "third-person institutional"
   forbid: [string]                # e.g. ["first-person singular"]
+
+# When `voice.extends` is set, the file may also declare these inheritance overrides.
+# Mutually exclusive with the canonical field of the same root name. See § Inheritance.
+forbidden_lexicon_replace: [string]      # full replacement of parent's
+forbidden_lexicon_remove:  [string]      # surgical removal from parent's
+required_lexicon_replace:  [string]
+required_lexicon_remove:   [string]
+forbidden_patterns_replace: [string]
+forbidden_patterns_remove:  [string]
+rewrite_rules_replace:     [object]      # full replacement
+rewrite_rules_remove:      [string]      # list of rule_ids to remove
+core_attributes_replace:   [object]
+core_attributes_remove:    [string]      # list of attribute_ids to remove
+sentence_norms_replace:    object
+contexts_replace:          object
+pronouns_replace:          object
 ---
 ```
 
 ### Field types and constraints
 
 - **`voice.name`** — non-empty string, max 80 chars.
+- **`voice.extends`** — optional string. Relative path resolves against the child file's directory; absolute paths allowed; must end in `.md`, `.mdx`, or `.markdown`. Single parent only. See § Inheritance for chain semantics.
 - **`forbidden_lexicon`** — non-empty list. Each entry lowercase unless the term is intrinsically capitalised (e.g. brand names). Substring matching is case-insensitive at scan time.
 - **`rewrite_rules[].rule_id`** — kebab-case (`[a-z0-9-]+`), unique across the list. `voice_lint` rejects duplicates.
+- **`rewrite_rules[].override`** — optional boolean. When `true`, silences the `rewrite-rule-overridden-by-child` warning that fires when a child's `rule_id` collides with a parent's.
+- **`core_attributes[].attribute_id`** — kebab-case (`[a-z0-9-]+`). **Required** on every entry. Stable merge key for inheritance and a stable ID for tooling. Lint emits `core-attribute-missing-id` (RED) when absent. The merge engine falls back to a normalised `name` only as a defensive measure for malformed input; do not rely on it.
 - **`sentence_norms.word_count_min`** — must be ≥ 1 and ≤ `word_count_max`.
 - **`sentence_norms.word_count_max`** — must be ≤ `sentence_max_hard`.
 - **`sentence_norms.em_dash_spacing`** — `spaced` (` — `, the British/French convention), `tight` (`—` no spaces, the US convention), or `forbid` (no em-dashes at all).
 - **`forbidden_patterns`** — recognised values: `rule_of_three`, `rhetorical_questions`, `emoji`, `all_caps_emphasis`, `marketing_analogies`, `negative_parallelism`, `signposting`, `superficial_ing`. Custom values are tolerated.
 - **`contexts.<name>`** — object, free-form keys. Recommended keys above are not enforced.
+- **`<field>_replace`** / **`<field>_remove`** — see § Inheritance. Permitted only when `voice.extends` is set in the same file. Whitelisted fields only.
 
 ## Prose section order
 
@@ -114,3 +137,128 @@ Sections the user adds by hand outside the canonical 11 are preserved by `update
 ## Why no `apply` in the schema
 
 The schema is descriptive (what the voice *is*), not procedural (how to apply it). Application is the consumer's job — `humanize-en -f` decides which rules to apply and when. A `apply_strategy:` field would conflate the two and force every consumer to honour the same dispatch logic. The current split keeps consumers independent.
+
+## Inheritance via `extends:`
+
+A child file declares a parent and inherits its rules, overriding only what differs. Use cases: founder voice on top of corporate, multi-host media brands, persona on top of an institutional voice.
+
+```yaml
+voice:
+  name: "Founder"
+  extends: "./BRAND-VOICE.md"
+```
+
+### Chain rules
+
+- **Single parent** — one `voice.extends` per file. No list, no glob, no URL.
+- **Path resolution** — relative paths resolve against the child file's directory (not CWD); absolute paths allowed.
+- **Depth limit** — `MAX_EXTENDS_DEPTH = 5`. Typical chains are 1-2 levels; 5 covers nested orgs (group → brand → product → persona → channel).
+- **Cycle detection** — identity is `(st_dev, st_ino)` from `os.stat()`, not path string. macOS HFS+/APFS is case-insensitive by default and `Path.resolve()` would otherwise miss `./brand-voice.md` ↔ `./BRAND-VOICE.md` cycles. Falls back to lowercased canonical path on Windows.
+- **Path containment** — warning `extends-path-outside-skill` if the resolved parent escapes the skill directory (prevents accidental coupling to user-specific paths like `~/Desktop/...`). Pass `--allow-extends-outside-skill` to silence.
+
+### Default merge policy
+
+When the child declares a canonical field, it merges with the parent's value per the policy below. Order is parent-first then child-appended; list dedup uses `dict.fromkeys()` so output is stable across `PYTHONHASHSEED` values.
+
+| Field | Type | Policy |
+|---|---|---|
+| `voice.name`, `voice.last_updated`, `voice.source` | str | child wins |
+| `voice.source_urls` | list[str] | child wins (each voice owns its provenance) |
+| `voice.extends` | str | not inherited (resolved at load) |
+| `core_attributes` | list[obj keyed by `attribute_id`] | merge by ID; child overrides on collision; new entries appended |
+| `forbidden_lexicon`, `required_lexicon`, `forbidden_patterns` | list[str] | union, deduplicated |
+| `rewrite_rules` | list[obj keyed by `rule_id`] | merge by `rule_id`; child wins; appends new. Warning `rewrite-rule-overridden-by-child` unless rule has `override: true` |
+| `sentence_norms` | object | shallow merge (key-by-key), child wins |
+| `contexts` | object (free-form keys) | deep merge by context name; per-context shallow merge; child wins on collision |
+| `pronouns` | object | shallow merge, child wins. `pronouns.forbid` is replaced (not unioned) when child declares it — personas legitimately *invert* parent rules |
+
+### `<field>_replace` — full replacement
+
+When the merge policy is wrong for the case (e.g. a persona that needs a fundamentally different lexicon), declare `<field>_replace` instead of the canonical field. The child's value fully replaces the parent's.
+
+```yaml
+voice:
+  name: "Persona"
+  extends: "./BRAND-VOICE.md"
+
+forbidden_lexicon_replace:        # replaces parent's entirely
+  - "persona-only banned word"
+
+pronouns_replace:                 # replaces parent's entirely
+  default: "first-person singular"
+  forbid: []
+```
+
+Whitelisted fields (the constant `REPLACE_ALLOWED_FIELDS` in `scripts/utils.py`):
+`forbidden_lexicon`, `required_lexicon`, `forbidden_patterns`, `rewrite_rules`, `core_attributes`, `sentence_norms`, `contexts`, `pronouns`.
+
+### `<field>_remove` — surgical removal
+
+When the override is "remove this single inherited entry", `_replace` is too heavy (forces re-listing every kept entry). Use `_remove` to subtract specific items from the merged result.
+
+```yaml
+forbidden_lexicon_remove:         # parent forbids these; this voice allows them
+  - "passionate"
+  - "delightful"
+
+rewrite_rules_remove:             # remove parent rules by rule_id
+  - "no-hedging-imperative"
+```
+
+Whitelisted fields (the constant `REMOVE_ALLOWED_FIELDS`, subset of replace whitelist):
+`forbidden_lexicon`, `required_lexicon`, `forbidden_patterns`, `rewrite_rules`, `core_attributes`. List-of-objects fields (`rewrite_rules`, `core_attributes`) take a list of stable IDs; list-of-string fields take exact entries.
+
+### Mutex
+
+For any field `X`, the following combinations are valid:
+
+- `X` alone — canonical, additive merge with parent.
+- `X_replace` alone — full replacement (drops parent's value entirely).
+- `X_remove` alone — subtractive on parent's value (list fields only).
+- **`X` + `X_remove`** — additive merge plus selective subtraction. This is the common case: a child adds a few entries to the parent's list and explicitly removes a couple of inherited entries. Both apply.
+
+The following combinations are invalid (`replace-conflict-with-extending`, RED):
+
+- `X` + `X_replace` — contradictory: `_replace` already drops parent's value; the canonical field's union semantic has nothing to merge against.
+- `X_replace` + `X_remove` — contradictory: `_replace` already drops parent's value; `_remove` would target a list that no longer exists.
+
+`_replace` and `_remove` keys require `voice.extends` set in the same file — declaring them in a parent that does not extend triggers `replace-without-extends` / `remove-without-extends`. The lint enforces this on every file regardless of whether something currently inherits from it (prevents footguns where the suffix activates the moment a child appears).
+
+### Why suffix and not YAML tags
+
+YAML tags (`!replace`) and anchors are intentionally unsupported by `parse_yaml_minimal` (`scripts/utils.py:72-73`) — keeping the parser dependency-free is a non-goal-stated rule. Suffix conventions are parser-friendly, human-readable, and grep-friendly.
+
+### Validation order
+
+`voice_lint.py` walks the chain in this order. Without it, a `duplicate-rule-id` on the merged dict would be indistinguishable from a child-internal duplicate.
+
+1. **Lint child** syntactically. If RED → return early; chain not resolved.
+2. **Resolve chain** via `resolve_extends_chain`. Surface `extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`.
+3. **Recursively lint each parent.** Parent failures aggregate as `extends-parent-invalid` with a nested `parent_errors` array on the child's error object.
+4. **Lint the merged dict.** Errors carry `source: "merged"` discriminator. Required fields (`forbidden_lexicon`, `rewrite_rules`, `sentence_norms`) are validated here — children may omit them locally and inherit.
+
+Each error/warning gains optional `source` (`"child"` / `"parent:<relpath>"` / `"merged"`) and `source_path` fields so authors trace cascade failures to their origin.
+
+### Lint relaxation for child files
+
+When `voice.extends` is set, the child-isolated lint relaxes three checks because the missing values come from the parent:
+
+- `missing-required-field` for `forbidden_lexicon`, `rewrite_rules`, `sentence_norms` — only `voice.name` is required locally on a child.
+- `empty-required-lexicon` warning — does not fire on a child (parent's lexicon will be unioned in).
+- `recommended-section-missing` warning — does not fire on a child (sections 5-11 are inherited from the parent's prose; child must still declare its own required sections 1-4).
+
+These checks all run normally at the merged level (step 4), so a chain that fails to provide a required field anywhere is caught — just not redundantly on every child file.
+
+### Prose inheritance
+
+**Out of scope.** A child file must declare its own required prose sections (1-4 per § *Prose section order*) — they explain the *child's* voice. Recommended sections (5-11) may be omitted entirely; the existing `recommended-section-missing` warning fires per-file. Merging paragraphs across parent and child is semantically nonsensical; the YAML carries the testable contract, prose carries the rationale, and rationale is per-locuteur. The `<!-- inherits-from-parent -->` HTML comment is a recommended doc convention when an author wants to make inheritance visible to readers, but it is not enforced.
+
+### Adding new mergeable fields (PR checklist)
+
+Every new mergeable field requires deciding three things at PR time:
+
+1. Merge policy (union, deep merge, shallow merge, child-wins, merge-by-key).
+2. Whether the field belongs in `REPLACE_ALLOWED_FIELDS`.
+3. Whether the field belongs in `REMOVE_ALLOWED_FIELDS` (list fields with stable identity only).
+
+The constants in `scripts/utils.py` are the source of truth; PRs that add fields must update both, add fixtures under `tests/fixtures/`, and a corresponding test in `tests/test_replace_remove.py`.

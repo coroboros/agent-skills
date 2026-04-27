@@ -62,7 +62,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
-| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; consumed by `humanize-en -f` | Claude |
+| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
 | Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; optional `-f BRAND-VOICE.md` | Claude |
@@ -194,6 +194,10 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 
 Accepts output from `spec` or `brainstorm` via `-f`. Works standalone.
 
+**Sources**
+
+- [Melvynx/aiblueprint — apex](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/apex) — APEX methodology (Analyze, Plan, Execute, eXamine) reference implementation
+
 ---
 
 #### oneshot
@@ -216,6 +220,10 @@ Ultra-fast feature implementation — Explore, Code, Test. Ship fast, iterate la
 5. **Test** — runs lint and typecheck, fixes only what it broke
 
 One task only. No tangential improvements, no refactoring outside scope. Stops after 2 failed attempts.
+
+**Sources**
+
+- [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/oneshot) — Explore/Code/Test loop with complexity escalation to `apex` or `spec`
 
 </details>
 
@@ -312,10 +320,11 @@ Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recomme
 
 **Sources**
 
-- [Building award-winning websites (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/building-award-winning-websites-2025-2026.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
+- [Award-winning websites 2025-2030 (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/award-winning-websites-2025-2030/award-winning-websites-2025-2030.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
+- [leonxlnx/taste-skill](https://github.com/leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
 
@@ -452,6 +461,12 @@ Create and optimize CLAUDE.md memory files and `.claude/rules/` modular rules fo
 - Size limits guidance (< 100 ideal, < 150 max, > 200 = directives get lost)
 - Writing rules — prohibitions over positive guidance, emphasis hierarchy, show don't tell
 
+**Sources**
+
+- [Anthropic — Memory and CLAUDE.md docs](https://code.claude.com/docs/en/memory) — official memory system architecture and file resolution
+- [anthropics/claude-plugins-official — claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) — canonical scaffolding and optimization patterns
+- [Melvynx/aiblueprint — claude-memory](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/claude-memory) — bloat categorization (ETH Zurich study) and revision workflow
+
 ---
 
 #### agent-creator
@@ -473,6 +488,11 @@ Expert guidance for creating, configuring, and orchestrating Claude Code subagen
 - Documents scope and priority resolution (managed > CLI > project > user > plugin)
 - Background execution patterns for parallel agent workflows
 - Includes reference files for orchestration, evaluation, error handling, context management, and debugging
+
+**Sources**
+
+- [Anthropic — Claude Code sub-agents docs](https://code.claude.com/docs/en/sub-agents) — official spec for subagent frontmatter, model selection, tool restrictions
+- [Melvynx/aiblueprint — subagent-creator](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/subagent-creator) — orchestration patterns and system-prompt anti-patterns
 
 </details>
 
@@ -654,7 +674,7 @@ Structural and prose writing for project documentation — `brand-voice`, `write
 
 #### brand-voice
 
-Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mirrors the `design-system` pattern: a canonical file at the project root, four CLI-style subcommands. Produces a YAML frontmatter (machine-readable rules) plus eleven prose sections (human rationale). Consumed by writing skills via `-f`.
+Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mirrors the `design-system` pattern: a canonical file at the project root, five CLI-style subcommands. Produces a YAML frontmatter (machine-readable rules) plus eleven prose sections (human rationale). Multi-voice via `voice.extends` — a child file inherits a parent's rules and overrides only what differs (founder voice on top of corporate, persona on top of institutional, multi-host media brand). Consumed by writing skills via `-f`.
 
 **Usage**
 
@@ -669,10 +689,16 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 
 /brand-voice update -u https://example.com/v2                   # refresh from new sources
 /brand-voice diff HEAD~5 HEAD                                   # show what changed (git-aware)
+/brand-voice diff BRAND-VOICE-FOUNDER.md                        # single-arg: child vs resolved parent (multi-voice)
 /brand-voice validate                                           # lint ./BRAND-VOICE.md against canonical format
 /brand-voice lint ./assets/voice.md                             # alias on a custom path
 /brand-voice show --rules                                       # print testable rules
+/brand-voice show --chain                                       # print the resolved inheritance chain
+/brand-voice show --explain                                     # annotate each rule with origin file
 /brand-voice show --all                                         # rules + examples + counter-examples
+
+/brand-voice extract --extends ./BRAND-VOICE.md \
+                     -o ./BRAND-VOICE-FOUNDER.md                # scaffold a child voice (multi-voice)
 ```
 
 **Subcommands**
@@ -695,6 +721,12 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 | `-f <file>` | Single MD/MDX/TXT file |
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
 | `-s` / `-S` | Save / disable save under `.claude/output/brand-voice/{slug}/voice.md` |
+| `--extends <parent>` | (`extract`) scaffold a child voice inheriting from `<parent>`; pre-flight lints the parent (refuses on RED) |
+| `--raw` | (`show`) skip `voice.extends` chain resolution; print child-only rules |
+| `--chain` | (`show`) print the resolution chain root → child |
+| `--explain` / `--explain-json` | (`show`) annotate each rule with origin file (text or structured JSON) |
+| `--resolved` | (`diff`) compare merged outputs (chain-aware) instead of files-as-written |
+| `--full` / `--legacy` | full output (default; adds `core_attributes` + `contexts` + `source_urls`) vs v1 minimal output for back-compat consumers |
 
 **What it does**
 
@@ -702,7 +734,8 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 2. **Synthesises** the canonical format — YAML normative rules (forbidden lexicon, rewrite rules with stable `rule_id`s, sentence norms, forbidden patterns, contexts, pronouns) plus eleven prose sections explaining each rule
 3. **Lints** every write through `voice_lint.py` — RED never reaches disk
 4. **Diffs** semantically — shows added/removed lexicon, modified rules, prose changes, manual-section preservation
-5. **Surfaces** the rules — `show --rules` emits 30-60 lines of flat rules consumed by `humanize-en -f` and pipeable to other tooling
+5. **Surfaces** the rules — `show --rules` emits a flat rule block consumed by `humanize-en -f` and pipeable to other tooling
+6. **Inheritance** — a child file declaring `voice.extends: ./BRAND-VOICE.md` inherits the parent's rules and overrides only what differs. `_replace` and `_remove` suffixes give surgical control. Cycle detection uses inode identity so case-insensitive filesystems do not mask cycles. See `references/example-multi-voice.md`.
 
 **Pipeline**
 
@@ -712,6 +745,14 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 /humanize-en -f ./BRAND-VOICE.md draft.md
       → universal AI-tells + brand-specific rewrite rules applied
 ```
+
+**Audit (CI / pre-merge)**
+
+```bash
+python3 ~/.claude/skills/brand-voice/scripts/lint_all.py .
+```
+
+Globs every `BRAND-VOICE*.md` under the root and lints each. Exit 1 on any RED. Catches parent-change regressions across all children in one command — recommended for CI on every PR that touches a voice file.
 
 **Sources**
 
@@ -773,18 +814,24 @@ Fix grammar and spelling errors in files while preserving formatting, meaning, a
 - Processes multiple files in parallel using subagents
 - Reports corrections count per file
 
+**Sources**
+
+- [Melvynx/aiblueprint — fix-grammar](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/fix-grammar) — multilingual handling and parallel-subagent processing patterns
+
 ---
 
 #### humanize-en
 
-Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (*delve*, *tapestry*, *crucial*, *pivotal*, *underscore*, *showcase*), vague attributions, promotional tone, conjunctive padding (*moreover*, *furthermore*, *indeed*), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing.
+Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (*delve*, *tapestry*, *crucial*, *pivotal*, *underscore*, *showcase*), vague attributions, promotional tone, conjunctive padding (*moreover*, *furthermore*, *indeed*), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing. Optionally loads a `BRAND-VOICE.md` via `-f` — chain-resolved through `voice.extends` — to layer brand-specific rules on top of the universal patterns.
 
 **Usage**
 
 ```bash
-/humanize-en README.md                        # file — propose diff, apply on approval
-/humanize-en "paste any text to humanize"     # inline — return rewritten text
-/humanize-en                                  # ask for input
+/humanize-en README.md                              # file — propose diff, apply on approval
+/humanize-en "paste any text to humanize"           # inline — return rewritten text
+/humanize-en                                        # ask for input
+/humanize-en -f BRAND-VOICE.md draft.md             # apply universal patterns + brand voice rules
+/humanize-en -f BRAND-VOICE-FOUNDER.md draft.md     # multi-voice (resolves voice.extends chain)
 ```
 
 **What it does**
@@ -863,6 +910,17 @@ Define a brand voice once; apply it on every prose draft.
 ```
 
 `/brand-voice extract` accepts URL (`-u`), Notion (`-n`), MD file (`-f`), MD directory (`-d`), or interview mode when no source is provided.
+
+Multi-voice via inheritance — when a brand has a founder voice on top of corporate, a persona on top of institutional, or multi-host channels, scaffold a child voice that inherits the parent and overrides only what differs:
+
+```
+/brand-voice extract --extends ./BRAND-VOICE.md \
+                     -o ./BRAND-VOICE-FOUNDER.md   scaffold child; pre-flights the parent
+      |
+/humanize-en -f BRAND-VOICE-FOUNDER.md draft.md    chain auto-resolved; merged rules applied
+      |
+python3 ~/.claude/skills/brand-voice/scripts/lint_all.py .   audit every BRAND-VOICE*.md in CI
+```
 
 <details>
 <summary><strong>Dependency Graph</strong></summary>

@@ -9,10 +9,11 @@ compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in
 metadata:
   author: coroboros
   sources:
-    - github.com/coroboros/research/blob/main/articles/building-award-winning-websites-2025-2026.md
+    - github.com/coroboros/research/blob/main/articles/award-winning-websites-2025-2030/award-winning-websites-2025-2030.md
     - github.com/vercel-labs/web-interface-guidelines
     - github.com/google-labs-code/design.md
     - github.com/google-labs-code/stitch-skills
+    - github.com/leonxlnx/taste-skill
     - github.com/rohitg00/awesome-claude-design
     - github.com/SawyerHood/dev-browser
 ---

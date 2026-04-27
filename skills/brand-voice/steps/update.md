@@ -32,6 +32,7 @@ At least one source flag is required — `update` does not enter interview mode 
 - Resolve target path. Default `./BRAND-VOICE.md`.
 - If the target does not exist, abort: *"No `BRAND-VOICE.md` at `<path>`. Use `/brand-voice extract` first."*
 - `Read` the full file. `split_frontmatter` to separate YAML from prose. Parse YAML via `python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py <path>` for a flat view.
+- **Inheritance check** — if the target declares `voice.extends`, `update` operates on the *child file's delta only*. The parent is not modified, and the merge described in step 4 applies to the child's declarations against new sources — not against the inherited parent values. Authors who want to update the parent run `/brand-voice update <parent_path>` separately.
 
 ### 2. Detect manual sections
 
@@ -115,3 +116,4 @@ Audit:
 - **Conflict the user can't decide** — record both interpretations as `<old>` and `<new-from-source>` comments in YAML. Mark `voice.source: "extract:unresolved"`. The user resolves later.
 - **No actual change** — if the merge produces a file byte-identical to the original (sources contributed nothing new), report *"No changes — sources contributed nothing not already in the doc"* and exit without writing.
 - **User added a manual section that conflicts with a re-synthesised one** — preserve the manual section, surface the conflict, suggest moving it (e.g., rename `## 1. Core voice attributes` to `## 1bis. Internal note on attributes` if both want section 1).
+- **Target declares `voice.extends`** — `update` operates only on the child's declarations. New sources contribute to the child's `forbidden_lexicon`, `rewrite_rules`, etc.; they do not pull parent values into the child file. Manual `<!-- manual: true -->` sections in the child take precedence over re-synthesis at the merged level. To propagate a change up the chain, run `/brand-voice update <parent_path>` against the ancestor.
