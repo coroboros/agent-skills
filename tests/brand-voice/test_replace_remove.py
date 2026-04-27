@@ -4,7 +4,7 @@ import sys
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "skills" / "brand-voice" / "scripts"))
 from utils import (  # noqa: E402
     apply_remove_overrides,
     apply_replace_overrides,

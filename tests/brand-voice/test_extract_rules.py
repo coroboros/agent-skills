@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 FIXTURES = Path(__file__).parent / "fixtures"
-SCRIPT = Path(__file__).parent.parent / "scripts" / "extract_rules.py"
+SCRIPT = Path(__file__).parent.parent.parent / "skills" / "brand-voice" / "scripts" / "extract_rules.py"
 
 
 def _run(*args):

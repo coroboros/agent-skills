@@ -25,6 +25,7 @@ From brainstorming to structured specs to implementation, with design systems, p
   - [Media Skills](#media-skills)
   - [Writing Skills](#writing-skills)
 - [Pipeline](#pipeline)
+- [Testing](#testing)
 - [Standards](#standards)
 - [License](#license)
 
@@ -952,6 +953,31 @@ graph LR
 
 ---
 
+## Testing
+
+The repo ships a Python `unittest` suite under `tests/` covering deterministic logic across every skill. Tests live at the repo root — never inside skill folders — so they don't get copied to user machines on install.
+
+```bash
+# Run everything
+python3 -m unittest discover tests/ -v
+
+# Run one skill's tests
+python3 -m unittest discover tests/<skill-name>/ -v
+
+# Cross-skill structural invariants (frontmatter, marketplace, README parity)
+python3 -m unittest discover tests/_meta/ -v
+```
+
+No third-party dependencies — stdlib only. Shell scripts are tested via `subprocess.run`. Tests requiring external tools (`ffmpeg`, `pnpm`, `markitdown`) skip gracefully when those aren't installed.
+
+**What's covered**:
+- `tests/_meta/` — universal structural tests across all 16 skills (frontmatter conformity, file references resolve, `marketplace.json` parity, README has every skill).
+- `tests/<skill-name>/` — per-skill unit + integration tests for bundled scripts (parsing, merging, scoring, CLI exit codes, output schema). Heavier coverage on `brand-voice`, `humanize-en`, `spec`, `claude-md`, `scaffold` — anywhere a regression hides silently.
+
+**Contributing**: any change to a skill's bundled scripts adds or updates a test in `tests/<skill-name>/` in the same PR. Pure-prompt skills (no `scripts/`) keep coverage via the universal suite. See [`.claude/rules/skill-authoring.md`](./.claude/rules/skill-authoring.md) for the testing requirement detail.
+
+---
+
 ## Standards
 
 This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus Claude Code extensions (`when_to_use`, `argument-hint`, `model`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable.
@@ -960,8 +986,8 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 
 - [`agentskills-spec.md`](./.claude/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
 - [`claude-code-skills.md`](./.claude/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
-- [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`
-- [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace
+- [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
+- [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
 
 ---
 

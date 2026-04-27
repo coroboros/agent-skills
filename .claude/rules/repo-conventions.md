@@ -94,6 +94,31 @@ coroboros/agent-skills/
 
 **No `README.md` at the skill root.** User documentation for each skill lives in the root `README.md` per-skill details section. Subfolders (`templates/`, `scripts/`, `references/`) may contain a `README.md` for maintainer-facing internal documentation when it genuinely earns its place.
 
+## Testing
+
+Unit tests live at the repo root in `tests/<skill-name>/`, **never** inside skill folders. Rationale: `skills.sh` and Claude Code's plugin marketplace copy the entire `skills/<name>/` directory to the user's machine on install — tests inside that tree become install bloat the user pays for and never runs.
+
+```
+tests/
+├── _meta/                      # Universal cross-skill tests
+│   ├── _helpers.py
+│   ├── test_skill_frontmatter.py
+│   ├── test_skill_structure.py
+│   ├── test_marketplace.py
+│   └── test_readme_parity.py
+└── <skill-name>/
+    ├── __init__.py             # Empty marker
+    ├── fixtures/               # Optional test inputs
+    └── test_*.py
+```
+
+**Run all**: `python3 -m unittest discover tests/ -v`
+**Run one**: `python3 -m unittest discover tests/<skill-name>/ -v`
+
+Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tested via `subprocess.run`. Tests requiring optional CLIs (`ffmpeg`, `pnpm`, `markitdown`) use `@unittest.skipUnless(shutil.which("…"), …)` so the suite passes on any contributor's machine regardless of installed tooling.
+
+**Distinction from `evals/`** — the `skill-creator` flow places LLM behavioral evaluations (`evals/evals.json`) inside the skill folder; that's user-facing documentation of expected behavior. Unit tests of bundled scripts are dev infrastructure and live outside, never installed.
+
 ## Skill scope declaration
 
 In the root README skills table, mark each skill:

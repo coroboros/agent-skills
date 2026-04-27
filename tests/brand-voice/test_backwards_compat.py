@@ -11,12 +11,12 @@ import tempfile
 import unittest
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).parent.parent.parent.parent
-LIVE_SCRIPTS = Path(__file__).parent.parent / "scripts"
+REPO_ROOT = Path(__file__).parent.parent.parent
+LIVE_SCRIPTS = REPO_ROOT / "skills" / "brand-voice" / "scripts"
 FIXTURES = Path(__file__).parent / "fixtures"
 
 
-_V1_REF = "main"  # the pre-inheritance baseline
+_V1_REF = "1.6.0"  # the pre-inheritance baseline (last release before extends:)
 
 
 def _git_show(path):

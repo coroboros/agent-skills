@@ -88,10 +88,11 @@ IMPORT_RE = re.compile(r"@([^\s@]+\.md)")
 
 def mask_protected(text):
     """Blank out fenced code, HTML comments, and inline backticks so their
-    content doesn't trigger bloat patterns or phantom imports."""
+    content doesn't trigger bloat patterns or phantom imports. Preserves
+    newlines so reported line numbers stay aligned with the source file."""
 
     def _blank(m):
-        return " " * len(m.group(0))
+        return "".join("\n" if c == "\n" else " " for c in m.group(0))
 
     text = re.sub(r"```.*?```", _blank, text, flags=re.DOTALL)
     text = re.sub(r"<!--.*?-->", _blank, text, flags=re.DOTALL)
