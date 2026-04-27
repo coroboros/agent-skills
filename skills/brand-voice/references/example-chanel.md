@@ -11,15 +11,20 @@ voice:
   source: "extract"
 
 core_attributes:
-  - name: institutional
+  - attribute_id: institutional
+    name: "Institutional"
     failure_mode: "first-person voice, conversational tone, casual register"
-  - name: warm-restrained
+  - attribute_id: warm-restrained
+    name: "Warm-restrained"
     failure_mode: "hype superlatives ('amazing', 'world-class'), exclamation marks, trend-speak"
-  - name: heritage-anchored
+  - attribute_id: heritage-anchored
+    name: "Heritage-anchored"
     failure_mode: "novelty-as-virtue framing, season-bound urgency, claims without dates"
-  - name: french-rooted
+  - attribute_id: french-rooted
+    name: "French-rooted"
     failure_mode: "translating house terms (maison, atelier, savoir-faire, Métiers d'art)"
-  - name: craft-poetic
+  - attribute_id: craft-poetic
+    name: "Craft-poetic"
     failure_mode: "abstract claims about craft without naming the atelier, the technique, or the duration"
 
 forbidden_lexicon:

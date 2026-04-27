@@ -20,6 +20,7 @@ Lint a `BRAND-VOICE.md` against the canonical format. Read-only. Use to verify a
 | `[path]` positional | Target voice doc (default: `-o` value, else `./BRAND-VOICE.md`) |
 | `-o <path>` | Same target as the positional, kebab-aligned with the rest of the skill |
 | `--json` | Emit raw JSON per `references/schemas.md` § voice_lint.py instead of the human-readable report |
+| `--allow-extends-outside-skill` | Suppress the `extends-path-outside-skill` warning when the chain references files outside the linted file's directory tree |
 
 ## Workflow
 
@@ -72,8 +73,26 @@ For each error code, append a one-line suggested fix per [`references/schemas.md
 | `missing-section` | Add the required H2 section. |
 | `section-out-of-order` | Reorder the sections to canonical order. |
 | `duplicate-section` | Merge or rename duplicate H2 headings. |
+| `extends-cycle` | Break the cycle: a parent file references a descendant. Use `--chain` in `show` to inspect. |
+| `extends-depth-exceeded` | Flatten the chain (max depth: 5) or restructure. |
+| `extends-parent-not-found` | Fix `voice.extends` path; relative paths resolve against the child file's directory. |
+| `extends-parent-invalid` | Fix the parent file (its errors are nested under `parent_errors`). Run `/brand-voice validate <parent>` for detail. |
+| `replace-without-extends` / `remove-without-extends` | Remove the suffix key, or set `voice.extends` if inheritance is intended. |
+| `replace-conflict-with-extending` | Pick one of the canonical field, `<field>_replace`, or `<field>_remove`. |
+| `replace-on-unsupported-field` / `remove-on-unsupported-field` | The field is not on the inheritance whitelist. See `references/canonical-format.md` § Inheritance. |
+| `core-attribute-missing-id` | Add `attribute_id: <kebab-case>` to the entry. Required on every `core_attributes` entry as the stable merge key. |
 
-For warnings, no suggested fix (warnings are informational). The user decides whether to address them.
+For warnings, no suggested fix (warnings are informational). The user decides whether to address them. The `rewrite-rule-overridden-by-child` warning suggests adding `override: true` to the entry if the override is intentional.
+
+### Chain awareness
+
+When the target declares `voice.extends`, the linter walks the chain (`resolve_extends_chain`), recursively lints each parent, and lints the merged result. The output gains:
+
+- `chain` — root-first list of resolved file paths.
+- `merged_stats` — aggregate stats after inheritance is applied.
+- Each error/warning carries `source` (`"child"`, `"parent:<relpath>"`, or `"merged"`) and `source_path` (when the origin is outside the linted file).
+
+`extends-parent-invalid` errors carry a nested `parent_errors` array with the actual parent failures so authors trace cascade failures to their origin.
 
 ### 5. Exit code
 
@@ -159,3 +178,5 @@ Verdict RED: 3 errors block the doc from being considered valid. Fix the errors 
 - **No frontmatter at all** — `frontmatter-invalid-yaml` error with line 1 ("file must start with `---`"). Reported by the script.
 - **Path does not exist** — exit 2 with the suggestion to run `/brand-voice extract`.
 - **`--json` and human-format both requested** — `--json` wins. The flag toggles output mode.
+- **Child syntactically RED, chain not resolved** — the linter returns early with child-only errors (validation order §4.2 in `canonical-format.md`). Authors fix the child first; chain failures surface on the next pass.
+- **Parent on the chain is RED** — child gets one wrapping `extends-parent-invalid` error per failing ancestor, with the ancestor's actual errors nested in `parent_errors`. Run `/brand-voice validate <ancestor>` to focus on a single layer.

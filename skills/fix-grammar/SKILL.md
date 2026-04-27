@@ -9,6 +9,8 @@ license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/fix-grammar
 ---
 
 # Fix Grammar

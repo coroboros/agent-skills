@@ -10,6 +10,8 @@ Show what changed between two versions of a `BRAND-VOICE.md`. Read-only.
 /brand-voice diff old.md new.md                  # two file paths
 /brand-voice diff origin/main HEAD               # vs remote main
 /brand-voice diff -o ./assets/voice.md           # custom file path, working tree vs HEAD
+/brand-voice diff BRAND-VOICE-FOUNDER.md         # single-arg form: child vs resolved parent (when child has `voice.extends`)
+/brand-voice diff old.md new.md --resolved       # diff merged outputs (chain-aware) instead of files-as-written
 ```
 
 ## Flags
@@ -17,13 +19,14 @@ Show what changed between two versions of a `BRAND-VOICE.md`. Read-only.
 | Flag | Meaning |
 |------|---------|
 | `-o <path>` | Target voice doc (default: `./BRAND-VOICE.md`) |
-| (positional refs/paths) | One or two — git refs or file paths |
+| (positional refs/paths) | One or two — git refs or file paths. **Single arg form** with a child file that declares `voice.extends` diffs the child against its resolved parent. |
+| `--resolved` | Diff the merged outputs (after chain resolution and `_replace` / `_remove` overrides) instead of files-as-written. Use when one or both sides have `voice.extends` and you want to compare the *effective* voices. |
 
 ## Workflow
 
 ### 1. Resolve the two sides
 
-The two positional arguments determine what to compare:
+The positional arguments determine what to compare:
 
 | Args | Left | Right |
 |------|------|-------|
@@ -31,6 +34,9 @@ The two positional arguments determine what to compare:
 | `<ref>` | `git show <ref>:<target>` | working tree `<target>` |
 | `<ref-a> <ref-b>` | `git show <ref-a>:<target>` | `git show <ref-b>:<target>` |
 | `<path-a> <path-b>` | `Read` `<path-a>` | `Read` `<path-b>` |
+| `<child-with-extends>` | resolved parent (from `<child>.voice.extends`) | `<child>` itself |
+
+**Single-arg form** — when the positional resolves to a file path that declares `voice.extends`, the diff treats the resolved parent as left and the child as right. Authors get *"what am I overriding?"* without writing the parent path manually. If the file does not declare `voice.extends`, the single-arg form falls back to the `<ref>` interpretation against `<target>`.
 
 If `<target>` is not under git, error: *"`<target>` is not tracked by git. Pass two file paths to diff."*
 
@@ -43,6 +49,8 @@ For each side:
 - `list_h2_sections` to enumerate prose sections.
 
 If parsing one side fails, surface the error and degrade to `git diff --no-prefix` output (raw diff, no semantic interpretation).
+
+When `--resolved` is passed (or the single-arg form is used with a child declaring `voice.extends`), each side is additionally passed through `resolve_extends_chain` + `merge_voice_dicts` + `apply_replace_overrides` + `apply_remove_overrides` before diffing. The diff then reflects the *effective* voice each consumer sees, not the file-as-written. If chain resolution fails on either side (`extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`), the diff aborts with the chain error and the user is directed to `/brand-voice validate` for diagnostic detail.
 
 ### 3. Compute semantic diff
 

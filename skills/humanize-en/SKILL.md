@@ -4,7 +4,7 @@ description: Strip AI writing tells from English prose — em-dash overuse, rule
 when_to_use: Invoke whenever English prose needs to sound less machine-generated — READMEs, docs, release notes, blog drafts, PR bodies, marketing copy, commit messages, commentary. Triggers on phrases like "humanize this", "remove AI tells", "clean up the AI slop", "sounds like ChatGPT", "make this less AI-sounding", "polish the English", "strip AI patterns". Also invoked as a subroutine by other writing skills (e.g., `/write-clear-readme`) to scrub drafts before shipping. Skip for grammar-only fixes (use `/fix-grammar` instead), structural restructuring of a README (use `/write-clear-readme` instead), non-English text, or content where AI-authored tone is intentional (transcripts, dataset labels).
 argument-hint: "[-f <voice-doc>] [file-path | inline text]"
 model: sonnet
-allowed-tools: Read Write Edit Grep Glob
+allowed-tools: Read Write Edit Grep Glob Bash(python3 *)
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
@@ -32,7 +32,14 @@ Workflow:
 
 1. Strip `-f <voice-doc>` from the head of `$ARGUMENTS`. The remainder follows the *Input modes* table below as usual.
 2. Verify `<voice-doc>` exists with `Glob`. Missing or unreadable → degrade to default behavior with an explicit warning ("`<path>` not found — applying universal patterns only"). Never crash.
-3. `Read` the voice doc and consume only the **YAML frontmatter** (the block between the leading `---` delimiters). The fields you need are: `forbidden_lexicon`, `required_lexicon`, `rewrite_rules` (each with `reject`, `accept`, `rule_id`), `sentence_norms`, `forbidden_patterns`, `pronouns`. Skip the prose sections — they are human rationale, not testable rules.
+3. **Resolve the rules** by running `extract_rules.py --full` on the voice doc. The script flattens YAML into plain text, **automatically resolves any `voice.extends` chain**, applies `_replace` and `_remove` overrides, and emits the merged rule block. Resolution order for the script path:
+   1. `${CLAUDE_SKILL_DIR}/../brand-voice/scripts/extract_rules.py` (sibling install)
+   2. `~/.claude/skills/brand-voice/scripts/extract_rules.py` (user-installed brand-voice)
+   3. `~/.agents/skills/brand-voice/scripts/extract_rules.py` (Anthropic skills directory)
+
+   Invoke via `python3 <resolved-script> --full <voice-doc>`. If the script exits non-zero, surface the stderr to the user (it carries chain-resolution errors like `extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`) and abort the brand-aware pass.
+
+   **Fallback** — when none of the candidate paths resolve (the user has only `humanize-en` installed, no `brand-voice`), emit a one-line warning *"brand-voice scripts unavailable; chain resolution skipped"* and `Read` the voice doc directly, parsing only the YAML frontmatter (the block between the leading `---` delimiters). The fields are: `forbidden_lexicon`, `required_lexicon`, `rewrite_rules` (each with `reject`, `accept`, `rule_id`), `sentence_norms`, `forbidden_patterns`, `pronouns`, `core_attributes`, `contexts`. Skip the prose sections. This fallback path does **not** resolve `voice.extends` — if the doc declares it, the warning is doubly visible.
 4. Merge with the 32 universal patterns. **Brand rules win on conflict** — the user's contract overrides the default catalogue (e.g., a voice that *requires* em-dashes overrides pattern #14).
 5. Apply the rewrite as usual. Cite both pattern numbers (`#14`) and brand `rule_id`s (`[no-hedging-imperative]`) in the *Patterns removed* report so the source of each change is traceable.
 

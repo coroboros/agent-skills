@@ -13,6 +13,8 @@ Ingest one or more sources, synthesise the canonical voice doc, write to disk.
 /brand-voice extract -u https://x.com -f ./notes.md            # combined sources
 /brand-voice extract -u https://x.com -o ./assets/voice.md     # custom output path
 /brand-voice extract -s -u https://x.com                       # also save under .claude/output/
+/brand-voice extract --extends ./BRAND-VOICE.md \
+                     -o ./BRAND-VOICE-FOUNDER.md               # scaffold a child voice
 ```
 
 ## Flags
@@ -26,8 +28,9 @@ Ingest one or more sources, synthesise the canonical voice doc, write to disk.
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
 | `-s` | Also save a copy under `.claude/output/brand-voice/{slug}/voice.md` for pipeline history |
 | `-S` | Disable `-s` if it was set ambiently |
+| `--extends <parent_path>` | Scaffold a child voice that inherits from `<parent_path>`. Pre-flight lints the parent (refuses on RED) and pre-populates `voice.extends` plus a comment block summarising parent's mergeable fields. |
 
-If no source flag is given, the skill enters interview mode (8 questions per `references/interview-questions.md`).
+If no source flag is given (and `--extends` is not used), the skill enters interview mode (8 questions per `references/interview-questions.md`).
 
 ## Workflow
 
@@ -38,6 +41,31 @@ If no source flag is given, the skill enters interview mode (8 questions per `re
   > "`<path>` already exists. To refresh it, use `/brand-voice update`. To replace it, delete it first."
   Do not overwrite. The canonical file is git-versioned — letting `extract` overwrite breaks history.
 - If the parent directory of `-o` does not exist, abort with a clear `mkdir -p` suggestion.
+- **`--extends <parent_path>` pre-flight** — when the flag is present:
+  1. Resolve `<parent_path>` (absolute or relative to CWD).
+  2. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py <parent_path>`.
+  3. Exit 1 (parent RED) → abort: *"Parent `<parent_path>` is RED. Fix it first or pass `--allow-extends-outside-skill` only if the brokenness is intentional."* Authors don't accidentally extend a broken parent.
+  4. Exit 2 (parent missing/unreadable) → abort with the lint error.
+  5. Exit 0 (GREEN/YELLOW) → proceed.
+
+### 1b. Scaffold mode (`--extends <parent_path>`)
+
+When `--extends` is set, synthesis is bootstrapped from the parent rather than from blank:
+
+- The new file's frontmatter starts with `voice.name`, `voice.extends: <relpath>` (relative to `-o`'s directory), `voice.last_updated`, `voice.source: "manual"`.
+- An inline YAML comment block lists the parent's contributions so the author knows what they inherit by default and where overrides slot in:
+
+  ```yaml
+  # Inherits from <parent_path>:
+  #   forbidden_lexicon: 27 entries        — extend via `forbidden_lexicon`, override via `forbidden_lexicon_replace`, subtract via `forbidden_lexicon_remove`
+  #   rewrite_rules: 11 entries            — add new entries by canonical rule_id, override existing (mark `override: true` to silence the warning)
+  #   core_attributes: 5 entries           — required: declare attribute_id when adding
+  #   contexts: 6 contexts                 — deep merge by name
+  #   pronouns: declared                   — replace via `pronouns_replace` if the persona inverts the parent
+  ```
+
+- Required prose sections (1–4) are stubbed; recommended sections (5–11) are omitted with a comment *"# inherited from `<parent_path>` — declare locally to override"*.
+- Other source flags (`-u`, `-n`, `-d`, `-f`) may still be combined with `--extends` to seed the child's own contributions. Sources contribute to the *child* delta, not to a re-synthesis of the parent.
 
 ### 2. Source resolution
 
