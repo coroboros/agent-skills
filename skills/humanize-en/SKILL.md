@@ -1,8 +1,8 @@
 ---
 name: humanize-en
-description: Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (delve, tapestry, crucial, pivotal, underscore, showcase), vague attributions, promotional tone, conjunctive padding (moreover, furthermore, indeed), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing. Operates on inline text or a prose file path. Based on Wikipedia's Signs of AI writing (canonical taxonomy) with pattern extensions and the voice-calibration approach from github.com/blader/humanizer.
+description: Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (delve, tapestry, crucial, pivotal, underscore, showcase), vague attributions, promotional tone, conjunctive padding (moreover, furthermore, indeed), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing. Operates on inline text or a prose file path. Optionally loads a `BRAND-VOICE.md` via `-f` (produced by `/brand-voice`) to apply brand-specific rules on top of the universal patterns. Based on Wikipedia's Signs of AI writing (canonical taxonomy) with pattern extensions and the voice-calibration approach from github.com/blader/humanizer.
 when_to_use: Invoke whenever English prose needs to sound less machine-generated — READMEs, docs, release notes, blog drafts, PR bodies, marketing copy, commit messages, commentary. Triggers on phrases like "humanize this", "remove AI tells", "clean up the AI slop", "sounds like ChatGPT", "make this less AI-sounding", "polish the English", "strip AI patterns". Also invoked as a subroutine by other writing skills (e.g., `/write-clear-readme`) to scrub drafts before shipping. Skip for grammar-only fixes (use `/fix-grammar` instead), structural restructuring of a README (use `/write-clear-readme` instead), non-English text, or content where AI-authored tone is intentional (transcripts, dataset labels).
-argument-hint: "[file-path | inline text]"
+argument-hint: "[-f <voice-doc>] [file-path | inline text]"
 model: sonnet
 allowed-tools: Read Write Edit Grep Glob
 license: MIT
@@ -24,9 +24,23 @@ Additional context from the user: $ARGUMENTS
 
 This skill **removes** AI slop. It does not **inject** personality — that can break technical documentation, formal specs, and any neutral-voice register. The goal is a clean, direct, human-edited register, not an opinionated blog post. If the source is an opinion piece and the user explicitly asks for voice, `references/voice.md` covers the optional voice-calibration pass.
 
+## Brand voice integration (optional)
+
+When `$ARGUMENTS` starts with `-f <voice-doc>`, load a `BRAND-VOICE.md` (typically produced by [`/brand-voice`](../brand-voice/SKILL.md)) and apply its brand-specific rules in addition to the universal 32 patterns.
+
+Workflow:
+
+1. Strip `-f <voice-doc>` from the head of `$ARGUMENTS`. The remainder follows the *Input modes* table below as usual.
+2. Verify `<voice-doc>` exists with `Glob`. Missing or unreadable → degrade to default behavior with an explicit warning ("`<path>` not found — applying universal patterns only"). Never crash.
+3. `Read` the voice doc and consume only the **YAML frontmatter** (the block between the leading `---` delimiters). The fields you need are: `forbidden_lexicon`, `required_lexicon`, `rewrite_rules` (each with `reject`, `accept`, `rule_id`), `sentence_norms`, `forbidden_patterns`, `pronouns`. Skip the prose sections — they are human rationale, not testable rules.
+4. Merge with the 32 universal patterns. **Brand rules win on conflict** — the user's contract overrides the default catalogue (e.g., a voice that *requires* em-dashes overrides pattern #14).
+5. Apply the rewrite as usual. Cite both pattern numbers (`#14`) and brand `rule_id`s (`[no-hedging-imperative]`) in the *Patterns removed* report so the source of each change is traceable.
+
+If the user wants brand-aware rewriting and no voice doc exists, defer: *"No `BRAND-VOICE.md` at `<path>`. Run `/brand-voice extract` first."*
+
 ## Input modes
 
-Resolve `$ARGUMENTS` as follows:
+Resolve `$ARGUMENTS` (after stripping any leading `-f <voice-doc>`) as follows:
 
 | Input shape | Behavior |
 |-------------|----------|
@@ -135,6 +149,7 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 
 - Pure spelling or grammar errors → `/fix-grammar`.
 - Structural problems (wrong headings, missing TOC, collapse patterns) → `/write-clear-readme`.
+- Define, update, or inspect a brand voice doc → `/brand-voice extract|update|diff|show`. This skill *consumes* the voice doc via `-f`; `/brand-voice` *produces* it.
 - The text is in a non-English language → stop and tell the user; this skill is English-only by design.
 
 ## Reference
