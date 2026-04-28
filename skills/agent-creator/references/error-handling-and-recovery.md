@@ -1,11 +1,11 @@
 # Error Handling and Recovery for Subagents
 
-<common_failure_modes>
-
+## Common failure modes
 
 Industry research identifies these failure patterns:
 
-<specification_problems>
+### Specification problems
+
 **32% of failures**: Subagents don't know what to do.
 
 **Causes**:
@@ -17,9 +17,9 @@ Industry research identifies these failure patterns:
 **Symptoms**: Subagent asks clarifying questions (can't if it's a subagent), makes incorrect assumptions, produces partial outputs, or fails to complete task.
 
 **Prevention**: Explicit `<role>`, `<workflow>`, `<focus_areas>`, and `<output_format>` sections in prompt.
-</specification_problems>
 
-<inter_agent_misalignment>
+### Inter-agent misalignment
+
 **28% of failures**: Coordination breakdowns in multi-agent workflows.
 
 **Causes**:
@@ -31,9 +31,9 @@ Industry research identifies these failure patterns:
 **Symptoms**: Duplicate work, contradictory outputs, infinite loops, tasks falling through cracks.
 
 **Prevention**: Clear orchestration patterns (see [orchestration-patterns.md](orchestration-patterns.md)), explicit handoff protocols.
-</inter_agent_misalignment>
 
-<verification_gaps>
+### Verification gaps
+
 **24% of failures**: Nobody checks quality.
 
 **Causes**:
@@ -45,9 +45,9 @@ Industry research identifies these failure patterns:
 **Symptoms**: Incorrect results silently propagated, hallucinations undetected, format errors break downstream processes.
 
 **Prevention**: Include verification steps in subagent workflows, validate outputs before use, implement evaluator agents.
-</verification_gaps>
 
-<error_cascading>
+### Error cascading
+
 **Critical pattern**: Failures in one subagent propagate to others.
 
 **Causes**:
@@ -58,9 +58,9 @@ Industry research identifies these failure patterns:
 **Symptoms**: Single failure causes entire workflow to fail.
 
 **Prevention**: Defensive programming in subagent prompts, graceful degradation strategies, validation at boundaries.
-</error_cascading>
 
-<non_determinism>
+### Non-determinism
+
 **Inherent challenge**: Same prompt can produce different outputs.
 
 **Causes**:
@@ -71,16 +71,13 @@ Industry research identifies these failure patterns:
 **Symptoms**: Inconsistent behavior across invocations, tests pass sometimes and fail other times.
 
 **Mitigation**: Lower temperature for consistency-critical tasks, comprehensive testing to identify variation patterns, robust validation.
-</non_determinism>
-</common_failure_modes>
 
-<recovery_strategies>
+## Recovery strategies
 
+### Graceful degradation
 
-<graceful_degradation>
 **Pattern**: Workflow produces useful result even when ideal path fails.
 
-<example>
 ```markdown
 <workflow>
 1. Attempt to fetch latest API documentation from web
@@ -99,13 +96,11 @@ Industry research identifies these failure patterns:
 ```
 
 **Key principle**: Partial success better than total failure. Always produce something useful.
-</example>
-</graceful_degradation>
 
-<autonomous_retry>
+### Autonomous retry
+
 **Pattern**: Subagent retries failed operations with exponential backoff.
 
-<example>
 ```markdown
 <error_handling>
 When a tool call fails:
@@ -122,13 +117,11 @@ Maximum 3 retry attempts before falling back.
 **Use case**: Transient failures (network issues, temporary file locks, rate limits).
 
 **Anti-pattern**: Infinite retry loops without backoff or max attempts.
-</example>
-</autonomous_retry>
 
-<circuit_breakers>
+### Circuit breakers
+
 **Pattern**: Prevent cascading failures by stopping calls to failing components.
 
-<conceptual_example>
 ```markdown
 <circuit_breaker_logic>
 If API endpoint has failed 5 consecutive times:
@@ -143,13 +136,11 @@ If API endpoint has failed 5 consecutive times:
 **Application to subagents**: Include in prompt when subagent calls external APIs or services.
 
 **Benefit**: Prevents wasting time/tokens on operations known to be failing.
-</conceptual_example>
-</circuit_breakers>
 
-<timeouts>
+### Timeouts
+
 **Pattern**: Agents going silent shouldn't block workflow indefinitely.
 
-<implementation>
 ```markdown
 <timeout_handling>
 For long-running operations:
@@ -163,13 +154,11 @@ For long-running operations:
 ```
 
 **Note**: Claude Code has built-in timeouts for tool calls. Subagent prompts should include guidance on what to do when operations approach reasonable time limits.
-</implementation>
-</timeouts>
 
-<multiple_verification_paths>
+### Multiple verification paths
+
 **Pattern**: Different validators catch different error types.
 
-<example>
 ```markdown
 <verification_strategy>
 After generating code:
@@ -185,13 +174,11 @@ Each check catches different error types.
 ```
 
 **Benefit**: Layered validation catches more issues than single validation pass.
-</example>
-</multiple_verification_paths>
 
-<reassigning_tasks>
+### Reassigning tasks
+
 **Pattern**: Invoke alternative agents or escalate to human when primary approach fails.
 
-<example>
 ```markdown
 <escalation_workflow>
 If automated fix fails after 2 attempts:
@@ -205,16 +192,13 @@ Know when to escalate rather than thrashing.
 ```
 
 **Key insight**: Subagents should recognize their limitations and provide useful handoff information.
-</example>
-</reassigning_tasks>
-</recovery_strategies>
 
-<structured_communication>
-
+## Structured communication
 
 Multi-agent systems fail when communication is ambiguous. Structured messaging prevents misunderstandings.
 
-<message_types>
+### Message types
+
 Every message between agents (or from agent to user) should have explicit type:
 
 **Request**: Asking for something
@@ -251,12 +235,11 @@ From: test-writer
 Reason: Cannot write tests - no testing framework configured in project
 Recommendation: Install Jest or similar framework first
 ```
-</message_types>
 
-<schema_validation>
+### Schema validation
+
 **Pattern**: Validate every payload against expected schema.
 
-<example>
 ```markdown
 <output_validation>
 Expected output format:
@@ -282,16 +265,13 @@ Before returning output:
 ```
 
 **Benefit**: Prevents malformed outputs from breaking downstream processes.
-</example>
-</schema_validation>
-</structured_communication>
 
-<observability>
-
+## Observability
 
 "Most agent failures are not model failures, they are context failures."
 
-<structured_logging>
+### Structured logging
+
 **What to log**:
 - Input prompts and parameters
 - Tool calls and their results
@@ -318,9 +298,9 @@ Status: Success
 ```
 
 **Use case**: Debugging failures, identifying patterns, performance optimization.
-</structured_logging>
 
-<correlation_ids>
+### Correlation IDs
+
 **Pattern**: Track every message, plan, and tool call for end-to-end reconstruction.
 
 ```markdown
@@ -339,9 +319,9 @@ Main chat [abc123]:
 ```
 
 **Benefit**: Can trace entire workflow execution, identify where failures occurred, understand cascading effects.
-</correlation_ids>
 
-<metrics_monitoring>
+### Metrics monitoring
+
 **Key metrics to track**:
 - Success rate (completed tasks / total invocations)
 - Error rate by error type
@@ -356,12 +336,11 @@ Main chat [abc123]:
 - Token usage increases >50% without prompt changes
 - Latency exceeds 2x baseline
 - Same error type occurs >5 times in 24 hours
-</metrics_monitoring>
 
-<evaluator_agents>
+### Evaluator agents
+
 **Pattern**: Dedicated quality guardrail agents validate outputs.
 
-<example>
 ```markdown
 ---
 name: output-validator
@@ -395,14 +374,11 @@ Partial: Minor issues that don't prevent use - flag warnings
 ```
 
 **Use case**: Critical workflows where output quality is essential, high-risk operations, compliance requirements.
-</example>
-</evaluator_agents>
-</observability>
 
-<anti_patterns>
+## Anti-patterns
 
+### Silent failures
 
-<anti_pattern name="silent_failures">
 ❌ Subagent fails but doesn't indicate failure in output
 
 **Example**:
@@ -413,9 +389,9 @@ Output: "No issues found" (incomplete review, but looks successful)
 ```
 
 **Fix**: Explicitly state what was reviewed, flag partial completion, include error summary.
-</anti_pattern>
 
-<anti_pattern name="no_fallback">
+### No fallback
+
 ❌ When ideal path fails, subagent gives up entirely
 
 **Example**:
@@ -433,17 +409,17 @@ Output: Code generated with note: "Verify against current API docs, using cached
 ```
 
 **Principle**: Provide best possible output given constraints, clearly flag limitations.
-</anti_pattern>
 
-<anti_pattern name="infinite_retry">
+### Infinite retry
+
 ❌ Retrying failed operations without backoff or limit
 
 **Risk**: Wastes tokens, time, and may hit rate limits.
 
 **Fix**: Maximum retry count (typically 2-3), exponential backoff, fallback after exhausting retries.
-</anti_pattern>
 
-<anti_pattern name="error_cascading">
+### Error cascading
+
 ❌ Downstream agents assume upstream outputs are valid
 
 **Example**:
@@ -458,9 +434,9 @@ Total workflow failure from single upstream error
 ```
 
 **Fix**: Each agent validates inputs before processing, includes error handling for invalid inputs.
-</anti_pattern>
 
-<anti_pattern name="no_error_context">
+### No error context
+
 ❌ Error messages without diagnostic context
 
 **Bad**: "Failed to complete task"
@@ -468,11 +444,8 @@ Total workflow failure from single upstream error
 **Good**: "Failed to complete task: Unable to access file src/auth.ts (file not found). Attempted to review authentication code but file missing from expected location. Recommendation: Verify file path or check if file was moved/deleted."
 
 **Principle**: Error messages should help diagnose root cause and suggest remediation.
-</anti_pattern>
-</anti_patterns>
 
-<recovery_checklist>
-
+## Recovery checklist
 
 Include these patterns in subagent prompts:
 
@@ -499,4 +472,3 @@ Include these patterns in subagent prompts:
 - [ ] Self-checking (does output make sense?)
 - [ ] Format compliance verification
 - [ ] Completeness check (all required components present?)
-</recovery_checklist>

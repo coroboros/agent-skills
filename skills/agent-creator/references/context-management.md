@@ -1,11 +1,11 @@
 # Context Management for Subagents
 
-<core_problem>
-
+## Core problem
 
 "Most agent failures are not model failures, they are context failures."
 
-<stateless_nature>
+### Stateless nature
+
 LLMs are stateless by default. Each invocation starts fresh with no memory of previous interactions.
 
 **For subagents, this means**:
@@ -13,22 +13,20 @@ LLMs are stateless by default. Each invocation starts fresh with no memory of pr
 - Repeated information wastes tokens
 - Important decisions from earlier in workflow forgotten
 - Context window fills with redundant information
-</stateless_nature>
 
-<context_window_limits>
+### Context window limits
+
 Full conversation history leads to:
 - Degraded performance (important info buried in noise)
 - High costs (paying for redundant tokens)
 - Context limits exceeded (workflow fails)
 
 **Critical threshold**: When context approaches limit, quality degrades before hard failure.
-</context_window_limits>
-</core_problem>
 
-<memory_architecture>
+## Memory architecture
 
+### Short-term memory
 
-<short_term_memory>
 **Short-term memory (STM)**: Last 5-9 interactions.
 
 **Implementation**: Preserved in context window.
@@ -40,9 +38,9 @@ Full conversation history leads to:
 - Active conversation flow
 
 **Limitation**: Limited capacity, volatile (lost when context cleared).
-</short_term_memory>
 
-<long_term_memory>
+### Long-term memory
+
 **Long-term memory (LTM)**: Persistent storage across sessions.
 
 **Implementation**: External storage (files, databases, vector stores).
@@ -54,9 +52,9 @@ Full conversation history leads to:
 - Past task outcomes
 
 **Access pattern**: Retrieve relevant memories into working memory when needed.
-</long_term_memory>
 
-<working_memory>
+### Working memory
+
 **Working memory**: Current context + retrieved memories.
 
 **Composition**:
@@ -66,9 +64,9 @@ Full conversation history leads to:
 - Current tool outputs
 
 **Management**: This is what fits in context window. Optimize aggressively.
-</working_memory>
 
-<core_memory>
+### Core memory
+
 **Core memory**: Actively used information in current interaction.
 
 **Examples**:
@@ -78,9 +76,9 @@ Full conversation history leads to:
 - Active workflow state
 
 **Principle**: Keep core memory minimal and highly relevant. Everything else is retrievable.
-</core_memory>
 
-<archival_memory>
+### Archival memory
+
 **Archival memory**: Persistent storage for less critical data.
 
 **Examples**:
@@ -90,24 +88,23 @@ Full conversation history leads to:
 - Deprecated approaches that were tried
 
 **Access**: Rarely needed, searchable when required, doesn't consume context window.
-</archival_memory>
-</memory_architecture>
 
-<context_strategies>
+## Context strategies
 
+### Summarization
 
-<summarization>
 **Pattern**: Move information from context to searchable database, keep summary in memory.
 
-<when_to_summarize>
+#### When to summarize
+
 Trigger summarization when:
 - Context reaches 75% of limit
 - Task transitions to new phase
 - Information is important but no longer actively needed
 - Repeated information appears multiple times
-</when_to_summarize>
 
-<summary_quality>
+#### Summary quality
+
 **Quality guidelines**:
 
 1. **Highlight important events**
@@ -137,9 +134,9 @@ Actions taken:
 ```
 
 **Benefit**: Organized grouping improves relationship understanding.
-</summary_quality>
 
-<example_workflow>
+#### Example workflow
+
 ```markdown
 <context_management>
 When conversation history exceeds 15 turns:
@@ -153,13 +150,11 @@ When conversation history exceeds 15 turns:
 5. Continue with reduced context load
 </context_management>
 ```
-</example_workflow>
-</summarization>
 
-<sliding_window>
+### Sliding window
+
 **Pattern**: Recent interactions in context, older interactions as vectors for retrieval.
 
-<implementation>
 ```markdown
 <sliding_window_strategy>
 Maintain in context:
@@ -181,13 +176,11 @@ Retrieval trigger:
 ```
 
 **Benefit**: Bounded context growth, relevant history still accessible.
-</implementation>
-</sliding_window>
 
-<semantic_context_switching>
+### Semantic context switching
+
 **Pattern**: Detect context changes, respond appropriately.
 
-<example>
 ```markdown
 <context_switch_detection>
 Monitor for topic changes:
@@ -204,13 +197,11 @@ On context switch:
 ```
 
 **Prevents**: Mixing contexts, applying wrong constraints, forgetting important info when switching tasks.
-</example>
-</semantic_context_switching>
 
-<scratchpads>
+### Scratchpads
+
 **Pattern**: Record intermediate results outside LLM context.
 
-<use_cases>
 **When to use scratchpads**:
 - Complex calculations with many steps
 - Exploration of multiple approaches
@@ -231,13 +222,13 @@ For complex debugging:
 ```
 
 **Benefit**: Context contains insights, scratchpad contains exploration. User gets clean summary, full details available if needed.
-</use_cases>
-</scratchpads>
 
-<smart_memory_management>
+### Smart memory management
+
 **Pattern**: Auto-add key data, retrieve on demand.
 
-<smart_write>
+#### Smart write
+
 ```markdown
 <auto_capture>
 Automatically save to memory:
@@ -249,9 +240,9 @@ Automatically save to memory:
 Store in structured format for easy retrieval.
 </auto_capture>
 ```
-</smart_write>
 
-<smart_read>
+#### Smart read
+
 ```markdown
 <auto_retrieval>
 Automatically retrieve from memory when:
@@ -262,13 +253,11 @@ Automatically retrieve from memory when:
 Inject relevant memories into working context.
 </auto_retrieval>
 ```
-</smart_read>
-</smart_memory_management>
 
-<compaction>
+### Compaction
+
 **Pattern**: Summarize near-limit conversations, reinitiate with summary.
 
-<workflow>
 ```markdown
 <compaction_workflow>
 When context reaches 90% capacity:
@@ -292,14 +281,11 @@ Summary format:
 ```
 
 **When to use**: Long-running tasks, exploratory analysis, iterative debugging.
-</workflow>
-</compaction>
-</context_strategies>
 
-<framework_support>
+## Framework support
 
+### LangChain
 
-<langchain>
 **LangChain**: Provides automatic memory management.
 
 **Features**:
@@ -309,9 +295,9 @@ Summary format:
 - Entity extraction
 
 **Use case**: Building subagents that need sophisticated memory without manual implementation.
-</langchain>
 
-<llamaindex>
+### LlamaIndex
+
 **LlamaIndex**: Indexing for longer conversations.
 
 **Features**:
@@ -320,9 +306,9 @@ Summary format:
 - Retrieval augmentation
 
 **Use case**: Subagents working with large codebases, documentation, or extensive conversation history.
-</llamaindex>
 
-<file_based>
+### File-based
+
 **File-based memory**: Simple, explicit, debuggable.
 
 ```markdown
@@ -340,13 +326,11 @@ Subagent reads relevant files at start, updates during execution, summarizes at 
 ```
 
 **Benefit**: Transparent, version-controllable, human-readable.
-</file_based>
-</framework_support>
 
-<subagent_patterns>
+## Subagent patterns
 
+### Stateful subagent
 
-<stateful_subagent>
 **For long-running or frequently-invoked subagents**:
 
 ```markdown
@@ -375,9 +359,9 @@ State file structure:
 - Active concerns (issues to address)
 </memory_management>
 ```
-</stateful_subagent>
 
-<stateless_subagent>
+### Stateless subagent
+
 **For simple, focused subagents**:
 
 ```markdown
@@ -401,9 +385,9 @@ You are a syntax validator. Check code for syntax errors.
 ```
 
 **When to use stateless**: Single-purpose validators, formatters, simple transformations.
-</stateless_subagent>
 
-<context_inheritance>
+### Context inheritance
+
 **Inheriting context from main chat**:
 
 Subagents automatically have access to:
@@ -419,29 +403,27 @@ Subagent receives:
 - Context: Recent switch from JWT to session-based auth
 - This context informs review focus without explicit memory management
 ```
-</context_inheritance>
-</subagent_patterns>
 
-<anti_patterns>
+## Anti-patterns
 
+### Context dumping
 
-<anti_pattern name="context_dumping">
 ❌ Including everything in context "just in case"
 
 **Problem**: Buries important information in noise, wastes tokens, degrades performance.
 
 **Fix**: Include only what's relevant for current task. Everything else is retrievable.
-</anti_pattern>
 
-<anti_pattern name="no_summarization">
+### No summarization
+
 ❌ Letting context grow unbounded until limit hit
 
 **Problem**: Sudden context overflow mid-task, quality degradation before failure.
 
 **Fix**: Proactive summarization at 75% capacity, continuous compaction.
-</anti_pattern>
 
-<anti_pattern name="lossy_summarization">
+### Lossy summarization
+
 ❌ Summaries that discard critical information
 
 **Example**:
@@ -451,17 +433,17 @@ Lost information: What approaches failed, why, what the successful fix was
 ```
 
 **Fix**: Summaries preserve essential facts, decisions, and rationale. Details go to archival storage.
-</anti_pattern>
 
-<anti_pattern name="no_memory_structure">
+### No memory structure
+
 ❌ Unstructured memory (long paragraphs, no organization)
 
 **Problem**: Hard to retrieve relevant information, poor for LLM reasoning.
 
 **Fix**: Structured memory with categories, bullet points, clear sections.
-</anti_pattern>
 
-<anti_pattern name="context_failure_ignorance">
+### Context failure ignorance
+
 ❌ Assuming all failures are model limitations
 
 **Reality**: "Most agent failures are context failures, not model failures."
@@ -471,19 +453,17 @@ Check context quality before blaming model:
 - Is it organized clearly?
 - Is important info buried in noise?
 - Has context been properly maintained?
-</anti_pattern>
-</anti_patterns>
 
-<best_practices>
+## Best practices
 
+### Core memory minimal
 
-<principle name="core_memory_minimal">
 Keep core memory minimal and highly relevant.
 
 **Rule of thumb**: If information isn't needed for next 3 steps, it doesn't belong in core memory.
-</principle>
 
-<principle name="summaries_structured">
+### Summaries structured
+
 Summaries should be structured, categorized, and scannable.
 
 **Template**:
@@ -503,21 +483,21 @@ Summaries should be structured, categorized, and scannable.
 
 **Next**: [Immediate next steps]
 ```
-</principle>
 
-<principle name="timing_matters">
+### Timing matters
+
 Include timing for sequential reasoning.
 
 "First tried X (failed), then tried Y (worked)" is more useful than "Used approach Y".
-</principle>
 
-<principle name="retrieval_over_retention">
+### Retrieval over retention
+
 Better to retrieve information on-demand than keep it in context always.
 
 **Exception**: Frequently-used core facts (task goal, critical constraints).
-</principle>
 
-<principle name="external_storage">
+### External storage
+
 Use filesystem for:
 - Full logs and traces
 - Detailed exploration results
@@ -529,15 +509,13 @@ Use context for:
 - Key decisions
 - Active workflow
 - Immediate next steps
-</principle>
-</best_practices>
 
-<prompt_caching_interaction>
-
+## Prompt caching interaction
 
 Prompt caching (see [subagents.md](subagents.md#prompt_caching)) works best with stable context.
 
-<cache_friendly_context>
+### Cache-friendly context
+
 **Structure context for caching**:
 
 ```markdown
@@ -554,14 +532,12 @@ Recent context: ...
 ```
 
 **Benefit**: Stable instructions cached, task-specific context fresh. 90% cost reduction on cached portion.
-</cache_friendly_context>
 
-<cache_invalidation>
+### Cache invalidation
+
 **When context changes invalidate cache**:
 - Subagent prompt updated
 - Core memory structure changed
 - Context reorganization
 
 **Mitigation**: Keep stable content (role, workflow, constraints) separate from variable content (current task, recent history).
-</cache_invalidation>
-</prompt_caching_interaction>
