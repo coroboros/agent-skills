@@ -44,8 +44,9 @@ if [[ ! -f "$CONTEXT" ]]; then
   exit 1
 fi
 
-# Verify each prior step.
-for prior in $(seq 1 $((STEP_NUM - 1))); do
+# Verify each prior step. C-style loop for macOS BSD-seq portability —
+# `seq 1 0` counts down on BSD instead of producing an empty range.
+for ((prior=1; prior<STEP_NUM; prior++)); do
   prior_num=$(printf "%02d" "$prior")
   # Find the step file (e.g., 01-analyze.md)
   prior_file=$(find "$TASK_DIR" -maxdepth 1 -name "${prior_num}-*.md" | head -1)

@@ -84,7 +84,7 @@ if [[ $SAVE -eq 1 ]]; then
   OUT_DIR=".claude/output/markitdown/$SLUG"
   mkdir -p "$OUT_DIR"
   OUT_FILE="$OUT_DIR/${STEM}.md"
-  markitdown "${ARGS[@]}" "$INPUT" -o "$OUT_FILE"
+  markitdown ${ARGS[@]+"${ARGS[@]}"} "$INPUT" -o "$OUT_FILE"
   BYTES=$(wc -c < "$OUT_FILE" | tr -d ' ')
   echo "RESULT: path=$OUT_FILE"
   echo "RESULT: bytes=$BYTES"
@@ -93,7 +93,7 @@ if [[ $SAVE -eq 1 ]]; then
 else
   TMP=$(mktemp -t markitdown.XXXXXX)
   trap 'rm -f "$TMP"' EXIT
-  markitdown "${ARGS[@]}" "$INPUT" -o "$TMP"
+  markitdown ${ARGS[@]+"${ARGS[@]}"} "$INPUT" -o "$TMP"
   BYTES=$(wc -c < "$TMP" | tr -d ' ')
   echo "RESULT: bytes=$BYTES"
   echo "RESULT: slug=$SLUG"

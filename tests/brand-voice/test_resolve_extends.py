@@ -7,7 +7,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "skills" / "brand-voice" / "scripts"))
 from utils import (  # noqa: E402
     ExtendsError,
     MAX_EXTENDS_DEPTH,

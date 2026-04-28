@@ -80,6 +80,20 @@ Once the loop returns GREEN, align the skill with this repo before committing:
    - Update the pipeline diagram if the skill chains with others.
    - Verify cross-references (flag names, output paths, `-f` contracts) are consistent.
 
+## Testing requirement
+
+Tests live at the repo root in `tests/<skill-name>/` (placement rule documented in [`repo-conventions.md`](./repo-conventions.md#testing)). The universal `tests/_meta/` suite covers cross-skill invariants (frontmatter conformity, file references, marketplace.json parity, README parity) automatically — every skill is included.
+
+**Per-skill requirement, best effort**:
+
+- **Code-bearing skills** (any folder under `skills/<name>/scripts/` with substantial deterministic logic — parsing, scoring, regex matching, merging, graph operations) — any change to those scripts MUST add or update unit tests in `tests/<skill-name>/` in the same PR. Catches silent regressions when patterns drift, schemas mutate, or exit codes flip.
+- **Thin wrappers** (shell scripts orchestrating an external CLI) — tests should pin the wrapper's own contract: argument parsing, exit code mapping, output schema (`RESULT: key=value` lines), self-overwrite guards. Don't test the wrapped CLI.
+- **Pure-prompt skills** (no `scripts/` folder) — the universal `tests/_meta/` suite covers the floor. Add per-skill structural tests in `tests/<skill-name>/` only when there's a non-obvious invariant worth pinning (reference-file completeness, internal table consistency, escalation contract documented in SKILL.md).
+
+**Run before commit**: `python3 -m unittest discover tests/ -v` — all GREEN required. The `/skill-creator` loop's GREEN exit criterion does not replace this — `skill-creator` reviews the SKILL.md contract; the test suite verifies the implementation. CI re-runs the same suite on every PR via `.github/workflows/ci.yml` — red CI blocks merge.
+
+**When tests legitimately can't be added** (e.g., a doc-only edit), state so in the PR body. The default is "tests added"; "no tests because X" is the exception that needs justification.
+
 ## Audit before PR
 
 For any refactor touching more than one skill, run an Explore-agent audit before opening the PR. This catches frontmatter drift, description staleness, and bug regressions before they land.
@@ -97,6 +111,7 @@ Brief the agent with:
    - Workflow correctness (step order, no hardcoded assumptions that break across project configs)
    - Size budget (<500 lines, <5000 tokens)
    - Cross-skill consistency (shared sections align across the refactored set)
+   - **Tests** — `python3 -m unittest discover tests/<skill-name>/` GREEN; if scripts changed and no test was added, justified in the PR body
 6. Expected verdict format: `GREEN` / `YELLOW` / `RED` per skill with 2–4 bullet findings (file:line when applicable), plus a one-line overall verdict. Keep the report under ~500 words.
 
 **Merge gate.** GREEN per skill → proceed with the PR. YELLOW → fix in a follow-up step before merge. RED → block the PR and re-work.

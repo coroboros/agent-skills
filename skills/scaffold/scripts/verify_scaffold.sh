@@ -34,7 +34,9 @@ if pnpm biome check --write . >/dev/null 2>&1; then
 else
   echo "RESULT: biome=fail"
   echo "--- biome diagnostics (first 60 lines) ---" >&2
-  pnpm biome check . 2>&1 | head -60 >&2
+  # `|| true` keeps `set -e` + pipefail from aborting the script on the
+  # diagnostic re-run; we already know it failed and want typecheck to run too.
+  pnpm biome check . 2>&1 | head -60 >&2 || true
   echo "--- end biome diagnostics ---" >&2
   OK=false
 fi
@@ -46,7 +48,7 @@ if pnpm typecheck >/dev/null 2>&1; then
 else
   echo "RESULT: typecheck=fail"
   echo "--- typecheck diagnostics (first 60 lines) ---" >&2
-  pnpm typecheck 2>&1 | head -60 >&2
+  pnpm typecheck 2>&1 | head -60 >&2 || true
   echo "--- end typecheck diagnostics ---" >&2
   OK=false
 fi
