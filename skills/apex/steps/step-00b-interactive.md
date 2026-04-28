@@ -39,12 +39,9 @@ Show current flag values:
 | Flag | Status | Description |
 |------|--------|-------------|
 | Auto (`-a`) | {auto_mode ? "✓ ON" : "✗ OFF"} | Skip confirmations |
-| Examine (`-x`) | {examine_mode ? "✓ ON" : "✗ OFF"} | Adversarial review |
 | Save (`-s`) | {save_mode ? "✓ ON" : "✗ OFF"} | Save outputs to files |
-| Test (`-t`) | {test_mode ? "✓ ON" : "✗ OFF"} | Include test steps |
-| Economy (`-e`) | {economy_mode ? "✓ ON" : "✗ OFF"} | No subagents |
+| Economy (`-e`) | {economy_mode ? "✓ ON" : "✗ OFF"} | No subagents, save tokens |
 | Branch (`-b`) | {branch_mode ? "✓ ON" : "✗ OFF"} | Verify/create branch |
-| PR (`-pr`) | {pr_mode ? "✓ ON" : "✗ OFF"} | Create pull request |
 ```
 
 ### 2. Ask for Flag Changes
@@ -53,57 +50,32 @@ Use AskUserQuestion with multiSelect:
 ```yaml
 questions:
   - header: "Configure"
-    question: "Select flags to TOGGLE (currently shown flags will flip their state):"
+    question: "Select flags to TOGGLE (current state will flip):"
     options:
       - label: "Auto mode"
         description: "{auto_mode ? 'Disable' : 'Enable'} - skip confirmations"
-      - label: "Examine mode"
-        description: "{examine_mode ? 'Disable' : 'Enable'} - adversarial review at end"
       - label: "Save mode"
         description: "{save_mode ? 'Disable' : 'Enable'} - save outputs to .claude/output/"
-      - label: "Test mode"
-        description: "{test_mode ? 'Disable' : 'Enable'} - include test creation/runner"
-    multiSelect: true
-```
-
-### 3. Ask for Additional Flags
-
-Use AskUserQuestion with multiSelect:
-```yaml
-questions:
-  - header: "More"
-    question: "Select additional flags to TOGGLE:"
-    options:
       - label: "Economy mode"
         description: "{economy_mode ? 'Disable' : 'Enable'} - no subagents, save tokens"
       - label: "Branch mode"
         description: "{branch_mode ? 'Disable' : 'Enable'} - verify/create git branch"
-      - label: "PR mode"
-        description: "{pr_mode ? 'Disable' : 'Enable'} - create pull request at end"
-      - label: "Done - keep current"
+      - label: "Done — keep current"
         description: "No more changes, proceed with workflow"
     multiSelect: true
 ```
 
-### 4. Apply Changes
+### 3. Apply Changes
 
 For each selected flag, toggle its value:
 ```
 IF "Auto mode" selected → {auto_mode} = !{auto_mode}
-IF "Examine mode" selected → {examine_mode} = !{examine_mode}
 IF "Save mode" selected → {save_mode} = !{save_mode}
-IF "Test mode" selected → {test_mode} = !{test_mode}
 IF "Economy mode" selected → {economy_mode} = !{economy_mode}
 IF "Branch mode" selected → {branch_mode} = !{branch_mode}
-IF "PR mode" selected → {pr_mode} = !{pr_mode}
 ```
 
-**Special rule:** If PR mode enabled, auto-enable branch mode:
-```
-IF {pr_mode} = true → {branch_mode} = true
-```
-
-### 5. Show Final Configuration
+### 4. Show Final Configuration
 
 Display updated configuration:
 ```
@@ -112,15 +84,12 @@ Display updated configuration:
 | Flag | Status |
 |------|--------|
 | Auto | {auto_mode ? "✓ ON" : "✗ OFF"} |
-| Examine | {examine_mode ? "✓ ON" : "✗ OFF"} |
 | Save | {save_mode ? "✓ ON" : "✗ OFF"} |
-| Test | {test_mode ? "✓ ON" : "✗ OFF"} |
 | Economy | {economy_mode ? "✓ ON" : "✗ OFF"} |
 | Branch | {branch_mode ? "✓ ON" : "✗ OFF"} |
-| PR | {pr_mode ? "✓ ON" : "✗ OFF"} |
 ```
 
-### 6. Return
+### 5. Return
 
 → Return to step-00-init.md with all flags updated
 
@@ -131,14 +100,12 @@ Display updated configuration:
 ✅ Current configuration displayed
 ✅ User able to toggle any flag
 ✅ All selected flags properly toggled
-✅ PR mode auto-enables branch mode
 ✅ Final configuration shown
 
 ## FAILURE MODES:
 
 ❌ Not showing current flag states
 ❌ Forgetting to toggle selected flags
-❌ Not enabling branch_mode when pr_mode selected
 ❌ Starting workflow instead of returning
 ❌ **CRITICAL**: Using plain text prompts instead of AskUserQuestion
 

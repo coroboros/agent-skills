@@ -100,7 +100,7 @@ The prior context (whether from an issue or a file) replaces the need for web re
 **If `{save_mode}` = true:**
 
 ```bash
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
 ```
 
 Append findings to `{output_dir}/01-analyze.md` as you work.
@@ -329,8 +329,8 @@ Do NOT ask for user confirmation here - always proceed directly to step-02-plan.
 Append summary to `{output_dir}/01-analyze.md` then:
 
 ```bash
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "01" "analyze" "complete"
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "01" "analyze" "complete"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
 ```
 
 ---

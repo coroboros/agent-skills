@@ -62,7 +62,7 @@ From previous steps:
 **If `{save_mode}` = true:**
 
 ```bash
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
 ```
 
 Append results to `{output_dir}/04-examine.md` as you work.
@@ -195,7 +195,7 @@ Append to `{output_dir}/04-examine.md`:
 **Timestamp:** {ISO timestamp}
 ```
 
-Run: `bash {skill_dir}/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
+Run: `bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
 
 ---
 

@@ -171,7 +171,7 @@ IF {economy_mode} = true:
 Run the template setup script to initialize all output files:
 
 ```bash
-bash {skill_dir}/scripts/setup-templates.sh \
+bash ${CLAUDE_SKILL_DIR}/scripts/setup-templates.sh \
   "{feature_name}" \
   "{task_description}" \
   "{auto_mode}" \
@@ -193,6 +193,8 @@ This script:
 - Initializes `00-context.md` with configuration and progress table
 - Pre-creates all step files from templates (01-analyze.md, 02-plan.md, etc.)
 - Outputs the generated `{task_id}` for use in subsequent steps
+
+**Capture script output into state variables** — the script prints `TASK_ID=NN-feature-name` and `OUTPUT_DIR=.claude/output/apex/NN-feature-name` on stdout. Parse those two lines and assign them to `{task_id}` and `{output_dir}` respectively. Downstream steps depend on both.
 
 ### 5. Initialize and Proceed
 

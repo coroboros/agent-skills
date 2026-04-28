@@ -63,7 +63,7 @@ From previous steps:
 **If `{save_mode}` = true:**
 
 ```bash
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
 ```
 
 Append plan to `{output_dir}/02-plan.md` as you work.
