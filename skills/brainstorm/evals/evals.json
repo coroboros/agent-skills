@@ -6,7 +6,7 @@
       "id": 1,
       "name": "produces-canonical-brief-shape",
       "prompt": "Help me think through how we should handle authentication for our B2B SaaS — Better-Auth vs Clerk vs roll-our-own.",
-      "expected_output": "Output is a brief.md with all 8 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Alternatives considered lists at least 2 options with set-aside reasoning.",
+      "expected_output": "Output is a brief.md with all 8 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks & mitigations, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Alternatives considered lists at least 2 options with set-aside reasoning.",
       "files": []
     },
     {
@@ -55,7 +55,14 @@
       "id": 8,
       "name": "routes-to-brief-template-reference",
       "prompt": "What should the structure of a brainstorm brief look like? Are there 8 sections required?",
-      "expected_output": "Skill routes to `references/brief-template.md` for the canonical 8-section structure (Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks, Open questions, Next steps) rather than re-deriving the layout inline. Response is concrete (sections named) not generic.",
+      "expected_output": "Skill routes to `references/brief-template.md` for the canonical 8-section structure (Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks & mitigations, Open questions, Next steps) rather than re-deriving the layout inline. Response is concrete (sections named) not generic.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "bridges-to-spec-for-multi-workstream-work",
+      "prompt": "/brainstorm should we migrate from CRA to Vite across our 3-app monorepo, or wait for the official React replacement?",
+      "expected_output": "After producing the brief and surfacing the recommendation + top risk, brainstorm proposes the bridge to `/spec` because the migration is multi-workstream (3 apps + CI updates + bundle audit + rollback plan). The bridge syntax is exact and matches the repo `-f` convention: `/spec -s -f .claude/output/brainstorm/<slug>/brainstorm.md`. Skill does NOT directly hand off to `/apex` — the work is too broad for a single focused implementation pass.",
       "files": []
     }
   ]
