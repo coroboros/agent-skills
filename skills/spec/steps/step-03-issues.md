@@ -38,7 +38,7 @@ If `gh` is not authenticated or no repo is detected: inform the user — "GitHub
 Run the bundled script:
 
 ```bash
-bash {skill_dir}/scripts/setup-labels.sh
+bash ${CLAUDE_SKILL_DIR}/scripts/setup-labels.sh
 ```
 
 Creates priority (`P0`, `P1`, `P2`), complexity (`size:S`, `size:M`, `size:L`, `size:XL`), and type (`spec`) labels with `--force` so re-runs are safe.
@@ -47,6 +47,8 @@ Creates priority (`P0`, `P1`, `P2`), complexity (`size:S`, `size:M`, `size:L`, `
 
 - **1 workstream** → create a single issue directly. No parent epic — it would be pointless overhead.
 - **2+ workstreams** → parent epic + one child issue per workstream.
+
+In every `gh issue create` command below, `{priority}` is the digit only (`0`, `1`, `2`) — the leading `P` is in the label template. Same for `{complexity}` (`S`/`M`/`L`/`XL`); the `size:` prefix is in the template.
 
 ### Strategy A: single workstream
 
