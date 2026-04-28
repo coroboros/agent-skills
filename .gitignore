@@ -1,9 +1,5 @@
 .DS_Store
 .env*.local
-
-# Local Claude Code settings — contain absolute personal paths.
 .claude/settings.local.json
-
-# Python bytecode from scripts under skills/*/scripts/
 __pycache__/
 *.py[cod]
