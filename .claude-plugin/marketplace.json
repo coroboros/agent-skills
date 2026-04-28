@@ -23,7 +23,7 @@
     },
     {
       "name": "design-skills",
-      "description": "Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI",
+      "description": "Bootstrap strictly opinionated CF Workers projects, recommend design archetypes, and enforce DESIGN.md tokens across UI",
       "source": "./",
       "strict": false,
       "skills": [

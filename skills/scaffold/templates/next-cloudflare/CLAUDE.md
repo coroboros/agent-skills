@@ -35,7 +35,7 @@ pnpm typecheck        # tsc --noEmit
 - Feature-based colocation: `src/features/[name]/` groups components, actions, schemas, hooks
 - Server Actions + Zod for mutations, NOT API routes (unless consumed by external clients)
 - Default to Server Components — `use client` only when strictly required
-- Images: Cloudflare R2 + Images transformation
+- Images: R2 + custom subdomain (`cdn.<tld>`) + custom `next/image` loader → `/cdn-cgi/image/` (Image Transformations, NOT the Cloudflare Images product — see `.claude/rules/cloudflare-tooling.md` § Images)
 - ISR: OpenNext R2 incremental cache
 
 ## Environment
