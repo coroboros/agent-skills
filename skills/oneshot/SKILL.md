@@ -22,7 +22,9 @@ Implement `$ARGUMENTS` at maximum speed. Ship fast, iterate later.
 
 If the input looks like a GitHub issue reference (`#N`, `owner/repo#N`, or a GitHub URL like `https://github.com/.../issues/N`):
 
-1. Fetch via `gh issue view <number> --json title,body,labels`.
+1. Fetch the issue:
+   - `#N` → `gh issue view <N> --json title,body,labels` (current repo).
+   - `owner/repo#N` or full URL → `gh issue view <N> --repo owner/repo --json title,body,labels`.
 2. Use the issue title + body as the task description.
 3. If the issue body has task lists or acceptance criteria, use them as the implementation checklist.
 
@@ -77,14 +79,14 @@ Execute the changes immediately:
 
 ### 3. Test
 
-Run the project's lint and typecheck commands — discover them from `package.json` scripts or project instructions (`CLAUDE.md`, `AGENTS.md`, or equivalent).
+Run the project's lint and typecheck commands — discover them from project instructions (`CLAUDE.md`, `AGENTS.md`, or equivalent), `package.json` scripts for JS/TS, `pyproject.toml` / `Cargo.toml` / `go.mod` for other ecosystems.
 
 - If they fail, fix only what you broke and re-run.
 - No full test suite unless the user explicitly asks.
 
 ## Output
 
-When complete, return:
+### On success
 
 ```
 ## Done
@@ -92,6 +94,17 @@ When complete, return:
 **Task:** {what was implemented}
 **Files changed:** {list}
 **Validation:** ✓ lint ✓ typecheck
+```
+
+### On blocker (stuck after 2 attempts, or circuit breaker declined)
+
+```
+## Blocked
+
+**Task:** {what was attempted}
+**Attempts:** {N}
+**Blocker:** {specific failure or unknown}
+**Recommendation:** /apex {task}   ← restart with structured analysis
 ```
 
 ## Constraints
