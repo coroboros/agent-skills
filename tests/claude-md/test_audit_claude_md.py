@@ -24,7 +24,8 @@ SCRIPT = SCRIPTS / "audit_claude_md.py"
 
 def _run(path):
     return subprocess.run(
-        [sys.executable, str(SCRIPT), str(path)], capture_output=True, text=True
+        [sys.executable, str(SCRIPT), str(path)], capture_output=True, text=True,
+        timeout=30,
     )
 
 
@@ -150,7 +151,7 @@ class TestCLI(unittest.TestCase):
         return path
 
     def test_no_args_exits_2(self):
-        r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True)
+        r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 2)
 
     def test_missing_file_exits_2(self):

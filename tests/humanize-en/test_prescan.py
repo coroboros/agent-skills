@@ -224,6 +224,7 @@ class TestCLI(unittest.TestCase):
             input=stdin,
             capture_output=True,
             text=True,
+            timeout=30,
         )
 
     def test_no_args_exits_1(self):

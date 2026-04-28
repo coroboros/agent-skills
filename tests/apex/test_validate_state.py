@@ -26,6 +26,7 @@ def _run(*args, cwd):
         text=True,
         cwd=str(cwd),
         env=env,
+        timeout=30,
     )
 
 

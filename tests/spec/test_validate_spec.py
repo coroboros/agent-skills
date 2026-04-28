@@ -44,7 +44,8 @@ def _write_temp(text):
 
 def _run(path):
     return subprocess.run(
-        [sys.executable, str(SCRIPT), str(path)], capture_output=True, text=True
+        [sys.executable, str(SCRIPT), str(path)], capture_output=True, text=True,
+        timeout=30,
     )
 
 
@@ -220,7 +221,7 @@ class TestFindCycle(unittest.TestCase):
 
 class TestCLI(unittest.TestCase):
     def test_no_args_exits_1(self):
-        r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True)
+        r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 1)
         self.assertIn("usage", r.stderr)
 

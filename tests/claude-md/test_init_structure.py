@@ -21,6 +21,7 @@ def _run(*args):
         [BASH, str(SCRIPT), *args],
         capture_output=True,
         text=True,
+        timeout=30,
     )
 
 

@@ -60,6 +60,7 @@ def _run(*args, env=None, cwd=None):
         text=True,
         env=env,
         cwd=cwd,
+        timeout=30,
     )
 
 

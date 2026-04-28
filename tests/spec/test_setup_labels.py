@@ -44,6 +44,7 @@ def _run_with_stub(behavior: str = "ok"):
         r = subprocess.run(
             [BASH, str(SCRIPT)],
             capture_output=True, text=True, env=env,
+            timeout=30,
         )
         log = log_path.read_text(encoding="utf-8") if log_path.exists() else ""
     return r, log

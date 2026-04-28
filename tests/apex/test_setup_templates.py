@@ -31,6 +31,7 @@ def _run(*args, cwd):
         cwd=cwd,
         capture_output=True,
         text=True,
+        timeout=30,
     )
 
 
