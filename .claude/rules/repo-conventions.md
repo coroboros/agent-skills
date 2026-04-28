@@ -121,16 +121,7 @@ Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tes
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full `unittest` suite on every pull request to `main` and every push to `main`. Red CI blocks merge — confirmed via branch protection on `main` (required status check: `tests`).
-
-The workflow's badge step (main pushes only) writes a shields.io endpoint payload to the orphan `badges` branch:
-
-- **Success** — `tests.json` becomes `{"label":"ci","message":"<N> tests passing","color":"success","labelColor":"000000"}`.
-- **Failure** — `tests.json` becomes `{"label":"ci","message":"failing","color":"critical","labelColor":"000000"}`.
-
-The README badge points at the raw `badges` branch URL via `https://img.shields.io/endpoint?url=…&style=flat-square`. The orphan branch holds nothing else — no source, no history pollution on `main`.
-
-**Release flow is unchanged** — one PR = one release per `~/.claude/rules/git-conventions.md`. The marketplace.json bump goes in the PR diff before merge; tag and `gh release create` happen manually after merge. CI does not touch versioning.
+`.github/workflows/ci.yml` runs the full `unittest` suite on every pull request to `main` and every push to `main`. Branch protection on `main` requires the `tests` status check — red CI blocks merge.
 
 ## Skill scope declaration
 

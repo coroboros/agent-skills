@@ -6,9 +6,6 @@ on:
   push:
     branches: [main]
 
-permissions:
-  contents: write
-
 jobs:
   tests:
     name: tests
@@ -21,61 +18,4 @@ jobs:
           python-version: "3.12"
 
       - name: Run tests
-        id: tests
-        shell: bash
-        run: |
-          set +e
-          python3 -m unittest discover tests/ -v 2>&1 | tee test-output.log
-          TEST_EXIT=${PIPESTATUS[0]}
-          set -e
-          COUNT=$(grep -E '^Ran [0-9]+ tests' test-output.log | grep -oE '[0-9]+' | head -1 || echo 0)
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-          exit "$TEST_EXIT"
-
-      - name: Update badge — passing
-        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COUNT: ${{ steps.tests.outputs.count }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          MSG="${COUNT} tests passing"
-          WORK=$(mktemp -d)
-          git clone --branch badges --depth 1 \
-            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$WORK"
-          cd "$WORK"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          printf '{"schemaVersion":1,"label":"ci","message":"%s","color":"success","labelColor":"000000"}\n' \
-            "$MSG" > tests.json
-          if git diff --quiet; then
-            echo "Badge unchanged"
-            exit 0
-          fi
-          git add tests.json
-          git commit -m "ci: update badge — ${MSG}"
-          git push origin badges
-
-      - name: Update badge — failing
-        if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          WORK=$(mktemp -d)
-          git clone --branch badges --depth 1 \
-            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" "$WORK"
-          cd "$WORK"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          printf '{"schemaVersion":1,"label":"ci","message":"failing","color":"critical","labelColor":"000000"}\n' \
-            > tests.json
-          if git diff --quiet; then
-            echo "Badge unchanged"
-            exit 0
-          fi
-          git add tests.json
-          git commit -m "ci: tests failing"
-          git push origin badges
+        run: python3 -m unittest discover tests/ -v
