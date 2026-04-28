@@ -70,7 +70,7 @@ def format_rules_legacy(data):
     """v1 minimal output. Byte-identical to the pre-extends shape.
 
     Used by external consumers pinned to the legacy contract; verified by
-    `tests/test_backwards_compat.py`.
+    `tests/brand-voice/test_backwards_compat.py`.
     """
     out = []
 

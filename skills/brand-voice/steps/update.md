@@ -94,7 +94,7 @@ The user must answer `yes` explicitly.
 
 - Build the merged file in a temp file.
 - `voice_lint.py` — must return 0 (GREEN/YELLOW). RED → fix and re-lint.
-- On user `yes`: `Edit` (not `Write`) the target file in place. `Edit` preserves any uncommitted manual tweaks the user made between read and write.
+- On user `yes`: write the merged file to the target path. Manual sections are already preserved by the merge step (§3) — the write is a straight replace of the synthesised content.
 
 ### 7. Post-write report
 
