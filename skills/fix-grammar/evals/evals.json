@@ -1,0 +1,48 @@
+{
+  "skill_name": "fix-grammar",
+  "description": "Behavioural evaluation set for the fix-grammar skill. Cases pin the corrections-only discipline (no rephrasing, no translation, no style edits), structural preservation (code blocks, frontmatter), and multi-file parallelism.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "fixes-typos-only",
+      "prompt": "Fix grammar in this file: Thier cat wos hungrey. The dog ran fast.",
+      "expected_output": "Output: 'Their cat was hungry. The dog ran fast.' Three typos fixed (Thier→Their, wos→was, hungrey→hungry). Sentence structure unchanged. No rephrasing.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "preserves-code-blocks-verbatim",
+      "prompt": "Proofread blog-post.md (contains a fenced ```js code block with intentional misspellings inside).",
+      "expected_output": "Code blocks stay verbatim. Misspellings inside fenced blocks are preserved. Only prose outside the fence is corrected. Frontmatter (YAML between `---` lines) is also untouched.",
+      "files": ["blog-post.md"]
+    },
+    {
+      "id": 3,
+      "name": "preserves-multilingual-content",
+      "prompt": "Fix accents in: J'ai deployé la fonction useEffect dans le composant.",
+      "expected_output": "Output: J'ai déployé la fonction useEffect dans le composant. French accent restored. Code identifier `useEffect` untouched. No translation to English.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "refuses-rephrasing",
+      "prompt": "Improve this sentence: 'The thing that we did was good and helpful for our users.'",
+      "expected_output": "fix-grammar declines to rephrase. Either notes the sentence is grammatically valid (no fixes needed) or, if asked specifically for grammar, returns the sentence unchanged. For style/clarity rewrites, redirects to `/humanize-en` or general writing assistance.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "parallelises-multi-file",
+      "prompt": "Fix grammar in docs/intro.md, docs/setup.md, and docs/usage.md.",
+      "expected_output": "Spawns 3 subagents in a single message (parallel). Each returns its file's correction count. Final report aggregates: 'fix-grammar: docs/intro.md — N corrections' per file.",
+      "files": ["docs/intro.md", "docs/setup.md", "docs/usage.md"]
+    },
+    {
+      "id": 6,
+      "name": "no-style-improvements",
+      "prompt": "Fix this README: 'This library helps you to do things easily and quickly with our nice API.'",
+      "expected_output": "Returns sentence unchanged — it has no spelling or grammar errors. Does not flag stylistic weaknesses (vague, redundant words). For style cleanup, the response redirects to `/humanize-en` or `/write-clear-readme`.",
+      "files": []
+    }
+  ]
+}

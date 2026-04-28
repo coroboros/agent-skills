@@ -1,0 +1,55 @@
+{
+  "skill_name": "award-design",
+  "description": "Behavioural evaluation set for the award-design skill. Cases pin archetype selection, atmosphere calibration, and the DESIGN.md output shape (Google open standard — YAML frontmatter + 8 ordered prose sections).",
+  "evals": [
+    {
+      "id": 1,
+      "name": "selects-corporate-luxury-for-premium-saas",
+      "prompt": "I'm building a website for a high-end financial advisory firm. Wealth management, ultra-high-net-worth clients. They need to feel established and trustworthy.",
+      "expected_output": "Recommends the corporate-luxury archetype with explicit rationale tied to the brief (high-end, established, trustworthy → low Variance, low Motion, generous Density). Atmosphere scores cited from the calibration table. Output is a complete DESIGN.md with the 8 Google-standard sections.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "selects-bold-maximal-for-edgy-saas",
+      "prompt": "Award-worthy landing page for a developer-tooling SaaS that wants to feel cutting-edge and opinionated. Think Linear or Vercel.",
+      "expected_output": "Recommends bold-maximal or experimental archetype. Justifies via Variance and Motion targets from the atmosphere table. DESIGN.md uses opinionated typography choices and a confident colour palette.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "minimalist-for-small-portfolio",
+      "prompt": "Solo designer portfolio. Just my work, contact, no animation, classy.",
+      "expected_output": "Recommends minimalist archetype. Atmosphere scores: low Variance, very low Motion, high Density (whitespace). DESIGN.md emphasises typography and restraint over decoration.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "redirects-dashboard-out-of-scope",
+      "prompt": "Design our internal admin dashboard for the customer-success team. Lots of tables and metrics.",
+      "expected_output": "Declines or redirects — this skill is not for internal tooling. SKILL.md description explicitly excludes dashboards. Recommends a pragmatic data-density approach without invoking the archetype workflow.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "uses-brand-extraction-for-existing-url",
+      "prompt": "Redesign coroboros.com — keep the spirit, refresh the execution.",
+      "expected_output": "Reads `references/brand-extraction.md`, observes the live site, drafts atmosphere observations, then proposes an archetype consistent with the existing brand. Does not propose a wholesale archetype shift unless the brief asks for it.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "produces-complete-design-md",
+      "prompt": "Generate a DESIGN.md for a brutalist developer-tools site. Black-and-white, monospace, raw.",
+      "expected_output": "Output is a valid Google-standard DESIGN.md: YAML frontmatter with `colors`, `typography`, `rounded`, `spacing`, `components` tokens, plus all 8 prose sections in canonical order (Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts). No section is left empty or stubbed.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "validates-with-design-system-audit",
+      "prompt": "Generate a DESIGN.md for a minimalist portfolio and validate it.",
+      "expected_output": "After generating DESIGN.md, runs `/design-system audit DESIGN.md` (or falls back to `npx @google/design.md lint`) to catch broken token references and contrast violations. Reports any findings.",
+      "files": []
+    }
+  ]
+}
