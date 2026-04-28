@@ -7,7 +7,7 @@
 
 **AI agent skills for Claude Code and compatible agents**
 
-From brainstorming to structured specs to implementation, with design systems, project scaffolding, and writing utilities.
+From brainstorming to structured specs to implementation, with design systems, project scaffolding, and writing utilities. Tested across every skill.
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![branch](https://img.shields.io/badge/branch-stable-000000?style=flat-square)](https://github.com/coroboros/agent-skills)
@@ -54,13 +54,13 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [brainstorm](#brainstorm) | opus | Strategic analysis and deep thinking before implementation | Claude |
 | Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude |
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
-| Workflow | [oneshot](#oneshot) | sonnet | Ultra-fast Explore, Code, Test workflow | Claude |
+| Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
 | Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 6 CLI subcommands (audit/diff/export/spec/migrate/init) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
-| Media | [video-loop](#video-loop) | sonnet | Create seamless looping background videos | Claude |
+| Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points | Claude |
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
@@ -68,7 +68,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
 | Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; optional `-f BRAND-VOICE.md` | Claude |
 
-**About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill to give predictable results regardless of your session default. Opus-tier skills consume more tokens — if you're on a tight plan, you can override with the Claude Code `--model` flag or skip those skills entirely.
+**About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill, regardless of session default — predictable results across runs. Opus-tier skills consume more tokens; override with the Claude Code `--model` flag, or skip those skills on a tight plan.
 
 **About the Scope column.** Skills labeled `Claude` are optimized for Claude Code CLI per the [Agent Skills spec](https://agentskills.io) — they use Claude Code-specific frontmatter extensions (`$ARGUMENTS`, `argument-hint`, `when_to_use`, `paths`, `hooks`, inline shell) and degrade gracefully in Claude.ai, Claude desktop, and other agents supporting the open standard. `All agents` means the skill uses only open-standard fields (`name`, `description`, `license`, `compatibility`, `metadata`) and is fully portable. Each SKILL.md declares its intended environment via the spec-canonical top-level `compatibility:` field.
 
@@ -203,7 +203,7 @@ Accepts output from `spec` or `brainstorm` via `-f`. Works standalone.
 
 #### oneshot
 
-Ultra-fast feature implementation — Explore, Code, Test. Ship fast, iterate later.
+Single-pass feature implementation — Explore, Code, Test. Ship now, iterate later.
 
 **Usage**
 
@@ -510,7 +510,7 @@ Media conversion and polishing — `video-loop`, `audio-loop`, `markitdown`.
 
 #### video-loop
 
-Create seamless looping background videos — crossfade, optimize, multi-format encode. The ffmpeg pipeline runs via a bundled `scripts/video-loop.sh` for deterministic, typo-proof execution.
+Loop background videos for the web — crossfade the cut point, optimize, multi-format encode. The ffmpeg pipeline runs via a bundled `scripts/video-loop.sh` for deterministic, typo-proof execution.
 
 **Requirements**
 
@@ -860,7 +860,7 @@ Invoked as a subroutine by [`write-clear-readme`](#write-clear-readme) after cla
 
 ## Pipeline
 
-Skills are designed to chain together. Each works standalone; chaining them covers longer workflows without extra tooling.
+Skills chain together by design. Each works standalone; chaining covers longer workflows without extra tooling.
 
 ### Thinking → Planning → Building
 
@@ -955,26 +955,17 @@ graph LR
 
 ## Testing
 
-The repo ships a Python `unittest` suite under `tests/` covering deterministic logic across every skill. Tests live at the repo root — never inside skill folders — so they don't get copied to user machines on install.
+Python `unittest` suite under `tests/` covers bundled scripts across every skill.
 
 ```bash
 # Run everything
 python3 -m unittest discover tests/ -v
 
-# Run one skill's tests
+# Run one skill
 python3 -m unittest discover tests/<skill-name>/ -v
-
-# Cross-skill structural invariants (frontmatter, marketplace, README parity)
-python3 -m unittest discover tests/_meta/ -v
 ```
 
-No third-party dependencies — stdlib only. Shell scripts are tested via `subprocess.run`. Tests requiring external tools (`ffmpeg`, `pnpm`, `markitdown`) skip gracefully when those aren't installed.
-
-**What's covered**:
-- `tests/_meta/` — universal structural tests across all 16 skills (frontmatter conformity, file references resolve, `marketplace.json` parity, README has every skill).
-- `tests/<skill-name>/` — per-skill unit + integration tests for bundled scripts (parsing, merging, scoring, CLI exit codes, output schema). Heavier coverage on `brand-voice`, `humanize-en`, `spec`, `claude-md`, `scaffold` — anywhere a regression hides silently.
-
-**Contributing**: any change to a skill's bundled scripts adds or updates a test in `tests/<skill-name>/` in the same PR. Pure-prompt skills (no `scripts/`) keep coverage via the universal suite. See [`.claude/rules/skill-authoring.md`](./.claude/rules/skill-authoring.md) for the testing requirement detail.
+Stdlib only. See [`.claude/rules/skill-authoring.md`](./.claude/rules/skill-authoring.md) for the testing requirement.
 
 ---
 
