@@ -1,0 +1,48 @@
+{
+  "skill_name": "agent-creator",
+  "description": "Behavioural evaluation set for the agent-creator skill. Cases are scoped to deterministic / structural outputs — file shape, reference routing, escalation behaviour — not open-ended prose quality.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "creates-subagent-with-canonical-frontmatter",
+      "prompt": "Create a subagent for code review that focuses on TypeScript and React. It should have access to Read and Grep but not Edit.",
+      "expected_output": "An agent file (e.g., `code-reviewer.md`) with YAML frontmatter containing `name`, `description`, and `tools` (Read, Grep). The body uses imperative form, declares `## Focus Areas` and `## Workflow` sections, and avoids ALL-CAPS imperatives. Body length is concise (under 500 lines).",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "routes-context-management-to-reference",
+      "prompt": "How do I keep context lean when my subagent is making 50+ tool calls?",
+      "expected_output": "Response references `references/context-management.md` for the patterns (compaction, summarisation between phases, fresh subagent spawning) rather than re-deriving them inline. The recommendation is concrete (specific patterns named) not generic.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "applies-error-handling-pattern",
+      "prompt": "My agent keeps crashing on intermittent API failures. What pattern should it use?",
+      "expected_output": "Response routes to `references/error-handling-and-recovery.md` and recommends a specific pattern (retry with exponential backoff, circuit breaker, or graceful degradation) appropriate to the failure mode. Response does not invent a new pattern.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "asks-for-clarity-on-vague-spec",
+      "prompt": "I want an agent for stuff",
+      "expected_output": "Rather than fabricating a spec, the response asks targeted clarifying questions: what task, what tools needed, when triggered, expected output format. The questions match the structure documented in the SKILL.md `Capture Intent` section.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "drafts-evaluation-strategy",
+      "prompt": "I built a SQL-query-generator agent. How do I evaluate whether it's working well?",
+      "expected_output": "Response routes to `references/evaluation-and-testing.md` and proposes 2-3 concrete evals (deterministic input → expected SQL output) plus a qualitative review pass. Distinguishes deterministic from subjective evals.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "skip-non-agent-tasks",
+      "prompt": "Write me a regex that matches email addresses",
+      "expected_output": "Response declines to invoke the agent-creator workflow — this is not an agent-creation task. Either provides the regex directly or notes the request is out of scope for this skill.",
+      "files": []
+    }
+  ]
+}

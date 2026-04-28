@@ -1,0 +1,48 @@
+{
+  "skill_name": "brainstorm",
+  "description": "Behavioural evaluation set for the brainstorm skill. Cases pin the brief.md output shape (8 H2 sections in canonical order), recommendation discipline, and the producer-of-spec contract.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "produces-canonical-brief-shape",
+      "prompt": "Help me think through how we should handle authentication for our B2B SaaS — Better-Auth vs Clerk vs roll-our-own.",
+      "expected_output": "Output is a brief.md with all 8 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Alternatives considered lists at least 2 options with set-aside reasoning.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "saves-to-canonical-path-with-flag",
+      "prompt": "/brainstorm -s 'database choice for analytics workload'",
+      "expected_output": "When `-s` is set, the brief is saved to `.claude/output/brainstorm/<slug>/brainstorm.md` where slug is derived from the topic (kebab-case, ≤5 words). The path is reported back so the user can chain into `/spec -f`.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "research-findings-cite-sources",
+      "prompt": "Pick a queue/job-runner for a Cloudflare-Workers-based architecture. Cloudflare Queues vs BullMQ on Redis vs Inngest.",
+      "expected_output": "Research findings section names specific URLs, docs pages, or benchmark sources for each option. Findings are organised by theme (latency, ops burden, pricing) not just dumped per-tool.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "risks-ranked-with-mitigations",
+      "prompt": "Should we migrate from a single Next.js app to a Turborepo monorepo with shared packages?",
+      "expected_output": "Risks section lists 3-5 ranked risks (impact × likelihood) with concrete mitigation per risk. No vague risks like 'increased complexity' — each risk names a specific failure mode.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "open-questions-block-decision",
+      "prompt": "Choose a payment processor for our European launch — Stripe, Adyen, or Mollie.",
+      "expected_output": "Open questions section lists 1-3 specific questions whose answers materially change the recommendation. Questions are concrete (e.g., 'will we offer SEPA Direct Debit?') not generic.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "next-steps-shape-of-work",
+      "prompt": "Build an internal documentation site for the engineering team.",
+      "expected_output": "Next steps section gives high-level phases (3-6 phases) — enough to see the shape of the work. Not a full spec (that's `/spec`'s job) but more than 'figure it out'.",
+      "files": []
+    }
+  ]
+}

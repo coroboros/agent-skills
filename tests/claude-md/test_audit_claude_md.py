@@ -1,6 +1,7 @@
 """Tests for audit_claude_md.py — bloat patterns, import resolution, masking."""
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -19,14 +20,6 @@ from audit_claude_md import (  # noqa: E402
 )
 
 SCRIPT = SCRIPTS / "audit_claude_md.py"
-
-
-def _write_temp(text, name="CLAUDE.md", dir=None):
-    if dir is None:
-        dir = tempfile.mkdtemp(prefix="audit-test-")
-    path = Path(dir) / name
-    path.write_text(text, encoding="utf-8")
-    return path
 
 
 def _run(path):
@@ -140,6 +133,22 @@ class TestImportResolution(unittest.TestCase):
 
 
 class TestCLI(unittest.TestCase):
+    def setUp(self):
+        self._tempdirs = []
+
+    def tearDown(self):
+        # Explicit shutil.rmtree with ignore_errors=False so any cleanup failure
+        # surfaces as a test error. The previous `finally: pass` masked leaks.
+        for td in self._tempdirs:
+            shutil.rmtree(td, ignore_errors=False)
+
+    def _write_temp(self, text, name="CLAUDE.md"):
+        td = tempfile.mkdtemp(prefix="audit-test-")
+        self._tempdirs.append(td)
+        path = Path(td) / name
+        path.write_text(text, encoding="utf-8")
+        return path
+
     def test_no_args_exits_2(self):
         r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True)
         self.assertEqual(r.returncode, 2)
@@ -149,40 +158,31 @@ class TestCLI(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
 
     def test_clean_short_file_exits_0(self):
-        path = _write_temp("# Project\n\n- Run `pnpm test` to test.\n")
-        try:
-            r = _run(path)
-            self.assertEqual(r.returncode, 0, f"output: {r.stdout}")
-            data = json.loads(r.stdout)
-            self.assertTrue(data["summary"]["ok"])
-        finally:
-            path.parent.rmdir() if path.parent.exists() and not list(path.parent.iterdir()) else None
+        path = self._write_temp("# Project\n\n- Run `pnpm test` to test.\n")
+        r = _run(path)
+        self.assertEqual(r.returncode, 0, f"output: {r.stdout}")
+        data = json.loads(r.stdout)
+        self.assertTrue(data["summary"]["ok"])
 
     def test_bloated_file_exits_1(self):
-        path = _write_temp(
+        path = self._write_temp(
             "# Project\n\n"
             "We believe in clean code.\n"
             "Apply SOLID principles.\n"
             "Use eslint everywhere.\n"
         )
-        try:
-            r = _run(path)
-            self.assertEqual(r.returncode, 1)
-            data = json.loads(r.stdout)
-            self.assertGreater(data["summary"]["findings"], 0)
-        finally:
-            pass
+        r = _run(path)
+        self.assertEqual(r.returncode, 1)
+        data = json.loads(r.stdout)
+        self.assertGreater(data["summary"]["findings"], 0)
 
     def test_over_target_lines_flagged(self):
         body = "# Project\n\n" + "\n".join(f"- line {i}" for i in range(1, 250)) + "\n"
-        path = _write_temp(body)
-        try:
-            r = _run(path)
-            data = json.loads(r.stdout)
-            self.assertTrue(data["over_target"])
-            self.assertGreater(data["lines"], 200)
-        finally:
-            pass
+        path = self._write_temp(body)
+        r = _run(path)
+        data = json.loads(r.stdout)
+        self.assertTrue(data["over_target"])
+        self.assertGreater(data["lines"], 200)
 
 
 if __name__ == "__main__":

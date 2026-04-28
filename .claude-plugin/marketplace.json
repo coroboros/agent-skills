@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code tooling, media, and writing",
-    "version": "1.8.1"
+    "version": "1.9.0"
   },
   "plugins": [
     {

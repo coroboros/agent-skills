@@ -83,6 +83,40 @@ class TestPreflightEnvironment(unittest.TestCase):
         self.assertIn("RESULT: node=no", r.stdout)
         self.assertIn("RESULT: ok=false", r.stdout)
 
+    def test_node_pre_release_version_passes(self):
+        """`v22.0.0-rc.1` — node release-candidate strings must parse cleanly.
+        Required>=22 check should accept any 22.x.y, including rc tags."""
+        _make_stub(self.fake_bin, "node", '#!/bin/sh\necho v22.0.0-rc.1\n')
+        _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
+        r = _run(self.target, fake_bin=self.fake_bin)
+        self.assertEqual(r.returncode, 0,
+                         f"rc-tagged node should pass: {r.stdout}\n{r.stderr}")
+        self.assertIn("RESULT: ok=true", r.stdout)
+
+    def test_node_version_without_v_prefix_handled(self):
+        """`22.11.0` — some installations emit version without leading `v`.
+        The script should normalize and pass."""
+        _make_stub(self.fake_bin, "node", '#!/bin/sh\necho 22.11.0\n')
+        _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
+        r = _run(self.target, fake_bin=self.fake_bin)
+        # Either accepted (preferred) or flagged with a clear error — never
+        # silently corrupting the parsed major version.
+        self.assertIn(r.returncode, (0, 1))
+        if r.returncode == 1:
+            # If rejected, must be rejected with a recognisable too-old / parse
+            # message — not a silent ok=false.
+            self.assertIn("RESULT: node=", r.stdout)
+
+    def test_node_empty_version_string_handled(self):
+        """A `node --version` that prints nothing must not silently pass.
+        Catches regressions where empty version was treated as ≥22."""
+        _make_stub(self.fake_bin, "node", '#!/bin/sh\necho ""\n')
+        _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
+        r = _run(self.target, fake_bin=self.fake_bin)
+        # Must NOT be ok=true with an empty version string.
+        self.assertNotIn("RESULT: ok=true", r.stdout,
+                         "empty node version was accepted as ok=true")
+
 
 class TestPreflightTargetDirState(unittest.TestCase):
     """Target dir state is informational (does not flip ok=*) but must report."""

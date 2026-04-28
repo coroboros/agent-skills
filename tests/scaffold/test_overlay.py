@@ -143,11 +143,12 @@ class TestJqMissing(unittest.TestCase):
         return bin_dir
 
     def test_jq_missing_when_pkg_json_present(self):
+        original_pkg = '{"name": "project-name"}'
         with tempfile.TemporaryDirectory() as t:
             tmp = Path(t)
             target = tmp / "proj"
             target.mkdir()
-            (target / "package.json").write_text('{"name": "project-name"}')
+            (target / "package.json").write_text(original_pkg)
             sealed = self._sealed_bin(tmp)
             env = os.environ.copy()
             env["PATH"] = str(sealed)
@@ -157,9 +158,28 @@ class TestJqMissing(unittest.TestCase):
             )
             self.assertNotEqual(jq_check.returncode, 0, "sealed PATH still resolves jq")
             r = _run("next-cloudflare", "demo", str(target), env=env)
-        self.assertEqual(r.returncode, 1)
-        self.assertIn("jq required", r.stderr)
-        self.assertIn("RESULT: error=jq-missing", r.stdout)
+
+            # Exit + messages contract.
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("jq required", r.stderr)
+            self.assertIn("RESULT: error=jq-missing", r.stdout)
+
+            # Atomicity contract: jq-missing aborts BEFORE `jq … > $TMP_PKG`
+            # and `mv $TMP_PKG $PKG_JSON`, so the pre-existing package.json
+            # is never mutated. A future change that swaps the order — or adds
+            # a non-jq merge fallback — must update this assertion deliberately.
+            self.assertEqual(
+                (target / "package.json").read_text(),
+                original_pkg,
+                "jq-missing failure mutated package.json",
+            )
+
+            # No .tmp debris anywhere in target. mktemp is never reached on
+            # this path, but pin the contract so a regression that moves
+            # mktemp above the jq check surfaces here.
+            debris = list(target.rglob("*.tmp")) + list(target.rglob(".tmp.*"))
+            self.assertEqual(debris, [],
+                             f"jq-missing left temp files in target: {debris}")
 
 
 if __name__ == "__main__":

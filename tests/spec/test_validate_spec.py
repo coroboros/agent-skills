@@ -99,6 +99,8 @@ class TestValidateWorkstream(unittest.TestCase):
     def test_valid_returns_no_errors(self):
         block = _ws("WS-1")
         errors = validate_workstream("WS-1", block, {"WS-1"})
+        # Type-check the contract: errors is a list of strings.
+        self.assertIsInstance(errors, list)
         self.assertEqual(errors, [])
 
     def test_missing_priority_flagged(self):
@@ -144,6 +146,30 @@ class TestValidateWorkstream(unittest.TestCase):
         block = _ws("WS-1", deps="—")
         errors = validate_workstream("WS-1", block, {"WS-1"})
         self.assertEqual(errors, [])
+
+
+class TestRobustness(unittest.TestCase):
+    """split_blocks must handle realistic input scales and Unicode without
+    crashing, timing out, or stack-overflowing on regex backtracking."""
+
+    def test_split_blocks_handles_50_workstreams(self):
+        ws = "".join(_ws(f"WS-{i}") for i in range(1, 51))
+        blocks = split_blocks(_spec(ws))
+        self.assertEqual(len(blocks), 50)
+        self.assertEqual(blocks[0][0], "WS-1")
+        self.assertEqual(blocks[-1][0], "WS-50")
+
+    def test_split_blocks_unicode_titles(self):
+        """Non-ASCII heading text must not break the WS_HEADING regex."""
+        content = (
+            "# Spec\n\n## Workstreams\n\n"
+            "### WS-1: 認証システムの実装 ✨\n\n"
+            "| Priority | P0 |\n| Complexity | M |\n| Depends on | — |\n\n"
+            "**Acceptance criteria:**\n\n- [ ] x\n\n"
+        )
+        blocks = split_blocks(content)
+        self.assertEqual(len(blocks), 1)
+        self.assertEqual(blocks[0][0], "WS-1")
 
 
 class TestBuildGraph(unittest.TestCase):

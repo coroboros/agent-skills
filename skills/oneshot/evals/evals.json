@@ -1,0 +1,48 @@
+{
+  "skill_name": "oneshot",
+  "description": "Behavioural evaluation set for the oneshot skill. Cases pin the Explore→Code→Test workflow, the complexity-check circuit breaker (escalation to /apex or /spec), and the disciplined output format.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "single-file-trivial-edit",
+      "prompt": "Add a console.log of the user id at the top of the login function in src/auth/login.ts.",
+      "expected_output": "Single-file edit. Workflow: brief Glob/Grep to locate the function, Edit to insert the log, run lint + typecheck. Output report follows the documented format: ## Done block with Task, Files changed, Validation lines.",
+      "files": ["src/auth/login.ts"]
+    },
+    {
+      "id": 2,
+      "name": "resolves-github-issue-reference",
+      "prompt": "/oneshot #42",
+      "expected_output": "Resolves the issue via `gh issue view 42 --json title,body,labels`. Uses the issue title + body as task description. If the body has acceptance criteria, treats them as the implementation checklist.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "circuit-breaker-fires-on-multi-file",
+      "prompt": "Rewrite the authentication system to support OAuth, magic links, and SAML SSO across the API, the web app, and the mobile app.",
+      "expected_output": "After Explore, the complexity check fires (>5 files, >2 distinct systems, cross-cutting). Skill stops, warns the user with a concrete reason, and recommends `/apex <task>` or `/spec -s <task>` instead. Waits for explicit confirmation before continuing.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "circuit-breaker-fires-on-cross-cutting",
+      "prompt": "Add a new column to the users table — store last_active timestamp and update the auth flow + admin dashboard to display it.",
+      "expected_output": "Complexity check fires on cross-cutting concerns (database migration + multi-component change). Recommends `/spec` to plan the migration steps and rollback strategy.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "stays-in-scope",
+      "prompt": "Fix the typo in the welcome email template (welcome.txt).",
+      "expected_output": "Single-file Edit, no tangential improvements. Does NOT refactor the surrounding template, does NOT add comments, does NOT improve unrelated style. Output report shows exactly one file changed.",
+      "files": ["welcome.txt"]
+    },
+    {
+      "id": 6,
+      "name": "stops-after-two-attempts",
+      "prompt": "Update the deployment script to use the new Cloudflare Workers API. (The script has unfamiliar legacy patterns.)",
+      "expected_output": "If after 2 attempts the change still fails (lint, typecheck, or behaviour), the skill reports the blocker and stops. Does not thrash with a third attempt. Output cites the specific failure mode and suggests a heavier-weight skill (`/apex` or `/spec`) for next iteration.",
+      "files": []
+    }
+  ]
+}

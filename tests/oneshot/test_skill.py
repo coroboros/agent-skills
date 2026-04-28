@@ -85,5 +85,64 @@ class TestCircuitBreakerDocumented(unittest.TestCase):
                            f"circuit-breaker section names none of: {signals}")
 
 
+class TestWorkflowChecklist(unittest.TestCase):
+    """oneshot's workflow has numbered phases (0 Resolve / 1 Explore / 1b
+    Complexity / 2 Code / 3 Test). Missing or reordered phases silently
+    change the skill's behaviour."""
+
+    EXPECTED_PHASES = [
+        "0. Resolve",       # input resolution
+        "1. Explore",       # context gathering
+        "1b. Complexity",   # circuit breaker
+        "2. Code",          # implementation
+        "3. Test",          # validation
+    ]
+
+    def test_each_phase_has_h3_heading(self):
+        body = _body()
+        for phase in self.EXPECTED_PHASES:
+            with self.subTest(phase=phase):
+                # Phases live at H3 — `### N. Title`.
+                self.assertIn(f"### {phase}", body,
+                              f"missing phase heading: ### {phase}")
+
+    def test_phases_appear_in_canonical_order(self):
+        body = _body()
+        positions = []
+        for phase in self.EXPECTED_PHASES:
+            needle = f"### {phase}"
+            idx = body.find(needle)
+            self.assertNotEqual(idx, -1, f"phase {phase} missing")
+            positions.append((idx, phase))
+        ordered = [p for _, p in sorted(positions)]
+        self.assertEqual(ordered, self.EXPECTED_PHASES,
+                         f"phases out of order: {ordered}")
+
+
+class TestConstraintsSection(unittest.TestCase):
+    """The Constraints section enumerates oneshot's discipline (one task,
+    no refactor, no doc files, stuck-after-2-attempts). Each constraint
+    is part of the skill's promise and cannot be silently dropped."""
+
+    REQUIRED_CONSTRAINTS = [
+        "One task only",
+        "No comments",
+        "No refactoring",
+        "No documentation files",
+        "Stuck after 2 attempts",
+    ]
+
+    def test_constraints_section_exists(self):
+        body = _body()
+        self.assertIn("## Constraints", body)
+
+    def test_each_constraint_documented(self):
+        body = _body()
+        for constraint in self.REQUIRED_CONSTRAINTS:
+            with self.subTest(constraint=constraint):
+                self.assertIn(constraint, body,
+                              f"missing constraint: {constraint}")
+
+
 if __name__ == "__main__":
     unittest.main()
