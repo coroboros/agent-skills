@@ -27,9 +27,26 @@ SKILLS_DIR = REPO_ROOT / "skills"
 
 MIN_CASES = 3
 KEBAB = re.compile(r"^[a-z0-9][a-z0-9-]*[a-z0-9]$")
+# Discriminating phrases — bare "ask" or "stop" leak into generic prose,
+# so we require multi-word forms or context-specific verbs only. Tightened
+# after a fresh-eyes audit caught false-positive risk on single-token matches.
 ESCALATION_KEYWORDS = (
-    "skip", "refuse", "decline", "escalate", "stop", "ask",
-    "out of scope", "not for", "redirect", "not an", "rather than",
+    # Refuse/escalate verbs (single-word OK because they're specific verbs
+    # that don't leak into generic prose)
+    "skip", "refuse", "refuses",
+    "decline", "declines",
+    "escalate", "escalates",
+    "redirect", "redirects",
+    # Negative-space phrases — distinct from generic "skip"
+    "out of scope", "not for", "not an",
+    "rather than",
+    # Clarification — only multi-word forms (bare "ask" matches anything)
+    "asks clarifying", "asks focused", "asks targeted", "ask the user",
+    # Stop + action (bare "stop" matches anything; require continuation)
+    "stops and", "stops,", "and stops",
+    # Hand-off forms — require syntax to avoid generic-prose match
+    "waits for",
+    "recommends `/",
 )
 
 

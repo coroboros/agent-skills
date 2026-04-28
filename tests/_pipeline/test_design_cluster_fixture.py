@@ -127,5 +127,98 @@ class TestSpecCommitsToCanonicalKeys(unittest.TestCase):
                               f"contract missing required token group: {required}")
 
 
+# --- Adversarial fixtures ----------------------------------------------------
+#
+# A schema test that only validates the happy fixture proves the schema
+# accepts good input — it does NOT prove the schema rejects bad input.
+# These tests run the same structural checks against malformed fixtures
+# and assert the checks correctly identify the problem. Together with the
+# happy-path tests above, this gives the cluster a proper schema audit
+# without requiring the consumer's npx-backed audit.sh to run.
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures"
+MALFORMED_MISSING_TOKEN = FIXTURES_DIR / "malformed_missing_token.md"
+MALFORMED_OUT_OF_ORDER = FIXTURES_DIR / "malformed_out_of_order.md"
+MALFORMED_EXTRA_SECTION = FIXTURES_DIR / "malformed_extra_section.md"
+
+
+def _frontmatter_and_body(path: Path):
+    text = path.read_text(encoding="utf-8")
+    fm_text, body = split_frontmatter(text)
+    return parse_yaml_minimal(fm_text), body
+
+
+class TestAdversarialMissingToken(unittest.TestCase):
+    """Adversarial fixture: frontmatter omits the `spacing` token group.
+    The schema check (`test_each_token_group_present` in the happy class)
+    must FAIL on this input — verifying the check actually discriminates."""
+
+    def test_fixture_present(self):
+        self.assertTrue(MALFORMED_MISSING_TOKEN.is_file())
+
+    def test_schema_check_detects_missing_token_group(self):
+        fm, _ = _frontmatter_and_body(MALFORMED_MISSING_TOKEN)
+        missing = [g for g in DESIGN_CONTRACT["design_md_token_groups"]
+                   if g not in fm]
+        self.assertIn(
+            "spacing", missing,
+            "fixture is supposed to omit `spacing` — adjust fixture or "
+            "the contract's required token list",
+        )
+        # The schema rule says required groups (colors, typography, spacing)
+        # MUST all be present. This fixture violates by missing one — the
+        # check is therefore discriminating.
+        self.assertGreater(
+            len(missing), 0,
+            "missing-token fixture didn't actually miss any tokens",
+        )
+
+
+class TestAdversarialOutOfOrder(unittest.TestCase):
+    """Adversarial fixture: H2 sections present but in non-canonical order
+    (Typography before Colors). The order check must catch this."""
+
+    def test_fixture_present(self):
+        self.assertTrue(MALFORMED_OUT_OF_ORDER.is_file())
+
+    def test_order_check_detects_swap(self):
+        _, body = _frontmatter_and_body(MALFORMED_OUT_OF_ORDER)
+        canonical = list(DESIGN_CONTRACT["design_md_canonical_sections"])
+        positions = []
+        for section in canonical:
+            m = re.search(rf"^##\s+{re.escape(section)}\s*$",
+                          body, re.MULTILINE)
+            if m:
+                positions.append((m.start(), section))
+        ordered = [s for _, s in sorted(positions)]
+        # The swap (Typography before Colors) means `ordered` differs from
+        # `canonical`. If the check is genuinely discriminating, this MUST
+        # not equal the canonical list.
+        self.assertNotEqual(
+            ordered, canonical,
+            "out-of-order fixture passes the order check — fixture or "
+            "check is not actually discriminating",
+        )
+
+
+class TestAdversarialExtraSection(unittest.TestCase):
+    """Adversarial fixture: all 8 canonical sections plus an extra `Tokens`
+    H2. The 'no extra H2 sections' check must detect the stray heading."""
+
+    def test_fixture_present(self):
+        self.assertTrue(MALFORMED_EXTRA_SECTION.is_file())
+
+    def test_extra_section_check_detects_stray_h2(self):
+        _, body = _frontmatter_and_body(MALFORMED_EXTRA_SECTION)
+        h2s = re.findall(r"^##\s+(.+?)\s*$", body, re.MULTILINE)
+        canonical = set(DESIGN_CONTRACT["design_md_canonical_sections"])
+        unexpected = set(h2s) - canonical
+        self.assertEqual(
+            unexpected, {"Tokens"},
+            f"extra-section fixture should yield exactly {{Tokens}}, "
+            f"got: {unexpected}",
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
