@@ -34,7 +34,7 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 
 ### Requirements
 
-- `gh` (GitHub CLI), authenticated via `gh auth login` — required by `-i` (creates GitHub issues) and by `-f` when passing a GitHub issue reference (`#N`) or URL. Other flags work without `gh`.
+- `gh` (GitHub CLI), authenticated via `gh auth login` — required by `-i` and by `-f` with a GitHub issue reference (`#N`) or URL. Other flags work without `gh`.
 
 ### Examples
 

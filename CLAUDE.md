@@ -2,7 +2,7 @@
 
 Public collection of installable AI agent skills for Claude Code and compatible agents. Each skill is a self-contained folder in `skills/` with a `SKILL.md` at its root.
 
-Markdown + bash + Python 3 (stdlib only). No build step, no third-party dependencies, no package manager.
+Markdown + bash + Python 3 (stdlib only). No build step. No package manager.
 
 ## Canonical rules
 
@@ -17,5 +17,5 @@ Markdown + bash + Python 3 (stdlib only). No build step, no third-party dependen
 - **Authoring tool**: the official Anthropic `skill-creator` skill is mandatory for creating/updating skills. We do not build our own.
 - **Layout**: `skills/{name}/SKILL.md` + optional `steps/`, `templates/`, `scripts/`, `references/`. No per-skill `README.md`.
 - **Install**: `npx skills add coroboros/agent-skills --skill <name>` via [skills.sh](https://skills.sh).
-- **Runtime**: bash + Python 3 (stdlib only) for bundled scripts. Works anywhere with bash + `python3` and a filesystem. Exception au tech-standard global (Bun) — motif : portabilité install (`npx skills add` doit marcher sans setup) et cohérence avec l'écosystème agentskills.io (Anthropic, Vercel). Some skills wrap external CLIs (`ffmpeg`, `gh`, `pnpm`, `wrangler`, `markitdown`, `jq`) — declared per-skill in the SKILL.md.
+- **Runtime**: bash + Python 3 (stdlib only) for bundled scripts. Works anywhere with bash + `python3` and a filesystem. Skills ship via `npx skills add` and run without setup; the org-wide Bun preference does not apply. Some skills wrap external CLIs (`ffmpeg`, `gh`, `pnpm`, `wrangler`, `markitdown`, `jq`) declared per-skill in the SKILL.md.
 - **Git** — branch `main`; no `CHANGELOG.md` (release notes live in the `gh release create` body only); version lives only in git tags and in `.claude-plugin/marketplace.json` `metadata.version` — there is no `package.json`, so no `pnpm version` bump. All other rules in `~/.claude/rules/git-conventions.md` apply.

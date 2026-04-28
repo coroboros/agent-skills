@@ -53,7 +53,7 @@ npx skills add coroboros/agent-skills --skill <name>
 - `python3` (3.10+, stdlib only — no `pip install` needed)
 - A filesystem
 
-Some skills wrap external CLIs (`ffmpeg` for media, `gh` for GitHub, `pnpm` and `wrangler` for scaffolding, `markitdown` for document conversion, `jq` for JSON manipulation). Those are declared per-skill in the corresponding SKILL.md and not required by the others.
+Some skills wrap external CLIs — `ffmpeg` (media), `gh` (GitHub), `pnpm` and `wrangler` (scaffolding), `markitdown` (document conversion), `jq` (JSON). Each is declared in its SKILL.md and is local to that skill.
 
 ---
 
