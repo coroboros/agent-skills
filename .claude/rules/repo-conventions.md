@@ -100,15 +100,23 @@ Unit tests live at the repo root in `tests/<skill-name>/`, **never** inside skil
 
 ```
 tests/
-├── _meta/                      # Universal cross-skill tests
+├── _meta/                            # Universal cross-skill tests
 │   ├── _helpers.py
 │   ├── test_skill_frontmatter.py
 │   ├── test_skill_structure.py
 │   ├── test_marketplace.py
-│   └── test_readme_parity.py
+│   ├── test_readme_parity.py
+│   ├── test_evals_shape.py           # JSON schema for evals/evals.json
+│   ├── test_evals_content_sampling.py # refuse/escalate + reference routing
+│   ├── test_helpers_contract.py      # _helpers.py public API stability
+│   └── test_performance_budget.py    # hot-path runtime ceilings
+├── _pipeline/                        # Cross-skill cluster integration
+│   ├── _contracts.py                 # SSOT for `-f` schema keys per cluster
+│   ├── fixtures/                     # Producer→consumer fixtures
+│   └── test_*.py
 └── <skill-name>/
-    ├── __init__.py             # Empty marker
-    ├── fixtures/               # Optional test inputs
+    ├── __init__.py                   # Empty marker
+    ├── fixtures/                     # Optional test inputs
     └── test_*.py
 ```
 

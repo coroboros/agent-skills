@@ -23,6 +23,7 @@ def _git_show(path):
     return subprocess.run(
         ["git", "-C", str(REPO_ROOT), "show", f"{_V1_REF}:{path}"],
         capture_output=True, text=True, check=False,
+        timeout=30,
     ).stdout
 
 
@@ -48,12 +49,14 @@ class TestByteIdentity(unittest.TestCase):
         return subprocess.run(
             [sys.executable, str(self.tmp / "extract_rules.py"), str(fixture)],
             capture_output=True, text=True,
+            timeout=30,
         )
 
     def _run_legacy(self, fixture):
         return subprocess.run(
             [sys.executable, str(LIVE_SCRIPTS / "extract_rules.py"), "--legacy", str(fixture)],
             capture_output=True, text=True,
+            timeout=30,
         )
 
     def test_parent_corp_byte_identical(self):

@@ -64,6 +64,7 @@ def _run(target_dir, fake_bin: Path | None = None, extra_env: dict | None = None
         capture_output=True,
         text=True,
         env=env,
+        timeout=30,
     )
 
 

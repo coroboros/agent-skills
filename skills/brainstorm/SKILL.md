@@ -83,7 +83,7 @@ Be rigorous, not contrarian. Surface risks the user hasn't considered.
 
 Produce the strategic brief. Output in conversation by default, or save to `.claude/output/brainstorm/{slug}/brainstorm.md` when `-s` is set.
 
-Use the canonical format in `references/brief-template.md` (read it from `{skill_dir}/references/brief-template.md` before writing).
+Use the canonical format in `references/brief-template.md` (read `${CLAUDE_SKILL_DIR}/references/brief-template.md` before writing).
 
 ### Phase 5 — Discuss
 

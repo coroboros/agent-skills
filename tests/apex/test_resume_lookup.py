@@ -24,6 +24,7 @@ def _run(*args, cwd):
         text=True,
         cwd=str(cwd),
         env=env,
+        timeout=30,
     )
 
 
@@ -55,6 +56,7 @@ class TestResumeLookup(unittest.TestCase):
             text=True,
             cwd=str(self.root),
             env=env,
+            timeout=30,
         )
         self.assertEqual(result.returncode, 1, msg=result.stderr)
         self.assertIn("usage", result.stderr.lower())

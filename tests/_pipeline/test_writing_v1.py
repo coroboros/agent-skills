@@ -34,6 +34,7 @@ class TestExtractRulesFlowsToHumanize(unittest.TestCase):
             [sys.executable, str(EXTRACT_RULES),
              str(BRAND_VOICE_FIXTURES / "child-founder.md")],
             capture_output=True, text=True,
+            timeout=30,
         )
         self.assertEqual(r.returncode, 0,
                          f"extract_rules failed:\n{r.stderr}")
@@ -52,6 +53,7 @@ class TestExtractRulesFlowsToHumanize(unittest.TestCase):
             [sys.executable, str(EXTRACT_RULES), "--explain-json",
              str(BRAND_VOICE_FIXTURES / "child-founder.md")],
             capture_output=True, text=True,
+            timeout=30,
         )
         self.assertEqual(r.returncode, 0)
         data = json.loads(r.stdout)

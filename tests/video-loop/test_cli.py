@@ -29,6 +29,7 @@ def _run(*args, env=None):
         capture_output=True,
         text=True,
         env=env,
+        timeout=60,
     )
 
 
@@ -67,6 +68,7 @@ def _make_input(out_dir, name="in.mp4", duration=4, size="64x64", rate=10):
         ],
         check=True,
         capture_output=True,
+        timeout=60,
     )
     return path
 

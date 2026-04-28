@@ -44,6 +44,7 @@ def _run(*args, cwd):
         env=env,
         capture_output=True,
         text=True,
+        timeout=30,
     )
 
 

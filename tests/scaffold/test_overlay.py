@@ -30,6 +30,7 @@ def _run(*args, env=None):
         capture_output=True,
         text=True,
         env=env if env is not None else os.environ.copy(),
+        timeout=30,
     )
 
 
@@ -154,7 +155,8 @@ class TestJqMissing(unittest.TestCase):
             env["PATH"] = str(sealed)
             # Sanity: jq must NOT be reachable from sealed PATH.
             jq_check = subprocess.run(
-                [BASH, "-c", "command -v jq"], env=env, capture_output=True, text=True
+                [BASH, "-c", "command -v jq"], env=env, capture_output=True, text=True,
+                timeout=30,
             )
             self.assertNotEqual(jq_check.returncode, 0, "sealed PATH still resolves jq")
             r = _run("next-cloudflare", "demo", str(target), env=env)

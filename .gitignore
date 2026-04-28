@@ -1,6 +1,5 @@
 .DS_Store
 .env*.local
-
-# Python bytecode from scripts under skills/*/scripts/
+.claude/settings.local.json
 __pycache__/
 *.py[cod]

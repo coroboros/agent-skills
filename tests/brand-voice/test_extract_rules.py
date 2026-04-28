@@ -15,6 +15,7 @@ def _run(*args):
         [sys.executable, str(SCRIPT), *args],
         capture_output=True,
         text=True,
+        timeout=30,
     )
     return result
 

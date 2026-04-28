@@ -33,6 +33,7 @@ def _run(script_name: str, *args: str, fake_bin: Path | None = None):
         capture_output=True,
         text=True,
         env=env,
+        timeout=30,
     )
 
 

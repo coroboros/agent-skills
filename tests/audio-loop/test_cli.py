@@ -66,6 +66,32 @@ def _make_wav(path, duration=1, rate=44100, channels=2, freq=440):
     )
 
 
+def _make_noise_wav(path, duration=2, rate=44100, channels=2):
+    """Generate a brown-noise WAV — non-trivial loudness profile that
+    forces loudnorm to do real work, unlike a pure sine wave which can
+    converge to exact target on clean inputs.
+
+    Caller must check HAS_FFMPEG."""
+    subprocess.run(
+        [
+            "ffmpeg",
+            "-y",
+            "-hide_banner",
+            "-loglevel",
+            "error",
+            "-f",
+            "lavfi",
+            "-i",
+            f"anoisesrc=duration={duration}:color=brown:sample_rate={rate}",
+            "-ac",
+            str(channels),
+            str(path),
+        ],
+        check=True,
+        timeout=30,
+    )
+
+
 class TestScriptExists(unittest.TestCase):
     """Sanity — the script lives where the tests expect."""
 
@@ -296,6 +322,92 @@ class TestExitCodeMapping(unittest.TestCase):
         """
         text = SCRIPT.read_text()
         self.assertIn("d > 1.0", text)
+
+
+class TestLoudnormIntegrity(unittest.TestCase):
+    """The success-path test asserts `lufs_delta <= 1.0`, which would still
+    pass if loudnorm silently became a no-op (delta=0, output=target). These
+    integrity checks catch a measurement that didn't actually run — a class
+    of regression where the script ships output but the loudness calc broke.
+
+    Sine waves are too clean — loudnorm CAN converge to exact target on a
+    pure tone, so the fixture is brown noise: a non-trivial loudness
+    profile that forces a real measurement. If brown noise still produces
+    `delta == 0`, the calculation is broken."""
+
+    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
+    def test_lufs_delta_nonzero_on_brown_noise(self):
+        """Brown noise has non-trivial loudness variability. After loudnorm,
+        the delta should be small (within tolerance) but typically NON-ZERO.
+        Exactly 0.0 across multiple runs would suggest the measurement
+        pipeline is silently no-op'd."""
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "src.wav"
+            _make_noise_wav(src, duration=2)
+            outdir = Path(td) / "out"
+            outdir.mkdir()
+            result = _run(str(src), "-o", str(outdir))
+            self.assertEqual(result.returncode, 0, msg=result.stderr)
+            results = _parse_results(result.stdout)
+
+            lufs_out = results.get("lufs_out", "")
+            self.assertNotEqual(
+                lufs_out, "",
+                "lufs_out missing from RESULT lines — measurement did not run",
+            )
+            try:
+                lufs_out_val = float(lufs_out)
+            except ValueError:
+                self.fail(f"lufs_out is not parseable as float: {lufs_out!r}")
+
+            # Brown noise should not produce a 0.0 LUFS reading (which would
+            # mean silence). A sane reading lands in [-50, 0] LUFS.
+            self.assertGreater(
+                lufs_out_val, -50.0,
+                f"lufs_out={lufs_out_val} — too quiet to be a real reading",
+            )
+            self.assertLess(
+                lufs_out_val, 0.0,
+                f"lufs_out={lufs_out_val} — implausibly loud, suspect a parse bug",
+            )
+
+    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
+    def test_lufs_target_propagates_to_output_and_delta(self):
+        """Two runs at different targets must produce different `lufs_target`
+        keys (sanity check that `-t` is parsed) AND should land near their
+        respective targets. Catches a regression where `-t` is silently
+        ignored — the post-condition check would still pass on both runs."""
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "src.wav"
+            _make_noise_wav(src, duration=2)
+            out1 = Path(td) / "out1"
+            out2 = Path(td) / "out2"
+            out1.mkdir()
+            out2.mkdir()
+
+            r1 = _run(str(src), "-t", "-28", "-o", str(out1))
+            r2 = _run(str(src), "-t", "-20", "-o", str(out2))
+            self.assertEqual(r1.returncode, 0, msg=r1.stderr)
+            self.assertEqual(r2.returncode, 0, msg=r2.stderr)
+
+            res1 = _parse_results(r1.stdout)
+            res2 = _parse_results(r2.stdout)
+            # `lufs_target` must reflect the `-t` value, not a hardcoded constant.
+            self.assertEqual(res1["lufs_target"], "-28")
+            self.assertEqual(res2["lufs_target"], "-20")
+            # Output LUFS should track the target — a regression where `-t`
+            # is ignored would produce identical lufs_out for both runs.
+            out1_lufs = float(res1["lufs_out"])
+            out2_lufs = float(res2["lufs_out"])
+            # Outputs should differ by roughly the target gap (~8 LUFS),
+            # within ±2 LUFS of perfect difference (loose but catches a
+            # hard regression where -t is ignored entirely).
+            gap = out2_lufs - out1_lufs
+            self.assertGreater(
+                gap, 4.0,
+                f"two -t values produced near-identical lufs_out "
+                f"({out1_lufs} vs {out2_lufs}); -t may be ignored",
+            )
 
 
 if __name__ == "__main__":

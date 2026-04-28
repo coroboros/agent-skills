@@ -6,7 +6,7 @@
       "id": 1,
       "name": "produces-canonical-brief-shape",
       "prompt": "Help me think through how we should handle authentication for our B2B SaaS — Better-Auth vs Clerk vs roll-our-own.",
-      "expected_output": "Output is a brief.md with all 8 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Alternatives considered lists at least 2 options with set-aside reasoning.",
+      "expected_output": "Output is a brief.md with all 8 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks & mitigations, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Alternatives considered lists at least 2 options with set-aside reasoning.",
       "files": []
     },
     {
@@ -42,6 +42,27 @@
       "name": "next-steps-shape-of-work",
       "prompt": "Build an internal documentation site for the engineering team.",
       "expected_output": "Next steps section gives high-level phases (3-6 phases) — enough to see the shape of the work. Not a full spec (that's `/spec`'s job) but more than 'figure it out'.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "asks-clarifying-questions-on-vague-input",
+      "prompt": "/brainstorm we should think about caching",
+      "expected_output": "Rather than producing a brief, the skill applies the 'Ask before assuming' rule and asks focused clarifying questions in a single message: what is being cached, what scale, what's the current pain, what constraints exist. Skill stops and waits — does not proceed on assumptions that could flip the recommendation.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "routes-to-brief-template-reference",
+      "prompt": "What should the structure of a brainstorm brief look like? Are there 8 sections required?",
+      "expected_output": "Skill routes to `references/brief-template.md` for the canonical 8-section structure (Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks & mitigations, Open questions, Next steps) rather than re-deriving the layout inline. Response is concrete (sections named) not generic.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "bridges-to-spec-for-multi-workstream-work",
+      "prompt": "/brainstorm should we migrate from CRA to Vite across our 3-app monorepo, or wait for the official React replacement?",
+      "expected_output": "After producing the brief and surfacing the recommendation + top risk, brainstorm proposes the bridge to `/spec` because the migration is multi-workstream (3 apps + CI updates + bundle audit + rollback plan). The bridge syntax is exact and matches the repo `-f` convention: `/spec -s -f .claude/output/brainstorm/<slug>/brainstorm.md`. Skill does NOT directly hand off to `/apex` — the work is too broad for a single focused implementation pass.",
       "files": []
     }
   ]

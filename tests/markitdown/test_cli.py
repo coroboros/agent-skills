@@ -60,6 +60,7 @@ def _run(*args, env=None, cwd=None):
         text=True,
         env=env,
         cwd=cwd,
+        timeout=30,
     )
 
 
@@ -290,6 +291,73 @@ class TestShimmedWrapper(unittest.TestCase):
         self.assertNotEqual(r.returncode, 0, "shim should have failed the run")
         after = set(Path(tempfile.gettempdir()).glob("markitdown.*"))
         self.assertEqual(after - before, set(), "wrapper leaked a temp file on failure")
+
+    # --- adversarial inputs (filename edge cases) -----------------------------
+
+    def test_zero_byte_input_passes_through_to_shim(self):
+        """A 0-byte input file is a valid file on disk — the wrapper's file
+        check passes (file exists, size doesn't matter at this layer). The
+        wrapped CLI handles content errors. Pin the wrapper's behaviour so
+        a future "if file_size == 0 then fail" change is intentional."""
+        f = self.cwd / "empty.pdf"
+        f.write_bytes(b"")
+        r = self._run(str(f))
+        self.assertEqual(
+            r.returncode, 0,
+            f"0-byte input failed at wrapper layer: {r.stderr}",
+        )
+        # The shim still produces output; wrapper still emits the schema.
+        self.assertIn("RESULT: bytes=", r.stdout)
+        self.assertIn("RESULT: slug=empty", r.stdout)
+
+    def test_filename_with_unicode_drops_non_ascii_letters(self):
+        """Filename with non-ASCII letters — the wrapper's slug derivation
+        uses POSIX `tr` patterns that strip non-ASCII bytes (different from
+        GitHub-style slugify which preserves unicode). Pin the actual
+        behaviour: `café-notes` becomes `caf-notes` (the `é` is dropped).
+
+        This intentionally differs from `write-clear-readme/audit_readme.py`
+        which preserves unicode for GitHub-anchor compatibility — markitdown
+        slugs target file paths, not anchors, so ASCII-only is appropriate."""
+        f = self.cwd / "café notes.pdf"
+        f.write_text("dummy")
+        r = self._run("-s", str(f))
+        self.assertEqual(r.returncode, 0, msg=r.stderr)
+        slug_line = next(
+            l for l in r.stdout.splitlines() if l.startswith("RESULT: slug=")
+        )
+        self.assertEqual(
+            slug_line, "RESULT: slug=caf-notes",
+            "slug derivation changed — verify if this is intentional",
+        )
+
+    def test_extension_casing_normalized(self):
+        """`Report.PDF` and `Report.pdf` should produce the same slug. The
+        slug source is the FILENAME (stem); the wrapper lowercases the
+        whole stem via `tr A-Z a-z`. Casing differences must NOT leak."""
+        f1 = self.cwd / "Report.PDF"
+        f1.write_text("dummy")
+        r1 = self._run("-s", str(f1))
+        self.assertEqual(r1.returncode, 0, msg=r1.stderr)
+        # The slug is the lowercased stem (no extension in slug).
+        self.assertIn("RESULT: slug=report", r1.stdout)
+
+    def test_repeated_special_chars_collapse_to_single_dash(self):
+        """`---weird---.txt` was already covered for leading/trailing strip;
+        this pins the inner behaviour: runs of dashes/specials collapse so
+        the slug doesn't contain `--` artifacts."""
+        f = self.cwd / "weird---name.txt"
+        f.write_text("dummy")
+        r = self._run("-s", str(f))
+        self.assertEqual(r.returncode, 0, msg=r.stderr)
+        slug_line = next(
+            l for l in r.stdout.splitlines() if l.startswith("RESULT: slug=")
+        )
+        # Pin: inner consecutive dashes collapse — no `--` in slug.
+        self.assertNotIn(
+            "--", slug_line.split("=", 1)[1],
+            f"slug contains `--`: {slug_line!r}",
+        )
 
 
 if __name__ == "__main__":
