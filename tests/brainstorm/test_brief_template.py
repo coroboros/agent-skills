@@ -64,5 +64,35 @@ class TestBriefTemplate(unittest.TestCase):
                          f"sections out of order: {sorted_by_pos}")
 
 
+class TestTemplatePlaceholders(unittest.TestCase):
+    """The brainstorm prompt fills placeholders like {topic} and {YYYY-MM-DD}.
+    Drift in placeholder syntax breaks the substitution silently — the rendered
+    brief would carry the literal placeholder text into the output."""
+
+    def test_topic_placeholder_present(self):
+        text = TEMPLATE.read_text(encoding="utf-8")
+        # Title must include a `{topic}` placeholder for the brainstorm prompt to fill.
+        self.assertIn("{topic}", text,
+                      "template missing {topic} placeholder in title")
+
+    def test_date_placeholder_present(self):
+        text = TEMPLATE.read_text(encoding="utf-8")
+        # Date placeholder uses a `{YYYY-MM-DD}` pattern documented in the prompt.
+        self.assertIn("{YYYY-MM-DD}", text,
+                      "template missing {YYYY-MM-DD} date placeholder")
+
+    def test_placeholders_only_in_documented_locations(self):
+        """A placeholder leaking outside the title/date area would leak into
+        the rendered brief. Pin the count of `{` characters in the template
+        — drift here surfaces unintended substitution slots."""
+        text = TEMPLATE.read_text(encoding="utf-8")
+        # The template uses `{topic}`, `{YYYY-MM-DD}`, and `[bracket prose hints]`
+        # only. Curly braces should appear ≤4 times (open + close × 2).
+        curly_count = text.count("{")
+        self.assertLessEqual(curly_count, 4,
+                             f"unexpected placeholder count ({curly_count}) — "
+                             "audit for stray substitution slots")
+
+
 if __name__ == "__main__":
     unittest.main()

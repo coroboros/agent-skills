@@ -174,6 +174,10 @@ class TestInvalidLufsTarget(unittest.TestCase):
             # No final ok=true should be emitted since loudnorm aborted.
             results = _parse_results(result.stdout)
             self.assertNotEqual(results.get("ok"), "true")
+            # outdir must not contain a .flac — the encode step never ran.
+            flac_files = list(outdir.glob("*.flac"))
+            self.assertEqual(flac_files, [],
+                             f"loudnorm-abort left .flac in outdir: {flac_files}")
 
 
 class TestSuccessfulRunSchema(unittest.TestCase):

@@ -194,8 +194,19 @@ class TestScanShape(unittest.TestCase):
         hits = scan("This is pivotal moment text.\nMoreover, more text.")
         self.assertGreater(len(hits), 0)
         for h in hits:
-            for key in ("pattern", "label", "line", "snippet"):
-                self.assertIn(key, h)
+            with self.subTest(hit=h):
+                for key in ("pattern", "label", "line", "snippet"):
+                    self.assertIn(key, h)
+                # Type + value invariants — pin the schema published in
+                # references/schemas.md § "prescan hit list".
+                self.assertIsInstance(h["pattern"], int)
+                self.assertGreater(h["pattern"], 0)
+                self.assertIsInstance(h["label"], str)
+                self.assertGreater(len(h["label"]), 0)
+                self.assertIsInstance(h["line"], int)
+                self.assertGreater(h["line"], 0)
+                self.assertIsInstance(h["snippet"], str)
+                self.assertGreater(len(h["snippet"]), 0)
 
     def test_hits_carry_pattern_id_and_label(self):
         hits = scan("Moreover, this is fine.")

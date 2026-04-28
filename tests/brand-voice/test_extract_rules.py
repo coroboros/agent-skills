@@ -94,6 +94,9 @@ class TestExitCodes(unittest.TestCase):
     def test_missing_file(self):
         r = _run(str(FIXTURES / "_does_not_exist.md"))
         self.assertEqual(r.returncode, 1)
+        # The failure message must surface the original path so callers can
+        # diagnose typos or wrong working directory without re-running.
+        self.assertIn("_does_not_exist.md", r.stderr)
 
     def test_cycle_returns_error(self):
         r = _run(str(FIXTURES / "cycle-a.md"))

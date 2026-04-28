@@ -21,6 +21,20 @@ class TestListUnionDedup(unittest.TestCase):
         merged = merge_voice_dicts(parent, child)
         self.assertEqual(merged["forbidden_lexicon"], ["a", "b", "c"])
 
+    def test_merge_does_not_mutate_parent(self):
+        """merge_voice_dicts must defensively copy — caller's parent dict
+        survives unchanged, otherwise repeated chain walks would silently
+        accumulate state. Snapshot-and-mutate-and-assert-original-unchanged."""
+        parent = {"forbidden_lexicon": ["a", "b"], "nested": {"x": 1}}
+        child = {"forbidden_lexicon": ["c"], "nested": {"y": 2}}
+        snapshot_lexicon = list(parent["forbidden_lexicon"])
+        snapshot_nested = dict(parent["nested"])
+        _ = merge_voice_dicts(parent, child)
+        self.assertEqual(parent["forbidden_lexicon"], snapshot_lexicon,
+                         "merge mutated parent.forbidden_lexicon")
+        self.assertEqual(parent["nested"], snapshot_nested,
+                         "merge mutated parent.nested")
+
     def test_required_lexicon_union(self):
         parent = {"required_lexicon": ["x"]}
         child = {"required_lexicon": ["y"]}
