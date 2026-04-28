@@ -133,7 +133,7 @@ Whether authoring, auditing, or polishing — the prose itself follows these:
 ## Adjacent skills
 
 - **`/fix-grammar`** — optional typo / spelling pre-pass before authoring, or post-pass after polish when the source has obvious errors. Skip when the text is already clean — this skill never introduces grammar errors.
-- **`/humanize-en`** — AI-tell stripping (see next section). Called internally after clarity edits; also usable standalone.
+- **`/humanize-en`** — AI-tell stripping (see next section). Called by `author` and `polish` modes after clarity edits; `audit` mode flags AI tells without rewriting. Also usable standalone.
 
 ## Remove AI traces
 
@@ -159,7 +159,7 @@ After any author or polish pass on English content, strip residual AI tells (em-
 ## Audit mode
 
 1. **Read existing README** in full.
-2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, and the Universal bloat token list. Exit 1 on findings; the JSON is your hit-list. Subjective prose issues (First-3-lines test, verbose passages, marketing voice in context) still need your read.
+2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, and a bloat-token scan (see the script's docstring for the canonical token list). Exit 1 on findings; the JSON is your hit-list. Subjective prose issues (First-3-lines test, verbose passages, marketing voice in context) still need your read.
 3. **Score against Universal rules** (structure — use the script output first):
    - Is the overview (TOC / index / table) visible without clicking?
    - Do all anchors resolve? (Every heading referenced in the TOC must exist and be outside `<details>`.)
