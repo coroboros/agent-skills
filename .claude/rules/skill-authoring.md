@@ -90,7 +90,7 @@ Tests live at the repo root in `tests/<skill-name>/` (placement rule documented 
 - **Thin wrappers** (shell scripts orchestrating an external CLI) — tests should pin the wrapper's own contract: argument parsing, exit code mapping, output schema (`RESULT: key=value` lines), self-overwrite guards. Don't test the wrapped CLI.
 - **Pure-prompt skills** (no `scripts/` folder) — the universal `tests/_meta/` suite covers the floor. Add per-skill structural tests in `tests/<skill-name>/` only when there's a non-obvious invariant worth pinning (reference-file completeness, internal table consistency, escalation contract documented in SKILL.md).
 
-**Run before commit**: `python3 -m unittest discover tests/ -v` — all GREEN required. The `/skill-creator` loop's GREEN exit criterion does not replace this — `skill-creator` reviews the SKILL.md contract; the test suite verifies the implementation.
+**Run before commit**: `python3 -m unittest discover tests/ -v` — all GREEN required. The `/skill-creator` loop's GREEN exit criterion does not replace this — `skill-creator` reviews the SKILL.md contract; the test suite verifies the implementation. CI re-runs the same suite on every PR via `.github/workflows/ci.yml` — red CI blocks merge.
 
 **When tests legitimately can't be added** (e.g., a doc-only edit), state so in the PR body. The default is "tests added"; "no tests because X" is the exception that needs justification.
 
