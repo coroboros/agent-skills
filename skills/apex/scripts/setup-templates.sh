@@ -1,15 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # APEX Template Setup Script
 # Creates output directory structure and initializes template files
 #
 # Usage: setup-templates.sh "feature-name" [other args...]
 # The script auto-generates the task ID with the next available number.
 
-set -e
+set -euo pipefail
 
 # Arguments - first arg is now just the feature name (kebab-case)
-FEATURE_NAME="$1"
-TASK_DESCRIPTION="$2"
+FEATURE_NAME="${1:-}"
+TASK_DESCRIPTION="${2:-}"
 AUTO_MODE="${3:-false}"
 SAVE_MODE="${4:-false}"
 ECONOMY_MODE="${5:-false}"
@@ -42,8 +42,8 @@ mkdir -p "$APEX_OUTPUT_DIR"
 # Find the next available number
 NEXT_NUM=1
 if [[ -d "$APEX_OUTPUT_DIR" ]]; then
-    # Find highest existing number prefix
-    HIGHEST=$(ls -1 "$APEX_OUTPUT_DIR" 2>/dev/null | grep -oE '^[0-9]+' | sort -n | tail -1)
+    # Find highest existing number prefix (tolerate empty dir: grep returns 1 on no match)
+    HIGHEST=$(ls -1 "$APEX_OUTPUT_DIR" 2>/dev/null | grep -oE '^[0-9]+' | sort -n | tail -1 || true)
     if [[ -n "$HIGHEST" ]]; then
         # Force base-10 interpretation (leading zeros would be treated as octal)
         NEXT_NUM=$((10#$HIGHEST + 1))

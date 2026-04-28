@@ -19,6 +19,7 @@ From brainstorming to structured specs to implementation, with design systems, p
 </div>
 
 - [Install](#install)
+- [Requirements](#requirements)
 - [Skills](#skills)
   - [Workflow Skills](#workflow-skills)
   - [Design Skills](#design-skills)
@@ -43,6 +44,16 @@ npx skills add coroboros/agent-skills
 # Individual skill
 npx skills add coroboros/agent-skills --skill <name>
 ```
+
+---
+
+## Requirements
+
+- `bash`
+- `python3` (3.10+, stdlib only — no `pip install` needed)
+- A filesystem
+
+Some skills wrap external CLIs — each is declared in its SKILL.md.
 
 ---
 
