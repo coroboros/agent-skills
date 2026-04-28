@@ -1,3 +1,5 @@
+# Subagents
+
 ## File format
 
 Subagent file structure:

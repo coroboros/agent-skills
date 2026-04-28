@@ -1,3 +1,5 @@
+# Writing Subagent Prompts
+
 ## Key insight
 
 Agent prompts should be task-specific, not generic. They define a specialized role with clear focus areas, workflows, and constraints.
