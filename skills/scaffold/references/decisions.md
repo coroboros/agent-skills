@@ -20,9 +20,8 @@ Trade-off: Paraglide scales with *used keys per route*; next-intl with *total me
 
 - **Better-Auth (public) + Cloudflare Zero Trust (admin)** — public sessions in Better-Auth; `/admin/*` gated by ZT JWT (`Cf-Access-Jwt-Assertion`).
 - **Better-Auth + role-based** — single provider, admin guarded by user role.
-- **Auth.js / NextAuth** — broader provider catalog, heavier client.
 
-Trade-off: ZT-for-admin removes custom session code on the operator surface (2FA, allow-list, 24h sessions handled by the CF dashboard, free up to 50 users).
+Trade-off: ZT-for-admin removes custom session code on the operator surface — 2FA, allow-list, and 24h sessions are handled by the Cloudflare dashboard, free up to 50 users.
 
 ## 3. Search
 
@@ -58,11 +57,12 @@ Trade-off: social platforms scrape within minutes of publish. Lazy Satori = ~1.5
 
 **Auto-fill translations for editorial content?**
 
-- **DeepL API** — best EN ↔ FR / DE / ES quality, paid.
-- **Google Translate** — broader language coverage, lower quality on nuance.
+- **Claude / LLM** — best nuance and context-awareness; prompt-level control over glossaries, tone, and brand voice; pay-per-token.
+- **DeepL API** — strong classical MT for EN ↔ FR / DE / ES, fixed quality, paid.
+- **Google Translate** — broader language coverage, lower nuance.
 - **None** — manual translation only.
 
-Trade-off: never publish unreviewed MT. Gate via a state machine (`draft` → `translated` → `reviewed` → `published`) in admin.
+Trade-off: Claude wins on context-aware nuance and brand-voice fidelity but needs prompt engineering; DeepL is plug-and-play for the languages it covers. Either way, never publish unreviewed — gate via a state machine (`draft` → `translated` → `reviewed` → `published`) in admin.
 
 ## 7. Theme persistence (light / dark)
 

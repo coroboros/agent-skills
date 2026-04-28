@@ -233,7 +233,7 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 ### Design Skills
 
-Bootstrap strictly opinionated CF Workers projects, recommend design archetypes, and enforce DESIGN.md tokens across UI — `scaffold`, `award-design`, `design-system`.
+Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI — `scaffold`, `award-design`, `design-system`.
 
 <details>
 <summary><em>Expand — scaffold · award-design · design-system</em></summary>
