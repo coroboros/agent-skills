@@ -244,7 +244,7 @@ Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens ac
 
 Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
-**Strict opinion** — no Vercel/Netlify, no ESLint/Prettier, no swap. If you want any of those, this skill is not for you.
+**Strict opinion** — no Vercel/Netlify, no ESLint/Prettier. Use a different scaffold for any other stack.
 
 **Requirements**
 
