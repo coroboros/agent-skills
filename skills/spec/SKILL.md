@@ -32,6 +32,10 @@ Transform any starting point — raw text, a brainstorm report, a GitHub issue, 
 
 Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. `{slug}` is kebab-case from `{idea}`, max 5 words.
 
+### Requirements
+
+- `gh` (GitHub CLI), authenticated via `gh auth login` — required by `-i` (creates GitHub issues) and by `-f` when passing a GitHub issue reference (`#N`) or URL. Other flags work without `gh`.
+
 ### Examples
 
 ```bash

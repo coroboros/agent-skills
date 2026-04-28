@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # APEX Progress Update Script
 # Updates 00-context.md progress table
 
-set -e
+set -euo pipefail
 
 # Arguments
-TASK_ID="$1"
-STEP_NUMBER="$2"
-STEP_NAME="$3"
-STATUS="$4"  # "in_progress" or "complete"
+TASK_ID="${1:-}"
+STEP_NUMBER="${2:-}"
+STEP_NAME="${3:-}"
+STATUS="${4:-}"  # "in_progress" or "complete"
 
 # Validate required arguments
 if [[ -z "$TASK_ID" ]] || [[ -z "$STEP_NUMBER" ]] || [[ -z "$STEP_NAME" ]] || [[ -z "$STATUS" ]]; then
