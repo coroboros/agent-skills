@@ -144,11 +144,35 @@ class TestChainSuccess(unittest.TestCase):
         """child-founder.md declares both `forbidden_lexicon` (additive) and
         `forbidden_lexicon_remove` (selective subtraction). This combination
         is intentionally valid — the common case where a child adds a few
-        entries and removes a couple of inherited ones."""
+        entries and removes a couple of inherited ones.
+
+        Pin the merge math so a regression in the `_remove`/additive interplay
+        cannot pass green CI. parent-corp has forbidden_lexicon = {game-changing,
+        passionate, synergies} (3) + 2 rewrite_rules; child adds {thought leader}
+        and removes {passionate} + 1 rewrite_rule. Merged: 3 lexicon entries
+        (game-changing, synergies, thought leader) and 3 rewrite rules.
+        """
         path = FIXTURES / "child-founder.md"
         result = lint(_read(path), str(path))
-        self.assertNotEqual(result["verdict"], "RED")
+
+        # No errors of any kind — not just the conflict-with-extending one.
+        self.assertEqual(result["errors"], [],
+                         f"unexpected errors: {result['errors']}")
         self.assertNotIn("replace-conflict-with-extending", _codes(result["errors"]))
+        self.assertNotEqual(result["verdict"], "RED")
+
+        # Chain shape: parent + child = 2 entries, in resolution order.
+        self.assertIn("chain", result)
+        self.assertEqual(len(result["chain"]), 2)
+
+        # Merge math — pins the (parent_lexicon ∪ child_additive) ∖ child_remove
+        # contract. A bug that silently drops the remove or duplicates parent
+        # entries would shift the count.
+        self.assertIn("merged_stats", result)
+        self.assertEqual(result["merged_stats"]["forbidden_lexicon_count"], 3,
+                         "parent 3 + child 1 add - 1 remove = 3 merged")
+        self.assertEqual(result["merged_stats"]["rule_count"], 3,
+                         "parent 2 rules + child 1 rule = 3 merged")
 
 
 class TestSourceDiscriminator(unittest.TestCase):
