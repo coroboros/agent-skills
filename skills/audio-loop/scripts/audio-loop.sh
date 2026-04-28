@@ -108,7 +108,8 @@ if [[ "$CHANNELS" -eq 2 ]]; then
   DELTA_DB=$(awk -v l="$L_RMS" -v r="$R_RMS" 'BEGIN { printf "%.3f", r - l }')
   ABS_DELTA=$(awk -v d="$DELTA_DB" 'BEGIN { printf "%.3f", (d < 0) ? -d : d }')
 
-  # Threshold: correct above 1 dB, skip below 0.3 dB as jitter.
+  # Threshold: correct above 1 dB. Below that, JND research on sustained
+  # ambient content shows the imbalance isn't reliably perceptible.
   if [[ $NO_BALANCE -eq 0 ]] && awk -v a="$ABS_DELTA" 'BEGIN { exit !(a > 1.0) }'; then
     if awk -v d="$DELTA_DB" 'BEGIN { exit !(d > 0) }'; then
       # R is louder — attenuate R.

@@ -28,7 +28,7 @@ All ffmpeg work happens in `scripts/audio-loop.sh` — this skill validates the 
 | `-v <0..1>` | `0.6` | Target volume baked into the emitted JS snippet |
 | `-o <dir>` | input dir | Output directory |
 | `-s` | off | Save to `.claude/output/audio-loop/{slug}/` |
-| `-S` | — | Force no-save |
+| `-S` | off | Force no-save |
 | `-B` | off | Disable stereo balance auto-correction |
 
 **Where each flag is handled.** `-t`, `-o`, and `-B` pass through to `scripts/audio-loop.sh`. `-v` is skill-only — the agent reads it from `$ARGUMENTS` and interpolates it into the `TARGET` constant of the emitted JS snippet; the script never sees it. `-s` / `-S` follow the repo save-mode convention — the agent translates `-s` into an `-o <save_path>` passed to the script.
@@ -127,9 +127,14 @@ Duration: 6.50 s · Sample rate: 48 kHz · Channels: 2
   }
 
   const IGNORED = new Set(['Shift','Control','Alt','Meta','Tab','Escape','CapsLock']);
+  const onKeydown = e => {
+    if (IGNORED.has(e.key)) return;
+    document.removeEventListener('keydown', onKeydown, { capture: true });
+    unlock();
+  };
   preload();
   document.addEventListener('pointerdown', () => unlock(), { capture: true, once: true });
-  document.addEventListener('keydown', e => { if (!IGNORED.has(e.key)) unlock(); }, { capture: true });
+  document.addEventListener('keydown', onKeydown, { capture: true });
 })();
 </script>
 ```
