@@ -45,7 +45,7 @@ For Azure Document Intelligence, also export `MARKITDOWN_DOCINTEL_ENDPOINT=https
 | Flag | Default | Effect |
 |------|---------|--------|
 | `-s` | off | Save Markdown to `.claude/output/markitdown/<slug>/<stem>.md` |
-| `-S` | — | Force no-save (override an ambient save mode) |
+| `-S` | off | Force no-save (override an ambient save mode) |
 | `-d` | off | Use Azure Document Intelligence (needs `MARKITDOWN_DOCINTEL_ENDPOINT`) |
 | `-p` | off | Enable installed third-party `markitdown` plugins |
 | `-k` | off | Keep data URIs (base64 images) inline in the output |
