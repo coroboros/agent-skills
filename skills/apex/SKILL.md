@@ -82,7 +82,7 @@ See **Parameters** below for the complete flag list.
 /apex -r 01  # Partial match
 
 # From a GitHub issue
-/apex -f "#42"
+/apex -f "#42" implement what issue 42 describes
 
 # From prior analysis (spec, brainstorm report, RFC)
 /apex -f .claude/output/spec/auth-system/spec.md implement WS-1
