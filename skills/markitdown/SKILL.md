@@ -2,7 +2,7 @@
 name: markitdown
 description: Convert any document to Markdown with Microsoft's `markitdown` CLI — PDF, Word, Excel, PowerPoint, HTML, CSV, JSON, XML, ZIP, EPub, images (OCR/EXIF), audio (transcription), and YouTube URLs. Use whenever the user wants to extract text from a binary document, transcribe audio, OCR an image, scrape a YouTube transcript, or pre-process a file for an LLM context window — even when they just say "convert this pdf", "what's in this docx", "transcribe this mp3", or "get the text out of this".
 when_to_use: When the user has a non-Markdown file (PDF, DOCX, PPTX, XLSX, HTML, CSV, JSON, XML, EPub, ZIP, image, audio) or a YouTube URL and wants the contents as Markdown — for reading, summarising, feeding to an LLM, or saving as a clean text file. Keywords — convert to markdown, extract text, ocr, transcribe, read pdf, parse document, youtube transcript, markitdown, doc to md. Skip when the file is already Markdown, when the user wants visual rendering instead of text extraction, or when only a tiny snippet is needed and the Read tool is faster.
-argument-hint: "<file-or-url> [-s] [-S] [-d] [-p] [-k] [-l]"
+argument-hint: "[-s] [-S] [-d] [-p] [-k] [-l] <file-or-url>"
 model: sonnet
 allowed-tools: Bash(bash *) Bash(markitdown *) Bash(command *) Read
 license: MIT
@@ -45,7 +45,7 @@ For Azure Document Intelligence, also export `MARKITDOWN_DOCINTEL_ENDPOINT=https
 | Flag | Default | Effect |
 |------|---------|--------|
 | `-s` | off | Save Markdown to `.claude/output/markitdown/<slug>/<stem>.md` |
-| `-S` | — | Force no-save (override an ambient save mode) |
+| `-S` | off | Force no-save (override an ambient save mode) |
 | `-d` | off | Use Azure Document Intelligence (needs `MARKITDOWN_DOCINTEL_ENDPOINT`) |
 | `-p` | off | Enable installed third-party `markitdown` plugins |
 | `-k` | off | Keep data URIs (base64 images) inline in the output |
@@ -62,7 +62,7 @@ For Azure Document Intelligence, also export `MARKITDOWN_DOCINTEL_ENDPOINT=https
    bash ${CLAUDE_SKILL_DIR}/scripts/markitdown.sh $ARGUMENTS
    ```
 
-3. The script emits `RESULT: key=value` lines (`bytes`, `slug`, `saved`, plus `path` when saving) followed either by the converted Markdown (no-save mode, after a `---` separator) or nothing (save mode — the file is on disk).
+3. The script emits `RESULT: key=value` lines — keys: `bytes`, `slug`, `saved`, plus `path` when saving (order is not guaranteed; parse by key) — followed either by the converted Markdown (no-save mode, after a `---` separator) or nothing (save mode — the file is on disk).
 4. Parse the `RESULT:` lines and produce the report below.
 5. If the script exits with `ERR: markitdown not installed` (exit 127) → print the install command from `## Install` and stop. Never auto-install on the user's behalf.
 6. If the script exits with another `ERR:` (file not found, missing endpoint, unknown flag) → relay the message verbatim and stop.

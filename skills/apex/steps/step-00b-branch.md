@@ -18,7 +18,7 @@ returns_to: step-00-init.md
 
 ## CONTEXT BOUNDARIES:
 
-- Variables available: `{task_id}`, `{auto_mode}`, `{pr_mode}`
+- Variables available: `{task_id}`, `{auto_mode}`
 - This sub-step sets: `{branch_name}`
 - Return to step-00-init.md after completion
 
@@ -65,7 +65,7 @@ questions:
       - label: "Custom branch name"
         description: "I'll specify a custom branch name"
       - label: "Stay on {current_branch}"
-        description: "Continue without creating a branch (not recommended for PRs)"
+        description: "Continue without creating a branch"
     multiSelect: false
 ```
 
@@ -86,8 +86,6 @@ git checkout -b {custom_name}
 
 **If user chose "Stay on {current_branch}":**
 → `{branch_name}` = `{current_branch}`
-→ Display warning if `{pr_mode}` = true:
-  "⚠️ Warning: Creating PR from {current_branch} directly"
 
 ### 5. Confirm and Return
 
@@ -106,7 +104,6 @@ Display:
 ✅ Current branch verified
 ✅ Feature branch created if on main/master (unless user declined)
 ✅ `{branch_name}` variable set
-✅ User warned if staying on main with PR mode
 
 ## FAILURE MODES:
 

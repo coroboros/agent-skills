@@ -212,4 +212,4 @@ Every new mergeable frontmatter field requires deciding three things at PR time:
 2. **Whether the field belongs in `REPLACE_ALLOWED_FIELDS`** (any field that is structurally complex enough to warrant full replacement under inheritance).
 3. **Whether it belongs in `REMOVE_ALLOWED_FIELDS`** (list fields where surgical subtraction makes sense — list-of-strings or list-of-objects-with-stable-IDs).
 
-Scalar fields (string, int, bool) never need `_replace` — child-wins is total replacement already. The `REPLACE_ALLOWED_FIELDS` and `REMOVE_ALLOWED_FIELDS` constants in `scripts/utils.py` are the source of truth; PRs that add new mergeable fields must update both, add fixtures under `tests/fixtures/`, and a corresponding test in `tests/test_replace_remove.py`.
+Scalar fields (string, int, bool) never need `_replace` — child-wins is total replacement already. The `REPLACE_ALLOWED_FIELDS` and `REMOVE_ALLOWED_FIELDS` constants in `scripts/utils.py` are the source of truth; PRs that add new mergeable fields must update both, add fixtures under `tests/brand-voice/fixtures/`, and a corresponding test in `tests/brand-voice/test_replace_remove.py`.

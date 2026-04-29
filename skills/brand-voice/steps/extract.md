@@ -39,12 +39,12 @@ If no source flag is given (and `--extends` is not used), the skill enters inter
 - If `-o <path>` is omitted, target = `./BRAND-VOICE.md` at the current working directory.
 - If the target exists, abort with:
   > "`<path>` already exists. To refresh it, use `/brand-voice update`. To replace it, delete it first."
-  Do not overwrite. The canonical file is git-versioned — letting `extract` overwrite breaks history.
+  Do not overwrite. Refresh runs through `update`, which previews the diff and asks for confirmation — that's how accidental clobbering is prevented.
 - If the parent directory of `-o` does not exist, abort with a clear `mkdir -p` suggestion.
 - **`--extends <parent_path>` pre-flight** — when the flag is present:
   1. Resolve `<parent_path>` (absolute or relative to CWD).
   2. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py <parent_path>`.
-  3. Exit 1 (parent RED) → abort: *"Parent `<parent_path>` is RED. Fix it first or pass `--allow-extends-outside-skill` only if the brokenness is intentional."* Authors don't accidentally extend a broken parent.
+  3. Exit 1 (parent RED) → abort: *"Parent `<parent_path>` is RED. Fix it first."* Authors don't accidentally extend a broken parent.
   4. Exit 2 (parent missing/unreadable) → abort with the lint error.
   5. Exit 0 (GREEN/YELLOW) → proceed.
 

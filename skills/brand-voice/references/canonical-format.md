@@ -261,4 +261,4 @@ Every new mergeable field requires deciding three things at PR time:
 2. Whether the field belongs in `REPLACE_ALLOWED_FIELDS`.
 3. Whether the field belongs in `REMOVE_ALLOWED_FIELDS` (list fields with stable identity only).
 
-The constants in `scripts/utils.py` are the source of truth; PRs that add fields must update both, add fixtures under `tests/fixtures/`, and a corresponding test in `tests/test_replace_remove.py`.
+The constants in `scripts/utils.py` are the source of truth; PRs that add fields must update both, add fixtures under `tests/brand-voice/fixtures/`, and a corresponding test in `tests/brand-voice/test_replace_remove.py`.

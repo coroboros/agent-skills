@@ -1,26 +1,27 @@
 # Orchestration Patterns for Multi-Agent Systems
 
-<core_concept>
+## Core concept
+
 Orchestration defines how multiple subagents coordinate to complete complex tasks.
 
 **Single agent**: Sequential execution within one context.
 **Multi-agent**: Coordination between multiple specialized agents, each with focused expertise.
-</core_concept>
 
-<pattern_catalog>
+## Pattern catalog
 
+### Sequential
 
-<sequential>
 **Sequential pattern**: Agents chained in predefined, linear order.
 
-<characteristics>
+#### Characteristics
+
 - Each agent processes output from previous agent
 - Pipeline of specialized transformations
 - Deterministic flow (A → B → C)
 - Easy to reason about and debug
-</characteristics>
 
-<when_to_use>
+#### When to use
+
 **Ideal for**:
 - Document review workflows (security → performance → style)
 - Data processing pipelines (extract → transform → validate → load)
@@ -39,9 +40,9 @@ Flow:
    ↓ (coverage report)
 4. report-synthesizer: Combine all findings into actionable review
 ```
-</when_to_use>
 
-<implementation>
+#### Implementation
+
 ```markdown
 <sequential_workflow>
 Main chat orchestrates:
@@ -57,20 +58,20 @@ Main chat orchestrates:
 
 **Benefits**: Clear dependencies, each stage builds on previous.
 **Drawbacks**: Slower than parallel (sequential latency), one failure blocks pipeline.
-</implementation>
-</sequential>
 
-<parallel>
+### Parallel
+
 **Parallel/Concurrent pattern**: Multiple specialized subagents perform tasks simultaneously.
 
-<characteristics>
+#### Characteristics
+
 - Agents execute independently and concurrently
 - Outputs synthesized for final response
 - Significant speed improvements
 - Requires synchronization
-</characteristics>
 
-<when_to_use>
+#### When to use
+
 **Ideal for**:
 - Independent analyses of same input (security + performance + quality)
 - Processing multiple independent items (review multiple files)
@@ -91,9 +92,9 @@ Wait for all three to complete → synthesize findings.
 
 Time: max(agent_1, agent_2, agent_3) vs sequential: agent_1 + agent_2 + agent_3
 ```
-</when_to_use>
 
-<implementation>
+#### Implementation
+
 ```markdown
 <parallel_workflow>
 Main chat orchestrates:
@@ -110,20 +111,20 @@ Synchronization challenges:
 
 **Benefits**: Massive speed improvement, efficient resource utilization.
 **Drawbacks**: Increased complexity, synchronization challenges, higher cost (multiple agents running).
-</implementation>
-</parallel>
 
-<hierarchical>
+### Hierarchical
+
 **Hierarchical pattern**: Agents organized in layers, higher-level agents oversee lower-level.
 
-<characteristics>
+#### Characteristics
+
 - Tree-like structure with delegation
 - Higher-level agents break down tasks
 - Lower-level agents execute specific subtasks
 - Master-worker relationships
-</characteristics>
 
-<when_to_use>
+#### When to use
+
 **Ideal for**:
 - Large, complex problems requiring decomposition
 - Tasks with natural hierarchy (system design → component design → implementation)
@@ -143,9 +144,9 @@ Hierarchy:
   ↑ reports back to:
 - architect: Integrates components, ensures coherence
 ```
-</when_to_use>
 
-<implementation>
+#### Implementation
+
 ```markdown
 <hierarchical_workflow>
 Top-level agent (architect):
@@ -166,20 +167,20 @@ Lower-level agents:
 
 **Benefits**: Handles complexity through decomposition, clear responsibility boundaries.
 **Drawbacks**: Overhead in coordination, risk of misalignment between levels.
-</implementation>
-</hierarchical>
 
-<coordinator>
+### Coordinator
+
 **Coordinator pattern**: Central LLM agent routes tasks to specialized sub-agents.
 
-<characteristics>
+#### Characteristics
+
 - Central decision-maker
 - Dynamic routing (not hardcoded workflow)
 - AI model orchestrates based on task characteristics
 - Similar to hierarchical but focused on process flow
-</characteristics>
 
-<when_to_use>
+#### When to use
+
 **Ideal for**:
 - Diverse task types requiring different expertise
 - Dynamic workflows where next step depends on results
@@ -202,9 +203,9 @@ Coordinator analyzes request → determines relevant agents:
 ```
 
 **Dynamic routing** based on intermediate results, not predefined flow.
-</when_to_use>
 
-<implementation>
+#### Implementation
+
 ```markdown
 <coordinator_workflow>
 Coordinator agent prompt:
@@ -238,20 +239,20 @@ You are an orchestration coordinator. Route tasks to specialized agents based on
 
 **Benefits**: Flexible, adaptive to task requirements, efficient agent utilization.
 **Drawbacks**: Coordinator is single point of failure, complexity in routing logic.
-</implementation>
-</coordinator>
 
-<orchestrator_worker>
+### Orchestrator-Worker
+
 **Orchestrator-Worker pattern**: Central orchestrator assigns tasks, manages execution.
 
-<characteristics>
+#### Characteristics
+
 - Centralized coordination with distributed execution
 - Workers focus on specific, independent tasks
 - Similar to distributed computing master-worker pattern
 - Clear separation of planning (orchestrator) and execution (workers)
-</characteristics>
 
-<when_to_use>
+#### When to use
+
 **Ideal for**:
 - Batch processing (process 100 files)
 - Independent tasks that can be distributed (analyze multiple API endpoints)
@@ -273,9 +274,9 @@ Workers (5 concurrent instances of security-reviewer):
 - Reports findings to orchestrator
 - Independent execution (no inter-worker communication)
 ```
-</when_to_use>
 
-<sonnet_haiku_orchestration>
+#### Sonnet/Haiku orchestration
+
 **Sonnet 4.5 + Haiku 4.5 orchestration**: Optimal cost/performance pattern.
 
 Research findings:
@@ -303,16 +304,13 @@ Research findings:
 ```
 
 **Cost/performance optimization**: Expensive Sonnet only for planning/validation, cheap Haiku for execution.
-</sonnet_haiku_orchestration>
-</orchestrator_worker>
-</pattern_catalog>
 
-<hybrid_approaches>
-
+## Hybrid approaches
 
 Real-world systems often combine patterns for different workflow phases.
 
-<example name="sequential_then_parallel">
+### Sequential then parallel
+
 **Sequential for initial processing → Parallel for analysis**:
 
 ```markdown
@@ -337,9 +335,9 @@ Sequential synthesis:
 ```
 
 **Rationale**: Early stages have dependencies (can't validate implementation before requirements), later stages are independent analyses.
-</example>
 
-<example name="coordinator_with_hierarchy">
+### Coordinator with hierarchy
+
 **Coordinator orchestrating hierarchical teams**:
 
 ```markdown
@@ -366,13 +364,11 @@ Coordinator:
 ```
 
 **Benefit**: Combines dynamic routing (coordinator) with team structure (hierarchy).
-</example>
-</hybrid_approaches>
 
-<implementation_guidance>
+## Implementation guidance
 
+### Coordinator subagent
 
-<coordinator_subagent>
 **Example coordinator implementation**:
 
 ```markdown
@@ -418,9 +414,9 @@ If agent fails:
 - Escalate to human if critical
 </error_handling>
 ```
-</coordinator_subagent>
 
-<handoff_protocol>
+### Handoff protocol
+
 **Clean handoffs between agents**:
 
 ```markdown
@@ -440,9 +436,9 @@ Attachments:
 ```
 
 **Why explicit format matters**: Prevents information loss, ensures target agent has full context, enables validation.
-</handoff_protocol>
 
-<synchronization>
+### Synchronization
+
 **Handling parallel execution**:
 
 ```markdown
@@ -460,37 +456,35 @@ Partial failure handling:
 - Always communicate what was completed vs attempted
 </parallel_synchronization>
 ```
-</synchronization>
-</implementation_guidance>
 
-<anti_patterns>
+## Anti-patterns
 
+### Over-orchestration
 
-<anti_pattern name="over_orchestration">
 ❌ Using multiple agents when single agent would suffice
 
 **Example**: Three agents to review 10 lines of code (overkill).
 
 **Fix**: Reserve multi-agent for genuinely complex tasks. Single capable agent often better than coordinating multiple simple agents.
-</anti_pattern>
 
-<anti_pattern name="no_coordination">
+### No coordination
+
 ❌ Launching multiple agents with no coordination or synthesis
 
 **Problem**: User gets conflicting reports, no coherent output, unclear which to trust.
 
 **Fix**: Always synthesize multi-agent outputs into coherent final result.
-</anti_pattern>
 
-<anti_pattern name="sequential_when_parallel">
+### Sequential when parallel
+
 ❌ Running independent analyses sequentially
 
 **Example**: Security review → performance review → quality review (each independent, done sequentially).
 
 **Fix**: Parallel execution for independent tasks. 3x speed improvement in this case.
-</anti_pattern>
 
-<anti_pattern name="unclear_handoffs">
+### Unclear handoffs
+
 ❌ Agent outputs that don't provide sufficient context for next agent
 
 **Example**:
@@ -501,67 +495,63 @@ Agent 2: Can't effectively act on vague input
 ```
 
 **Fix**: Structured handoff format with complete context.
-</anti_pattern>
 
-<anti_pattern name="no_error_recovery">
+### No error recovery
+
 ❌ Orchestration with no fallback when agent fails
 
 **Problem**: One agent failure causes entire workflow failure.
 
 **Fix**: Graceful degradation, retry logic, alternative agents, partial results (see [error-handling-and-recovery.md](error-handling-and-recovery.md)).
-</anti_pattern>
-</anti_patterns>
 
-<best_practices>
+## Best practices
 
+### Right granularity
 
-<principle name="right_granularity">
 **Agent granularity**: Not too broad, not too narrow.
 
 Too broad: "general-purpose-helper" (defeats purpose of specialization)
 Too narrow: "checks-for-sql-injection-in-nodejs-express-apps-only" (too specific)
 Right: "security-reviewer specializing in web application vulnerabilities"
-</principle>
 
-<principle name="clear_responsibilities">
+### Clear responsibilities
+
 **Each agent should have clear, non-overlapping responsibility**.
 
 Bad: Two agents both "review code for quality" (overlap, confusion)
 Good: "security-reviewer" + "performance-analyzer" (distinct concerns)
-</principle>
 
-<principle name="minimize_handoffs">
+### Minimize handoffs
+
 **Minimize information loss at boundaries**.
 
 Each handoff is opportunity for context loss. Structured handoff formats prevent this.
-</principle>
 
-<principle name="parallel_where_possible">
+### Parallel where possible
+
 **Parallelize independent work**.
 
 If agents don't depend on each other's outputs, run them concurrently.
-</principle>
 
-<principle name="coordinator_lightweight">
+### Coordinator lightweight
+
 **Keep coordinator logic lightweight**.
 
 Heavy coordinator = bottleneck. Coordinator should route and synthesize, not do deep work itself.
-</principle>
 
-<principle name="cost_optimization">
+### Cost optimization
+
 **Use model tiers strategically**.
 
 - Planning/validation: Sonnet 4.5 (needs intelligence)
 - Execution of clear tasks: Haiku 4.5 (fast, cheap, still capable)
 - Highest stakes decisions: Sonnet 4.5
 - Bulk processing: Haiku 4.5
-</principle>
-</best_practices>
 
-<pattern_selection>
+## Pattern selection
 
+### Decision tree
 
-<decision_tree>
 ```markdown
 Is task decomposable into independent subtasks?
 ├─ Yes: Parallel pattern (fastest)
@@ -579,13 +569,11 @@ Do task requirements vary dynamically?
 ├─ Yes: Coordinator pattern (adaptive routing)
 └─ No: Single agent sufficient
 ```
-</decision_tree>
 
-<performance_vs_complexity>
+### Performance vs complexity
+
 **Performance**: Parallel > Hierarchical > Sequential > Coordinator (overhead)
 **Complexity**: Coordinator > Hierarchical > Parallel > Sequential
 **Flexibility**: Coordinator > Hierarchical > Parallel > Sequential
 
 **Trade-off**: Choose simplest pattern that meets requirements.
-</performance_vs_complexity>
-</pattern_selection>

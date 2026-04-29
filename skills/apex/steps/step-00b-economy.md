@@ -120,8 +120,8 @@ Economy exploration strategy:
 
 ### Override 5: Leaner Validation
 
-**DEFAULT:** Launch code-reviewer agent for adversarial review
-**ECONOMY:** Self-review without subagent
+**DEFAULT:** Comprehensive examination via step-04 (Bash typecheck/lint, full test runs, self-audit)
+**ECONOMY:** Self-review without exhaustive runs
 
 ```
 Economy validation:
@@ -132,24 +132,7 @@ Economy validation:
    - [ ] Follows existing patterns
    - [ ] Error handling present
    - [ ] No security issues
-4. Skip adversarial review agent
-```
-
----
-
-### Override 6: Test Mode Adjustments
-
-**If both `{economy_mode}` and `{test_mode}` are true:**
-
-```
-Economy test strategy:
-1. Analyze tests with Glob + Grep (not Explore subagent)
-2. Read 1-2 similar test files for patterns
-3. Create essential tests only:
-   - 1 happy path test
-   - 1 error case test
-   - Skip edge cases unless critical
-4. Run tests directly (no agent)
+4. Skip exhaustive full-suite runs
 ```
 
 </override_rules>
@@ -212,5 +195,5 @@ Economy mode is successful when:
 - Direct Glob/Grep/Read usage instead
 - Fewer than 3 WebSearch calls total
 - Implementation still correct and working
-- Tests pass (if test_mode enabled)
+- Tests pass for affected files
 </success_metrics>

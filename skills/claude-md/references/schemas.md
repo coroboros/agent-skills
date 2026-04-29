@@ -58,18 +58,33 @@ Emitted by `scripts/validate_rule_file.py <path>`.
 
 ## init_structure result
 
-Emitted by `scripts/init_structure.sh <mode>` where `<mode>` is `single`, `hybrid`, or `rules-only`. Non-JSON — uses `RESULT: key=value` lines on stdout for compatibility with the skill's report parser.
+Emitted by `scripts/init_structure.sh <mode>` where `<mode>` is `single`, `hybrid`, or `rules-only`. Non-JSON — uses `RESULT: key=value` lines on stdout, one per file plus a summary, for compatibility with the skill's report parser.
 
 ```
-RESULT: mode=hybrid
-RESULT: created=CLAUDE.md,.claude/rules/tech.md,.claude/rules/writing.md
-RESULT: skipped=
+RESULT: wrote=CLAUDE.md
+RESULT: wrote=.claude/rules/style.md
+RESULT: wrote=.claude/rules/testing.md
+RESULT: mode=hybrid written=3 skipped=0
 RESULT: ok=true
 ```
 
-| Key | Type | Description |
-|-----|------|-------------|
-| `mode` | string | Storage strategy that was initialised. |
-| `created` | comma-list | Paths created. Empty when the scaffold was a no-op. |
-| `skipped` | comma-list | Paths that already existed (the script never overwrites). |
-| `ok` | `true` / `false` | Overall status. `false` on unknown mode or permission error. |
+When a file already exists and `--force` is not passed, the script skips it:
+
+```
+RESULT: skipped=CLAUDE.md reason=exists
+RESULT: wrote=.claude/rules/style.md
+RESULT: wrote=.claude/rules/testing.md
+RESULT: mode=hybrid written=2 skipped=1
+RESULT: ok=partial hint=--force to overwrite
+```
+
+| Key | Where | Type | Description |
+|-----|-------|------|-------------|
+| `wrote` | per-file | path | One line per file the script created. |
+| `skipped` | per-file | `<path> reason=exists` | One line per file left untouched (already existed). |
+| `mode` | summary | string | Storage strategy that was initialised. |
+| `written` | summary | integer | Count of files created in this run. |
+| `skipped` | summary | integer | Count of files left untouched. |
+| `ok` | summary | `true` / `partial` | `true` on clean run; `partial` when at least one file was skipped — the line also carries `hint=--force to overwrite`. |
+
+Exit codes: `0` when all targets were written (`ok=true`); `1` when at least one was skipped (`ok=partial`); `2` on unknown mode or argument error.

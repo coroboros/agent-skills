@@ -80,7 +80,7 @@ The two middle branches are what actually prevent data / source-code / unknown f
 
 ## Quick reference — the 10 highest-signal tells
 
-Roughly 90% of real AI slop comes from this subset. Full catalog with before/after examples is in [`references/patterns.md`](./references/patterns.md) — consult it when a hit needs context or you are unsure whether to flag.
+Roughly 90% of real AI slop comes from this subset. The 8 mechanical patterns (#1, #4, #7, #8, #9, #14, #23, #28) are pre-flagged by `prescan.py`; #3 and #10 stay LLM-only — too context-dependent for regex. Full catalog with before/after examples is in [`references/patterns.md`](./references/patterns.md) — consult it when a hit needs context or you are unsure whether to flag.
 
 | # | Pattern | Instead |
 |---|---------|---------|

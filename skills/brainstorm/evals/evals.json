@@ -62,7 +62,7 @@
       "id": 9,
       "name": "bridges-to-spec-for-multi-workstream-work",
       "prompt": "/brainstorm should we migrate from CRA to Vite across our 3-app monorepo, or wait for the official React replacement?",
-      "expected_output": "After producing the brief and surfacing the recommendation + top risk, brainstorm proposes the bridge to `/spec` because the migration is multi-workstream (3 apps + CI updates + bundle audit + rollback plan). The bridge syntax is exact and matches the repo `-f` convention: `/spec -s -f .claude/output/brainstorm/<slug>/brainstorm.md`. Skill does NOT directly hand off to `/apex` — the work is too broad for a single focused implementation pass.",
+      "expected_output": "After producing the brief and surfacing the recommendation + top risk, brainstorm proposes the bridge to `/spec` because the migration is multi-workstream (3 apps + CI updates + bundle audit + rollback plan). The bridge syntax is exact and matches the repo `-f` convention: `/spec -s -f .claude/output/brainstorm/<slug>/brainstorm.md \"<topic>\"`. Skill does NOT directly hand off to `/apex` — the work is too broad for a single focused implementation pass.",
       "files": []
     }
   ]

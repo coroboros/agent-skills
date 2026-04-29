@@ -18,6 +18,17 @@ Subagents are specialized Claude instances that run in isolated contexts with fo
 
 Subagents enable delegation of complex tasks to specialized agents that operate autonomously without user interaction, returning their final output to the main conversation.
 
+## Capture Intent
+
+Before drafting an agent, surface the four contract questions. If the user's spec is vague, ask these via `AskUserQuestion` rather than fabricating answers:
+
+1. **What should this agent do?** — the specific task and role (e.g., "review TypeScript PRs for security regressions"), not a generic description.
+2. **When should it be invoked?** — trigger conditions, keywords, file patterns. Goes into the `description` field for routing.
+3. **Which tools does it need?** — least-privilege allowlist. Read-only analysis vs write-capable.
+4. **What's the expected output format?** — structured report, file edits, list of findings, etc.
+
+The `description` field carries triggers; the system prompt body carries workflow + output format. Both are derived from these answers.
+
 ## Quick Start
 
 1. Run `/agents` command
@@ -76,7 +87,7 @@ All supported YAML frontmatter fields. Only `name` and `description` are require
 | `description` | Yes | When Claude should delegate to this agent. Write clear trigger conditions |
 | `tools` | No | Comma-separated allowlist. Inherits all tools if omitted |
 | `disallowedTools` | No | Comma-separated denylist, removed from inherited tools |
-| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-6`), or `inherit`. Defaults to `inherit` |
+| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-7`), or `inherit`. Defaults to `inherit` |
 | `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan` |
 | `maxTurns` | No | Maximum agentic turns before auto-stop |
 | `skills` | No | Skills to load into agent context at startup (full content injected) |

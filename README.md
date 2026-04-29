@@ -136,7 +136,7 @@ Transform ideas into structured execution specs with prioritized workstreams, de
 /spec -s add user authentication with OAuth and email/password
 
 # From a brainstorm report
-/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md
+/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md "OAuth authentication"
 
 # Auto mode + create GitHub issues
 /spec -s -a -i migrate from REST to GraphQL
@@ -175,7 +175,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 /apex -a -s implement user registration
 
 # From a GitHub issue
-/apex -f "#42"
+/apex -f "#42" implement what issue 42 describes
 
 # From a prior spec or brainstorm report
 /apex -f .claude/output/spec/auth-system/spec.md implement WS-1
@@ -881,9 +881,9 @@ Skills chain together by design. Each works standalone; chaining covers longer w
 ```
 /brainstorm -s "topic"     explore and analyze
       |
-/spec -s -f brainstorm.md  structure into workstreams
+/spec -s -f brainstorm.md "<topic>"  structure into workstreams
       |
-/apex -f spec.md           implement systematically
+/apex -f spec.md "<task>"            implement systematically
 ```
 
 Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` without brainstorming, or `/oneshot` for trivial tasks.

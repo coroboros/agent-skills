@@ -63,7 +63,7 @@ Before writing anything, mentally decompose `{idea}` into natural workstreams:
 
 ### 2. Write the spec document
 
-Use the canonical format in `templates/spec.md` (read it from `{skill_dir}/templates/spec.md`). Every section is required unless marked optional. Key rules:
+Use the canonical format in `templates/spec.md` (read it from `${CLAUDE_SKILL_DIR}/templates/spec.md`). Every section is required unless marked optional. Key rules:
 
 - **Every workstream** gets: priority (P0/P1/P2), complexity (S/M/L/XL), description, tasks, acceptance criteria.
 - **Technical notes** are optional — include only when there are specific codebase references, patterns, or non-obvious hints. Omit entirely if nothing genuinely helpful to add.
@@ -103,7 +103,7 @@ Spec ready. Want to revise anything before we proceed?
 
 Wait for confirmation or revision requests. Apply revisions, then re-save.
 
-**If `{auto_mode}` = true:** proceed directly.
+**If `{auto_mode}` = true:** skip the revision prompt and continue to §6.
 
 ### 6. Next step
 

@@ -1,9 +1,9 @@
 # Evaluation and Testing for Subagents
 
-<evaluation_framework>
+## Evaluation framework
 
+### Task completion
 
-<task_completion>
 **Primary metric**: Proportion of tasks completed correctly and satisfactorily.
 
 Measure:
@@ -12,9 +12,9 @@ Measure:
 - Would a human consider the task "done"?
 
 **Testing approach**: Create test cases with known expected outcomes, invoke subagent, compare results.
-</task_completion>
 
-<tool_correctness>
+### Tool correctness
+
 **Secondary metric**: Whether subagent calls correct tools for given task.
 
 Measure:
@@ -23,9 +23,9 @@ Measure:
 - Does it use tools in correct sequence?
 
 **Testing approach**: Review tool call patterns in execution logs.
-</tool_correctness>
 
-<output_quality>
+### Output quality
+
 **Quality metric**: Assess quality of subagent-generated outputs.
 
 Measure:
@@ -35,9 +35,9 @@ Measure:
 - Adherence to specified format
 
 **Testing approach**: Human review or LLM-as-judge evaluation.
-</output_quality>
 
-<robustness>
+### Robustness
+
 **Resilience metric**: How well subagent handles failures and edge cases.
 
 Measure:
@@ -47,9 +47,9 @@ Measure:
 - Boundary condition handling
 
 **Testing approach**: Inject failures (missing files, malformed data) and verify responses.
-</robustness>
 
-<efficiency>
+### Efficiency
+
 **Performance metrics**: Response time and resource usage.
 
 Measure:
@@ -58,15 +58,13 @@ Measure:
 - Number of tool calls
 
 **Testing approach**: Monitor metrics across multiple invocations, track trends.
-</efficiency>
-</evaluation_framework>
 
-<g_eval>
-
+## G-Eval
 
 **G-Eval**: Use LLMs with chain-of-thought to evaluate outputs against ANY custom criteria defined in natural language.
 
-<example>
+### Example
+
 **Custom criterion**: "Security review completeness"
 
 ```markdown
@@ -82,15 +80,13 @@ Think step-by-step about which vulnerabilities were checked and which were misse
 ```
 
 **Implementation**: Pass subagent output and criteria to Claude, get structured evaluation.
-</example>
 
 **When to use**: Complex quality metrics that can't be measured programmatically (thoroughness, insight quality, appropriateness of recommendations).
-</g_eval>
 
-<validation_strategies>
+## Validation strategies
 
+### Offline testing
 
-<offline_testing>
 **Offline validation**: Test before deployment with synthetic scenarios.
 
 **Process**:
@@ -117,9 +113,9 @@ Expected: Gracefully handles missing git, provides helpful message
 Test 4 (Adversarial): Obfuscated code with hidden vulnerability
 Expected: Identifies pattern despite obfuscation
 ```
-</offline_testing>
 
-<simulation>
+### Simulation
+
 **Simulation testing**: Run subagent in realistic but controlled environments.
 
 **Use cases**:
@@ -128,9 +124,9 @@ Expected: Identifies pattern despite obfuscation
 - Controlled codebases with known vulnerabilities
 
 **Benefit**: Higher confidence than synthetic tests, safer than production testing.
-</simulation>
 
-<online_monitoring>
+### Online monitoring
+
 **Production monitoring**: Track metrics during real usage.
 
 **Key metrics**:
@@ -141,32 +137,28 @@ Expected: Identifies pattern despite obfuscation
 - Error rates by error type
 
 **Implementation**: Log all invocations with context, outcomes, and metrics. Review regularly for patterns.
-</online_monitoring>
-</validation_strategies>
 
-<evaluation_driven_development>
-
+## Evaluation-driven development
 
 **Philosophy**: Integrate evaluation throughout subagent lifecycle, not just at validation stage.
 
-<workflow>
+### Workflow
+
 1. **Initial creation**: Define success criteria before writing prompt
 2. **Development**: Test after each prompt iteration
 3. **Pre-deployment**: Comprehensive offline testing
 4. **Deployment**: Online monitoring with metrics collection
 5. **Iteration**: Regular review of failures, update prompt based on learnings
 6. **Continuous**: Ongoing evaluation → feedback → refinement cycles
-</workflow>
 
 **Anti-pattern**: Writing subagent, deploying, never measuring effectiveness or iterating.
 
 **Best practice**: Treat subagent prompts as living documents that evolve based on real-world performance data.
-</evaluation_driven_development>
 
-<testing_checklist>
+## Testing checklist
 
+### Before deployment
 
-<before_deployment>
 Before deploying a subagent, complete this validation:
 
 **Basic functionality**:
@@ -199,21 +191,19 @@ Before deploying a subagent, complete this validation:
 - [ ] Description field clearly indicates when to use
 - [ ] Role and focus areas are specific
 - [ ] Workflow is complete and logical
-</before_deployment>
-</testing_checklist>
 
-<synthetic_data>
+## Synthetic data
 
+### When to use
 
-<when_to_use>
 Synthetic data generation useful for:
 - **Cold starts**: No real usage data yet
 - **Edge cases**: Rare scenarios hard to capture from real data
 - **Adversarial testing**: Security, robustness testing
 - **Scenario coverage**: Systematic coverage of input space
-</when_to_use>
 
-<generation_approaches>
+### Generation approaches
+
 **Persona-based generation**: Create test cases from different user personas.
 
 ```markdown
@@ -236,9 +226,9 @@ Variations:
 - Prepared statements (should pass)
 - Stored procedures with dynamic SQL
 ```
-</generation_approaches>
 
-<critical_limitation>
+### Critical limitation
+
 **Never rely exclusively on synthetic data.**
 
 Maintain a validation set of real usage examples. Synthetic data can miss:
@@ -248,13 +238,11 @@ Maintain a validation set of real usage examples. Synthetic data can miss:
 - Emergent usage patterns
 
 **Best practice**: 70% synthetic (for coverage), 30% real (for reality check).
-</critical_limitation>
-</synthetic_data>
 
-<llm_as_judge>
+## LLM as judge
 
+### Basic pattern
 
-<basic_pattern>
 Use LLM to evaluate subagent outputs when human review is impractical at scale.
 
 **Example evaluation prompt**:
@@ -277,9 +265,9 @@ Provide:
 - Specific issues with the review
 - What a human reviewer would have done differently
 ```
-</basic_pattern>
 
-<comparison_pattern>
+### Comparison pattern
+
 **Ground truth comparison**: When correct answer is known.
 
 ```markdown
@@ -296,15 +284,13 @@ Calculate:
 - Recall: % of real issues that were identified
 - F1 score: Harmonic mean of precision and recall
 ```
-</comparison_pattern>
-</llm_as_judge>
 
-<test_driven_development>
-
+## Test-driven development
 
 Anthropic guidance: "Test-driven development becomes even more powerful with agentic coding."
 
-<approach>
+### Approach
+
 **Before writing subagent prompt**:
 1. Define expected input/output pairs
 2. Create test cases that subagent must pass
@@ -332,43 +318,39 @@ Expected output: Test file with:
 ```
 
 **Invoke subagent → check if outputs match expectations → iterate on prompt.**
-</approach>
 
 **Benefit**: Clear acceptance criteria before development, objective measure of prompt quality.
-</test_driven_development>
 
-<anti_patterns>
+## Anti-patterns
 
+### No testing
 
-<anti_pattern name="no_testing">
 ❌ Deploying subagents without any validation
 
 **Risk**: Subagent fails on real tasks, wastes user time, damages trust.
 
 **Fix**: Minimum viable testing = invoke with 3 representative tasks before deploying.
-</anti_pattern>
 
-<anti_pattern name="only_happy_path">
+### Only happy path
+
 ❌ Testing only ideal scenarios
 
 **Risk**: Subagent fails on edge cases, error conditions, or unusual (but valid) inputs.
 
 **Fix**: Test matrix covering happy path, edge cases, and error conditions.
-</anti_pattern>
 
-<anti_pattern name="no_metrics">
+### No metrics
+
 ❌ No measurement of effectiveness
 
 **Risk**: Can't tell if prompt changes improve or degrade performance.
 
 **Fix**: Define at least one quantitative metric (task completion rate, output quality score).
-</anti_pattern>
 
-<anti_pattern name="test_once_deploy_forever">
+### Test once, deploy forever
+
 ❌ Testing once at creation, never revisiting
 
 **Risk**: Subagent degrades over time as usage patterns shift, codebases change, or models update.
 
 **Fix**: Periodic re-evaluation with current usage patterns and edge cases.
-</anti_pattern>
-</anti_patterns>

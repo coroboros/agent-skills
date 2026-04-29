@@ -40,8 +40,8 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 
 ```bash
 /spec -s add user authentication with OAuth
-/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md
-/spec -s -f "#42"                                 # from GitHub issue
+/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md "OAuth authentication"  # from prior brainstorm
+/spec -s -f "#42" "implement payment refunds"     # from GitHub issue
 /spec -s -a redesign the billing system           # skip Q&A
 /spec -s -a -i migrate from REST to GraphQL       # auto + create issues
 /spec -s -e add search functionality              # no subagents
@@ -156,7 +156,7 @@ Progressive loading — load only the current step file:
 - **Persist state variables** across all steps.
 - **ULTRA THINK** before decomposing work into workstreams.
 - **Always include concrete acceptance criteria** — every workstream, every time.
-- **Validate before finalizing.** Run `bash ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` after writing — exit 0 required. Rewrite flagged workstreams until the schema clears (3-7 workstreams; Priority/Complexity set; deps resolve; no cycles).
+- **Validate before finalizing.** Run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` after writing — exit 0 required. Rewrite flagged workstreams until the schema clears (3-7 workstreams; Priority/Complexity set; deps resolve; no cycles).
 
 ## Success criteria
 

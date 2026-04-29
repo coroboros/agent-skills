@@ -82,7 +82,7 @@ See **Parameters** below for the complete flag list.
 /apex -r 01  # Partial match
 
 # From a GitHub issue
-/apex -f "#42"
+/apex -f "#42" implement what issue 42 describes
 
 # From prior analysis (spec, brainstorm report, RFC)
 /apex -f .claude/output/spec/auth-system/spec.md implement WS-1
@@ -108,6 +108,8 @@ See **Parameters** below for the complete flag list.
 For the detailed parsing algorithm, see `steps/step-00-init.md`.
 
 ## Output Structure
+
+The output path is `.claude/output/apex/{task-id}/`, where `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the repo-wide `.claude/output/{skill}/{slug}/` convention; resume needs ordering, plain slugs don't carry it.
 
 **When `{save_mode}` = true:**
 
@@ -180,7 +182,7 @@ For implementation details, see `steps/step-00-init.md`.
 
 Step 00 handles:
 
-- Flag parsing (`-a`, `-x`, `-s`, `-r`, `--test`)
+- Flag parsing (`-a`, `-s`, `-e`, `-b`, `-i`, `-f`, `-r`)
 - Resume mode detection and task lookup
 - Output folder creation (if `save_mode`)
 - `00-context.md` creation (if `save_mode`)
@@ -238,10 +240,11 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 
 **Each step then:**
 
-1. Validate prior state: `bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {task_id} {step_num}` — exit ≠ 0 halts with the failing step named on stderr.
-2. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "in_progress"`
-3. Append findings/outputs to the pre-created step file
-4. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
+1. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "in_progress"`
+2. Append findings/outputs to the pre-created step file
+3. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
+
+`scripts/validate_state.sh` is shipped as a manual debugging utility — invoke it on demand to verify a task's state is consistent (e.g., when a resume looks suspicious). It is not part of the per-step workflow.
 
 **Template system benefits:**
 

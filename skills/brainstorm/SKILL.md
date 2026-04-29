@@ -100,7 +100,7 @@ If the brainstorm leads to work that requires code, suggest the path forward bas
 **Complex work** (multiple workstreams, needs planning):
 
 ```
-/spec -s -f .claude/output/brainstorm/{slug}/brainstorm.md
+/spec -s -f .claude/output/brainstorm/{slug}/brainstorm.md "{topic}"
 ```
 
 `/spec` turns the brainstorm into a structured execution spec with prioritized workstreams, dependencies, and acceptance criteria, then bridges to `/apex` or creates GitHub issues.

@@ -51,6 +51,9 @@ Read `{from_file}` and detect type:
 **Plain text** (fallback):
 - Treat as raw supplementary input.
 
+**Non-Markdown source** (extension `.pdf`, `.docx`, `.pptx`, audio/video, YouTube URL, …):
+- Abort with: *"`{from_file}` is non-Markdown. Pre-process with `/markitdown -s <path>` and pass the saved Markdown path via `-f`."* Do not attempt to read binary content directly.
+
 When prior context exists, reduce Q&A to gaps only and keep subagents focused on what the prior doc doesn't answer.
 
 ### 2. Detect GitHub issue as direct input

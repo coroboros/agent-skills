@@ -133,7 +133,7 @@ Whether authoring, auditing, or polishing — the prose itself follows these:
 ## Adjacent skills
 
 - **`/fix-grammar`** — optional typo / spelling pre-pass before authoring, or post-pass after polish when the source has obvious errors. Skip when the text is already clean — this skill never introduces grammar errors.
-- **`/humanize-en`** — AI-tell stripping (see next section). Called internally after clarity edits; also usable standalone.
+- **`/humanize-en`** — AI-tell stripping (see next section). Called by `author` and `polish` modes after clarity edits; `audit` mode flags AI tells without rewriting. Also usable standalone.
 
 ## Remove AI traces
 
@@ -152,14 +152,14 @@ After any author or polish pass on English content, strip residual AI tells (em-
    - Pattern B if the doc is reference-heavy (dozens of API entries, CLI commands, config options)
    - Short doc (< 5 sections) → no collapse
 3. **Draft** — overview table at top with anchor links, Install / Quick Start / Requirements uncollapsed, grouped or per-entry collapse below. Apply Clarity rules as you write.
-4. **Remove AI traces** — for English content, invoke `/humanize-en` on the draft (see *Remove AI traces* below). Skip if the skill is unavailable or the content is non-English.
+4. **Remove AI traces** — for English content, invoke `/humanize-en` on the draft (see *Remove AI traces* above). Skip if the skill is unavailable or the content is non-English.
 5. **Verify** — every TOC anchor resolves. Every `<details>` has a `<br>` after `<summary>`. No nested collapsibles. Install block is never inside `<details>`.
 6. **Write** — overwrite or create `README.md`. Present the diff if it existed before.
 
 ## Audit mode
 
 1. **Read existing README** in full.
-2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, and the Universal bloat token list. Exit 1 on findings; the JSON is your hit-list. Subjective prose issues (First-3-lines test, verbose passages, marketing voice in context) still need your read.
+2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, and a bloat-token scan (see the script's docstring for the canonical token list). Exit 1 on findings; the JSON is your hit-list. Subjective prose issues (First-3-lines test, verbose passages, marketing voice in context) still need your read.
 3. **Score against Universal rules** (structure — use the script output first):
    - Is the overview (TOC / index / table) visible without clicking?
    - Do all anchors resolve? (Every heading referenced in the TOC must exist and be outside `<details>`.)
@@ -190,7 +190,7 @@ Wording-only pass. Structure stays as-is — only the prose changes.
    - Tighten verbose passages into bullets when enumerable
    - Backtick code-like tokens
    - Replace `(parens)` with em-dashes where they're aside-context
-3. **Remove AI traces** — for English content, invoke `/humanize-en` on the result (see *Remove AI traces* below). Skip if the skill is unavailable or the content is non-English.
+3. **Remove AI traces** — for English content, invoke `/humanize-en` on the result (see *Remove AI traces* above). Skip if the skill is unavailable or the content is non-English.
 4. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
 5. **Report** — propose a diff. NEVER apply without explicit approval.
 

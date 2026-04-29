@@ -62,7 +62,7 @@ From previous steps:
 **If `{save_mode}` = true:**
 
 ```bash
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "03" "execute" "in_progress"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "03" "execute" "in_progress"
 ```
 
 Append logs to `{output_dir}/03-execute.md` as you work.

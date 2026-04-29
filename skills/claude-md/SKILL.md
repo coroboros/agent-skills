@@ -16,14 +16,6 @@ metadata:
 
 # CLAUDE.md
 
-<!--
-Name exception: `claude-md` contains the reserved substring `claude`. Per
-`.claude/rules/agentskills-spec.md` § Reserved → "narrow exception for
-first-party filename conventions", this is declared and intentional — the
-skill operates directly on `CLAUDE.md`, and alternatives (`memory-md`,
-`ctx-md`) lose essential semantic clarity.
--->
-
 ## Core Principle
 
 Memory files consume tokens every session. Keep them minimal — include only what the agent cannot discover on its own or what a tool doesn't already enforce (linter, TypeScript, tests).
@@ -181,16 +173,9 @@ Imports load eagerly at launch alongside the referencing file. Relative and abso
 
 ## Auto Memory
 
-Claude Code v2.1.59+ adds a parallel memory system: **auto memory**. Claude saves notes for itself (build commands, debugging insights, preferences) as it works. You don't write anything — Claude decides what's worth remembering.
+A parallel memory system: Claude saves notes for itself (build commands, debugging insights, preferences) as it works — `~/.claude/projects/<project>/memory/MEMORY.md`, machine-local, loaded per session. CLAUDE.md is for rules you author; auto memory is for what Claude noticed. Run `/memory` to view both.
 
-- **Location**: `~/.claude/projects/<project>/memory/MEMORY.md` — machine-local, per git repo, shared across worktrees of the same repo
-- **Loaded per session**: first 200 lines (or 25 KB) of `MEMORY.md`. Topic files (`debugging.md`, `patterns.md`, …) load on-demand when Claude reads them
-- **Toggle**: `/memory` exposes an auto-memory toggle. Setting-level: `autoMemoryEnabled` (default `true`). Env: `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`
-- **Custom location**: `autoMemoryDirectory` in user or local settings (rejected from project settings for safety)
-
-Auto memory and CLAUDE.md complement each other. CLAUDE.md is for "always do X" rules you author. Auto memory is for "Claude noticed Y" notes Claude writes. Run `/memory` to see both in one place.
-
-Subagents can maintain their own memory too — configure via `memory: user|project|local` in the subagent frontmatter. Stored at `~/.claude/agent-memory/<name>/`. See Claude Code subagent docs (`/en/sub-agents#enable-persistent-memory`) for details.
+Layout, loading caps, settings keys, env overrides, and subagent memory live in [references/auto-memory.md](references/auto-memory.md) — version-specific claims drift across releases, so the details are kept out of this file.
 
 ## Workflow
 
@@ -241,7 +226,7 @@ Before creating or updating memory files, use AskUserQuestion:
 The skill supports three argument-driven workflows via `$ARGUMENTS`. Load the matching step file when the argument is present:
 
 - **`init`** — Scaffold a minimal CLAUDE.md. See [steps/init.md](steps/init.md). Uses `bash ${CLAUDE_SKILL_DIR}/scripts/init_structure.sh <mode>` for the file layout.
-- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `bash ${CLAUDE_SKILL_DIR}/scripts/audit_claude_md.py <path>` — the JSON hit-list is your fix list. Read `references/optimize-guide.md` for the WHY behind each category.
+- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `python3 ${CLAUDE_SKILL_DIR}/scripts/audit_claude_md.py <path>` — the JSON hit-list is your fix list. Read `references/optimize-guide.md` for the WHY behind each category.
 - **`revise`** — Capture session learnings into CLAUDE.md. See [steps/revise.md](steps/revise.md).
 
 Without a subcommand, treat the argument as free-form guidance about memory files and answer from the sections above.
@@ -254,6 +239,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 - **Section templates**: [references/section-templates.md](references/section-templates.md) — copy-paste templates for each section type
 - **Comprehensive example**: [references/comprehensive-example.md](references/comprehensive-example.md) — full production SaaS CLAUDE.md
 - **Project patterns**: [references/project-patterns.md](references/project-patterns.md) — Next.js, Express, Python, Monorepo patterns
+- **Auto memory**: [references/auto-memory.md](references/auto-memory.md) — layout, loading caps, settings keys, env overrides, subagent memory
 - **Script schemas**: [references/schemas.md](references/schemas.md) — JSON / RESULT shapes for the three deterministic scripts (audit, validate, init)
 
 ## Deterministic scripts
@@ -265,3 +251,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 ## See also
 
 - **`/agent-creator`** — subagent configuration and orchestration. A CLAUDE.md that defines project-wide instructions often pairs with `.claude/agents/*.md` files; use `/agent-creator` to author those.
+
+## About
+
+`claude-md` contains the reserved substring `claude`. Per `.claude/rules/agentskills-spec.md` § *Narrow exception — first-party filename conventions*, this is intentional — the skill operates directly on the first-party `CLAUDE.md` filename, and alternatives (`memory-md`, `ctx-md`) lose essential semantic clarity.

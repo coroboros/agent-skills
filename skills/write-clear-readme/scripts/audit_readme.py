@@ -8,8 +8,8 @@ Usage:
 Hard checks (count toward finding total):
   - Every `[text](#anchor)` link resolves to a heading defined in the file.
   - No nested `<details>` blocks (one-level-max rule).
-  - Every `<summary>` is followed within 3 lines by a `<br>` (Pattern A
-    / Pattern B discipline).
+  - Every `<summary>` is followed by a `<br>` within the same line or
+    the next 3 lines (Pattern A / Pattern B discipline).
   - Universal bloat tokens: "in order to", "leverage", "seamlessly",
     "powerful", "robust", "it's important to note", "at this point in time".
 

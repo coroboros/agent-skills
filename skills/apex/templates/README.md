@@ -133,7 +133,7 @@ The file `{output_dir}/01-analyze.md` has already been created by the setup scri
 
 Update progress:
 ```bash
-bash {skill_dir}/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
+bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
 ```
 
 Append your findings to `01-analyze.md` as you work.

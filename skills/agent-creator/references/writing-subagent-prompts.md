@@ -1,25 +1,29 @@
-<key_insight>
+# Writing Subagent Prompts
+
+## Key insight
+
 Agent prompts should be task-specific, not generic. They define a specialized role with clear focus areas, workflows, and constraints.
 
 **Structure is flexible**: Use markdown headings, XML tags, or a combination — whatever is clearest for the task. The official docs show agents with standard markdown headings. XML tags can help for complex structured prompts, but they are not required.
-</key_insight>
 
-<core_principles>
-<principle name="specificity">
+## Core principles
+
+### Specificity
+
 Define exactly what the subagent does and how it approaches tasks.
 
 ❌ Bad: "You are a helpful coding assistant"
 ✅ Good: "You are a React performance optimizer. Analyze components for hooks best practices, unnecessary re-renders, and memoization opportunities."
-</principle>
 
-<principle name="clarity">
+### Clarity
+
 State the role, focus areas, and approach explicitly.
 
 ❌ Bad: "Help with tests"
 ✅ Good: "You are a test automation specialist. Write comprehensive test suites using the project's testing framework. Focus on edge cases and error conditions."
-</principle>
 
-<principle name="constraints">
+### Constraints
+
 Include what the subagent should NOT do. Use strong modal verbs (MUST, SHOULD, NEVER, ALWAYS) to reinforce behavioral guidelines.
 
 Example:
@@ -33,13 +37,13 @@ Example:
 ```
 
 **Why strong modals matter**: Reinforces critical boundaries, reduces ambiguity, improves constraint adherence.
-</principle>
-</core_principles>
 
-<structure_with_xml>
+## Structure with XML
+
 Use XML tags to structure subagent prompts for clarity:
 
-<example type="security_reviewer">
+### Example: security reviewer
+
 ```markdown
 ---
 name: security-reviewer
@@ -90,9 +94,9 @@ For each issue found:
 - If no issues found, confirm the review was completed
 </constraints>
 ```
-</example>
 
-<example type="test_writer">
+### Example: test writer
+
 ```markdown
 ---
 name: test-writer
@@ -144,9 +148,9 @@ Follow AAA pattern:
 - Do not create tests that depend on external services without mocking
 </constraints>
 ```
-</example>
 
-<example type="debugger">
+### Example: debugger
+
 ```markdown
 ---
 name: debugger
@@ -202,20 +206,20 @@ You are a debugging specialist skilled at root cause analysis and systematic pro
 - Document non-obvious fixes
 </constraints>
 ```
-</example>
-</structure_with_xml>
 
-<anti_patterns>
-<anti_pattern name="too_generic">
+## Anti-patterns
+
+### Too generic
+
 ❌ Bad:
 ```markdown
 You are a helpful assistant that helps with code.
 ```
 
 This provides no specialization. The subagent won't know what to focus on or how to approach tasks.
-</anti_pattern>
 
-<anti_pattern name="no_workflow">
+### No workflow
+
 ❌ Bad:
 ```markdown
 You are a code reviewer. Review code for issues.
@@ -232,9 +236,9 @@ Without a workflow, the subagent may skip important steps or review inconsistent
 4. Provide specific feedback with examples
 </workflow>
 ```
-</anti_pattern>
 
-<anti_pattern name="unclear_trigger">
+### Unclear trigger
+
 The `description` field is critical for automatic invocation. LLM agents use descriptions to make routing decisions.
 
 **Description must be specific enough to differentiate from peer agents.**
@@ -264,9 +268,9 @@ description: Handles current billing statements and payment processing. Use when
 - Specify **when to use** (not just what it does)
 - **Differentiate** from similar agents (what this one does vs others)
 - Include **proactive triggers** if agent should be invoked automatically
-</anti_pattern>
 
-<anti_pattern name="missing_constraints">
+### Missing constraints
+
 ❌ Bad: No constraints specified
 
 Without constraints, subagents might:
@@ -282,9 +286,9 @@ Without constraints, subagents might:
 - Do not commit changes automatically
 </constraints>
 ```
-</anti_pattern>
 
-<anti_pattern name="requires_user_interaction">
+### Requires user interaction
+
 ❌ **Critical**: Subagents cannot interact with users.
 
 **Bad example:**
@@ -322,11 +326,11 @@ Subagents execute in isolated contexts ("black boxes"). They cannot use AskUserQ
 
 **Design principle:**
 If your subagent prompt includes "ask user", "present options", or "wait for confirmation", it's designed incorrectly. Move user interaction to main chat.
-</anti_pattern>
-</anti_patterns>
 
-<best_practices>
-<practice name="start_with_role">
+## Best practices
+
+### Start with role
+
 Begin with a clear role statement:
 
 ```markdown
@@ -334,9 +338,9 @@ Begin with a clear role statement:
 You are a [specific expertise] specializing in [specific domain].
 </role>
 ```
-</practice>
 
-<practice name="define_focus">
+### Define focus
+
 List specific focus areas to guide attention:
 
 ```markdown
@@ -346,9 +350,9 @@ List specific focus areas to guide attention:
 - Specific concern 3
 </focus_areas>
 ```
-</practice>
 
-<practice name="provide_workflow">
+### Provide workflow
+
 Give step-by-step workflow for consistency:
 
 ```markdown
@@ -358,9 +362,9 @@ Give step-by-step workflow for consistency:
 3. Third step
 </workflow>
 ```
-</practice>
 
-<practice name="specify_output">
+### Specify output
+
 Define expected output format:
 
 ```markdown
@@ -371,9 +375,9 @@ Structure:
 3. Component 3
 </output_format>
 ```
-</practice>
 
-<practice name="set_boundaries">
+### Set boundaries
+
 Clearly state constraints with strong modal verbs:
 
 ```markdown
@@ -389,9 +393,9 @@ Clearly state constraints with strong modal verbs:
 - Environment awareness (production vs development)
 - Safe operation boundaries (what commands are allowed)
 - Data handling rules (sensitive information)
-</practice>
 
-<practice name="use_examples">
+### Use examples
+
 Include examples for complex behaviors:
 
 ```markdown
@@ -401,9 +405,9 @@ Expected action: [what the subagent should do]
 Output: [what the subagent should produce]
 </example>
 ```
-</practice>
 
-<practice name="extended_thinking">
+### Extended thinking
+
 For complex reasoning tasks, leverage extended thinking:
 
 ```markdown
@@ -429,9 +433,9 @@ Rather than:
 - Performance optimization requiring deep analysis
 
 **Minimum thinking budget**: 1024 tokens (increase for more complex tasks)
-</practice>
 
-<practice name="success_criteria">
+### Success criteria
+
 Define what successful completion looks like:
 
 ```markdown
@@ -445,29 +449,28 @@ Task is complete when:
 ```
 
 **Benefit**: Clear completion criteria reduce ambiguity and partial outputs.
-</practice>
-</best_practices>
 
-<testing_subagents>
-<test_checklist>
+## Testing subagents
+
+### Test checklist
+
 1. **Invoke the subagent** with a representative task
 2. **Check if it follows the workflow** specified in the prompt
 3. **Verify output format** matches what you defined
 4. **Test edge cases** - does it handle unusual inputs well?
 5. **Check constraints** - does it respect boundaries?
 6. **Iterate** - refine the prompt based on observed behavior
-</test_checklist>
 
-<common_issues>
+### Common issues
+
 - **Subagent too broad**: Narrow the focus areas
 - **Skipping steps**: Make workflow more explicit
 - **Inconsistent output**: Define output format more clearly
 - **Overstepping bounds**: Add or clarify constraints
 - **Not automatically invoked**: Improve description field with trigger keywords
-</common_issues>
-</testing_subagents>
 
-<quick_reference>
+## Quick reference
+
 ```markdown
 ---
 name: subagent-name
@@ -502,4 +505,3 @@ Expected output structure
 - Never Z
 </constraints>
 ```
-</quick_reference>

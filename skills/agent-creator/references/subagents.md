@@ -1,4 +1,7 @@
-<file_format>
+# Subagents
+
+## File format
+
 Subagent file structure:
 
 ```markdown
@@ -26,14 +29,15 @@ You are a [specific role] specializing in [domain].
 
 The body is the system prompt. Use markdown headings, XML tags, or a combination — whatever is clearest for the task.
 
-<configuration_fields>
+### Configuration fields
+
 | Field | Required | Description |
 |-------|----------|-------------|
 | `name` | Yes | Unique identifier, lowercase letters and hyphens |
 | `description` | Yes | When Claude should delegate to this agent. Write clear trigger conditions |
 | `tools` | No | Comma-separated allowlist. Inherits all tools if omitted |
 | `disallowedTools` | No | Comma-separated denylist, removed from inherited tools |
-| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-6`), or `inherit`. Defaults to `inherit` |
+| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-7`), or `inherit`. Defaults to `inherit` |
 | `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan` |
 | `maxTurns` | No | Maximum agentic turns before auto-stop |
 | `skills` | No | Skills to load into agent context at startup (full content injected) |
@@ -51,10 +55,9 @@ The body is the system prompt. Use markdown headings, XML tags, or a combination
 **Tool patterns**: Use `tools` for allowlist, `disallowedTools` for denylist. `Agent(type1, type2)` in tools restricts which subagents can be spawned (main thread agents only).
 
 **Plugin agents** do not support `hooks`, `mcpServers`, or `permissionMode` (ignored for security).
-</configuration_fields>
-</file_format>
 
-<storage_locations>
+## Storage locations
+
 | Priority | Location | Scope |
 |----------|----------|-------|
 | 1 (highest) | Managed settings | Organization-wide |
@@ -64,10 +67,11 @@ The body is the system prompt. Use markdown headings, XML tags, or a combination
 | 5 (lowest) | Plugin's `agents/` dir | Where plugin is enabled |
 
 When names conflict, higher priority wins.
-</storage_locations>
 
-<execution_model>
-<black_box_model>
+## Execution model
+
+### Black box model
+
 Subagents execute in isolated contexts without user interaction.
 
 **Key characteristics:**
@@ -84,9 +88,9 @@ Subagents execute in isolated contexts without user interaction.
 - ❌ **Subagents CANNOT present options and wait for user selection**
 - ❌ **Subagents CANNOT request confirmations or clarifications from user**
 - ❌ **User does not see subagent's tool calls or intermediate reasoning**
-</black_box_model>
 
-<workflow_implications>
+### Workflow implications
+
 **When designing subagent workflows:**
 
 Keep user interaction in main chat:
@@ -109,11 +113,11 @@ Launch subagent: Uses requirements to research/build (no interaction)
   ↓
 Main chat: Present subagent results to user
 ```
-</workflow_implications>
-</execution_model>
 
-<tool_configuration>
-<inherit_all_tools>
+## Tool configuration
+
+### Inherit all tools
+
 Omit the `tools` field to inherit all tools from main thread:
 
 ```yaml
@@ -124,9 +128,9 @@ description: Reviews code for quality and security
 ```
 
 Subagent has access to all tools, including MCP tools.
-</inherit_all_tools>
 
-<specific_tools>
+### Specific tools
+
 Specify tools as comma-separated list for granular control:
 
 ```yaml
@@ -138,11 +142,11 @@ tools: Read, Grep, Glob
 ```
 
 Use `/agents` command to see full list of available tools.
-</specific_tools>
-</tool_configuration>
 
-<model_selection>
-<model_capabilities>
+## Model selection
+
+### Model capabilities
+
 **Opus** (`opus`):
 - Most capable model, strongest reasoning
 - **Use for**: Complex analysis, critical decisions, highest-stakes tasks
@@ -161,12 +165,12 @@ Use `/agents` command to see full list of available tools.
 - Uses same model as main conversation
 - **Use for**: Ensuring consistent capabilities throughout session
 
-**Full model ID** (e.g. `claude-opus-4-6`):
+**Full model ID** (e.g. `claude-opus-4-7`):
 - Pin to a specific model version
 - **Use for**: Reproducible behavior across sessions
-</model_capabilities>
 
-<orchestration_strategy>
+### Orchestration strategy
+
 **Sonnet + Haiku orchestration pattern** (optimal cost/performance):
 
 ```markdown
@@ -187,9 +191,9 @@ Use `/agents` command to see full list of available tools.
 ```
 
 **Benefit**: Use expensive Sonnet only for planning and validation, cheap Haiku for execution.
-</orchestration_strategy>
 
-<decision_framework>
+### Decision framework
+
 **When to use each model**:
 
 | Task Type | Recommended Model | Rationale |
@@ -202,46 +206,46 @@ Use `/agents` command to see full list of available tools.
 | Batch processing | Haiku | Cost efficiency for high volume |
 | Critical security | Sonnet | High stakes require best model |
 | Output synthesis | Sonnet | Ensuring coherence across inputs |
-</decision_framework>
-</model_selection>
 
-<invocation>
-<automatic>
+## Invocation
+
+### Automatic
+
 Claude automatically selects subagents based on:
 - Task description in user's request
 - `description` field in subagent configuration
 - Current context
-</automatic>
 
-<explicit>
+### Explicit
+
 Users can explicitly request a subagent:
 
 ```
 > Use the code-reviewer subagent to check my recent changes
 > Have the test-runner subagent fix the failing tests
 ```
-</explicit>
-</invocation>
 
-<management>
-<using_agents_command>
+## Management
+
+### Using agents command
+
 **Recommended**: Use `/agents` command for interactive management:
 - View all available subagents (built-in, user, project, plugin)
 - Create new subagents with guided setup
 - Edit existing subagents and their tool access
 - Delete custom subagents
 - See which subagents take priority when names conflict
-</using_agents_command>
 
-<direct_file_management>
+### Direct file management
+
 **Alternative**: Edit subagent files directly:
 - Project: `.claude/agents/subagent-name.md`
 - User: `~/.claude/agents/subagent-name.md`
 
 Follow the file format specified above (YAML frontmatter + system prompt).
-</direct_file_management>
 
-<cli_based_configuration>
+### CLI-based configuration
+
 **Temporary**: Define subagents via CLI for session-specific use:
 
 ```bash
@@ -256,11 +260,11 @@ claude --agents '{
 ```
 
 Useful for testing configurations before saving them.
-</cli_based_configuration>
-</management>
 
-<example_subagents>
-<test_writer>
+## Example subagents
+
+### Test writer
+
 ```markdown
 ---
 name: test-writer
@@ -288,9 +292,9 @@ You are a test automation specialist creating thorough, maintainable test suites
 - Avoid test interdependencies
 </test_quality_criteria>
 ```
-</test_writer>
 
-<debugger>
+### Debugger
+
 ```markdown
 ---
 name: debugger
@@ -320,17 +324,17 @@ You are a debugging specialist skilled at root cause analysis and systematic pro
 - Verify fix doesn't break other functionality
 </debugging_techniques>
 ```
-</debugger>
-</example_subagents>
 
-<tool_security>
-<core_principle>
+## Tool security
+
+### Core principle
+
 **"Permission sprawl is the fastest path to unsafe autonomy."** - Anthropic
 
 Treat tool access like production IAM: start from deny-all, allowlist only what's needed.
-</core_principle>
 
-<why_it_matters>
+### Why it matters
+
 **Security risks of over-permissioning**:
 - Agent could modify wrong code (production instead of tests)
 - Agent could run dangerous commands (rm -rf, data deletion)
@@ -345,9 +349,9 @@ Risk: Could access revenue dashboard data, customer financial info
 ✅ Good: Agent drafting sales email has Read access to Salesforce only
 Scope: Can draft email, cannot access sensitive financial data
 ```
-</why_it_matters>
 
-<permission_patterns>
+### Permission patterns
+
 **Tool access patterns by trust level**:
 
 **Trusted data processing**:
@@ -360,9 +364,9 @@ Scope: Can draft email, cannot access sensitive financial data
 - Processing external inputs
 - Example: analyzing third-party API responses
 - Limit: Read-only tools, no execution
-</permission_patterns>
 
-<audit_checklist>
+### Audit checklist
+
 **Tool access audit**:
 - [ ] Does this subagent need Write/Edit, or is Read sufficient?
 - [ ] Should it execute code (Bash), or just analyze?
@@ -371,19 +375,19 @@ Scope: Can draft email, cannot access sensitive financial data
 - [ ] Can we restrict further without blocking legitimate use?
 
 **Default**: Grant minimum necessary. Add tools only when lack of access blocks task.
-</audit_checklist>
-</tool_security>
 
-<prompt_caching>
-<benefits>
+## Prompt caching
+
+### Benefits
+
 Prompt caching for frequently-invoked subagents:
 - **90% cost reduction** on cached tokens
 - **85% latency reduction** for cache hits
 - Cached content: ~10% cost of uncached tokens
 - Cache TTL: 5 minutes (default) or 1 hour (extended)
-</benefits>
 
-<cache_structure>
+### Cache structure
+
 **Structure prompts for caching**:
 
 ```markdown
@@ -423,9 +427,9 @@ Recent changes: {varies per invocation}
 ```
 
 **Principle**: Stable instructions at beginning (cached), variable context at end (fresh).
-</cache_structure>
 
-<when_to_use>
+### When to use
+
 **Best candidates for caching**:
 - Frequently-invoked subagents (multiple times per session)
 - Large, stable prompts (extensive guidelines, examples)
@@ -436,9 +440,9 @@ Recent changes: {varies per invocation}
 - Rarely-used subagents (once per session)
 - Prompts that change frequently
 - Very short prompts (caching overhead > benefit)
-</when_to_use>
 
-<cache_management>
+### Cache management
+
 **Cache lifecycle**:
 - First invocation: Writes to cache (25% cost premium)
 - Subsequent invocations: 90% cheaper on cached portion
@@ -449,15 +453,15 @@ Recent changes: {varies per invocation}
 - Subagent prompt modified
 - Tool definitions changed
 - Cache TTL expires
-</cache_management>
-</prompt_caching>
 
-<background_execution>
-<overview>
+## Background execution
+
+### Overview
+
 The Agent tool supports `run_in_background` parameter to launch agents asynchronously. This enables parallel execution of multiple agents while the main conversation continues.
-</overview>
 
-<agent_tool_parameters>
+### Agent tool parameters
+
 **Agent tool input for background execution:**
 
 | Parameter | Type | Required | Description |
@@ -470,9 +474,9 @@ The Agent tool supports `run_in_background` parameter to launch agents asynchron
 | `isolation` | string | No | `worktree` for isolated git worktree |
 
 Note: The Agent tool was renamed from Task in Claude Code v2.1.63. Both names work for backwards compatibility.
-</agent_tool_parameters>
 
-<retrieving_results>
+### Retrieving results
+
 **Background agent results:**
 
 The main conversation is automatically notified when background agents complete. No polling needed.
@@ -494,9 +498,9 @@ Step 2: Continue with other work...
 Step 3: Notified when agent completes
 → Agent's final output available
 ```
-</retrieving_results>
 
-<parallel_execution_patterns>
+### Parallel execution patterns
+
 **Pattern 1: Parallel Analysis**
 Launch multiple independent agents, then collect results:
 
@@ -524,9 +528,9 @@ Agent 3: test-analyzer (background)
 3. Continue other work while waiting
 4. Get final results when ready
 ```
-</parallel_execution_patterns>
 
-<best_use_cases>
+### Best use cases
+
 **When to use background execution:**
 
 ✅ **Good candidates:**
@@ -542,9 +546,9 @@ Agent 3: test-analyzer (background)
 - Tasks with sequential dependencies
 - Operations needing immediate results
 - Simple validation checks
-</best_use_cases>
 
-<resume_capability>
+### Resume capability
+
 **Resuming agents:**
 
 Agents preserve full context when resumed. Use `SendMessage` with the agent's ID to continue where it left off:
@@ -559,25 +563,25 @@ SendMessage:
 - Agent hit context limit, needs to continue
 - Follow-up work on previous analysis
 - Iterative refinement of agent output
-</resume_capability>
-</background_execution>
 
-<best_practices>
-<be_specific>
+## Best practices
+
+### Be specific
+
 Create task-specific subagents, not generic helpers.
 
 ❌ Bad: "You are a helpful assistant"
 ✅ Good: "You are a React performance optimizer specializing in hooks and memoization"
-</be_specific>
 
-<clear_triggers>
+### Clear triggers
+
 Make the `description` clear about when to invoke:
 
 ❌ Bad: "Helps with code"
 ✅ Good: "Reviews code for security vulnerabilities. Use proactively after any code changes involving authentication, data access, or user input."
-</clear_triggers>
 
-<focused_tools>
+### Focused tools
+
 Grant only the tools needed for the task (least privilege):
 
 - Read-only analysis: `Read, Grep, Glob`
@@ -585,9 +589,9 @@ Grant only the tools needed for the task (least privilege):
 - Test running: `Read, Write, Bash`
 
 **Security note**: Over-permissioning is primary risk vector. Start minimal, add only when necessary.
-</focused_tools>
 
-<structured_prompts>
+### Structured prompts
+
 Use XML tags to structure the system prompt for clarity:
 
 ```markdown
@@ -609,5 +613,3 @@ You are a senior security engineer specializing in web application security.
 4. Rate severity
 </workflow>
 ```
-</structured_prompts>
-</best_practices>
