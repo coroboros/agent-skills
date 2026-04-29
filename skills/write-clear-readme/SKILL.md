@@ -152,7 +152,7 @@ After any author or polish pass on English content, strip residual AI tells (em-
    - Pattern B if the doc is reference-heavy (dozens of API entries, CLI commands, config options)
    - Short doc (< 5 sections) → no collapse
 3. **Draft** — overview table at top with anchor links, Install / Quick Start / Requirements uncollapsed, grouped or per-entry collapse below. Apply Clarity rules as you write.
-4. **Remove AI traces** — for English content, invoke `/humanize-en` on the draft (see *Remove AI traces* below). Skip if the skill is unavailable or the content is non-English.
+4. **Remove AI traces** — for English content, invoke `/humanize-en` on the draft (see *Remove AI traces* above). Skip if the skill is unavailable or the content is non-English.
 5. **Verify** — every TOC anchor resolves. Every `<details>` has a `<br>` after `<summary>`. No nested collapsibles. Install block is never inside `<details>`.
 6. **Write** — overwrite or create `README.md`. Present the diff if it existed before.
 
@@ -190,7 +190,7 @@ Wording-only pass. Structure stays as-is — only the prose changes.
    - Tighten verbose passages into bullets when enumerable
    - Backtick code-like tokens
    - Replace `(parens)` with em-dashes where they're aside-context
-3. **Remove AI traces** — for English content, invoke `/humanize-en` on the result (see *Remove AI traces* below). Skip if the skill is unavailable or the content is non-English.
+3. **Remove AI traces** — for English content, invoke `/humanize-en` on the result (see *Remove AI traces* above). Skip if the skill is unavailable or the content is non-English.
 4. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
 5. **Report** — propose a diff. NEVER apply without explicit approval.
 
