@@ -16,14 +16,6 @@ metadata:
 
 # CLAUDE.md
 
-<!--
-Name exception: `claude-md` contains the reserved substring `claude`. Per
-`.claude/rules/agentskills-spec.md` § Reserved → "narrow exception for
-first-party filename conventions", this is declared and intentional — the
-skill operates directly on `CLAUDE.md`, and alternatives (`memory-md`,
-`ctx-md`) lose essential semantic clarity.
--->
-
 ## Core Principle
 
 Memory files consume tokens every session. Keep them minimal — include only what the agent cannot discover on its own or what a tool doesn't already enforce (linter, TypeScript, tests).
@@ -259,3 +251,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 ## See also
 
 - **`/agent-creator`** — subagent configuration and orchestration. A CLAUDE.md that defines project-wide instructions often pairs with `.claude/agents/*.md` files; use `/agent-creator` to author those.
+
+## About
+
+`claude-md` contains the reserved substring `claude`. Per `.claude/rules/agentskills-spec.md` § *Narrow exception — first-party filename conventions*, this is intentional — the skill operates directly on the first-party `CLAUDE.md` filename, and alternatives (`memory-md`, `ctx-md`) lose essential semantic clarity.
