@@ -2,6 +2,10 @@
 
 Cross-cutting technical reference for award-winning web design. Read alongside the chosen archetype reference.
 
+## Tokenization boundary
+
+Code samples in this file (CSS custom properties, animation values, scroll patterns) are illustrative — the *concrete numeric values* belong in DESIGN.md tokens, not authored ad-hoc in component CSS. Canonical 5 namespaces (`colors`, `typography`, `rounded`, `spacing`, `components`) cover most surface; for motion durations, shadow scales, aspect ratios, viewport heights, container widths, breakpoints, z-index layers, border weights, opacity ramps, and scroll triggers, use the spec-blessed extension namespaces documented in `skills/design-system/references/extended-tokens.md`. Components in DESIGN.md YAML stay within the 8 canonical property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`); extension tokens are referenced from prose only. The CSS-side mirror is generated and validated by `/design-system audit-extensions`.
+
 ## Typography Systems
 
 ### Fluid scales

@@ -174,6 +174,8 @@ Same behavior — preserved but unvalidated.
 - Pick distinct namespaces (`motion:`, `breakpoints:`, `z-index:`, `elevation-scale:`) — never shadow or collide with spec-defined groups.
 - Keep the shape consistent with the spec's map-of-strings convention so a future DTCG or Tailwind exporter could pick them up.
 - Document the namespace in the Overview or Do's and Don'ts so future maintainers know it's intentional, not drift.
+- **Components MUST stay within the closed set of 8 component property tokens.** Extension namespaces are referenced from prose only — never as `components:` property keys or values. Field-tested lint-failure mode: a component declaring `modal.shadow: "{shadows.lifted}"` cascades into broken-ref errors because `shadow` is not in the canonical property set.
+- For the curated namespace list and the canonical-vs-extension boundary used across this skill set, see `extended-tokens.md`. The `audit-extensions` subcommand validates the bidirectional contract (YAML ↔ prose ↔ `globals.css` `@theme`).
 
 ## Interoperability
 

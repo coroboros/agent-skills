@@ -109,6 +109,18 @@ Eight rules run against a parsed DESIGN.md. Each produces findings at a fixed se
 
 Only `broken-ref` is an error — the rest are warnings or info. A clean DESIGN.md (all errors resolved, warnings reviewed) lints with `summary.errors: 0`.
 
+### Project-side rules — `audit-extensions`
+
+The Google CLI does not validate extension namespaces (`motion`, `shadows`, `aspectRatios`, etc. — see `references/extended-tokens.md`). The `/design-system audit-extensions` subcommand layers three project-side rules on top:
+
+| Rule | Severity | What it checks |
+|------|----------|----------------|
+| `extension-missing-css` | error | A YAML extension token has no matching CSS custom property in `globals.css` `@theme` (per the 1:1 mapping table) |
+| `extension-orphan-css` | warning (error under `--strict`) | A CSS custom property with an extension prefix has no corresponding YAML token |
+| `extension-broken-ref` | error | Prose references an extension token that's not defined in the YAML |
+
+Run alongside `lint` for a full pre-ship gate. See `references/subcommand-audit-extensions.md` for the report shape and fix proposals.
+
 ### Interpreting findings
 
 - **Fix every `error`** — broken references break token resolution at runtime and produce unpredictable output.
