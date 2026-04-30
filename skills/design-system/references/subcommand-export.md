@@ -62,6 +62,31 @@ For v3, merging under `extend` preserves Tailwind's defaults (responsive utiliti
 
 Commit the output alongside DESIGN.md — `tailwind.theme.json` is build-time input, belongs in git.
 
+## Extended-token export
+
+DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` — see `references/extended-tokens.md`) are top-level YAML keys that the Google CLI **preserves but does not validate**. Two paths to ship them as runtime CSS:
+
+**Tailwind v4 (CSS-first).** Mirror the YAML extensions into the project's `globals.css` `@theme` block per the 1:1 naming table in `extended-tokens.md`:
+
+```css
+@theme {
+  /* canonical (from `/design-system export tailwind` or hand-mirrored) */
+  --color-primary: #1a1c1e;
+  /* extensions (mirror of YAML extension namespaces) */
+  --duration-reveal-slow: 1200ms;
+  --shadow-lifted: 0 20px 40px -16px rgb(0 0 0 / 0.08);
+  --aspect-listing: 3 / 2;
+  --height-hero: 100svh;
+  --z-modal: 80;
+}
+```
+
+The Google CLI's `--format tailwind` may or may not emit extension namespaces depending on its version (alpha v0.1.1 preserves them in source but the exporter focuses on the canonical 5). Verify by running an export and grepping the output for an extension token name. If absent, append the extension block manually using the mapping table — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS var per token.
+
+**Tailwind v3 (JS-config).** Same JSON output as canonical tokens; nest extension namespaces under `theme.extend` keys (`shadow:`, `aspectRatio:`, `screens:` for breakpoints, etc.) per Tailwind's documented mapping. Hand-merge the JSON if the CLI does not flatten them automatically.
+
+**After every export, run `/design-system audit-extensions <path>`** to confirm the mirror is in sync — catches missing CSS vars, orphans, and prose references that don't resolve. See `references/subcommand-audit-extensions.md`.
+
 ## DTCG integration
 
 `export --format dtcg` produces a W3C Design Tokens Community Group `tokens.json`, the standard format consumed by:

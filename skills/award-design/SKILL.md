@@ -45,7 +45,7 @@ Build websites that score 8+ on Awwwards. AI-generated designs are immediately r
 3. **Read archetype reference**: Once the archetype is confirmed, read its reference file from the table below.
 4. **Calibrate atmosphere**: Set Density, Variance, and Motion scores using the Atmosphere Calibration table. Adjust ±2 from defaults based on the brief. Present the calibrated scores to the user for validation.
 5. **Load foundations**: Read `references/foundations.md` for cross-cutting technical implementation (typography systems, color theory, animation toolkit, performance, UX quality, accessibility).
-6. **Produce DESIGN.md**: If the project has no `DESIGN.md`, create one following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter with design tokens (`colors`, `typography`, `rounded`, `spacing`, `components`) plus eight ordered prose sections (Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts). Record the calibrated atmosphere scores as prose in the Overview section — the spec does not define atmosphere tokens. If the `/design-system` skill is installed, follow its `references/design-md-spec.md` and the example files for shape; otherwise, the sections listed in the archetype reference files cover the same ground. Validate the finished file with `/design-system audit DESIGN.md` (preferred — human-readable report with fix proposals per finding). If `/design-system` is unavailable, fall back to the raw CLI: `npx @google/design.md lint DESIGN.md`. Broken token references (`broken-ref`) and contrast violations below WCAG AA are caught here. If the user hands you an existing legacy DESIGN.md with the Stitch 9-section format, recommend `/design-system migrate <path>` first to port it, then resume. Every applicable section must be complete — the `/design-system` skill governs this file for all future UI changes, and incomplete sections create token gaps that agents fill with defaults.
+6. **Produce DESIGN.md**: If the project has no `DESIGN.md`, create one following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter with design tokens (`colors`, `typography`, `rounded`, `spacing`, `components`) plus eight ordered prose sections (Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts). Record the calibrated atmosphere scores as prose in the Overview section — the spec does not define atmosphere tokens. If the `/design-system` skill is installed, follow its `references/design-md-spec.md` and the example files for shape; otherwise, the sections listed in the archetype reference files cover the same ground. **Extension boundary** — beyond the canonical 5 namespaces, top-level extension namespaces are spec-blessed and required at award-grade register: `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` (full namespace × prose-section map below). **Components bind ONLY to the 8 canonical property tokens** (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — extension tokens are referenced canonically in prose, never as `components:` keys (the empirical lint-failure mode). **Two-stage validation pipeline** — both must exit 0 before shipping: (a) `/design-system audit DESIGN.md` (preferred — human-readable report with fix proposals per finding) catches broken token references (`broken-ref`) and contrast violations below WCAG AA; fall back to `npx @google/design.md lint DESIGN.md` if `/design-system` is unavailable; (b) `/design-system audit-extensions DESIGN.md` is the bidirectional drift check between YAML extensions, prose references, and the `globals.css` `@theme` mirror — extensions are preserved-but-unvalidated by the Google CLI, this subcommand closes the loop. If the user hands you an existing legacy DESIGN.md with the Stitch 9-section format, recommend `/design-system migrate <path>` first to port it, then resume. Every applicable section must be complete — the `/design-system` skill governs this file for all future UI changes, and incomplete sections create token gaps that agents fill with defaults. Full extension convention: `skills/design-system/references/extended-tokens.md`.
 7. **Design with intent**: Every visual choice serves communication. One signature unforgettable moment outperforms scattered effects everywhere.
 8. **Production hardening**: When implementation touches video, scroll-driven cinematic reveals, or full-screen heroes on mobile browsers, read `references/production-hardening.md`. Most patterns are cross-browser (viewport units, scroll-restoration, autoplay belt-and-suspenders, fail-safe reveal logic, proportional layout) with iOS Safari flagged as the sharpest test case. Each section states its scope — genuinely iOS-only rules are marked. Skip if the project is desktop-only with no video or scroll choreography.
 9. **Validate**: Read `references/anti-patterns.md` and check the design against it — axiomatic rejections first (any hit is stop-and-fix), then AI tells, performance failures, UX anti-patterns. Cross-check `references/foundations.md` UX Quality and Accessibility sections. For a calibrated score with an actionable punch list, run `references/audit-rubric.md` (7 categories, 0–10 each, P0/P1 fixes with CSS snippets). Verify against the judging criteria below.
@@ -64,6 +64,83 @@ If the user wants to switch archetypes after initial selection (during design or
 ### Combining archetypes (remix)
 
 If the brief refuses to pick a single archetype — "Linear rigor but Anthropic warmth", "Brutalist character for luxury clients", a creative studio serving enterprise — read `references/remixing.md`. It gives an arbitration framework (parent DNA percentage, 7 rules that pick one parent per dimension, one-paragraph identity declaration) so the remix reads as a third coherent brand rather than a blend. Default is still to pick one archetype; reach for a remix only when a single archetype leaves the brief unsatisfied after two attempts.
+
+## DESIGN.md anatomy — token namespaces + prose mapping
+
+The DESIGN.md produced by step 6 carries award-grade content across two layers — YAML frontmatter for tokens, eight ordered prose sections for narrative and intent. Both layers are required; an empty layer makes the file useless to its consumer.
+
+### YAML namespaces
+
+| Type | Namespaces | Validated by Google CLI |
+|---|---|---|
+| Canonical | `colors`, `typography`, `rounded`, `spacing`, `components` | yes (broken-ref, contrast-ratio, missing-primary, etc.) |
+| Extension (preserved) | `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` | no (preserved-but-unvalidated per spec); validated by `/design-system audit-extensions` against the `globals.css` `@theme` mirror |
+
+Components bind ONLY to the 8 canonical property tokens — `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`. Extension tokens are referenced from prose only (e.g., `{motion.duration-reveal-slow}`), never as `components:` keys. The closed property-token set is the empirical lint-failure mode.
+
+### Award-grade prose mapping
+
+Every vital narrative element from this skill maps to one of the eight ordered sections — nothing is dropped:
+
+| Award-grade narrative | DESIGN.md section |
+|---|---|
+| Atmosphere scores (Density / Variance / Motion) | 1. Overview |
+| Archetype identity + remix declaration | 1. Overview |
+| Signature moment (the one unforgettable interaction) | 1. Overview |
+| Photography direction (cinematic / editorial / flat-lay register) | 1. Overview |
+| Copy register (tone of voice) | 1. Overview |
+| Colour narrative + photography colour guidance | 2. Colors |
+| Kinetic typography intent (variable-font behaviour, text-reveal) | 3. Typography |
+| Layout grid + responsive strategy | 4. Layout |
+| Scroll choreography (scroll-driven reveals, narrative pacing) | 4. Layout (cross-reference `motion.*`, `scrollTriggers.*`) |
+| Shadow language + depth narrative | 5. Elevation & Depth (cross-reference `shadows.*`, `borderWidths.*`, `opacity.*`) |
+| Geometric / radius language | 6. Shapes |
+| Component patterns + variants | 7. Components |
+| Micro-interactions (hover / pressed / active states) | 7. Components (variant entries: `button-primary-hover`) |
+| Motion philosophy | 7. Components + cross-reference 1. Overview |
+| Award-grade rules + AI-tells anti-patterns + production-hardening guardrails | 8. Do's and Don'ts |
+
+Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `references/production-hardening.md`. Full extension convention: `skills/design-system/references/extended-tokens.md`.
+
+### Minimal valid fragment
+
+Canonical (validated) and extension (preserved-but-unvalidated) namespaces side by side; components stay within the eight property tokens; prose names extensions canonically:
+
+```yaml
+colors:
+  primary: "#1a1c1e"
+  surface: "#f7f5f1"
+components:
+  modal:
+    backgroundColor: "{colors.surface}"   # ✅ canonical property token
+    rounded: "{rounded.md}"
+    padding: 32px
+    # ❌ NEVER add `shadow: "{shadows.lifted}"` — `shadow` is not in the 8;
+    # the lint rejects unknown component properties.
+motion:
+  duration-reveal-slow: 1200ms
+  ease-standard: cubic-bezier(0.16, 1, 0.3, 1)
+shadows:
+  lifted: 0 20px 40px -16px rgb(0 0 0 / 0.08)
+```
+
+```markdown
+## Elevation & Depth
+
+Modals lift on `{shadows.lifted}` — referenced from prose. Reveal motion uses `{motion.duration-reveal-slow}` paced by `{motion.ease-standard}`.
+```
+
+The mirror in `globals.css` (auto-generated by `/design-system export tailwind`):
+
+```css
+@theme {
+  --color-primary: #1a1c1e;
+  --color-surface: #f7f5f1;
+  --duration-reveal-slow: 1200ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+  --shadow-lifted: 0 20px 40px -16px rgb(0 0 0 / 0.08);
+}
+```
 
 ## Archetype Selector
 

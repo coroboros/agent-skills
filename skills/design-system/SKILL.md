@@ -1,8 +1,8 @@
 ---
 name: design-system
-description: Govern the DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius. Also exposes six CLI-backed subcommands — audit (lint + fix proposals), diff (regression check), export (Tailwind / DTCG), spec (canonical spec emission), migrate (port from legacy Stitch format), init (minimal scaffold). When a UI/UX change is requested, DESIGN.md is updated first, audited, then code propagates.
-when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. Keywords — audit, check, lint, diff, export, spec, migrate, init, DESIGN.md, tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
-argument-hint: "[audit|diff|export|spec|migrate|init] [flags] [path]"
+description: Govern the DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius. Also exposes seven CLI-backed subcommands — audit (lint + fix proposals), diff (regression check), export (Tailwind / DTCG), spec (canonical spec emission), migrate (port from legacy Stitch format), init (minimal scaffold), audit-extensions (drift check between extension namespaces and globals.css @theme). When a UI/UX change is requested, DESIGN.md is updated first, audited, then code propagates.
+when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, aspectRatios, heights, containers, breakpoints, zIndex, borderWidths, opacity, scrollTriggers) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
+argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
 paths:
   - src/components/**
   - src/app/**
@@ -42,6 +42,7 @@ Parse the first positional token of `$ARGUMENTS`. If it matches a verb below, lo
 | `spec` | Emit the canonical spec from the installed CLI | `references/subcommand-spec.md` |
 | `migrate` | Port legacy Stitch 9-section DESIGN.md → Google standard | `references/subcommand-migrate.md` |
 | `init` | Scaffold a minimal valid DESIGN.md (fallback from `/award-design`) | `references/subcommand-init.md` |
+| `audit-extensions` | Bidirectional drift check — DESIGN.md extension YAML ↔ prose refs ↔ `globals.css` `@theme` | `references/subcommand-audit-extensions.md` |
 | (none, or a UI file path) | Token enforcement — see the default workflow at the end | (this file) |
 
 ## Source of truth
@@ -103,6 +104,7 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 - Map tokens to `tailwind.config.ts theme.extend` — or generate via `/design-system export tailwind`
 - Never use arbitrary Tailwind values (`text-[13px]`, `bg-[#abc]`) when a token exists
 - Never introduce values absent from DESIGN.md — use the closest token and flag to the user
+- **Extended tokens** — values outside the canonical 5 namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers`) live as top-level YAML namespaces — preserved by the Google CLI per `references/design-md-spec.md` *Extending the spec*, validated by convention via `/design-system audit-extensions`. **Components MUST NOT bind to extension namespaces.** The lint rejects unknown property names as `broken-ref` errors — field-tested as 73 errors and 84 warnings cascading from 27 components binding to extension tokens via non-canonical property names like `modal.shadow: "{shadows.lifted}"`. Reference extensions in prose canonically instead (e.g., `{motion.duration-reveal-slow}`); export to `globals.css` `@theme` as 1:1 CSS custom properties (`--duration-reveal-slow`). See `references/extended-tokens.md`
 - Dark mode: the Google spec has no dedicated mode concept. Use **semantic tokens** in a single DESIGN.md (e.g., `surface`, `on-surface`, `inverse-surface`, `inverse-on-surface`) and let the framework's CSS custom properties map each semantic name to the right value per mode. The Google-published `atmospheric-glass` example follows this pattern — one file, both modes via semantic naming. Avoid dual-file setups (DESIGN.md + DESIGN.dark.md) unless the brand truly diverges between modes
 - Shared brand across projects: same DESIGN.md, framework-specific implementation. Distribution patterns — pick one and document in each project's CLAUDE.md:
   - **Monorepo** — `packages/brand/DESIGN.md` consumed by all apps; single PR for cross-cutting changes
@@ -148,17 +150,20 @@ When no subcommand is matched — either auto-activated via `paths:` during a UI
 
 | award-design output | DESIGN.md section | YAML tokens |
 |---------------------|-------------------|-------------|
-| Archetype + atmosphere (Density/Variance/Motion) | 1. Overview (prose) | — |
-| Color palette | 2. Colors | `colors:` |
-| Typography | 3. Typography | `typography:` |
-| Spacing, grid, responsive breakpoints | 4. Layout | `spacing:` |
-| Shadow system, surface material | 5. Elevation & Depth | — |
+| Archetype + atmosphere (Density/Variance/Motion) + signature moment + photography direction + copy register | 1. Overview (prose) | — |
+| Color palette + photography colour guidance | 2. Colors | `colors:` |
+| Typography + kinetic typography intent | 3. Typography | `typography:` |
+| Spacing, grid, scroll choreography, responsive system | 4. Layout | `spacing:` + ext: `breakpoints:`, `containers:`, `heights:`, `aspectRatios:`, `motion:`, `scrollTriggers:` |
+| Shadow language + depth narrative | 5. Elevation & Depth | ext: `shadows:`, `borderWidths:`, `opacity:` |
 | Corner radius language | 6. Shapes | `rounded:` |
-| Component specs (buttons, cards, inputs, nav) | 7. Components | `components:` |
-| Archetype guardrails + AI-tell rejections | 8. Do's and Don'ts | — |
+| Component specs + variants + micro-interactions + motion philosophy | 7. Components | `components:` (8 property tokens only) + ext: `zIndex:` |
+| Archetype guardrails + AI-tell rejections + production-hardening rules | 8. Do's and Don'ts | — |
+
+Extension namespaces (`ext:` rows above) live as top-level YAML per `references/extended-tokens.md`. Components bind only to the eight canonical property tokens — extension tokens are referenced in prose, never as `components:` keys.
 
 3. **Audit** — run `/design-system audit <path>` (post-edit invariant). Fix errors before proceeding.
-4. **Wire into the framework**: `/design-system export tailwind` → merge the result into `tailwind.config.ts theme.extend`; set up CSS custom properties in the global stylesheet.
+4. **Wire into the framework**: `/design-system export tailwind` → merge the result into `tailwind.config.ts theme.extend` (v3) or `globals.css` `@theme` block (v4); set up CSS custom properties in the global stylesheet.
+5. **Validate the mirror** — `/design-system audit-extensions <path>` confirms every extension token in the YAML has its CSS custom property and every prose reference resolves. Run after every export.
 
 ### When UI/UX changes are requested
 

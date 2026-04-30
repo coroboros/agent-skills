@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1a1c1e;
+  --color-surface: #f7f5f1;
+  --color-on-surface: #1a1c1e;
+
+  --duration-reveal-slow: 1200ms;
+  /* missing: --duration-reveal-extra-slow (extension-missing-css) */
+
+  --shadow-lifted: 0 20px 40px -16px rgb(28 26 22 / 0.08);
+  --shadow-orphan-extra: 0 1px 0 0 rgb(0 0 0 / 0.04);
+  /* --shadow-orphan-extra has no YAML token (extension-orphan-css) */
+}

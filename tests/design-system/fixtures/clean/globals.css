@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #1a1c1e;
+  --color-surface: #f7f5f1;
+  --color-on-surface: #1a1c1e;
+  --color-tertiary: #c9a071;
+
+  --duration-hover: 200ms;
+  --duration-reveal-slow: 1200ms;
+  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --shadow-whisper: 0 1px 0 0 rgb(28 26 22 / 0.08);
+  --shadow-lifted: 0 20px 40px -16px rgb(28 26 22 / 0.08);
+
+  --aspect-listing: 3 / 2;
+
+  --height-hero: 100svh;
+  --height-nav-desktop: 72px;
+
+  --z-modal: 80;
+
+  --opacity-overlay-modal: 0.70;
+}

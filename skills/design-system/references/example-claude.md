@@ -122,6 +122,13 @@ components:
     typography: "{typography.body-md}"
   nav-link-active:
     textColor: "{colors.primary}"
+motion:
+  duration-hover: 200ms
+  duration-reveal: 600ms
+  ease-standard: cubic-bezier(0.16, 1, 0.3, 1)
+borderWidths:
+  hairline: 1px
+  hairline-strong: 2px
 ---
 
 ## Overview
@@ -165,8 +172,8 @@ Depth is conveyed through tonal layering, not shadows. The warm palette makes sh
 
 - **Base**: Parchment (`{colors.neutral}`) with a subtle paper-grain overlay (`background-image: url(...grain.svg); opacity: 0.04`)
 - **Cards**: `{colors.surface-container}` — half a step darker than the base
-- **Elevated / modals**: `{colors.surface-container-high}` — another half step. A 1px `{colors.outline-variant}` border, never a shadow
-- **Focus rings**: 2px `{colors.tertiary}` offset 2px from the element — announces interactivity without visual weight
+- **Elevated / modals**: `{colors.surface-container-high}` — another half step. A `{borderWidths.hairline}` `{colors.outline-variant}` border, never a shadow
+- **Focus rings**: `{borderWidths.hairline-strong}` `{colors.tertiary}` offset 2px from the element — announces interactivity without visual weight
 
 ## Shapes
 
@@ -181,7 +188,7 @@ Restrained curvature. Sharpness matches the editorial voice; pills are reserved 
 
 ### Buttons
 
-Primary actions use Terracotta on Parchment with the `label-sm` typography token. Hover darkens the fill to `{colors.on-tertiary-container}`. Ghost buttons use the same typography and padding but transparent background with primary text — hover reveals a `surface-container` fill. Height is fixed at 48px for both variants; horizontal padding is 24px.
+Primary actions use Terracotta on Parchment with the `label-sm` typography token. Hover darkens the fill to `{colors.on-tertiary-container}` over `{motion.duration-hover}` paced by `{motion.ease-standard}`. Ghost buttons use the same typography and padding but transparent background with primary text — hover reveals a `surface-container` fill. Height is fixed at 48px for both variants; horizontal padding is 24px.
 
 ### Cards
 
@@ -210,3 +217,4 @@ Always pill-shaped (`rounded.full`). Used for tags, filters, and categories. Act
 - **Don't** use more than one font weight per typography role — serif stays at 500, sans stays at 400 for body
 - **Don't** introduce a second accent color — if you need a secondary emphasis, use weight, scale, or whitespace, not color
 - **Don't** round buttons beyond `rounded.sm` (4px) — pill buttons clash with the editorial voice
+- **Don't** bind extension tokens (`motion`, `borderWidths`) to component property keys — they live as top-level YAML and are referenced in prose. Components stay within the eight canonical property tokens. See `references/extended-tokens.md`

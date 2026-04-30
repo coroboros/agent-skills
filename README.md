@@ -69,7 +69,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
-| Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 6 CLI subcommands (audit/diff/export/spec/migrate/init) | Claude |
+| Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points | Claude |
@@ -349,7 +349,7 @@ Produces `DESIGN.md` consumed by `design-system` for ongoing governance. Token-l
 
 #### design-system
 
-Govern `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing, and exposes six CLI-backed subcommands for the full DESIGN.md lifecycle.
+Govern `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing, and exposes seven CLI-backed subcommands for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
 
 **Requirements**
 
@@ -362,7 +362,7 @@ Auto-activates when editing:
 - `src/features/*/components/**`
 - `DESIGN.md`, `tailwind.config.*`
 
-Also invocable directly via `/design-system` with one of six subcommands:
+Also invocable directly via `/design-system` with one of seven subcommands:
 
 ```bash
 /design-system audit                                # lint ./DESIGN.md, report with fix proposals
@@ -374,6 +374,8 @@ Also invocable directly via `/design-system` with one of six subcommands:
 /design-system spec --rules                         # emit canonical spec + lint rules
 /design-system migrate ./legacy-DESIGN.md           # Stitch 9-section → Google standard
 /design-system init editorial                       # scaffold a minimal DESIGN.md
+/design-system audit-extensions                     # YAML ↔ prose ↔ globals.css drift check
+/design-system audit-extensions --strict            # promote orphan warnings to errors
 ```
 
 **Subcommands**
@@ -386,19 +388,21 @@ Also invocable directly via `/design-system` with one of six subcommands:
 | `spec` | Emit the canonical spec from the installed CLI | Markdown or JSON |
 | `migrate` | Port legacy Stitch 9-section DESIGN.md → Google standard | New DESIGN.md + backup + migration report |
 | `init` | Scaffold a minimal valid DESIGN.md (fallback from `/award-design`) | New DESIGN.md |
+| `audit-extensions` | Bidirectional drift check between DESIGN.md extension YAML, prose refs, and `globals.css` `@theme` | Markdown report |
 
 **Flags**
 
 | Flag | Subcommand | Description |
 |------|------------|-------------|
-| `-s` | `audit`, `diff` | Save the report to `.claude/output/design-system/{sub}/{slug}/report.md` |
+| `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `.claude/output/design-system/{sub}/{slug}/report.md` |
 | `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
-| `--json` | `audit`, `diff`, `spec` | Raw CLI JSON instead of the formatted report |
-| `--strict` | `audit` | Cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog + append exemplar suggestions when lint is clean (requires `/award-design` installed) |
+| `--json` | `audit`, `diff`, `spec`, `audit-extensions` | Raw JSON instead of the formatted report |
+| `--strict` | `audit`, `audit-extensions` | `audit`: cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
 | `--rules` | `spec` | Append the active lint rules table |
 | `--rules-only` | `spec` | Output only the lint rules |
 | `--format tailwind\|dtcg` | `export` | Target format (default: `tailwind`) |
 | `--base <ref>` | `diff` | Git comparison base (default: `HEAD`) |
+| `--css <path>` | `audit-extensions` | Path to `globals.css` (auto-detected when omitted) |
 
 When `dev-browser` is installed globally (`pnpm add -g dev-browser` / `npm i -g dev-browser` / `bun add -g dev-browser`), `audit` auto-suggests visual verification in its Next steps — no flag needed. Skip silently otherwise.
 
@@ -416,22 +420,24 @@ When `dev-browser` is installed globally (`pnpm add -g dev-browser` / `npm i -g 
 
 A DESIGN.md has two layers: YAML frontmatter (normative design tokens) + eight ordered prose sections (rationale).
 
-YAML token groups: `colors`, `typography`, `rounded`, `spacing`, `components` — with `{path.to.token}` cross-references.
+Canonical YAML token groups (validated by the Google CLI): `colors`, `typography`, `rounded`, `spacing`, `components` — with `{path.to.token}` cross-references. Components bind ONLY to the closed set of 8 property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`).
+
+Extension YAML namespaces (preserved-but-unvalidated per the Google spec, validated by `audit-extensions` against the `globals.css` `@theme` mirror): `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers`. Extension tokens are referenced from prose only — never as `components:` keys (the empirical lint-failure mode). See `references/extended-tokens.md` for the full convention and the 1:1 CSS-mirror mapping table.
 
 Section order:
 
 1. **Overview** (alias: *Brand & Style*)
 2. **Colors** — `colors:` tokens
 3. **Typography** — `typography:` tokens
-4. **Layout** (alias: *Layout & Spacing*) — `spacing:` tokens + responsive strategy
-5. **Elevation & Depth** — shadow system, surface material
+4. **Layout** (alias: *Layout & Spacing*) — `spacing:` tokens + responsive strategy + extension `breakpoints`, `containers`, `heights`, `aspectRatios`, `motion`, `scrollTriggers`
+5. **Elevation & Depth** — shadow system + extension `shadows`, `borderWidths`, `opacity`
 6. **Shapes** — `rounded:` tokens
-7. **Components** — `components:` tokens, variants as related keys (`button-primary`, `button-primary-hover`)
+7. **Components** — `components:` tokens, variants as related keys (`button-primary`, `button-primary-hover`) + extension `zIndex`
 8. **Do's and Don'ts** — testable guardrails
 
-**CLI-backed lint rules** — eight rules run by `audit` (and `diff` for regression detection): `broken-ref` (error), `missing-primary`, `contrast-ratio` (WCAG AA 4.5:1), `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. See `references/cli-reference.md` for severities and fix strategies, and `references/subcommand-audit.md` for the per-rule fix-proposal logic used to compose audit reports.
+**CLI-backed lint rules** — eight rules run by `audit` (and `diff` for regression detection): `broken-ref` (error), `missing-primary`, `contrast-ratio` (WCAG AA 4.5:1), `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. **Project-side rules** added by `audit-extensions`: `extension-missing-css` (error), `extension-orphan-css` (warning, error under `--strict`), `extension-broken-ref` (error). See `references/cli-reference.md` for severities and fix strategies; `references/subcommand-audit.md` and `references/subcommand-audit-extensions.md` for the per-rule fix-proposal logic.
 
-Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference (`references/cli-reference.md`), six subcommand reference files (`references/subcommand-*.md`), three deterministic scripts (`scripts/{audit,diff,export}.sh` matching the video-loop/markitdown pattern), and two complete example DESIGN.md files (`references/example-claude.md` — warm editorial, `references/example-stripe.md` — minimalist gradient). Delegates to `/award-design` when a DESIGN.md needs to be created from a brief.
+Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference (`references/cli-reference.md`), seven subcommand reference files (`references/subcommand-*.md`), the extended-tokens convention (`references/extended-tokens.md`), four deterministic scripts (`scripts/{audit,diff,export,audit-extensions}.sh` plus `audit_extensions.py`), and two complete example DESIGN.md files (`references/example-claude.md` — warm editorial with extension showcase, `references/example-stripe.md` — minimalist gradient). Delegates to `/award-design` when a DESIGN.md needs to be created from a brief.
 
 **Sources**
 
@@ -893,15 +899,17 @@ Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` w
 Happy path, new project:
 
 ```
-/scaffold next-cloudflare       bootstrap project
+/scaffold next-cloudflare              bootstrap project
       |
-/award-design "brief"           create DESIGN.md with archetype
+/award-design "brief"                  create DESIGN.md with archetype + extension namespaces
       |
-/design-system audit            lint the result, fix findings
+/design-system audit                   lint canonical tokens, fix findings
       |
-/design-system export tailwind  generate tailwind.theme.json
+/design-system export tailwind         generate tailwind.theme.json (canonical)
       |
-/design-system                  enforce tokens going forward (auto-activate on UI edits)
+/design-system audit-extensions        verify YAML extensions ↔ globals.css @theme are in sync
+      |
+/design-system                         enforce tokens going forward (auto-activate on UI edits)
 ```
 
 Legacy project with a Stitch 9-section DESIGN.md:

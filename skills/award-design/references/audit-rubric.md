@@ -30,7 +30,7 @@ Rhythm discipline. Does the page have a scale or ad-hoc values?
 
 - **0** — More than 8 unique spacing values detected (8, 10, 12, 14, 20, 24, 28, 32, 40, 48…). No discernible base unit.
 - **5** — A scale exists (4/8/12/16/24/32) but edges violate it occasionally.
-- **10** — Single scale, strictly enforced. Vertical rhythm is visible even when you squint.
+- **10** — Single scale, strictly enforced — sourced from DESIGN.md `spacing:` (canonical) with `containers:` / `heights:` extensions where layout demands. Vertical rhythm is visible even when you squint.
 
 ### 3. Typography
 
@@ -54,7 +54,7 @@ Purpose, reduced-motion handling, timing precision.
 
 - **0** — Motion everywhere (every element fades in on scroll). Or none at all. `prefers-reduced-motion` not respected. Easing is default `ease`.
 - **5** — Motion is restrained but generic — opacity reveals, default easings. Reduced-motion respected.
-- **10** — One signature motion moment carries the page. Timing is tuned (not 0.3s everywhere). Easing is chosen (cubic-bezier, not `ease-in-out`). Scroll choreography has pacing.
+- **10** — One signature motion moment carries the page. Timing is tuned — durations sourced from DESIGN.md `motion.duration-*` extension tokens, never 0.3s everywhere. Easing is chosen and named (`motion.ease-standard` etc.), not `ease-in-out`. Scroll choreography paces against `scrollTriggers.*` tokens.
 
 ### 6. Accessibility
 
@@ -123,6 +123,7 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 - **No hedge scores**: 6/10 and 7/10 are different. Pick one. If you can't decide, look harder.
 - **Fixes, not observations**: every P0/P1 must include a concrete CSS snippet or content rewrite. "Improve contrast" is not a fix; `color: #595959` is.
 - **Don't recommend what you can't verify**: if you haven't checked it, say so rather than guess.
+- **Tokenized values trace**: every motion duration, shadow, aspect ratio, viewport height, container width, z-index, opacity, and scroll trigger in code must resolve to a DESIGN.md namespace (canonical or extension). Raw values authored ad-hoc in CSS/JS are anti-patterns — flag them. `/design-system audit-extensions` automates the check; see `skills/design-system/references/extended-tokens.md`.
 
 ## Relation to `anti-patterns.md`
 

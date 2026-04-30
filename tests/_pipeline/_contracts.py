@@ -69,6 +69,20 @@ CLUSTERS = {
         "design_md_token_groups": (
             "colors", "typography", "rounded", "spacing", "components",
         ),
+        # Extension namespaces — top-level YAML keys preserved-but-unvalidated
+        # by the Google CLI per design-md-spec.md. Components MUST NOT bind to
+        # these (the closed property-token set rejects them — empirical lint
+        # failure). Validated bidirectionally by /design-system audit-extensions.
+        "design_md_extension_namespaces": (
+            "motion", "shadows", "aspectRatios", "heights", "containers",
+            "breakpoints", "zIndex", "borderWidths", "opacity", "scrollTriggers",
+        ),
+        # The eight canonical component property tokens — the closed set.
+        # Anything outside this is rejected as an unknown property.
+        "design_md_canonical_property_tokens": (
+            "backgroundColor", "textColor", "typography", "rounded",
+            "padding", "size", "height", "width",
+        ),
     },
 }
 
