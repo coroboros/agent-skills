@@ -1,20 +1,52 @@
 # Spatial Organic
 
-The post-grid, dimensionally-aware aesthetic for 2026-2027. Fuses visionOS spatial depth, organic natural forms, and native web APIs. The counter-reaction to bento saturation, "blanding" minimalism, and heavy parallax.
+The post-grid, dimensionally-aware aesthetic for 2026–2027. Fuses visionOS spatial depth, organic natural forms, and native web APIs (View Transitions, Scroll-Driven Animations, WebGPU). The counter-reaction to bento saturation, blanding minimalism, and heavy parallax. The article's *Trends Shaping 2025–2030* section credentials the constituent moves (Liquid Glass, dark glassmorphism, organic shapes, procedural noise) but does not yet credential a single SOTM-tier reference site for the archetype as a whole. The archetype is forward-looking — it has trend evidence, not yet a canonical site.
 
-## Philosophy
+**Forward-archetype note.** Where the eight article-credentialed archetypes (Minimalist, Brutalist, Editorial, Bold/Maximal, Immersive, Experimental, Corporate Luxury, Bento) are anchored to specific SOTM-or-higher winners in the 2024–2026 window, Spatial Organic is anchored to the article's trend section and to emerging brands (Arc Browser, Granola, Apple Vision Pro). When a brief genuinely fits this archetype, expect the project itself to set the credentialed reference rather than copying one.
 
-Digital surfaces that feel physical and alive. Depth comes from z-axis layering, not flat shadows. Shapes flow instead of snapping to grids. Textures are procedural and animated, not static overlays. Technology serves tactility — WebGPU, View Transitions, and CSS Scroll-Driven Animations enable effects that were previously impossible or demanded heavy JS.
+## Reference brands
+
+- `arc.net` — Arc Browser. Frosted pastels, radial gradients, "frosted from 2035" character.
+- `granola.ai` — Granola. Warm cream glass, PP Editorial New serif, premium paper feel.
+- `apple.com/vision-pro` — Apple Vision Pro. Spatial-UI aesthetic, depth through blur and scale.
+- `linear.app/method` — Linear (2026 rebrand hints). Organic shapes appearing inside a disciplined grid.
+
+## DNA — non-negotiable
+
+- Depth comes from z-axis layering, not from flat decorative shadows
+- Shapes flow rather than snap to grids — soft `clip-path` curves, organic clip-paths, anti-grid layouts
+- Textures are procedural and animated, not static overlays — Canvas or WebGL noise, not PNG grain
+- Native web APIs (View Transitions, CSS Scroll-Driven Animations, WebGPU) drive effects that previously demanded heavy JS
+- Earthy and muted palette — never neon, never corporate blue. Colors feel found in nature
+
+The archetype keeps its identity across dark glassmorphism (Apple Vision Pro, deep dark with ambient orbs), warm cream glass (Granola), pastel-frosted (Arc), and editorial-organic (Linear's 2026 hints).
+
+## Common expressions
+
+Three stacks fit the DNA.
+
+### Dark glassmorphism — Apple Vision Pro / "Liquid Glass" profile
+
+Rich darks (`#0D1117`, `#111827`, deep forest `#0A1628`) with glass surfaces (`rgba(255,255,255,0.05)` with `backdrop-filter: blur(24px) saturate(1.2)`). Ambient OKLCH gradient orbs drift slowly behind glass surfaces (`opacity: 0.15–0.25`, large radius, 15–25s drift cycles). Apple's "Liquid Glass" announced at WWDC 2025 validates the approach. Ideal for premium AI products, spatial-computing brands, vision-tier hardware.
+
+### Warm cream glass — Granola profile
+
+Cream foundation (`#F8F5F0` to `#F5F1E8`) with paper-feel glass surfaces. PP Editorial New or similar premium serif at display. Subtle warm-tinted shadows. The "premium paper" register. Ideal for productivity tools with personality, knowledge work, premium DTC, lifestyle wellness.
+
+### Pastel-frosted — Arc Browser profile
+
+Mid-tone neutral foundation with frosted pastel gradient orbs (sage green `#87A98F`, terracotta `#C67D5B`, deep ocean `#1E3A5F`). Generous rounded geometry. Future-warmth atmosphere. Ideal for browser-tier UX, post-OS surfaces, identity-shifting products.
 
 ## Typography
 
-**Headlines**: Variable fonts animated on scroll/hover — Fragment, GT Flexa, or bespoke typefaces. Weight and width shift as the user scrolls, making type feel reactive and alive.
-**Body**: Rounded, warm sans-serifs — Outfit, General Sans, Satoshi — 16-18px, weight 400
-**Display technique**: Typography as hero element — oversized kinetic type functioning as the primary design element, not just communication
-**Cross-cultural**: "Lingua-Lettering" — unified visual rhythm across Latin, Arabic, CJK when applicable
+Variable fonts animated on scroll/hover serve the "alive" quality.
+
+- **Headlines**: Fragment, GT Flexa, Editorial New, PP Editorial New, bespoke typefaces — variable weight and width animated on scroll
+- **Body**: rounded warm sans-serifs — Outfit, General Sans, Satoshi — 16–18px, weight 400
+- **Display technique**: oversized kinetic type as primary design element, not just communication
+- **Cross-cultural**: "Lingua-Lettering" — unified visual rhythm across Latin, Arabic, CJK when applicable
 
 ```javascript
-// Variable font weight responds to scroll position
 gsap.to('.hero-title', {
   fontVariationSettings: "'wght' 800, 'wdth' 125",
   ease: 'none',
@@ -24,15 +56,13 @@ gsap.to('.hero-title', {
 
 ## Color
 
-| Role | Values |
-|------|--------|
-| Background | Rich darks: #0D1117, #111827, deep forest #0A1628 |
-| Text | Warm off-white #E8E4DF, cream #F0EDE8 |
-| Nature accents | Sage green #87A98F, terracotta #C67D5B, deep ocean #1E3A5F |
-| Ambient orbs | OKLCH gradient orbs — opacity 0.15-0.25, large radius, slow-moving |
-| Glass surfaces | rgba(255,255,255,0.05) with backdrop-blur 24px |
+Earthy and muted. Colors feel found in nature.
 
-**Palette strategy**: Earthy and muted — never neon, never corporate blue. Colors should feel found in nature, not picked from a design tool.
+- **Backgrounds**: rich darks `#0D1117`, `#111827`, deep forest `#0A1628`; warm creams `#F8F5F0`
+- **Text**: warm off-white `#E8E4DF`, cream `#F0EDE8`
+- **Nature accents**: sage green `#87A98F`, terracotta `#C67D5B`, deep ocean `#1E3A5F`
+- **Ambient orbs**: OKLCH gradient orbs at low opacity (`0.15–0.25`), large radius, slow-moving
+- **Glass surfaces**: `rgba(255,255,255,0.05)` with `backdrop-filter: blur(24px)`
 
 ```css
 :root {
@@ -46,16 +76,14 @@ gsap.to('.hero-title', {
 
 ## Layout
 
-Anti-grid. Flowing, organic positioning. Elements placed with intentional asymmetry, not mathematical regularity. Generous negative space creates breathing room. Soft `clip-path` curves instead of rectangular sections.
+Anti-grid. Flowing organic positioning. Generous negative space. Soft `clip-path` curves replace rectangular sections.
 
 ```css
-/* Organic section divider */
 .section-organic {
   clip-path: ellipse(80% 100% at 50% 0%);
   padding: clamp(6rem, 12vw, 14rem) clamp(2rem, 5vw, 8rem);
 }
 
-/* Flowing content with intentional offset */
 .organic-layout {
   display: grid;
   grid-template-columns: 1fr 2fr 1fr;
@@ -67,9 +95,9 @@ Anti-grid. Flowing, organic positioning. Elements placed with intentional asymme
 }
 ```
 
-## Dark Glassmorphism
+## Glass surfaces
 
-The "Liquid Glass" treatment — Apple WWDC 2025 validated glassmorphism as lasting. Glass over dark backgrounds with ambient gradient color orbs:
+The "Liquid Glass" treatment validated by Apple WWDC 2025. Glass over dark backgrounds with ambient gradient orbs.
 
 ```css
 .glass-card {
@@ -82,7 +110,6 @@ The "Liquid Glass" treatment — Apple WWDC 2025 validated glassmorphism as last
     0 20px 40px -15px rgba(0, 0, 0, 0.3);
 }
 
-/* Ambient gradient orbs behind glass surfaces */
 .ambient-orb {
   position: fixed;
   width: 40vw;
@@ -100,7 +127,11 @@ The "Liquid Glass" treatment — Apple WWDC 2025 validated glassmorphism as last
 }
 ```
 
-## Animation
+The Doppelrand technique (nested concentric containers — outer shell with hairline border, inner core with smaller radius and inner highlight) sharpens glass cards into "machined hardware" rather than flat tiles. See `premium-patterns.md`.
+
+**Performance lock**: `backdrop-filter` belongs only on fixed or sticky elements (navbars, modal overlays). Applying it to scrolling containers triggers continuous GPU repaints and collapses mobile frame rate. Ambient orbs sit on `position: fixed; pointer-events: none` layers — never on scrolling surfaces.
+
+## Motion
 
 Native-first. Browser APIs over JS libraries where possible.
 
@@ -114,7 +145,7 @@ Native-first. Browser APIs over JS libraries where possible.
 }
 @keyframes emerge {
   from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
-  to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
 }
 ```
 
@@ -126,7 +157,7 @@ Native-first. Browser APIs over JS libraries where possible.
 ::view-transition-new(root) { animation: fade-in 0.4s ease; }
 ```
 
-### Procedural noise/texture (Canvas or WebGL, never static PNG)
+### Procedural noise / texture (Canvas or WebGL, never static PNG)
 
 ```javascript
 const canvas = document.createElement('canvas');
@@ -136,28 +167,30 @@ function renderGrain() {
   for (let i = 0; i < imageData.data.length; i += 4) {
     const v = Math.random() * 20;
     imageData.data[i] = imageData.data[i+1] = imageData.data[i+2] = v;
-    imageData.data[i+3] = 12; // very subtle
+    imageData.data[i+3] = 12;
   }
   ctx.putImageData(imageData, 0, 0);
   requestAnimationFrame(renderGrain);
 }
 ```
 
+Procedural noise applies to a fixed `pointer-events: none` layer at high z-index, never to scrolling containers. Static PNG grain is the AI-tell version; procedural Canvas noise is the credentialed alternative.
+
 ### Motion philosophy
 
-Organic easing — nothing linear, nothing mechanical:
+Organic easing — nothing linear, nothing mechanical.
 
 ```css
 :root {
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-spring:   cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth:   cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 ```
 
 - Spring physics for interactive elements
-- Slow ambient motion (15-25s cycles) for background elements
-- Fast response (200-400ms) for user interactions
+- Slow ambient motion (15–25s cycles) for background orbs and drifts
+- Fast response (200–400ms) for user interactions
 - Blur transitions (`filter: blur(4px)` → `blur(0)`) for depth perception
 
 ## WebGPU (when 3D is needed)
@@ -167,19 +200,20 @@ Three.js r171+ with automatic WebGL fallback. TSL (Three Shading Language) for s
 ```javascript
 import { WebGPURenderer } from 'three/webgpu';
 const renderer = new WebGPURenderer({ antialias: true });
-// Falls back to WebGL automatically if WebGPU unavailable
 ```
 
-Use for: organic particle systems, noise-based terrain, flowing abstract shapes. Not for product showcases (use image/video).
+Use for: organic particle systems, noise-based terrain, flowing abstract shapes. Skip when image or video would carry the message at lower cost.
+
+## What makes it award-worthy
+
+A spatial-organic site scores 8+ when the depth feels physical rather than decorative — when glass surfaces refract instead of frost, when ambient orbs drift slowly enough to feel atmospheric rather than animated, when procedural noise breathes against the canvas. The technical depth (View Transitions, Scroll-Driven, WebGPU) signals developer sophistication; the organic restraint signals taste.
+
+The archetype loses identity when "spatial" becomes a backdrop-blur effect bolted onto a SaaS template, when the organic shapes are static SVG decorations rather than animated procedural elements, or when the dark glassmorphism fails WCAG 4.5:1 contrast (a common failure — the article flags glassmorphism for contrast violations explicitly).
 
 ## Ideal for
 
-Sustainability brands, wellness/health tech, post-2025 creative studios, premium direct-to-consumer, environmental organizations, artisan/craft brands, brands wanting premium warmth without corporate coldness.
+Sustainability brands, wellness and health tech, post-2025 creative studios, premium direct-to-consumer with story, environmental organizations, artisan and craft brands, knowledge-work productivity tools, AI products with warmth, brands wanting premium without corporate coldness.
 
-## What makes this archetype award-worthy
+## Cross-references
 
-1. **Novelty**: Post-bento, post-blanding — judges haven't seen hundreds of these yet
-2. **Technical depth**: Native APIs (View Transitions, Scroll-Driven, WebGPU) signal developer sophistication
-3. **Accessibility path**: CSS Scroll-Driven animations degrade gracefully; organic shapes don't require motion to communicate
-4. **Performance story**: Off-main-thread animations, procedural textures (no heavy asset downloads), variable fonts (one file)
-5. **The tension resolved**: Visual richness through depth and texture, not through weight and complexity
+Read alongside `foundations.md` (OKLCH, native scroll-driven animations, WebGPU framework selection), `premium-patterns.md` (Doppelrand nested architecture for glass cards), `production-hardening.md` (backdrop-filter scope, mobile performance), `anti-patterns.md` (glassmorphism contrast failures are common — test explicitly), `audit-rubric.md` (Color 9+, Motion 8+, Accessibility 8+ are entry bars), `exemplars.md` (Arc Browser, Granola, Apple Vision Pro, Linear).

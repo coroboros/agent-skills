@@ -306,30 +306,35 @@ Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recomme
 
 **Archetypes**
 
-| Archetype | Ideal for |
-|-----------|-----------|
-| Minimalist | SaaS, luxury, architecture, portfolios |
-| Brutalist | Creative agencies, indie tech, streetwear |
-| Editorial | Media, fashion, cultural institutions |
-| Bold / Maximal | Entertainment, music, Gen Z brands |
-| Immersive / Cinematic | Automotive, luxury, gaming, museums |
-| Experimental | Developer portfolios, art institutions |
-| Corporate Luxury | High-end fashion, hotels, jewelry, wealth |
-| Bento / Card | SaaS product pages, feature comparisons |
-| Spatial Organic | Sustainability brands, post-2025 creative studios |
+Each archetype is anchored to an article-credentialed canonical reference. The reference file splits DNA (non-negotiable identity, mood-agnostic) from common expressions (2–4 named stacks per archetype) so the same DNA admits multiple valid styles — Immersive can be cinematic-dark *or* editorial-portrait *or* daylight-automotive without losing identity.
+
+| Archetype | Canonical reference | Ideal for |
+|-----------|---------|-----------|
+| Minimalist | Terminal Industries (SOTM Sept 2025) | SaaS, luxury, architecture, portfolios |
+| Brutalist | FlowFest 2025 (SOTD July 2025) | Creative agencies, indie tech, festivals |
+| Editorial | Siena Film Foundation (SOTM April 2025) | Media, fashion, cultural institutions |
+| Bold / Maximal | Ponpon Mania (SOTM Oct 2025) | Entertainment, music, Gen Z brands |
+| Immersive / Cinematic | Lando Norris (Site of the Year 2025) | Automotive, luxury, gaming, athlete portfolios |
+| Experimental | Bruno Simon (SOTM Jan 2026) | Developer portfolios, art institutions |
+| Corporate Luxury | Cartier WAW 2025 (SOTM Aug 2025) | Fashion, hotels, jewelry, wealth, watchmaking |
+| Bento / Card | Anime.js v4 (SOTM May 2025) | SaaS product pages, AI products, feature comparisons |
+| Spatial Organic | *trend-credentialed (Arc, Granola)* | Sustainability, wellness, post-2025 creative studios |
 
 **Key features**
 
+- **DNA + common expressions** — each archetype reference splits non-negotiable identity from 2–4 named expressions (e.g., Immersive: cinematic-dark / editorial-portrait / daylight-automotive). Prevents force-fitting a single style lock onto an archetype that admits multiple valid expressions.
 - **Atmosphere Calibration** — Density, Variance, Motion scores (1–10) make design measurable
-- **Anti-AI tells** — axiomatic rejections (any hit is stop-and-fix) + full catalog of patterns that betray AI generation (visual, typography, layout, content, technical)
+- **Anti-AI tells** — 12 axiomatic rejections (any hit is stop-and-fix) + full catalog of patterns that betray AI generation (visual, typography, layout, content, technical)
+- **Premium patterns** — Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, perpetual-animation isolation, magnetic-physics performance lock
 - **Audit rubric** — quantitative 0–10 scoring across 7 dimensions (Hierarchy, Spacing, Typography, Color, Motion, Accessibility, Anti-slop) with P0/P1 punch list and CSS fixes
-- **Exemplars** — 2–4 real-world brand anchors per archetype (Linear, Hermès, Anthropic, Arc, Pitchfork, Bruno Simon…) shared during recommendation
+- **Exemplars** — canonical-from-article reference + 4–5 substitutable peers per archetype (Terminal, Lando, Siena, Bruno Simon, Cartier WAW, Anime.js, Ponpon, FlowFest…) shared during recommendation
 - **Archetype remixing** — arbitration framework for briefs that refuse a single archetype (parent DNA percentage, 7 arbitration rules, worked example)
 - **Brand extraction from URL** — `-u <url>` reverse-engineers a DESIGN.md observation from a live site as the archetype seed
-- **UX quality rules** — touch targets, safe areas, form behavior, animation precision (from Vercel Web Interface Guidelines)
+- **Production hardening** — iOS Safari + cross-browser shipping for video, scroll-driven cinematic, full-screen heroes (viewport units, autoplay belt-and-suspenders, scroll-restoration, fail-safe reveal logic)
+- **UX quality rules** — touch targets, safe areas, form behavior, animation precision
 - **Judging criteria** — Design 40%, Usability 30%, Creativity 20%, Content 10%
 - **Performance targets** — LCP < 1.5s, CLS < 0.05, INP < 100ms
-- **Modern stack** — OKLCH, Scroll-Driven Animations, View Transitions API, GSAP + Lenis, WebGPU
+- **Modern stack** — OKLCH, Scroll-Driven Animations, View Transitions API, GSAP + Lenis, WebGPU (Three.js r171+)
 - **Production hardening** — viewport units, cross-browser video autoplay, scroll-restoration, fail-safe reveal logic (loaded only for video/scroll projects)
 - **Visual review** — optional `dev-browser` CLI integration for screenshot-based iteration
 

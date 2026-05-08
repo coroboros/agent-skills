@@ -111,7 +111,3 @@ A remix produces a single DESIGN.md, not two. All sections are written as if the
 - An optional final section (after Do's and Don'ts) called **Parent DNA** that records the arbitration decisions for future maintainers. Unknown sections are preserved by the spec; they don't break `@google/design.md lint`.
 
 This section is for team memory, not agent instruction. The YAML tokens and prose still read like a single system — the agent shouldn't be deciding which parent to invoke at render time; that decision is frozen into the tokens.
-
-## Adapted from
-
-The arbitration framework is adapted from the `remix-two-brands` prompt in [`rohitg00/awesome-claude-design`](https://github.com/rohitg00/awesome-claude-design/blob/main/prompts/remix-two-brands.md) (MIT), retuned for archetypes rather than brand DESIGN.md files. See also the worked example `linear-x-claude.md` in that repo for a different style of remix (Editorial × Warm Editorial).

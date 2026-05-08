@@ -128,7 +128,3 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 ## Relation to `anti-patterns.md`
 
 `anti-patterns.md` is the binary catalog (present/absent). This rubric is the calibrated measurement. In practice: run `anti-patterns.md` first as a quick pre-flight — any axiomatic rejection triggers a stop-and-fix. Then score with this rubric for everything that passes the binary gate.
-
-## Adapted from
-
-Scoring format inspired by the `audit-live-site` prompt in [`rohitg00/awesome-claude-design`](https://github.com/rohitg00/awesome-claude-design/blob/main/prompts/audit-live-site.md) (MIT). Rescoped to the 7 dimensions that map to Awwwards judging criteria (Design, Usability, Creativity, Content).

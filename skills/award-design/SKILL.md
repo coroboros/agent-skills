@@ -10,11 +10,11 @@ metadata:
   author: coroboros
   sources:
     - github.com/coroboros/research/blob/main/articles/award-winning-websites-2025-2030/award-winning-websites-2025-2030.md
-    - github.com/vercel-labs/web-interface-guidelines
+    - github.com/Leonxlnx/taste-skill
+    - github.com/rohitg00/awesome-claude-design
     - github.com/google-labs-code/design.md
     - github.com/google-labs-code/stitch-skills
-    - github.com/leonxlnx/taste-skill
-    - github.com/rohitg00/awesome-claude-design
+    - github.com/vercel-labs/web-interface-guidelines
     - github.com/SawyerHood/dev-browser
 ---
 
@@ -26,27 +26,27 @@ Build websites that score 8+ on Awwwards. AI-generated designs are immediately r
 
 1. **Understand the brief**: What is being built? For whom? What must it communicate? What's the one thing someone will remember? If `-u <url>` was passed, read `references/brand-extraction.md` first and reverse-engineer a DESIGN.md observation from the live site — that observation seeds the archetype recommendation in step 2, it doesn't replace the brief.
 2. **Recommend an archetype**: Analyze the brief and recommend the single best archetype from the table below. Present it with:
-   - The archetype name and its signature trait
+   - The archetype name and its signature trait — defined by DNA, not by a single style lock. Each archetype carries 2–4 named common expressions in its reference file (e.g., Immersive splits into cinematic-dark / editorial-portrait / daylight-automotive). The user picks the expression that matches the brief.
    - Why it fits this brief specifically (not generic reasoning)
    - The default Density/Variance/Motion scores
    - **Ask the user to validate before proceeding.** Do not continue until confirmed.
    - If the user wants to explore alternatives, present all 9 archetypes as a compact list:
      - **Minimalist** — extreme whitespace, typography carries everything
-     - **Brutalist** — thick borders, flat colors, deliberate anti-polish
+     - **Brutalist** — typography is the design, deliberate anti-polish
      - **Editorial** — serif + sans-serif pairing, magazine grids, pull quotes
      - **Bold / Maximal** — organized chaos, kinetic typography as art
-     - **Immersive / Cinematic** — full-screen video, WebGL 3D, dark backgrounds
-     - **Experimental** — bespoke, no template, creative coding, mixed media
+     - **Immersive / Cinematic** — full-screen video, WebGL 3D, scroll as narrative
+     - **Experimental** — bespoke navigation metaphor, creative coding, no template
      - **Corporate Luxury** — quiet sophistication, custom serifs, generous whitespace
-     - **Bento / Card** — modular tiles, container queries, self-contained units
-     - **Spatial Organic** — dimensional depth, organic shapes, tactile textures
+     - **Bento / Card** — modular asymmetric tiles, self-contained units
+     - **Spatial Organic** — dimensional depth, organic shapes, tactile textures *(forward archetype — trend-credentialed, no SOTM-tier reference yet)*
    - The user is free to pick any archetype — the recommendation is guidance, not a constraint.
    - See `references/exemplars.md` for 2–4 real-world brands per archetype. Share 2–3 alongside the recommendation — exemplars travel faster than prose and give the user a concrete "that feel" to react to.
 3. **Read archetype reference**: Once the archetype is confirmed, read its reference file from the table below.
 4. **Calibrate atmosphere**: Set Density, Variance, and Motion scores using the Atmosphere Calibration table. Adjust ±2 from defaults based on the brief. Present the calibrated scores to the user for validation.
 5. **Load foundations**: Read `references/foundations.md` for cross-cutting technical implementation (typography systems, color theory, animation toolkit, performance, UX quality, accessibility).
 6. **Produce DESIGN.md**: If the project has no `DESIGN.md`, create one following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter with design tokens (`colors`, `typography`, `rounded`, `spacing`, `components`) plus eight ordered prose sections (Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts). Record the calibrated atmosphere scores as prose in the Overview section — the spec does not define atmosphere tokens. If the `/design-system` skill is installed, follow its `references/design-md-spec.md` and the example files for shape; otherwise, the sections listed in the archetype reference files cover the same ground. **Extension boundary** — beyond the canonical 5 namespaces, top-level extension namespaces are spec-blessed and required at award-grade register: `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` (full namespace × prose-section map below). **Components bind ONLY to the 8 canonical property tokens** (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — extension tokens are referenced canonically in prose, never as `components:` keys (the empirical lint-failure mode). **Two-stage validation pipeline** — both must exit 0 before shipping: (a) `/design-system audit DESIGN.md` (preferred — human-readable report with fix proposals per finding) catches broken token references (`broken-ref`) and contrast violations below WCAG AA; fall back to `npx @google/design.md lint DESIGN.md` if `/design-system` is unavailable; (b) `/design-system audit-extensions DESIGN.md` is the bidirectional drift check between YAML extensions, prose references, and the `globals.css` `@theme` mirror — extensions are preserved-but-unvalidated by the Google CLI, this subcommand closes the loop. If the user hands you an existing legacy DESIGN.md with the Stitch 9-section format, recommend `/design-system migrate <path>` first to port it, then resume. Every applicable section must be complete — the `/design-system` skill governs this file for all future UI changes, and incomplete sections create token gaps that agents fill with defaults. Full extension convention: `skills/design-system/references/extended-tokens.md`.
-7. **Design with intent**: Every visual choice serves communication. One signature unforgettable moment outperforms scattered effects everywhere.
+7. **Design with intent**: Every visual choice serves communication. One signature unforgettable moment outperforms scattered effects everywhere. For concrete component techniques (Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, performance locks for perpetual animation), read `references/premium-patterns.md`. These cross-cutting patterns lift Hierarchy and Spacing audit scores by 1–2 points each and apply across archetypes — particularly Corporate Luxury, Spatial Organic, Bento (motion-engine variant), and Bold/Maximal.
 8. **Production hardening**: When implementation touches video, scroll-driven cinematic reveals, or full-screen heroes on mobile browsers, read `references/production-hardening.md`. Most patterns are cross-browser (viewport units, scroll-restoration, autoplay belt-and-suspenders, fail-safe reveal logic, proportional layout) with iOS Safari flagged as the sharpest test case. Each section states its scope — genuinely iOS-only rules are marked. Skip if the project is desktop-only with no video or scroll choreography.
 9. **Validate**: Read `references/anti-patterns.md` and check the design against it — axiomatic rejections first (any hit is stop-and-fix), then AI tells, performance failures, UX anti-patterns. Cross-check `references/foundations.md` UX Quality and Accessibility sections. For a calibrated score with an actionable punch list, run `references/audit-rubric.md` (7 categories, 0–10 each, P0/P1 fixes with CSS snippets). Verify against the judging criteria below.
 10. **Visual review** *(optional)*: If `dev-browser` CLI is available, screenshot key states (hero, mobile, signature interaction, dark mode) and iterate. If not available, suggest installing it from `https://github.com/SawyerHood/dev-browser` — the skill works without it, but visual verification catches issues that code review alone misses.
@@ -112,11 +112,11 @@ colors:
   surface: "#f7f5f1"
 components:
   modal:
-    backgroundColor: "{colors.surface}"   # ✅ canonical property token
+    backgroundColor: "{colors.surface}"   # canonical property token — accepted
     rounded: "{rounded.md}"
     padding: 32px
-    # ❌ NEVER add `shadow: "{shadows.lifted}"` — `shadow` is not in the 8;
-    # the lint rejects unknown component properties.
+    # `shadow: "{shadows.lifted}"` would be rejected — `shadow` is not in the 8
+    # canonical property tokens; the lint flags unknown component properties.
 motion:
   duration-reveal-slow: 1200ms
   ease-standard: cubic-bezier(0.16, 1, 0.3, 1)
@@ -144,17 +144,19 @@ The mirror in `globals.css` (auto-generated by `/design-system export tailwind`)
 
 ## Archetype Selector
 
-| Archetype | Signature | Ideal for | Reference |
-|-----------|-----------|-----------|-----------|
-| **Minimalist** | Extreme whitespace, 2-3 colors, typography carries everything | SaaS, luxury, architecture, portfolios | `references/minimalist.md` |
-| **Brutalist** | Thick borders, flat colors, deliberate anti-polish | Creative agencies, indie tech, streetwear | `references/brutalist.md` |
-| **Editorial** | Serif + sans-serif pairing, magazine grids, pull quotes | Media, fashion, cultural institutions | `references/editorial.md` |
-| **Bold / Maximal** | Organized chaos, 4-6+ colors, kinetic typography as art | Entertainment, music, Gen Z brands | `references/bold-maximal.md` |
-| **Immersive / Cinematic** | Full-screen video, WebGL 3D, dark backgrounds | Automotive, luxury, gaming, museums | `references/immersive-cinematic.md` + `references/production-hardening.md` |
-| **Experimental** | Bespoke, no template, creative coding, mixed media | Developer portfolios, art institutions | `references/experimental.md` |
-| **Corporate Luxury** | Quiet sophistication, custom serifs, generous whitespace | High-end fashion, hotels, jewelry, wealth | `references/corporate-luxury.md` |
-| **Bento / Card** | Modular tiles, container queries, self-contained units | SaaS product pages, feature comparisons | `references/bento-card.md` |
-| **Spatial Organic** | Dimensional depth, organic shapes, tactile textures, native APIs | Sustainability brands, post-2025 creative studios | `references/spatial-organic.md` |
+| Archetype | Canonical reference (article-credentialed) | Signature | Ideal for | Reference |
+|-----------|---------|-----------|-----------|-----------|
+| **Minimalist** | Terminal Industries (SOTM Sept 2025) | Two to three colors max, typography carries everything | SaaS, luxury, architecture, portfolios | `references/minimalist.md` |
+| **Brutalist** | FlowFest 2025 (SOTD July 2025) | Typography is the design, deliberate anti-polish | Creative agencies, indie tech, streetwear, festivals | `references/brutalist.md` |
+| **Editorial** | Siena Film Foundation (SOTM April 2025) | Serif + sans-serif pairing, magazine grids, reading-first | Media, fashion, cultural institutions, film foundations | `references/editorial.md` |
+| **Bold / Maximal** | Ponpon Mania (SOTM Oct 2025) | Organized chaos, 4–6 saturated colors, kinetic type as art | Entertainment, music, Gen Z brands, comic narratives | `references/bold-maximal.md` |
+| **Immersive / Cinematic** | Lando Norris (Site of the Year 2025) | Full-screen 3D / video, scroll as narrative — dark, cream, or daylight | Automotive, luxury, gaming, museums, athlete portfolios | `references/immersive-cinematic.md` + `references/production-hardening.md` |
+| **Experimental** | Bruno Simon (SOTM Jan 2026) | Bespoke navigation metaphor, hand-coded primitives | Developer portfolios, art institutions, conferences | `references/experimental.md` |
+| **Corporate Luxury** | Cartier WAW 2025 (SOTM Aug 2025) | Quiet sophistication, custom serifs, generous whitespace | High-end fashion, hotels, jewelry, wealth, watchmaking | `references/corporate-luxury.md` |
+| **Bento / Card** | Anime.js v4 (SOTM May 2025) | Modular asymmetric tiles, self-contained units | SaaS product pages, feature comparisons, AI products | `references/bento-card.md` |
+| **Spatial Organic** | *trend-credentialed (Arc, Granola)* | Dimensional depth, organic shapes, tactile textures, native APIs | Sustainability, wellness, post-2025 creative studios | `references/spatial-organic.md` |
+
+**Each archetype reference is structured as:** DNA (non-negotiable identity, mood-agnostic), Common expressions (2–4 named stacks — pick the one matching brand voice), Typography / Color / Layout / Motion specifics, What makes it award-worthy, Cross-references. The split prevents force-fitting a single style lock onto an archetype that admits multiple valid expressions.
 
 **Selection guide**: Match the archetype to the brand's personality, not to what's trending. A luxury hotel should never be brutalist. A creative agency should never be generic minimalist. When in doubt, the brief's tone decides.
 
@@ -208,7 +210,8 @@ After selecting an archetype, calibrating atmosphere, and reading its reference:
 1. Establish the design system first (CSS custom properties: typography scale, color palette, spacing tokens)
 2. Build mobile-first, then enhance for desktop
 3. Apply UX quality rules from foundations (touch targets, safe areas, form behavior, deep-linking)
-4. Add animation last — choreograph deliberately, don't scatter. Check Motion score before adding effects
-5. The one-interaction test: if you remove all but one animation, which one stays? That's your signature moment
-6. Validate: Lighthouse 90+ on Performance and Accessibility, test on mid-range devices
-7. If `dev-browser` is available: screenshot hero, mobile viewport, and signature interaction — compare against archetype expectations and iterate
+4. Apply premium component patterns (`premium-patterns.md`) where relevant — Doppelrand for cards, Button-in-Button for primary CTAs, eyebrow tags above section headlines, hero 2-line iron rule for the H1, mobile-collapse mandates for asymmetric layouts above `md`
+5. Add animation last — choreograph deliberately, don't scatter. Check Motion score before adding effects. Memoize and isolate any perpetual animations per `premium-patterns.md` performance locks
+6. The one-interaction test: if you remove all but one animation, which one stays? That's your signature moment
+7. Validate: Lighthouse 90+ on Performance and Accessibility, test on mid-range devices. Mobile viewports 375px / 414px / 768px must hold without horizontal scroll
+8. If `dev-browser` is available: screenshot hero, mobile viewport, and signature interaction — compare against archetype expectations and iterate

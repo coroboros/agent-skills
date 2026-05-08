@@ -32,6 +32,7 @@ CROSS_CUTTING = [
     "brand-extraction.md",
     "exemplars.md",
     "foundations.md",
+    "premium-patterns.md",
     "production-hardening.md",
     "remixing.md",
 ]
