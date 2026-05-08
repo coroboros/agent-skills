@@ -12,7 +12,15 @@ REFS = SKILL_DIR / "references"
 SKILL_MD = SKILL_DIR / "SKILL.md"
 
 
-# Stable archetype identifiers (kebab-case file stems)
+# Stable archetype identifiers (kebab-case file stems).
+#
+# IMPORTANT — cross-skill duplication: this list is mirrored in
+# `skills/design-system/references/subcommand-init.md` (the kebab-case slug
+# enumeration in the "On archetype flavors" section). When adding, removing,
+# or renaming an archetype here, update that file in the same PR. The two
+# skills form a contract — `award-design` produces a DESIGN.md, `design-system`
+# governs it — and `init` needs to know which slugs are valid without loading
+# the `award-design` selector table.
 ARCHETYPES = [
     "minimalist",
     "brutalist",
