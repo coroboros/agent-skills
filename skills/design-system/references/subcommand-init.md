@@ -5,9 +5,9 @@ Scaffold a minimal valid DESIGN.md from scratch. Fallback path for projects wher
 ## Invocation
 
 ```bash
-/design-system init                          # generic minimal template at ./DESIGN.md
-/design-system init minimalist               # Minimalist archetype starter
-/design-system init bento -o docs/DESIGN.md  # custom path
+/design-system init                              # generic minimal template at ./DESIGN.md
+/design-system init minimalist                   # Minimalist archetype starter
+/design-system init bento-card -o docs/DESIGN.md # custom path
 ```
 
 ## Flags
@@ -129,7 +129,7 @@ The template is intentionally sparse — enough to lint green with info-level fi
 
 ## On archetype flavors
 
-`init` ships only the generic template above. Archetype-flavored starters — Minimalist, Brutalist, Editorial, Bold, Cinematic, Experimental, Corporate Luxury, Bento, Spatial Organic — are `/award-design`'s job. That skill already has per-archetype reference files, atmosphere calibration, and brief-aware prose; duplicating its templating here would drift over time.
+`init` ships only the generic template above. Archetype-flavored starters — Minimalist, Brutalist, Editorial, Bold / Maximal, Immersive / Cinematic, Experimental, Corporate Luxury, Bento / Card, Spatial Organic — are `/award-design`'s job. The accepted kebab-case slugs are `minimalist`, `brutalist`, `editorial`, `bold-maximal`, `immersive-cinematic`, `experimental`, `corporate-luxury`, `bento-card`, `spatial-organic`. That skill already has per-archetype reference files, atmosphere calibration, and brief-aware prose; duplicating its templating here would drift over time.
 
 If a user runs `/design-system init <archetype>`, treat the archetype argument as a hint and recommend the richer path:
 
