@@ -99,7 +99,3 @@ If the user's intent is "give me a DESIGN.md that captures site X so I can use i
 > Extracted from <URL> on <date>. Observed values only — no invented tokens. Brands belong to their respective owners; this DESIGN.md is for design analysis and inspiration.
 
 The user chooses which workflow to follow — clarify if the intent isn't obvious from the original invocation.
-
-## Adapted from
-
-The inspection checklist and "observe, don't invent" discipline are adapted from the `brand-to-design-md` prompt in [`rohitg00/awesome-claude-design`](https://github.com/rohitg00/awesome-claude-design/blob/main/prompts/brand-to-design-md.md) (MIT).

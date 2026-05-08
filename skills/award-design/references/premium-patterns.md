@@ -2,8 +2,6 @@
 
 A library of concrete component techniques that lift a design from "template with nice fonts" to agency-tier execution. Each pattern is implementation-ready and traces to a specific failure mode it solves. Cross-cutting across archetypes — load this when component architecture matters.
 
-The patterns originate from the `Leonxlnx/taste-skill` library (Awwwards-tier UI generation) and have been adapted to align with the canonical Awwwards-FWA-CSSDA reference article and the Google DESIGN.md token system.
-
 ## When to load this
 
 - During step 6 of the workflow (Produce DESIGN.md) — these patterns inform component definitions
@@ -250,7 +248,3 @@ Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96p
 ## Cross-references
 
 Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit), `production-hardening.md` (mobile performance, iOS Safari traps), `audit-rubric.md` (these patterns lift Hierarchy and Spacing scores by 1–2 points each), `anti-patterns.md` (each pattern here solves a specific anti-pattern).
-
-## Source
-
-Patterns adapted from `github.com/Leonxlnx/taste-skill` (taste-skill, soft-skill, gpt-tasteskill, brutalist-skill — MIT). Calibrated against the article's anti-pattern section and aligned to the Google DESIGN.md token namespaces.

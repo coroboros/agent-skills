@@ -121,9 +121,3 @@ Dimensional depth, organic shapes, tactile textures. Post-bento, post-blanding �
 | Granola | granola.ai | Warm cream glass, PP Editorial New serif, premium paper feel |
 | Apple Vision Pro | apple.com/vision-pro | Spatial-UI aesthetic, depth through blur and scale |
 | Linear (2026 rebrand hints) | linear.app/method | Organic shapes appearing inside a disciplined grid |
-
-## Attribution
-
-Many exemplars are adapted from [`rohitg00/awesome-claude-design`](https://github.com/rohitg00/awesome-claude-design) (MIT) — an aesthetic-family catalog of real-world DESIGN.md references. Their family taxonomy ("Editorial Minimalism", "Warm Editorial", "Glass / Soft-Futurism", …) is complementary to this skill's archetype system — families describe visual character with exemplars, archetypes describe design intent with atmosphere calibration. When you need a quick visual anchor for a user, cross-check here. When you need to lock design decisions, use the archetype + atmosphere scores.
-
-Other exemplars (Apple, Hermès, Bruno Simon, Active Theory, The New Yorker, etc.) are common-knowledge references curated for this skill.
