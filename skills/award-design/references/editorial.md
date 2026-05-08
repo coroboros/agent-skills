@@ -1,30 +1,67 @@
 # Editorial / Magazine
 
-Serif headlines over sans-serif body. Multi-column grids, pull quotes, and full-bleed imagery. The web as print.
+The web as print. Multi-column grids, asymmetric measure, pull quotes breaking flow. The defining characteristic is the serif-meets-sans pairing — a high-contrast typographic dialogue that signals reading-first hierarchy. Photography and illustration earn full bleeds; text retains its measure.
+
+## Canonical reference — Siena Film Foundation
+
+**Site.** Siena Film Foundation
+**URL.** `siena.film`
+**Award.** Awwwards Site of the Month, April 2025
+**Studio.** Undisclosed in the public Awwwards entry.
+
+The strongest editorial reference in the 2024–2026 window. Awwwards' own case study describes its design as editorial typography in a minimalist filmic structure. Grotesque-serif voice, cinematic filmstrip slider, vintage-poster type, dual-menu editorial navigation, parallax photo-driven storytelling. Translates the magazine grammar of a print monograph into the browser more cleanly than any 2025 SOTY contender. Substitutable peers: `anthropic.com` (terracotta-on-cream warm editorial), `newyorker.com` (canonical magazine grammar), `substack.com` (writer-centric warm editorial).
+
+## DNA — non-negotiable
+
+- High-contrast serif headline paired with sans-serif body — the typographic dialogue carries the archetype
+- Multi-column grid (six to twelve columns) with asymmetric column widths
+- Pull quotes break flow; full-bleed imagery alternates with text-heavy sections
+- Reading-first measure protected at all sizes — body copy holds 60–75 characters per line
+- Image treatment is high-contrast B&W, duotone, or desaturated with one accent — photography is treated, never raw
+
+The archetype keeps its identity across light editorial (NYT, Substack, Anthropic), dark cinematic poster (Siena Film), warm cream (Hermès magazine pages), and high-density grid (Pitchfork-adjacent zines). Background register is an expression choice, not a definition.
+
+## Common expressions
+
+Three stacks fit the DNA. Pick the one matching brand voice and content type.
+
+### Light editorial — NYTimes / Substack / Anthropic profile
+
+Off-white or warm cream foundation (`#FFFFFF` to `#F8F5F0`). Body sits in deep charcoal (`#111111` or `#2F3437`); secondary text in warm gray (`#787774`). Restrained accents — terracotta, deep red, ink black, navy. Hairline dividers (`#EAEAEA`) separate sections. Photography is high-contrast B&W or desaturated color. Ideal for media and publishing, long-form storytelling, writer platforms, premium content sites.
+
+### Dark cinematic poster — Siena Film profile
+
+Near-black foundation (`#0A0A0A` to `#141413`) with cream off-white type, vintage-poster typography overlaid on cinematic film stills, serif-grotesque mixing, ticket-stub or filmstrip metaphors as structural elements. 5-star rating chrome, dual-menu editorial navigation. Ideal for cultural institutions, film foundations, festivals, music labels with editorial gravity.
+
+### Warm magazine — fashion / lifestyle profile
+
+Cream backgrounds (`#F8F5F0`, `#FAF7F0`) with warm photography, GT Sectra or Editorial New at 60–120px, generous gutters, Burberry-style serif return. Mixed serif-sans pairings, monospace metadata for credits and dates. Ideal for fashion editorial, luxury e-commerce with story content, lifestyle brands, coffee-table-book digital companions.
 
 ## Typography
 
-**Headlines**: GT Sectra, Playfair Display, Editorial New, GT Super — 60-120px, weight 600-700
-**Body**: Inter, Neue Haas Grotesk, ABC Diatype — 16-18px, weight 400, line-height 1.6
-**Pull quotes**: Headline serif at xl size, italic, with border-left accent
-**Metadata**: Monospace (Geist Mono, JetBrains Mono) for dates, categories, reading time
-**Pairing**: High-contrast serif/sans-serif — the defining characteristic of this archetype
+The pairing is the design.
 
-Serifs are making a strong comeback in 2025-2026 (Burberry's return to serif signaled the broader shift).
+- **Display serif**: GT Sectra, Playfair Display, Editorial New, GT Super, Tiempos Headline — 60–120px, weight 600–700, tight tracking (`-0.02em` to `-0.04em`), tight leading (`1.05`–`1.1`)
+- **Body sans**: Inter, Neue Haas Grotesk, ABC Diatype, PP Neue Montreal — 16–18px, weight 400, line-height 1.6
+- **Pull quote**: display serif at xl size, italic, with `border-left` accent rule
+- **Metadata** (dates, categories, reading time, credits): monospace (Geist Mono, JetBrains Mono, IBM Plex Mono) at 11–14px, uppercase, wide tracking (`0.05em`)
+- **Drop caps and small caps**: variable-font opentype features (`ss01`, `smcp`) where the typeface supports them
+
+Serifs returned hard in 2025–2026. Burberry's switch back to serif signaled the broader shift.
 
 ## Color
 
-| Role | Values |
-|------|--------|
-| Background | #FFFFFF or warm off-white #F8F5F0 |
-| Text | Off-black #111111 (primary), warm gray #787774 (secondary) |
-| Accent | Restrained: deep red #8B0000, navy #1B365D, or ink black |
-| Dividers | Ultra-light #EAEAEA, hairline rules |
-| Image treatment | High-contrast B&W, duotone, or desaturation with one accent color |
+Background spans three families per stack:
+
+- **Light editorial**: `#FFFFFF` or warm cream `#F8F5F0` to `#FAF7F0`
+- **Dark cinematic poster**: near-black `#0A0A0A` to `#141413`
+- **Warm magazine**: cream `#F8F5F0` to `#FAF7F0` with warm photography overlays
+
+Text colors map to background — off-black on cream, off-white on dark. Accents stay restrained — deep red (`#8B0000`), navy (`#1B365D`), ink black, terracotta (`#C67D5B`). One accent per article, never two competing. Image treatment is B&W, duotone, or desaturation — full-color photography belongs to other archetypes.
 
 ## Layout
 
-6-12 column grids with asymmetric column widths. Pull quotes break the flow. Full-bleed heroes alternate with text-heavy sections.
+Six to twelve column grids with asymmetric widths. Pull quotes break flow at columns 3–11. Full-bleed images escape the measure entirely.
 
 ```css
 .editorial-layout {
@@ -44,18 +81,45 @@ Serifs are making a strong comeback in 2025-2026 (Burberry's return to serif sig
 .full-bleed-image { grid-column: 1 / -1; }
 ```
 
-## Animation
+Container widths bind to `containers.read-measure` (~65ch for body) and `containers.editorial-page` (~1280–1440px max). Column counts shift through `breakpoints.*`. CSS Subgrid keeps card titles and timestamps aligned across rows.
 
-Understated and content-respectful:
+## Motion
 
-- Gentle scroll reveals (opacity + translateY 12px, 0.6-0.8s, `cubic-bezier(0.16, 1, 0.3, 1)`)
-- Image reveals via clip-path
-- Subtle parallax on images only (5-10% differential)
-- Page transitions via View Transitions API (morph article thumbnails into heroes)
-- Staggered list reveals (80ms cascade delay)
+Understated, content-respectful, never competes with reading.
 
-**Forbidden**: Kinetic type on body text, scroll hijacking, heavy WebGL, anything that competes with reading.
+- Scroll reveals: opacity + `translateY(12px)`, 0.6–0.8s, `cubic-bezier(0.16, 1, 0.3, 1)`
+- Image clip-path reveals on full-bleed entries
+- Subtle parallax (5–10% differential) on hero photography only
+- View Transitions API for thumbnail-to-hero morphs at navigation
+- Staggered list reveals (80ms cascade) on article indexes
+
+```javascript
+SplitText.create(".article-headline", {
+  type: "lines, words",
+  mask: "lines",
+  autoSplit: true,
+  onSplit(self) {
+    return gsap.from(self.words, {
+      y: 40, autoAlpha: 0, stagger: 0.05,
+      duration: 0.8, ease: "power3.out",
+      scrollTrigger: { trigger: self.elements[0], start: "top 80%" }
+    });
+  }
+});
+```
+
+Durations and easings pull from `motion.duration-*` and `motion.ease-*` extension tokens. Long-form articles benefit from `view-transition-name` on hero images for thumbnail-to-hero morphs at click.
+
+## What makes it award-worthy
+
+An editorial site scores 8+ when the typographic dialogue feels intentional — every serif weight, every tracking value, every gutter resolved through the same hand. When the multi-column grid breaks for a pull quote and the break feels surprising rather than mechanical. When photography is treated, framed, and paced so the reader's eye moves through the article like a ribbon. Siena succeeds because the filmstrip slider is editorial pacing, not decoration.
+
+The archetype loses identity when serif is bolted onto a generic landing page (it reads as costume), when body measure exceeds 75 characters (reading collapses), or when image treatment is forgotten and stock photography sneaks in (signals generic thinking — single fastest way to fail per Awwwards judge feedback).
 
 ## Ideal for
 
-Media and publishing, fashion brands, cultural institutions, luxury e-commerce, long-form storytelling, online magazines.
+Media and publishing, fashion brands with story-driven commerce, cultural institutions, film foundations and festivals, luxury e-commerce with editorial integration, long-form storytelling, online magazines, writer platforms, gallery websites.
+
+## Cross-references
+
+Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit), `anti-patterns.md` (no `<div>`-button soup, no stock photography, no centered-hero-with-generic-headline template), `audit-rubric.md` (Typography 8+ is the entry bar in this archetype), `exemplars.md` (Anthropic, Substack, The New Yorker, Notion).

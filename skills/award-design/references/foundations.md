@@ -208,6 +208,10 @@ Scoped transitions (Chrome 140+), React `<ViewTransition />` integration.
 
 `animation-trigger` (Chrome 145) enables scroll-triggered time-based animations.
 
+## Premium component patterns
+
+Concrete component techniques (Doppelrand nested architecture, Button-in-Button trailing icon, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, perpetual-animation isolation, magnetic-physics performance lock, backdrop-filter scope, grain-overlay isolation) live in `premium-patterns.md`. Load that reference when component architecture matters — particularly for Corporate Luxury, Spatial Organic, Bento (motion-engine variant), and Bold/Maximal projects. The patterns lift Hierarchy and Spacing audit scores by 1–2 points each and apply across archetypes.
+
 ### Micro-interactions
 
 **Inline image typography** (hero signature technique):
