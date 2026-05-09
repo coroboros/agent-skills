@@ -5,8 +5,8 @@
     "email": "ob@coroboros.com"
   },
   "metadata": {
-    "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code tooling, media, and writing",
-    "version": "1.14.0"
+    "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code meta, media, and writing",
+    "version": "1.14.1"
   },
   "plugins": [
     {
