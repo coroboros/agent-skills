@@ -74,6 +74,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points | Claude |
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
+| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts — TRACK.md / optional ALBUM.md / optional MUSIC.md, multi-type validator | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
@@ -526,10 +527,10 @@ Expert guidance for creating, configuring, and orchestrating Claude Code subagen
 
 ### Media Skills
 
-Media conversion and polishing — `video-loop`, `audio-loop`, `markitdown`.
+Media conversion, polishing, and production — `video-loop`, `audio-loop`, `suno-produce`, `markitdown`.
 
 <details>
-<summary><em>Expand — video-loop · audio-loop · markitdown</em></summary>
+<summary><em>Expand — video-loop · audio-loop · suno-produce · markitdown</em></summary>
 
 <br>
 
@@ -634,6 +635,78 @@ Ships with `references/scroll-tied-pattern.md` documenting the multiplicative fa
 
 - [FFmpeg](https://ffmpeg.org) — the audio pipeline this skill orchestrates
 - [MDN Web Audio API](https://developer.mozilla.org/docs/Web/API/Web_Audio_API) — `AudioContext`, `AudioBufferSourceNode`, `GainNode` reference
+
+---
+
+#### suno-produce
+
+Turn a music brief into Suno v5.5-ready prompt artifacts. Artifact-emit-only — the user copy-pastes the prompt block into Suno's Web/iOS/Android UI, listens, then iterates via `revise`. No API integration (Suno has no official public API; reverse-engineered wrappers are degrading — PiAPI dropped V5, the WMG settlement signals tighter enforcement).
+
+Three artifact tiers, scaffolded progressively:
+
+- **TRACK.md** — always emitted. The unit of Suno generation: copy-paste-ready Style of Music + Lyrics + Exclude Styles + Sliders, plus rationale and iteration log.
+- **ALBUM.md** — emitted only when album mode is detected from the brief. Holds concept, arc, tracklist with BPM/key flow, transitions.
+- **MUSIC.md** — optional artist-identity layer, **artist-scoped** (one file referenced from many album folders via `-f`). Declares Voice profile, Custom Model, recurring instrumentation, rights/compliance posture.
+
+**Usage**
+
+```bash
+/suno-produce indie folk track about a long winter
+/suno-produce melodic-trap EP about leaving home
+/suno-produce -f ~/artists/studio-a/MUSIC.md cinematic single
+/suno-produce revise tracks/01-midnight-letter "chorus too dry, vocals washed out"
+/suno-produce validate projects/quiet-rooms/
+```
+
+**Subcommands**
+
+| Subcommand | Purpose |
+|------------|---------|
+| `create` (default) | Synthesise TRACK.md from brief; ALBUM.md when multi-track; reads bound MUSIC.md if `-f` |
+| `revise <path> "<feedback>"` | Archive current TRACK.md to `versions/v{N+1}.md`, emit refined TRACK.md |
+| `validate <path>` (aliases `lint`, `check`) | Run multi-type linter — TRACK.md / ALBUM.md / MUSIC.md, auto-dispatch by filename |
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-f <path/to/MUSIC.md>` | Bind the artifact to an artist identity (Voice / Custom Model / instrumentation defaults flow in) |
+
+**What it does**
+
+1. Detects album mode from brief language (`EP`, `album`, `4-track`, …) and confirms before scaffolding
+2. Auto-detects "sufficiently specified" — skips the AskUserQuestion interview when the brief covers ≥ 3 of: genre, mood, vocal direction, length, references
+3. Synthesises Style of Music (4–7 descriptors, 5 classes), Lyrics (Tier 1 bracket metatags, parenthetical performance cues), Exclude Styles (cap 3), Sliders (per-genre defaults from the operator reference)
+4. Adjusts for Voice / Custom Model — drops vocal descriptors and redundant style cues; raises Audio Influence to 70–90%
+5. Validates every write through `scripts/validate.py` — RED never reaches disk
+6. Archives prior takes under `versions/v{N}.md` on `revise`; keeps the audio takes (`audio/`) gitignored
+
+**Validator (multi-type)**
+
+`scripts/validate.py` auto-dispatches by filename and runs the matching check set. Verdicts: GREEN (zero issues), YELLOW (warnings only), RED (errors — blocks the write). Exit codes: 0 / 2 / 1.
+
+| Artifact | RED checks | YELLOW checks |
+|----------|-----------|---------------|
+| TRACK.md | Style/Lyrics/Title length, slider out of range, BPM in Lyrics, SFX bracket | descriptor count, genre count, conflicting eras, Tier 3 brackets, voice/style conflict, exclude > 3 |
+| ALBUM.md | invalid release_format, missing Concept/Arc/Tracklist/Transitions, track_count mismatch | arc-label missing, malformed tracklist line, bad ISO date |
+| MUSIC.md | voice_profile without voice_consent, slider_bias out of range, missing required sections, empty artist | bad consent format, custom_model without training-set posture, bad rights_posture |
+
+**Bundled references**
+
+- `references/style-and-lyrics.md` — descriptor stack, bracket metatag canon, lyric flow, languages, SFX warning, consolidated pitfalls
+- `references/sliders-and-personalization.md` — three sliders, voice-aware prompting, custom-model-aware prompting
+- `references/genre-templates.md` — 8 copy-paste recipes (cinematic, melodic techno, melodic trap, alt rock, ambient drone, indie pop, ritual industrial, lo-fi hip-hop)
+- `references/track-schema.md` — TRACK / ALBUM / MUSIC schemas with worked example
+- `references/rights-and-deprecation.md` — WMG settlement, copyright vesting (license, not vested rights), voice-cloning consent, v6 deprecation cliff
+
+Loaded on-demand per Pattern 2 (domain-specific organisation) from Anthropic's [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+
+**Sources**
+
+- [Coroboros Research — Suno v5.5 Operator Reference](https://github.com/coroboros/research/blob/main/articles/suno-v5-5-operator-reference.md) — the canonical operator reference distilled into the bundled refs
+- [Suno v5.5 release post](https://suno.com/blog/v5-5) and [help center](https://help.suno.com) — official documentation
+- [Spidy88/suno-claude-skill](https://github.com/Spidy88/suno-claude-skill) — community schema convergence (Title / Style / Lyrics / Sliders / Tips)
+- [Blake Crosley — Suno V5.5 reference](https://blakecrosley.com/guides/suno) and [Stoke McToke — Suno meta tags guide](https://stokemctoke.com/the-complete-suno-ai-meta-tags-guide/) and [suno.wiki metatags](https://www.suno.wiki/faq/metatags/) — community-validated prompt-engineering frameworks
 
 ---
 
