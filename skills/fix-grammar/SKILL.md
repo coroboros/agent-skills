@@ -17,7 +17,7 @@ metadata:
 
 Fix grammar and spelling errors in: $ARGUMENTS
 
-**Stop** if no files are specified — ask the user for file paths.
+If no files are specified, propose the most recent prose target from session context (recent read/edit) and confirm. Ask only when none is detectable.
 
 ## Rules
 

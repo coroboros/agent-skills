@@ -51,7 +51,7 @@ Resolve `$ARGUMENTS` (after stripping any leading `-f <voice-doc>`) as follows:
 
 | Input shape | Behavior |
 |-------------|----------|
-| Empty | Ask the user to paste text or provide a file path. Do not guess. |
+| Empty | Propose the most recent prose target from session context (recent read/edit/draft) and confirm. Ask only when none is detectable. |
 | Prose file path | `Read` the file. Audit, propose a diff, apply only on explicit approval via `Edit`. |
 | Non-prose file path | Refuse: *"Non-prose file — this skill targets prose documents, not structured data or source code."* Direct the user to `/fix-grammar` for docstring grammar, or to rewrite comments manually. |
 | Inline text (anything else) | Humanize in place and return the rewritten text in the chat. |
