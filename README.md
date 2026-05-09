@@ -7,7 +7,7 @@
 
 **AI agent skills for Claude Code and compatible agents**
 
-From brainstorming to structured specs to implementation, with design systems, project scaffolding, and writing utilities. Tested across every skill.
+Five plugins — workflow, design, Claude Code meta, media, writing. Tested across every skill.
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![ci](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/ci.yml?branch=main&style=flat-square&label=ci&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/ci.yml)
