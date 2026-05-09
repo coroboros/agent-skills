@@ -55,7 +55,7 @@ For Azure Document Intelligence, also export `MARKITDOWN_DOCINTEL_ENDPOINT=https
 
 ## Workflow
 
-1. **Empty `$ARGUMENTS`** → ask for a file path or URL and stop. Do not guess.
+1. **Empty `$ARGUMENTS`** → propose the most recent non-Markdown target from session context (file or URL) and confirm. Ask only when none is detectable.
 2. Run the helper:
 
    ```bash

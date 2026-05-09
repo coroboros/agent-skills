@@ -203,4 +203,4 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 - NEVER change anchors, code blocks, or link URLs in polish mode (those are content, not prose)
 - ALWAYS add `<br>` after `<summary>`
 - ALWAYS match the existing README's style (quote convention, heading hierarchy, badge format) when editing
-- Ignore `$ARGUMENTS` only if empty — otherwise treat first token as subcommand and second as path
+- Empty `$ARGUMENTS` follows the *Subcommands* default row above. Non-empty: first token is the subcommand, second is the path.

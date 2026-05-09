@@ -196,7 +196,7 @@ When the first token of `$ARGUMENTS` does not match `create|revise|validate|lint
 1. **Argument reads like a music brief** ("indie folk about a long winter", "melodic trap heartbreak track") → run `create` with that brief.
 2. **Argument is a path** to an existing folder containing `TRACK.md` → run `validate` on it.
 3. **Empty `$ARGUMENTS` and a `TRACK.md` exists in the working directory** → run `validate` on it.
-4. **Empty `$ARGUMENTS` and no nearby `TRACK.md`** → suggest `/suno-produce create "<your brief>"` and stop. Do not silently start an interview.
+4. **Empty `$ARGUMENTS` and no nearby `TRACK.md`** → if session context has a music brief candidate (recent music discussion or lyric draft), propose `/suno-produce create "<inferred brief>"` and confirm. Otherwise suggest `/suno-produce create "<your brief>"` and stop. Never silently start an interview.
 
 The default exists to avoid silent state-modifying actions. Every write goes through an explicit verb.
 
