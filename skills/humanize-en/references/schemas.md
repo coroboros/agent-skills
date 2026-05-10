@@ -68,14 +68,30 @@ Emitted when `scripts/prescan.py --brand <voice-doc> <file>` is invoked. Univers
 
 | Field | Type | Source values | Description |
 |-------|------|---------------|-------------|
-| `pattern` | integer or string | universal / brand | `1–32` for universal; slug like `"brand:all_caps_emphasis"` for brand. |
+| `pattern` | integer or string | universal / brand | `1–32` for universal; one of these 11 slugs for brand: `brand:all_caps_emphasis`, `brand:forbidden_lexicon`, `brand:rewrite_rule`, `brand:first_person_singular`, `brand:first_person_plural`, `brand:second_person`, `brand:signposting`, `brand:negative_parallelism`, `brand:rule_of_three_heading`, `brand:rhetorical_questions`, `brand:emoji`. |
 | `label` | string | both | Short slug naming the family. Brand labels prefix `brand-`. |
 | `line` | integer | both | 1-indexed line number. |
 | `snippet` | string | both | Up to ~20 chars of context. |
 | `source` | string | both | `"universal"` or `"brand"`. Always present on brand-aware runs. |
-| `rule_id` | string | brand | Originating YAML rule identifier — `all_caps_emphasis`, `forbidden_lexicon:<term>`, `rewrite_rule:<rule_id>`, `pronouns:<rule>`, `signposting`, `negative_parallelism`, `rule_of_three`, `rhetorical_questions`, `emoji`. Brand hits only. |
+| `rule_id` | string | brand | Originating YAML rule identifier. Format depends on the detector — see the table below. Brand hits only. |
 
-Brand patterns covered by `--brand`: `all_caps_emphasis`, `forbidden_lexicon[*]`, `rewrite_rules[*].reject`, first/second-person pronouns, `signposting`, `negative_parallelism`, `rule_of_three_heading` (heading-only safe pass), `rhetorical_questions`, `emoji`. Each is enabled only when the voice doc declares it (via `forbidden_patterns`, `pronouns.forbid`, `forbidden_lexicon`, or `rewrite_rules`).
+Brand `rule_id` formats — exact values emitted per detector:
+
+| Pattern slug | `rule_id` format | Example |
+|---|---|---|
+| `brand:all_caps_emphasis` | `all_caps_emphasis` (literal) | `all_caps_emphasis` |
+| `brand:forbidden_lexicon` | `forbidden_lexicon:<term>` (term verbatim) | `forbidden_lexicon:game-changing` |
+| `brand:rewrite_rule` | `rewrite_rule:<rule_id>` (from YAML) | `rewrite_rule:no-hedging-imperative` |
+| `brand:first_person_singular` | `pronouns:first-person singular` | identical |
+| `brand:first_person_plural` | `pronouns:first-person plural in marketing` | identical |
+| `brand:second_person` | `pronouns:second-person 'you' in marketing` | identical |
+| `brand:signposting` | `signposting` (literal) | `signposting` |
+| `brand:negative_parallelism` | `negative_parallelism` (literal) | `negative_parallelism` |
+| `brand:rule_of_three_heading` | `rule_of_three` (literal) | `rule_of_three` |
+| `brand:rhetorical_questions` | `rhetorical_questions` (literal) | `rhetorical_questions` |
+| `brand:emoji` | `emoji` (literal) | `emoji` |
+
+Each detector is enabled only when the voice doc declares it (via `forbidden_patterns`, `pronouns.forbid`, `forbidden_lexicon`, or `rewrite_rules`). The `pronouns:second-person 'you' in marketing` rule_id contains a literal apostrophe — JSON-safe but worth quoting carefully when pasted into shell tooling.
 
 Exit codes match the universal contract: `0` scan complete, `1` argument or I/O error (including missing or malformed voice doc).
 
@@ -114,7 +130,7 @@ Emitted by `scripts/validate.py <file> [--brand <voice-doc>] [--baseline <hits.j
 
 Exit codes: `0` if `status` is `"clean"` or `"residuals"`, `1` on `"regression"`, `2` on argument or I/O errors (missing target, missing baseline, malformed JSON, invalid voice doc).
 
-Hit identity for the regression check is `(pattern, line, snippet)`: line numbers stay aligned because masking preserves them, and the snippet narrows further so two same-pattern hits on one line still count separately.
+Hit identity for the regression check is `(pattern, snippet)` — the line number is deliberately omitted. The rewrite step can shorten or lengthen the file, shifting every subsequent line, so a signature that included the line would treat the same lexical violation at a new line number as a regression. The 20-char-each-side snippet from `prescan.py:scan` usually disambiguates same-pattern matches that genuinely live in different sentences; two identical sentences on different lines collapse into one signature, which is the right trade-off — regressions surface *new* lexical violations, not duplicate-count drift.
 
 ## eval sample
 

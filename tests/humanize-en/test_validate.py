@@ -92,18 +92,54 @@ class TestRegressionStatus(unittest.TestCase):
         finally:
             Path(path).unlink()
 
+    def test_regression_partial_overlap(self):
+        """Realistic case: a paragraph's baseline hit survives unchanged
+        post-rewrite; another paragraph introduces a new AI tell. The
+        unchanged paragraph's snippet matches the baseline (same context),
+        so only the new pattern is reported as a regression. Tests the
+        `(pattern, snippet)` signature contract end-to-end."""
+        from prescan import scan as prescan_scan
+        # Step 1: file as it existed at baseline capture
+        baseline_text = "Moreover, X here.\n\nA clean paragraph stands.\n"
+        # Step 2: capture baseline hits from that exact text
+        baseline = prescan_scan(baseline_text)
+        # Step 3: write the POST-rewrite file. First paragraph unchanged
+        # (so its snippet still matches the baseline); second paragraph
+        # introduced a new AI tell (`crucial`) that did not exist before.
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            f.write("Moreover, X here.\n\nThis is crucial work.\n")
+            path = f.name
+        try:
+            result = validate(path, baseline_hits=baseline)
+            self.assertEqual(result["status"], "regression",
+                             "the new `crucial` token must surface as a regression")
+            new_snips = " ".join(h["snippet"] for h in result["new_hits"])
+            self.assertIn("crucial", new_snips,
+                          "the new_hits must point at `crucial`")
+            self.assertNotIn("Moreover", new_snips,
+                             "the surviving `Moreover` must NOT appear in new_hits")
+        finally:
+            Path(path).unlink()
+
 
 class TestHitSignature(unittest.TestCase):
-    def test_signature_uses_pattern_line_snippet(self):
+    def test_signature_uses_pattern_and_snippet(self):
         h = {"pattern": 7, "line": 3, "snippet": "Moreover, here"}
         sig = _hit_signature(h)
-        self.assertEqual(sig, ("7", 3, "Moreover, here"))
+        self.assertEqual(sig, ("7", "Moreover, here"))
 
     def test_string_pattern_supported(self):
         """Brand patterns use string IDs like 'brand:all_caps_emphasis'."""
         h = {"pattern": "brand:all_caps_emphasis", "line": 2, "snippet": "ALL"}
         sig = _hit_signature(h)
         self.assertEqual(sig[0], "brand:all_caps_emphasis")
+
+    def test_line_drift_does_not_create_false_regression(self):
+        """If the same hit shifts to a different line (because the rewrite
+        deleted earlier text), the signature stays equal — not a regression."""
+        baseline_hit = {"pattern": 7, "line": 50, "snippet": "Moreover, X"}
+        post_rewrite_hit = {"pattern": 7, "line": 47, "snippet": "Moreover, X"}
+        self.assertEqual(_hit_signature(baseline_hit), _hit_signature(post_rewrite_hit))
 
 
 class TestBrandIntegration(unittest.TestCase):

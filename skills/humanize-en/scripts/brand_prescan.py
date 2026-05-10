@@ -80,10 +80,27 @@ def parse_yaml_minimal(yaml_text):
     def err(msg, lineno):
         return ValueError(f"yaml: {msg} (line {lineno + 1})")
 
+    def _strip_comment(line):
+        """Strip a `#` inline comment, respecting quoted strings and requiring
+        the `#` to be at line start or preceded by whitespace. Otherwise a URL
+        fragment, color hex, or anchor inside a value is silently truncated."""
+        quote = None
+        for idx, ch in enumerate(line):
+            if quote:
+                if ch == quote:
+                    quote = None
+                continue
+            if ch in ('"', "'"):
+                quote = ch
+                continue
+            if ch == "#" and (idx == 0 or line[idx - 1] in (" ", "\t")):
+                return line[:idx]
+        return line
+
     def peek():
         while pos[0] < len(lines):
             line = lines[pos[0]]
-            stripped = line.split("#", 1)[0].rstrip()
+            stripped = _strip_comment(line).rstrip()
             if stripped:
                 return stripped, pos[0]
             pos[0] += 1
@@ -303,15 +320,34 @@ def merge_lexical_exceptions(rules):
 # --- Brand pattern detectors ------------------------------------------------
 
 _ALL_CAPS_RE = re.compile(r"\b[A-Z]{3,}\b")
-_FIRST_PERSON_SINGULAR_RE = re.compile(r"(?<![\w'])(I|I'm|I’m|I've|I’ve|I'd|I’d|I'll|I’ll|me|my|myself)(?![\w'])")
-_FIRST_PERSON_PLURAL_RE = re.compile(r"(?:^|(?<=[.!?]\s)|(?<=^\s)|(?<=\n))(We|we)(?=\s)")
+# Boundaries include curly apostrophe (U+2019) so contracted forms `I’m`/`I’ve`
+# are not split by the lookbehind. Alternation is longest-first per form so
+# the engine prefers `I’m` over bare `I`. Both straight and curly variants
+# are listed because the apostrophe is character-distinct under regex.
+_FIRST_PERSON_SINGULAR_RE = re.compile(
+    r"(?<![\w'’])"
+    r"(I'll|I’ll|I've|I’ve|I'd|I’d|I'm|I’m|I"
+    r"|Myself|myself|My|my|Me|me)"
+    r"(?![\w'’])"
+)
+_FIRST_PERSON_PLURAL_RE = re.compile(r"(?:^|(?<=[.!?]\s)|(?<=\n))(We|we)(?=\s)")
 _SECOND_PERSON_RE = re.compile(r"\b(you|your|you're|you’re|you've|you’ve|yours|yourself)\b", re.IGNORECASE)
 _NEGATIVE_PARALLELISM_PATTERNS = [
-    re.compile(r"\b(?:is|are|was|were)\s+not\b[^.;\n]{0,80}[;,]\s*(?:it\s+is|they\s+are)\b", re.IGNORECASE),
+    # `is/are/was/were not X[;,] it is/it's/they are/they're Y` — incl. contractions.
+    re.compile(
+        r"(?:\b(?:is|are|was|were)|['’](?:s|re))\s+not\b"
+        r"[^.;\n]{0,80}"
+        r"[;,]\s*(?:it\s+is|it['’]s|they\s+are|they['’]re)\b",
+        re.IGNORECASE,
+    ),
+    # `not just X but Y`
     re.compile(r"\bnot\s+just\b[^.\n]{0,80}\bbut\b", re.IGNORECASE),
-    re.compile(r"\bnot\s+only\b[^.\n]{0,80}\bbut\s+also\b", re.IGNORECASE),
+    # `not only X but [also] Y` — `also` optional to catch the common variant.
+    re.compile(r"\bnot\s+only\b[^.\n]{0,80}\bbut\b(?:\s+also)?", re.IGNORECASE),
 ]
-_RULE_OF_THREE_HEADING_RE = re.compile(r"^#{1,6}\s+[^\n]+,\s+[^\n,]+,\s+[^\n,]+\s*$", re.MULTILINE)
+# Strict three-item heading: every item must be comma-free so 4+ comma headings
+# do not over-flag (e.g. `## A, B, C, D` is rejected — only exactly 3 items match).
+_RULE_OF_THREE_HEADING_RE = re.compile(r"^#{1,6}\s+[^\n,]+,\s+[^\n,]+,\s+[^\n,]+\s*$", re.MULTILINE)
 _EMOJI_RE = re.compile(
     "["
     "\U0001F300-\U0001F5FF"   # symbols & pictographs

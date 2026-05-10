@@ -88,10 +88,27 @@ def parse_yaml_minimal(yaml_text):
         e.line = lineno + 1
         return e
 
+    def _strip_comment(line):
+        """Strip a `#` inline comment, respecting quoted strings and requiring
+        the `#` to be at line start or preceded by whitespace. Otherwise a URL
+        fragment, color hex, or anchor inside a value is silently truncated."""
+        quote = None
+        for idx, ch in enumerate(line):
+            if quote:
+                if ch == quote:
+                    quote = None
+                continue
+            if ch in ('"', "'"):
+                quote = ch
+                continue
+            if ch == "#" and (idx == 0 or line[idx - 1] in (" ", "\t")):
+                return line[:idx]
+        return line
+
     def peek():
         while pos[0] < len(lines):
             line = lines[pos[0]]
-            stripped = line.split("#", 1)[0].rstrip()
+            stripped = _strip_comment(line).rstrip()
             if stripped:
                 return stripped, pos[0]
             pos[0] += 1

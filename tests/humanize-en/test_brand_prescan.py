@@ -57,6 +57,27 @@ class TestParseYamlMinimal(unittest.TestCase):
         )
         self.assertEqual(data["rules"], [{"reject": "a", "accept": "b", "rule_id": "r1"}])
 
+    def test_hash_inside_quoted_value_preserved(self):
+        """A `#` inside a quoted string is NOT a comment — must survive parsing.
+        URLs with anchors and color hex codes routinely contain `#`."""
+        data = parse_yaml_minimal('url: "https://example.com/page#section"\n')
+        self.assertEqual(data["url"], "https://example.com/page#section")
+
+    def test_hash_at_word_boundary_strips_comment(self):
+        """`key: value  # comment` — comment is stripped."""
+        data = parse_yaml_minimal("key: value  # this is a comment\n")
+        self.assertEqual(data["key"], "value")
+
+    def test_hash_inside_single_quoted_preserved(self):
+        data = parse_yaml_minimal("color: '#ff0000'\n")
+        self.assertEqual(data["color"], "#ff0000")
+
+    def test_invalid_yaml_raises_value_error(self):
+        # Inconsistent indent under a parent — parse_map raises with
+        # "unexpected indent (got N, want M)".
+        with self.assertRaises(ValueError):
+            parse_yaml_minimal("foo:\n  bar: baz\n   wrong: indent\n")
+
 
 class TestLoadBrandRules(unittest.TestCase):
     def test_returns_dict_for_valid_voice(self):
@@ -168,6 +189,27 @@ class TestPronouns(unittest.TestCase):
         hits = detect_first_person_singular("I think this is great.")
         self.assertGreater(len(hits), 0)
 
+    def test_first_person_singular_capitalized_my(self):
+        """Sentence-start `My` must flag — not just lowercase `my`."""
+        hits = detect_first_person_singular("My priority is the rollout.")
+        self.assertGreater(len(hits), 0)
+
+    def test_first_person_singular_capitalized_me_myself(self):
+        for token in ("Me too.", "Myself included."):
+            with self.subTest(token=token):
+                self.assertGreater(len(detect_first_person_singular(token)), 0)
+
+    def test_first_person_singular_curly_apostrophe(self):
+        """`I’m` (curly apostrophe) must flag the full contraction, not just `I`."""
+        hits = detect_first_person_singular("I’m here.")
+        self.assertGreater(len(hits), 0)
+        # Snippet should include the contraction, not just bare `I`.
+        self.assertTrue(any("I’m" in h["snippet"] for h in hits))
+
+    def test_first_person_singular_straight_apostrophe(self):
+        hits = detect_first_person_singular("I'll handle it.")
+        self.assertGreater(len(hits), 0)
+
     def test_first_person_plural_sentence_start(self):
         hits = detect_first_person_plural("We absorbed the framework.")
         self.assertEqual(len(hits), 1)
@@ -209,12 +251,26 @@ class TestNegativeParallelism(unittest.TestCase):
         hits = detect_negative_parallelism("It is not just a refactor; it is a rewrite.")
         self.assertGreater(len(hits), 0)
 
+    def test_contracted_s_not_it_is(self):
+        """Contracted `'s not` must flag — common in informal-leaning prose."""
+        hits = detect_negative_parallelism("It's not a tool; it's a platform.")
+        self.assertGreater(len(hits), 0)
+
+    def test_curly_apostrophe_contraction(self):
+        hits = detect_negative_parallelism("It’s not just code; it’s craft.")
+        self.assertGreater(len(hits), 0)
+
     def test_not_just_x_but_y(self):
         hits = detect_negative_parallelism("Not just a tool, but a platform.")
         self.assertGreater(len(hits), 0)
 
     def test_not_only_but_also(self):
         hits = detect_negative_parallelism("Not only fast but also reliable.")
+        self.assertGreater(len(hits), 0)
+
+    def test_not_only_but_no_also(self):
+        """`but` without `also` is the common variant — must flag."""
+        hits = detect_negative_parallelism("Not only fast but reliable.")
         self.assertGreater(len(hits), 0)
 
 
@@ -225,6 +281,15 @@ class TestRuleOfThreeHeading(unittest.TestCase):
 
     def test_two_item_heading_skipped(self):
         hits = detect_rule_of_three_heading("## Speed and security\n")
+        self.assertEqual(hits, [])
+
+    def test_four_item_heading_skipped(self):
+        """4+ items in a comma-separated heading must NOT match (over-greedy regex bug)."""
+        hits = detect_rule_of_three_heading("## A, B, C, D\n")
+        self.assertEqual(hits, [], "rule_of_three is strictly three items")
+
+    def test_five_item_heading_skipped(self):
+        hits = detect_rule_of_three_heading("## A, B, C, D, E\n")
         self.assertEqual(hits, [])
 
 

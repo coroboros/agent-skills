@@ -68,12 +68,19 @@ class _ValidateArgParser(argparse.ArgumentParser):
 
 def _hit_signature(hit):
     """Stable identity for hit-set comparisons. A hit is identified by
-    pattern + line + snippet — line numbers stay aligned because the masking
-    preserves them. The snippet narrows further so two same-pattern hits on
-    one line still count separately."""
+    `(pattern, snippet)`.
+
+    Line numbers are deliberately omitted: the rewrite step can shorten or
+    lengthen the file, shifting every subsequent line. A signature that
+    included the line would treat the same lexical violation at a new line
+    number as a regression. The snippet alone (~20 chars on each side of the
+    match per `prescan.py:scan`) usually disambiguates same-pattern matches
+    that genuinely live in different sentences. Two identical sentences on
+    different lines collapse into one signature, which is the right
+    trade-off — regressions are about *new* lexical violations appearing,
+    not duplicate-count drift."""
     return (
         str(hit.get("pattern")),
-        int(hit.get("line", 0)),
         (hit.get("snippet") or "").strip(),
     )
 
@@ -165,6 +172,12 @@ def main():
         )
     except FileNotFoundError as exc:
         print(f"error: {exc}", file=sys.stderr)
+        return 2
+    except UnicodeDecodeError as exc:
+        print(f"error: file is not valid UTF-8: {exc}", file=sys.stderr)
+        return 2
+    except OSError as exc:
+        print(f"error: cannot read file: {exc}", file=sys.stderr)
         return 2
     except ValueError as exc:
         print(f"error: brand-voice YAML invalid: {exc}", file=sys.stderr)
