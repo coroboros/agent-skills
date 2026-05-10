@@ -17,7 +17,7 @@ Up-to-date mirrors of the official Anthropic documentation in the monorepo:
 
 ## When to invoke skill-creator — strict loop
 
-**Every edit to a `SKILL.md` or any of its bundled files (`references/`, `scripts/`, `templates/`, `assets/`) triggers a fresh `/skill-creator` invocation before commit.** No exceptions. No trivial-change carve-out. If the edit was not worth a review pass, it was not worth making.
+**Every edit to a `SKILL.md` or any of its bundled files (`references/`, `scripts/`, `templates/`, `assets/`) triggers a fresh `/skill-creator` invocation before commit.** No exceptions, no trivial-change carve-out — if the edit was not worth a review pass, it was not worth making.
 
 ### The loop
 
@@ -33,7 +33,7 @@ Up-to-date mirrors of the official Anthropic documentation in the monorepo:
 
 **Exit criterion.** Commit only when `/skill-creator` returns **GREEN on every axis**. Two-to-three iterations to GREEN is normal.
 
-The loop exists because single-shot edits routinely leave stale cross-references, self-flagging examples, unreachable branches, and cross-section contradictions that only surface under fresh-eyes review. Skipping the invocation consistently costs more in downstream regressions than it saves upfront.
+The loop exists because single-shot edits routinely leave stale cross-references, self-flagging examples, unreachable branches, and cross-section contradictions that only surface under fresh-eyes review — skipping the invocation costs more in downstream regressions than it saves upfront.
 
 ### Ask, by situation
 
