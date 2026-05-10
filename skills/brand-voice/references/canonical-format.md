@@ -97,7 +97,20 @@ lexical_exceptions_replace: object       # full replacement of parent's whitelis
 - **`sentence_norms.word_count_min`** — must be ≥ 1 and ≤ `word_count_max`.
 - **`sentence_norms.word_count_max`** — must be ≤ `sentence_max_hard`.
 - **`sentence_norms.em_dash_spacing`** — `spaced` (` — `, the British/French convention), `tight` (`—` no spaces, the US convention), or `forbid` (no em-dashes at all).
-- **`forbidden_patterns`** — recognised values: `rule_of_three`, `rhetorical_questions`, `emoji`, `all_caps_emphasis`, `marketing_analogies`, `negative_parallelism`, `signposting`, `superficial_ing`. Custom values are tolerated.
+- **`forbidden_patterns`** — recognised values, with detector availability in `humanize-en`'s deterministic prescan:
+
+  | Value | Detector |
+  |---|---|
+  | `rule_of_three` | mechanical (heading-only — three comma-separated H1-H6 items) |
+  | `rhetorical_questions` | mechanical (non-quoted lines ending `?`, blockquotes excluded) |
+  | `emoji` | mechanical (Unicode ranges + regional-indicator pairs + variation selectors) |
+  | `all_caps_emphasis` | mechanical (≥ 3 uppercase chars, minus `lexical_exceptions.acronyms`) |
+  | `negative_parallelism` | mechanical (`is/are not X[;,] it is/it's Y`, `not just X but Y`, `not only X but [also] Y`) |
+  | `signposting` | mechanical (curated phrase list — `let's dive`, `without further ado`, `here's what you need to know`, `hope this helps`, `in conclusion`, `to begin with`, `that being said`) |
+  | `marketing_analogies` | LLM-only (semantic — context decides whether an analogy reads promotional) |
+  | `superficial_ing` | LLM-only (participial codas overlap with legitimate gerunds — context required) |
+
+  Custom values are tolerated; any value without a deterministic detector is enforced only at the LLM layer when a writing skill consumes the voice doc.
 - **`lexical_exceptions`** — optional object with two list-of-string children: `acronyms` (uppercase tokens, ≥ 2 chars; whitelisted from `all_caps_emphasis` detection) and `compound_idioms` (hyphenated phrases containing pronouns; whitelisted from `pronouns.forbid` detection). Empty list values are tolerated. Consumed by `humanize-en` to suppress false positives that the brand legitimately admits (e.g. `BPM` for a music brand, `in-your-face` for a punk-leaning voice).
 - **`contexts.<name>`** — object, free-form keys. Recommended keys above are not enforced.
 - **`<field>_replace`** / **`<field>_remove`** — see § Inheritance. Permitted only when `voice.extends` is set in the same file. Whitelisted fields only.

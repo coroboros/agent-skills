@@ -35,8 +35,12 @@ CLUSTERS = {
         "consumer_reader_script": "extract_rules.py",
         # Keys humanize-en reads from extract_rules --explain-json output.
         "explain_json_required_keys": ("chain", "merged"),
-        "merged_required_sections": ("forbidden_lexicon",),
+        "merged_required_sections": ("forbidden_lexicon", "lexical_exceptions"),
         "forbidden_entry_required_keys": ("source", "value"),
+        # Inner shape of lexical_exceptions — the whitelists humanize-en reads.
+        # Drift here breaks the silent-false-positive contract (BPM, MIDI,
+        # in-your-face, etc. legitimately admitted by some voices).
+        "lexical_exceptions_inner_keys": ("acronyms", "compound_idioms"),
     },
     "writing-v2": {
         # humanize-en + fix-grammar (sequential, no shared file)

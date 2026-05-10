@@ -67,6 +67,38 @@ class TestExtractRulesFlowsToHumanize(unittest.TestCase):
             self.assertIn("value", entry)
 
 
+class TestLexicalExceptionsCrossSkill(unittest.TestCase):
+    """The `lexical_exceptions` contract is shared: brand-voice produces it in
+    `extract_rules.py --full --explain-json`, humanize-en consumes it via
+    `brand_prescan.merge_lexical_exceptions`. Pin the producer side so future
+    drift in extract_rules surfaces here, alongside the consumer-side test in
+    `tests/humanize-en/test_brand_prescan.py::TestLexicalExceptionsMerge`.
+    """
+
+    def test_contract_declares_lexical_exceptions(self):
+        """The pipeline contract must list `lexical_exceptions` so consumers
+        can rely on it."""
+        self.assertIn("lexical_exceptions", WV1["merged_required_sections"])
+        self.assertIn("acronyms", WV1["lexical_exceptions_inner_keys"])
+        self.assertIn("compound_idioms", WV1["lexical_exceptions_inner_keys"])
+
+    def test_extract_rules_full_emits_lexical_exceptions(self):
+        """When the source voice doc declares lexical_exceptions,
+        extract_rules.py --full must emit it. Pinning the producer
+        contract — humanize-en's brand_prescan reads this same field."""
+        r = subprocess.run(
+            [sys.executable, str(EXTRACT_RULES),
+             str(BRAND_VOICE_FIXTURES / "parent-with-lexical-exceptions.md")],
+            capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("lexical_exceptions:", r.stdout,
+                      "producer must emit lexical_exceptions when present in source")
+        for inner_key in WV1["lexical_exceptions_inner_keys"]:
+            self.assertIn(f"{inner_key}:", r.stdout,
+                          f"inner key '{inner_key}' must be in extract_rules output")
+
+
 class TestHumanizeDocumentsExtractRulesPath(unittest.TestCase):
     """humanize-en's SKILL.md must document the extract_rules.py resolution
     chain plus a graceful fallback when brand-voice is not installed."""

@@ -73,12 +73,19 @@ DEFAULT_COMPOUND_IDIOM_WHITELIST = frozenset({
 
 
 def parse_yaml_minimal(yaml_text):
-    """Parse the BRAND-VOICE.md frontmatter subset of YAML. Returns a dict."""
+    """Parse the BRAND-VOICE.md frontmatter subset of YAML. Returns a dict.
+
+    Mirrors `skills/brand-voice/scripts/utils.py:parse_yaml_minimal` — when one
+    changes the other must too. ValueError raised on parse error carries a
+    `.line` attribute (1-indexed) for callers that surface the offending line.
+    """
     lines = yaml_text.splitlines()
     pos = [0]
 
     def err(msg, lineno):
-        return ValueError(f"yaml: {msg} (line {lineno + 1})")
+        e = ValueError(f"yaml: {msg} (line {lineno + 1})")
+        e.line = lineno + 1
+        return e
 
     def _strip_comment(line):
         """Strip a `#` inline comment, respecting quoted strings and requiring
@@ -127,6 +134,8 @@ def parse_yaml_minimal(yaml_text):
             return None
         if re.fullmatch(r"-?\d+", s):
             return int(s)
+        if re.fullmatch(r"-?\d+\.\d+", s):
+            return float(s)
         if s.startswith("[") and s.endswith("]"):
             inner = s[1:-1].strip()
             if not inner:
@@ -282,6 +291,9 @@ def load_brand_rules(path):
     if not p.is_file():
         raise FileNotFoundError(f"brand-voice doc not found: {path}")
     text = p.read_text(encoding="utf-8")
+    # Strip UTF-8 BOM if present so '---' on line 1 still detects.
+    if text.startswith("﻿"):
+        text = text[1:]
     if not text.startswith("---\n"):
         return {}
     lines = text.splitlines(keepends=True)
@@ -330,7 +342,12 @@ _FIRST_PERSON_SINGULAR_RE = re.compile(
     r"|Myself|myself|My|my|Me|me)"
     r"(?![\w'’])"
 )
-_FIRST_PERSON_PLURAL_RE = re.compile(r"(?:^|(?<=[.!?]\s)|(?<=\n))(We|we)(?=\s)")
+_FIRST_PERSON_PLURAL_RE = re.compile(
+    r"(?:^|(?<=[.!?]\s)|(?<=\n))"
+    r"(We're|We’re|We've|We’ve|We'll|We’ll|We'd|We’d|We"
+    r"|we're|we’re|we've|we’ve|we'll|we’ll|we'd|we’d|we)"
+    r"(?![\w'’])"
+)
 _SECOND_PERSON_RE = re.compile(r"\b(you|your|you're|you’re|you've|you’ve|yours|yourself)\b", re.IGNORECASE)
 _NEGATIVE_PARALLELISM_PATTERNS = [
     # `is/are/was/were not X[;,] it is/it's/they are/they're Y` — incl. contractions.
@@ -631,8 +648,10 @@ def scan_brand(text, rules, strict_code_only=False):
 
     pronouns = rules.get("pronouns") if isinstance(rules.get("pronouns"), dict) else {}
     forbid_pron = pronouns.get("forbid") or []
-    forbid_pron_set = {p for p in forbid_pron if isinstance(p, str)}
-    if "first-person singular" in forbid_pron_set:
+    # Lowercase membership: voice docs may write "First-person singular" or
+    # "first-person singular" interchangeably — both must enable the detector.
+    forbid_pron_set = {p.lower() for p in forbid_pron if isinstance(p, str)}
+    if any("first-person singular" in p for p in forbid_pron_set):
         hits.extend(detect_first_person_singular(masked))
     if any("first-person plural" in p for p in forbid_pron_set):
         hits.extend(detect_first_person_plural(masked))

@@ -78,6 +78,27 @@ class TestParseYamlMinimal(unittest.TestCase):
         with self.assertRaises(ValueError):
             parse_yaml_minimal("foo:\n  bar: baz\n   wrong: indent\n")
 
+    def test_yaml_parse_error_carries_line_number(self):
+        """ValueError must carry a `.line` attribute (1-indexed) so callers can
+        surface the offending line. Mirrors brand-voice/utils.py contract."""
+        try:
+            parse_yaml_minimal("foo:\n  bar: baz\n   wrong: indent\n")
+        except ValueError as exc:
+            self.assertTrue(hasattr(exc, "line"),
+                            "ValueError from parse_yaml_minimal must have .line")
+            self.assertEqual(exc.line, 3,
+                             "the wrong-indent line is line 3 (1-indexed)")
+        else:
+            self.fail("parse_yaml_minimal did not raise on bad indent")
+
+    def test_yaml_float_parsed_as_float(self):
+        """Float scalars must coerce to float — parity with brand-voice parser."""
+        data = parse_yaml_minimal("threshold: 0.95\nratio: -1.5\n")
+        self.assertEqual(data["threshold"], 0.95)
+        self.assertEqual(data["ratio"], -1.5)
+        self.assertIsInstance(data["threshold"], float)
+        self.assertIsInstance(data["ratio"], float)
+
 
 class TestLoadBrandRules(unittest.TestCase):
     def test_returns_dict_for_valid_voice(self):
@@ -94,6 +115,25 @@ class TestLoadBrandRules(unittest.TestCase):
     def test_missing_file_raises(self):
         with self.assertRaises(FileNotFoundError):
             load_brand_rules("/tmp/_does_not_exist_xyz.md")
+
+    def test_load_brand_rules_strips_utf8_bom(self):
+        """Editors that save BRAND-VOICE.md with a UTF-8 BOM (U+FEFF prefix)
+        must not silently break frontmatter detection. Without BOM stripping,
+        the leading `\\ufeff---` would not match `---` and load_brand_rules
+        would return an empty dict — a silent failure mode."""
+        bom = "﻿"
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md",
+                                          delete=False, encoding="utf-8") as f:
+            f.write(bom + _voice_doc("voice:\n  name: \"BomTest\"\n"
+                                      "forbidden_lexicon:\n  - \"foo\"\n"))
+            path = f.name
+        try:
+            rules = load_brand_rules(path)
+            self.assertEqual(rules.get("voice", {}).get("name"), "BomTest",
+                             "BOM-prefixed YAML must still parse")
+            self.assertEqual(rules.get("forbidden_lexicon"), ["foo"])
+        finally:
+            Path(path).unlink()
 
 
 class TestLexicalExceptionsMerge(unittest.TestCase):
@@ -119,6 +159,28 @@ class TestLexicalExceptionsMerge(unittest.TestCase):
             {"lexical_exceptions": {"compound_idioms": ["Pay-As-You-Go"]}}
         )
         self.assertIn("pay-as-you-go", idioms)
+
+    def test_skips_non_string_entries(self):
+        """Defensive: malformed YAML may inject non-string values (ints, None,
+        empty strings). The merger must skip them without crashing."""
+        acronyms, idioms = merge_lexical_exceptions({
+            "lexical_exceptions": {
+                "acronyms": ["FOO", 123, None, ""],
+                "compound_idioms": ["a-b", 42, None, ""],
+            }
+        })
+        self.assertIn("FOO", acronyms)
+        self.assertNotIn("", acronyms)
+        self.assertIn("a-b", idioms)
+        self.assertNotIn("", idioms)
+        # Non-strings are silently dropped — count matches expected
+        self.assertEqual(sum(1 for a in acronyms if not isinstance(a, str)), 0)
+
+    def test_non_dict_lexical_exceptions_falls_back_to_defaults(self):
+        """If lexical_exceptions is not a dict (malformed YAML), defaults still apply."""
+        acronyms, idioms = merge_lexical_exceptions({"lexical_exceptions": "not a dict"})
+        self.assertIn("BPM", acronyms)
+        self.assertIn("in-your-face", idioms)
 
 
 class TestAllCapsEmphasis(unittest.TestCase):
@@ -217,6 +279,43 @@ class TestPronouns(unittest.TestCase):
     def test_first_person_plural_after_period(self):
         hits = detect_first_person_plural("It works. We think so.")
         self.assertGreaterEqual(len(hits), 1)
+
+    def test_first_person_plural_contraction_were(self):
+        """Sentence-initial `We're` was previously NOT flagged because the
+        regex required whitespace immediately after `We` — apostrophe failed
+        the lookahead. Pin every contraction variant so this regression
+        cannot return."""
+        for sample in ("We're shipping.", "We've shipped.",
+                       "We'll ship.", "We'd ship."):
+            with self.subTest(sample=sample):
+                self.assertEqual(len(detect_first_person_plural(sample)), 1)
+
+    def test_first_person_plural_curly_apostrophe(self):
+        """Curly-apostrophe contractions must flag identically to straight ones."""
+        for sample in ("We’re shipping.", "We’ve shipped.",
+                       "We’ll ship.", "We’d ship."):
+            with self.subTest(sample=sample):
+                self.assertEqual(len(detect_first_person_plural(sample)), 1)
+
+    def test_first_person_plural_mid_sentence_skipped(self):
+        """Pin the contract: mid-sentence `we` is intentionally NOT flagged.
+        Sentence-initial `We` is the strongest signal of brand-voice
+        violation; mid-sentence `we` is too noisy to flag without false
+        positives on quoted material and blockquotes."""
+        for sample in ("The issue we faced was small.",
+                       "The team we hired delivered."):
+            with self.subTest(sample=sample):
+                self.assertEqual(detect_first_person_plural(sample), [])
+
+    def test_first_person_plural_does_not_match_word_starting_with_we(self):
+        """`Web`, `Wednesday`, `weather` etc. must not flag — sentence-initial
+        but the word continues past `We`."""
+        for sample in ("Web service is down.", "Wednesday is the deadline.",
+                       "Weather permitting, we ship."):
+            with self.subTest(sample=sample):
+                # Last sample has mid-sentence `we` which is also skipped.
+                hits = detect_first_person_plural(sample)
+                self.assertEqual(hits, [], f"unexpected hit on '{sample}'")
 
     def test_second_person_flagged(self):
         hits = detect_second_person("Your priority is the rollout.", DEFAULT_COMPOUND_IDIOM_WHITELIST)
@@ -425,6 +524,34 @@ class TestScanBrand(unittest.TestCase):
     def test_non_dict_rules_returns_no_hits(self):
         self.assertEqual(scan_brand("any text", None), [])
         self.assertEqual(scan_brand("any text", "not a dict"), [])
+
+    def test_pronoun_forbid_set_case_insensitive(self):
+        """A voice doc may write `pronouns.forbid: ["First-person singular"]`
+        with capital F. The detector enable check must match case-insensitively
+        — otherwise a stylistic capitalisation choice silently disables the
+        whole detector."""
+        rules = {
+            "pronouns": {"default": "third-person", "forbid": ["First-person singular"]},
+        }
+        text = "I think this is great.\n"
+        hits = scan_brand(text, rules)
+        self.assertTrue(any(h.get("rule_id") == "pronouns:first-person singular"
+                            for h in hits),
+                        "First-person singular detector must enable on capitalised forbid entry")
+
+    def test_pronoun_forbid_lowercase_still_enables(self):
+        """Backward-compat: lowercase entry still enables."""
+        rules = {"pronouns": {"forbid": ["first-person singular"]}}
+        hits = scan_brand("I think this.\n", rules)
+        self.assertTrue(any(h.get("rule_id") == "pronouns:first-person singular"
+                            for h in hits))
+
+    def test_pronoun_unrelated_forbid_does_not_enable(self):
+        """Sanity: unrelated entries do not enable any pronoun detector."""
+        rules = {"pronouns": {"forbid": ["royal we (archaic)"]}}
+        hits = scan_brand("I am here. We are there. You are nowhere.\n", rules)
+        # No pronoun detector enables — confirm no pronouns:* rule fires.
+        self.assertFalse(any(h.get("rule_id", "").startswith("pronouns:") for h in hits))
 
 
 class TestPrescanCLIBrandFlag(unittest.TestCase):

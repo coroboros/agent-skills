@@ -49,6 +49,9 @@ def split_frontmatter(text):
 
     Returns (None, text) if no frontmatter is present.
     """
+    # Strip UTF-8 BOM if present so '---' on line 1 still detects.
+    if text.startswith("﻿"):
+        text = text[1:]
     lines = text.splitlines(keepends=True)
     if not lines or lines[0].rstrip("\n") != "---":
         return None, text

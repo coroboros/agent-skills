@@ -56,17 +56,22 @@ def evaluate_sample(sample):
 
     if has_brand:
         from brand_prescan import load_brand_rules, scan_brand
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".md", delete=False, encoding="utf-8"
-        ) as tmp:
-            tmp.write("---\n" + sample["brand_voice_yaml"] + "---\n")
-            tmp.write("\n# Test\n\n## 1. Core voice attributes\n\nstub\n")
-            tmp_path = tmp.name
+        tmp_path = None
         try:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".md", delete=False, encoding="utf-8"
+            ) as tmp:
+                tmp.write("---\n" + sample["brand_voice_yaml"] + "---\n")
+                tmp.write("\n# Test\n\n## 1. Core voice attributes\n\nstub\n")
+                tmp_path = tmp.name
             rules = load_brand_rules(tmp_path)
             detected_hits.extend(scan_brand(sample["input"], rules))
         finally:
-            Path(tmp_path).unlink()
+            if tmp_path is not None:
+                try:
+                    Path(tmp_path).unlink()
+                except FileNotFoundError:
+                    pass
 
     detected = sorted({h["pattern"] for h in detected_hits},
                       key=lambda x: (isinstance(x, str), x))

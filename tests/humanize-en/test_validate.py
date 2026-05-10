@@ -77,6 +77,29 @@ class TestResidualsStatus(unittest.TestCase):
         finally:
             Path(path).unlink()
 
+    def test_clean_file_with_populated_baseline_is_clean(self):
+        """When the post-rewrite file has zero hits but the baseline lists
+        many, the status is `clean` (the rewrite eliminated everything).
+        Pinning the success-case asymmetry: baseline-only hits never count
+        against the rewrite — only hits present in the file matter."""
+        baseline = [
+            {"pattern": 7, "label": "ai-vocabulary", "line": 3,
+             "snippet": "Moreover, X here"},
+            {"pattern": 23, "label": "filler", "line": 4,
+             "snippet": "in order to ship"},
+        ]
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            f.write("The cat sat. The dog ran. Plain prose.\n")
+            path = f.name
+        try:
+            result = validate(path, baseline_hits=baseline)
+            self.assertEqual(result["status"], "clean",
+                             "zero residuals on file = clean regardless of baseline")
+            self.assertEqual(result["summary"]["total_residuals"], 0)
+            self.assertEqual(result["summary"]["new_hit_count"], 0)
+        finally:
+            Path(path).unlink()
+
 
 class TestRegressionStatus(unittest.TestCase):
     def test_regression_when_new_hit_appears(self):
@@ -223,6 +246,24 @@ class TestCLI(unittest.TestCase):
         try:
             r = _run("--baseline", bad_path, prose_path)
             self.assertEqual(r.returncode, 2)
+        finally:
+            Path(prose_path).unlink()
+            Path(bad_path).unlink()
+
+    def test_baseline_non_list_shape_exits_2(self):
+        """A baseline that is valid JSON but not an array (e.g. a top-level
+        object) violates the schema. Must exit 2 with a clear error."""
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as prose:
+            prose.write("Plain.\n")
+            prose_path = prose.name
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as bad:
+            bad.write('{"hits": []}')  # object, not array
+            bad_path = bad.name
+        try:
+            r = _run("--baseline", bad_path, prose_path)
+            self.assertEqual(r.returncode, 2,
+                             "non-list baseline must violate schema and exit 2")
+            self.assertIn("array", r.stderr.lower() + r.stdout.lower())
         finally:
             Path(prose_path).unlink()
             Path(bad_path).unlink()
