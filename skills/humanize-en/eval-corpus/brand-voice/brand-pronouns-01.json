@@ -1,0 +1,10 @@
+{
+  "id": "brand-pronouns-01",
+  "description": "First-person plural marketing voice and second-person reader-address; both forbidden under a fictional brand's pronoun rules.",
+  "brand_voice_yaml": "voice:\n  name: \"Acme\"\n  last_updated: \"2025-01-01\"\n  source: \"manual\"\n\nforbidden_lexicon: []\n\nrewrite_rules:\n  - reject: \"foo\"\n    accept: \"bar\"\n    rule_id: stub\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n\npronouns:\n  default: \"third-person institutional\"\n  forbid:\n    - \"first-person plural\"\n    - \"second-person\"\n",
+  "input": "# Marketing copy\n\nWe absorbed the new framework over six months.\n\nWe chose this lane after evaluating alternatives.\n\nYour priority should be the rollout. You have signal that the audience cares.\n\nThe in-your-face rendering style is intentional.\n",
+  "expected_hits": [
+    {"pattern": "brand:first_person_plural"},
+    {"pattern": "brand:second_person"}
+  ]
+}

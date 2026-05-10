@@ -1,7 +1,7 @@
 {
-  "id": "coroboros-allcaps-01",
+  "id": "brand-allcaps-01",
   "description": "ALL CAPS in section headings and inside pseudo-tables (text-fenced) — both must flag once pseudo-block scanning is enabled.",
-  "brand_voice_yaml": "voice:\n  name: \"Coroboros\"\n  last_updated: \"2026-04-27\"\n  source: \"manual\"\n\nforbidden_lexicon:\n  - \"game-changing\"\n\nrewrite_rules:\n  - reject: \"It might be worth considering...\"\n    accept: \"Use X.\"\n    rule_id: no-hedging-imperative\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n  contractions: \"allow\"\n  oxford_comma: true\n  em_dash_spacing: \"spaced\"\n  exclamation_marks: \"forbid\"\n\nforbidden_patterns:\n  - all_caps_emphasis\n",
+  "brand_voice_yaml": "voice:\n  name: \"Acme\"\n  last_updated: \"2025-01-01\"\n  source: \"manual\"\n\nforbidden_lexicon:\n  - \"game-changing\"\n\nrewrite_rules:\n  - reject: \"It might be worth considering...\"\n    accept: \"Use X.\"\n    rule_id: no-hedging\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n  contractions: \"allow\"\n  oxford_comma: true\n  em_dash_spacing: \"spaced\"\n  exclamation_marks: \"forbid\"\n\nforbidden_patterns:\n  - all_caps_emphasis\n",
   "input": "# Brand report\n\n## 1. ALL CAPS HEADING TWO\n\nThe section text is fine, but THE word is emphasized.\n\n## Standard heading\n\n```text\nINSTRUMENTS   Log drum (THE non-negotiable; not optional)\nPRODUCTION    Vocals MIXED LOW; reverb tail short\n```\n\n```python\n# real code — must be preserved as-is\nALL_CAPS_CONST = \"keep me\"\n```\n\nThis prose mentions API and BPM which are whitelisted acronyms.\n",
   "expected_hits": [
     {"pattern": "brand:all_caps_emphasis"}

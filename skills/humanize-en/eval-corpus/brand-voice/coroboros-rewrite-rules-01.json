@@ -1,9 +1,0 @@
-{
-  "id": "coroboros-rewrite-rules-01",
-  "description": "rewrite_rules[*].reject literal substrings — each match attributed to its rule_id.",
-  "brand_voice_yaml": "voice:\n  name: \"Coroboros\"\n  last_updated: \"2026-04-27\"\n  source: \"manual\"\n\nforbidden_lexicon: []\n\nrewrite_rules:\n  - reject: \"It might be worth considering...\"\n    accept: \"Use X.\"\n    rule_id: no-hedging-imperative\n  - reject: \"significantly faster\"\n    accept: \"<cite a number>\"\n    rule_id: specific-over-abstract-speed\n  - reject: \"Great question — let me explain.\"\n    accept: \"<delete entire opener>\"\n    rule_id: no-salesperson-opener\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n",
-  "input": "# Reply draft\n\nGreat question — let me explain.\n\nIt might be worth considering... a different layout.\n\nThe new pipeline is significantly faster than the previous one.\n",
-  "expected_hits": [
-    {"pattern": "brand:rewrite_rule"}
-  ]
-}
