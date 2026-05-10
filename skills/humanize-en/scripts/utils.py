@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import random
-import re
 import sys
 from pathlib import Path
 
@@ -45,23 +44,13 @@ def write_json(obj, path=None, indent=2):
         Path(path).write_text(output + "\n", encoding="utf-8")
 
 
-def mask_protected_regions(text):
-    """Replace fenced code, backtick spans, URLs, anchors, and YAML frontmatter
-    with spaces of equal length so pattern scans skip them but line numbers
-    stay intact. Mirrors prescan.py's behaviour so eval scripts score the
-    same regions the prescan did."""
-
-    def _blank(m):
-        # Preserve newlines so multi-line fences don't shift line numbers.
-        return "".join("\n" if c == "\n" else " " for c in m.group(0))
-
-    text = re.sub(r"\A---\n.*?\n---\n", _blank, text, count=1, flags=re.DOTALL)
-    text = re.sub(r"```.*?```", _blank, text, flags=re.DOTALL)
-    text = re.sub(r"~~~.*?~~~", _blank, text, flags=re.DOTALL)
-    text = re.sub(r"`[^`\n]+`", _blank, text)
-    text = re.sub(r"\]\([^)]*\)", _blank, text)
-    text = re.sub(r"https?://\S+", _blank, text)
-    return text
+def mask_protected_regions(text, strict_code_only=False):
+    """Replace protected regions with whitespace so eval scoring stays consistent
+    with prescan.py. Mirrors prescan.py:mask_protected_regions exactly — when
+    one changes, both must change."""
+    # Defer to prescan.py's implementation to keep behaviour byte-identical.
+    from prescan import mask_protected_regions as _mask  # local import avoids cycle
+    return _mask(text, strict_code_only=strict_code_only)
 
 
 def seeded_rng():

@@ -322,6 +322,7 @@ REPLACE_ALLOWED_FIELDS = frozenset({
     "sentence_norms",
     "contexts",
     "pronouns",
+    "lexical_exceptions",
 })
 
 REMOVE_ALLOWED_FIELDS = frozenset({
@@ -534,6 +535,28 @@ def merge_voice_dicts(parent, child):
                 pronouns[k] = parent_pron[k]
         merged["pronouns"] = pronouns
 
+    # lexical_exceptions — deep merge: each inner list unioned (parent-first, deduped).
+    # A child only adds to the whitelists; for full replacement, use lexical_exceptions_replace.
+    parent_lex = parent.get("lexical_exceptions") if isinstance(parent.get("lexical_exceptions"), dict) else {}
+    child_lex = child.get("lexical_exceptions") if isinstance(child.get("lexical_exceptions"), dict) else {}
+    if parent_lex or child_lex:
+        lex = {}
+        for k in ("acronyms", "compound_idioms"):
+            p = parent_lex.get(k) if isinstance(parent_lex.get(k), list) else []
+            c = child_lex.get(k) if isinstance(child_lex.get(k), list) else []
+            unioned = list(dict.fromkeys(p + c))
+            if unioned:
+                lex[k] = unioned
+        # Forward-compat: any other keys child-wins (lets future inner keys land without a util change)
+        for k, v in (parent_lex or {}).items():
+            if k not in ("acronyms", "compound_idioms") and k not in lex:
+                lex[k] = v
+        for k, v in (child_lex or {}).items():
+            if k not in ("acronyms", "compound_idioms"):
+                lex[k] = v
+        if lex:
+            merged["lexical_exceptions"] = lex
+
     # Carry the child's _replace / _remove keys forward; apply_*_overrides will consume them.
     for k, v in child.items():
         if k.endswith("_replace") or k.endswith("_remove"):
@@ -552,6 +575,7 @@ def merge_voice_dicts(parent, child):
         "sentence_norms",
         "contexts",
         "pronouns",
+        "lexical_exceptions",
     }
     handled = set(merged.keys()) | canonical_handled
     for src in (parent, child):
@@ -702,7 +726,7 @@ def compute_provenance(chain, merged):
 
     list_fields = ("forbidden_lexicon", "required_lexicon", "forbidden_patterns")
     keyed_list_fields = {"rewrite_rules": "rule_id", "core_attributes": "attribute_id"}
-    object_fields = ("sentence_norms", "contexts", "pronouns")
+    object_fields = ("sentence_norms", "contexts", "pronouns", "lexical_exceptions")
 
     def _item_key(field, item):
         if field in keyed_list_fields and isinstance(item, dict):

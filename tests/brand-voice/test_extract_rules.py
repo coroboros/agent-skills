@@ -91,6 +91,43 @@ class TestExplain(unittest.TestCase):
             self.assertIn("value", entry)
 
 
+class TestLexicalExceptions(unittest.TestCase):
+    """--full emits lexical_exceptions block when present."""
+
+    def test_full_emits_lexical_exceptions(self):
+        r = _run(str(FIXTURES / "parent-with-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("lexical_exceptions:", r.stdout)
+        self.assertIn("BPM", r.stdout)
+        self.assertIn("MIDI", r.stdout)
+        self.assertIn("in-your-face", r.stdout)
+
+    def test_legacy_skips_lexical_exceptions(self):
+        r = _run("--legacy", str(FIXTURES / "parent-with-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        self.assertNotIn("lexical_exceptions:", r.stdout)
+
+    def test_inheritance_unions_lists(self):
+        r = _run(str(FIXTURES / "child-extends-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        # Parent's BPM/MIDI + child's DAW
+        self.assertIn("BPM", r.stdout)
+        self.assertIn("MIDI", r.stdout)
+        self.assertIn("DAW", r.stdout)
+        # Parent's in-your-face + child's do-it-yourself
+        self.assertIn("in-your-face", r.stdout)
+        self.assertIn("do-it-yourself", r.stdout)
+
+    def test_replace_drops_parent_lists(self):
+        r = _run(str(FIXTURES / "child-replaces-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("API", r.stdout)
+        # BPM/MIDI/in-your-face from parent must be gone after _replace
+        self.assertNotIn("BPM", r.stdout)
+        self.assertNotIn("MIDI", r.stdout)
+        self.assertNotIn("in-your-face", r.stdout)
+
+
 class TestExitCodes(unittest.TestCase):
     def test_missing_file(self):
         r = _run(str(FIXTURES / "_does_not_exist.md"))

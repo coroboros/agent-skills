@@ -2,9 +2,9 @@
 
 Contracts for the deterministic scripts under `scripts/`. Any script that emits or consumes JSON conforms to one of the shapes below.
 
-## prescan hit list
+## prescan hit list (universal)
 
-Emitted by `scripts/prescan.py <file>` on stdout. A JSON array; each entry is one pattern hit.
+Emitted by `scripts/prescan.py <file>` on stdout (no `--brand` flag). A JSON array; each entry is one universal pattern hit.
 
 ```json
 [
@@ -25,6 +25,96 @@ Emitted by `scripts/prescan.py <file>` on stdout. A JSON array; each entry is on
 | `snippet` | string | Up to ~20 chars of context on either side of the match. |
 
 Exit codes: `0` scan complete (hits or not), `1` argument or I/O error.
+
+## prescan hit list (brand-aware)
+
+Emitted when `scripts/prescan.py --brand <voice-doc> <file>` is invoked. Universal hits gain a `source: "universal"` discriminator so callers can split the merged array; brand hits use a string `pattern` slug, carry `source: "brand"`, and add `rule_id` so the coverage report can attribute each rewrite to the originating YAML rule.
+
+```json
+[
+  {
+    "pattern": 7,
+    "label": "ai-vocabulary",
+    "line": 12,
+    "snippet": "Moreover, the data...",
+    "source": "universal"
+  },
+  {
+    "pattern": "brand:all_caps_emphasis",
+    "label": "brand-all-caps-emphasis",
+    "line": 3,
+    "snippet": "## ALL CAPS HEADING",
+    "source": "brand",
+    "rule_id": "all_caps_emphasis"
+  },
+  {
+    "pattern": "brand:forbidden_lexicon",
+    "label": "brand-forbidden-lexicon",
+    "line": 9,
+    "snippet": "...game-changing stuff.",
+    "source": "brand",
+    "rule_id": "forbidden_lexicon:game-changing"
+  },
+  {
+    "pattern": "brand:rewrite_rule",
+    "label": "brand-rewrite-rule",
+    "line": 11,
+    "snippet": "Great question — let me explain.",
+    "source": "brand",
+    "rule_id": "rewrite_rule:no-salesperson-opener"
+  }
+]
+```
+
+| Field | Type | Source values | Description |
+|-------|------|---------------|-------------|
+| `pattern` | integer or string | universal / brand | `1–32` for universal; slug like `"brand:all_caps_emphasis"` for brand. |
+| `label` | string | both | Short slug naming the family. Brand labels prefix `brand-`. |
+| `line` | integer | both | 1-indexed line number. |
+| `snippet` | string | both | Up to ~20 chars of context. |
+| `source` | string | both | `"universal"` or `"brand"`. Always present on brand-aware runs. |
+| `rule_id` | string | brand | Originating YAML rule identifier — `all_caps_emphasis`, `forbidden_lexicon:<term>`, `rewrite_rule:<rule_id>`, `pronouns:<rule>`, `signposting`, `negative_parallelism`, `rule_of_three`, `rhetorical_questions`, `emoji`. Brand hits only. |
+
+Brand patterns covered by `--brand`: `all_caps_emphasis`, `forbidden_lexicon[*]`, `rewrite_rules[*].reject`, first/second-person pronouns, `signposting`, `negative_parallelism`, `rule_of_three_heading` (heading-only safe pass), `rhetorical_questions`, `emoji`. Each is enabled only when the voice doc declares it (via `forbidden_patterns`, `pronouns.forbid`, `forbidden_lexicon`, or `rewrite_rules`).
+
+Exit codes match the universal contract: `0` scan complete, `1` argument or I/O error (including missing or malformed voice doc).
+
+## validate result
+
+Emitted by `scripts/validate.py <file> [--brand <voice-doc>] [--baseline <hits.json>]` on stdout. Single object summarising the post-rewrite state.
+
+```json
+{
+  "path": "drafts/release-notes.md",
+  "status": "residuals",
+  "residuals": [
+    {"pattern": "brand:all_caps_emphasis", "label": "brand-all-caps-emphasis",
+     "line": 14, "snippet": "...THE non-negotiable...", "source": "brand",
+     "rule_id": "all_caps_emphasis"}
+  ],
+  "summary": {
+    "total_residuals": 1,
+    "universal_residuals": 0,
+    "brand_residuals": 1,
+    "new_hit_count": 0
+  }
+}
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | string | Absolute or relative path to the validated file. |
+| `status` | string | `"clean"` (zero hits), `"residuals"` (hits remain but none are new vs. baseline), or `"regression"` (at least one hit appears that was not in the baseline). |
+| `residuals` | array | All current hits. Same shape as the prescan hit list — universal hits have integer `pattern`, brand hits have string `pattern` + `source: "brand"` + `rule_id`. |
+| `new_hits` | array | Present only when `status == "regression"`. Subset of `residuals` whose signature is not in the baseline. |
+| `summary.total_residuals` | integer | `len(residuals)`. |
+| `summary.universal_residuals` | integer | Count of residuals with `source != "brand"`. |
+| `summary.brand_residuals` | integer | Count of residuals with `source == "brand"`. |
+| `summary.new_hit_count` | integer | `len(new_hits)`; always 0 unless status is `"regression"`. |
+
+Exit codes: `0` if `status` is `"clean"` or `"residuals"`, `1` on `"regression"`, `2` on argument or I/O errors (missing target, missing baseline, malformed JSON, invalid voice doc).
+
+Hit identity for the regression check is `(pattern, line, snippet)`: line numbers stay aligned because masking preserves them, and the snippet narrows further so two same-pattern hits on one line still count separately.
 
 ## eval sample
 

@@ -1,0 +1,7 @@
+{
+  "id": "coroboros-clean-01",
+  "description": "Clean Coroboros prose — third-person institutional voice, no marketing softness, no forbidden tells. Negative control: must produce zero brand hits and zero universal hits.",
+  "brand_voice_yaml": "voice:\n  name: \"Coroboros\"\n  last_updated: \"2026-04-27\"\n  source: \"manual\"\n\nforbidden_lexicon:\n  - \"game-changing\"\n  - \"seamless\"\n  - \"leverage\"\n\nrewrite_rules:\n  - reject: \"It might be worth considering...\"\n    accept: \"Use X.\"\n    rule_id: no-hedging-imperative\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n  contractions: \"allow\"\n  oxford_comma: true\n  em_dash_spacing: \"spaced\"\n  exclamation_marks: \"forbid\"\n\nforbidden_patterns:\n  - all_caps_emphasis\n  - rule_of_three\n  - rhetorical_questions\n  - signposting\n  - negative_parallelism\n\npronouns:\n  default: \"third-person institutional\"\n  forbid:\n    - \"first-person plural in marketing\"\n    - \"second-person 'you' in marketing\"\n",
+  "input": "# Coroboros — quarterly note\n\nCoroboros engineers infrastructure for temporal coherence.\n\nThe runtime ships a single binary. Configuration loads from a JSON file. Logs go to stdout.\n\nThe interface follows the same contract documented in the API reference.\n",
+  "expected_hits": []
+}

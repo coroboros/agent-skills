@@ -1,0 +1,10 @@
+{
+  "id": "coroboros-lexicon-01",
+  "description": "Multiple forbidden_lexicon entries appearing in prose: every match must flag.",
+  "brand_voice_yaml": "voice:\n  name: \"Coroboros\"\n  last_updated: \"2026-04-27\"\n  source: \"manual\"\n\nforbidden_lexicon:\n  - \"game-changing\"\n  - \"cutting-edge\"\n  - \"world-class\"\n  - \"seamless\"\n  - \"leverage\"\n  - \"unlock\"\n  - \"empower\"\n\nrewrite_rules:\n  - reject: \"foo\"\n    accept: \"bar\"\n    rule_id: stub\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n",
+  "input": "# Pitch deck\n\nThe game-changing platform delivers cutting-edge results.\n\nWorld-class engineering empowers teams to leverage data and unlock potential.\n\nThe seamless workflow keeps every stakeholder aligned.\n",
+  "expected_hits": [
+    {"pattern": 1, "label": "significance-inflation"},
+    {"pattern": "brand:forbidden_lexicon"}
+  ]
+}

@@ -245,6 +245,21 @@ def format_rules_full(data, prov=None):
             line += f"  # from {pron_prov}"
         out.append(line)
 
+    lex = data.get("lexical_exceptions") or {}
+    if isinstance(lex, dict) and (lex.get("acronyms") or lex.get("compound_idioms")):
+        out.append("")
+        out.append("lexical_exceptions:")
+        acronyms = lex.get("acronyms") or []
+        if acronyms:
+            out.append("  acronyms:")
+            for a in acronyms:
+                out.append(f"    - {a}")
+        idioms = lex.get("compound_idioms") or []
+        if idioms:
+            out.append("  compound_idioms:")
+            for i in idioms:
+                out.append(f"    - {i}")
+
     while out and out[-1] == "":
         out.pop()
     return "\n".join(out) + "\n"
@@ -295,11 +310,13 @@ def _explain_json(chain, merged, provenance):
             "sentence_norms": merged.get("sentence_norms"),
             "contexts": merged.get("contexts"),
             "pronouns": merged.get("pronouns"),
+            "lexical_exceptions": merged.get("lexical_exceptions"),
         },
         "object_provenance": {
             "sentence_norms": provenance.get("sentence_norms"),
             "contexts": provenance.get("contexts"),
             "pronouns": provenance.get("pronouns"),
+            "lexical_exceptions": provenance.get("lexical_exceptions"),
         },
     }
     return json.dumps(payload, ensure_ascii=False, indent=2) + "\n"

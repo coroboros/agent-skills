@@ -79,7 +79,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
-| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; optional `-f BRAND-VOICE.md` | Claude |
+| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; brand-aware via `-f BRAND-VOICE.md` (deterministic prescan + post-rewrite validation gate + auto-iteration) | Claude |
 
 **About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill, regardless of session default — predictable results across runs. Opus-tier skills consume more tokens; override with the Claude Code `--model` flag, or skip those skills on a tight plan.
 
@@ -773,7 +773,7 @@ Structural and prose writing for project documentation — `brand-voice`, `write
 
 #### brand-voice
 
-Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mirrors the `design-system` pattern: a canonical file at the project root, five CLI-style subcommands. Produces a YAML frontmatter (machine-readable rules) plus eleven prose sections (human rationale). Multi-voice via `voice.extends` — a child file inherits a parent's rules and overrides only what differs (founder voice on top of corporate, persona on top of institutional, multi-host media brand). Consumed by writing skills via `-f`.
+Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mirrors the `design-system` pattern: a canonical file at the project root, five CLI-style subcommands. Produces a YAML frontmatter (machine-readable rules) plus eleven prose sections (human rationale). Multi-voice via `voice.extends` — a child file inherits a parent's rules and overrides only what differs (founder voice on top of corporate, persona on top of institutional, multi-host media brand). Optional `lexical_exceptions: { acronyms, compound_idioms }` whitelists let a voice admit `BPM`, `MIDI`, `in-your-face` and similar tokens without false positives in `humanize-en`. Consumed by writing skills via `-f`.
 
 **Usage**
 
@@ -921,7 +921,9 @@ Fix grammar and spelling errors in files while preserving formatting, meaning, a
 
 #### humanize-en
 
-Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (*delve*, *tapestry*, *crucial*, *pivotal*, *underscore*, *showcase*), vague attributions, promotional tone, conjunctive padding (*moreover*, *furthermore*, *indeed*), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing. Optionally loads a `BRAND-VOICE.md` via `-f` — chain-resolved through `voice.extends` — to layer brand-specific rules on top of the universal patterns.
+Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (*delve*, *tapestry*, *crucial*, *pivotal*, *underscore*, *showcase*), vague attributions, promotional tone, conjunctive padding (*moreover*, *furthermore*, *indeed*), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing.
+
+Under `-f <BRAND-VOICE.md>` the skill raises the bar: the brand voice becomes the primary contract. A deterministic brand-aware prescan flags every mechanically detectable rule (forbidden lexicon, `rewrite_rules[*].reject`, all-caps emphasis, pronoun violations, signposting, negative parallelism, rule-of-three headings, rhetorical questions, emoji), the LLM walks the full catalogue plus brand rules, then `validate.py` re-runs the checks after the edit and classifies the outcome (`clean` / `residuals` / `regression`). Auto-iterates up to three passes by default.
 
 **Usage**
 
@@ -929,16 +931,19 @@ Strip AI writing tells from English prose — em-dash overuse, rule of three, ne
 /humanize-en README.md                              # file — propose diff, apply on approval
 /humanize-en "paste any text to humanize"           # inline — return rewritten text
 /humanize-en                                        # ask for input
-/humanize-en -f BRAND-VOICE.md draft.md             # apply universal patterns + brand voice rules
+/humanize-en -f BRAND-VOICE.md draft.md             # brand-aware: prescan + validate + auto-iterate
 /humanize-en -f BRAND-VOICE-FOUNDER.md draft.md     # multi-voice (resolves voice.extends chain)
+/humanize-en --iterate 1 -f BRAND-VOICE.md draft.md # disable auto-iteration (single pass)
+/humanize-en --strict-code-only README.md           # treat every fenced block as code (legacy masking)
 ```
 
 **What it does**
 
-1. **Detects** against a 32-pattern catalogue grouped into six families — content, language, style, communication, filler/hedging, structure
-2. **Rewrites** flagged phrasing with direct, specific alternatives — preserves code, links, anchors, quoted material, technical terms
-3. **Self-audits** — runs a second pass asking *"what still reads as AI?"* and revises
-4. **Reports** which patterns (by number) were touched, for re-auditability
+1. **Detects** against a 32-pattern universal catalogue grouped into six families. Under `-f`, also runs `prescan.py --brand` which flags every mechanically detectable brand rule — fences with no info-string or `text` are pseudo-blocks (scanned), language-hinted fences (`python`, `bash`, etc.) stay verbatim
+2. **Rewrites** flagged phrasing with direct, specific alternatives — preserves code, links, anchors, quoted material, technical terms; pseudo-table column alignment is preserved across edits
+3. **Validates** — under `-f`, `validate.py` re-runs prescan + brand checks on the rewritten file and surfaces residuals or regressions; auto-iterates up to three rounds
+4. **Self-audits** rule-by-rule under `-f`: every `forbidden_pattern`, every `forbidden_lexicon` entry, every `pronouns.forbid` rule appears in the *Coverage report* — even with 0 hits — so a future pass can verify the prior one actually checked the rule
+5. **Reports** which patterns (by number for universal, by `rule_id` for brand) were touched, with per-rule hit counts and residuals
 
 Invoked as a subroutine by [`write-clear-readme`](#write-clear-readme) after clarity edits, before presenting the diff. Other skills that produce substantial English prose can invoke it the same way.
 
