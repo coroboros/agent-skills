@@ -5,13 +5,13 @@
     "email": "ob@coroboros.com"
   },
   "metadata": {
-    "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code meta, media, and writing",
-    "version": "1.16.0"
+    "description": "Agent skills for Claude Code and compatible agents \u2014 workflow, design, Claude Code meta, media, and writing",
+    "version": "1.16.1"
   },
   "plugins": [
     {
       "name": "workflow-skills",
-      "description": "Strategic thinking, planning, and implementation — brainstorm, spec, apex, oneshot",
+      "description": "Strategic thinking, planning, and implementation \u2014 brainstorm, spec, apex, oneshot",
       "source": "./",
       "strict": false,
       "skills": [
@@ -34,7 +34,7 @@
     },
     {
       "name": "claude-code-skills",
-      "description": "Meta skills for configuring Claude Code itself — CLAUDE.md authoring, subagent creation",
+      "description": "Meta skills for configuring Claude Code itself \u2014 CLAUDE.md authoring, subagent creation",
       "source": "./",
       "strict": false,
       "skills": [
@@ -44,7 +44,7 @@
     },
     {
       "name": "media-skills",
-      "description": "Media conversion, polishing, and production — file-to-Markdown, video/audio looping, Suno music prompts",
+      "description": "Media conversion, polishing, and production \u2014 file-to-Markdown, video/audio looping, Suno music prompts",
       "source": "./",
       "strict": false,
       "skills": [
@@ -56,7 +56,7 @@
     },
     {
       "name": "writing-skills",
-      "description": "English writing for project documentation — brand voice, READMEs, grammar polish, AI-tell removal",
+      "description": "English writing for project documentation \u2014 brand voice, READMEs, grammar polish, AI-tell removal",
       "source": "./",
       "strict": false,
       "skills": [
