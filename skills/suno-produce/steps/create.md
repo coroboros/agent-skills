@@ -5,7 +5,7 @@ Synthesise a new TRACK.md (and optionally ALBUM.md) from a music brief. Default 
 ## Inputs
 
 - `<brief>` — the music description. Free text. Examples: "indie folk track about a long winter", "make me a melodic-trap EP about leaving home, 4 tracks, 2010s lo-fi feel".
-- `-f <path/to/MUSIC.md>` — optional. Bind the artifact to an artist identity. Reads voice profile, custom model, recurring instrumentation, rights posture from the bound MUSIC.md.
+- `-f <path/to/ARTIST.md>` — optional. Bind the artifact to an artist identity. Reads voice profile, custom model, recurring instrumentation, rights posture from the bound ARTIST.md.
 
 ## Workflow
 
@@ -23,7 +23,7 @@ If detected, run `AskUserQuestion` once with two options to confirm:
 
 If not detected, proceed in single-track mode without asking.
 
-### 2. Read MUSIC.md if bound
+### 2. Read ARTIST.md if bound
 
 When `-f` was passed, read the file. Extract:
 
@@ -46,7 +46,7 @@ Count how many of the five anchor dimensions the brief provides:
 | Length target | Time-format like "3:30", or "single", "long-form", "sketch" |
 | References | Era ("late-90s", "2010s"), regional scene ("Bristol post-punk"), or sound-fingerprint description |
 
-When `MUSIC.md` is bound, vocal direction counts as supplied.
+When `ARTIST.md` is bound, vocal direction counts as supplied.
 
 - **≥ 3 dimensions** → skip the interview, proceed directly to synthesis.
 - **< 3 dimensions** → run `AskUserQuestion` for the missing ones (max 4 questions, multi-select where applicable, recommended option first). One round only — do not loop.
@@ -127,8 +127,9 @@ Output in conversation:
 - A single-line copy-paste pointer: `Open {path}/TRACK.md, copy the Style / Lyrics / Exclude blocks into Suno's Custom Mode.`
 - Slider settings the user needs to set in the Suno UI explicitly (the sliders are not auto-applied — they are emitted as instructions)
 - Any YELLOW validator warnings, verbatim
-- If MUSIC.md was bound: which artist defaults flowed in, which were overridden by the brief
-- Rights reminder if MUSIC.md is set up: short pointer to `references/rights-and-deprecation.md` summary
+- If ARTIST.md was bound: which artist defaults flowed in, which were overridden by the brief
+- Rights reminder if ARTIST.md is set up: short pointer to `references/rights-and-deprecation.md` summary
+- **My Taste reminder** when this is the first track for a new artist or an evaluation/A-B run: `Suno's My Taste personalization is default-on. Disable from avatar menu > My Taste during evaluation work — otherwise the variable is uncontrolled.` See [`../references/sliders-and-personalization.md`](../references/sliders-and-personalization.md) § *My Taste*.
 
 ### 10. Iteration handoff
 
@@ -136,10 +137,10 @@ End with: `When you've listened, run /suno-produce revise {path} "<feedback>"` �
 
 ## Edge cases
 
-- **Brief asks for an artist by name** ("a Sufjan Stevens track") — translate to sound-fingerprint descriptors (intimate fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth). Note in Rationale that artist names are filtered or ignored by Suno.
+- **Brief names an artist or a copyrighted entity** ("a Sufjan Stevens track", "voice like Adele", "in the style of Daft Punk") — translate to sound-fingerprint descriptors before synthesis. Hard rule, both legal (rights exposure on a discoverable prompt) and functional (Suno filters or ignores the citation, model collapses to averaged tag). The validator will RED any citation pattern that survives. Worked rewrites: "Sufjan Stevens" → "indie folk, intimate fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth"; "Adele-like voice" → "full-throated contralto female, gospel-rasp belt, plate reverb, dry close-mic verse"; "Daft Punk vibe" → "French house, sidechain pump, vocoded vocal, filter sweeps, 4/4 at 120 BPM". Note the translation in Rationale so the user sees what was rewritten and why.
 - **Brief is in a non-English language target** (e.g., "make me a French chanson") — write Lyrics in the target language directly. Avoid `[Bilingual]` and similar tags — they don't work alone. See [`../references/style-and-lyrics.md`](../references/style-and-lyrics.md) § *Languages and code-switching*.
 - **Brief asks for SFX in lyrics** ("with applause", "with vinyl crackle") — Style-field texture instead, never Lyrics-field bracket. SFX brackets are unreliable. Note in Rationale that the user can layer specific SFX in Suno Studio after generation.
 - **Brief asks for bar counts** ("8-bar verse") — bar-count tags don't work in Lyrics; honour rate < 30%. Surface that bar-count work belongs in Suno Studio's section editor, not in this prompt.
-- **Brief contradicts MUSIC.md** (e.g., MUSIC.md declares female vocal but brief asks for male) — surface the conflict via `AskUserQuestion`. Override only on confirmation. Never silently pick.
+- **Brief contradicts ARTIST.md** (e.g., ARTIST.md declares female vocal but brief asks for male) — surface the conflict via `AskUserQuestion`. Override only on confirmation. Never silently pick.
 - **Existing TRACK.md at the target path** — refuse to overwrite. Suggest `revise` instead. The `create` verb writes only to fresh paths.
 - **Project folder collision** — if `{slug}/` exists with non-skill content, refuse. Ask for an explicit slug.

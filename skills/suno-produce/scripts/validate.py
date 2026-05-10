@@ -2,17 +2,17 @@
 """Multi-artifact validator for the suno-produce skill.
 
 Auto-dispatches by filename:
-  - TRACK.md  → check_track  (Suno v5.5 prompt-bundle validator)
-  - ALBUM.md  → check_album  (album/EP concept + tracklist validator)
-  - MUSIC.md  → check_music  (artist-identity + voice-consent validator)
+  - TRACK.md   → check_track   (Suno v5.5 prompt-bundle validator)
+  - ALBUM.md   → check_album   (album/EP concept + tracklist validator)
+  - ARTIST.md  → check_artist  (artist-identity + voice-consent validator)
 
 Stdlib only. Python 3.7+.
 
 Usage:
     python3 validate.py path/to/TRACK.md
     python3 validate.py path/to/ALBUM.md
-    python3 validate.py path/to/MUSIC.md
-    python3 validate.py path/to/album-folder/   # walks **/{TRACK,ALBUM,MUSIC}.md
+    python3 validate.py path/to/ARTIST.md
+    python3 validate.py path/to/album-folder/   # walks **/{TRACK,ALBUM,ARTIST}.md
 
 Exit codes:
     0 — all GREEN
@@ -89,6 +89,76 @@ VOCAL_DESCRIPTORS = [
     "whispered vocal", "spoken vocal", "rapped vocal",
 ]
 
+# High-confidence citation patterns — explicit intent to reference an artist or
+# copyrighted entity. These get RED in both Style and Lyrics. Suno's filter
+# strips these phrasings anyway, so the cost of blocking is zero and the legal
+# / functional payoff is real (rights exposure, model collapse on average tag).
+#
+# Whitespace inside each pattern is `[ \t]+` rather than `\s+` so a citation that
+# straddles a line break does not capture the next line's text into the issue
+# value (a non-bug for verdict, but the issue/fix message would otherwise leak
+# the cross-line content). Multi-word capture group also uses `[ \t]+`.
+#
+# Known tolerable false-positive surfaces:
+# - `\b[àa][ \t]+la[ \t]+<Capitalized>` will fire on culinary phrases like
+#   `à la King`, `a la Russe`. Real-world rate inside Suno prompts is near zero
+#   and the user can rephrase as `à la mode` (lowercase) or remove the descriptor.
+# - The possessive pattern `<Name>'s sound|style|voice|era|...` requires the
+#   name to be at least TWO words. Single-word possessives like `London's sound`
+#   or `Spring's sound` would have fired RED on a pure `[A-Z][\w-]+` form; the
+#   `(?:[ \t]+[A-Z][\w-]+){1,2}` quantifier (1-2 trailing words, not 0-2) raises
+#   the bar. Real artist names are almost always multi-word; single-word artist
+#   names (`Madonna`, `Drake`) get caught by the other four patterns regardless.
+ARTIST_CITATION_PATTERNS = (
+    re.compile(r"\bin[ \t]+(?:the[ \t]+)?style[ \t]+of[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
+    re.compile(r"\bsounds?[ \t]+like[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
+    re.compile(r"\bvoice[ \t]+(?:of|like)[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
+    re.compile(r"\b[àa][ \t]+la[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
+    re.compile(r"\b([A-Z][\w-]+(?:[ \t]+[A-Z][\w-]+){1,2})['’]s[ \t]+(?:sound|style|voice|era|track|hit|catalog)\b", re.UNICODE),
+)
+
+# Title-case proper-noun pairs in Style — generic flag for "looks like an artist
+# name". YELLOW because false positives (legitimate Suno descriptors capitalized
+# by users) are common. The whitelist covers the canonical instruments, drums,
+# textures, and production-pipeline terms that real Suno prompts use. New entries
+# go here when a real prompt produces a false positive.
+NON_ARTIST_PHRASES = {
+    # Existing baseline
+    "Drum Bass", "Hip Hop", "Lo Fi", "Boom Bap", "Pedal Steel",
+    "Dance Pop", "Synth Pop", "Drum And", "Drill And", "Wood Block",
+    "Half Time", "Half-Time", "Stereo Wide", "Wide Stereo",
+    "Plate Reverb", "Spring Reverb", "Tape Hiss", "Vinyl Crackle",
+    "Sub Bass", "808 Sub", "Acoustic Guitar", "Electric Guitar",
+    "Upright Bass", "Brushed Drums", "Female Vocal", "Male Vocal",
+    "Close Mic", "Room Mic",
+    # Drums and percussion
+    "Snare Drum", "Bass Drum", "Hi Hat", "Hi-Hat", "Floor Tom", "Tom Fill",
+    "Crash Cymbal", "Ride Cymbal", "Drum Kit", "Drum Machine", "Drum Loop",
+    "Drum Pad", "Brush Drums", "Brushed Snare",
+    # Bass
+    "Slap Bass", "Walking Bass", "Fretless Bass", "Synth Bass",
+    # Synth and lead
+    "Lead Synth", "Synth Lead", "Synth Pad", "Pad Wash", "Analog Synth",
+    "Sub Drop", "Bass Drop",
+    # Vocal forms
+    "Lead Vocal", "Backing Vocal", "Vocal Chop", "Vocal Loop", "Vocal Stack",
+    "Harmony Stack", "Choral Stack",
+    # Guitar
+    "Lead Guitar", "Rhythm Guitar", "Slide Guitar", "Steel Guitar",
+    "Bass Guitar", "Twelve String", "Twelve-String", "Nylon String",
+    "Classical Guitar",
+    # Effects and processing
+    "Tape Echo", "Tape Saturation", "Tape Wobble", "Slap Back", "Slap-Back",
+    "Reverb Tail", "Delay Tail", "Spring Echo", "Plate Echo", "Stereo Field",
+    "Wide Pan", "Side Chain", "Side-Chain", "Sidechain Pump",
+    # Two-word genres in title case (rare but legitimate when users capitalize)
+    "French House", "Trip Hop", "Indie Pop", "Indie Rock", "Pop Rock",
+    "Pop Punk", "Folk Pop", "Folk Rock", "Power Pop", "Soft Rock",
+    "Hard Rock", "Glam Rock", "Prog Rock", "Post Rock", "Math Rock",
+    "Surf Rock", "Garage Rock", "Punk Rock", "Acid House", "Deep House",
+    "Tech House", "Big Band", "Doo Wop", "Future Bass", "Drum Loop",
+}
+
 # Inline-cue keywords that justify a non-canonical bracket as
 # instrumentation / texture / production / performance — the dominant Suno v5.5
 # bracket idiom (see references/style-and-lyrics.md § Stacking metatags inside
@@ -120,11 +190,11 @@ ALBUM_REQUIRED_SECTIONS = ["Concept", "Arc", "Tracklist", "Transitions"]
 ALBUM_ARC_REQUIRED_LABELS = ["Opening", "Development", "Climax", "Closing"]
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MUSIC-specific constants
+# ARTIST-specific constants
 # ─────────────────────────────────────────────────────────────────────────────
 
-MUSIC_VALID_RIGHTS_POSTURES = {"license-only", "licensed", "public-domain", "unknown"}
-MUSIC_REQUIRED_SECTIONS = [
+ARTIST_VALID_RIGHTS_POSTURES = {"license-only", "licensed", "public-domain", "unknown"}
+ARTIST_REQUIRED_SECTIONS = [
     "Artist identity",
     "Voice and Custom Model",
     "Recurring instrumentation",  # match the section header start, not the full title
@@ -276,6 +346,25 @@ def looks_like_inline_cue(tag_lower):
     if "," in tag_lower:
         return True
     return any(kw in tag_lower for kw in INLINE_CUE_KEYWORDS)
+
+
+def find_citation_matches(text):
+    """Return list of (pattern_phrase, captured_name, in_text_offset) for any
+    artist-citation pattern hit in `text`. The caller resolves line numbers
+    against the surrounding section.
+    """
+    hits = []
+    for rx in ARTIST_CITATION_PATTERNS:
+        for m in rx.finditer(text):
+            phrase = m.group(0)
+            name = m.group(1) if m.lastindex else phrase
+            hits.append((phrase, name, m.start()))
+    return hits
+
+
+def offset_to_line(text, offset):
+    """1-indexed line number of `offset` inside `text`."""
+    return text.count("\n", 0, offset) + 1
 
 
 def parse_sliders(body):
@@ -446,19 +535,41 @@ def check_track(path):
                         "fix": f"Remove `{vd}` from Style — it conflicts with the cloned Voice and produces blended timbre",
                     })
                     break
-        non_artist_phrases = {
-            "Drum Bass", "Hip Hop", "Lo Fi", "Boom Bap", "Pedal Steel",
-            "Dance Pop", "Synth Pop", "Drum And", "Drill And", "Wood Block",
-        }
+        # Citation patterns ("in the style of X", "voice of X", "à la X",
+        # "X's sound") are high-confidence intent — RED. Suno filters these
+        # phrasings; using them creates rights exposure for zero functional
+        # benefit. Article §5.1.5 anti-pattern; Rules § "Describe the sound,
+        # never an artist".
+        for phrase, _name, off in find_citation_matches(style):
+            errors.append({
+                "check": "artist_citation_in_style",
+                "line": style_file_line + offset_to_line(style, off) - 1,
+                "value": phrase,
+                "expected": "describe the sonic fingerprint, not artist or copyrighted citations",
+                "fix": (
+                    f"Remove `{phrase}` — Suno filters/ignores artist citations and you "
+                    "carry rights exposure for nothing. Translate to sound: era + "
+                    "production texture + vocal timbre (e.g., \"late-90s post-grunge, "
+                    "raspy male belt, dry close-mic\")."
+                ),
+            })
+        # Title-case proper-noun pairs in Style — generic flag. Whitelisted
+        # phrases skip; everything else gets YELLOW (false positives are common
+        # so we warn rather than block).
         artist_candidates = re.findall(r"\b[A-Z][a-z]+ [A-Z][a-z]+\b", style)
-        flagged = [c for c in artist_candidates if c not in non_artist_phrases]
+        flagged = [c for c in artist_candidates if c not in NON_ARTIST_PHRASES]
         if flagged:
             warnings.append({
                 "check": "artist_name_in_style",
                 "line": style_file_line,
                 "value": flagged,
                 "expected": "describe the sonic fingerprint, not artist names",
-                "fix": "Replace artist names with sound-fingerprint descriptors — Suno filters or ignores artist names",
+                "fix": (
+                    "Replace artist-name candidates with sound-fingerprint descriptors. "
+                    "Reasons: (1) legal — artist names in prompts create rights exposure; "
+                    "(2) functional — Suno filters or ignores them and the model collapses "
+                    "to an averaged tag. Use era + texture + vocal timbre instead."
+                ),
             })
 
     if lyrics is not None:
@@ -480,6 +591,21 @@ def check_track(path):
                 "value": bpm_match.group(0),
                 "expected": "BPM in Style of Music field, never in Lyrics",
                 "fix": "Move BPM specification to the Style of Music field",
+            })
+        # Citation patterns also apply to Lyrics — Suno's filter scrubs
+        # artist citations from either field, and a citation written as a
+        # lyric still creates rights exposure.
+        for phrase, _name, off in find_citation_matches(lyrics):
+            errors.append({
+                "check": "artist_citation_in_lyrics",
+                "line": lyrics_file_line + offset_to_line(lyrics, off) - 1,
+                "value": phrase,
+                "expected": "describe the sonic fingerprint, not artist or copyrighted citations",
+                "fix": (
+                    f"Remove `{phrase}` — Suno filters/ignores artist citations even "
+                    "inside the Lyrics field. Rewrite as a description (era, mood, "
+                    "delivery) or remove the line."
+                ),
             })
         for tag, in_section_line in find_brackets(lyrics):
             file_line = lyrics_file_line + in_section_line - 1
@@ -662,10 +788,10 @@ def check_album(path):
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# MUSIC.md validator
+# ARTIST.md validator
 # ─────────────────────────────────────────────────────────────────────────────
 
-def check_music(path):
+def check_artist(path):
     text = Path(path).read_text(encoding="utf-8")
     fm, body, fm_offset = parse_frontmatter(text)
     if fm is None:
@@ -729,13 +855,13 @@ def check_music(path):
         })
 
     rights_posture = fm.get("rights_posture")
-    if rights_posture and rights_posture not in MUSIC_VALID_RIGHTS_POSTURES:
+    if rights_posture and rights_posture not in ARTIST_VALID_RIGHTS_POSTURES:
         warnings.append({
             "check": "rights_posture_format",
             "line": 9,
             "value": rights_posture,
-            "expected": " | ".join(sorted(MUSIC_VALID_RIGHTS_POSTURES)),
-            "fix": f"Use one of: {', '.join(sorted(MUSIC_VALID_RIGHTS_POSTURES))}",
+            "expected": " | ".join(sorted(ARTIST_VALID_RIGHTS_POSTURES)),
+            "fix": f"Use one of: {', '.join(sorted(ARTIST_VALID_RIGHTS_POSTURES))}",
         })
 
     slider_bias = fm.get("slider_bias")
@@ -775,7 +901,7 @@ def check_music(path):
 
     # Required sections — match by section-header start so users can have
     # variant headings (e.g., "Recurring instrumentation and texture").
-    for needle in MUSIC_REQUIRED_SECTIONS:
+    for needle in ARTIST_REQUIRED_SECTIONS:
         section_lines, _ = find_section(body, rf"^##\s+{re.escape(needle)}.*$")
         if section_lines is None:
             errors.append({
@@ -797,14 +923,14 @@ def check_music(path):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def detect_artifact_type(path):
-    """Pick a validator by filename. Returns 'track' | 'album' | 'music' | None."""
+    """Pick a validator by filename. Returns 'track' | 'album' | 'artist' | None."""
     name = Path(path).name.upper()
     if name == "TRACK.MD":
         return "track"
     if name == "ALBUM.MD":
         return "album"
-    if name == "MUSIC.MD":
-        return "music"
+    if name == "ARTIST.MD":
+        return "artist"
     return None
 
 
@@ -814,8 +940,8 @@ def check_file(path):
         return check_track(path)
     if kind == "album":
         return check_album(path)
-    if kind == "music":
-        return check_music(path)
+    if kind == "artist":
+        return check_artist(path)
     return {
         "verdict": "RED",
         "file": str(path),
@@ -823,7 +949,7 @@ def check_file(path):
             "check": "unsupported_filename",
             "line": 0,
             "value": Path(path).name,
-            "expected": "TRACK.md | ALBUM.md | MUSIC.md",
+            "expected": "TRACK.md | ALBUM.md | ARTIST.md",
             "fix": "Rename to one of the canonical filenames or pass a directory to walk",
         }],
         "warnings": [],
@@ -840,7 +966,7 @@ def collect_files(target):
         return [target]
     if target.is_dir():
         files = []
-        for name in ("TRACK.md", "ALBUM.md", "MUSIC.md"):
+        for name in ("TRACK.md", "ALBUM.md", "ARTIST.md"):
             files.extend(sorted(target.rglob(name)))
         return sorted(set(files))
     return []
@@ -849,7 +975,7 @@ def collect_files(target):
 def main():
     parser = argparse.ArgumentParser(
         description=(
-            "Validate Suno v5.5 production artifacts (TRACK.md / ALBUM.md / MUSIC.md). "
+            "Validate Suno v5.5 production artifacts (TRACK.md / ALBUM.md / ARTIST.md). "
             "Auto-dispatches by filename."
         ),
     )
@@ -864,7 +990,7 @@ def main():
     files = collect_files(target)
     if not files:
         print(
-            json.dumps({"error": f"no TRACK.md/ALBUM.md/MUSIC.md found under {target}"}, indent=2),
+            json.dumps({"error": f"no TRACK.md/ALBUM.md/ARTIST.md found under {target}"}, indent=2),
             file=sys.stderr,
         )
         sys.exit(1)

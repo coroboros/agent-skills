@@ -1,18 +1,22 @@
 # Step: validate
 
-Run the deterministic linter against a `TRACK.md`, `ALBUM.md`, or `MUSIC.md` and report findings. CI-friendly exit codes. The script auto-dispatches by filename.
+Run the deterministic linter against a `TRACK.md`, `ALBUM.md`, or `ARTIST.md` and report findings. CI-friendly exit codes. The script auto-dispatches by filename.
 
 Aliases: `lint`, `check`. All three behave identically.
 
+## Copyright contract
+
+The validator hard-blocks artist citations. RED on `in the style of <Name>`, `voice of/like <Name>`, `sounds like <Name>`, `à la <Name>`, `<Name>'s sound/style/voice/era` in either Style or Lyrics. YELLOW on bare title-case proper-noun pairs in Style outside the safe-phrase whitelist. Both rules trace to article §5.1.5 and SKILL.md Rules § *Never name artists or copyrighted entities in prompts*. The fix message carries the legal reasoning (rights exposure) and the functional reasoning (Suno filters/ignores), so the user sees why the rewrite is required.
+
 ## Inputs
 
-- `<path>` — path to a single artifact file (`TRACK.md` / `ALBUM.md` / `MUSIC.md`), a project folder containing one or more, or a directory of project folders. Glob expansion: `validate projects/album-slug/` validates every `TRACK.md`, `ALBUM.md`, and `MUSIC.md` under that tree.
+- `<path>` — path to a single artifact file (`TRACK.md` / `ALBUM.md` / `ARTIST.md`), a project folder containing one or more, or a directory of project folders. Glob expansion: `validate projects/album-slug/` validates every `TRACK.md`, `ALBUM.md`, and `ARTIST.md` under that tree.
 
 ## Workflow
 
 ### 1. Resolve target files
 
-- Path ends in `TRACK.md`, `ALBUM.md`, or `MUSIC.md` → validate that one file.
+- Path ends in `TRACK.md`, `ALBUM.md`, or `ARTIST.md` → validate that one file.
 - Path is a directory → recursively walk for all three filenames. Report per-file then a summary.
 - Path is missing → error out with a clear message.
 
@@ -23,8 +27,8 @@ python3 ${CLAUDE_SKILL_DIR}/scripts/validate.py <path/to/artifact-or-folder>
 ```
 
 The script:
-- Detects artifact type from filename (TRACK / ALBUM / MUSIC).
-- Parses YAML frontmatter — including block-form nested mappings (e.g., `slider_bias:` in MUSIC.md).
+- Detects artifact type from filename (TRACK / ALBUM / ARTIST).
+- Parses YAML frontmatter — including block-form nested mappings (e.g., `slider_bias:` in ARTIST.md).
 - Runs the type-specific check set (see `SKILL.md` § *Validation contract*).
 - Writes a JSON report to stdout.
 

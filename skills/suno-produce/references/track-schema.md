@@ -1,8 +1,10 @@
-# TRACK / ALBUM / MUSIC schema
+# TRACK / ALBUM / ARTIST schema
 
 The three-layer artifact schema for Suno v5.5 production work. Every file produced by this skill conforms to one of the three.
 
-The split is deliberate: each layer reads the layer below it, never above. `TRACK.md` reads `ALBUM.md` (sibling) for tracklist context. `ALBUM.md` reads `MUSIC.md` (referenced via `-f`) for artist defaults. `MUSIC.md` is a leaf — it reads nothing.
+The split is deliberate: each layer reads the layer below it, never above. `TRACK.md` reads `ALBUM.md` (sibling) for tracklist context. `ALBUM.md` reads `ARTIST.md` (referenced via `-f`) for artist defaults. `ARTIST.md` is a leaf — it reads nothing.
+
+**Filename rationale.** The artist-identity layer is named `ARTIST.md`, not `MUSIC.md`, because the contents describe an artist persona (voice, custom model, recurring instrumentation, rights posture) — not music. The rename was a deliberate evolution of the open standard; the community Suno-prompt formats (Spidy88, Blake Crosley, Stoke McToke, suno.wiki) do not have an equivalent layer at all.
 
 ## TRACK.md
 
@@ -17,8 +19,8 @@ title: <human title>          # required, ≤ 100 chars
 bpm: 92                        # integer, soft guidance — drift ±4 is normal
 key: D minor                   # optional, soft guidance — honour rate ~60%
 length_target: "3:30"          # MM:SS or "long-form" / "sketch"
-voice_profile: null            # set from bound MUSIC.md when applicable
-custom_model: null             # set from bound MUSIC.md when applicable
+voice_profile: null            # set from bound ARTIST.md when applicable
+custom_model: null             # set from bound ARTIST.md when applicable
 genre_primary: indie folk      # one phrase, drives the load-bearing tag
 era: 2010s bedroom             # optional but recommended
 mood: nostalgic                # one or two adjectives
@@ -68,11 +70,11 @@ revised: null                  # ISO date, updated by every revise
 
    Audio Influence appears only when `voice_profile` or `custom_model` is set. Each slider gets a one-clause rationale.
 
-4. **Voice / Custom Model** — declared if MUSIC.md is bound; "None." otherwise. When set, repeat the bound names so the file is self-contained when copied without MUSIC.md context:
+4. **Voice / Custom Model** — declared if ARTIST.md is bound; "None." otherwise. When set, repeat the bound names so the file is self-contained when copied without ARTIST.md context:
 
    ```markdown
    ## Voice / Custom Model
-   - **Voice**: `Studio-A` (from MUSIC.md at ~/artists/studio-a/MUSIC.md)
+   - **Voice**: `Studio-A` (from ARTIST.md at ~/artists/studio-a/ARTIST.md)
    - **Custom Model**: none
    ```
 
@@ -194,7 +196,7 @@ created: 2026-05-09
    ```
 3. **Tracklist** — numbered list. Each line: `nn. Title — BPM — key — feel`. The `nn-` prefix matches the per-track folder name.
 4. **Transitions** — bullets. Each bullet describes the move between two adjacent tracks: key change, BPM ramp, cross-fade or hard cut, narrative bridge. This is what makes a tracklist an album rather than a playlist.
-5. **Rights and distribution** — placeholder section with declared posture: licensed audience, intended platforms, any cover-vs-original status, MUSIC.md binding if any. Cross-reference [`./rights-and-deprecation.md`](./rights-and-deprecation.md) when the artist has a `MUSIC.md`.
+5. **Rights and distribution** — placeholder section with declared posture: licensed audience, intended platforms, any cover-vs-original status, ARTIST.md binding if any. Cross-reference [`./rights-and-deprecation.md`](./rights-and-deprecation.md) when the artist has a `ARTIST.md`.
 
 ### Worked example — short EP
 
@@ -233,12 +235,14 @@ A short EP about absence as a daily routine — what stays in a house after some
 - 4 → 5: F# minor to D minor; -12 BPM, full pull-back; cross-fade through room tone
 
 ## Rights and distribution
-Original songs, no covers, no sampled audio. No `MUSIC.md` bound for this EP — single-project artifact. See [`rights-and-deprecation.md`](./rights-and-deprecation.md) for the export-WAV reminder before model deprecation lands.
+Original songs, no covers, no sampled audio. No `ARTIST.md` bound for this EP — single-project artifact. See [`rights-and-deprecation.md`](./rights-and-deprecation.md) for the export-WAV reminder before model deprecation lands.
 ```
 
-## MUSIC.md
+## ARTIST.md
 
-The artist identity layer. Optional. Artist-scoped — one file referenced from many album folders. The skill never auto-creates one; the user keeps it wherever their workspace lives and binds it via `-f /path/to/MUSIC.md`.
+The artist identity layer. Optional. Artist-scoped — one file referenced from many album folders. The skill never auto-creates one; the user keeps it wherever their workspace lives and binds it via `-f /path/to/ARTIST.md`.
+
+The Voice and Custom Model fields encode the platform-side personalization. Voice input audio is 15 s – 4 min (Suno selects the best 2 min after voice-print verification). Custom Model training requires ≥ 6 stylistically-consistent tracks; up to 3 Custom Models per Pro/Premier account; training takes 2 – 5 minutes. None of these are enforced by the validator (they are platform-side facts) — they are recorded in the body so the user has the rules at hand when registering identity.
 
 ### Frontmatter
 
@@ -266,7 +270,11 @@ created: 2026-05-09
 3. **Recurring instrumentation and texture** — the descriptor fragments that should bias every TRACK.md created under this identity. Plus textures (`tape warmth`, `room mic`, `vinyl crackle`) that are part of the artist's sound.
 4. **Rights posture** — the artist's commercial-rights stance. Statement of what is original, what is licensed, what is public-domain. Reminder to export WAV stems before model deprecation. Cross-reference `rights-and-deprecation.md` for the active litigation context.
 
-### Worked example — minimal MUSIC.md
+### Migrating from MUSIC.md
+
+The artifact was renamed from `MUSIC.md` to `ARTIST.md` to align the filename with what the file describes. To migrate an existing artifact: rename the file (`mv MUSIC.md ARTIST.md`), update any `-f` references in your project workspace, and re-run the validator. The schema is identical — frontmatter and section names did not change. The `MUSIC.md` filename is no longer recognised by the validator; an explicit rename is required to clear stale references.
+
+### Worked example — minimal ARTIST.md
 
 ```markdown
 ---

@@ -1,6 +1,6 @@
 # Sliders + Voice + Custom Model
 
-The three Creative Sliders, voice-cloning behaviour, and custom-model behaviour for Suno v5.5. Read this when assembling slider settings in TRACK.md, or when MUSIC.md declares a `voice_profile` or `custom_model`.
+The three Creative Sliders, voice-cloning behaviour, and custom-model behaviour for Suno v5.5. Read this when assembling slider settings in TRACK.md, or when ARTIST.md declares a `voice_profile` or `custom_model`.
 
 ## Contents
 
@@ -9,6 +9,7 @@ The three Creative Sliders, voice-cloning behaviour, and custom-model behaviour 
 - [Voices-aware prompting](#voices-aware-prompting)
 - [Custom Model-aware prompting](#custom-model-aware-prompting)
 - [Stacking Voice + Custom Model](#stacking-voice--custom-model)
+- [My Taste — the silent fourth slider](#my-taste--the-silent-fourth-slider)
 
 ## The three Creative Sliders
 
@@ -62,25 +63,27 @@ Pick the band that best matches the brief; centre within the band. State the cho
 
 ## Voices-aware prompting
 
-When a Voice profile is attached (declared in MUSIC.md or selected in Suno's UI):
+When a Voice profile is attached (declared in ARTIST.md or selected in Suno's UI):
 
 1. **Drop all vocal descriptors from the Style of Music field.** "Soft male tenor", "breathy female soprano", "autotuned melodic male rap" — all conflict with the cloned voice and produce blended timbre. The validator emits YELLOW when vocal descriptors are present alongside an attached Voice.
 2. **Drop vocal descriptors from inline cues in Lyrics.** `[Soft male tenor, close-mic]` becomes `[Close-mic, dry vocal pocket]` — keep the mic / processing cue, drop the timbre.
 3. **Set Audio Influence to 70–90%.** Default 78%. Below 70%, the clone drifts toward generic.
 4. **Reallocate the freed character budget.** The vocal-direction slot in Style (40–120 chars) is freed when the Voice handles vocal identity. Use those characters for additional production texture or instrumentation detail.
 
-Worked example:
+Worked example (vocal-direction descriptors stripped; production texture stays):
 
 ```text
 Without Voice (vocal descriptor in Style):
 Indie folk, 2010s bedroom, nostalgic, fingerpicked acoustic,
 soft male vocal, breathy delivery, lo-fi tape warmth, 95 BPM
 
-With Voice attached (vocal descriptor dropped, characters reallocated):
+With Voice attached (vocal descriptor dropped; freed budget goes to production):
 Indie folk, 2010s bedroom, nostalgic, fingerpicked acoustic,
-upright bass, brushed drums, lo-fi tape warmth, room mic,
-spring reverb, 95 BPM
+upright bass, brushed drums, lo-fi tape warmth,
+spring reverb, wide stereo, 95 BPM
 ```
+
+Note: `room mic` reads ambiguously — it can describe the *vocal* mic (which conflicts with a Voice) or the *room ambience* mic. When a Voice is attached, drop `room mic` from Style; if you want the room-tone effect, write `room ambience` or `room reverb` instead. Anything that controls how the vocal is captured belongs to the Voice.
 
 Suno's official Voices FAQ confirms: *"If you find that the songs you make with your Voice don't sound like you, experiment with turning up the Audio Influence slider in the Create form."*
 
@@ -121,7 +124,7 @@ The validator emits YELLOW when redundant genre/era descriptors are present alon
 
 The deepest personalization stack v5.5 offers: Custom Model + Voice + Audio Influence 70–90%.
 
-When both are declared in MUSIC.md, the Style field becomes purely directional:
+When both are declared in ARTIST.md, the Style field becomes purely directional:
 
 - Drop genre / era / aesthetic (encoded by the Custom Model)
 - Drop vocal descriptors (encoded by the Voice)
@@ -141,5 +144,13 @@ Slider profile for Voice + Model:
 - Audio Influence 75–85 (resemblance lock)
 
 The combination is fragile. Validate against reference recordings; expect 4–6 takes before convergence. Save winning takes as `versions/v{N}.md` archive — the prompt that produced a coherent Voice + Model take is durable knowledge.
+
+## My Taste — the silent fourth slider
+
+Suno v5.5 ships a default-on personalization layer called **My Taste** that sits behind the three visible sliders. Its job: bias the Magic Wand suggestions in the Style box, and bias generation defaults when prompts are underspecified. It does not override an explicit Style field — but it does perturb takes when the prompt is thin, and it carries opinions across sessions that the user may not be aware of.
+
+For evaluation work — A/B comparing slider bands, comparing two takes from the same prompt, calibrating a new Custom Model against reference recordings — **disable My Taste**. From Suno's avatar menu > My Taste, toggle off. Otherwise the variable is uncontrolled: a delta between two takes you attributed to a slider change might actually be My Taste drifting between sessions.
+
+For production work where you trust Suno's biases (or where you want them, e.g., for a single-artist catalog), leave it on. The skill cannot read or set the My Taste state — Suno does not expose it via prompt or API. Surface a reminder in the user-facing summary the first time a track is created for a new artist or whenever the brief reads as evaluative ("compare", "A/B", "which slider", "test").
 
 The canonical structural metatags, inline performance cues, and genre-specific prompt recipes that frame these slider settings live in sibling reference files — see the SKILL.md reference table.

@@ -32,4 +32,4 @@ A short EP about absence as a daily routine — what stays in a house after some
 - 4 → 5: F# minor to D minor, -12 BPM, full pull-back, cross-fade through room tone
 
 ## Rights and distribution
-Original songs, no covers, no sampled audio. No `MUSIC.md` bound for this EP.
+Original songs, no covers, no sampled audio. No `ARTIST.md` bound for this EP.
