@@ -16,6 +16,14 @@ v5.5 is a **paid-tier-only** model. Free accounts are locked to v4.5-all and rem
 
 Monthly subscription credits do not roll over. Purchased top-up credits do not expire but require active subscription. Annual saves ~20%.
 
+### Audio and voice input limits
+
+| Surface | Limit | Notes |
+|---------|-------|-------|
+| Audio upload | up to 30 min (Pro/Premier), 8 min on free | Used by Cover, Voice, Audio Influence |
+| Voice input audio | 15 s – 4 min | Suno selects the best 2 min after voice-print verification |
+| Custom Model training set | ≥ 6 tracks | Stylistically-consistent only; mixed catalogs degrade |
+
 ## Output specs
 
 Suno v5.5 native output:

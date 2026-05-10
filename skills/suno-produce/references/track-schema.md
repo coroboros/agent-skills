@@ -6,6 +6,40 @@ The split is deliberate: each layer reads the layer below it, never above. `TRAC
 
 **Filename rationale.** The artist-identity layer is named `ARTIST.md`, not `MUSIC.md`, because the contents describe an artist persona (voice, custom model, recurring instrumentation, rights posture) — not music. The rename was a deliberate evolution of the open standard; the community Suno-prompt formats (Spidy88, Blake Crosley, Stoke McToke, suno.wiki) do not have an equivalent layer at all.
 
+## Project folder layout
+
+### Standalone single (one track, no album)
+
+```
+{track-slug}/
+  TRACK.md
+  versions/
+    v1.md, v2.md, …       # archived prior takes (created by revise)
+  audio/                   # optional, gitignored — user drops Suno exports here
+    v1-takeA.wav, …
+  .gitignore               # the skill emits this if missing — ignores audio/
+```
+
+### Album / EP
+
+```
+projects/{album-slug}/
+  ALBUM.md
+  tracks/
+    01-{track-slug}/
+      TRACK.md
+      versions/
+      audio/
+    02-{track-slug}/
+      TRACK.md
+      …
+  .gitignore
+```
+
+The track-slug is kebab-case from the title, max 5 words. The leading two-digit prefix (`01-`, `02-`) matches the tracklist order in `ALBUM.md`. Reordering renames the folders; the skill handles this in `revise` when the album order changes.
+
+`ARTIST.md` lives wherever the user keeps it — typically a brand workspace root (`~/<artist>/ARTIST.md`) — and is referenced from any project folder via `-f /path/to/ARTIST.md`. The skill never creates `ARTIST.md` on its own; it only consumes one when passed.
+
 ## TRACK.md
 
 The unit of Suno generation. One file per track. Always emitted.
