@@ -86,7 +86,7 @@ Replace the artist citation with **era + production texture + vocal timbre**. Ke
 |---------------|----------------------------|
 | "make me a Sufjan Stevens track" | indie folk, 2010s bedroom, intimate, fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth, 92 BPM |
 | "Daft Punk vibe" | French house, 2000s analog, vocoded vocal, sidechain pump, filter sweeps, side-chained pads, 4/4 at 120 BPM |
-| "voice like Adele" | powerful contralto female, gospel-rasp belt, plate reverb, dry close-mic verse, soulful inflection |
+| "voice like Adele" | full-throated contralto female, gospel-rasp belt, plate reverb, dry close-mic verse, soulful inflection |
 | "in the style of Kurt Cobain" | grunge, late-90s Seattle, raspy male tenor, distorted guitar, drop-D tuning, sludgy bass, dry close-mic |
 | "Bristol post-punk like Massive Attack" | trip-hop, 90s Bristol, dub-heavy, female alto, programmed breakbeat, sub bass, plate reverb, 88 BPM |
 | "Phil Collins drums" | 80s gated reverb, big tom fills, pulsing kick, programmed snare, wide stereo |

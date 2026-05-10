@@ -6,7 +6,7 @@ For deeper detail beyond what's captured here (court filings, evolving settlemen
 
 ## Plan tiers and v5.5 access
 
-v5.5 is a **paid-tier-only** model. Free accounts are locked to v4.5-all and remain non-commercial. Pro and Premier unlock v5.5, commercial license, WAV export, Voices, Custom Models, and stems.
+v5.5 is a **paid-tier-only** model. Free accounts are locked to v4.5-all and remain non-commercial. Pro and Premier add v5.5 access, commercial license, WAV export, Voices, Custom Models, and stems.
 
 | Plan | Price | Credits | v5.5 | Voices | Custom Models | Studio | Stems | Commercial | WAV |
 |------|-------|---------|------|--------|---------------|--------|-------|------------|-----|

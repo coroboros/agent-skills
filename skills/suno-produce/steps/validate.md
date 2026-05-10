@@ -6,7 +6,7 @@ Aliases: `lint`, `check`. All three behave identically.
 
 ## Copyright contract
 
-The validator hard-blocks artist citations. RED on `in the style of <Name>`, `voice of/like <Name>`, `sounds like <Name>`, `à la <Name>`, `<Name>'s sound/style/voice/era` in either Style or Lyrics. YELLOW on bare title-case proper-noun pairs in Style outside the safe-phrase whitelist. Both rules trace to article §5.1.5 and SKILL.md Rules § *Never name artists or copyrighted entities in prompts*. The fix message includes the legal (rights exposure) and functional (Suno filters/ignores) reasoning so the user understands why the rewrite is required, not just that it is.
+The validator hard-blocks artist citations. RED on `in the style of <Name>`, `voice of/like <Name>`, `sounds like <Name>`, `à la <Name>`, `<Name>'s sound/style/voice/era` in either Style or Lyrics. YELLOW on bare title-case proper-noun pairs in Style outside the safe-phrase whitelist. Both rules trace to article §5.1.5 and SKILL.md Rules § *Never name artists or copyrighted entities in prompts*. The fix message carries the legal reasoning (rights exposure) and the functional reasoning (Suno filters/ignores), so the user sees why the rewrite is required.
 
 ## Inputs
 
