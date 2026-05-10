@@ -237,6 +237,39 @@ def _check_inheritance(data, errors, warnings):
                 errors.append(_err("core-attribute-missing-id", f"core_attributes[{i}]",
                                    "core_attributes entry lacks attribute_id (kebab-case, stable merge key)"))
 
+    lex = data.get("lexical_exceptions")
+    if lex is not None:
+        if not isinstance(lex, dict):
+            errors.append(_err("invalid-field-value", "lexical_exceptions",
+                               "lexical_exceptions must be a mapping with 'acronyms' and/or 'compound_idioms' lists"))
+        else:
+            acronyms = lex.get("acronyms")
+            if acronyms is not None:
+                if not isinstance(acronyms, list):
+                    errors.append(_err("invalid-field-value", "lexical_exceptions.acronyms",
+                                       "lexical_exceptions.acronyms must be a list of strings"))
+                else:
+                    for i, item in enumerate(acronyms):
+                        if not isinstance(item, str) or not item:
+                            errors.append(_err("invalid-field-value", f"lexical_exceptions.acronyms[{i}]",
+                                               "acronym entries must be non-empty strings"))
+                        elif not item.isupper() or len(item) < 2:
+                            warnings.append(_err("invalid-field-value", f"lexical_exceptions.acronyms[{i}]",
+                                                 f"acronym '{item}' should be uppercase with at least 2 chars"))
+            idioms = lex.get("compound_idioms")
+            if idioms is not None:
+                if not isinstance(idioms, list):
+                    errors.append(_err("invalid-field-value", "lexical_exceptions.compound_idioms",
+                                       "lexical_exceptions.compound_idioms must be a list of strings"))
+                else:
+                    for i, item in enumerate(idioms):
+                        if not isinstance(item, str) or not item:
+                            errors.append(_err("invalid-field-value", f"lexical_exceptions.compound_idioms[{i}]",
+                                               "compound_idiom entries must be non-empty strings"))
+                        elif "-" not in item:
+                            warnings.append(_err("invalid-field-value", f"lexical_exceptions.compound_idioms[{i}]",
+                                                 f"compound_idiom '{item}' should contain a hyphen"))
+
 
 def _check_prose(body, sections, errors, warnings, has_extends=False):
     """Prose section presence, order, content density.

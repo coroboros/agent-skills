@@ -154,13 +154,46 @@ class TestEmDashDensity(unittest.TestCase):
 
 
 class TestMasking(unittest.TestCase):
-    """Protected regions (code, URLs, frontmatter) must be masked before scan."""
+    """Protected regions (code, URLs, frontmatter) must be masked before scan.
 
-    def test_fenced_code_block_masked(self):
-        text = "Outside.\n```\npivotal moment in code\n```\nAlso outside."
+    Fenced blocks split into two cases:
+    - **Real code**: opening fence has a language hint (e.g. ```python). Blanked.
+    - **Pseudo-block**: opening fence has no info-string or `text`. Scanned —
+      the body is prose-shaped (label-prefixed lines, ASCII tables) and AI tells
+      living there must surface."""
+
+    def test_fenced_code_block_with_language_hint_masked(self):
+        text = "Outside.\n```python\npivotal moment in code\n```\nAlso outside."
         hits = _hits_for_pattern(text, 1)
-        # No hit because the only candidate phrase is in a code block
-        self.assertEqual(hits, [])
+        self.assertEqual(hits, [], "language-hinted fence is real code, must blank")
+
+    def test_pseudo_block_no_info_string_is_scanned(self):
+        """Plain ``` block with no info-string is a pseudo-block — scanned."""
+        text = "Outside.\n```\npivotal moment in prose\n```\nAlso outside."
+        hits = _hits_for_pattern(text, 1)
+        self.assertEqual(len(hits), 1, "pseudo-block content must be scanned")
+
+    def test_pseudo_block_text_info_string_is_scanned(self):
+        """Explicit `text` info-string is also a pseudo-block."""
+        text = "Outside.\n```text\npivotal moment in prose\n```\nAlso outside."
+        hits = _hits_for_pattern(text, 1)
+        self.assertEqual(len(hits), 1, "```text fence must be scanned")
+
+    def test_strict_code_only_blanks_pseudo_blocks(self):
+        """--strict-code-only reverts to legacy behaviour: all fences blanked."""
+        text = "```\npivotal moment\n```"
+        masked = mask_protected_regions(text, strict_code_only=True)
+        self.assertNotIn("pivotal", masked)
+
+    def test_fence_marker_lines_blanked_in_pseudo_block(self):
+        """Pseudo-block: the fence markers themselves are blanked but body kept.
+        Ensures ` ```text ` doesn't accidentally match patterns by itself."""
+        text = "```text\nprose line\n```"
+        masked = mask_protected_regions(text)
+        lines = masked.split("\n")
+        self.assertEqual(lines[0].strip(), "", "opening fence line blanked")
+        self.assertEqual(lines[1], "prose line", "body kept verbatim")
+        self.assertEqual(lines[2].strip(), "", "closing fence blanked")
 
     def test_inline_backticks_masked(self):
         text = "Use `pivotal moment` syntax to reference."

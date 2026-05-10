@@ -49,6 +49,9 @@ def split_frontmatter(text):
 
     Returns (None, text) if no frontmatter is present.
     """
+    # Strip UTF-8 BOM if present so '---' on line 1 still detects.
+    if text.startswith("﻿"):
+        text = text[1:]
     lines = text.splitlines(keepends=True)
     if not lines or lines[0].rstrip("\n") != "---":
         return None, text
@@ -88,10 +91,27 @@ def parse_yaml_minimal(yaml_text):
         e.line = lineno + 1
         return e
 
+    def _strip_comment(line):
+        """Strip a `#` inline comment, respecting quoted strings and requiring
+        the `#` to be at line start or preceded by whitespace. Otherwise a URL
+        fragment, color hex, or anchor inside a value is silently truncated."""
+        quote = None
+        for idx, ch in enumerate(line):
+            if quote:
+                if ch == quote:
+                    quote = None
+                continue
+            if ch in ('"', "'"):
+                quote = ch
+                continue
+            if ch == "#" and (idx == 0 or line[idx - 1] in (" ", "\t")):
+                return line[:idx]
+        return line
+
     def peek():
         while pos[0] < len(lines):
             line = lines[pos[0]]
-            stripped = line.split("#", 1)[0].rstrip()
+            stripped = _strip_comment(line).rstrip()
             if stripped:
                 return stripped, pos[0]
             pos[0] += 1
@@ -322,6 +342,7 @@ REPLACE_ALLOWED_FIELDS = frozenset({
     "sentence_norms",
     "contexts",
     "pronouns",
+    "lexical_exceptions",
 })
 
 REMOVE_ALLOWED_FIELDS = frozenset({
@@ -534,6 +555,28 @@ def merge_voice_dicts(parent, child):
                 pronouns[k] = parent_pron[k]
         merged["pronouns"] = pronouns
 
+    # lexical_exceptions — deep merge: each inner list unioned (parent-first, deduped).
+    # A child only adds to the whitelists; for full replacement, use lexical_exceptions_replace.
+    parent_lex = parent.get("lexical_exceptions") if isinstance(parent.get("lexical_exceptions"), dict) else {}
+    child_lex = child.get("lexical_exceptions") if isinstance(child.get("lexical_exceptions"), dict) else {}
+    if parent_lex or child_lex:
+        lex = {}
+        for k in ("acronyms", "compound_idioms"):
+            p = parent_lex.get(k) if isinstance(parent_lex.get(k), list) else []
+            c = child_lex.get(k) if isinstance(child_lex.get(k), list) else []
+            unioned = list(dict.fromkeys(p + c))
+            if unioned:
+                lex[k] = unioned
+        # Forward-compat: any other keys child-wins (lets future inner keys land without a util change)
+        for k, v in (parent_lex or {}).items():
+            if k not in ("acronyms", "compound_idioms") and k not in lex:
+                lex[k] = v
+        for k, v in (child_lex or {}).items():
+            if k not in ("acronyms", "compound_idioms"):
+                lex[k] = v
+        if lex:
+            merged["lexical_exceptions"] = lex
+
     # Carry the child's _replace / _remove keys forward; apply_*_overrides will consume them.
     for k, v in child.items():
         if k.endswith("_replace") or k.endswith("_remove"):
@@ -552,6 +595,7 @@ def merge_voice_dicts(parent, child):
         "sentence_norms",
         "contexts",
         "pronouns",
+        "lexical_exceptions",
     }
     handled = set(merged.keys()) | canonical_handled
     for src in (parent, child):
@@ -702,7 +746,7 @@ def compute_provenance(chain, merged):
 
     list_fields = ("forbidden_lexicon", "required_lexicon", "forbidden_patterns")
     keyed_list_fields = {"rewrite_rules": "rule_id", "core_attributes": "attribute_id"}
-    object_fields = ("sentence_norms", "contexts", "pronouns")
+    object_fields = ("sentence_norms", "contexts", "pronouns", "lexical_exceptions")
 
     def _item_key(field, item):
         if field in keyed_list_fields and isinstance(item, dict):

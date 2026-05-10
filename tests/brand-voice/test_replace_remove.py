@@ -141,5 +141,32 @@ class TestEndToEndOverrides(unittest.TestCase):
         self.assertEqual(len(merged["core_attributes"]), 3)
 
 
+class TestLexicalExceptionsMerge(unittest.TestCase):
+    """Default merge: inner lists union; lexical_exceptions_replace fully replaces."""
+
+    def test_default_merge_unions_inner_lists(self):
+        chain, merged = resolve_and_merge(FIXTURES / "child-extends-lexical-exceptions.md")
+        lex = merged.get("lexical_exceptions") or {}
+        # Parent: BPM, MIDI / in-your-face. Child adds: DAW / do-it-yourself.
+        self.assertEqual(set(lex.get("acronyms") or []), {"BPM", "MIDI", "DAW"})
+        self.assertEqual(set(lex.get("compound_idioms") or []), {"in-your-face", "do-it-yourself"})
+
+    def test_replace_drops_parent(self):
+        chain, merged = resolve_and_merge(FIXTURES / "child-replaces-lexical-exceptions.md")
+        lex = merged.get("lexical_exceptions") or {}
+        # Parent's BPM/MIDI/in-your-face dropped entirely.
+        self.assertEqual(lex.get("acronyms"), ["API"])
+        # Empty list survives the replace (explicitly emptied).
+        self.assertEqual(lex.get("compound_idioms"), [])
+
+    def test_merge_dedup_preserves_order(self):
+        """Same entry on both sides must dedupe parent-first."""
+        merged = merge_voice_dicts(
+            {"lexical_exceptions": {"acronyms": ["BPM", "MIDI"]}},
+            {"lexical_exceptions": {"acronyms": ["BPM", "DAW"]}},
+        )
+        self.assertEqual(merged["lexical_exceptions"]["acronyms"], ["BPM", "MIDI", "DAW"])
+
+
 if __name__ == "__main__":
     unittest.main()

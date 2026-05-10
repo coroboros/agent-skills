@@ -91,6 +91,107 @@ class TestExplain(unittest.TestCase):
             self.assertIn("value", entry)
 
 
+class TestLexicalExceptions(unittest.TestCase):
+    """--full emits lexical_exceptions block when present."""
+
+    def test_full_emits_lexical_exceptions(self):
+        r = _run(str(FIXTURES / "parent-with-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("lexical_exceptions:", r.stdout)
+        self.assertIn("BPM", r.stdout)
+        self.assertIn("MIDI", r.stdout)
+        self.assertIn("in-your-face", r.stdout)
+
+    def test_legacy_skips_lexical_exceptions(self):
+        r = _run("--legacy", str(FIXTURES / "parent-with-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        self.assertNotIn("lexical_exceptions:", r.stdout)
+
+    def test_inheritance_unions_lists(self):
+        r = _run(str(FIXTURES / "child-extends-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        # Parent's BPM/MIDI + child's DAW
+        self.assertIn("BPM", r.stdout)
+        self.assertIn("MIDI", r.stdout)
+        self.assertIn("DAW", r.stdout)
+        # Parent's in-your-face + child's do-it-yourself
+        self.assertIn("in-your-face", r.stdout)
+        self.assertIn("do-it-yourself", r.stdout)
+
+    def test_replace_drops_parent_lists(self):
+        r = _run(str(FIXTURES / "child-replaces-lexical-exceptions.md"))
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("API", r.stdout)
+        # BPM/MIDI/in-your-face from parent must be gone after _replace
+        self.assertNotIn("BPM", r.stdout)
+        self.assertNotIn("MIDI", r.stdout)
+        self.assertNotIn("in-your-face", r.stdout)
+
+    def test_full_omits_section_when_inner_lists_empty(self):
+        """A YAML with `lexical_exceptions: {acronyms: [], compound_idioms: []}`
+        must NOT emit a blank `lexical_exceptions:` section in --full output —
+        empty fields are omitted to keep the LLM prompt lean. Pinned because
+        the conditional at extract_rules.py:249 is easy to invert by accident."""
+        import tempfile
+        body = (
+            "---\n"
+            "voice:\n  name: \"EmptyLex\"\n"
+            "forbidden_lexicon:\n  - \"foo\"\n"
+            "rewrite_rules:\n  - reject: \"a\"\n    accept: \"b\"\n    rule_id: r\n"
+            "sentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n"
+            "lexical_exceptions:\n  acronyms: []\n  compound_idioms: []\n"
+            "---\n# Brand Voice — EmptyLex\n## 1. Core voice attributes\nstub stub stub stub stub stub stub stub.\n"
+            "## 2. Rewrite rules — do/don't\nstub stub stub stub stub stub stub stub.\n"
+            "## 3. Forbidden lexicon and patterns\nstub stub stub stub stub stub stub stub.\n"
+            "## 4. Sentence-level norms\nstub stub stub stub stub stub stub stub.\n"
+        )
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
+            f.write(body)
+            path = f.name
+        try:
+            r = _run(path)
+            self.assertEqual(r.returncode, 0)
+            self.assertNotIn("lexical_exceptions:", r.stdout,
+                             "empty inner lists must omit the whole section")
+        finally:
+            Path(path).unlink()
+
+
+class TestUtf8Bom(unittest.TestCase):
+    """Editors that save BRAND-VOICE.md with a UTF-8 BOM (U+FEFF prefix) must
+    not silently break frontmatter detection. Without BOM stripping, the
+    leading `\\ufeff---` would not match `---` and split_frontmatter would
+    return (None, text) — extract_rules would then exit 1 with `no YAML
+    frontmatter` despite the file being well-formed."""
+
+    def test_extract_rules_handles_bom_prefixed_voice_doc(self):
+        import tempfile
+        bom = "﻿"
+        body = (
+            "---\n"
+            "voice:\n  name: \"BomTest\"\n"
+            "forbidden_lexicon:\n  - \"foo\"\n"
+            "rewrite_rules:\n  - reject: \"a\"\n    accept: \"b\"\n    rule_id: r\n"
+            "sentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n"
+            "---\n# Brand Voice — BomTest\n## 1. Core voice attributes\nstub stub stub stub stub stub stub stub.\n"
+            "## 2. Rewrite rules — do/don't\nstub stub stub stub stub stub stub stub.\n"
+            "## 3. Forbidden lexicon and patterns\nstub stub stub stub stub stub stub stub.\n"
+            "## 4. Sentence-level norms\nstub stub stub stub stub stub stub stub.\n"
+        )
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md",
+                                          delete=False, encoding="utf-8") as f:
+            f.write(bom + body)
+            path = f.name
+        try:
+            r = _run(path)
+            self.assertEqual(r.returncode, 0,
+                             f"BOM-prefixed file must parse, got stderr: {r.stderr}")
+            self.assertIn("voice: BomTest", r.stdout,
+                          "BOM-prefixed YAML must still resolve voice.name")
+        finally:
+            Path(path).unlink()
+
+
 class TestExitCodes(unittest.TestCase):
     def test_missing_file(self):
         r = _run(str(FIXTURES / "_does_not_exist.md"))

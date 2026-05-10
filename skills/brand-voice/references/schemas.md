@@ -145,6 +145,14 @@ contexts:
   …
 
 pronouns: <pronouns.default> (forbid: <pronouns.forbid>)
+
+lexical_exceptions:
+  acronyms:
+    - <acronym>
+    - …
+  compound_idioms:
+    - <idiom>
+    - …
 ```
 
 ### Legacy output shape (`--legacy`)

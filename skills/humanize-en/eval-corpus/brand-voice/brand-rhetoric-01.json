@@ -1,0 +1,14 @@
+{
+  "id": "brand-rhetoric-01",
+  "description": "Negative parallelism, signposting, rhetorical questions, rule-of-three heading.",
+  "brand_voice_yaml": "voice:\n  name: \"Acme\"\n  last_updated: \"2025-01-01\"\n  source: \"manual\"\n\nforbidden_lexicon: []\n\nrewrite_rules:\n  - reject: \"foo\"\n    accept: \"bar\"\n    rule_id: stub\n\nsentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n\nforbidden_patterns:\n  - rule_of_three\n  - rhetorical_questions\n  - negative_parallelism\n  - signposting\n",
+  "input": "# Notes\n\n## Performance, scale, and reliability\n\nLet's dive into the architecture.\n\nWhat could go wrong here?\n\nIt is not just a refactor; it is a rewrite.\n\nNot only is the API faster, but also leaner.\n\nWithout further ado, here are the numbers.\n",
+  "expected_hits": [
+    {"pattern": 9, "label": "negative-parallelism"},
+    {"pattern": 28, "label": "signposting"},
+    {"pattern": "brand:rule_of_three_heading"},
+    {"pattern": "brand:rhetorical_questions"},
+    {"pattern": "brand:negative_parallelism"},
+    {"pattern": "brand:signposting"}
+  ]
+}

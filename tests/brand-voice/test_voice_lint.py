@@ -175,6 +175,43 @@ class TestChainSuccess(unittest.TestCase):
                          "parent 2 rules + child 1 rule = 3 merged")
 
 
+class TestLexicalExceptions(unittest.TestCase):
+    """voice.lexical_exceptions — schema for whitelisting acronyms and compound idioms."""
+
+    def test_parent_with_lexical_exceptions_is_green(self):
+        path = FIXTURES / "parent-with-lexical-exceptions.md"
+        result = lint(_read(path), str(path))
+        self.assertNotEqual(result["verdict"], "RED",
+                            f"unexpected errors: {result['errors']}")
+        self.assertEqual(result["errors"], [])
+
+    def test_child_inherits_and_unions_inner_lists(self):
+        """Default merge: inner lists are unioned (parent-first, deduped)."""
+        path = FIXTURES / "child-extends-lexical-exceptions.md"
+        result = lint(_read(path), str(path))
+        self.assertNotEqual(result["verdict"], "RED",
+                            f"unexpected errors: {result['errors']}")
+
+    def test_child_replace_overrides_inheritance(self):
+        """lexical_exceptions_replace fully replaces parent's value."""
+        path = FIXTURES / "child-replaces-lexical-exceptions.md"
+        result = lint(_read(path), str(path))
+        self.assertNotEqual(result["verdict"], "RED",
+                            f"unexpected errors: {result['errors']}")
+
+    def test_invalid_shape_red(self):
+        """acronyms must be list[str]; non-string entries fail."""
+        path = FIXTURES / "invalid-lexical-exceptions.md"
+        result = lint(_read(path), str(path))
+        self.assertEqual(result["verdict"], "RED")
+        codes = _codes(result["errors"])
+        self.assertIn("invalid-field-value", codes)
+        # Both inner errors should fire: acronyms not-a-list AND compound_idioms[0] is int
+        invalid_errors = [e for e in result["errors"] if e["code"] == "invalid-field-value"]
+        fields = {e["field"] for e in invalid_errors}
+        self.assertTrue(any("lexical_exceptions" in f for f in fields))
+
+
 class TestSourceDiscriminator(unittest.TestCase):
     def test_child_errors_tagged_child(self):
         path = FIXTURES / "replace-without-extends.md"
