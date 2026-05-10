@@ -194,6 +194,74 @@ class CopyrightContractTests(unittest.TestCase):
         lyrics_hits = find_all_checks(report, "artist_citation_in_lyrics")
         self.assertGreaterEqual(len(lyrics_hits), 1)
 
+    def test_red_blocks_multiword_possessive_in_style(self):
+        """`<Name>'s sound|style|voice|era` is RED when name is multi-word."""
+        _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
+        style_hits = find_all_checks(report, "artist_citation_in_style")
+        self.assertTrue(
+            any("phil collins" in h["value"].lower() and "sound" in h["value"].lower()
+                for h in style_hits),
+            f"Expected `Phil Collins's sound` possessive in: {style_hits}",
+        )
+
+    def test_singleword_possessive_does_not_fire(self):
+        """`London's sound`, `Spring's hit` are not artist citations — must not fire RED.
+
+        The possessive regex requires the captured name to be multi-word so location/
+        season/country names with possessives do not trip RED. Real artist names are
+        almost always multi-word; single-word artists (Madonna, Drake) get caught by
+        the other four citation patterns instead.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "TRACK.md"
+            f.write_text(
+                "---\nsuno_version: v5.5\ntitle: London Test\nbpm: 92\n"
+                "voice_profile: null\ncustom_model: null\ncreated: 2026-05-10\n"
+                "revised: null\n---\n\n# London Test\n\n## Suno prompt block\n\n"
+                "### Style of Music\n```text\nIndie folk capturing London's sound, "
+                "Spring's mood, fingerpicked acoustic, soft male vocal, 92 BPM\n```\n\n"
+                "### Lyrics\n```text\n[Intro]\n[Fingerpicked acoustic]\n```\n\n"
+                "### Exclude Styles\n```text\n808s\n```\n\n## Sliders\n"
+                "- **Weirdness**: 40\n\n## Voice / Custom Model\nNone.\n\n"
+                "## Rationale\nSingle-word possessives must not fire RED.\n\n"
+                "## Iteration log\n- v0 (2026-05-10): single-word possessive sanity\n",
+                encoding="utf-8",
+            )
+            _, report, _ = run_validator(f)
+            citation_hits = find_all_checks(report, "artist_citation_in_style")
+            possessive_hits = [h for h in citation_hits if "'s" in h["value"] or "’s" in h["value"]]
+            self.assertEqual(
+                possessive_hits, [],
+                f"Single-word possessives must not RED. Got: {possessive_hits}",
+            )
+
+    def test_expanded_whitelist_phrases_pass_clean(self):
+        """`Snare Drum`, `French House`, `Vocal Chop` and friends — must not YELLOW.
+
+        Verifies the expanded NON_ARTIST_PHRASES whitelist covers common Suno
+        descriptors capitalized in the wild.
+        """
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "TRACK.md"
+            f.write_text(
+                "---\nsuno_version: v5.5\ntitle: Whitelist Coverage Test\nbpm: 124\n"
+                "voice_profile: null\ncustom_model: null\ncreated: 2026-05-10\n"
+                "revised: null\n---\n\n# Whitelist Coverage Test\n\n## Suno prompt block\n\n"
+                "### Style of Music\n```text\nFrench House, 2020s analog, hypnotic, "
+                "Snare Drum, Synth Pad, Vocal Chop, Tape Echo, 124 BPM\n```\n\n"
+                "### Lyrics\n```text\n[Intro]\n[Filtered arp]\n```\n\n"
+                "### Exclude Styles\n```text\n808s\n```\n\n## Sliders\n"
+                "- **Weirdness**: 45\n\n## Voice / Custom Model\nNone.\n\n"
+                "## Rationale\nWhitelist expansion smoke test.\n\n"
+                "## Iteration log\n- v0 (2026-05-10): expanded whitelist\n",
+                encoding="utf-8",
+            )
+            _, report, _ = run_validator(f)
+            self.assertIsNone(
+                find_check(report, "artist_name_in_style"),
+                f"Expanded whitelist phrases must not YELLOW. Got: {report.get('warnings')}",
+            )
+
     def test_red_fix_message_includes_legal_and_functional_reasons(self):
         _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
         style_hits = find_all_checks(report, "artist_citation_in_style")

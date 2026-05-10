@@ -16,7 +16,7 @@ revised: null
 
 ### Style of Music
 ```text
-Indie pop in the style of Sufjan Stevens, voice of Phoebe Bridgers, à la Daft Punk, 120 BPM
+Indie pop in the style of Sufjan Stevens, voice of Phoebe Bridgers, à la Daft Punk, Phil Collins's sound, 120 BPM
 ```
 
 ### Lyrics

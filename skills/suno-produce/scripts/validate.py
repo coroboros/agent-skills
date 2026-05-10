@@ -98,19 +98,32 @@ VOCAL_DESCRIPTORS = [
 # straddles a line break does not capture the next line's text into the issue
 # value (a non-bug for verdict, but the issue/fix message would otherwise leak
 # the cross-line content). Multi-word capture group also uses `[ \t]+`.
+#
+# Known tolerable false-positive surfaces:
+# - `\b[àa][ \t]+la[ \t]+<Capitalized>` will fire on culinary phrases like
+#   `à la King`, `a la Russe`. Real-world rate inside Suno prompts is near zero
+#   and the user can rephrase as `à la mode` (lowercase) or remove the descriptor.
+# - The possessive pattern `<Name>'s sound|style|voice|era|...` requires the
+#   name to be at least TWO words. Single-word possessives like `London's sound`
+#   or `Spring's sound` would have fired RED on a pure `[A-Z][\w-]+` form; the
+#   `(?:[ \t]+[A-Z][\w-]+){1,2}` quantifier (1-2 trailing words, not 0-2) raises
+#   the bar. Real artist names are almost always multi-word; single-word artist
+#   names (`Madonna`, `Drake`) get caught by the other four patterns regardless.
 ARTIST_CITATION_PATTERNS = (
     re.compile(r"\bin[ \t]+(?:the[ \t]+)?style[ \t]+of[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
     re.compile(r"\bsounds?[ \t]+like[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
     re.compile(r"\bvoice[ \t]+(?:of|like)[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
     re.compile(r"\b[àa][ \t]+la[ \t]+([A-Z][\w'-]+(?:[ \t]+[A-Z][\w'-]+){0,2})", re.UNICODE),
-    re.compile(r"\b([A-Z][\w-]+(?:[ \t]+[A-Z][\w-]+){0,2})['’]s[ \t]+(?:sound|style|voice|era|track|hit|catalog)\b", re.UNICODE),
+    re.compile(r"\b([A-Z][\w-]+(?:[ \t]+[A-Z][\w-]+){1,2})['’]s[ \t]+(?:sound|style|voice|era|track|hit|catalog)\b", re.UNICODE),
 )
 
 # Title-case proper-noun pairs in Style — generic flag for "looks like an artist
-# name". YELLOW because false positives (`Pedal Steel`, `Drum Bass`, `Wood Block`)
-# are common in legitimate descriptors. The non_artist_phrases set below
-# whitelists known-safe pairs.
+# name". YELLOW because false positives (legitimate Suno descriptors capitalized
+# by users) are common. The whitelist covers the canonical instruments, drums,
+# textures, and production-pipeline terms that real Suno prompts use. New entries
+# go here when a real prompt produces a false positive.
 NON_ARTIST_PHRASES = {
+    # Existing baseline
     "Drum Bass", "Hip Hop", "Lo Fi", "Boom Bap", "Pedal Steel",
     "Dance Pop", "Synth Pop", "Drum And", "Drill And", "Wood Block",
     "Half Time", "Half-Time", "Stereo Wide", "Wide Stereo",
@@ -118,6 +131,32 @@ NON_ARTIST_PHRASES = {
     "Sub Bass", "808 Sub", "Acoustic Guitar", "Electric Guitar",
     "Upright Bass", "Brushed Drums", "Female Vocal", "Male Vocal",
     "Close Mic", "Room Mic",
+    # Drums and percussion
+    "Snare Drum", "Bass Drum", "Hi Hat", "Hi-Hat", "Floor Tom", "Tom Fill",
+    "Crash Cymbal", "Ride Cymbal", "Drum Kit", "Drum Machine", "Drum Loop",
+    "Drum Pad", "Brush Drums", "Brushed Snare",
+    # Bass
+    "Slap Bass", "Walking Bass", "Fretless Bass", "Synth Bass",
+    # Synth and lead
+    "Lead Synth", "Synth Lead", "Synth Pad", "Pad Wash", "Analog Synth",
+    "Sub Drop", "Bass Drop",
+    # Vocal forms
+    "Lead Vocal", "Backing Vocal", "Vocal Chop", "Vocal Loop", "Vocal Stack",
+    "Harmony Stack", "Choral Stack",
+    # Guitar
+    "Lead Guitar", "Rhythm Guitar", "Slide Guitar", "Steel Guitar",
+    "Bass Guitar", "Twelve String", "Twelve-String", "Nylon String",
+    "Classical Guitar",
+    # Effects and processing
+    "Tape Echo", "Tape Saturation", "Tape Wobble", "Slap Back", "Slap-Back",
+    "Reverb Tail", "Delay Tail", "Spring Echo", "Plate Echo", "Stereo Field",
+    "Wide Pan", "Side Chain", "Side-Chain", "Sidechain Pump",
+    # Two-word genres in title case (rare but legitimate when users capitalize)
+    "French House", "Trip Hop", "Indie Pop", "Indie Rock", "Pop Rock",
+    "Pop Punk", "Folk Pop", "Folk Rock", "Power Pop", "Soft Rock",
+    "Hard Rock", "Glam Rock", "Prog Rock", "Post Rock", "Math Rock",
+    "Surf Rock", "Garage Rock", "Punk Rock", "Acid House", "Deep House",
+    "Tech House", "Big Band", "Doo Wop", "Future Bass", "Drum Loop",
 }
 
 # Inline-cue keywords that justify a non-canonical bracket as
