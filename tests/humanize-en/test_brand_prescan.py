@@ -311,6 +311,76 @@ class TestEmoji(unittest.TestCase):
     def test_no_emoji_clean(self):
         self.assertEqual(detect_emoji("Plain ASCII prose."), [])
 
+    def test_regional_indicator_flag(self):
+        """Flag emojis are regional-indicator pairs (U+1F1E6..U+1F1FF) — must flag."""
+        hits = detect_emoji("Shipped from \U0001F1FA\U0001F1F8 today.")
+        self.assertEqual(len(hits), 1, "the US flag is one regional-indicator pair")
+
+    def test_variation_selector_consumed(self):
+        """❤️ is U+2764 + U+FE0F. The match must consume both so the snippet
+        is visually intact, not truncated to ❤."""
+        hits = detect_emoji("Heart ❤️ here")
+        self.assertEqual(len(hits), 1)
+        self.assertIn("❤️", hits[0]["snippet"])
+
+
+class TestForbiddenLexiconEdgeCases(unittest.TestCase):
+    """Document edge cases for the forbidden-lexicon detector — pinned so a
+    future regex tweak surfaces the contract change."""
+
+    def test_possessive_apostrophe_still_matches(self):
+        """The possessive 's after a forbidden term still flags. Defensible:
+        the forbidden term IS present. Snippet shows the trailing 's."""
+        hits = detect_forbidden_lexicon("game-changing's value", ["game-changing"])
+        self.assertEqual(len(hits), 1)
+
+
+class TestNegativeParallelismDocumentedGaps(unittest.TestCase):
+    """Pin the contract for variants that are intentionally NOT matched —
+    a future regex change must update the test alongside."""
+
+    def test_is_not_x_but_y_NOT_matched(self):
+        """`It is not X, but Y` (no second `it is`) — intentionally NOT a
+        negative-parallelism hit. The brand catalog reserves the family for
+        the paired-clause shape `is not X[;,] it is Y`. The bare
+        `is not X, but Y` shape is a contrast clause, not parallelism, and
+        flagging it would generate false positives."""
+        hits = detect_negative_parallelism("It is not a tool, but a platform.")
+        self.assertEqual(hits, [], "single-clause contrast is not negative parallelism")
+
+
+class TestFallbackVoiceExtendsNotResolved(unittest.TestCase):
+    """The fallback YAML loader (`brand_prescan.load_brand_rules`) reads only
+    the child file's frontmatter and does NOT walk `voice.extends`. The full
+    chain is resolved by `brand-voice/scripts/extract_rules.py` upstream of
+    `prescan --brand`. This test pins the fallback contract so a future
+    refactor can't silently start resolving chains in the wrong layer."""
+
+    def test_fallback_does_not_walk_chain(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as parent:
+            parent.write(_voice_doc(
+                "voice:\n  name: \"Parent\"\n"
+                "forbidden_lexicon:\n  - \"parent-only-term\"\n"
+                "rewrite_rules:\n  - reject: \"foo\"\n    accept: \"bar\"\n    rule_id: r\n"
+                "sentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n"
+            ))
+            parent_path = parent.name
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as child:
+            child.write(_voice_doc(
+                f"voice:\n  name: \"Child\"\n  extends: \"{parent_path}\"\n"
+                "forbidden_lexicon:\n  - \"child-only-term\"\n"
+            ))
+            child_path = child.name
+        try:
+            rules = load_brand_rules(child_path)
+            forbidden = rules.get("forbidden_lexicon") or []
+            self.assertIn("child-only-term", forbidden)
+            self.assertNotIn("parent-only-term", forbidden,
+                             "fallback must NOT resolve voice.extends — parent terms absent")
+        finally:
+            Path(parent_path).unlink()
+            Path(child_path).unlink()
+
 
 class TestScanBrand(unittest.TestCase):
     """Integration: scan_brand() applies every detector enabled by the rules."""

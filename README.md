@@ -934,8 +934,17 @@ Under `-f <BRAND-VOICE.md>` the skill raises the bar: the brand voice becomes th
 /humanize-en -f BRAND-VOICE.md draft.md             # brand-aware: prescan + validate + auto-iterate
 /humanize-en -f BRAND-VOICE-FOUNDER.md draft.md     # multi-voice (resolves voice.extends chain)
 /humanize-en --iterate 1 -f BRAND-VOICE.md draft.md # disable auto-iteration (single pass)
+/humanize-en --iterate 5 -f BRAND-VOICE.md draft.md # raise the iteration cap to 5 rounds
 /humanize-en --strict-code-only README.md           # treat every fenced block as code (legacy masking)
 ```
+
+**Flags**
+
+| Flag | Default | Effect |
+|---|---|---|
+| `-f <voice-doc>` | off | Load a `BRAND-VOICE.md` and apply its rules deterministically (prescan + validate + auto-iterate). |
+| `--iterate <N>` | `3` under `-f`, `1` without | Iteration cap. Each round runs `detect → rewrite → validate`; the loop exits early when residuals reach 0 or a regression is detected. `--iterate 1` keeps the legacy single-pass behaviour. |
+| `--strict-code-only` | off | Blank every fenced block (legacy masking). Default behaviour scans pseudo-blocks (fences with no info-string or `text`) for prose patterns. |
 
 **What it does**
 

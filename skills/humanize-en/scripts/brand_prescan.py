@@ -348,20 +348,27 @@ _NEGATIVE_PARALLELISM_PATTERNS = [
 # Strict three-item heading: every item must be comma-free so 4+ comma headings
 # do not over-flag (e.g. `## A, B, C, D` is rejected — only exactly 3 items match).
 _RULE_OF_THREE_HEADING_RE = re.compile(r"^#{1,6}\s+[^\n,]+,\s+[^\n,]+,\s+[^\n,]+\s*$", re.MULTILINE)
+# Match a base emoji codepoint plus an optional variation selector (U+FE0F)
+# and an optional zero-width joiner sequence. Without consuming U+FE0F, the
+# match for `❤️` would stop at U+2764 and produce a snippet that visually
+# loses the variation selector. Regional indicators (U+1F1E6-U+1F1FF) are a
+# pair-of-codepoints sequence — flag emojis like 🇺🇸 — included here.
 _EMOJI_RE = re.compile(
-    "["
-    "\U0001F300-\U0001F5FF"   # symbols & pictographs
-    "\U0001F600-\U0001F64F"   # emoticons
-    "\U0001F680-\U0001F6FF"   # transport & map symbols
-    "\U0001F700-\U0001F77F"   # alchemical
-    "\U0001F780-\U0001F7FF"   # geometric ext
-    "\U0001F800-\U0001F8FF"   # supplemental arrows
-    "\U0001F900-\U0001F9FF"   # supplemental symbols & pictographs
-    "\U0001FA00-\U0001FAFF"   # symbols & pictographs ext-A
-    "\U00002600-\U000026FF"   # misc symbols
-    "\U00002700-\U000027BF"   # dingbats
-    "\U00002B00-\U00002BFF"   # misc symbols & arrows
-    "]"
+    "(?:"
+    "[\U0001F1E6-\U0001F1FF]{2}"           # regional indicator pair (flag)
+    "|[\U0001F300-\U0001F5FF]"             # symbols & pictographs
+    "|[\U0001F600-\U0001F64F]"             # emoticons
+    "|[\U0001F680-\U0001F6FF]"             # transport & map symbols
+    "|[\U0001F700-\U0001F77F]"             # alchemical
+    "|[\U0001F780-\U0001F7FF]"             # geometric ext
+    "|[\U0001F800-\U0001F8FF]"             # supplemental arrows
+    "|[\U0001F900-\U0001F9FF]"             # supplemental symbols & pictographs
+    "|[\U0001FA00-\U0001FAFF]"             # symbols & pictographs ext-A
+    "|[\U00002600-\U000026FF]"             # misc symbols
+    "|[\U00002700-\U000027BF]"             # dingbats
+    "|[\U00002B00-\U00002BFF]"             # misc symbols & arrows
+    ")"
+    "️?"                              # optional variation selector
 )
 _SIGNPOSTING_PHRASES = [
     "let's dive", "let’s dive", "let us dive",
@@ -546,8 +553,11 @@ def detect_rule_of_three_heading(masked_text, source="brand"):
     hits = []
     for m in _RULE_OF_THREE_HEADING_RE.finditer(masked_text):
         line_start = masked_text.rfind("\n", 0, m.start()) + 1
+        line_end = masked_text.find("\n", line_start)
+        if line_end < 0:
+            line_end = len(masked_text)
         lineno = masked_text.count("\n", 0, line_start) + 1
-        line = masked_text[line_start:masked_text.find("\n", line_start) if "\n" in masked_text[line_start:] else len(masked_text)]
+        line = masked_text[line_start:line_end]
         hits.append({
             "pattern": "brand:rule_of_three_heading",
             "label": "brand-rule-of-three-heading",
