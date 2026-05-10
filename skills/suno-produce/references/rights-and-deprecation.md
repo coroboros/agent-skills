@@ -1,8 +1,53 @@
 # Rights, Consent, Deprecation
 
-Self-contained summary of the legal and platform-lifecycle realities that shape Suno work. Surfaced into `MUSIC.md` when artist identity is declared. Not repeated per track.
+Self-contained summary of the legal and platform-lifecycle realities that shape Suno work. Surfaced into `ARTIST.md` when artist identity is declared. Not repeated per track.
 
 For deeper detail beyond what's captured here (court filings, evolving settlement terms, jurisdictional specifics), see the public sources in the skill's `metadata.sources` — Suno's own help center documents commercial use, the WMG settlement press release covers the deprecation timeline, and the active litigation tracker is at the cited Rolling Stone and court-filing URLs.
+
+## Plan tiers and v5.5 access
+
+v5.5 is a **paid-tier-only** model. Free accounts are locked to v4.5-all and remain non-commercial. Pro and Premier unlock v5.5, commercial license, WAV export, Voices, Custom Models, and stems.
+
+| Plan | Price | Credits | v5.5 | Voices | Custom Models | Studio | Stems | Commercial | WAV |
+|------|-------|---------|------|--------|---------------|--------|-------|------------|-----|
+| Free | $0 | 50/day | No (v4.5-all) | No | No | No | No | No | No |
+| Pro | $10/mo (or $8 annual) | 2,500/mo | Yes | Yes | Yes (3) | No | Yes | Yes | Yes |
+| Premier | $30/mo (or $24 annual) | 10,000/mo | Yes | Yes | Yes (3) | Yes | Yes | Yes | Yes |
+
+Monthly subscription credits do not roll over. Purchased top-up credits do not expire but require active subscription. Annual saves ~20%.
+
+## Output specs
+
+Suno v5.5 native output:
+
+| Spec | Value |
+|------|-------|
+| Sample rate | 44.1 kHz |
+| Bit depth | 16-bit stereo |
+| Format | MP3 (free + paid); WAV (paid) |
+| Max generation length | 8 minutes |
+| Stems | up to 12 time-aligned WAVs (paid) |
+| MIDI export | Premier (Studio) |
+| Variations per generation | 2 |
+| Approximate cost | ~5 credits per generation |
+
+Export WAV stems for any track intended for distribution before WMG-licensed successors ship — see *Model deprecation cliff* below.
+
+## Post-generation pipeline
+
+The skill is artifact-emit-only. After Suno produces the audio, finishing happens in Suno's UI. The two surfaces:
+
+**Suno Sounds** — experimental sound-effect generator. Single-shot SFX, ambience, instrument samples. The right surface for any `[applause]` / `[vinyl crackle]` / `[thunder]` request that the validator RED-blocked from a Lyrics bracket. Generate the SFX as a separate clip, layer in Studio.
+
+**Studio 1.2** (Premier-tier) — the post-generation editing pipeline. Order of operations matters; reversing the order produces artifacts.
+
+| Step | Tool | What it does |
+|------|------|--------------|
+| 1 | Warp Markers | Manual or transient-detected time-stretch points; quantize to grid |
+| 2 | Remove FX | Strip generation-baked reverb and delay; reverb removal can raise loudness measurably |
+| 3 | Alternates | Stacked takes per Remake / Rewrite / Remove FX action — audition before committing |
+
+Surface the pipeline order in the user-facing summary when the brief involves post-production work or when the take has reverb the user wants to remove.
 
 ## Commercial-rights chain
 
@@ -20,7 +65,7 @@ Suno's Voices feature (Pro / Premier) requires the registering user to read a ra
 
 It does not prevent registering a voice already cloned by an external tool, then reading the verification phrase in the cloner. Treat the verification step as fraud control, not provenance. Registering a Voice you do not have consent to clone is a contractual breach of Suno's terms and creates direct exposure outside the platform — defamation, right-of-publicity, deepfake-specific statutes in several jurisdictions.
 
-When `MUSIC.md` declares a `voice_profile`, the artist identity statement should record explicit consent: *"Voice cloned from [the artist's own] / [licensed] / [public-domain] audio with [recorded consent on file]."*
+When `ARTIST.md` declares a `voice_profile`, the artist identity statement should record explicit consent: *"Voice cloned from [the artist's own] / [licensed] / [public-domain] audio with [recorded consent on file]."*
 
 ## Active litigation as of May 2026
 
@@ -50,7 +95,7 @@ No exact deprecation date has been published. What's known:
 - **Export WAV stems** of every track intended for distribution before WMG-licensed successors ship. The audio is the durable artifact through model deprecation; the prompt text is the durable artifact through model migration.
 - **Record `suno_version: v5.5`** in TRACK.md frontmatter. The validator surfaces a YELLOW when the running model differs, signalling that the prompt may not reproduce identically.
 - **Treat any track that requires strong copyright protection as ineligible from Suno output.** Use Suno for sketches, stems, and reference takes; finish with human-authored elements that vest copyright.
-- **For voice work**: keep the consent statement in `MUSIC.md` next to the `voice_profile` declaration. Treat it as a discoverable artifact, not a verbal agreement.
+- **For voice work**: keep the consent statement in `ARTIST.md` next to the `voice_profile` declaration. Treat it as a discoverable artifact, not a verbal agreement.
 
 ## What this skill does not do
 

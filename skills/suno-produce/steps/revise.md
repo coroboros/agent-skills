@@ -12,7 +12,7 @@ Archive the current `TRACK.md` and emit a refined one based on listener feedback
 ### 1. Resolve and read
 
 - Resolve `<path>` to its `TRACK.md`. Error out if missing — suggest `create` instead.
-- Read the existing TRACK.md, the iteration log, and any sibling `ALBUM.md` and bound `MUSIC.md` (if `-f` is passed or the parent project has one).
+- Read the existing TRACK.md, the iteration log, and any sibling `ALBUM.md` and bound `ARTIST.md` (if `-f` is passed or the parent project has one).
 
 ### 2. Determine next version number
 

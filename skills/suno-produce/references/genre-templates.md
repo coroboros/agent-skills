@@ -155,7 +155,7 @@ Lyrics scaffold:
 …
 ```
 
-**Annotation:** Style Influence at 75 because the distorted-guitar identity needs to lock; Weirdness at 35 to keep the riff structure conventional. Late-90s post-grunge is a thin region of the model — if takes drift toward 2010s alt rock or generic punk, raise Style Influence to 80 and add an explicit era reinforcer like "Foo Fighters era pop-rock" — wait, do not name artists. Use "tightly produced 1998 alt rock, glossy radio mix" instead.
+**Annotation:** Style Influence at 75 because the distorted-guitar identity needs to lock; Weirdness at 35 to keep the riff structure conventional. Late-90s post-grunge is a thin region of the model — if takes drift toward 2010s alt rock or generic punk, raise Style Influence to 80 and reinforce with an explicit era cue like `tightly produced 1998 alt rock, glossy radio mix` (era + production, never an artist citation; the validator RED-blocks `in the style of <artist>` and similar phrasings — see [`./style-and-lyrics.md`](./style-and-lyrics.md) § *Never name artists or copyrighted entities*).
 
 ## 5 — Ambient drone
 

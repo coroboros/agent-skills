@@ -74,7 +74,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points | Claude |
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
-| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts — TRACK.md / optional ALBUM.md / optional MUSIC.md, multi-type validator | Claude |
+| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts — TRACK.md / optional ALBUM.md / optional ARTIST.md, multi-type validator with copyright contract | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
@@ -646,14 +646,14 @@ Three artifact tiers, scaffolded progressively:
 
 - **TRACK.md** — always emitted. The unit of Suno generation: copy-paste-ready Style of Music + Lyrics + Exclude Styles + Sliders, plus rationale and iteration log.
 - **ALBUM.md** — emitted only when album mode is detected from the brief. Holds concept, arc, tracklist with BPM/key flow, transitions.
-- **MUSIC.md** — optional artist-identity layer, **artist-scoped** (one file referenced from many album folders via `-f`). Declares Voice profile, Custom Model, recurring instrumentation, rights/compliance posture.
+- **ARTIST.md** — optional artist-identity layer, **artist-scoped** (one file referenced from many album folders via `-f`). Declares Voice profile, Custom Model, recurring instrumentation, rights/compliance posture. The filename is `ARTIST.md` rather than the alternative `MUSIC.md` because the contents describe an artist persona, not music — a deliberate evolution of the open standard.
 
 **Usage**
 
 ```bash
 /suno-produce indie folk track about a long winter
 /suno-produce melodic-trap EP about leaving home
-/suno-produce -f ~/artists/studio-a/MUSIC.md cinematic single
+/suno-produce -f ~/artists/studio-a/ARTIST.md cinematic single
 /suno-produce revise tracks/01-midnight-letter "chorus too dry, vocals washed out"
 /suno-produce validate projects/quiet-rooms/
 ```
@@ -662,15 +662,15 @@ Three artifact tiers, scaffolded progressively:
 
 | Subcommand | Purpose |
 |------------|---------|
-| `create` (default) | Synthesise TRACK.md from brief; ALBUM.md when multi-track; reads bound MUSIC.md if `-f` |
+| `create` (default) | Synthesise TRACK.md from brief; ALBUM.md when multi-track; reads bound ARTIST.md if `-f` |
 | `revise <path> "<feedback>"` | Archive current TRACK.md to `versions/v{N+1}.md`, emit refined TRACK.md |
-| `validate <path>` (aliases `lint`, `check`) | Run multi-type linter — TRACK.md / ALBUM.md / MUSIC.md, auto-dispatch by filename |
+| `validate <path>` (aliases `lint`, `check`) | Run multi-type linter — TRACK.md / ALBUM.md / ARTIST.md, auto-dispatch by filename |
 
 **Flags**
 
 | Flag | Description |
 |------|-------------|
-| `-f <path/to/MUSIC.md>` | Bind the artifact to an artist identity (Voice / Custom Model / instrumentation defaults flow in) |
+| `-f <path/to/ARTIST.md>` | Bind the artifact to an artist identity (Voice / Custom Model / instrumentation defaults flow in) |
 
 **What it does**
 
@@ -687,17 +687,17 @@ Three artifact tiers, scaffolded progressively:
 
 | Artifact | RED checks | YELLOW checks |
 |----------|-----------|---------------|
-| TRACK.md | Style/Lyrics/Title length, slider out of range, BPM in Lyrics, SFX bracket | descriptor count, genre count, conflicting eras, Tier 3 brackets, voice/style conflict, exclude > 3 |
+| TRACK.md | Style/Lyrics/Title length, slider out of range, BPM in Lyrics, SFX bracket, **artist-citation patterns in Style or Lyrics** (`in the style of X`, `voice of/like X`, `sounds like X`, `à la X`, `X's sound/style/voice/era`) | descriptor count, genre count, conflicting eras, Tier 3 brackets, voice/style conflict, exclude > 3, **title-case proper-noun pair in Style outside the safe-phrase whitelist** |
 | ALBUM.md | invalid release_format, missing Concept/Arc/Tracklist/Transitions, track_count mismatch | arc-label missing, malformed tracklist line, bad ISO date |
-| MUSIC.md | voice_profile without voice_consent, slider_bias out of range, missing required sections, empty artist | bad consent format, custom_model without training-set posture, bad rights_posture |
+| ARTIST.md | voice_profile without voice_consent, slider_bias out of range, missing required sections, empty artist | bad consent format, custom_model without training-set posture, bad rights_posture |
 
 **Bundled references**
 
-- `references/style-and-lyrics.md` — descriptor stack, bracket metatag canon, lyric flow, languages, SFX warning, consolidated pitfalls
-- `references/sliders-and-personalization.md` — three sliders, voice-aware prompting, custom-model-aware prompting
+- `references/style-and-lyrics.md` — descriptor stack, **never name artists or copyrighted entities** (the legal + functional rationale, with a translation table), bracket metatag canon, lyric flow, languages, SFX warning, **section length / bar counts belong in Studio**, consolidated pitfalls
+- `references/sliders-and-personalization.md` — three sliders, voice-aware prompting, custom-model-aware prompting, **My Taste — the silent fourth slider**
 - `references/genre-templates.md` — 8 copy-paste recipes (cinematic, melodic techno, melodic trap, alt rock, ambient drone, indie pop, ritual industrial, lo-fi hip-hop)
-- `references/track-schema.md` — TRACK / ALBUM / MUSIC schemas with worked example
-- `references/rights-and-deprecation.md` — WMG settlement, copyright vesting (license, not vested rights), voice-cloning consent, v6 deprecation cliff
+- `references/track-schema.md` — TRACK / ALBUM / ARTIST schemas with worked example, plus a migrating-from-MUSIC.md note
+- `references/rights-and-deprecation.md` — **plan tiers + v5.5 access**, **output specs**, **post-generation pipeline (Suno Sounds + Studio 1.2)**, WMG settlement, copyright vesting (license, not vested rights), voice-cloning consent, v6 deprecation cliff
 
 Loaded on-demand per Pattern 2 (domain-specific organisation) from Anthropic's [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
 

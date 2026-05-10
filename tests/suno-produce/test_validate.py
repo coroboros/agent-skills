@@ -1,10 +1,12 @@
 """Production-grade tests for skills/suno-produce/scripts/validate.py.
 
 Covers:
-- Artifact-type auto-dispatch by filename
+- Artifact-type auto-dispatch by filename (TRACK / ALBUM / ARTIST)
 - TRACK.md GREEN / YELLOW / RED branches
 - ALBUM.md GREEN / YELLOW / RED branches
-- MUSIC.md GREEN / RED branches (artist consent contract, slider range)
+- ARTIST.md GREEN / RED branches (artist consent contract, slider range)
+- Copyright contract: artist-citation patterns RED in Style and Lyrics;
+  title-case proper-noun pairs YELLOW in Style with whitelist
 - Multi-file directory walk + summary aggregation
 - Exit-code contract (0 GREEN, 1 RED, 2 YELLOW)
 - JSON report shape (verdict / errors / warnings / info)
@@ -48,6 +50,15 @@ def find_check(report, check_name):
     return None
 
 
+def find_all_checks(report, check_name):
+    """Return every issue (error or warning) with the given check name."""
+    return [
+        issue
+        for issue in report.get("errors", []) + report.get("warnings", [])
+        if issue.get("check") == check_name
+    ]
+
+
 class ScriptInvariantsTests(unittest.TestCase):
     """The script itself must be present, executable, and return a useful error on bad input."""
 
@@ -55,13 +66,25 @@ class ScriptInvariantsTests(unittest.TestCase):
         self.assertTrue(VALIDATE_SCRIPT.exists(), f"missing: {VALIDATE_SCRIPT}")
 
     def test_missing_path_returns_nonzero(self):
-        rc, report, stderr = run_validator("/nonexistent/path/that/does/not/exist")
+        rc, _, _ = run_validator("/nonexistent/path/that/does/not/exist")
         self.assertNotEqual(rc, 0)
 
     def test_unsupported_filename_returns_red(self):
         with tempfile.TemporaryDirectory() as tmp:
             f = Path(tmp) / "random.md"
             f.write_text("---\ntitle: x\n---\n", encoding="utf-8")
+            rc, report, _ = run_validator(f)
+            self.assertEqual(rc, 1)
+            self.assertEqual(report["verdict"], "RED")
+            self.assertEqual(report["errors"][0]["check"], "unsupported_filename")
+            # Expected message must list the three canonical filenames.
+            self.assertIn("ARTIST.md", report["errors"][0]["expected"])
+
+    def test_legacy_music_md_filename_is_unsupported(self):
+        """MUSIC.md was renamed to ARTIST.md — old filename must not silently work."""
+        with tempfile.TemporaryDirectory() as tmp:
+            f = Path(tmp) / "MUSIC.md"
+            f.write_text("---\nartist: Legacy\n---\n", encoding="utf-8")
             rc, report, _ = run_validator(f)
             self.assertEqual(rc, 1)
             self.assertEqual(report["verdict"], "RED")
@@ -127,6 +150,75 @@ class TrackValidationTests(unittest.TestCase):
         self.assertIsNotNone(find_check(report, "slider_range"))
 
 
+class CopyrightContractTests(unittest.TestCase):
+    """Artist-citation patterns are RED. Title-case pairs in Style are YELLOW.
+
+    Both rules trace to article §5.1.5 *Anti-patterns* and SKILL.md Rules
+    *Describe the sound, never an artist*. Reasons: (1) legal — copyrighted-
+    citation phrasing creates rights exposure, (2) functional — Suno filters
+    or ignores artist citations and the model collapses to an averaged tag.
+    """
+
+    def test_red_blocks_in_the_style_of_in_style(self):
+        rc, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
+        self.assertEqual(rc, 1, f"expected RED, got {report}")
+        self.assertEqual(report["verdict"], "RED")
+        # At least one citation in Style
+        style_hits = find_all_checks(report, "artist_citation_in_style")
+        self.assertGreaterEqual(len(style_hits), 1)
+        # The phrase wording is captured verbatim in the issue value
+        self.assertTrue(
+            any("style of" in h["value"].lower() for h in style_hits),
+            f"Expected `style of` phrase in: {style_hits}",
+        )
+
+    def test_red_blocks_voice_of_in_style(self):
+        _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
+        style_hits = find_all_checks(report, "artist_citation_in_style")
+        self.assertTrue(
+            any("voice of" in h["value"].lower() or "voice like" in h["value"].lower()
+                for h in style_hits),
+            f"Expected `voice of` or `voice like` in: {style_hits}",
+        )
+
+    def test_red_blocks_a_la_in_style(self):
+        _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
+        style_hits = find_all_checks(report, "artist_citation_in_style")
+        self.assertTrue(
+            any("la " in h["value"].lower() for h in style_hits),
+            f"Expected `à la` or `a la` citation in: {style_hits}",
+        )
+
+    def test_red_blocks_citation_in_lyrics(self):
+        _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
+        lyrics_hits = find_all_checks(report, "artist_citation_in_lyrics")
+        self.assertGreaterEqual(len(lyrics_hits), 1)
+
+    def test_red_fix_message_includes_legal_and_functional_reasons(self):
+        _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
+        style_hits = find_all_checks(report, "artist_citation_in_style")
+        joined_fix = " ".join(h["fix"].lower() for h in style_hits)
+        # Must mention rights exposure (legal) and Suno filtering (functional)
+        self.assertIn("rights", joined_fix)
+        self.assertIn("filter", joined_fix)
+
+    def test_yellow_flags_title_case_pair_in_style(self):
+        rc, report, _ = run_validator(FIXTURES_DIR / "track-titlecase-yellow" / "TRACK.md")
+        self.assertEqual(rc, 2, f"expected YELLOW, got {report}")
+        self.assertEqual(report["verdict"], "YELLOW")
+        name_hit = find_check(report, "artist_name_in_style")
+        self.assertIsNotNone(name_hit)
+        self.assertIn("Phil Collins", name_hit["value"])
+
+    def test_whitelisted_phrases_pass_clean(self):
+        """`Pedal Steel`, `Sub Bass`, etc. are legitimate descriptors — must not flag."""
+        rc, report, _ = run_validator(FIXTURES_DIR / "track-whitelist-green" / "TRACK.md")
+        self.assertEqual(rc, 0, f"expected GREEN, got {report}")
+        self.assertEqual(report["verdict"], "GREEN")
+        self.assertIsNone(find_check(report, "artist_name_in_style"))
+        self.assertIsNone(find_check(report, "artist_citation_in_style"))
+
+
 class AlbumValidationTests(unittest.TestCase):
     """ALBUM.md validation — concept + tracklist consistency."""
 
@@ -181,29 +273,29 @@ class AlbumValidationTests(unittest.TestCase):
         self.assertEqual(len(missing), 1)
 
 
-class MusicValidationTests(unittest.TestCase):
-    """MUSIC.md validation — artist identity + voice consent contract."""
+class ArtistValidationTests(unittest.TestCase):
+    """ARTIST.md validation — artist identity + voice consent contract."""
 
-    def test_music_green_passes(self):
-        rc, report, _ = run_validator(FIXTURES_DIR / "music-green" / "MUSIC.md")
+    def test_artist_green_passes(self):
+        rc, report, _ = run_validator(FIXTURES_DIR / "artist-green" / "ARTIST.md")
         self.assertEqual(rc, 0, f"expected GREEN, got {report}")
         self.assertEqual(report["verdict"], "GREEN")
         self.assertEqual(report["errors"], [])
 
-    def test_music_green_info_records_voice_profile(self):
-        _, report, _ = run_validator(FIXTURES_DIR / "music-green" / "MUSIC.md")
+    def test_artist_green_info_records_voice_profile(self):
+        _, report, _ = run_validator(FIXTURES_DIR / "artist-green" / "ARTIST.md")
         vp_info = next((i for i in report["info"] if i["check"] == "voice_profile"), None)
         self.assertIsNotNone(vp_info)
         self.assertEqual(vp_info["value"], "studio-a-tenor")
 
-    def test_music_red_blocks_voice_without_consent(self):
-        rc, report, _ = run_validator(FIXTURES_DIR / "music-red" / "MUSIC.md")
+    def test_artist_red_blocks_voice_without_consent(self):
+        rc, report, _ = run_validator(FIXTURES_DIR / "artist-red" / "ARTIST.md")
         self.assertEqual(rc, 1)
         self.assertEqual(report["verdict"], "RED")
         self.assertIsNotNone(find_check(report, "voice_consent_required"))
 
-    def test_music_red_blocks_slider_bias_out_of_range(self):
-        _, report, _ = run_validator(FIXTURES_DIR / "music-red" / "MUSIC.md")
+    def test_artist_red_blocks_slider_bias_out_of_range(self):
+        _, report, _ = run_validator(FIXTURES_DIR / "artist-red" / "ARTIST.md")
         sb = find_check(report, "slider_bias_range")
         self.assertIsNotNone(sb)
         self.assertIn("weirdness_default", sb["value"])
@@ -218,7 +310,7 @@ class DirectoryWalkTests(unittest.TestCase):
         self.tmp = Path(self.tmpdir)
         shutil.copy(FIXTURES_DIR / "track-green" / "TRACK.md", self.tmp / "TRACK.md")
         shutil.copy(FIXTURES_DIR / "album-green" / "ALBUM.md", self.tmp / "ALBUM.md")
-        shutil.copy(FIXTURES_DIR / "music-green" / "MUSIC.md", self.tmp / "MUSIC.md")
+        shutil.copy(FIXTURES_DIR / "artist-green" / "ARTIST.md", self.tmp / "ARTIST.md")
 
     def tearDown(self):
         shutil.rmtree(self.tmpdir)
@@ -232,8 +324,8 @@ class DirectoryWalkTests(unittest.TestCase):
         self.assertEqual(report["summary"]["red"], 0)
 
     def test_directory_with_red_exits_one(self):
-        # Replace MUSIC.md with the RED fixture
-        shutil.copy(FIXTURES_DIR / "music-red" / "MUSIC.md", self.tmp / "MUSIC.md")
+        # Replace ARTIST.md with the RED fixture
+        shutil.copy(FIXTURES_DIR / "artist-red" / "ARTIST.md", self.tmp / "ARTIST.md")
         rc, report, _ = run_validator(self.tmp)
         self.assertEqual(rc, 1)
         self.assertGreaterEqual(report["summary"]["red"], 1)

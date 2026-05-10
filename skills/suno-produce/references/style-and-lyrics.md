@@ -5,6 +5,7 @@ The reference for composing the two prompt-bearing fields in Suno v5.5: the **St
 ## Contents
 
 - [Style of Music — descriptor stack](#style-of-music--descriptor-stack)
+- [Never name artists or copyrighted entities](#never-name-artists-or-copyrighted-entities)
 - [Genre stacking and fusion](#genre-stacking-and-fusion)
 - [Vocal direction](#vocal-direction)
 - [Production direction (era + texture + mix)](#production-direction-era--texture--mix)
@@ -16,6 +17,7 @@ The reference for composing the two prompt-bearing fields in Suno v5.5: the **St
 - [Lyric flow and pacing](#lyric-flow-and-pacing)
 - [Languages and code-switching](#languages-and-code-switching)
 - [SFX bracket tags — do not deploy](#sfx-bracket-tags--do-not-deploy)
+- [Section length — bar counts belong in Studio](#section-length--bar-counts-belong-in-studio)
 - [Consolidated pitfalls](#consolidated-pitfalls)
 
 ## Style of Music — descriptor stack
@@ -65,6 +67,35 @@ synthwave pads, 808 trap drums, soft male vocal, belting female vocal,
 ```
 
 The 12-tag version forces the model to average across "lo-fi" plus "hi-fi polished", two BPMs, and two vocal genders. Output collapses to a moody average — not what the prompt asked for.
+
+## Never name artists or copyrighted entities
+
+Hard rule for both Style and Lyrics. Two reasons.
+
+**Legal.** The prompt is a discoverable artifact — it lives in `TRACK.md`, gets committed, archived, shared, and propagated. An artist or copyrighted-entity citation in the prompt creates rights exposure (publicity rights, trademark, label trade-name) on a surface that survives the audio. The audio file itself can be deleted; the prompt that produced it is part of the project history.
+
+**Functional.** Suno's filter strips most artist citations before the model sees them. Citations that survive collapse to an averaged tag — the model knows nothing specific about the cited artist, so it picks the tag halfway between the citation and the surrounding descriptors. The output is worse than what an explicit sound-fingerprint description would have produced.
+
+The validator emits **RED** on the citation patterns that signal explicit intent — `in the style of <Name>`, `voice of/like <Name>`, `sounds like <Name>`, `à la <Name>`, `<Name>'s sound/style/voice/era` — in either field. It emits **YELLOW** on bare title-case proper-noun pairs in Style outside the safe-phrase whitelist (`Pedal Steel`, `Sub Bass`, `Plate Reverb`, etc.). Bare title-case in Lyrics is not flagged because lyric lines start with capitals and false-positive rate would dominate.
+
+### How to translate a brief
+
+Replace the artist citation with **era + production texture + vocal timbre**. Keep the descriptor count in the 4–7 band. Examples:
+
+| Brief request | Translated descriptor stack |
+|---------------|----------------------------|
+| "make me a Sufjan Stevens track" | indie folk, 2010s bedroom, intimate, fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth, 92 BPM |
+| "Daft Punk vibe" | French house, 2000s analog, vocoded vocal, sidechain pump, filter sweeps, side-chained pads, 4/4 at 120 BPM |
+| "voice like Adele" | powerful contralto female, gospel-rasp belt, plate reverb, dry close-mic verse, soulful inflection |
+| "in the style of Kurt Cobain" | grunge, late-90s Seattle, raspy male tenor, distorted guitar, drop-D tuning, sludgy bass, dry close-mic |
+| "Bristol post-punk like Massive Attack" | trip-hop, 90s Bristol, dub-heavy, female alto, programmed breakbeat, sub bass, plate reverb, 88 BPM |
+| "Phil Collins drums" | 80s gated reverb, big tom fills, pulsing kick, programmed snare, wide stereo |
+
+The right column is what survives the validator. The left column is what the user said.
+
+### Edge case — proper nouns in lyrics
+
+Character names in lyrics are fine. "Mary called", "John waited" — the validator does not scan Lyrics for bare title-case pairs. What the validator does scan in Lyrics is the citation patterns above, because a character "in the style of Bob Dylan" is still a citation regardless of which field it lives in.
 
 ## Genre stacking and fusion
 
@@ -356,6 +387,18 @@ Most SFX brackets are unreliable in v5.5.
 
 The validator emits RED on SFX brackets in the Lyrics field. Generate ambience separately via Suno Sounds (Suno's experimental sound-effect generator), then layer in Studio.
 
+## Section length — bar counts belong in Studio
+
+Bar-count tags inside Lyrics (`[Verse 8 bars]`, `[Chorus 4 bars]`, `[Bridge 16 bars]`) honour at < 30%. Sometimes the bracket is silently dropped; sometimes the bar count is interpreted as a section name and sung. Either way the rendered section length does not match the spec.
+
+The reliable surface for bar-count work is **Suno Studio's Edit menu**, where the bar count per section is a numeric input at the bottom-left of the section editor. Premier-tier feature. Set it after the prompt produces the take, before exporting.
+
+When the brief asks for a specific bar count (e.g., "8-bar verse"), record the request in Rationale rather than encoding it as a Lyrics bracket — and surface in the user-facing summary that bar-count work happens in Studio, not in the prompt.
+
+### Half-time renders
+
+`145 BPM half-time` renders as a 70 BPM groove with hi-hats riding the upper grid — the canonical trap feel. State both numbers explicitly in Style: `145 BPM half-time` rather than `70 BPM trap`. The model holds tempo against the larger number and feel against the qualifier.
+
 ## Consolidated pitfalls
 
 | Don't | Do |
@@ -364,7 +407,7 @@ The validator emits RED on SFX brackets in the Lyrics field. Generate ambience s
 | Stack three or more genres | Maximum two |
 | Put `[Verse]` in the Style field | `[Verse]` belongs in Lyrics, on its own line |
 | Put "120 BPM" in the Lyrics field | BPM in the Style field |
-| Use artist names | Describe the sonic fingerprint |
+| Use artist names or copyrighted citations (`in the style of X`, `voice of X`, `à la X`) | Describe the sonic fingerprint — era, texture, vocal timbre. Hard rule, both legal and functional. |
 | Write 12 descriptors hoping for richness | Four to seven |
 | Use exclamation marks for emphasis | Vowel elongation: `Loooove` |
 | Repeat tags across both fields | One field, one job |

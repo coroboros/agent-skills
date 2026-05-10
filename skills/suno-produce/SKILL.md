@@ -1,8 +1,8 @@
 ---
 name: suno-produce
-description: Turn a music brief into Suno v5.5-ready prompt artifacts — TRACK.md per generation, optional ALBUM.md for multi-track projects, optional MUSIC.md for artist-scoped identity. Artifact-emit-only — the user copy-pastes the prompt block into Suno's UI, listens, then iterates via `revise`. No API integration. Use when the user wants to make a song, produce a track or album, write a Suno prompt, or compose music with v5.5 — even when they don't say "Suno" by name.
-when_to_use: When the user wants to create a song, track, EP, or album with Suno v5.5. Routes via `$ARGUMENTS` first token — `create` (default — synthesise TRACK.md from a brief, optionally ALBUM.md when album mode is detected), `revise <path> "<feedback>"` (archive current TRACK.md to versions/, emit a refined one), `validate <path>` (deterministic linter — char limits, descriptor counts, slider ranges, metatag canon). Triggers on "make a song", "write me a track", "produce a song", "song about", "lyrics for", "Suno prompt", "make an album", "EP about", "v5.5 prompt", "/suno", "/track". Skip when the user wants pure lyric writing without a Suno target (defer to a generic writing skill); when the request is broad music research (run `/brainstorm` first then `-f` the result into this); when the request is audio post-production like loops or mastering (defer to `/audio-loop`).
-argument-hint: "[create|revise|validate] <description-or-path> [-f MUSIC.md]"
+description: Turn a music brief into Suno v5.5-ready prompt artifacts — TRACK.md per generation, optional ALBUM.md for multi-track projects, optional ARTIST.md for artist-scoped identity. Artifact-emit-only — the user copy-pastes the prompt block into Suno's UI, listens, then iterates via `revise`. No API integration. Hardens the copyright contract — never lets artist names or copyrighted citations through into a prompt (legal exposure + Suno filters them anyway). Use when the user wants to make a song, produce a track or album, write a Suno prompt, or compose music with v5.5 — even when they don't say "Suno" by name.
+when_to_use: When the user wants to create a song, track, EP, or album with Suno v5.5. Routes via `$ARGUMENTS` first token — `create` (default — synthesise TRACK.md from a brief, optionally ALBUM.md when album mode is detected), `revise <path> "<feedback>"` (archive current TRACK.md to versions/, emit a refined one), `validate <path>` (deterministic linter — char limits, descriptor counts, slider ranges, metatag canon, copyright/artist-citation contract). Triggers on "make a song", "write me a track", "produce a song", "song about", "lyrics for", "Suno prompt", "make an album", "EP about", "v5.5 prompt", "/suno", "/track". Skip when the user wants pure lyric writing without a Suno target (defer to a generic writing skill); when the request is broad music research (run `/brainstorm` first then `-f` the result into this); when the request is audio post-production like loops or mastering (defer to `/audio-loop`).
+argument-hint: "[create|revise|validate] <description-or-path> [-f ARTIST.md]"
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 allowed-tools: Read Write Edit Glob Grep AskUserQuestion WebSearch Bash(mkdir *) Bash(test *) Bash(ls *) Bash(python3 *) Bash(git *) Bash(cp *) Bash(mv *)
@@ -21,9 +21,11 @@ metadata:
 
 # Suno Produce
 
-Govern music-production artifacts for Suno v5.5: a `TRACK.md` per generation, optional `ALBUM.md` for multi-track projects, optional `MUSIC.md` for an artist-scoped identity layer. Three layers, each with a clear job. The user copy-pastes the Suno prompt block from `TRACK.md` into Suno's Web/iOS/Android UI, listens to the two takes Suno produces, picks a winner, then runs `revise` with feedback to iterate.
+Govern music-production artifacts for Suno v5.5: a `TRACK.md` per generation, optional `ALBUM.md` for multi-track projects, optional `ARTIST.md` for an artist-scoped identity layer. Three layers, each with a clear job. The user copy-pastes the Suno prompt block from `TRACK.md` into Suno's Web/iOS/Android UI, listens to the two takes Suno produces, picks a winner, then runs `revise` with feedback to iterate.
 
 Artifact-emit-only by design. Suno has no official public API. Reverse-engineered wrappers (kie.ai, sunoapi.org, gcui-art/suno-api) are degrading — PiAPI dropped Suno V5 entirely, gcui-art's maintainer is asking for a takeover, the Warner Music settlement signals tighter enforcement. The text prompts are durable; they survive model deprecation. The audio takes are not — export WAV stems from Suno's UI for anything you want to keep.
+
+**Tier reality.** v5.5 is Pro/Premier only. Free tier is locked to v4.5-all and stays non-commercial regardless of later upgrades. Validator and refs assume v5.5; running the prompts on v4.5-all degrades but does not crash.
 
 Additional context from the user: $ARGUMENTS
 
@@ -48,9 +50,11 @@ Three layers, progressively scaffolded — emit only what the brief actually cal
 |------|------|-------|--------------|
 | **TRACK.md** | Unit of Suno generation. The copy-paste-into-Suno bundle. | One file per track. | Always. Every invocation that ends in a Suno-ready prompt produces one. |
 | **ALBUM.md** | Album/EP concept, arc, tracklist with BPM/key flow, transitions. | One per album folder. | Only when the brief reads as multi-track ("EP", "album", "record", "4-track", "side A side B"). Auto-detect with confirmation prompt. |
-| **MUSIC.md** | Artist identity: Voice profile, Custom Model, recurring instrumentation, rights/compliance posture. | **Artist-scoped, not project-scoped** — one file referenced from many album folders. | Only when the user passes `-f path/to/MUSIC.md` to bind the work to an artist identity, or asks to set one up. Never auto-created. |
+| **ARTIST.md** | Artist identity: Voice profile, Custom Model, recurring instrumentation, rights/compliance posture. | **Artist-scoped, not project-scoped** — one file referenced from many album folders. | Only when the user passes `-f path/to/ARTIST.md` to bind the work to an artist identity, or asks to set one up. Never auto-created. |
 
-The three layers stack. `TRACK.md` reads `ALBUM.md` (sibling) for tracklist context if present. `ALBUM.md` reads `MUSIC.md` (referenced via `-f`) for artist defaults if present. Each layer adds context without overwriting the lower layer.
+The three layers stack. `TRACK.md` reads `ALBUM.md` (sibling) for tracklist context if present. `ALBUM.md` reads `ARTIST.md` (referenced via `-f`) for artist defaults if present. Each layer adds context without overwriting the lower layer.
+
+The third layer is named `ARTIST.md` — not `MUSIC.md` — because the file describes an artist identity (voice, custom model, recurring instrumentation, rights posture), not music itself. The community Suno-prompt formats (Spidy88, Blake Crosley, Stoke McToke, suno.wiki) do not have an equivalent layer; this is a deliberate addition to the open standard.
 
 ## Project folder layout
 
@@ -84,7 +88,27 @@ projects/{album-slug}/
 
 The track-slug is kebab-case from the title, max 5 words. The leading two-digit prefix (`01-`, `02-`) matches the tracklist order in `ALBUM.md`. Reordering renames the folders; the skill handles this in `revise` when the album order changes.
 
-`MUSIC.md` lives wherever the user keeps it — typically a brand workspace root (`~/<artist>/MUSIC.md`) — and is referenced from any project folder via `-f /path/to/MUSIC.md`. The skill never creates `MUSIC.md` on its own; it only consumes one when passed.
+`ARTIST.md` lives wherever the user keeps it — typically a brand workspace root (`~/<artist>/ARTIST.md`) — and is referenced from any project folder via `-f /path/to/ARTIST.md`. The skill never creates `ARTIST.md` on its own; it only consumes one when passed.
+
+## Suno v5.5 hard limits
+
+These are the field and account limits the skill enforces or surfaces. Sources: Suno help center, the Style Stack X post, the [Suno v5.5 Operator Reference](https://github.com/coroboros/research/blob/main/articles/suno-v5-5-operator-reference.md).
+
+| Surface | Limit | Notes |
+|---------|-------|-------|
+| Style of Music | 1,000 chars | 4–7 descriptors, front-loaded; validator RED on overflow |
+| Lyrics | 5,000 chars | Bracket metatags + parenthetical cues; validator RED on overflow |
+| Title | 100 chars | Cosmetic — no audio effect |
+| Simple Mode prompt | 500 chars | Single-field equivalent — Custom Mode preferred for serious work |
+| Generation length | up to 8 min | Extend chains beyond |
+| Audio upload | up to 30 min (Pro/Premier), 8 min on free | Used by Cover, Voice, Audio Influence |
+| Voice input audio | 15 s – 4 min | Suno selects the best 2 min after voice-print verification |
+| Custom Model training set | ≥ 6 tracks | Stylistically-consistent only; mixed catalogs degrade |
+| Custom Models per account | 3 | Pro / Premier |
+| Stems export | up to 12 time-aligned WAVs | Paid only |
+| Output | 44.1 kHz, 16-bit stereo, MP3 (free + paid), WAV (paid) | 2 variations per generation, ~5 credits each |
+
+The `validate.py` script enforces the field limits as RED errors when an artifact tries to write past them.
 
 ## TRACK.md schema
 
@@ -97,8 +121,8 @@ title: <human title>
 bpm: 92
 key: D minor          # soft guidance — Suno honours about 60% of the time
 length_target: "3:30"
-voice_profile: null   # set from MUSIC.md when bound; null when no Voice attached
-custom_model: null    # set from MUSIC.md when bound
+voice_profile: null   # set from ARTIST.md when bound; null when no Voice attached
+custom_model: null    # set from ARTIST.md when bound
 created: 2026-05-09
 revised: null
 ---
@@ -109,7 +133,7 @@ Then in this exact order:
 1. **Title** — the song title, repeated for human readability
 2. **Suno prompt block** — the copy-paste payload. Three fenced blocks: `### Style of Music` (≤1000 chars, 4–7 descriptors), `### Lyrics` (≤5000 chars, with bracket metatags and parenthetical cues), `### Exclude Styles` (≤3 tags). All three are `text` fenced for clean copy-paste with no Markdown rendering interference.
 3. **Sliders** — Weirdness, Style Influence, Audio Influence as bullets with rationale. Audio Influence only present when `voice_profile` or `custom_model` is set.
-4. **Voice / Custom Model** — declared if MUSIC.md is bound; "None." otherwise.
+4. **Voice / Custom Model** — declared if ARTIST.md is bound; "None." otherwise.
 5. **Rationale** — why these specific descriptors, why this BPM, why this slider profile. Anchors the `revise` decisions.
 6. **Iteration log** — bullet per version: `v1 (date): <what was tried>; <listener feedback>; <kept | archived>`.
 
@@ -133,11 +157,15 @@ The five anchor dimensions:
 | Length target | Drives section count + tempo decisions | 1:30 sketch, 3:30 single, 6:00 long-form |
 | References | Era / artist sound-fingerprint (never artist names — describe the sound) | late-90s post-grunge, 2010s bedroom indie, Bristol post-punk dub |
 
-If `MUSIC.md` is bound via `-f`, defaults flow from it: artist identity supplies vocal profile (drop those questions), recurring instruments, rights posture, and any persistent slider biases.
+If `ARTIST.md` is bound via `-f`, defaults flow from it: artist identity supplies vocal profile (drop those questions), recurring instruments, rights posture, and any persistent slider biases.
+
+## My Taste — disable for evaluation runs
+
+Suno v5.5 ships a default-on personalization layer called **My Taste** that biases the Magic Wand suggestions and influences generation defaults when prompts are underspecified. It does not override an explicit Style field, but it does perturb takes when the prompt is thin. Disable from the avatar menu > My Taste during evaluation or A/B work — otherwise the variable is uncontrolled and you cannot attribute a delta between takes to a slider or descriptor change. Surface this reminder in the user-facing summary when synthesising the first track for a new artist or evaluating slider bands.
 
 ## Voice and Custom Model awareness
 
-When `MUSIC.md` declares `voice_profile:` or `custom_model:`, the skill changes prompt assembly:
+When `ARTIST.md` declares `voice_profile:` or `custom_model:`, the skill changes prompt assembly:
 
 - **Voice attached** — drop all vocal descriptors from the Style of Music field. They conflict with the cloned voice and produce blended timbre. Set Audio Influence to 75–90% (78% default). Reallocate the freed character budget to instruments and production texture.
 - **Custom Model attached** — drop redundant style descriptors that the model already encodes (genre, era, aesthetic). Use the Style field for variations within the model's range — sparser arrangement, tempo deviation, mood shift.
@@ -147,7 +175,7 @@ The skill records `voice_profile` and `custom_model` in `TRACK.md` frontmatter s
 
 ## Validation contract
 
-[`scripts/validate.py`](./scripts/validate.py) auto-dispatches by filename — `TRACK.md`, `ALBUM.md`, or `MUSIC.md` — and runs the matching check set. Every artifact the skill writes runs through validation before disk. Verdicts: GREEN (zero issues), YELLOW (warnings only — write proceeds with the warning surfaced), RED (errors — block the write, fix and re-run). Exit codes: 0 GREEN, 1 RED, 2 YELLOW.
+[`scripts/validate.py`](./scripts/validate.py) auto-dispatches by filename — `TRACK.md`, `ALBUM.md`, or `ARTIST.md` — and runs the matching check set. Every artifact the skill writes runs through validation before disk. Verdicts: GREEN (zero issues), YELLOW (warnings only — write proceeds with the warning surfaced), RED (errors — block the write, fix and re-run). Exit codes: 0 GREEN, 1 RED, 2 YELLOW.
 
 **TRACK.md** — Suno v5.5 prompt-bundle rules:
 
@@ -160,7 +188,9 @@ The skill records `voice_profile` and `custom_model` in `TRACK.md` frontmatter s
 | Bracket metatag canon — Tier 1 GREEN; Tier 3 community tags YELLOW; SFX brackets RED | mixed |
 | BPM in Lyrics field | RED |
 | Voice attached + vocal descriptors in Style | YELLOW |
-| Genre count > 2, conflicting eras, artist names | YELLOW |
+| Genre count > 2, conflicting eras | YELLOW |
+| **Artist citation patterns** — `in the style of X`, `voice of/like X`, `sounds like X`, `à la X`, `X's sound/style/voice/era` — in Style or Lyrics | **RED** |
+| Title-case proper-noun pair in Style (e.g., `Phil Collins`) outside the safe-phrase whitelist | YELLOW |
 | `suno_version` mismatch | YELLOW |
 
 **ALBUM.md** — concept + tracklist consistency:
@@ -175,7 +205,7 @@ The skill records `voice_profile` and `custom_model` in `TRACK.md` frontmatter s
 | Tracklist line shape `nn. Title — BPM — key — feel` | YELLOW per malformed line |
 | `created` ISO date | YELLOW on bad format |
 
-**MUSIC.md** — artist identity + voice consent:
+**ARTIST.md** — artist identity + voice consent:
 
 | Check | Verdict |
 |-------|---------|
@@ -210,7 +240,7 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 - **Validate before write.** Every `create` and `revise` runs `scripts/validate.py` on the synthesised content. RED never reaches disk. YELLOW surfaces in the user-facing summary.
 - **Voice attached → drop vocal descriptors.** Always. Vocal direction in Style conflicts with a cloned Voice and produces blended timbre.
 - **Auto-detect album mode → confirm before scaffolding.** When the brief reads as multi-track, propose the album folder structure and ask for confirmation. Never silently create `ALBUM.md`.
-- **Describe the sound, never an artist.** Suno filters or ignores artist names. The brief "make me a Sufjan Stevens track" gets translated to "indie folk, intimate fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth".
+- **Never name artists or copyrighted entities in prompts.** Hard rule, two reasons. *Legal* — putting an artist or copyrighted-entity citation into the prompt creates rights exposure (publicity rights, trademark, label trade-name); the prompt is a discoverable artifact you may share, archive, or commit. *Functional* — Suno filters or ignores the citation anyway, so the model collapses to an averaged tag rather than the requested fingerprint. The validator emits **RED** on high-confidence citation patterns (`in the style of <Name>`, `voice of/like <Name>`, `sounds like <Name>`, `à la <Name>`, `<Name>'s sound/style/voice/era`) in Style **or** Lyrics, and **YELLOW** on bare title-case proper-noun pairs in Style. Translate every brief reference to sound — era + production texture + vocal timbre. Examples: "make me a track like Sufjan Stevens" → "indie folk, intimate fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth"; "Daft Punk vibe" → "French house, sidechain pump, vocoded vocal, filter sweeps, 4/4 at 120 BPM"; "voice like Adele" → "powerful contralto female, gospel-rasp belt, plate reverb, dry close-mic verse".
 - **Lyric content is the user's voice, not Coroboros'.** The skill's own commentary (rationale, iteration log, validation summaries) follows the institutional Coroboros voice. The lyrics themselves are user-authored — never humanise or restyle them.
 - **Surface deprecation reality.** Suno's current models are scheduled for deprecation when WMG-licensed successors ship. The skill records `suno_version: v5.5` in frontmatter so a future `migrate` subcommand can rewrite prompts to v6 syntax. Recommend the user export WAV from Suno before deprecation lands.
 
@@ -219,18 +249,18 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 - **Pure lyric writing without Suno target** → a generic writing skill. This skill assumes the prompt will be fed to Suno; the lyric format includes bracket metatags and parenthetical cues that read awkwardly elsewhere.
 - **Broad music research** ("compare melodic-trap producers", "what's working in 2026 indie folk") → `/brainstorm`, then `-f` the brief into `/suno-produce` once the direction is clear.
 - **Audio post-production** (looping a generated track for a website, mastering, removing reverb tails outside Suno Studio) → `/audio-loop` for web loops; Suno Studio 1.2 (Remove FX, Warp Markers) inside the Suno UI for the rest.
-- **Voice profile registration** — out of scope. The user registers Voices and trains Custom Models in Suno's UI. This skill consumes them via MUSIC.md but does not manage them.
-- **Brand-voice work** (defining a writing voice for marketing copy) → `/brand-voice`. MUSIC.md is the music analog — a separate file with a different schema.
+- **Voice profile registration** — out of scope. The user registers Voices and trains Custom Models in Suno's UI. This skill consumes them via ARTIST.md but does not manage them.
+- **Brand-voice work** (defining a writing voice for marketing copy) → `/brand-voice`. ARTIST.md is the music analog — a separate file with a different schema.
 - **Visual identity** (album art, music videos) → `/award-design` for hero pages, `/canvas-design` for static art, `/video-loop` for hero motion.
 
 ## Reference
 
 - [`steps/create.md`](./steps/create.md), [`steps/revise.md`](./steps/revise.md), [`steps/validate.md`](./steps/validate.md) — per-subcommand workflows, the AskUserQuestion templates for the interview, the synthesis recipe for each prompt field.
 - [`references/style-and-lyrics.md`](./references/style-and-lyrics.md) — composing the prompt: descriptor stack, genre fusion, vocal direction, production direction, BPM/key, negative prompting, bracket metatag canon, lyric flow, languages, SFX warning, consolidated pitfalls. Read by `create` and `revise` whenever the brief touches the Style of Music or Lyrics fields.
-- [`references/sliders-and-personalization.md`](./references/sliders-and-personalization.md) — the three Creative Sliders, voice-aware prompting, custom-model-aware prompting, voice + model stacking. Read when assembling slider settings or when MUSIC.md declares a `voice_profile` / `custom_model`.
+- [`references/sliders-and-personalization.md`](./references/sliders-and-personalization.md) — the three Creative Sliders, voice-aware prompting, custom-model-aware prompting, voice + model stacking, the My Taste personalization layer. Read when assembling slider settings or when ARTIST.md declares a `voice_profile` / `custom_model`.
 - [`references/genre-templates.md`](./references/genre-templates.md) — eight copy-paste-ready Suno v5.5 recipes (cinematic, melodic techno, melodic trap, alt rock, ambient drone, indie pop, ritual industrial, lo-fi hip-hop). Read when matching the brief's genre family to a starting template.
-- [`references/track-schema.md`](./references/track-schema.md) — TRACK / ALBUM / MUSIC schemas in full, with a worked TRACK.md example. Cross-references `genre-templates.md` for additional recipes.
-- [`references/rights-and-deprecation.md`](./references/rights-and-deprecation.md) — self-contained summary of the WMG settlement, copyright vesting (license, not vested rights), voice-cloning consent, the v6 deprecation cliff. Surfaced into MUSIC.md when artist identity is declared. Not repeated per track.
+- [`references/track-schema.md`](./references/track-schema.md) — TRACK / ALBUM / ARTIST schemas in full, with a worked TRACK.md example. Cross-references `genre-templates.md` for additional recipes.
+- [`references/rights-and-deprecation.md`](./references/rights-and-deprecation.md) — self-contained summary of plan tiers, output specs, post-generation pipeline (Suno Sounds + Studio 1.2), the WMG settlement, copyright vesting (license, not vested rights), voice-cloning consent, the v6 deprecation cliff. Surfaced into ARTIST.md when artist identity is declared. Not repeated per track.
 - [`scripts/validate.py`](./scripts/validate.py) — validates a TRACK.md against v5.5's field limits and the rule set above. Python 3.7+, stdlib only. Walks YAML frontmatter, parses fenced Style / Lyrics / Exclude blocks, returns GREEN / YELLOW / RED with line-anchored findings.
 
 The full upstream Suno v5.5 operator reference (1,200+ lines covering features, plans, API access, litigation, deprecation timeline) lives at the public sources cited in `metadata.sources` above. The skill bundles only the actionable subset — what the steps actually consult.
