@@ -34,30 +34,17 @@ Workflow:
 
 1. Strip `-f <voice-doc>` from the head of `$ARGUMENTS`. The remainder follows the *Input modes* table below as usual.
 2. Verify `<voice-doc>` exists with `Glob`. Missing or unreadable → degrade to default behavior with an explicit warning ("`<path>` not found — applying universal patterns only"). Never crash.
-3. **Resolve the rules for the LLM prompt** by running `extract_rules.py --full` on the voice doc. The script flattens YAML into plain text, automatically resolves any `voice.extends` chain, applies `_replace` and `_remove` overrides, and emits the merged rule block. Resolution order for the script path:
-   1. `${CLAUDE_SKILL_DIR}/../brand-voice/scripts/extract_rules.py` (sibling install)
-   2. `~/.claude/skills/brand-voice/scripts/extract_rules.py` (user-installed brand-voice)
-   3. `~/.agents/skills/brand-voice/scripts/extract_rules.py` (Anthropic skills directory)
-
-   Invoke via `python3 <resolved-script> --full <voice-doc>`. Non-zero exit surfaces chain-resolution errors (`extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`) and aborts the brand-aware pass. **Fallback** when no candidate resolves: warn *"brand-voice scripts unavailable; chain resolution skipped"* and `Read` the YAML frontmatter directly (`forbidden_lexicon`, `required_lexicon`, `rewrite_rules`, `sentence_norms`, `forbidden_patterns`, `pronouns`, `core_attributes`, `contexts`, `lexical_exceptions`). The fallback skips `voice.extends`.
-4. **Run the brand-aware prescan** alongside the universal one: `python3 ${CLAUDE_SKILL_DIR}/scripts/prescan.py --brand <voice-doc> <file>`. It emits hits for every YAML rule that is mechanically detectable (forbidden lexicon, rewrite-rule rejects, all-caps emphasis, pronoun violations, signposting, negative parallelism, rule-of-three headings, rhetorical questions, emoji) plus the 8 universal patterns. Brand hits carry a `source: "brand"` discriminator and a `rule_id` so the coverage report can attribute each rewrite.
-5. **Cite per source.** In the rewrite report, name each hit by source: pattern numbers for universal (`#14`), brand `rule_id`s for brand (`[no-hedging-imperative]`, `[forbidden_lexicon:game-changing]`, `[all_caps_emphasis]`). Brand rules win on direct conflict — a voice that *requires* em-dashes overrides pattern #14.
-6. **Validate after Edit** with `python3 ${CLAUDE_SKILL_DIR}/scripts/validate.py --brand <voice-doc> [--baseline <pre-rewrite-hits.json>] <file>`. Outcomes drive the iteration loop:
-   - `status="clean"` — emit the *Coverage report* and exit.
-   - `status="residuals"` — surface the residuals; under `-f`, auto-iterate (see *Iteration model* below) up to three passes before yielding to the user.
-   - `status="regression"` — at least one new hit was introduced. Revert the offending edit and try again.
+3. **Resolve the rules** with `python3 <extract_rules.py> --full <voice-doc>` — flattens YAML, resolves any `voice.extends` chain, applies `_replace`/`_remove`, emits the merged rule block. Try `${CLAUDE_SKILL_DIR}/../brand-voice/scripts/extract_rules.py`, then `~/.claude/skills/brand-voice/scripts/extract_rules.py`, then `~/.agents/skills/brand-voice/scripts/extract_rules.py`. Non-zero exit surfaces chain-resolution errors (`extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`) and aborts. **Fallback** when no candidate resolves: warn *"brand-voice scripts unavailable; chain resolution skipped"* and `Read` the YAML directly — the fallback skips `voice.extends`.
+4. **Run the brand-aware prescan** alongside the universal one: `python3 ${CLAUDE_SKILL_DIR}/scripts/prescan.py --brand <voice-doc> <file>`. It emits hits for every mechanically detectable YAML rule (forbidden lexicon, rewrite-rule rejects, all-caps emphasis, pronoun violations, signposting, negative parallelism, rule-of-three headings, rhetorical questions, emoji) plus the 8 universal patterns. Brand hits carry `source: "brand"` and a `rule_id`.
+5. **Cite per source.** Name each hit by source: pattern numbers for universal (`#14`), brand `rule_id`s for brand (`[no-hedging-imperative]`, `[forbidden_lexicon:game-changing]`, `[all_caps_emphasis]`). Brand rules win on direct conflict — a voice that *requires* em-dashes overrides pattern #14.
+6. **Validate after Edit** with `python3 ${CLAUDE_SKILL_DIR}/scripts/validate.py --brand <voice-doc> [--baseline <pre-rewrite-hits.json>] <file>`. Outcomes: `clean` → emit *Coverage report* and exit. `residuals` → surface them; auto-iterate up to 3 passes (see *Iteration model*). `regression` → revert the offending edit and re-rewrite.
 7. Pseudo-tables (` ```text ` or unspecified-language fences) are scanned the same as prose under `-f` — see *Preservation rules*. Real code (` ```python `, ` ```bash `, etc.) stays verbatim.
 
 If the user wants brand-aware rewriting and no voice doc exists, defer: *"No `BRAND-VOICE.md` at `<path>`. Run `/brand-voice extract` first."*
 
 ### Iteration model
 
-Default: one pass (`detect → rewrite`). Under `-f` the skill auto-iterates up to three rounds: `detect → rewrite → validate`, repeating while `validate.py` reports residuals AND iteration count < 3 AND no regression appears. The user may override:
-
-- `--iterate <N>` — explicit cap (1 disables the loop entirely, 5 raises it).
-- `--iterate 1` plus `-f` keeps the legacy single-pass behaviour for users who prefer manual control.
-
-Each iteration emits the residual coverage table so the user can stop early.
+Default: one pass. Under `-f`, auto-iterate `detect → rewrite → validate` up to 3 rounds (stop on `clean` or `regression`). `--iterate <N>` overrides — `1` disables the loop, `5` raises the cap. Each pass emits the residual coverage table.
 
 ## Input modes
 
@@ -74,14 +61,7 @@ Resolve `$ARGUMENTS` (after stripping any leading `-f <voice-doc>`) as follows:
 
 **Non-prose extensions** (refuse as file): `.json`, `.yaml`, `.yml`, `.toml`, `.csv`, `.tsv`, `.xml`, and any source-code file (`.py`, `.ts`, `.js`, `.rs`, `.go`, `.java`, …). Rewriting data or code files would break parsing or semantics even when the rewrite looks harmless.
 
-Classify the first token (use `Glob` to verify the path exists — stay within `allowed-tools`, do not shell out):
-
-- resolves to an existing file AND extension on the prose list → *Prose file path* (process it)
-- resolves to an existing file AND extension on the non-prose list → *Non-prose file path* (refuse per the table above)
-- resolves to an existing file AND extension on neither list → ask the user whether to process it as prose or refuse it as non-prose. Do not guess — real cases like `CHANGELOG` (no extension) or `notes.log` go here.
-- does not resolve → treat the whole input as inline text
-
-The two middle branches are what actually prevent data / source-code / unknown files from being silently humanized as inline strings.
+Classify the first token via `Glob` (stay in `allowed-tools`, no shell-out): existing file + prose extension → process; + non-prose extension → refuse per the table; + unknown extension (e.g., `CHANGELOG`, `notes.log`) → ask before guessing; nonexistent path → treat as inline text. The middle two branches prevent silent humanizing of data and source-code files.
 
 ## Process
 
@@ -133,57 +113,9 @@ When in doubt, keep the original token and only adjust the connective tissue aro
 
 ## Output format
 
-### For inline text (default mode)
+Default mode emits `## Rewrite` + `## Patterns removed`. Under `-f`, the same shell with a `## Coverage report` table where every YAML rule appears as a row — even with 0 hits, since missing rows are a hard failure. For file paths, add a `## Diff preview` block and (under `-f`) a `## Validation report` with `status: clean | residuals | regression`, then `Apply? (yes/no)` — apply only on explicit `yes` from the end user, even when another skill invokes `/humanize-en` on their behalf.
 
-```
-## Rewrite
-
-<humanized text>
-
-## Patterns removed
-
-- #N <pattern name> — <short note, e.g., "4 instances, em-dashes converted to commas">
-- ...
-```
-
-### For inline text under `-f`
-
-```
-## Rewrite
-
-<humanized text>
-
-## Coverage report
-
-| Rule | Source | Detection | Hits | Action | Residual |
-|---|---|---|---|---|---|
-| #14 em-dash density | universal | prescan | 8 | preserved (citation format) | 0 |
-| brand:all_caps_emphasis | brand | prescan-brand | 14 | rewrite | 0 |
-| brand:negative_parallelism | brand | prescan-brand | 4 | rewrite | 0 |
-| brand:forbidden_lexicon (26 entries) | brand | prescan-brand | 0 | n/a | 0 |
-```
-
-Every YAML rule appears in the table — even with 0 hits — so a future pass can verify the prior pass actually checked the rule. Missing rows are a hard failure, not a stylistic choice.
-
-### For file paths
-
-```
-## Diff preview
-
-<unified-diff-style or before/after blocks for changed passages>
-
-## Coverage report
-<as above; count-only summary in default mode>
-
-## Validation report (under `-f` only)
-
-status: clean | residuals | regression
-<residual hits or regression diff if any>
-
-Apply? (yes/no)
-```
-
-Apply only on explicit `yes` **from the user**. When another skill invokes `/humanize-en` on a file, the approval prompt still flows to the end user — a parent skill must not auto-answer on their behalf.
+Full templates with the canonical column order and the approval contract: [`references/output-formats.md`](./references/output-formats.md).
 
 ## Rules
 
@@ -206,6 +138,7 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 
 - `references/patterns.md` — full 32-pattern catalogue with before/after examples. Load when a hit needs context or a reviewer asks *why* a phrase was flagged.
 - `references/voice.md` — optional voice calibration for opinion pieces or personal writing. Load only when the user explicitly asks for voice, personality, or a sample-matching pass.
+- `references/output-formats.md` — canonical templates for the Rewrite, Coverage report, Diff preview, and Validation report blocks. Load before emitting the final response when the shape needs to be reproduced exactly.
 - `references/schemas.md` — JSON shapes for prescan hits (universal + brand), eval samples, eval results, and validate.py output. Consult when editing any script that produces structured output.
 - `scripts/prescan.py` — regex-based pre-scan emitting a JSON hit-list. Without flags: 8 universal patterns. With `--brand <voice-doc>`: also emits brand hits with `source: "brand"` and per-rule `rule_id`s. With `--strict-code-only`: blanks every fenced block (legacy behaviour). Python 3.7+, no third-party deps.
 - `scripts/brand_prescan.py` — brand-aware detectors loaded by `prescan.py --brand`. Self-contained YAML parser so `humanize-en` works when `brand-voice` is not installed. Reads `lexical_exceptions.{acronyms,compound_idioms}` (top-level frontmatter key, see `../brand-voice/references/canonical-format.md`) to extend the hardcoded whitelists.
