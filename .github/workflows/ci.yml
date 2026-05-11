@@ -22,7 +22,7 @@ jobs:
 
   pruner:
     name: pruner
-    uses: ob-aion/pruner/.github/workflows/scan.yml@0.2.7
+    uses: ob-aion/pruner/.github/workflows/scan.yml@0.2.8
     permissions:
       contents: read
       security-events: write
