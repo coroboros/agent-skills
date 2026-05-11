@@ -148,6 +148,21 @@ section { padding-block: var(--space-xl); }
 .full-bleed { grid-column: 1 / -1; }
 ```
 
+### Composition variety mandates
+
+A multi-section page that lands every section on the same anchor, the same surface, the same CTA shape, and the same ambition reads as templated even when each section is individually strong. The cure is per-section variety, applied as four independent rules across the page.
+
+- **Composition Anchor diversity** — across all sections, at least **3 different anchor positions** must appear (centered statement, top-left lead, bottom-left over image, bottom-right CTA cluster, left-third + right-two-thirds, off-grid editorial offset, image-as-canvas). Hero must vary away from the AI default of left-text / right-image.
+- **Background Mode variation** — pick one per section; vary across the page so no two consecutive sections share the same surface treatment (solid + inline asset, subtle texture/paper/grid, full-bleed image + overlay, editorial side-image, flat color block + detail crop, cinematic tonal gradient, color-blocked diptych).
+- **CTA variation** — vary the call-to-action shape at least once across the site. Default pill on every section is templated. Mix in: outline/ghost, underlined inline link, banner-style full-width, oversized headline + tiny hint, CTA as caption.
+- **Section size variety** — mix section ambition deliberately across the page. Some large/rich (full-bleed hero, immersive showcase), some mini/minimalist (single-line statement, tight detail block), some medium editorial. Uniform section heights produce slab-rhythm; mixed ambition produces premium scrollscape.
+
+Apply on multi-section landing pages and product narratives where a default rhythm would otherwise dominate. Not applicable to single-fold portfolios or pure docs. Cross-references: `premium-patterns.md` Hero Architecture options, `anti-patterns.md` predictable symmetric layouts.
+
+### Density bias
+
+Bias toward slightly more whitespace between sections than feels natural. Default AI design under-spaces — a 96px gap between sections that "looks right on the screenshot" reads as cramped on a 13-inch laptop in a real reading session. When uncertain, push section padding one band higher than the dial would suggest (Density 4 → use the band-3 spacing; Density 7 → use the band-6 spacing). The cost of over-spacing is a longer scroll; the cost of under-spacing is a templated rhythm.
+
 ## Animation Toolkit
 
 ### GSAP + ScrollTrigger (industry standard)
@@ -303,6 +318,36 @@ function animate() {
 | Lenis | ~2KB | Smooth scrolling |
 | Locomotive v5 | 9.4KB | Parallax + detection |
 | Motion One | 3.8KB | Lightweight vanilla |
+
+### Spring physics — canonical values
+
+Every Framer Motion spring on a premium surface uses the same two numbers. Pin them in `motion.*` extension tokens and reference them everywhere; ad-hoc spring values authored per component betray the system.
+
+```yaml
+# DESIGN.md fragment
+motion:
+  spring-stiffness-default: 100
+  spring-damping-default: 20
+  spring-stiffness-snappy: 180
+  spring-damping-snappy: 18
+```
+
+```javascript
+// Framer Motion — the canonical premium spring
+<motion.div
+  animate={{ scale: 1.05 }}
+  transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+/>
+
+// CSS-side equivalent for elements outside React
+:root {
+  --ease-spring-out:  cubic-bezier(0.34, 1.56, 0.64, 1);  /* overshoot */
+  --ease-out-expo:    cubic-bezier(0.16, 1, 0.3, 1);      /* cinematic */
+  --ease-smooth-inout: cubic-bezier(0.25, 0.1, 0.25, 1);  /* default */
+}
+```
+
+`stiffness: 100, damping: 20` is the weight-and-mass register that reads as "premium" rather than "snappy". Buttons, cards, and modal entries default to this. The snappier variant (`180 / 18`) belongs to active-state feedback (press, drag) where the extra responsiveness is felt as control. Linear easing is banned across the system — see anti-patterns.
 
 ## Performance
 

@@ -43,6 +43,7 @@ CROSS_CUTTING = [
     "premium-patterns.md",
     "production-hardening.md",
     "remixing.md",
+    "retrofit.md",
 ]
 
 

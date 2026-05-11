@@ -17,6 +17,7 @@ The honest answer in this archetype. No SOTM or SOTY winner in the 2024–2026 w
 - Flat fills hold the surface; shadows carry no blur, gradients do not interpolate
 - Geometry is hard and structural — borders, rules, hard-edged shapes mark divisions explicitly
 - The composition reads as built rather than rendered — no liquid blends, no soft glows
+- **Bimodal density oscillation** — layouts swing between extreme data density (tightly packed monospace clusters, full-bleed dashboards) and vast calculated negative space. The contrast is binary, not gradual. A brutalist page that holds steady mid-density reads as restraint without conviction
 
 The archetype keeps its identity across saturated black-on-white (Gumroad), warm illustrated (FlowFest), industrial monochrome (Anime.js fragments), and zine-aesthetic (Pitchfork). Color register is an expression choice, not a definition.
 
@@ -77,7 +78,38 @@ Strict grids with visible borders or rules. Elements anchor precisely to grid tr
 }
 ```
 
-Border weights bind to `borderWidths.*`. Hard shadows bind to `shadows.*` extension tokens — `shadows.hard-md: 6px 6px 0 ...`. ASCII brackets (`[ SECTION ]`), directional markers (`>>>`), registration symbols, and crosshairs at grid intersections work as decorative geometry.
+Border weights bind to `borderWidths.*`. Hard shadows bind to `shadows.*` extension tokens — `shadows.hard-md: 6px 6px 0 ...`.
+
+### Grid determinism
+
+When the grid itself must read as the design (industrial monochrome, terminal-aesthetic), use the contrasting-background technique to produce mathematically perfect, razor-thin dividers without authoring any border declarations:
+
+```css
+.brutalist-grid-deterministic {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background-color: var(--border-strong); /* shows through gap */
+}
+.brutalist-grid-deterministic > * {
+  background-color: var(--surface);       /* fills cell */
+  padding: var(--space-m);
+}
+```
+
+The `gap: 1px` reveals the parent's background as a 1px line through every cell intersection. Result: pixel-perfect rules with no border math, no half-pixel rendering quirks at responsive breakpoints, no inconsistencies at the corners. Particularly useful for data tables, dashboards, and feature grids in the industrial-monochrome stack.
+
+### Syntax decoration — industrial markers
+
+The brutalist composition treats syntax as structural geometry, not decorative metadata. Lift these patterns into the design system; they're the equivalent of registration marks on a printed sheet.
+
+- **ASCII brackets** as section labels — `[ DELIVERY SYSTEMS ]`, `[ ROUTING TABLE ]`, `[ MANIFEST 04 ]`. Set in monospace at 10–14px with `0.05em` to `0.1em` tracking. Read as utilitarian section flags, not as decorative borders.
+- **Directional markers** — `>>>`, `<<<`, `▶`, `■`, `▢` as inline navigation cues, list bullets, or scroll-indicator stand-ins. Avoid emoji or icon font equivalents; the typographic primitives are the brutalist register.
+- **Registration symbols as structural geometry** — `®`, `©`, `™`, `§`, `¶`, `‡` placed at grid intersections, in the top-right of frame edges, or as a typographic motif across the page. Function as a print-shop reference mark, not as legal text.
+- **Process strings** — `REV 2.6`, `UNIT / D-01`, `BATCH 0042/A`, ISO-style timestamps (`2026-01-15T14:32:00Z`), checksum-style monospace identifiers. Simulate active mechanical processes; the page reads as a runtime artifact rather than marketing copy.
+- **Barcodes / faux machine-readable** — Code 39 or Code 128 SVG barcodes placed at footer edges or as ID strips on cards. Decorative-functional; readers don't need to scan them, the *signal* is what reads as industrial.
+
+Bind these patterns to `typography.label-mono` and `typography.label-machine` extension token slots so the entire system shares one register. Crosshairs at grid intersections (`+` glyphs at exact `1fr` boundaries) work as a tertiary marker layer.
 
 ## Motion
 

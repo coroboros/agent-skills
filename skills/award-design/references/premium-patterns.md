@@ -147,6 +147,18 @@ Pick one based on Density / Variance scores from the Atmosphere Calibration:
 2. **Artistic Asymmetry** (Density 4–6, Variance 6–8): text offset left, artistic floating image overlapping from bottom right
 3. **Editorial Split** (Density 4–6, Variance 4–6): text left, image right, massive negative space between
 
+### Hero Scale taxonomy
+
+Three scales fit the brief, archetype, and atmosphere band. Pick before scaling type — switching scale mid-design forces a token rewrite.
+
+| Scale | clamp() | Best for | Feels |
+|---|---|---|---|
+| **Mini Minimalist** | `clamp(2.5rem, 4vw, 4rem)` | SaaS, product pages, dashboards-adjacent marketing | Quiet, considered, restrained |
+| **Mid Editorial** | `clamp(4rem, 7vw, 8rem)` | Editorial, Corporate Luxury, premium narrative | Confident, magazine-grade, intentional |
+| **Giant Statement** | `clamp(5rem, 10vw, 15rem)` | Brutalist, Bold/Maximal, Immersive cinematic | Loud, declarative, type-as-art |
+
+Hero Scale is independent of Hero Architecture — a Cinematic Center hero can run Mini Minimalist for restraint or Giant Statement for impact. The pairing is a deliberate choice, not a default.
+
 ### Banned in hero
 
 Stamp/badge icons floating on the headline; pill tags directly under the H1 (use eyebrow tags ABOVE instead); raw stats / numbers as hero content (those belong in the Interest section).
@@ -245,6 +257,129 @@ Section openers benefit from a three-element rhythm:
 
 Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96px) minimum on marketing pages, `py-32` to `py-48` (128–192px) on luxury and editorial.
 
+## 9. Liquid Glass Refraction
+
+Glass surfaces sit flat by default — a translucent panel with `backdrop-filter: blur()` reads as "blurred backdrop", not as glass. The Apple WWDC 2025 "Liquid Glass" register adds a 1px inner highlight that simulates the upper edge catching ambient light. The eye perceives refraction without an explicit highlight gradient.
+
+### Architecture
+
+- **Surface**: `bg-white/4` (dark mode) or `bg-black/3` (light mode), `backdrop-filter: blur(24px) saturate(1.2)`
+- **Hairline outer**: `border border-white/10` (dark) or `border border-black/8` (light)
+- **Inner highlight**: `shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]` — the edge of the glass plate
+- **Outer lift** (optional): `shadow-[0_20px_40px_-15px_rgba(0,0,0,0.3)]` for elevation off the canvas
+
+### Token mapping
+
+```yaml
+borderWidths:
+  glass-hairline: "1px"
+shadows:
+  glass-inner-highlight: "inset 0 1px 0 rgba(255, 255, 255, 0.12)"
+  glass-outer-lift: "0 20px 40px -15px rgba(0, 0, 0, 0.3)"
+opacity:
+  glass-surface-light: "0.04"
+  glass-surface-dark: "0.04"
+  glass-border-light: "0.08"
+  glass-border-dark: "0.10"
+```
+
+### Why it works
+
+A flat translucent panel reads as a digital effect. The inner highlight tells the eye "this is a physical material with thickness and a top edge." Pair with the Doppelrand technique (pattern 1) for the highest premium register — a glass plate sitting in a frame, both with concentric radii.
+
+### Anti-pattern
+
+`backdrop-filter: blur()` applied to scrolling content. Continuous GPU repaints collapse mobile frame rate (Safari drops to 15–20fps). Glass surfaces apply only to fixed or sticky elements (navbars, modal overlays, command palettes) — never to scrolling cards. See `production-hardening.md` and pattern 6 (Performance Locks).
+
+Particularly powerful in Spatial Organic (the canonical context), Corporate Luxury (premium product cards on dark backgrounds), and any modal/command-palette surface across archetypes.
+
+## 10. Inline Typography Images
+
+Embed small, contextual photos directly between words or letters in a headline. The images sit inline with text at type-height, with rounded corners, acting as visual punctuation. The word and the image share the same baseline; the image *is* a glyph in that line.
+
+### Architecture
+
+```css
+.hero-text img.inline-photo {
+  display: inline-block;
+  height: 1em;
+  width: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 0.2em;
+  vertical-align: baseline;
+  margin-inline: 0.1em;
+}
+```
+
+```html
+<h1 class="hero-text">
+  We shape <img class="inline-photo" src="/seed-1.jpg" alt="" /> digital
+  spaces for <img class="inline-photo" src="/seed-2.jpg" alt="" /> brands.
+</h1>
+```
+
+### Token mapping
+
+```yaml
+typography:
+  hero-inline:
+    fontSize: "{typography.hero}"
+    lineHeight: "1.05"
+aspectRatios:
+  inline-photo: "3 / 2"
+borderWidths:
+  inline-photo-radius: "0.2em"  # relative to type size
+```
+
+### Why it works
+
+A headline carrying an inline photo demonstrates that the system *plans for* imagery as part of the typographic hierarchy — not as decoration around it. The image becomes part of the reading experience instead of competing with it. Best for high-Variance archetypes (Editorial, Bold/Maximal, Experimental, Bento at motion-engine register). Avoid on Minimalist or Corporate Luxury where it competes with whitespace.
+
+### Anti-pattern
+
+Images that overlap text or float free of the line baseline. Once the image stops behaving like a glyph, the technique breaks — the eye reads "design element" rather than "punctuation". The line height must accommodate the image without breaking the text rhythm above and below.
+
+## 11. Perpetual Micro-Interactions — the Motion ≥ 5 mandate
+
+When the calibrated Motion atmosphere is **5 or higher**, ship at least one perpetual micro-interaction on a hero or signature component. A page that scores Motion 7 in DESIGN.md but ships only opacity reveals reads as "scored ambitious, designed cautious" — judges see the gap immediately.
+
+### Choose one (or layer two) per signature surface
+
+- **Pulse** — opacity or scale breathing on a status dot, live-data indicator, or accent badge (cycle 1.6–2.4s)
+- **Typewriter** — caret blink + character reveal on a placeholder, command input, or kinetic headline (caret 530ms blink, characters 40–80ms each)
+- **Float** — subtle Y-axis drift on a hero asset or floating panel (1.5–3% of viewport height, cycle 4–8s, ease-in-out)
+- **Shimmer** — gradient sweep across a skeleton, loading state, or premium card edge (cycle 2–3s, low-opacity gradient)
+- **Orbit / Drift** — slow ambient gradient orb motion on Spatial Organic backgrounds (cycle 15–25s, large radius, opacity 0.15–0.25)
+
+### Performance lock (mandatory)
+
+Per pattern 6, every perpetual animation **must** be:
+
+1. Memoized via `React.memo`
+2. Isolated in its own microscopic Client Component (`"use client"`)
+3. Animating `transform` and `opacity` only — never `top`, `left`, `width`, `height`, `filter` (except `backdrop-filter` on a fixed layer)
+4. Wrapped in a `prefers-reduced-motion: reduce` swap that pauses the loop and serves a static frame
+
+### Token mapping
+
+```yaml
+motion:
+  duration-pulse:    1800ms
+  duration-float:    6000ms
+  duration-shimmer:  2400ms
+  duration-orbit:    20000ms
+  ease-perpetual:    cubic-bezier(0.45, 0, 0.55, 1)  # gentle ease-in-out
+```
+
+### Why it works
+
+One choreographed perpetual motion on a hero element keeps the page "alive" without the scattered-micro-animations failure mode. The motion proves the page is a designed surface, not a static screenshot — the signature moment of axiom #8 made continuously legible. Particularly powerful on Bento (motion-engine variant), Spatial Organic (ambient orbs), Bold/Maximal (kinetic type).
+
+### Anti-pattern
+
+Three or four perpetual motions running together — pulse on the badge, typewriter in the input, shimmer on the card, orbit in the background. The eye loses anchor; the page reads as visual chaos rather than craft. One perpetual motion per fold; two only when they reinforce the same focal point.
+
 ## Cross-references
 
-Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit), `production-hardening.md` (mobile performance, iOS Safari traps), `audit-rubric.md` (these patterns lift Hierarchy and Spacing scores by 1–2 points each), `anti-patterns.md` (each pattern here solves a specific anti-pattern).
+Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit, spring physics canonical values), `production-hardening.md` (mobile performance, iOS Safari traps, backdrop-filter scope), `audit-rubric.md` (these patterns lift Hierarchy and Spacing scores by 1–2 points each), `anti-patterns.md` (each pattern here solves a specific anti-pattern), `spatial-organic.md` (Liquid Glass is the canonical context).

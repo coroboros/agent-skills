@@ -324,19 +324,26 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 **Key features**
 
 - **DNA + common expressions** — each archetype reference splits non-negotiable identity from 2–4 named expressions (e.g., Immersive: cinematic-dark / editorial-portrait / daylight-automotive). Prevents force-fitting a single style lock onto an archetype that admits multiple valid expressions.
-- **Atmosphere Calibration** — Density, Variance, Motion scores (1–10) make design measurable
+- **Brief signal → first-pass routing** — vocabulary lookup table for the recommendation step (`luxury` → Corporate Luxury, `bento`/`feature grid` → Bento, `bespoke nav` → Experimental, etc.) with the user validating before commit
+- **Atmosphere Calibration** — Density, Variance, Motion scores (1–10) make design measurable, with concrete CSS heuristics per band (`Density 2-3` → `py-32` to `py-48`; `Motion 7-10` → GSAP ScrollTrigger pin/scrub on hero)
+- **Pre-DESIGN.md plan block** — five-bullet pre-plan (brief, archetype + expression, atmosphere, signature moment, photography/copy register) is the contract for the file; if it doesn't ring true, restart from step 1
 - **Anti-AI tells** — 12 axiomatic rejections (any hit is stop-and-fix) + full catalog of patterns that betray AI generation (visual, typography, layout, content, technical)
-- **Premium patterns** — Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, perpetual-animation isolation, magnetic-physics performance lock
+- **Output discipline** — banned-phrase list (`// TODO`, `// ...`, "for brevity", "let me know if you want me to continue", `[remaining sections similar]`) plus continuation marker (`[PAUSED — N of 8 sections complete]`) for clean token-ceiling splits
+- **Premium patterns** — Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule + Hero Scale taxonomy, mobile-collapse mandates, performance locks, **Liquid Glass Refraction** (Apple WWDC 2025 register), **Inline Typography Images** (image-as-glyph signature pattern), **Perpetual Micro-Interactions** (Motion ≥ 5 mandate)
 - **Audit rubric** — quantitative 0–10 scoring across 7 dimensions (Hierarchy, Spacing, Typography, Color, Motion, Accessibility, Anti-slop) with P0/P1 punch list and CSS fixes
 - **Exemplars** — canonical-from-article reference + 4–5 substitutable peers per archetype (Terminal, Lando, Siena, Bruno Simon, Cartier WAW, Anime.js, Ponpon, FlowFest…) shared during recommendation
+- **Composition variety mandates** — across multi-section pages, ≥3 different composition anchors, varied background mode per section, CTA shape varied at least once, mixed section ambition (large/mini/medium)
+- **Creativity escalation** — push at least three axes beyond the generic SaaS template (composition, typography, hero scale, image treatment, section rhythm, framing); if the design could pass for default Tailwind output, escalate
+- **Spring physics canonical values** — `stiffness: 100, damping: 20` pinned in `motion.*` tokens; ad-hoc spring values per component betray the system
 - **Archetype remixing** — arbitration framework for briefs that refuse a single archetype (parent DNA percentage, 7 arbitration rules, worked example)
 - **Brand extraction from URL** — `-u <url>` reverse-engineers a DESIGN.md observation from a live site as the archetype seed
+- **Retrofit playbook** — when `-u <url>` is the user's own legacy site and the intent is "upgrade without rebuilding", a seven-step priority order (font swap → color cleanup → hover/active → layout → component replacement → empty/error/loading → typography polish) lifts targeted scores without re-architecting
+- **Brutalist syntax decoration** — Grid Determinism (`gap: 1px` reveal-through), ASCII brackets, registration symbols, process strings, faux machine-readable as structural geometry, plus Bimodal Density Oscillation as DNA bullet
 - **Production hardening** — iOS Safari + cross-browser shipping for video, scroll-driven cinematic, full-screen heroes (viewport units, autoplay belt-and-suspenders, scroll-restoration, fail-safe reveal logic)
 - **UX quality rules** — touch targets, safe areas, form behavior, animation precision
 - **Judging criteria** — Design 40%, Usability 30%, Creativity 20%, Content 10%
 - **Performance targets** — LCP < 1.5s, CLS < 0.05, INP < 100ms
 - **Modern stack** — OKLCH, Scroll-Driven Animations, View Transitions API, GSAP + Lenis, WebGPU (Three.js r171+)
-- **Production hardening** — viewport units, cross-browser video autoplay, scroll-restoration, fail-safe reveal logic (loaded only for video/scroll projects)
 - **Visual review** — optional `dev-browser` CLI integration for screenshot-based iteration
 
 **Sources**

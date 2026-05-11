@@ -9,11 +9,11 @@ Non-negotiable. If the design contains any of these, stop and fix — don't argu
 1. **Never use the AI-purple gradient.** `linear-gradient(135deg, #a855f7|#8b5cf6, #ec4899|#6366f1)` — any variant pairing purple with pink or purple with blue. The moment judges see it, they stop looking.
 2. **Never use Inter, Roboto, Arial, or system fonts as the display face.** They work as fallbacks and body. At the hero, they signal "no type decision was made". Pick deliberately — a custom face, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Instrument Serif, Geist, PP Editorial New). Don't ship `font-family: 'Inter'` on an H1.
 3. **Never use pure black (`#000`) or pure white (`#FFF`).** Off-black (`#0a0a0a`, `#141413`, `#1a1a1a`) and off-white (`#fafafa`, `#f5f4ed`, `#faf9f5`). The shift is 1% on a color picker and 100% of the atmosphere.
-4. **Never use placeholder names or fake statistics.** "John Doe", "Sarah Chen", "Acme Corp", "99.99% uptime", "10,000+ happy customers", "50% faster". If content isn't real, write something specific and plausible — or keep the placeholder honest (`[client name]`, `[metric]`).
+4. **Never use placeholder names or fake statistics.** "John Doe", "Sarah Chen", "Acme Corp", "99.99% uptime", "10,000+ happy customers", "50% faster". If content isn't real, write something specific and plausible — or keep the placeholder honest (`[client name]`, `[metric]`). The realistic-data rule: prefer `47.2%` to `99.99%`, `+1 (312) 847-1928` to `1234567`, `$99.00` to `$100.00`. Real data has texture; round numbers betray placeholder fill.
 5. **Never ship the centered-hero-over-dark-image-with-generic-headline template.** The canonical AI landing page. Break one of those three: off-center the layout, use flat color or typographic hero, or write a headline that couldn't apply to another product.
 6. **Never ship 3 equal cards in a row as your feature section.** The "feature row" is the most recognized AI template. Vary card sizes, move to editorial or bento layouts, or use a dominant card with supporting detail — not equal thirds.
 7. **Never use emojis as UI icons.** Icon sets exist (Phosphor, Radix, Lucide, Iconify, custom SVG). Emojis in UI signal no design system.
-8. **Never ship without a signature moment.** One interaction, one visual, one typographic decision that someone will remember after 30 seconds. Scattered micro-animations fail; one choreographed hero reveal succeeds. If you can remove every effect and the page reads the same, there is no signature.
+8. **Never ship without a signature moment.** One interaction, one visual, one typographic decision that someone will remember after 30 seconds. Scattered micro-animations fail; one choreographed hero reveal succeeds. If you can remove every effect and the page reads the same, there is no signature. The signature is the loud one (a hero reveal, a kinetic headline). Premium pages also carry a *second-read moment* — a quiet detail noticed only on a return visit (an unexpected punctuation, an asymmetric bleed, an off-rhythm whitespace zone). Loud + quiet is the full premium pair; either alone is incomplete.
 9. **Never wrap an H1 across 4–6 lines.** Use ultra-wide containers (`max-w-5xl`, `max-w-6xl`, or `w-full`) and scale type with `clamp()` so the headline lands in 2–3 lines maximum. The narrow-container 6-line wall is the canonical AI-headline failure. See `premium-patterns.md` for the 2-Line Iron Rule.
 10. **Never use meta-labels like "SECTION 01" or "QUESTION 05".** Eyebrow tags carry meaning ("PRINCIPLES", "OUR APPROACH", "RECENT WORK"); meta-labels carry index numbers and read cheap. If the section needs a tag, write the category — not the count.
 11. **Never use generic avatars.** Standard SVG "egg" placeholders, Lucide user icons, or stock "diverse team" photography signal "AI placeholder filled in last". Use real photography, candid shots, or a consistent illustration style. For demos, use `https://picsum.photos/seed/{context}/W/H` with contextual seeds.
@@ -73,6 +73,7 @@ Run this list first when validating. Anything it catches is stop-and-fix, not ni
 - Emojis in UI — use icons (Phosphor, Radix, or custom SVG).
 - Broken Unsplash links — use `picsum.photos/seed/{context}/W/H` or SVG placeholders.
 - Lorem Ipsum — write real draft copy. Latin placeholder text never ships.
+- Filler UI text — "Scroll to explore", "Swipe down", scroll-arrow indicators, bouncing chevrons. They signal "AI couldn't decide what to put here" and add visual noise that competes with the hero. If the user needs the cue, design the affordance into the layout (rhythm, depth, asymmetric reveal); don't bolt on an instruction.
 
 ### Technical
 
@@ -104,3 +105,29 @@ Run this list first when validating. Anything it catches is stop-and-fix, not ni
 - **Avatar circles exclusively** — try squircles or rounded squares.
 - **Light/dark toggle as sun/moon switch** — try a dropdown, system preference detection, or settings integration.
 - **Footer link farm with 4 columns** — focus on main paths and legally required links.
+
+## Output discipline
+
+The DESIGN.md is long-form — eight prose sections plus YAML. Truncation is the highest-frequency way a high-effort plan ships as a half-empty file. Two banned-phrase categories make truncation visible and stoppable.
+
+**Banned in code blocks** (any token group, any DESIGN.md fragment, any CSS sample):
+
+- `// ...`, `// rest of code`, `// implement here`, `// TODO`, `/* ... */`, `// similar to above`, `// continue pattern`, `// add more as needed`
+- bare `...` standing in for omitted tokens, fragments, or rule sets
+- `[remaining tokens similar]`, `[other shadows similar]`, `[etc.]`
+
+**Banned in prose** (DESIGN.md sections, anti-pattern explanations, reasoning blocks):
+
+- "for brevity", "the rest follows the same pattern", "similarly for the remaining"
+- "and so on" used to replace content, "I'll leave that as an exercise"
+- "let me know if you want me to continue", "I can provide more details if needed"
+- "[remaining sections similar]" — the canonical AI-truncation tell
+
+**Banned structural shortcuts**:
+
+- Outputting a token-namespace skeleton when the request is for full DESIGN.md
+- Showing the first and last sections while skipping the middle
+- Describing what a section *would* contain instead of writing it
+- Ending mid-section without the continuation marker
+
+**Continuation marker** for legitimate token-ceiling splits: finish at a clean section boundary, then end with `[PAUSED — N of 8 sections complete. Send "continue" to resume from: <next section name>]`. On `continue`, pick up exactly there with no recap, no rewrite, no compression. The marker is the only acceptable form of split output.
