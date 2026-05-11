@@ -1100,6 +1100,13 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 - [`claude-code-skills.md`](./.claude/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
 - [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
 - [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
+- [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
+
+### Canonical writing rules
+
+Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brainstorm`, `brand-voice`, `claude-md`, `oneshot`, `spec`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
+
+The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md). Run `scripts/sync_writing_rules.py` after editing it to propagate changes. The parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity and blocks merge if any declared skill drifts.
 
 ---
 
