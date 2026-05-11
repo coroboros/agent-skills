@@ -124,13 +124,28 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
                     self.fail(f"{name}: start marker not found")
 
     def test_canonical_block_appears_before_first_workflow_section(self):
-        """The block sits between H1 and the first workflow/content `## ` section."""
+        """The block sits between H1 and the first non-canonical `## ` section.
+
+        Catches insertion at the wrong position (e.g., appended at the end of the
+        file). Asserts directly against the first `## ` header that is not the
+        canonical block's own `## Important — Writing rules`.
+        """
         _, declared, _ = _parse_canonical()
         for name in declared:
             with self.subTest(skill=name):
                 text = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
                 block_pos = text.find(START_MARKER)
                 self.assertGreaterEqual(block_pos, 0, f"{name}: start marker missing")
+                end_pos = text.find(END_MARKER)
+                self.assertGreater(end_pos, block_pos, f"{name}: end marker missing or before start")
+                tail = text[end_pos + len(END_MARKER) :]
+                m = re.search(r"^## (?!Important)", tail, re.MULTILINE)
+                self.assertIsNotNone(
+                    m,
+                    f"{name}: no non-canonical `## ` section follows the canonical block",
+                )
+                # Optional cross-check against the known WORKFLOW_HEADERS table —
+                # surfaces a finding if a skill drifts to a totally novel H2 layout.
                 for header in WORKFLOW_HEADERS:
                     pos = text.find("\n" + header)
                     if pos != -1:

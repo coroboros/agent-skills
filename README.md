@@ -885,8 +885,8 @@ Author, audit, or polish a project README — clarity, scannable structure (Patt
 
 1. **Inspects the repo** — `package.json`, top-level folders, entry points, `CLAUDE.md` — to understand what the README must cover
 2. **Picks the pattern** — Pattern A for 5+ peer items clustered into ≤7 groups; Pattern B for dozens of API entries; no collapse for short docs
-3. **Drafts (author mode)** — overview table at top with anchors, Install / Quick Start uncollapsed, grouped or per-entry collapse below; applies Clarity rules as it writes
-4. **Audits (audit mode)** — scores against Universal rules (structure: overview visibility, anchor integrity, nested-details, `<br>` after `<summary>`) AND Clarity rules (prose: filler phrases, marketing voice, verbose passages, unbackticked tokens)
+3. **Drafts (author mode)** — overview table at top with anchors, Install / Quick Start uncollapsed, grouped or per-entry collapse below; applies the canonical *Writing rules* + *README-specific style* as it writes
+4. **Audits (audit mode)** — scores against Universal rules (structure: overview visibility, anchor integrity, nested-details, `<br>` after `<summary>`) AND the canonical *Writing rules* + *README-specific style* (prose: filler phrases, marketing voice, verbose passages, unbackticked tokens)
 5. **Polishes (polish mode)** — wording-only pass; structure stays, prose tightens. Drops filler, replaces marketing voice, splits compound sentences, backticks code-like tokens
 6. **Applies on approval** — edits `README.md` only after explicit user approval
 

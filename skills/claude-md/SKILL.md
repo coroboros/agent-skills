@@ -254,7 +254,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 - **Rules directory**: [references/rules-directory-guide.md](references/rules-directory-guide.md) — complete `.claude/rules/` guide with path-scoping, YAML syntax, symlinks, migration
 - **Prompting techniques**: [references/prompting-techniques.md](references/prompting-techniques.md) — emphasis strategies, clarity techniques, constraint patterns
 - **Section templates**: [references/section-templates.md](references/section-templates.md) — copy-paste templates for each section type
-- **Comprehensive example**: [references/comprehensive-example.md](references/comprehensive-example.md) — full production SaaS CLAUDE.md
+- **Full example**: [references/full-example.md](references/full-example.md) — full production SaaS CLAUDE.md
 - **Project patterns**: [references/project-patterns.md](references/project-patterns.md) — Next.js, Express, Python, Monorepo patterns
 - **Auto memory**: [references/auto-memory.md](references/auto-memory.md) — layout, loading caps, settings keys, env overrides, subagent memory
 - **Script schemas**: [references/schemas.md](references/schemas.md) — JSON / RESULT shapes for the three deterministic scripts (audit, validate, init)
