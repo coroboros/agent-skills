@@ -127,7 +127,7 @@ The "Liquid Glass" treatment validated by Apple WWDC 2025. Glass over dark backg
 }
 ```
 
-The Doppelrand technique (nested concentric containers — outer shell with hairline border, inner core with smaller radius and inner highlight) sharpens glass cards into "machined hardware" rather than flat tiles. See `premium-patterns.md`.
+The Doppelrand technique (nested concentric containers — outer shell with hairline border, inner core with smaller radius and inner highlight) sharpens glass cards into "machined hardware" rather than flat tiles. See `premium-patterns.md` pattern 1 (Doppelrand) and pattern 9 (Liquid Glass Refraction). The Liquid Glass pattern is the canonical Spatial Organic glass register — apply it on every glass surface in this archetype, not as an optional flourish.
 
 **Performance lock**: `backdrop-filter` belongs only on fixed or sticky elements (navbars, modal overlays). Applying it to scrolling containers triggers continuous GPU repaints and collapses mobile frame rate. Ambient orbs sit on `position: fixed; pointer-events: none` layers — never on scrolling surfaces.
 

@@ -99,3 +99,7 @@ If the user's intent is "give me a DESIGN.md that captures site X so I can use i
 > Extracted from <URL> on <date>. Observed values only — no invented tokens. Brands belong to their respective owners; this DESIGN.md is for design analysis and inspiration.
 
 The user chooses which workflow to follow — clarify if the intent isn't obvious from the original invocation.
+
+## When the URL is the user's own legacy site
+
+If `-u <url>` points at the user's existing site and the brief is "upgrade this without rebuilding", switch to the retrofit playbook after the inspection: read `references/retrofit.md` for the seven-step priority order (font swap → color cleanup → hover/active states → layout/spacing → component replacement → empty/error/loading states → typography polish). The retrofit flow is targeted lift, not greenfield architecture; the brand identity, the tech stack, and the user expectations are already set.
