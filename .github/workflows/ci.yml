@@ -19,3 +19,14 @@ jobs:
 
       - name: Run tests
         run: python3 -m unittest discover tests/ -v
+
+  pruner:
+    name: pruner
+    uses: ob-aion/pruner/.github/workflows/scan.yml@0.2.9
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write
+      attestations: write
+    with:
+      fail-on: critical
