@@ -20,11 +20,21 @@ jobs:
       - name: Run tests
         run: python3 -m unittest discover tests/ -v
 
+  # Pruner — Coroboros publishing-side trust artefact. Scans every SKILL.md
+  # against the Coroboros policy pack and every code file against the
+  # `cisco-ai-skill-scanner` engine. Findings surface under three categories
+  # in `security/code-scanning` (Coroboros pack, Cisco engine, gitleaks).
+  # The full report bundle (SARIF + SBOM + in-toto attestations + badge)
+  # uploads as the `pruner-report` workflow artefact, 30-day retention.
+  # Verification walkthrough:
+  # https://github.com/ob-aion/pruner/blob/main/docs/verify-a-report.md
   pruner:
     name: pruner
-    uses: ob-aion/pruner/.github/workflows/scan.yml@0.2.8
+    uses: ob-aion/pruner/.github/workflows/scan.yml@0.2.9
     permissions:
       contents: read
       security-events: write
       id-token: write
       attestations: write
+    with:
+      fail-on: critical
