@@ -14,6 +14,21 @@ metadata:
 
 # Agent Creator
 
+<!-- canonical:writing-rules:start -->
+## Important — Writing rules
+
+These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+
+- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Every sentence changes the reader's understanding. Cut it otherwise.
+- Front-load the verb — "Creates", not "This helps you create".
+- Concrete over abstract. Lists for ≥3 enumerable items.
+- Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
+- No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
+- No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
+- After drafting English prose, invoke `/humanize-en` if installed.
+<!-- canonical:writing-rules:end -->
+
 Subagents are specialized Claude instances that run in isolated contexts with focused roles and limited tool access. This skill covers how to create effective subagents, write strong system prompts, configure tool access, and orchestrate multi-agent workflows.
 
 Subagents enable delegation of complex tasks to specialized agents that operate autonomously without user interaction, returning their final output to the main conversation.
@@ -163,7 +178,7 @@ Agent 3: test-analyzer (background)
 
 **When to use background**:
 
-- Long-running analysis (security audits, comprehensive reviews)
+- Long-running analysis (security audits, full-codebase reviews)
 - Multiple independent tasks that can parallelize
 - Research tasks that take significant time
 

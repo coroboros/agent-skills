@@ -16,6 +16,21 @@ metadata:
 
 # CLAUDE.md
 
+<!-- canonical:writing-rules:start -->
+## Important — Writing rules
+
+These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+
+- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Every sentence changes the reader's understanding. Cut it otherwise.
+- Front-load the verb — "Creates", not "This helps you create".
+- Concrete over abstract. Lists for ≥3 enumerable items.
+- Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
+- No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
+- No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
+- After drafting English prose, invoke `/humanize-en` if installed.
+<!-- canonical:writing-rules:end -->
+
 ## Core Principle
 
 Memory files consume tokens every session. Keep them minimal — include only what the agent cannot discover on its own or what a tool doesn't already enforce (linter, TypeScript, tests).
@@ -126,7 +141,9 @@ Full examples for each category live in [references/optimize-guide.md](reference
 
 See [references/section-templates.md](references/section-templates.md) for ready-to-use templates, and [references/project-patterns.md](references/project-patterns.md) for framework-specific patterns.
 
-## Writing Rules
+## CLAUDE.md-specific writing rules
+
+The canonical *Writing rules* block above carries the universal prose rules. The rules below add what is specific to authoring CLAUDE.md and `.claude/rules/` files — emphasis hierarchy, prohibitions over positive guidance, HTML-comment behavior under context injection.
 
 **Golden rule:** If someone with zero project context reads your CLAUDE.md and gets confused, Claude will too.
 
@@ -237,7 +254,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 - **Rules directory**: [references/rules-directory-guide.md](references/rules-directory-guide.md) — complete `.claude/rules/` guide with path-scoping, YAML syntax, symlinks, migration
 - **Prompting techniques**: [references/prompting-techniques.md](references/prompting-techniques.md) — emphasis strategies, clarity techniques, constraint patterns
 - **Section templates**: [references/section-templates.md](references/section-templates.md) — copy-paste templates for each section type
-- **Comprehensive example**: [references/comprehensive-example.md](references/comprehensive-example.md) — full production SaaS CLAUDE.md
+- **Full example**: [references/full-example.md](references/full-example.md) — full production SaaS CLAUDE.md
 - **Project patterns**: [references/project-patterns.md](references/project-patterns.md) — Next.js, Express, Python, Monorepo patterns
 - **Auto memory**: [references/auto-memory.md](references/auto-memory.md) — layout, loading caps, settings keys, env overrides, subagent memory
 - **Script schemas**: [references/schemas.md](references/schemas.md) — JSON / RESULT shapes for the three deterministic scripts (audit, validate, init)

@@ -22,6 +22,21 @@ keywords still help the user discover the skill in the `/` menu listing (per
 
 # Write Clear README
 
+<!-- canonical:writing-rules:start -->
+## Important — Writing rules
+
+These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+
+- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Every sentence changes the reader's understanding. Cut it otherwise.
+- Front-load the verb — "Creates", not "This helps you create".
+- Concrete over abstract. Lists for ≥3 enumerable items.
+- Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
+- No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
+- No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
+- After drafting English prose, invoke `/humanize-en` if installed.
+<!-- canonical:writing-rules:end -->
+
 Author, audit, or polish a README.md for clarity, conciseness, and scannable structure. Reads the repo state first; uses `<details>` collapse patterns where appropriate; proposes diffs and applies on approval.
 
 Additional context from the user: $ARGUMENTS
@@ -115,34 +130,27 @@ Underused pattern — most npm READMEs list signatures as flat headings and forc
 | `/write-clear-readme audit [path]` | Review existing README for collapse opportunities + anchor/overview integrity + clarity issues. |
 | `/write-clear-readme polish [path]` | Tighten wording, drop filler, clarify ambiguous passages — preserve structure, change only the prose. |
 
-## Clarity rules
+## README-specific style
 
-Whether authoring, auditing, or polishing — the prose itself follows these:
+The canonical *Writing rules* block above carries the universal prose rules. The bullets below add what is specific to authoring a README:
 
-- **One idea per sentence.** Compound sentences with multiple clauses get split.
-- **Front-load the verb.** "This skill helps you create" → "Create [...] with this skill" or simply "Creates [...]".
-- **Drop filler.** "In order to" → "to". "It's important to note that" → delete. "Please make sure to" → imperative.
-- **Concrete over abstract.** "Various improvements" → list 2-3 specific ones. "Optimized" → say *what* was optimized.
-- **No marketing voice.** No "powerful", "robust", "delightful", "seamlessly", "leverage", "unlock". Replace with the actual capability or remove.
 - **Show the shape early.** First 3 lines should let a reader decide if this README is for them — what the project is, who it's for, what it does (one verb).
 - **Backtick code-like tokens** — file paths, command names, function names, env vars. `~/.claude/rules/` not ~/.claude/rules/.
 - **Em-dashes for context, not parentheses** — `(also see foo)` → `— also see foo`. Reads less aside-y.
-- **Lists over paragraphs** when the content is enumerable (≥3 items of the same kind).
 - **Headings as questions or commands**, not topics. "Installation" is fine; "How do I install?" or "Install" reads quicker than "About installation".
+- **First-3-lines test.** After authoring, re-read the first three lines. If they don't communicate what + for whom + what it does, rewrite them.
 
 ## Adjacent skills
 
 - **`/fix-grammar`** — optional typo / spelling pre-pass before authoring, or post-pass after polish when the source has obvious errors. Skip when the text is already clean — this skill never introduces grammar errors.
 - **`/humanize-en`** — AI-tell stripping (see next section). Called by `author` and `polish` modes after clarity edits; `audit` mode flags AI tells without rewriting. Also usable standalone.
 
-## Remove AI traces
+## AI-tell removal — skill-specific notes
 
-After any author or polish pass on English content, strip residual AI tells (em-dash overuse, rule of three, negative parallelisms, AI vocabulary, vague attributions, promotional tone, conjunctive padding like "moreover", "furthermore", "indeed").
+The canonical *Writing rules* block already requires invoking `/humanize-en` after any English-prose draft. The notes below pin two skill-specific behaviors:
 
-- **Invoke `/humanize-en` if installed** — detects and fixes all 32 patterns in a single pass. Run it after clarity edits land but before presenting the diff. The skill preserves structure, code blocks, links, anchors, and frontmatter.
-- **If the skill is not available**, scan manually for those patterns (see `humanize-en` or [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) for the full list) before shipping. Do not block on a missing skill.
 - **Audit mode:** flag suspected AI tells in the findings but do not auto-rewrite.
-- **Non-English content** — skip this step entirely; `humanize-en` is English-only.
+- **Non-English content:** skip the humanize-en pass entirely — it is English-only.
 
 ## Author mode
 
@@ -151,8 +159,8 @@ After any author or polish pass on English content, strip residual AI tells (em-
    - Pattern A if 5+ peer items cluster into ≤7 groups (skill library, plugin list, monorepo packages)
    - Pattern B if the doc is reference-heavy (dozens of API entries, CLI commands, config options)
    - Short doc (< 5 sections) → no collapse
-3. **Draft** — overview table at top with anchor links, Install / Quick Start / Requirements uncollapsed, grouped or per-entry collapse below. Apply Clarity rules as you write.
-4. **Remove AI traces** — for English content, invoke `/humanize-en` on the draft (see *Remove AI traces* above). Skip if the skill is unavailable or the content is non-English.
+3. **Draft** — overview table at top with anchor links, Install / Quick Start / Requirements uncollapsed, grouped or per-entry collapse below. Apply the canonical *Writing rules* + *README-specific style* as you write.
+4. **Strip AI traces** — for English content, invoke `/humanize-en` on the draft (see *AI-tell removal — skill-specific notes* above). Skip if the skill is unavailable or the content is non-English.
 5. **Verify** — every TOC anchor resolves. Every `<details>` has a `<br>` after `<summary>`. No nested collapsibles. Install block is never inside `<details>`.
 6. **Write** — overwrite or create `README.md`. Present the diff if it existed before.
 
@@ -165,7 +173,7 @@ After any author or polish pass on English content, strip residual AI tells (em-
    - Do all anchors resolve? (Every heading referenced in the TOC must exist and be outside `<details>`.)
    - Are any `<details>` blocks nested?
    - Is `<br>` present after every `<summary>`?
-4. **Score against Clarity rules** (prose — the script covers mechanical bloat, you cover the rest):
+4. **Score against the canonical *Writing rules* + *README-specific style*** (prose — the script covers mechanical bloat, you cover the rest):
    - First 3 lines tell the reader what/who/why?
    - Verbose passages where bullets would do?
    - Code-like tokens unbacktick'd?
@@ -183,14 +191,14 @@ After any author or polish pass on English content, strip residual AI tells (em-
 Wording-only pass. Structure stays as-is — only the prose changes.
 
 1. **Read existing README** in full.
-2. **Apply Clarity rules** sentence by sentence:
+2. **Apply the canonical *Writing rules* + *README-specific style*** sentence by sentence:
    - Drop filler phrases
    - Replace marketing voice with concrete verbs
    - Split compound sentences
    - Tighten verbose passages into bullets when enumerable
    - Backtick code-like tokens
    - Replace `(parens)` with em-dashes where they're aside-context
-3. **Remove AI traces** — for English content, invoke `/humanize-en` on the result (see *Remove AI traces* above). Skip if the skill is unavailable or the content is non-English.
+3. **Strip AI traces** — for English content, invoke `/humanize-en` on the result (see *AI-tell removal — skill-specific notes* above). Skip if the skill is unavailable or the content is non-English.
 4. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
 5. **Report** — propose a diff. NEVER apply without explicit approval.
 

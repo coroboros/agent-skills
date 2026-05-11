@@ -20,6 +20,21 @@ metadata:
 
 # Award Design
 
+<!-- canonical:writing-rules:start -->
+## Important — Writing rules
+
+These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+
+- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Every sentence changes the reader's understanding. Cut it otherwise.
+- Front-load the verb — "Creates", not "This helps you create".
+- Concrete over abstract. Lists for ≥3 enumerable items.
+- Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
+- No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
+- No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
+- After drafting English prose, invoke `/humanize-en` if installed.
+<!-- canonical:writing-rules:end -->
+
 Build websites that score 8+ on Awwwards. AI-generated designs are immediately recognizable to experienced judges and score poorly — this skill exists to beat that.
 
 ## Workflow
