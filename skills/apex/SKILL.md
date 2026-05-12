@@ -128,7 +128,7 @@ The output path is `.claude/output/apex/{task-id}/`, where `{task-id}` is `NN-fe
 
 **When `{save_mode}` = true:**
 
-All outputs saved to PROJECT directory (where Claude Code is running):
+All outputs saved under the project root — the enclosing git toplevel, or the current working directory outside a git repo:
 
 ```
 .claude/output/apex/{task-id}/
