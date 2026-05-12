@@ -32,10 +32,8 @@ fi
 # Get current timestamp
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Anchor to git toplevel so the output lands at the project root, not at a
-# nested working subdirectory. Falls back to pwd outside a git repo. Must
-# stay aligned with resume_lookup.sh / update-progress.sh / validate_state.sh
-# — divergence here strands the output where the sibling scripts can't find it.
+# Must match resume_lookup.sh / update-progress.sh / validate_state.sh —
+# divergence strands output where the sibling scripts can't find it.
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 APEX_OUTPUT_DIR="${PROJECT_ROOT}/.claude/output/apex"
 
