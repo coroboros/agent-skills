@@ -35,6 +35,32 @@ pnpm typecheck        # astro check && tsc --noEmit
 - Astro 6 bindings: `env.MY_BINDING` directly, NOT deprecated `Astro.locals.runtime`
 - Astro Actions (`defineAction`) + Zod for form handling in SSR routes
 
+## Middleware in production — non-negotiable
+
+Astro middleware runs **at build-time only for prerendered routes**, and at runtime only for on-demand-rendered ones. With the default `output: 'static'`, middleware-set **response headers** (CSP, HSTS, `Link`, content negotiation, easter eggs) are silently dropped in prod — even though they work in `pnpm dev`, which always runs middleware. `pnpm dev` will mask the bug; verify in `pnpm preview` (workerd, same runtime as prod).
+
+Two patterns to make middleware apply:
+
+**1. Pages that need middleware-set headers** — opt the page into SSR per-route:
+```astro
+---
+export const prerender = false;
+// ... rest of frontmatter
+---
+```
+
+**2. Non-page endpoints** (well-known paths, JSON APIs) — create an explicit Astro route, not a middleware pathname branch. The `@astrojs/cloudflare` handler short-circuits to `env.ASSETS.fetch()` for paths with no matching `routeData`, so middleware never sees the request and the asset binding returns `404.html`.
+```ts
+// src/pages/.well-known/example.ts
+import type { APIRoute } from 'astro';
+export const prerender = false;
+export const GET: APIRoute = () => new Response(JSON.stringify({}), {
+  headers: { 'Content-Type': 'application/json' },
+});
+```
+
+The `@astrojs/cloudflare` adapter does not (yet) expose `middlewareMode: 'edge'` or `staticHeaders: true` — these only exist on the Netlify, Vercel, and Node adapters.
+
 ## SEO — non-negotiable
 @.claude/rules/seo.md
 
