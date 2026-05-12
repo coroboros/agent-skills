@@ -78,6 +78,39 @@ class TestFreshRun(unittest.TestCase):
             self.assertIn("OUTPUT_DIR=", r.stdout)
 
 
+class TestProjectRootAnchor(unittest.TestCase):
+    """Output dir must anchor on `git rev-parse --show-toplevel`, falling back
+    to pwd outside a git repo. Aligns with resume_lookup.sh / update-progress.sh /
+    validate_state.sh; divergence would strand output where siblings can't find it.
+    """
+
+    def test_subdir_of_git_repo_anchors_to_toplevel(self):
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t).resolve()
+            subprocess.run(["git", "init", "--quiet", str(tmp)], check=True)
+            nested = tmp / "packages" / "app"
+            nested.mkdir(parents=True)
+            r = _run("nested-task", "Run from a subdirectory", cwd=nested)
+            self.assertEqual(r.returncode, 0,
+                             f"stderr={r.stderr}\nstdout={r.stdout}")
+
+            top_apex = tmp / ".claude" / "output" / "apex"
+            self.assertTrue(top_apex.is_dir(),
+                            "output dir should land at the repo toplevel")
+            self.assertFalse((nested / ".claude").exists(),
+                             "output dir must NOT be created at the nested cwd")
+            self.assertIn(f"OUTPUT_DIR={top_apex}", r.stdout)
+
+    def test_non_git_dir_falls_back_to_pwd(self):
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t).resolve()
+            r = _run("plain-task", "No git here", cwd=tmp)
+            self.assertEqual(r.returncode, 0,
+                             f"stderr={r.stderr}\nstdout={r.stdout}")
+            apex = tmp / ".claude" / "output" / "apex"
+            self.assertTrue(apex.is_dir())
+
+
 class TestAutoIncrement(unittest.TestCase):
     def test_second_run_increments_task_number(self):
         with tempfile.TemporaryDirectory() as t:

@@ -32,8 +32,9 @@ fi
 # Get current timestamp
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
-# Use current working directory as project root
-PROJECT_ROOT=$(pwd)
+# Must match resume_lookup.sh / update-progress.sh / validate_state.sh —
+# divergence strands output where the sibling scripts can't find it.
+PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 APEX_OUTPUT_DIR="${PROJECT_ROOT}/.claude/output/apex"
 
 # Create apex output directory if it doesn't exist
