@@ -11,6 +11,7 @@ Five plugins — workflow, design, Claude Code meta, media, writing. Tested acro
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![ci](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/ci.yml?branch=main&style=flat-square&label=ci&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/ci.yml)
+[![scan](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/scan-skills.yml?branch=main&style=flat-square&label=scan&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/scan-skills.yml)
 [![branch](https://img.shields.io/badge/branch-stable-000000?style=flat-square)](https://github.com/coroboros/agent-skills)
 [![license](https://img.shields.io/badge/license-MIT-000000?style=flat-square)](https://opensource.org/licenses/MIT)
 [![stars](https://img.shields.io/github/stars/coroboros/agent-skills?style=flat-square&label=stars&color=000000)](https://github.com/coroboros/agent-skills)
