@@ -129,7 +129,10 @@ Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tes
 
 ## CI
 
-`.github/workflows/ci.yml` runs the full `unittest` suite on every pull request to `main` and every push to `main`. Branch protection on `main` requires the `tests` status check — red CI blocks merge.
+Two workflows trigger on every pull request and push to `main`:
+
+- `.github/workflows/ci.yml` runs the full `unittest` suite. Branch protection on `main` requires the `tests` status check — red tests block merge.
+- `.github/workflows/scan-skills.yml` calls Cisco's `skill-scanner` reusable workflow (policy `balanced`, fail-on `critical`) against the `skills/` tree. SHA-pinned to a tagged release; Dependabot opens a PR weekly when a new version lands.
 
 ## Skill scope declaration
 
