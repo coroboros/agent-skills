@@ -7,7 +7,7 @@
 
 **AI agent skills for Claude Code and compatible agents**
 
-Five plugins — workflow, design, Claude Code meta, media, writing. Tested across every skill.
+Five plugins — workflow, design, Claude Code meta, media, writing. Tested across every skill, scanned by Cisco's `skill-scanner`.
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![ci](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/ci.yml?branch=main&style=flat-square&label=ci&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/ci.yml)
@@ -29,6 +29,7 @@ Five plugins — workflow, design, Claude Code meta, media, writing. Tested acro
   - [Writing Skills](#writing-skills)
 - [Pipeline](#pipeline)
 - [Testing](#testing)
+- [Security](#security)
 - [Standards](#standards)
 - [License](#license)
 
@@ -1088,6 +1089,12 @@ python3 -m unittest discover tests/<skill-name>/ -v
 ```
 
 Stdlib only. See [`.claude/rules/skill-authoring.md`](./.claude/rules/skill-authoring.md) for the testing requirement.
+
+---
+
+## Security
+
+Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner`](https://github.com/cisco-ai-defense/skill-scanner) — policy `balanced`, fail-on `critical`. The reusable workflow is SHA-pinned to a tagged release; Dependabot opens a PR when a new version lands.
 
 ---
 
