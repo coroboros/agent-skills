@@ -70,7 +70,7 @@ cd {project_dir} && pnpm astro add cloudflare tailwind sitemap --yes
 Delete files that conflict with the opinionated stack. The framework CLI may or may not have created them — delete idempotently.
 
 - `.eslintrc*`, `eslint.config.*`, `.prettierrc*`, `prettier.config.*`
-- Empty `src/app/globals.css` (keep the file, clear its contents)
+- Empty `src/app/globals.css` (next-cloudflare — keep the file, clear its contents; `/design-system` later rewrites it from DESIGN.md, re-adding `@import "tailwindcss"` + the `@theme` token block)
 - `src/app/page.module.css`
 - For astro: replace the default `src/pages/index.astro` with a minimal placeholder
 
@@ -103,7 +103,9 @@ pnpm add -D wrangler @biomejs/biome
 
 - Write `.node-version` containing `22`.
 - Write `.dev.vars.example` with a short comment explaining its purpose.
-- Create `src/styles/global.css` (empty — for CSS custom properties) if absent.
+- CSS tokens (scaffold-specific):
+  - **next-cloudflare** — Tailwind v4 keeps tokens in `src/app/globals.css` (`create-next-app` created it; step 4 emptied it). No `tailwind.config.ts`, no `src/styles/`. Nothing to create here.
+  - **astro-cloudflare** — create `src/styles/global.css` (empty — for CSS custom properties) if absent.
 
 ### 8. Verify
 

@@ -1,29 +1,52 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "project-name",
-  "compatibility_date": "2026-04-09",
+  // Set to your scaffold date; bump deliberately (gates Workers runtime semantics).
+  "compatibility_date": "2026-05-15",
   "compatibility_flags": ["nodejs_compat"],
+  "main": ".open-next/worker.js",
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
   },
-  "main": ".open-next/worker.js",
-
-  // Add bindings as needed:
-  // [[kv_namespaces]]
-  // binding = "CACHE"
-  // id = "your-kv-id"
-
-  // [[r2_buckets]]
-  // binding = "STORAGE"
-  // bucket_name = "your-bucket"
-
-  // [[d1_databases]]
-  // binding = "DB"
-  // database_name = "your-db"
-  // database_id = "your-db-id"
-
   "observability": {
     "enabled": true
-  }
+  },
+  // Explicit — silences post-deploy warnings. Keep both `true` in dev for the
+  // *.workers.dev fallback URL + per-version preview URLs. Flip `workers_dev`
+  // to `false` at launch hardening so the canonical domain is the only entry
+  // point (SEO — avoids duplicate content with the .workers.dev URL).
+  "workers_dev": true,
+  "preview_urls": true
+
+  // --- Custom domain -------------------------------------------------------
+  // Bind the Worker to the APEX only. `www.` → apex and `http://` → `https://`
+  // are zone-level CF Rules (dashboard, NOT wrangler). `wrangler deploy`
+  // upserts this route on each deploy (idempotent unless the hostname has
+  // conflicting externally-managed DNS records).
+  // "routes": [{ "pattern": "example.com", "custom_domain": true }],
+
+  // --- Plain vars (NOT secrets) -------------------------------------------
+  // Non-sensitive values only. `NEXT_PUBLIC_*` belong here or as plain build
+  // vars in the CF Workers Build dashboard (Next inlines them into the client
+  // bundle at build — they reach the browser anyway). Real secrets go via
+  // `wrangler secret put <NAME>` / `wrangler secret bulk .dev.vars`, never
+  // here. See CLAUDE.md § Build & deploy.
+  // "vars": { "NEXT_PUBLIC_SITE_URL": "https://example.com" },
+
+  // --- OpenNext cache bindings (HARDCODED names — see open-next.config.ts) --
+  // ISR — bind an R2 bucket as NEXT_INC_CACHE_R2_BUCKET:
+  // "r2_buckets": [
+  //   { "bucket_name": "your-next-cache", "binding": "NEXT_INC_CACHE_R2_BUCKET" }
+  // ],
+  // revalidateTag — bind a KV namespace as NEXT_TAG_CACHE_KV:
+  // "kv_namespaces": [
+  //   { "binding": "NEXT_TAG_CACHE_KV", "id": "your-kv-id" }
+  // ],
+
+  // --- App bindings (examples — JSONC arrays, not TOML) -------------------
+  // "r2_buckets":   [{ "bucket_name": "your-bucket", "binding": "STORAGE" }],
+  // "d1_databases": [{ "database_name": "your-db", "database_id": "your-id", "binding": "DB" }],
+  // After adding any binding run `pnpm cf-typegen` to regenerate
+  // cloudflare-env.d.ts. Provision secrets with `wrangler secret put <NAME>`.
 }

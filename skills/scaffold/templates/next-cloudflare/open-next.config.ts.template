@@ -1,8 +1,14 @@
 import { defineCloudflareConfig } from '@opennextjs/cloudflare';
 import r2IncrementalCache from '@opennextjs/cloudflare/overrides/incremental-cache/r2-incremental-cache';
+import kvTagCache from '@opennextjs/cloudflare/overrides/tag-cache/kv-next-tag-cache';
 
+// OpenNext reads its cache bindings by HARDCODED name, not from this config:
+//   incrementalCache (ISR)        → R2 bucket bound as NEXT_INC_CACHE_R2_BUCKET
+//   tagCache (revalidateTag)      → KV namespace bound as NEXT_TAG_CACHE_KV
+// Wrong/missing binding names fail SILENTLY — ISR degrades to no-cache and
+// revalidateTag becomes a no-op, no error thrown. Bindings live in
+// wrangler.jsonc. Remove a line below if you don't use that feature.
 export default defineCloudflareConfig({
-  // R2 incremental cache for ISR — requires R2 bucket binding
-  // Remove this line if not using ISR
   incrementalCache: r2IncrementalCache,
+  tagCache: kvTagCache,
 });
