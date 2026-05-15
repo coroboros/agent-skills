@@ -68,7 +68,7 @@ Trade-off: Claude wins on context-aware nuance and brand-voice fidelity but need
 
 **SSR-correct dark mode with no flash?**
 
-- **Cookie + localStorage + `<html data-theme>` SSR'd** — read cookie in middleware / `proxy.ts`, render `<html data-theme="...">` server-side, mirror in `localStorage` client-side.
+- **Cookie + localStorage + `<html data-theme>` SSR'd** — render `<html data-theme="...">` server-side from the cookie read via `cookies()` in the root layout (RSC-native, not `proxy.ts` — Next 16 treats proxy as a last resort), mirror in `localStorage` client-side.
 - **Client-only with FOUC** — flash of wrong theme on first paint.
 - **No toggle** — `prefers-color-scheme` only.
 
