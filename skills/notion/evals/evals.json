@@ -1,0 +1,41 @@
+{
+  "skill_name": "notion",
+  "description": "Behavioural evaluation set for the notion skill. Cases pin the routing decision (MCP default vs `ntn` CLI exceptions), the pre-flight discipline (Markdown spec + schema fetch before content writes), the skip/refuse path (different knowledge tool), and the empirical gotchas (batching, repositioning).",
+  "evals": [
+    {
+      "id": 1,
+      "name": "mcp-default-create-database",
+      "prompt": "Create a Notion database called 'Demo Tasks' inside our Engineering page with a Title column and a Status select (Todo / Doing / Done).",
+      "expected_output": "Skill triggers, runs the pre-flight (reads the `notion://docs/enhanced-markdown-spec` MCP resource, then `notion-fetch`es the parent Engineering page to anchor the new database), and calls `notion-create-database` with the SQL DDL DSL — not the `ntn` CLI. Confirms the database lands at the bottom of the parent page (gotcha #2) and offers to reposition via the two-op `notion-update-page update_content` pattern if the user wants it elsewhere.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "cli-required-file-upload",
+      "prompt": "Upload screenshot.png from my desktop to the Notion page about Q4 mockups.",
+      "expected_output": "Skill triggers, recognises file upload as one of the five CLI-required cases (the MCP has no upload tool), and routes to `ntn files create`. If `ntn` is missing, prints the install URL (https://developers.notion.com/cli/get-started/installation) and the auth URL (https://developers.notion.com/cli/get-started/authentication), then stops — never auto-installs on the user's behalf.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "cli-required-headless-ci",
+      "prompt": "I need a daily Notion sync running from my GitHub Actions workflow — no interactive Claude session available there.",
+      "expected_output": "Skill routes to the `ntn` CLI rather than the MCP — headless / CI is one of the five CLI-required cases because the MCP requires an interactive Claude session. Recommends `NOTION_API_TOKEN=…` (token in `.envrc` gitignored, `chmod 600`, never committed) plus `--json` and `--yes` flags for non-interactive output and confirmations. Does not echo the token anywhere.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "skip-different-knowledge-tool",
+      "prompt": "Delete the Linear issue blocking my sprint and reassign the parent epic to me.",
+      "expected_output": "Skill does not trigger — Linear is a different knowledge tool and out of scope. The skip-condition in the description holds (request targets a different knowledge tool: Linear, Confluence, Coda, Obsidian). Defers to whatever Linear-specific tooling the session has, or asks the user how they want to proceed.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "batch-rows-over-loop",
+      "prompt": "Add these 80 task rows from my CSV to the Sprint database in Notion.",
+      "expected_output": "Skill runs the pre-flight (`notion-fetch`es the Sprint data source to retrieve the current SQLite-style schema, including case-sensitive property names and any expanded keys like `date:Due:start` or `__YES__` / `__NO__` for checkboxes), then issues a single `notion-create-pages` batch call (gotcha #3 — up to 100 rows per call), not a per-row loop. Maps the CSV columns to the schema explicitly rather than guessing.",
+      "files": []
+    }
+  ]
+}

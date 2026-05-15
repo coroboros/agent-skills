@@ -7,7 +7,7 @@
 
 **AI agent skills for Claude Code and compatible agents**
 
-Five plugins — workflow, design, Claude Code meta, media, writing. Tested across every skill, scanned by Cisco's `skill-scanner`.
+Six plugins — workflow, design, Claude Code meta, media, productivity, writing. Tested across every skill, scanned by Cisco's `skill-scanner`.
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![ci](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/ci.yml?branch=main&style=flat-square&label=ci&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/ci.yml)
@@ -26,6 +26,7 @@ Five plugins — workflow, design, Claude Code meta, media, writing. Tested acro
   - [Design Skills](#design-skills)
   - [Claude Code Skills](#claude-code-skills)
   - [Media Skills](#media-skills)
+  - [Productivity Skills](#productivity-skills)
   - [Writing Skills](#writing-skills)
 - [Pipeline](#pipeline)
 - [Testing](#testing)
@@ -78,6 +79,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
 | Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts — TRACK.md / optional ALBUM.md / optional ARTIST.md, multi-type validator with copyright contract | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
+| Productivity | [notion](#notion) | sonnet | Notion access via the official MCP connector (default) or `ntn` CLI (uploads, Workers, headless/CI, raw API, shell piping) | Claude |
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
@@ -766,6 +768,55 @@ The deterministic work (install check, validation, slug, save path, command comp
 **Sources**
 
 - [Microsoft `markitdown`](https://github.com/microsoft/markitdown) (MIT) — the CLI this skill wraps
+
+</details>
+
+---
+
+### Productivity Skills
+
+External knowledge and workflow integrations — `notion` (with future room for Linear, Slack, calendars).
+
+<details>
+<summary><em>Expand — notion</em></summary>
+
+<br>
+
+#### notion
+
+Notion access from Claude Code. Default path is the [official Notion MCP connector](https://developers.notion.com/page/changelog) — covers ~95% of intents (pages, databases, views, comments, search, blocks, users, teams). The [`ntn` CLI](https://developers.notion.com/cli/get-started/installation) is optional and used only for: file uploads, Notion Workers, headless/CI scripts, raw API discovery, and shell piping.
+
+**Requirements**
+
+- The Notion MCP connector enabled at https://claude.ai/settings/connectors (account-level toggle, powers the default path).
+- The `ntn` CLI on PATH — only when one of the five CLI-required cases applies. Install + auth: https://developers.notion.com/cli/get-started/installation, https://developers.notion.com/cli/get-started/authentication. Set `NOTION_API_TOKEN` (prefix `ntn_…` or `secret_…`) in `.envrc` (gitignored, `chmod 600`) for headless / CI use; never commit it.
+
+**Usage**
+
+The skill auto-triggers from prose intent — there are no flags. Examples of trigger phrases:
+
+```
+create a Notion database called Demo Tasks in the Engineering page
+fetch the Notion page about Q4 strategy and summarize it
+add a Status column with options Todo / Doing / Done to my Sprint DB
+upload screenshot.png to my Notion page about Q4 mockups
+build a Notion Worker that listens for new database rows
+script a daily Notion sync from a GitHub Actions workflow
+list every Notion API endpoint that touches comments
+```
+
+**What it does**
+
+1. **Routes** the user's intent to the right transport — MCP for ~95% of cases (pages, DBs, views, comments, search), `ntn` CLI for the five exceptions (uploads, Workers, headless/CI, raw API discovery, shell piping).
+2. **Pre-flights** before any content write — reads the `notion://docs/enhanced-markdown-spec` MCP resource for Markdown rules, and `notion-fetch`es target data sources to retrieve the current SQLite-style schema (case-sensitive property names, expanded date / place keys, `__YES__` / `__NO__` checkboxes, `userDefined:` prefix for properties literally named `id` or `url`).
+3. **Applies the gotchas** that aren't surfaced by tool descriptions or `ntn --help` — `selection_with_ellipsis` matches rendered Markdown verbatim; new databases land at the bottom of the parent page; `notion-create-pages` batches up to 100 rows per call; the MCP gains tools roughly monthly so check the changelog when something looks missing.
+4. **Defers everything else** — per-tool DSL syntax goes through the tool description in the live session; CLI commands through `ntn --help`; capability evolution through the changelog. A new MCP tool or `ntn` subcommand needs no skill update.
+
+**Sources**
+
+- [Notion MCP changelog](https://developers.notion.com/page/changelog) — capability evolution, monthly cadence
+- [`ntn` CLI command reference](https://developers.notion.com/cli/reference/commands) — authoritative for CLI surface
+- [Notion REST API reference](https://developers.notion.com/reference) — when neither MCP nor CLI covers an action
 
 </details>
 
