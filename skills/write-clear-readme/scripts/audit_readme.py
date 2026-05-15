@@ -9,30 +9,24 @@ Hard checks (count toward finding total):
   - Every `[text](#anchor)` link resolves to a heading defined in the file.
   - No nested `<details>` blocks (one-level-max rule).
   - Every `<summary>` is followed by a `<br>` within the same line or
-    the next 3 lines (Pattern A / Pattern B discipline).
+    the next 3 lines (Pattern A / B / C discipline).
   - Universal bloat tokens: "in order to", "leverage", "seamlessly",
     "powerful", "robust", "it's important to note", "at this point in time".
+  - `<summary>` text starting with `Expand —` (or `Expand –`, `Expand -`).
+    The disclosure triangle is the affordance; the prefix is noise.
+  - Stale numeric content-counts adjacent to maintainable nouns
+    ("25 symlinks", "14 tasks") — rot the moment a row is added.
+  - Heading (h2-h6) immediately above a `<details>` whose `<summary>`
+    repeats the same label — duplicate signal.
 
-Soft check (reported, not counted — Pattern A groups intentionally place
-item anchors inside `<details>`; GitHub auto-expands on hash navigation):
-  - Anchors whose target heading sits inside a `<details>` block.
+Soft checks (reported, not counted):
+  - Anchors whose target heading sits inside a `<details>` block
+    (Pattern B groups intentionally place item anchors inside).
+  - Visual rhythm — count of GitHub callouts and images. Long
+    READMEs with zero of either read as flat; surfaced as a hint.
 
-Output (stdout): JSON object
-  {
-    "anchors": { "unresolved": [...], "inside_details_info": [...] },
-    "details": { "nested": [...], "summary_missing_br": [...] },
-    "bloat": [ {"line": L, "token": "..."}, ... ],
-    "summary": {
-      "ok": bool,
-      "findings": N,
-      "rules": {
-        "anchors":        { "findings": N, "pass": bool },
-        "nested_details": { "findings": N, "pass": bool },
-        "summary_br":     { "findings": N, "pass": bool },
-        "bloat":          { "findings": N, "pass": bool }
-      }
-    }
-  }
+Output (stdout): JSON object — see `summary.rules` for the canonical
+list of per-rule findings and pass flags.
 
 Exit:
   0   no hard findings (README clean)
@@ -69,6 +63,48 @@ BLOAT_PATTERNS = [
     (re.compile(r"\bat\s+(?:this|the)\s+point\s+in\s+time\b", re.IGNORECASE), "at this point in time"),
     (re.compile(r"\bneedless\s+to\s+say\b", re.IGNORECASE), "needless to say"),
 ]
+
+# `<summary>Expand — foo</summary>` — strip the prefix (any em-dash / en-dash / hyphen).
+EXPAND_PREFIX_RE = re.compile(r"^\s*expand\s+[—–\-]\s*", re.IGNORECASE)
+
+# Numeric content-counts adjacent to maintainable nouns. Narrow on purpose:
+# "Python 3.7" / "page 5" / "version 1.20" must NOT trigger. Generic nouns
+# like "files", "rows", "columns", "fields" are intentionally excluded —
+# they show up in too many non-stale contexts (thresholds, API limits,
+# generic descriptions) to be reliable signals on their own.
+STALE_COUNT_NOUNS = (
+    "symlinks|tasks|imports|tables|commands|hooks|aliases|skills|"
+    "packages|entries|items|sections|plugins|dependencies|scripts|"
+    "tests|rules|headings|bullets|paragraphs|footnotes"
+)
+# Allow up to three words (adjectives) between the digit and the noun, so
+# "14 declared periodic tasks" matches alongside the plain "25 symlinks".
+STALE_COUNT_RE = re.compile(
+    r"\b(\d+)(?:\s+\w+){0,3}\s+(" + STALE_COUNT_NOUNS + r")\b",
+    re.IGNORECASE,
+)
+
+# Stability prefixes — when they sit immediately before the digit, the
+# count describes a threshold or API limit, not internal content. Examples:
+# `up to 100 tasks per call`, `>5 commands`, `max 3 retries`, `batches of 50`.
+STABILITY_PREFIX_RE = re.compile(
+    r"(?:>|<|≤|≥|=|max\.?|up\s+to|batches?\s+of|each\s+of|per|page\s+size\s+of|top|first|last)\s*$",
+    re.IGNORECASE,
+)
+# Range prefix like `2–3 tasks` or `2-3 tasks` — the digit is the upper
+# bound of a descriptive range, not a stable count of internal content.
+RANGE_PREFIX_RE = re.compile(r"\d\s*[–—-]\s*$")
+
+# GitHub callouts: `> [!NOTE|TIP|WARNING|IMPORTANT|CAUTION] ...`
+CALLOUT_RE = re.compile(
+    r"^>\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]",
+    re.IGNORECASE | re.MULTILINE,
+)
+MD_IMAGE_RE = re.compile(r"!\[[^\]]*\]\([^)\s]+(?:\s+\"[^\"]*\")?\)")
+HTML_IMG_RE = re.compile(r"<img\s[^>]*>", re.IGNORECASE)
+
+# A long README — threshold for the visual-rhythm soft signal.
+VISUAL_RHYTHM_LINE_THRESHOLD = 200
 
 
 # --- GitHub-style anchor slugging -----------------------------------------
@@ -113,6 +149,38 @@ def mask_for_bloat(text):
     return text
 
 
+# --- Helpers ---------------------------------------------------------------
+
+def _normalize_label(s):
+    """Lowercase + collapse whitespace + strip surrounding punctuation/symbols.
+    Used to compare heading text to <summary> text for redundancy detection."""
+    s = re.sub(r"\s+", " ", s.lower().strip())
+    s = s.strip(" \t·•—–-")
+    return s
+
+
+def find_summary_blocks(structural_text):
+    """Yield (start_pos, end_pos, inner_text_stripped) for each <summary>…</summary>
+    in the code-stripped text. inner_text_stripped has HTML tags removed."""
+    pos = 0
+    while True:
+        open_m = SUMMARY_OPEN_RE.search(structural_text, pos)
+        if not open_m:
+            break
+        # Find the > that closes the opening tag.
+        open_end = structural_text.find(">", open_m.end())
+        if open_end < 0:
+            break
+        close_m = SUMMARY_CLOSE_RE.search(structural_text, open_end + 1)
+        if not close_m:
+            break
+        inner = structural_text[open_end + 1 : close_m.start()]
+        # Strip HTML tags so `<em>Expand — foo</em>` becomes `Expand — foo`.
+        inner_clean = re.sub(r"<[^>]+>", "", inner).strip()
+        yield open_m.start(), close_m.end(), inner_clean
+        pos = close_m.end()
+
+
 # --- Audit -----------------------------------------------------------------
 
 def audit(text):
@@ -120,6 +188,7 @@ def audit(text):
     # `<details>` literals inside fenced examples are documentation, not
     # real blocks. HTML tags must remain for this scan to see them.
     structural = mask_code_only(text)
+    line_count = text.count("\n") + 1
 
     # Collect all headings → (line, text, slug) from the RAW text (headings
     # can sit anywhere, including inside details).
@@ -162,13 +231,14 @@ def audit(text):
                 return True
         return False
 
-    # Anchor links analysis.
+    # Anchor links analysis. First-occurrence wins — earlier h2 anchors beat
+    # later h4 collisions, matching GitHub's slug-deduplication intent.
     unresolved = []
     inside_details_info = []
-    heading_anchor_pos = {slug: None for _, _, slug in headings}
+    heading_anchor_pos = {}
     for m in HEADING_RE.finditer(text):
         slug = slugify(m.group(2))
-        if heading_anchor_pos.get(slug) is None:
+        if slug not in heading_anchor_pos:
             heading_anchor_pos[slug] = m.start()
 
     for m in ANCHOR_LINK_RE.finditer(text):
@@ -208,11 +278,74 @@ def audit(text):
             if regex.search(line):
                 bloat_hits.append({"line": lineno, "token": token})
 
+    # `Expand —` prefix in <summary>. Run on structural (code-stripped) so
+    # fenced examples illustrating the wrong pattern don't count.
+    expand_prefix_hits = []
+    for start_pos, _, inner in find_summary_blocks(structural):
+        if EXPAND_PREFIX_RE.match(inner):
+            line_num = structural.count("\n", 0, start_pos) + 1
+            expand_prefix_hits.append({"line": line_num, "summary": inner[:80]})
+
+    # Stale numeric counts adjacent to maintainable nouns. Run on bloat-masked
+    # text to skip code, link targets, and HTML attributes. Skip matches whose
+    # digit is preceded by a stability prefix (`up to 100 tasks`) or a range
+    # marker (`2–3 tasks`) — those describe limits or ranges, not internal
+    # content that rots on add.
+    stale_count_hits = []
+    for lineno, line in enumerate(masked.splitlines(), start=1):
+        for m in STALE_COUNT_RE.finditer(line):
+            before = line[: m.start()]
+            tail = before[-25:]
+            if STABILITY_PREFIX_RE.search(tail):
+                continue
+            if RANGE_PREFIX_RE.search(tail):
+                continue
+            stale_count_hits.append({"line": lineno, "match": m.group(0)})
+
+    # Redundant heading immediately above <details> whose <summary> repeats
+    # the label. Walk events sorted by position to catch the pattern.
+    redundant_heading_hits = []
+    event_list = []
+    for m in HEADING_RE.finditer(structural):
+        event_list.append((m.start(), "heading", m.group(2).strip()))
+    for start_pos, _, inner in find_summary_blocks(structural):
+        details_open = structural.rfind("<details", 0, start_pos + 1)
+        if details_open < 0:
+            continue
+        event_list.append((details_open, "details", inner))
+    event_list.sort()
+    for i in range(len(event_list) - 1):
+        cur, nxt = event_list[i], event_list[i + 1]
+        if cur[1] == "heading" and nxt[1] == "details":
+            # Skip if anything substantive sits between them.
+            lines_between = structural.count("\n", cur[0], nxt[0])
+            if lines_between > 5:
+                continue
+            if _normalize_label(cur[2]) == _normalize_label(nxt[2]):
+                line_num = structural.count("\n", 0, cur[0]) + 1
+                redundant_heading_hits.append({
+                    "line": line_num,
+                    "heading": cur[2],
+                    "summary": nxt[2],
+                })
+
+    # Visual rhythm — soft signal, not counted.
+    callouts = len(CALLOUT_RE.findall(masked))
+    images = len(MD_IMAGE_RE.findall(structural)) + len(HTML_IMG_RE.findall(structural))
+    flat_flag = (
+        line_count > VISUAL_RHYTHM_LINE_THRESHOLD
+        and callouts == 0
+        and images == 0
+    )
+
     per_rule = {
-        "anchors":        {"findings": len(unresolved),          "pass": not unresolved},
-        "nested_details": {"findings": len(nested_lines),        "pass": not nested_lines},
-        "summary_br":     {"findings": len(summary_missing_br),  "pass": not summary_missing_br},
-        "bloat":          {"findings": len(bloat_hits),          "pass": not bloat_hits},
+        "anchors":           {"findings": len(unresolved),             "pass": not unresolved},
+        "nested_details":    {"findings": len(nested_lines),           "pass": not nested_lines},
+        "summary_br":        {"findings": len(summary_missing_br),     "pass": not summary_missing_br},
+        "bloat":             {"findings": len(bloat_hits),             "pass": not bloat_hits},
+        "expand_prefix":     {"findings": len(expand_prefix_hits),     "pass": not expand_prefix_hits},
+        "stale_counts":      {"findings": len(stale_count_hits),       "pass": not stale_count_hits},
+        "redundant_heading": {"findings": len(redundant_heading_hits), "pass": not redundant_heading_hits},
     }
     findings = sum(rule["findings"] for rule in per_rule.values())
 
@@ -226,6 +359,17 @@ def audit(text):
             "summary_missing_br": summary_missing_br,
         },
         "bloat": bloat_hits,
+        "summary_quality": {
+            "expand_prefix": expand_prefix_hits,
+            "stale_counts": stale_count_hits,
+            "redundant_heading": redundant_heading_hits,
+        },
+        "visual_rhythm": {
+            "callouts": callouts,
+            "images": images,
+            "line_count": line_count,
+            "flat_flag": flat_flag,
+        },
         "summary": {
             "ok": findings == 0,
             "findings": findings,
