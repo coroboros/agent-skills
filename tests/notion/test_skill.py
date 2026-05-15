@@ -101,7 +101,7 @@ class TestReferencesTable(unittest.TestCase):
 
 
 class TestGotchas(unittest.TestCase):
-    """The four empirical gotchas are the highest-density information in the
+    """The five empirical gotchas are the highest-density information in the
     skill — each one prevents a class of silent failure observed in production.
     Drift here means future readers re-discover the same traps."""
 
@@ -109,9 +109,9 @@ class TestGotchas(unittest.TestCase):
         body = _body()
         self.assertRegex(body, r"## Gotchas", "missing '## Gotchas' section")
 
-    def test_exactly_four_gotcha_items(self):
-        """An ordered list of exactly four numbered items in the gotchas section.
-        Adding a fifth or removing one is a deliberate decision worth
+    def test_exactly_five_gotcha_items(self):
+        """An ordered list of exactly five numbered items in the gotchas section.
+        Adding a sixth or removing one is a deliberate decision worth
         re-evaluating in PR — this test surfaces silent edits."""
         body = _body()
         m = re.search(r"## Gotchas[^\n]*\n(.*?)(?=\n## |\Z)", body, re.DOTALL)
@@ -121,13 +121,13 @@ class TestGotchas(unittest.TestCase):
         # Match list items at the start of a line: '1. ', '2. ', etc.
         items = re.findall(r"^\d+\.\s+\*\*", gotchas_block, re.MULTILINE)
         self.assertEqual(
-            len(items), 4,
-            f"expected exactly 4 gotcha items, found {len(items)} — "
+            len(items), 5,
+            f"expected exactly 5 gotcha items, found {len(items)} — "
             "if this is intentional, update the test to the new count",
         )
 
     def test_each_gotcha_keyword_present(self):
-        """Each of the four gotchas has a distinctive keyword that the model
+        """Each of the five gotchas has a distinctive keyword that the model
         needs to see to apply the rule. Pinning these prevents a re-write
         from quietly removing the actionable detail."""
         body = _body()
@@ -136,6 +136,7 @@ class TestGotchas(unittest.TestCase):
             "bottom of the parent page",        # gotcha #2
             "100 rows",                         # gotcha #3
             "2026-01-15",                       # gotcha #4 (MCP launch date)
+            "archived ancestor",                # gotcha #5 (write failure on trashed parent)
         )
         for kw in keywords:
             with self.subTest(keyword=kw):

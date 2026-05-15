@@ -65,16 +65,17 @@ Defer to these — do not embed their content in the skill body. Each is the sin
 
 ## Gotchas (empirical — not in tool descriptions or `ntn --help`)
 
-These four facts are stable, repeatedly observed in production sessions, and not surfaced by any tool description or CLI help text. They earn their place in the skill body — everything else defers.
+These five facts are stable, repeatedly observed in production sessions, and not surfaced by any tool description or CLI help text. They earn their place in the skill body — everything else defers.
 
 1. **`selection_with_ellipsis` matches rendered Markdown verbatim.** Copy the snippet from a fresh `notion-fetch`. Never paraphrase — Notion's validator rejects on first-character mismatch and the failure mode is silent.
 2. **New databases land at the bottom of the parent page's children.** To reposition: a two-op `notion-update-page update_content` call — prepend `<database url="…" data-source-url="…">` at the anchor block, then remove the original. Keep at least one reference present in the page so the child-deletion validator doesn't trip, or pass `allow_deleting_content: true` explicitly.
 3. **`notion-create-pages` batches up to 100 rows in a single call.** Prefer the batch over a per-row loop — Notion rate-limits aggressively on chatty calls.
 4. **The MCP shipped 2026-01-15 and gains tools roughly monthly** (views 2026-03-11, block-level comments 2026-02-26). Don't trust training-data recall for the current tool set — read the changelog when something looks missing.
+5. **Writes fail with `archived ancestor` if any parent (page / database / data source) is in the trash.** `notion-fetch` against the data source still returns the schema, masking this during pre-flight — the failure only surfaces at write time. Before trusting pre-flight to greenlight writes on an unfamiliar target, `notion-fetch <page_id>` and check for the `deleted` attribute on the returned `<page>` tag.
 
 ## Maintenance
 
-This skill encodes only routing rules, the pre-flight, and the four stable gotchas above. Per-tool syntax → tool descriptions; CLI commands → `ntn --help`; Markdown rules → the `notion://docs/enhanced-markdown-spec` resource; capability evolution → https://developers.notion.com/page/changelog; auth → the CLI docs URL. A new MCP tool or `ntn` subcommand requires no skill update — discovery happens via the tool or CLI itself.
+This skill encodes only routing rules, the pre-flight, and the five stable gotchas above. Per-tool syntax → tool descriptions; CLI commands → `ntn --help`; Markdown rules → the `notion://docs/enhanced-markdown-spec` resource; capability evolution → https://developers.notion.com/page/changelog; auth → the CLI docs URL. A new MCP tool or `ntn` subcommand requires no skill update — discovery happens via the tool or CLI itself.
 
 ## Privacy
 
