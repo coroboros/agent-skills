@@ -5,8 +5,8 @@
     "email": "ob@coroboros.com"
   },
   "metadata": {
-    "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code meta, media, and writing",
-    "version": "1.18.3"
+    "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code meta, media, productivity, and writing",
+    "version": "1.19.0"
   },
   "plugins": [
     {
@@ -52,6 +52,15 @@
         "./skills/audio-loop",
         "./skills/suno-produce",
         "./skills/markitdown"
+      ]
+    },
+    {
+      "name": "productivity-skills",
+      "description": "External knowledge and workflow integrations — Notion, plus future productivity surfaces (Linear, Slack, calendars)",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/notion"
       ]
     },
     {

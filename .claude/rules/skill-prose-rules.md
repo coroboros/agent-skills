@@ -47,6 +47,7 @@ The sync script and the parity test read this list:
 - `markitdown` — tooling skill emitting short status reports, not prose artifacts.
 - `scaffold` — tooling skill emitting short status reports, not prose artifacts.
 - `design-system` — tooling skill emitting short status reports, not prose artifacts.
+- `notion` — tooling skill routing to MCP/CLI and emitting short status reports, not prose artifacts.
 
 ## Rules for skill authors
 
