@@ -287,7 +287,3 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 - ALWAYS match the existing README's style (quote convention, heading hierarchy, badge format) when editing.
 - ALWAYS verify the rendered output before declaring done (GitHub preview, IDE preview, or user confirmation).
 - Empty `$ARGUMENTS` follows the *Subcommands* default row above. Non-empty: first token is the subcommand, second is the path.
-
-## References
-
-- [`references/postmortem-claude-config-readme.md`](references/postmortem-claude-config-readme.md) — case study and origin of Pattern A. Source for the universal rules around uniform collapse, `Expand —` stripping, h3-above-details redundancy, and stale counts.
