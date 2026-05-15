@@ -74,6 +74,7 @@ class TestReferencesTable(unittest.TestCase):
     sources from the SPEC must be there."""
 
     REQUIRED_REFERENCES = (
+        "https://developers.notion.com/guides/mcp/overview",
         "https://developers.notion.com/page/changelog",
         "notion://docs/enhanced-markdown-spec",
         "https://developers.notion.com/cli/get-started/installation",

@@ -2,14 +2,15 @@
 name: notion
 description: Notion access from Claude Code via the official MCP connector (default path, ~95% of intents) or the `ntn` CLI (only for file uploads, Notion Workers, headless/CI scripts, raw API discovery, shell piping). Routes intent to the right transport, pre-flights the Notion-flavored Markdown spec and target data-source schema, and pins the empirical gotchas not surfaced by tool descriptions or `ntn --help`. Use whenever the user wants to read, fetch, search, create, update, query, or organize Notion content — pages, databases, data sources, views, comments, blocks, properties, schemas, wikis, docs — or upload a file to Notion, build a Notion Worker, or script Notion non-interactively. Triggers on Notion, Notion page, Notion database, Notion DB, Notion wiki, Notion doc, Notion comment, Notion view, Notion property, Notion schema, Notion file, Notion Worker, NOTION_API_TOKEN, ntn, ntn api.
 when_to_use: When the user wants to read, write, query, search, or organize Notion content (pages, databases, data sources, views, comments, blocks, properties, schemas, wikis, files), build a Notion Worker, or script Notion non-interactively. Skip when the user is in the claude.ai web app (different surface, native handling), has explicitly disabled the Notion MCP connector AND has not installed the `ntn` CLI, or when the request targets a different knowledge tool (Linear, Confluence, Coda, Obsidian).
-model: sonnet
+model: opus
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
   sources:
-    - https://developers.notion.com/page/changelog
+    - https://developers.notion.com/guides/mcp/overview
     - https://developers.notion.com/cli/reference/commands
+    - https://developers.notion.com/page/changelog
 ---
 
 # Notion
@@ -53,6 +54,7 @@ Defer to these — do not embed their content in the skill body. Each is the sin
 
 | What | Where |
 |---|---|
+| MCP overview + setup (start here for newcomers) | https://developers.notion.com/guides/mcp/overview |
 | MCP capability evolution (monthly cadence) | https://developers.notion.com/page/changelog |
 | MCP tool DSL syntax (per tool) | The tool's own description in the active session — read it before first use |
 | Notion-flavored Markdown spec | MCP resource `notion://docs/enhanced-markdown-spec` |

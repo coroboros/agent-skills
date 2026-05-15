@@ -79,7 +79,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
 | Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts — TRACK.md / optional ALBUM.md / optional ARTIST.md, multi-type validator with copyright contract | Claude |
 | Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
-| Productivity | [notion](#notion) | sonnet | Notion access via the official MCP connector (default) or `ntn` CLI (uploads, Workers, headless/CI, raw API, shell piping) | Claude |
+| Productivity | [notion](#notion) | opus | Notion access via the official MCP connector (default) or `ntn` CLI (uploads, Workers, headless/CI, raw API, shell piping) | Claude |
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
 | Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
@@ -814,6 +814,7 @@ list every Notion API endpoint that touches comments
 
 **Sources**
 
+- [Notion MCP overview](https://developers.notion.com/guides/mcp/overview) — start here for setup and first-call walkthroughs
 - [Notion MCP changelog](https://developers.notion.com/page/changelog) — capability evolution, monthly cadence
 - [`ntn` CLI command reference](https://developers.notion.com/cli/reference/commands) — authoritative for CLI surface
 - [Notion REST API reference](https://developers.notion.com/reference) — when neither MCP nor CLI covers an action
