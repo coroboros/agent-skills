@@ -809,7 +809,7 @@ list every Notion API endpoint that touches comments
 
 1. **Routes** the user's intent to the right transport — MCP for ~95% of cases (pages, DBs, views, comments, search), `ntn` CLI for the five exceptions (uploads, Workers, headless/CI, raw API discovery, shell piping).
 2. **Pre-flights** before any content write — reads the `notion://docs/enhanced-markdown-spec` MCP resource for Markdown rules, and `notion-fetch`es target data sources to retrieve the current SQLite-style schema (case-sensitive property names, expanded date / place keys, `__YES__` / `__NO__` checkboxes, `userDefined:` prefix for properties literally named `id` or `url`).
-3. **Applies the gotchas** that aren't surfaced by tool descriptions or `ntn --help` — `selection_with_ellipsis` matches rendered Markdown verbatim; new databases land at the bottom of the parent page; `notion-create-pages` batches up to 100 rows per call; the MCP gains tools roughly monthly so check the changelog when something looks missing.
+3. **Applies the gotchas** that aren't surfaced by tool descriptions or `ntn --help` — `selection_with_ellipsis` matches rendered Markdown verbatim; new databases land at the bottom of the parent page; `notion-create-pages` batches up to 100 rows per call; the MCP gains tools roughly monthly so check the changelog when something looks missing; writes fail with `archived ancestor` if any parent is in the trash (pre-flight masks this — verify with `notion-fetch` and check the `deleted` attribute on the `<page>` tag).
 4. **Defers everything else** — per-tool DSL syntax goes through the tool description in the live session; CLI commands through `ntn --help`; capability evolution through the changelog. A new MCP tool or `ntn` subcommand needs no skill update.
 
 **Sources**
