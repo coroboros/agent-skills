@@ -96,7 +96,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 Strategic thinking, planning, and implementation — `brainstorm`, `spec`, `apex`, `oneshot`.
 
 <details>
-<summary><em>Expand — brainstorm · spec · apex · oneshot</em></summary>
+<summary><em>brainstorm · spec · apex · oneshot</em></summary>
 
 <br>
 
@@ -252,7 +252,7 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI — `scaffold`, `award-design`, `design-system`.
 
 <details>
-<summary><em>Expand — scaffold · award-design · design-system</em></summary>
+<summary><em>scaffold · award-design · design-system</em></summary>
 
 <br>
 
@@ -339,7 +339,7 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 - **Composition variety mandates** — across multi-section pages, ≥3 different composition anchors, varied background mode per section, CTA shape varied at least once, mixed section ambition (large/mini/medium)
 - **Creativity escalation** — push at least three axes beyond the generic SaaS template (composition, typography, hero scale, image treatment, section rhythm, framing); if the design could pass for default Tailwind output, escalate
 - **Spring physics canonical values** — `stiffness: 100, damping: 20` pinned in `motion.*` tokens; ad-hoc spring values per component betray the system
-- **Archetype remixing** — arbitration framework for briefs that refuse a single archetype (parent DNA percentage, 7 arbitration rules, worked example)
+- **Archetype remixing** — arbitration framework for briefs that refuse a single archetype (parent DNA percentage, arbitration rules, worked example)
 - **Brand extraction from URL** — `-u <url>` reverse-engineers a DESIGN.md observation from a live site as the archetype seed
 - **Retrofit playbook** — when `-u <url>` is the user's own legacy site and the intent is "upgrade without rebuilding", a seven-step priority order (font swap → color cleanup → hover/active → layout → component replacement → empty/error/loading → typography polish) lifts targeted scores without re-architecting
 - **Brutalist syntax decoration** — Grid Determinism (`gap: 1px` reveal-through), ASCII brackets, registration symbols, process strings, faux machine-readable as structural geometry, plus Bimodal Density Oscillation as DNA bullet
@@ -470,7 +470,7 @@ Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference 
 Meta skills for configuring Claude Code itself — `claude-md`, `agent-creator`.
 
 <details>
-<summary><em>Expand — claude-md · agent-creator</em></summary>
+<summary><em>claude-md · agent-creator</em></summary>
 
 <br>
 
@@ -541,7 +541,7 @@ Expert guidance for creating, configuring, and orchestrating Claude Code subagen
 Media conversion, polishing, and production — `video-loop`, `audio-loop`, `suno-produce`, `markitdown`.
 
 <details>
-<summary><em>Expand — video-loop · audio-loop · suno-produce · markitdown</em></summary>
+<summary><em>video-loop · audio-loop · suno-produce · markitdown</em></summary>
 
 <br>
 
@@ -778,7 +778,7 @@ The deterministic work (install check, validation, slug, save path, command comp
 External knowledge and workflow integrations — `notion` (with future room for Linear, Slack, calendars).
 
 <details>
-<summary><em>Expand — notion</em></summary>
+<summary><em>notion</em></summary>
 
 <br>
 
@@ -828,7 +828,7 @@ list every Notion API endpoint that touches comments
 Structural and prose writing for project documentation — `brand-voice`, `write-clear-readme`, `fix-grammar`, `humanize-en`.
 
 <details>
-<summary><em>Expand — brand-voice · write-clear-readme · fix-grammar · humanize-en</em></summary>
+<summary><em>brand-voice · write-clear-readme · fix-grammar · humanize-en</em></summary>
 
 <br>
 
@@ -923,7 +923,7 @@ Globs every `BRAND-VOICE*.md` under the root and lints each. Exit 1 on any RED. 
 
 #### write-clear-readme
 
-Author, audit, or polish a project README — clarity, scannable structure (Pattern A grouped collapse / Pattern B per-entry collapse), wording concision, anchor integrity. Reads the repo first; proposes diffs and applies on approval.
+Author, audit, or polish a project README — clarity, scannable structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first; proposes diffs and applies on approval.
 
 **Usage**
 
@@ -938,18 +938,24 @@ Author, audit, or polish a project README — clarity, scannable structure (Patt
 **What it does**
 
 1. **Inspects the repo** — `package.json`, top-level folders, entry points, `CLAUDE.md` — to understand what the README must cover
-2. **Picks the pattern** — Pattern A for 5+ peer items clustered into ≤7 groups; Pattern B for dozens of API entries; no collapse for short docs
-3. **Drafts (author mode)** — overview table at top with anchors, Install / Quick Start uncollapsed, grouped or per-entry collapse below; applies the canonical *Writing rules* + *README-specific style* as it writes
-4. **Audits (audit mode)** — scores against Universal rules (structure: overview visibility, anchor integrity, nested-details, `<br>` after `<summary>`) AND the canonical *Writing rules* + *README-specific style* (prose: filler phrases, marketing voice, verbose passages, unbackticked tokens)
-5. **Polishes (polish mode)** — wording-only pass; structure stays, prose tightens. Drops filler, replaces marketing voice, splits compound sentences, backticks code-like tokens
-6. **Applies on approval** — edits `README.md` only after explicit user approval
+2. **Maps audiences and content shape** — identifies the implicit reader per section, flags multi-audience files, and surfaces content-reshape opportunities (cut, merge, split tables) BEFORE any collapse pattern is picked
+3. **Picks the pattern** — Pattern A (per-section collapse) for long human-facing multi-audience docs; Pattern B (grouped collapse) for 5+ peer items in ≤7 groups; Pattern C (per-entry collapse) for reference docs with dozens of API entries; no collapse for short docs
+4. **Drafts (author mode)** — overview table at top with anchors, Install / Quick Start uncollapsed, chosen pattern applied uniformly across peers; applies the canonical *Writing rules* + *README-specific style* as it writes
+5. **Audits (audit mode)** — runs the structural script (anchors, nested `<details>`, `<br>` after `<summary>`, bloat tokens, `Expand —` prefixes, stale counts adjacent to nouns, h3-above-details redundancy, visual-rhythm signal) AND scores prose against the canonical *Writing rules* + *README-specific style*. Names the silent assumption: audit checks structure, not whether the right content is in the file
+6. **Polishes (polish mode)** — wording-only pass; structure stays, prose tightens. Drops filler, replaces marketing voice, splits compound sentences, backticks code-like tokens, swaps numeric content-counts for qualitative descriptors
+7. **Verifies the rendered output** before declaring done — source-only checks miss visual monotony and inconsistent collapse
+8. **Applies on approval** — edits `README.md` only after explicit user approval
 
 **Key rules**
 
 - Group / section anchors go OUTSIDE `<details>` — GitHub auto-expands parent collapsibles on hash navigation
 - Install / Quick Start / Requirements never inside `<details>`
 - One level of `<details>` max — nested collapsibles confuse navigation
-- Signature-first `<summary>` for Pattern B so `Ctrl+F` hits the right entry
+- **One rule per level** — every peer at the chosen collapse level collapses or none does; selective collapse driven by per-section judgment turns the page into a minefield
+- **No `Expand —` prefix** in `<summary>` text — the disclosure triangle is the affordance
+- **No h3 directly above `<details>` that repeats the `<summary>` label** — duplicate signal; drop the h3 and let the summary carry the label
+- **No numeric content-counts** adjacent to maintainable nouns (`25 symlinks`, `14 tasks`) — counts rot the moment a row is added; use qualitative descriptors
+- Signature-first `<summary>` for Pattern C so `Ctrl+F` hits the right entry
 - One idea per sentence; front-load the verb; drop filler (`in order to`, `it's important to note that`)
 - No marketing voice (`powerful`, `robust`, `leverage`, `seamlessly`)
 
