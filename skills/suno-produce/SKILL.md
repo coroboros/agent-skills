@@ -10,13 +10,13 @@ model: opus
 metadata:
   author: coroboros
   sources:
-    - https://github.com/coroboros/research/blob/main/articles/suno-v5-5-operator-reference.md
-    - https://suno.com/blog/v5-5
-    - https://help.suno.com
-    - https://github.com/Spidy88/suno-claude-skill
-    - https://blakecrosley.com/guides/suno
-    - https://stokemctoke.com/the-complete-suno-ai-meta-tags-guide/
-    - https://www.suno.wiki/faq/metatags/
+    - github.com/coroboros/research/blob/main/articles/suno-v5-5-operator-reference.md
+    - suno.com/blog/v5-5
+    - help.suno.com
+    - github.com/Spidy88/suno-claude-skill
+    - blakecrosley.com/guides/suno
+    - stokemctoke.com/the-complete-suno-ai-meta-tags-guide/
+    - www.suno.wiki/faq/metatags/
 ---
 
 # Suno Produce

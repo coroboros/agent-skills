@@ -362,7 +362,7 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
-- [leonxlnx/taste-skill](https://github.com/leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
+- [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
 

@@ -20,7 +20,7 @@ metadata:
   author: coroboros
   sources:
     - github.com/google-labs-code/design.md
-    - designtokens.org
+    - www.designtokens.org
 ---
 
 # Design System
