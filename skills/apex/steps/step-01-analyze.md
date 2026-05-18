@@ -91,7 +91,7 @@ From step-00-init:
 1. **Read the file** using the Read tool
 2. **Extract key findings**: recommendation, constraints, risks, decisions already made
 3. **Skip redundant research**: do NOT re-research topics already covered in the file — focus agents on implementation-specific questions (existing code patterns, file structure, utilities) that the prior analysis doesn't cover
-4. **Carry forward open questions**: flag any unresolved items from the prior analysis. If the file is a `spec.md` with a **Blocking** open-questions split, treat each blocking question as a gate — resolve it before implementing the workstream it blocks; non-blocking questions can ride along during implementation
+4. **Carry forward open questions**: flag any unresolved items from the prior analysis. If the prior context carries a **Blocking** / **Non-blocking** open-questions split (spec's format — match the content, not the filename), treat each blocking question as a gate — resolve it before implementing the workstream it blocks; non-blocking ones ride along during implementation
 
 The prior context (whether from an issue or a file) replaces the need for web research on topics it already covers. Codebase exploration subagents are still valuable since the prior context typically doesn't map implementation details.
 
