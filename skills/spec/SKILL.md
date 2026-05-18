@@ -8,6 +8,9 @@ license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/write-spec
+    - github.com/Melvynx/aiblueprint
 ---
 
 # Spec
@@ -163,6 +166,7 @@ Progressive loading — load only the current step file:
 - `templates/spec.md` — the canonical spec document format used by step-02
 - `scripts/setup-labels.sh` — idempotent GitHub label creation (used by step-03)
 - `scripts/validate_spec.py` — schema + dependency-graph validator (used by step-02; requires Python 3.7+)
+- `references/spec-craft.md` — AC, priority, and goal hardening techniques; read on demand by step-02
 
 ## Rules
 
@@ -170,7 +174,8 @@ Progressive loading — load only the current step file:
 - **Load one step at a time.** Each step file declares its `next_step`.
 - **Persist state variables** across all steps.
 - **ULTRA THINK** before decomposing work into workstreams.
-- **Always include concrete acceptance criteria** — every workstream, every time.
+- **Always include concrete acceptance criteria** — every workstream, every time. Given/When/Then + ≥1 negative; see `references/spec-craft.md`.
+- **Carry the brainstorm Assumption ledger forward** when `-f` is a brainstorm — keep the verified fact / assumption / inherited convention tags; surface the shakiest as an open question or risk.
 - **Validate before finalizing.** Run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` after writing — exit 0 required. Rewrite flagged workstreams until the schema clears (3-7 workstreams; Priority/Complexity set; deps resolve; no cycles).
 
 ## Success criteria

@@ -23,6 +23,10 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 <!-- canonical:writing-rules:end -->
 ```
 
+## Scope boundary — `/humanize-en` vs skill source
+
+The canonical block's `/humanize-en` line governs prose a skill *emits* (the documents it generates) and external docs (README, CHANGELOG, PR/issue/commit/release bodies) — never the skill's own authoring files (`SKILL.md`, `steps/`, `references/`, `templates/`, `evals/`). Those are model instructions, not prose deliverables; `/skill-creator` is their sole quality authority. Running `/humanize-en` on skill source contaminates the canonical state the review loop reasons from.
+
 ## Declared prose-emitting skills
 
 The sync script and the parity test read this list:

@@ -1,0 +1,104 @@
+{
+  "skill_name": "spec",
+  "description": "Behavioural evaluation set for the spec skill. Cases pin the spec.md output shape (canonical sections + 3-7 workstreams with priority/complexity/tasks/AC), the acceptance-criteria craft, P0 ruthlessness, brainstorm Assumption-ledger carry-forward, blocking/non-blocking open questions, the parking lot, schema validation, GitHub-issue creation, and the bridge to /apex.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "produces-canonical-spec-shape",
+      "prompt": "/spec add user authentication with OAuth and email/password",
+      "expected_output": "Output is a spec.md in the canonical format: Overview, Goals, Non-goals, Background, then 3-7 ### WS-N workstreams each with a Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, and Acceptance criteria, plus Execution order. Sections like Dependencies, Risks, Assumptions, Open questions, Parking lot appear only when they have real content.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "saves-to-canonical-path-with-flag",
+      "prompt": "/spec -s redesign the billing system",
+      "expected_output": "When -s is set, the spec is written to `.claude/output/spec/<slug>/spec.md` where slug is kebab-case from the idea (max 5 words). The path is reported back with the `/apex -f <path>` bridge commands.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "acceptance-criteria-given-when-then",
+      "prompt": "/spec add CSV export to the reports page",
+      "expected_output": "Every workstream's acceptance criteria stay `- [ ]` checklist items phrased Given/When/Then, cover happy + error + edge, and include at least one negative criterion (what must NOT happen). No vague words (fast, intuitive, robust). The skill routes to references/spec-craft.md for the criteria discipline rather than re-deriving it inline.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "p0-ruthlessness-challenge",
+      "prompt": "/spec -a build a notifications center with email, SMS, in-app, push, digest, and per-channel preferences — all P0",
+      "expected_output": "The skill applies the P0 ruthlessness test: if everything is P0, nothing is. For each P0 it asks 'would we genuinely refuse to ship without this?' and demotes workstreams the core problem survives without to P1. The final P0 set is tight, not the full wish list.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "goals-are-outcomes-not-outputs",
+      "prompt": "/spec improve onboarding — goal is to build an onboarding wizard",
+      "expected_output": "The skill rewrites output-shaped goals ('build an onboarding wizard') into measurable outcomes ('cut median time-to-first-value from N to M'). A goal that is markable done by merging a PR is treated as a task and moved into a workstream, not left in Goals.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "carries-brainstorm-assumption-ledger",
+      "prompt": "/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md \"OAuth authentication\"",
+      "expected_output": "step-01 reads the brainstorm and carries its Assumption ledger forward into the spec's Assumptions section, keeping each tag (verified fact / assumption / inherited convention). The shakiest assumption is surfaced as a spec open question or a risk. Brainstorm open questions are mapped to the blocking/non-blocking split rather than restated flat.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "open-questions-blocking-split",
+      "prompt": "/spec migrate the payments service from Stripe to Adyen",
+      "expected_output": "The Open questions section is split into Blocking (must be answered before the dependent workstream starts, each linked to its WS-N) and Non-blocking (resolvable during implementation). Blocking questions are genuine decision points, not items answerable from context.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "parking-lot-captures-out-of-scope",
+      "prompt": "/spec add dark mode — and while we're at it maybe a theme builder, custom fonts, and per-org branding",
+      "expected_output": "Adjacent ideas (theme builder, custom fonts, per-org branding) are captured in the Parking lot with a revisit trigger rather than spawned as new workstreams — keeping them out of scope so they neither get lost nor creep into the spec. The workstreams stay focused on dark mode.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "validates-before-finalizing",
+      "prompt": "/spec -s add a real-time collaboration layer to the document editor",
+      "expected_output": "After writing the spec, the skill runs `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py <output_file>` and requires exit 0. On a schema violation (wrong workstream count, missing Priority/Complexity/AC, unknown dependency, or a cycle) it rewrites the flagged workstreams and re-validates rather than finalizing a broken spec.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "creates-github-issues-with-flag",
+      "prompt": "/spec -a -i migrate from REST to GraphQL",
+      "expected_output": "With -i (which forces -s), after the spec is written the skill verifies gh auth, creates labels idempotently, then creates a parent epic plus one child issue per workstream with priority/complexity/spec labels and parent-child cross-references, and appends a ## GitHub Issues mapping to spec.md. A single-workstream spec gets one issue and no parent epic.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "routes-to-spec-craft-reference",
+      "prompt": "How should acceptance criteria be phrased in a spec, and when is a P0 really a P0?",
+      "expected_output": "The skill routes to references/spec-craft.md for the Given/When/Then + negative-case discipline, the non-goal rationale tags, the outcome-vs-output goal rule, and the full P0 ruthlessness test, reading it on demand rather than inlining the technique list on every run.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "bridges-to-apex-without-implementing",
+      "prompt": "/spec -s add search functionality to the docs site",
+      "expected_output": "After presenting the spec the skill shows exact `/apex -f <output_file> implement WS-N` bridge commands and stops — it does not implement anything and waits for the user. Spec produces a document, not code changes.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "too-many-workstreams-suggests-split",
+      "prompt": "/spec rebuild the entire admin dashboard: auth, RBAC, billing, analytics, audit log, settings, notifications, and a public API",
+      "expected_output": "When the idea decomposes into more than 7 workstreams, the skill recommends splitting it into multiple specs rather than producing one bloated spec. It does not silently emit 12 workstreams.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "name": "non-markdown-from-file-aborts",
+      "prompt": "/spec -f requirements.pdf \"implement the requirements\"",
+      "expected_output": "A non-Markdown -f source (.pdf, .docx, audio, video, YouTube) is not read as binary. The skill stops and instructs the user to pre-process with `/markitdown -s <path>` and pass the saved Markdown path, rather than guessing at the contents.",
+      "files": []
+    }
+  ]
+}

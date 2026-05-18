@@ -61,16 +61,24 @@ Before writing anything, mentally decompose `{idea}` into natural workstreams:
 - Each workstream should be independently implementable via a single `/apex` run.
 - Each workstream should have a clear, single deliverable.
 
+**Before finalizing priorities and goals:**
+
+- **P0 ruthlessness** — if everything is P0, nothing is. For each P0, ask: would we genuinely refuse to ship without this? If the core problem is still solved without it, it is P1.
+- **Goals are outcomes, not outputs** — "cut X from N to M", not "build the wizard". A goal markable done by merging a PR is a task, not a goal.
+
+Reach for `references/spec-craft.md` (read on demand, don't inline) when acceptance criteria, priorities, or goal phrasing need hardening — it carries the Given/When/Then discipline, the negative-case rule, the non-goal rationale tags, and the full P0 test.
+
 ### 2. Write the spec document
 
 Use the canonical format in `templates/spec.md` (read it from `${CLAUDE_SKILL_DIR}/templates/spec.md`). Every section is required unless marked optional. Key rules:
 
-- **Every workstream** gets: priority (P0/P1/P2), complexity (S/M/L/XL), description, tasks, acceptance criteria.
+- **Every workstream** gets: priority (P0/P1/P2), complexity (S/M/L/XL), description, tasks, acceptance criteria. Acceptance criteria use Given/When/Then inside each `- [ ]` item, cover happy + error + edge, and include ≥1 negative — see `references/spec-craft.md`.
 - **Technical notes** are optional — include only when there are specific codebase references, patterns, or non-obvious hints. Omit entirely if nothing genuinely helpful to add.
 - **Dependencies** section: include only if workstreams actually depend on each other.
 - **Risks table**: only genuine risks, not filler like "things might change".
-- **Assumptions**: only if `{auto_mode}` was used or specific assumptions were necessary.
-- **Open questions**: only for items that genuinely need human decision before implementation.
+- **Assumptions**: if `{auto_mode}` was used, specific assumptions were necessary, or an Assumption ledger was carried forward from a brainstorm. Tag each (verified fact / assumption / inherited convention); flag the shakiest.
+- **Open questions**: only items that genuinely need human decision. Split blocking (must answer before the dependent workstream starts) vs non-blocking.
+- **Parking lot**: only if good ideas surfaced that are deliberately out of scope — capture them so they neither get lost nor creep into workstreams. Omit if empty.
 - **Execution order**: always include — respects dependencies, orders by priority.
 
 ### 3. Quality checks
@@ -78,7 +86,11 @@ Use the canonical format in `templates/spec.md` (read it from `${CLAUDE_SKILL_DI
 Before presenting, verify:
 
 - [ ] Every workstream has priority, complexity, description, tasks, AC
-- [ ] Acceptance criteria are specific and testable (not vague "works correctly")
+- [ ] Acceptance criteria use Given/When/Then, include ≥1 negative, and contain no vague words (fast, intuitive, robust)
+- [ ] Goals are outcomes (measurable change), not outputs (artifacts built)
+- [ ] P0 set is ruthless — every P0 would genuinely block ship
+- [ ] Assumptions are tagged; the shakiest is surfaced as an open question or risk
+- [ ] Blocking open questions are marked and linked to the workstream they block
 - [ ] Dependencies are explicit and consistent
 - [ ] Execution order respects dependencies
 - [ ] Non-goals are genuinely out of scope, not things we forgot
