@@ -9,7 +9,7 @@ compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in
 metadata:
   author: coroboros
   sources:
-    - github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/oneshot
+    - github.com/Melvynx/aiblueprint
 ---
 
 # OneShot

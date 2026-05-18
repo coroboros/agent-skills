@@ -214,7 +214,7 @@ Accepts output from `spec` or `brainstorm` via `-f`. Works standalone.
 
 **Sources**
 
-- [Melvynx/aiblueprint — apex](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/apex) — APEX methodology (Analyze, Plan, Execute, eXamine) reference implementation
+- [Melvynx/aiblueprint — apex](https://github.com/Melvynx/aiblueprint) — APEX methodology (Analyze, Plan, Execute, eXamine) reference implementation
 
 ---
 
@@ -241,7 +241,7 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 **Sources**
 
-- [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/oneshot) — Explore/Code/Test loop with complexity escalation to `apex` or `spec`
+- [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint) — Explore/Code/Test loop with complexity escalation to `apex` or `spec`
 
 </details>
 
@@ -503,7 +503,7 @@ Create and optimize CLAUDE.md memory files and `.claude/rules/` modular rules fo
 
 - [Anthropic — Memory and CLAUDE.md docs](https://code.claude.com/docs/en/memory) — official memory system architecture and file resolution
 - [anthropics/claude-plugins-official — claude-md-management](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management) — canonical scaffolding and optimization patterns
-- [Melvynx/aiblueprint — claude-memory](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/claude-memory) — bloat categorization (ETH Zurich study) and revision workflow
+- [Melvynx/aiblueprint — claude-memory](https://github.com/Melvynx/aiblueprint) — bloat categorization (ETH Zurich study) and revision workflow
 
 ---
 
@@ -530,7 +530,7 @@ Expert guidance for creating, configuring, and orchestrating Claude Code subagen
 **Sources**
 
 - [Anthropic — Claude Code sub-agents docs](https://code.claude.com/docs/en/sub-agents) — official spec for subagent frontmatter, model selection, tool restrictions
-- [Melvynx/aiblueprint — subagent-creator](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/subagent-creator) — orchestration patterns and system-prompt anti-patterns
+- [Melvynx/aiblueprint — subagent-creator](https://github.com/Melvynx/aiblueprint) — orchestration patterns and system-prompt anti-patterns
 
 </details>
 
@@ -982,7 +982,7 @@ Fix grammar and spelling errors in files while preserving formatting, meaning, a
 
 **Sources**
 
-- [Melvynx/aiblueprint — fix-grammar](https://github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/fix-grammar) — multilingual handling and parallel-subagent processing patterns
+- [Melvynx/aiblueprint — fix-grammar](https://github.com/Melvynx/aiblueprint) — multilingual handling and parallel-subagent processing patterns
 
 ---
 

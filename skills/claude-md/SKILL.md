@@ -11,7 +11,7 @@ metadata:
   sources:
     - code.claude.com/docs/en/memory
     - github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management
-    - github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/claude-memory
+    - github.com/Melvynx/aiblueprint
 ---
 
 # CLAUDE.md

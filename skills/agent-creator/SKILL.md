@@ -9,7 +9,7 @@ metadata:
   author: coroboros
   sources:
     - code.claude.com/docs/en/sub-agents
-    - github.com/Melvynx/aiblueprint/tree/main/claude-code-config/skills/subagent-creator
+    - github.com/Melvynx/aiblueprint
 ---
 
 # Agent Creator
