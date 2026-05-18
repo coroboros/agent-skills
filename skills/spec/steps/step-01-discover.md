@@ -35,7 +35,9 @@ From SKILL.md entry point:
 Read `{from_file}` and detect type:
 
 **Brainstorm report** (contains `# Brainstorm:` header):
-- Extract Summary, Recommendation, Alternatives, Risks, Open questions, Next steps.
+- Extract Summary, Recommendation, Alternatives considered, Assumption ledger, Risks & mitigations, Kill criteria, Open questions, Next steps.
+- Carry the **Assumption ledger** forward into step-02's Assumptions section — keep each tag (verified fact / assumption / inherited convention). The shakiest assumption becomes a spec open question or a risk.
+- Map brainstorm **Open questions** to the spec's blocking/non-blocking split — a question whose answer changes a workstream's shape is blocking; the rest are non-blocking.
 - Treat as foundational — skip re-researching topics already covered.
 - Focus remaining research on implementation specifics the brainstorm doesn't cover.
 

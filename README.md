@@ -167,11 +167,16 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 
 **What it does**
 
-1. **Discover** — reads prior docs (`-f`), explores the codebase, asks clarifying questions
-2. **Specify** — writes workstreams (WS-1, WS-2…), priorities (P0-P2), complexity (S/M/L/XL), dependencies, acceptance criteria
+1. **Discover** — reads prior docs (`-f`), carrying a brainstorm's Assumption ledger forward, explores the codebase, asks clarifying questions
+2. **Specify** — writes workstreams (WS-1, WS-2…), priorities (P0-P2), complexity (S/M/L/XL), dependencies, Given/When/Then acceptance criteria
 3. **Issues** (optional `-i`) — creates a parent epic + one issue per workstream via `gh`
 
 Chains: `/brainstorm` → `/spec` → `/apex -f spec.md` or `/apex -f "#42"`.
+
+**Sources**
+
+- [anthropics/knowledge-work-plugins — write-spec](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/write-spec) — PRD structure, acceptance-criteria craft, ruthless prioritization
+- [Melvynx/aiblueprint — ultrathink](https://github.com/Melvynx/aiblueprint) — craftsman simplification discipline
 
 ---
 

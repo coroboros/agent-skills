@@ -9,14 +9,16 @@
 
 ## Goals
 
-- [Goal 1: specific, measurable]
-- [Goal 2: specific, measurable]
-- [Goal 3: specific, measurable]
+[Outcomes, not outputs — "cut X from N to M", not "build the wizard". Each answers "how do we know it worked?". See `references/spec-craft.md`.]
+
+- [Goal 1: measurable outcome]
+- [Goal 2: measurable outcome]
+- [Goal 3: measurable outcome]
 
 ## Non-goals
 
-- [Explicit exclusion 1 — and briefly why it's excluded]
-- [Explicit exclusion 2]
+- [Explicit exclusion 1 — tag the rationale: not enough impact / too complex for now / separate initiative / premature]
+- [Explicit exclusion 2 — rationale]
 
 ## Background
 
@@ -41,9 +43,9 @@
 - [ ] {concrete task 2}
 - [ ] {concrete task 3}
 
-**Acceptance criteria:**
-- [ ] {specific, testable criterion 1}
-- [ ] {specific, testable criterion 2}
+**Acceptance criteria:** [Given/When/Then inside each `- [ ]` item; cover happy + error + edge; ≥1 negative. See `references/spec-craft.md`.]
+- [ ] {Given <precondition>, when <action>, then <observable outcome>}
+- [ ] {negative — what must NOT happen}
 
 **Technical notes:** [Optional. Only when there are specific codebase references, patterns to follow, or non-obvious implementation hints. Omit entirely if nothing genuinely helpful to add.]
 
@@ -76,16 +78,29 @@ WS-3 --> WS-5
 
 ## Assumptions
 
-[Only include if `{auto_mode}` was used OR if specific assumptions were necessary.]
+[Include if `{auto_mode}` was used, if specific assumptions were necessary, or carried forward from a brainstorm Assumption ledger.]
 
-- {Assumption 1 — what was assumed and why}
-- {Assumption 2}
+Tag each as **verified fact**, **assumption**, or **inherited convention**. Flag the shakiest — it becomes an open question or a risk.
+
+- [verified fact] {what is known, and the source}
+- [assumption] {what was assumed, and why}
+- [inherited convention] {what was taken as given from existing code or prior docs}
 
 ## Open questions
 
-[Only include if there are genuinely unresolved items that need human decision before implementation can begin.]
+[Only genuinely unresolved items needing human decision. Split by whether they block a workstream start.]
 
-- [ ] {Question requiring human decision}
+**Blocking** — must be answered before the dependent workstream starts:
+- [ ] {question} → blocks WS-{N}
+
+**Non-blocking** — can be resolved during implementation:
+- [ ] {question}
+
+## Parking lot
+
+[Good ideas surfaced but deliberately out of scope for this spec — captured so they are neither lost nor allowed to creep into the workstreams. Omit if empty.]
+
+- {idea} — revisit when {trigger}
 
 ## Execution order
 
