@@ -41,8 +41,3 @@ Subtract instead of add.
 - Treat "remove it" as a first-class option, not a fallback.
 
 Reach for this when every obvious approach adds surface. The strongest option often deletes.
-
-## Sources
-
-- github.com/anthropics/knowledge-work-plugins — product-brainstorming ideation modes and frameworks
-- github.com/Melvynx/aiblueprint — ultrathink simplification discipline

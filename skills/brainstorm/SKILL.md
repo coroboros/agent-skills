@@ -9,7 +9,7 @@ compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in
 metadata:
   author: coroboros
   sources:
-    - github.com/anthropics/knowledge-work-plugins
+    - github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming
     - github.com/Melvynx/aiblueprint
 ---
 

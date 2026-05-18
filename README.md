@@ -129,6 +129,11 @@ Strategic analysis and deep thinking before implementation. Researches the probl
 
 Bridges to `/spec -f` for planning or `/apex -f` for direct implementation. Both optional.
 
+**Sources**
+
+- [anthropics/knowledge-work-plugins — product-brainstorming](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming) — divergent/convergent ideation modes and frameworks
+- [Melvynx/aiblueprint — ultrathink](https://github.com/Melvynx/aiblueprint) — craftsman simplification discipline
+
 ---
 
 #### spec
