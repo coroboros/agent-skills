@@ -120,13 +120,19 @@ Strategic analysis and deep thinking before implementation. Researches the probl
 
 **What it does**
 
-1. **Frame** — clarifies the problem, success criteria, and constraints
+1. **Frame** — clarifies the problem, reframes it, sets success criteria and constraints
 2. **Research** — parallel subagents investigate from multiple angles (codebase, technical, external)
-3. **Challenge** — stress-tests the emerging recommendation (risks, hidden costs, simpler alternatives)
-4. **Synthesize** — produces a structured brief (summary, analysis, recommendation, alternatives, risks, next steps)
-5. **Discuss** — presents findings and waits — never implements
+3. **Diverge** — generates ≥3 structurally distinct approaches before judging any
+4. **Challenge** — premortem + steelman the runner-up; stress-tests risks, hidden costs, simpler paths
+5. **Synthesize** — produces a structured brief (recommendation, assumption ledger, alternatives, risks, kill criteria, next steps)
+6. **Discuss** — presents findings and waits — never implements
 
 Bridges to `/spec -f` for planning or `/apex -f` for direct implementation. Both optional.
+
+**Sources**
+
+- [anthropics/knowledge-work-plugins — product-brainstorming](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming) — divergent/convergent ideation modes and frameworks
+- [Melvynx/aiblueprint — ultrathink](https://github.com/Melvynx/aiblueprint) — craftsman simplification discipline
 
 ---
 
@@ -356,7 +362,7 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
-- [leonxlnx/taste-skill](https://github.com/leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
+- [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
 

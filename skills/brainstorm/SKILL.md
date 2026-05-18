@@ -8,6 +8,9 @@ license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
+  sources:
+    - github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming
+    - github.com/Melvynx/aiblueprint
 ---
 
 # Brainstorm
@@ -55,6 +58,8 @@ Before any research, establish clarity:
 - What constraints exist (technical, budget, timeline, regulatory)?
 - What does the user already know or suspect?
 
+**Reframe before researching.** The stated problem is rarely the real one. Restate the problem behind it, then write 1-3 "How might we …" framings and name the one you'll pursue. Generating solutions here is out of scope — that's Phase 3.
+
 If `$ARGUMENTS` is vague, ask focused questions in a single message. Don't proceed on assumptions that could flip the recommendation.
 
 ### Phase 2 — Research (parallel subagents)
@@ -82,29 +87,41 @@ Cover what's relevant:
 - **Technical best practices** — how best-in-class solutions approach this, pitfalls, security, performance
 - **External evidence** (when needed) — comparative analyses, real-world experience reports, docs for unfamiliar technologies
 
-### Phase 3 — Challenge
+### Phase 3 — Diverge
 
-Before writing the brief, stress-test the emerging recommendation:
+Generate the option set before judging any of it. Early convergence is the failure mode here.
 
-- What could go wrong?
+- Produce **≥3 approaches that differ in mechanism**, not three variants of one. State why each is structurally distinct.
+- Vary them along a real axis — scope (small tweak vs. big bet), strategy (build vs. buy vs. defer), direction (add vs. remove).
+- Include one approach that removes or stops something rather than adding.
+- Include one that inverts the obvious default — "what if we did the opposite?".
+- No scoring, no "recommended", no hedging here. Evaluation is Phase 4.
+
+Circling one idea? Pull a technique from `references/thinking-tools.md` (first-principles, inversion, reverse-brainstorm, elimination) — read it on demand, don't inline it.
+
+### Phase 4 — Challenge
+
+Pick a provisional leading approach and a runner-up from the Phase 3 set — first ranking allowed here. Then stress-test the leader before it becomes the recommendation.
+
+- **Premortem.** It is six months out and this approach failed badly. List every plausible cause in the past tense — imagining the failure as already certain surfaces more failure modes than asking "what could go wrong".
+- **Steelman the runner-up.** Argue the second-best approach at full strength. Name the condition under which it would win.
 - What hidden costs exist (complexity, maintenance, vendor lock-in)?
-- What assumptions might be wrong?
+- Which assumptions does the recommendation carry — fact, assumption, or inherited convention?
 - Is there a simpler path that gets 80% of the value at 20% of the cost?
-- Does this align with the user's stack and constraints?
 
-Be rigorous, not contrarian. Surface risks the user hasn't considered.
+Be rigorous, not contrarian. Surface risks the user hasn't considered — for a sharper angle (inversion, first-principles), `references/thinking-tools.md` serves Challenge too.
 
-### Phase 4 — Synthesize
+### Phase 5 — Synthesize
 
 Produce the strategic brief. Output in conversation by default, or save to `.claude/output/brainstorm/{slug}/brainstorm.md` when `-s` is set.
 
 Use the canonical format in `references/brief-template.md` (read `${CLAUDE_SKILL_DIR}/references/brief-template.md` before writing).
 
-### Phase 5 — Discuss
+### Phase 6 — Discuss
 
 After the brief:
 
-1. State the recommendation and the top risk in plain language.
+1. State the recommendation, the runner-up and what would flip it, and the top risk — in plain language.
 2. Surface the open questions that need answers.
 3. **Stop and wait** — do not implement anything.
 

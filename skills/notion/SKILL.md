@@ -8,9 +8,10 @@ compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in
 metadata:
   author: coroboros
   sources:
-    - https://developers.notion.com/guides/mcp/overview
-    - https://developers.notion.com/cli/reference/commands
-    - https://developers.notion.com/page/changelog
+    - developers.notion.com/guides/mcp/overview
+    - developers.notion.com/cli/reference/commands
+    - developers.notion.com/page/changelog
+    - developers.notion.com/reference
 ---
 
 # Notion

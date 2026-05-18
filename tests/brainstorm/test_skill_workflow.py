@@ -18,14 +18,15 @@ def _body():
 EXPECTED_PHASES = [
     "Phase 1 — Frame the problem",
     "Phase 2 — Research",
-    "Phase 3 — Challenge",
-    "Phase 4 — Synthesize",
-    "Phase 5 — Discuss",
+    "Phase 3 — Diverge",
+    "Phase 4 — Challenge",
+    "Phase 5 — Synthesize",
+    "Phase 6 — Discuss",
 ]
 
 
 class TestWorkflowPhases(unittest.TestCase):
-    """The 5-phase workflow is the skill's spine. Reordering or dropping a
+    """The 6-phase workflow is the skill's spine. Reordering or dropping a
     phase silently changes the brainstorm flow — the brief might ship without
     a Challenge pass, or skip the Discuss step that ends the cycle."""
 
