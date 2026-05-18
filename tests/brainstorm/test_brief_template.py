@@ -13,8 +13,10 @@ REQUIRED_SECTIONS = [
     "Problem analysis",
     "Research findings",
     "Recommendation",
+    "Assumption ledger",
     "Alternatives considered",
     "Risks",
+    "Kill criteria",
     "Open questions",
     "Next steps",
 ]

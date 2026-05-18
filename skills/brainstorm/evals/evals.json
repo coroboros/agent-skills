@@ -1,12 +1,12 @@
 {
   "skill_name": "brainstorm",
-  "description": "Behavioural evaluation set for the brainstorm skill. Cases pin the brief.md output shape (8 H2 sections in canonical order), recommendation discipline, and the producer-of-spec contract.",
+  "description": "Behavioural evaluation set for the brainstorm skill. Cases pin the brief.md output shape (10 H2 sections in canonical order), the Diverge and Challenge disciplines, recommendation discipline, and the producer-of-spec contract.",
   "evals": [
     {
       "id": 1,
       "name": "produces-canonical-brief-shape",
       "prompt": "Help me think through how we should handle authentication for our B2B SaaS — Better-Auth vs Clerk vs roll-our-own.",
-      "expected_output": "Output is a brief.md with all 8 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks & mitigations, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Alternatives considered lists at least 2 options with set-aside reasoning.",
+      "expected_output": "Output is a brief.md with all 10 H2 sections in canonical order: Summary, Problem analysis, Research findings, Recommendation, Assumption ledger, Alternatives considered, Risks & mitigations, Kill criteria, Open questions, Next steps. Recommendation is specific (one option chosen with rationale). Assumption ledger tags each assumption as verified fact, assumption, or inherited convention. Alternatives considered names a steelmanned runner-up and the condition under which it would win.",
       "files": []
     },
     {
@@ -54,8 +54,8 @@
     {
       "id": 8,
       "name": "routes-to-brief-template-reference",
-      "prompt": "What should the structure of a brainstorm brief look like? Are there 8 sections required?",
-      "expected_output": "Skill routes to `references/brief-template.md` for the canonical 8-section structure (Summary, Problem analysis, Research findings, Recommendation, Alternatives considered, Risks & mitigations, Open questions, Next steps) rather than re-deriving the layout inline. Response is concrete (sections named) not generic.",
+      "prompt": "What should the structure of a brainstorm brief look like? How many sections are required?",
+      "expected_output": "Skill routes to `references/brief-template.md` for the canonical 10-section structure (Summary, Problem analysis, Research findings, Recommendation, Assumption ledger, Alternatives considered, Risks & mitigations, Kill criteria, Open questions, Next steps) rather than re-deriving the layout inline. Response is concrete (sections named) not generic.",
       "files": []
     },
     {
@@ -63,6 +63,34 @@
       "name": "bridges-to-spec-for-multi-workstream-work",
       "prompt": "/brainstorm should we migrate from CRA to Vite across our 3-app monorepo, or wait for the official React replacement?",
       "expected_output": "After producing the brief and surfacing the recommendation + top risk, brainstorm proposes the bridge to `/spec` because the migration is multi-workstream (3 apps + CI updates + bundle audit + rollback plan). The bridge syntax is exact and matches the repo `-f` convention: `/spec -s -f .claude/output/brainstorm/<slug>/brainstorm.md \"<topic>\"`. Skill does NOT directly hand off to `/apex` — the work is too broad for a single focused implementation pass.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "diverges-before-evaluating",
+      "prompt": "/brainstorm should we move our background jobs off Cloudflare Queues?",
+      "expected_output": "Before any recommendation, the Diverge phase produces at least 3 approaches that differ in mechanism (not three variants of one), states why each is structurally distinct, and includes one option that removes or stops something and one that inverts the obvious default. No scoring or 'recommended' label is applied during Diverge — evaluation is deferred to the Challenge phase.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "challenge-runs-premortem-and-steelman",
+      "prompt": "/brainstorm should we adopt a monorepo with Turborepo for our 4 services?",
+      "expected_output": "The Challenge phase runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. These carry forward into the brief's Assumption ledger and Alternatives considered sections.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "routes-to-thinking-tools-reference",
+      "prompt": "I'm brainstorming database options but every idea I get is just a variant of 'use Postgres'. How do I break out?",
+      "expected_output": "When divergence stalls or ideas collapse to one mechanism, the skill routes to `references/thinking-tools.md` for an on-demand technique (first-principles, inversion, reverse-brainstorm, or elimination) rather than inlining the technique list. It does not read the reference on every run — only when the option set is thin.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "reframes-stated-problem-before-research",
+      "prompt": "/brainstorm we need to add a caching layer to speed up the dashboard",
+      "expected_output": "Rather than accepting the stated solution ('add a caching layer') as the problem, Phase 1 reframes it — restating the real problem behind it and producing 1-3 'How might we' framings before any research. The skill does not generate solutions in Phase 1; it names the chosen framing and stops for direction when the input is a solution in disguise.",
       "files": []
     }
   ]
