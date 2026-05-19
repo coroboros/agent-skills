@@ -23,20 +23,20 @@
     },
     {
       "name": "coding-skills",
-      "description": "Code review and coding-workflow tools — report-only review now; more coding skills landing soon",
+      "description": "Coding workflow — bootstrap projects (scaffold) and report-only code review (code-review)",
       "source": "./",
       "strict": false,
       "skills": [
+        "./skills/scaffold",
         "./skills/code-review"
       ]
     },
     {
       "name": "design-skills",
-      "description": "Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI",
+      "description": "Recommend design archetypes and enforce DESIGN.md tokens across UI",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/scaffold",
         "./skills/award-design",
         "./skills/design-system"
       ]

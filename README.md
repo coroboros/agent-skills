@@ -23,6 +23,7 @@ Six plugins — workflow, design, Claude Code meta, media, productivity, writing
 - [Requirements](#requirements)
 - [Skills](#skills)
   - [Workflow Skills](#workflow-skills)
+  - [Coding Skills](#coding-skills)
   - [Design Skills](#design-skills)
   - [Claude Code Skills](#claude-code-skills)
   - [Media Skills](#media-skills)
@@ -70,8 +71,8 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude |
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
+| Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Coding | [code-review](#code-review) | opus | Report-only session-end review — bugs, drift, gaps, docs/version, tests, CLAUDE.md + local/global rule compliance; fresh-eyes, confidence-scored | Claude |
-| Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
 | Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
@@ -261,54 +262,10 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 ### Coding Skills
 
-Code review and coding-workflow tools — `code-review`. More coding skills landing soon.
+Bootstrap projects and review changes before commit — `scaffold`, `code-review`.
 
 <details>
-<summary><em>code-review</em></summary>
-
-<br>
-
-#### code-review
-
-Report-only session-end review with fresh eyes. Dispatches four parallel read-only lens subagents — rules compliance, bugs + drift, docs + version, tests + blind spots — over what changed, confidence-scores findings, and defers security/performance/simplification to the skill that owns them. Never edits code.
-
-**Usage**
-
-```bash
-/code-review                 # auto-detect what changed, report
-/code-review -s              # also save the report for /apex -f
-/code-review -b origin/main  # review HEAD against an explicit base
-```
-
-**Flags**
-
-| Flag | Description |
-|------|-------------|
-| `-s` / `-S` | Save the report to `.claude/output/code-review/{slug}/code-review.md` / force no-save |
-| `-b <ref>` | Override the review base (skip auto-detection) |
-
-**What it does**
-
-- **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a base declared in the project's rules wins), always resolved to a diffable ancestor
-- **Four lenses** — parallel read-only subagents review the change against the project's own `CLAUDE.md` + local/global rule hierarchy
-- **Score + filter** — each finding scored 0–100; low-confidence, pre-existing, and out-of-lane findings dropped
-- **Report-only** — prioritized report; bridge to `/apex -f` or `/oneshot` to fix
-
-**Sources**
-
-- knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)
-- Anthropic Claude Code — plugins/code-review (parallel independent agents + 0–100 confidence scoring)
-
-</details>
-
----
-
-### Design Skills
-
-Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI — `scaffold`, `award-design`, `design-system`.
-
-<details>
-<summary><em>scaffold · award-design · design-system</em></summary>
+<summary><em>scaffold · code-review</em></summary>
 
 <br>
 
@@ -351,6 +308,50 @@ Shared: TypeScript strict, pnpm, Biome, Tailwind CSS, Node.js 22.
 Optionally chains to `award-design` and `design-system`.
 
 ---
+
+#### code-review
+
+Report-only session-end review with fresh eyes. Dispatches four parallel read-only lens subagents — rules compliance, bugs + drift, docs + version, tests + blind spots — over what changed, confidence-scores findings, and defers security/performance/simplification to the skill that owns them. Never edits code.
+
+**Usage**
+
+```bash
+/code-review                 # auto-detect what changed, report
+/code-review -s              # also save the report for /apex -f
+/code-review -b origin/main  # review HEAD against an explicit base
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-s` / `-S` | Save the report to `.claude/output/code-review/{slug}/code-review.md` / force no-save |
+| `-b <ref>` | Override the review base (skip auto-detection) |
+
+**What it does**
+
+- **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a base declared in the project's rules wins), always resolved to a diffable ancestor
+- **Four lenses** — parallel read-only subagents review the change against the project's own `CLAUDE.md` + local/global rule hierarchy
+- **Score + filter** — each finding scored 0–100; low-confidence, pre-existing, and out-of-lane findings dropped
+- **Report-only** — prioritized report; bridge to `/apex -f` or `/oneshot` to fix
+
+**Sources**
+
+- knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)
+- Anthropic Claude Code — plugins/code-review (parallel independent agents + 0–100 confidence scoring)
+
+</details>
+
+---
+
+### Design Skills
+
+Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-design`, `design-system`.
+
+<details>
+<summary><em>award-design · design-system</em></summary>
+
+<br>
 
 #### award-design
 
