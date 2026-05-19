@@ -1,4 +1,4 @@
-# Code review — {slug}
+# Code review — {project}
 
 **Base:** {base} · **Target:** {target} · **Rule:** {rung}
 **Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
