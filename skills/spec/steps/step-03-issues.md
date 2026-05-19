@@ -18,6 +18,7 @@ From previous steps:
 |----------|-------------|
 | `{idea}` | Feature description |
 | `{project}` | Repo basename — keys the output dir |
+| `{slug}` | Kebab of the idea (≤5 words) — names the spec file |
 | `{save_mode}` | true (required for issues) |
 | `{output_file}` | Path to spec.md |
 | Spec content | Workstreams with priorities, complexities, tasks, AC from step-02 |

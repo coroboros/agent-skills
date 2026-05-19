@@ -117,7 +117,7 @@ Strategic analysis and deep thinking before implementation. Researches the probl
 
 | Flag | Description |
 |------|-------------|
-| `-s` | Save report to `~/.claude/output/brainstorm/{project}/brainstorm.md` |
+| `-s` | Save report to `~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md` |
 | `-S` | Force no-save (override any ambient save mode) |
 
 **What it does**
@@ -149,7 +149,7 @@ Transform ideas into structured execution specs with prioritized workstreams, de
 /spec -s add user authentication with OAuth and email/password
 
 # From a brainstorm report
-/spec -s -f brainstorm.md "OAuth authentication"
+/spec -s -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md "OAuth authentication"
 
 # Auto mode + create GitHub issues
 /spec -s -a -i migrate from REST to GraphQL
@@ -159,7 +159,7 @@ Transform ideas into structured execution specs with prioritized workstreams, de
 
 | Flag | Description |
 |------|-------------|
-| `-s` / `-S` | Save spec to `~/.claude/output/spec/{project}/spec.md` / force no-save |
+| `-s` / `-S` | Save spec to `~/.claude/output/{project}/spec/spec-{slug}.md` / force no-save |
 | `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
 | `-a` / `-A` | Auto mode — skip Q&A, make reasonable assumptions / disable |
 | `-e` / `-E` | Economy mode — no subagents / disable |
@@ -173,7 +173,7 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 2. **Specify** — writes workstreams (WS-1, WS-2…), priorities (P0-P2), complexity (S/M/L/XL), dependencies, Given/When/Then acceptance criteria
 3. **Issues** (optional `-i`) — creates a parent epic + one issue per workstream via `gh`
 
-Chains: `/brainstorm` → `/spec` → `/apex -f spec.md` or `/apex -f "#42"`.
+Chains: `/brainstorm` → `/spec` → `/apex -f <abs spec path>` or `/apex -f "#42"`.
 
 **Sources**
 
@@ -196,7 +196,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 /apex -f "#42" implement what issue 42 describes
 
 # From a prior spec or brainstorm report
-/apex -f spec.md implement WS-1
+/apex -f ~/.claude/output/{project}/spec/spec-{slug}.md implement WS-1
 
 # Resume a previous task
 /apex -r 01-auth-middleware
@@ -207,7 +207,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 | Flag | Description |
 |------|-------------|
 | `-a` / `-A` | Autonomous mode — skip confirmations / disable |
-| `-s` / `-S` | Save outputs to `~/.claude/output/apex/{project}/{task-id}/` / force no-save |
+| `-s` / `-S` | Save outputs to `~/.claude/output/{project}/apex/{task-id}/` / force no-save |
 | `-e` / `-E` | Economy mode — no subagents / disable |
 | `-b` / `-B` | Branch mode — verify not on main, create branch if needed / disable |
 | `-f` | Load prior context (GitHub issue `#N`, spec, brainstorm report, RFC) |
@@ -325,7 +325,7 @@ Report-only session-end review with fresh eyes. Dispatches four parallel read-on
 
 | Flag | Description |
 |------|-------------|
-| `-s` / `-S` | Save the report to `~/.claude/output/code-review/{project}/code-review.md` / force no-save |
+| `-s` / `-S` | Save the report to `~/.claude/output/{project}/code-review/code-review-{slug}.md` / force no-save |
 | `-b <ref>` | Override the review base (skip auto-detection) |
 
 **What it does**
@@ -468,7 +468,7 @@ Also invocable directly via `/design-system` with one of seven subcommands:
 
 | Flag | Subcommand | Description |
 |------|------------|-------------|
-| `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `~/.claude/output/design-system/{project}/{sub}/report.md` |
+| `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `~/.claude/output/{project}/design-system/{sub}/report.md` |
 | `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
 | `--json` | `audit`, `diff`, `spec`, `audit-extensions` | Raw JSON instead of the formatted report |
 | `--strict` | `audit`, `audit-extensions` | `audit`: cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
@@ -672,7 +672,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 /audio-loop breeze.wav -v 0.4           # Lower volume in the emitted JS snippet
 /audio-loop breeze.wav -B               # Skip stereo balance auto-correction
 /audio-loop breeze.wav -o public/audio/ # Custom output directory
-/audio-loop -s breeze.wav               # Save under ~/.claude/output/audio-loop/{project}/breeze/
+/audio-loop -s breeze.wav               # Save under ~/.claude/output/{project}/audio-loop/breeze/
 ```
 
 **Flags**
@@ -682,7 +682,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 | `-t <LUFS>` | `-28` | Integrated loudness target |
 | `-v <0..1>` | `0.6` | Target volume baked into the emitted JS snippet |
 | `-o <dir>` | input dir | Output directory |
-| `-s` / `-S` | off | Save to `~/.claude/output/audio-loop/{project}/{slug}/` / force no-save |
+| `-s` / `-S` | off | Save to `~/.claude/output/{project}/audio-loop/{slug}/` / force no-save |
 | `-B` | off | Disable stereo balance auto-correction |
 
 **What it does**
@@ -793,7 +793,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 
 ```bash
 /markitdown ~/Downloads/report.pdf            # convert and print to terminal
-/markitdown -s ~/Downloads/report.pdf         # convert + save under ~/.claude/output/markitdown/{project}/report/
+/markitdown -s ~/Downloads/report.pdf         # convert + save under ~/.claude/output/{project}/markitdown/report/
 /markitdown -s -p deck.pptx                   # use third-party plugins (e.g. markitdown-ocr)
 /markitdown -d invoice.pdf                    # Azure Document Intelligence
 /markitdown -k brand.html                     # keep base64 images inline
@@ -805,7 +805,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-s` | off | Save Markdown to `~/.claude/output/markitdown/{project}/{slug}/{stem}.md` |
+| `-s` | off | Save Markdown to `~/.claude/output/{project}/markitdown/{slug}/{stem}.md` |
 | `-S` | — | Force no-save (override an ambient save mode) |
 | `-d` | off | Use Azure Document Intelligence (needs `MARKITDOWN_DOCINTEL_ENDPOINT`) |
 | `-p` | off | Enable installed third-party `markitdown` plugins |
@@ -817,7 +817,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 1. Validates that `markitdown` is installed; if not, prints the install command and stops (never auto-installs)
 2. Detects whether the input is a local file or an `http(s)://` URL (YouTube etc.) and validates the file exists
 3. Composes the right `markitdown` invocation based on the flags above
-4. Streams the converted Markdown to the terminal, or — when `-s` — writes it under `~/.claude/output/markitdown/{project}/{slug}/{stem}.md` for downstream skills to consume via `-f`
+4. Streams the converted Markdown to the terminal, or — when `-s` — writes it under `~/.claude/output/{project}/markitdown/{slug}/{stem}.md` for downstream skills to consume via `-f`
 5. Reports a one-line summary: `markitdown: <input> → <bytes> bytes of Markdown`
 
 The deterministic work (install check, validation, slug, save path, command composition) runs in `scripts/markitdown.sh`, which emits `RESULT: key=value` lines parsed by the skill — same pattern as `video-loop`.
@@ -937,7 +937,7 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 | `-d <dir>` | Folder of MD/MDX — `Glob` aggregate |
 | `-f <file>` | Single MD/MDX/TXT file |
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
-| `-s` / `-S` | Save / disable save under `~/.claude/output/brand-voice/{project}/voice.md` |
+| `-s` / `-S` | Save / disable save under `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` |
 | `--extends <parent>` | (`extract`) scaffold a child voice inheriting from `<parent>`; pre-flight lints the parent (refuses on RED) |
 | `--raw` | (`show`) skip `voice.extends` chain resolution; print child-only rules |
 | `--chain` | (`show`) print the resolution chain root → child |
@@ -1103,13 +1103,13 @@ Skills chain together by design. Each works standalone; chaining covers longer w
 ```
 /brainstorm -s "topic"     explore and analyze
       |
-/spec -s -f brainstorm.md "<topic>"  structure into workstreams
+/spec -s -f <abs brainstorm path> "<topic>"  structure into workstreams
       |
-/apex -f spec.md "<task>"            implement systematically
+/apex -f <abs spec path> "<task>"            implement systematically
       |
 /code-review -s                      review the change (report-only)
       |
-/apex -f code-review.md              fix the findings
+/apex -f <abs code-review path>      fix the findings
 ```
 
 Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` without brainstorming, or `/oneshot` for trivial tasks. Run `/code-review` after any change for an independent fresh-eyes pass before committing.

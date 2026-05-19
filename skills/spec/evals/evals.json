@@ -13,7 +13,7 @@
       "id": 2,
       "name": "saves-to-canonical-path-with-flag",
       "prompt": "/spec -s redesign the billing system",
-      "expected_output": "When -s is set, the spec is written to `~/.claude/output/spec/{project}/spec.md` where {project} is the repo basename (git toplevel, else cwd). The path is reported back in tilde form with the `/apex -f spec.md` bridge command.",
+      "expected_output": "When -s is set, the spec is written to `~/.claude/output/{project}/spec/spec-{slug}.md` ({slug} = kebab of the idea; multiple specs coexist per repo). The fully-expanded absolute path is reported back with the `/apex -f <that path>` bridge command.",
       "files": []
     },
     {
@@ -40,7 +40,7 @@
     {
       "id": 6,
       "name": "carries-brainstorm-assumption-ledger",
-      "prompt": "/spec -s -f brainstorm.md \"OAuth authentication\"",
+      "prompt": "/spec -s -f ~/.claude/output/myrepo/brainstorm/brainstorm-oauth-authentication.md \"OAuth authentication\"",
       "expected_output": "step-01 reads the brainstorm and carries its Assumption ledger forward into the spec's Assumptions section, keeping each tag (verified fact / assumption / inherited convention). The shakiest assumption is surfaced as a spec open question or a risk. Brainstorm open questions are mapped to the blocking/non-blocking split rather than restated flat.",
       "files": []
     },

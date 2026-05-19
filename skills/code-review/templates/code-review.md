@@ -1,4 +1,4 @@
-# Code review — {project}
+# Code review — {slug}
 
 **Base:** {base} · **Target:** {target} · **Rule:** {rung}
 **Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
@@ -36,4 +36,4 @@ _Omit any bullet with nothing to point at._
 
 ---
 
-_Report-only. To fix: `/apex -f code-review.md` or `/oneshot "<finding>"`._
+_Report-only. To fix: `/apex -f ~/.claude/output/{project}/code-review/code-review-{slug}.md` or `/oneshot "<finding>"`._

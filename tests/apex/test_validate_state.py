@@ -56,7 +56,7 @@ class TestValidateState(unittest.TestCase):
     def _seed_task(self, task_id, *, with_context=True, step_files=None, progress_rows=None):
         """Materialize a fake apex task tree under the global
         `$HOME/.claude/output/apex/<project>/<task_id>/`."""
-        task_dir = self.home / ".claude" / "output" / "apex" / self.project / task_id
+        task_dir = self.home / ".claude" / "output" / self.project / "apex" / task_id
         task_dir.mkdir(parents=True, exist_ok=True)
         if with_context:
             body = "# Context\n\n## Progress\n\n| Step | Status | Updated |\n|------|--------|---------|\n"

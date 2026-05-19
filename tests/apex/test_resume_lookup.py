@@ -52,7 +52,7 @@ class TestResumeLookup(unittest.TestCase):
         self._tmp_home.cleanup()
 
     def _seed_tasks(self, *task_ids):
-        base = self.home / ".claude" / "output" / "apex" / self.project
+        base = self.home / ".claude" / "output" / self.project / "apex"
         base.mkdir(parents=True, exist_ok=True)
         for tid in task_ids:
             (base / tid).mkdir(exist_ok=True)

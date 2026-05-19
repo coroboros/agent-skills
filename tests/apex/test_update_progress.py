@@ -66,7 +66,7 @@ def _dirs(t):
 
 def _seed(home: Path, project: str, task_id: str = "01-add-auth",
           body: str = CONTEXT_TEMPLATE) -> Path:
-    ctx_dir = home / ".claude" / "output" / "apex" / project / task_id
+    ctx_dir = home / ".claude" / "output" / project / "apex" / task_id
     ctx_dir.mkdir(parents=True)
     ctx_file = ctx_dir / "00-context.md"
     ctx_file.write_text(body, encoding="utf-8")

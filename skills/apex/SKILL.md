@@ -50,7 +50,7 @@ Execute systematic implementation workflows using the APEX methodology. This ski
 **Flags:**
 
 - `-a` (auto): Skip confirmations
-- `-s` (save): Save outputs to `~/.claude/output/apex/{project}/`
+- `-s` (save): Save outputs to `~/.claude/output/{project}/apex/`
 - `-e` (economy): No subagents, save tokens
 
 See **Parameters** below for the complete flag list.
@@ -64,7 +64,7 @@ See **Parameters** below for the complete flag list.
 | Short | Long | Description |
 |-------|------|-------------|
 | `-a` | `--auto` | Autonomous mode: skip confirmations, auto-approve plans |
-| `-s` | `--save` | Save mode: output each step to `~/.claude/output/apex/{project}/` |
+| `-s` | `--save` | Save mode: output each step to `~/.claude/output/{project}/apex/` |
 | `-e` | `--economy` | Economy mode: no subagents, save tokens (for limited plans) |
 | `-r` | `--resume` | Resume mode: continue from a previous task |
 | `-b` | `--branch` | Branch mode: verify not on main, create branch if needed |
@@ -99,9 +99,9 @@ See **Parameters** below for the complete flag list.
 # From a GitHub issue
 /apex -f "#42" implement what issue 42 describes
 
-# From prior analysis (spec, brainstorm report, RFC) — bare name resolves deterministically
-/apex -f spec.md implement WS-1
-/apex -f brainstorm.md implement Neon database
+# From prior analysis (spec, brainstorm report, RFC) — pass the explicit path the producer printed
+/apex -f ~/.claude/output/{project}/spec/spec-{slug}.md implement WS-1
+/apex -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md implement Neon database
 
 # Economy mode (save tokens)
 /apex -e add auth middleware
@@ -124,14 +124,14 @@ For the detailed parsing algorithm, see `steps/step-00-init.md`.
 
 ## Output Structure
 
-The output path is `~/.claude/output/apex/{project}/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the repo-wide single-canonical-file scheme (`~/.claude/output/{skill}/{project}/<file>`): resume needs ordered task folders, and one canonical file carries no ordering.
+The output path is `~/.claude/output/{project}/apex/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.claude/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
 
 **When `{save_mode}` = true:**
 
 All outputs saved under the global user dir, keyed by `{project}` (kebab-cased basename of the git toplevel, else the cwd outside a git repo) — see `.claude/rules/repo-conventions.md` § Output paths:
 
 ```
-~/.claude/output/apex/{project}/{task-id}/
+~/.claude/output/{project}/apex/{task-id}/
 ├── 00-context.md # Params, user request, timestamp
 ├── 01-analyze.md # Analysis findings
 ├── 02-plan.md # Implementation plan
@@ -182,7 +182,7 @@ For implementation details, see `steps/step-00-init.md`.
 | `{task_id}`             | string  | Full identifier with number (e.g., `01-add-auth-middleware`) |
 | `{acceptance_criteria}` | list    | Success criteria (inferred or explicit)                |
 | `{auto_mode}`           | boolean | Skip confirmations, use recommended options            |
-| `{save_mode}`           | boolean | Save outputs to `~/.claude/output/apex/{project}/`     |
+| `{save_mode}`           | boolean | Save outputs to `~/.claude/output/{project}/apex/`     |
 | `{economy_mode}`        | boolean | No subagents, direct tool usage only                   |
 | `{branch_mode}`         | boolean | Verify not on main, create branch if needed            |
 | `{interactive_mode}`    | boolean | Configure flags interactively                          |

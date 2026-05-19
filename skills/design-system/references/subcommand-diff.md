@@ -18,7 +18,7 @@ Smart defaults keep the common case (reviewing local changes before commit) a si
 
 | Flag | Meaning |
 |------|---------|
-| `-s` | Save the formatted report to `~/.claude/output/design-system/{project}/diff/report.md` |
+| `-s` | Save the formatted report to `~/.claude/output/{project}/design-system/diff/report.md` |
 | `-S` | Force no-save |
 | `--json` | Skip report composition; print raw CLI JSON |
 | `--base <ref>` | Git comparison base for the single-arg mode (default: `HEAD`) |

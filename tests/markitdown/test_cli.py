@@ -208,8 +208,8 @@ class TestShimmedWrapper(unittest.TestCase):
         self.assertIn("RESULT: saved=true", r.stdout)
         self.assertIn("RESULT: slug=report-q1", r.stdout)
         # Global, project-scoped, HOME-expanded absolute path.
-        out_file = (self.home / ".claude" / "output" / "markitdown"
-                    / _project(self.cwd) / "report-q1" / "Report Q1.md")
+        out_file = (self.home / ".claude" / "output" / _project(self.cwd)
+                    / "markitdown" / "report-q1" / "Report Q1.md")
         self.assertIn(f"RESULT: path={out_file}", r.stdout)
         # De-pollution: nothing written inside the project tree.
         self.assertFalse((self.cwd / ".claude").exists())

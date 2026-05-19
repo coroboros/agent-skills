@@ -42,7 +42,7 @@ CASES = {
     "___": "unnamed",
 }
 
-_SEG = re.compile(r"/\.claude/output/apex/([^/\s]+)")
+_SEG = re.compile(r"/\.claude/output/([^/\s]+)/apex")
 
 
 def _expected(name: str) -> str:
@@ -90,8 +90,8 @@ class TestKebabDerivation(unittest.TestCase):
                     proj, expected,
                     f"basename {name!r}: script→{proj!r}, expected {expected!r}",
                 )
-                # Never an empty segment on disk.
-                self.assertNotIn("/apex//", r.stdout)
+                # Never an empty {project} segment on disk.
+                self.assertNotIn("/output//", r.stdout)
 
 
 class TestSiblingConsistency(unittest.TestCase):

@@ -54,7 +54,7 @@ bash scripts/setup-templates.sh \
 
 **Output:**
 ```
-~/.claude/output/apex/{project}/01-add-auth-middleware/
+~/.claude/output/{project}/apex/01-add-auth-middleware/
 ├── 00-context.md      # Always created
 ├── 01-analyze.md      # Always created
 ├── 02-plan.md         # Always created

@@ -26,40 +26,43 @@ WORKFLOW = CLUSTERS["workflow"]
 
 
 class TestProducerConsumerPaths(unittest.TestCase):
-    """Under deterministic `-f` resolution (repo-conventions.md § Pipeline
-    chaining), a consumer no longer hardcodes the producer's full path — it
-    passes the bare canonical filename, which the resolution rule maps to
-    `~/.claude/output/<producer>/<project>/<name>`. The pinned contract is
-    therefore: the producer commits to a canonical filename, the consumer
-    references that bare filename, and the SSOT documents the resolution.
-    Drift in the filename or the rule still breaks the chain in this diff."""
+    """v2 contract (repo-conventions.md § Pipeline chaining): a producer
+    saves to ~/.claude/output/{project}/{skill}/{skill}-{slug}.md and prints
+    that fully-expanded absolute path; the consumer is handed that explicit
+    path verbatim — no reconstruction, no inference, no glob. Pinned: the
+    producer's documented path shape appears in the consumer's bridge, and
+    the SSOT states the explicit-path rule. Drift in the path shape or the
+    rule breaks the chain in this diff."""
 
     RULE = (
         Path(__file__).resolve().parent.parent.parent
         / ".claude" / "rules" / "repo-conventions.md"
     ).read_text(encoding="utf-8")
 
-    def test_spec_consumes_brainstorm_bare_filename(self):
+    def test_spec_bridges_brainstorm_explicit_path(self):
         spec_md = read_skill_md(WORKFLOW["consumer"])
-        # spec passes the bare canonical name; resolution is deterministic.
-        self.assertIn("brainstorm.md", spec_md)
-        self.assertNotIn(".claude/output/brainstorm/{slug}", spec_md)
+        # spec's bridge inlines the brainstorm explicit path shape, never a
+        # bare reconstructed name.
+        self.assertIn("brainstorm/brainstorm-{slug}.md", spec_md)
+        self.assertNotIn("-f brainstorm.md", spec_md)
 
-    def test_apex_consumes_spec_bare_filename(self):
+    def test_apex_bridges_spec_explicit_path(self):
         apex_md = read_skill_md(WORKFLOW["tertiary"])
-        self.assertIn("spec.md", apex_md)
-        self.assertNotIn(".claude/output/spec/{slug}", apex_md)
+        self.assertIn("spec/spec-{slug}.md", apex_md)
+        self.assertNotIn("-f spec.md", apex_md)
 
     def test_brainstorm_documents_canonical_filename(self):
         brainstorm_md = read_skill_md(WORKFLOW["producer"])
-        # brainstorm must commit to the canonical filename convention.
-        self.assertIn("brainstorm.md", brainstorm_md)
+        # brainstorm commits to the {skill}-{slug}.md filename convention.
+        self.assertIn("brainstorm-{slug}.md", brainstorm_md)
 
-    def test_ssot_documents_deterministic_resolution(self):
-        # The rule that makes bare names resolve — the contract's keystone.
-        self.assertIn("`-f` resolution", self.RULE)
-        self.assertIn("~/.claude/output/", self.RULE)
-        self.assertRegex(self.RULE, r"fail loud|never .*glob|deterministic")
+    def test_ssot_documents_explicit_path_contract(self):
+        # The keystone is "explicit path, verbatim — no magic", not
+        # bare-name resolution.
+        self.assertIn("explicit path", self.RULE)
+        self.assertIn("verbatim", self.RULE)
+        self.assertRegex(self.RULE, r"reconstruct|never magic")
+        self.assertIn("fail loud", self.RULE)
 
 
 class TestSpecValidatorAcceptsRealisticOutput(unittest.TestCase):

@@ -15,7 +15,7 @@ metadata:
 
 # MarkItDown
 
-Convert a document, image, audio file, or YouTube URL to Markdown using Microsoft's [`markitdown`](https://github.com/microsoft/markitdown) CLI. The skill validates the input, composes the right flags, optionally saves the result under `~/.claude/output/markitdown/<project>/<slug>/`, and reports a one-line summary (path shown tilde-form).
+Convert a document, image, audio file, or YouTube URL to Markdown using Microsoft's [`markitdown`](https://github.com/microsoft/markitdown) CLI. The skill validates the input, composes the right flags, optionally saves the result under `~/.claude/output/<project>/markitdown/<slug>/`, and reports a one-line summary with the fully-expanded absolute path (no tilde, no magic).
 
 The deterministic work — install check, validation, slug derivation, save path, command composition — happens in `scripts/markitdown.sh`. The skill parses `$ARGUMENTS`, hands them to the script, and turns the script's `RESULT:` lines into a human report.
 
@@ -44,7 +44,7 @@ For Azure Document Intelligence, also export `MARKITDOWN_DOCINTEL_ENDPOINT=https
 
 | Flag | Default | Effect |
 |------|---------|--------|
-| `-s` | off | Save Markdown to `~/.claude/output/markitdown/<project>/<slug>/<stem>.md` |
+| `-s` | off | Save Markdown to `~/.claude/output/<project>/markitdown/<slug>/<stem>.md` |
 | `-S` | off | Force no-save (override an ambient save mode) |
 | `-d` | off | Use Azure Document Intelligence (needs `MARKITDOWN_DOCINTEL_ENDPOINT`) |
 | `-p` | off | Enable installed third-party `markitdown` plugins |
@@ -80,7 +80,7 @@ When saving, just report. When not saving, also stream the converted Markdown ba
 
 ```bash
 /markitdown ~/Downloads/report.pdf            # convert, print to terminal
-/markitdown -s ~/Downloads/report.pdf         # convert + save under ~/.claude/output/markitdown/<project>/report/
+/markitdown -s ~/Downloads/report.pdf         # convert + save under ~/.claude/output/<project>/markitdown/report/
 /markitdown -s -p deck.pptx                   # use third-party plugins (e.g. markitdown-ocr)
 /markitdown -d invoice.pdf                    # Azure Document Intelligence
 /markitdown -k brand.html                     # keep base64 images inline
@@ -90,7 +90,7 @@ When saving, just report. When not saving, also stream the converted Markdown ba
 
 ## Notes
 
-- **YouTube URLs** are detected by the `https?://` prefix and passed straight to `markitdown`. The slug is derived from the URL's last path segment, so saved paths look like `~/.claude/output/markitdown/<project>/dqw4w9wgxcq/dQw4w9WgXcQ.md`.
+- **YouTube URLs** are detected by the `https?://` prefix and passed straight to `markitdown`. The slug is derived from the URL's last path segment, so saved paths look like `~/.claude/output/<project>/markitdown/dqw4w9wgxcq/dQw4w9WgXcQ.md`.
 - **Audio transcription** uses local Whisper via the `[audio-transcription]` extra. It's CPU-bound — warn the user before kicking off a long podcast.
 - **Image OCR** without the `markitdown-ocr` plugin only reads embedded EXIF text. For pixel-level OCR, `pip install markitdown-ocr` and pass `-p`.
 - **No silent overwrites** — `markitdown` itself overwrites with `-o`, but the slug-namespaced save path makes collisions predictable, not surprising.

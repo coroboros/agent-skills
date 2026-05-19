@@ -1,9 +1,10 @@
 """Single source of truth for cross-skill pipeline contracts.
 
 Skills compose via the `-f` flag (see `.claude/rules/repo-conventions.md`):
-a producer saves output to `~/.claude/output/<skill>/<project>/`, a consumer
-resolves it deterministically via `-f` (bare name → that path; explicit path
-→ as-is). Schema drift between producer and consumer is where bugs hide —
+a producer saves to `~/.claude/output/<project>/<skill>/<skill>-<slug>.md`
+and reports the fully-expanded absolute path; a consumer takes that explicit
+path via `-f` verbatim — no reconstruction, no inference. Schema drift
+between producer and consumer is where bugs hide —
 pinning each contract here forces consumer tests to break alongside producer
 drift in the same PR diff.
 """
@@ -18,9 +19,9 @@ CLUSTERS = {
     "workflow": {
         # brainstorm → spec → apex
         "producer": "brainstorm",
-        "producer_output": "~/.claude/output/brainstorm/{project}/brainstorm.md",
+        "producer_output": "~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md",
         "consumer": "spec",
-        "consumer_output": "~/.claude/output/spec/{project}/spec.md",
+        "consumer_output": "~/.claude/output/{project}/spec/spec-{slug}.md",
         "tertiary": "apex",  # apex consumes spec.md
         # Schema keys the producer commits to and the consumer reads — drift
         # in either side breaks the chain. Validated by test_workflow_cluster.
@@ -95,7 +96,7 @@ CLUSTERS = {
         # /oneshot is intentionally NOT a -f consumer (it has no -f flag) —
         # the skill points there manually with a description, never a file.
         "producer": "code-review",
-        "producer_output": "~/.claude/output/code-review/{project}/code-review.md",
+        "producer_output": "~/.claude/output/{project}/code-review/code-review-{slug}.md",
         "consumer": "apex",
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.

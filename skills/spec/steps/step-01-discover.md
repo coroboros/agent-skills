@@ -20,6 +20,7 @@ From SKILL.md entry point:
 |----------|-------------|
 | `{idea}` | The feature description |
 | `{project}` | Repo basename — keys the output dir |
+| `{slug}` | Kebab of the idea (≤5 words) — names the spec file |
 | `{auto_mode}` | Skip Q&A |
 | `{save_mode}` | Save spec to file |
 | `{issues_mode}` | Create GitHub issues |
@@ -32,13 +33,9 @@ From SKILL.md entry point:
 
 ### 1. Load prior context (if `{from_file}` is set)
 
-**Resolve `{from_file}` first** — deterministic, per `.claude/rules/repo-conventions.md` § Pipeline chaining:
+**`{from_file}` is an explicit path — `Read` it verbatim.** Per `.claude/rules/repo-conventions.md` § Pipeline chaining: the producer already printed its fully-expanded absolute path and the bridge command carries that literal path, so there is nothing to reconstruct, infer, or glob. If the path does not exist, fail loud — ask the user to correct it or regenerate it via the producer (e.g. `/brainstorm -s "<topic>"`).
 
-- Bare filename, no `/` (e.g. `brainstorm.md`) → `~/.claude/output/{producer}/{project}/{from_file}`, where `{producer}` is the skill owning that filename (`brainstorm.md`→brainstorm, `code-review.md`→code-review) and `{project}` is the current project (git-toplevel basename, else cwd).
-- Any value containing `/` or starting with `~`, `/`, or `.` → explicit path, used as-is.
-- Resolved file absent → fail loud with the resolved path and the producer command to regenerate it (e.g. `/brainstorm -s "<topic>"`); if the file is elsewhere, pass an explicit absolute path to `-f` instead. Never glob or guess.
-
-Then read the resolved file and detect type:
+Then read the file and detect type:
 
 **Brainstorm report** (contains `# Brainstorm:` header):
 - Extract Summary, Recommendation, Alternatives considered, Assumption ledger, Risks & mitigations, Kill criteria, Open questions, Next steps.
