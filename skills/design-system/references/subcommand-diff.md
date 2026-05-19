@@ -18,12 +18,12 @@ Smart defaults keep the common case (reviewing local changes before commit) a si
 
 | Flag | Meaning |
 |------|---------|
-| `-s` | Save the formatted report to `.claude/output/design-system/diff/{slug}/report.md` |
+| `-s` | Save the formatted report to `~/.claude/output/{project}/design-system/diff/report.md` |
 | `-S` | Force no-save |
 | `--json` | Skip report composition; print raw CLI JSON |
 | `--base <ref>` | Git comparison base for the single-arg mode (default: `HEAD`) |
 
-`{slug}` — same derivation as `audit`: strip `.md`, kebab-case the basename of the `<after>` file. The script exits `0` on no regression, `1` on regression — CI-gate friendly (`bash scripts/diff.sh before.md after.md || exit 1`).
+`{project}` — same as `audit`: repo basename per `.claude/rules/repo-conventions.md` § Output paths. The script exits `0` on no regression, `1` on regression — CI-gate friendly (`bash scripts/diff.sh before.md after.md || exit 1`).
 
 ## Workflow
 

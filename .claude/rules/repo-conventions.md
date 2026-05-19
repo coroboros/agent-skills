@@ -8,7 +8,7 @@ Skills that accept flags use a consistent lowercase/uppercase pattern parsed fro
 
 | Flag | Meaning |
 |------|---------|
-| `-s` | **S**ave output to `.claude/output/{skill}/{slug}/` |
+| `-s` | **S**ave output to `~/.claude/output/{project}/{skill}/` (global — see Output paths) |
 | `-S` | Disable save (override any ambient save mode) |
 | `-f <path>` | **F**eed — consume another skill's output as input (pipeline chaining) |
 | `-a`, `-b`, `-e`, `-i`, `-r` | Skill-specific — document in the skill's `## Parameters` section |
@@ -17,21 +17,35 @@ Pattern: lowercase flag enables, uppercase flag disables. Keep the convention co
 
 ## Output paths
 
-- Default save location: `.claude/output/{skill-name}/{slug}/`
-- `{slug}` is kebab-case, derived from the argument (max 5 words).
-- Skills that produce multiple outputs write sibling files under the same `{slug}/` directory.
+Skill scratch output is **global** — never inside a working tree, so it cannot pollute any repo and it survives parallel worktrees:
+
+- Single-file producers save to `~/.claude/output/{project}/{skill}/{skill}-{slug}.md`. The `{skill}-` prefix makes the file self-describing — `spec-oauth-auth.md` reads as a spec at a glance, even out of context — and the `{slug}` suffix is the intent, so multiple intents coexist (`spec-oauth-auth.md` and `spec-db-migration.md` side by side). Re-running the same intent overwrites only that one file.
+- `{project}` = kebab-cased basename of the git toplevel, else the cwd basename outside a git repo:
+
+  ```bash
+  root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)   # identical to apex's scripts
+  project=$(basename "$root" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+  : "${project:=unnamed}"   # all-non-alphanumeric basename → empty kebab → fallback
+  ```
+
+  Each git worktree resolves to its own toplevel, so parallel worktrees of one repo separate by `{project}` on their own. Two distinct repos sharing a basename share a `{project}` folder — accepted limitation, not collision-proofed.
+- `{slug}` = kebab of the intent (topic / idea / short description), max 5 words.
+- **Structured producers keep their shape** under the same `~/.claude/output/{project}/{skill}/` prefix: apex → ordered `{NN-feature}/` task dirs (`-r` resume needs ordering); markitdown / audio-loop → per-input `{slug}/` subfolders; design-system → per-subcommand `{sub}/`. Only single-file producers take the `{skill}-{slug}.md` filename.
+- **Path handoff — no magic.** A producer reports the **fully-expanded absolute path** (`$HOME` and the project root resolved) and inlines that literal path in any bridge command it suggests. Scripts compute and echo the absolute path; skills surface it verbatim. Committed artifacts (SKILL.md, README, commit/PR bodies) use the `~/.claude/output/{project}/{skill}/…` placeholder form — the privacy rule forbids a real home path in shared files; the expanded path is in-session only.
+
+Future skills MUST adopt this scheme — it is a conformance gate in the skill-authoring loop. A skill that writes inside a working tree is a review failure.
 
 ## Pipeline chaining
 
-Skills are composable via the `-f` flag. A skill passes its saved output to the next skill:
+Skills compose via the `-f` flag. A producer saves its file, then reports the **fully-expanded absolute path** and the exact next command with that path inlined:
 
-```bash
-/brainstorm -s "topic"              → .claude/output/brainstorm/topic/brainstorm.md
-/spec -s -f brainstorm.md "..."     → .claude/output/spec/topic/spec.md
-/apex -f spec.md                    → implementation
+```
+/brainstorm -s "oauth authentication"
+  saved → /Users/<you>/.claude/output/<project>/brainstorm/brainstorm-oauth-authentication.md
+  next  → /spec -s -f /Users/<you>/.claude/output/<project>/brainstorm/brainstorm-oauth-authentication.md
 ```
 
-Contract: producer saves a single canonical file under `{slug}/`. Consumer reads it via the path passed to `-f`.
+**`-f <path>`** — the value is an **explicit path, used verbatim**. The consumer `Read`s exactly that path. No filename reconstruction, no `{producer}`/`{project}` inference, no glob, no "latest" guess — the producer already printed the real path and the bridge carries it literally. A path that does not exist → fail loud (regenerate via the producer, or correct the path). That is the whole contract: paths are explicit, never magic.
 
 ## Install model
 

@@ -90,7 +90,7 @@
       "id": 13,
       "name": "report-only-bridges-to-apex",
       "prompt": "/code-review -s review this branch then fix the issues",
-      "expected_output": "The skill produces and saves the report to .claude/output/code-review/{slug}/code-review.md and does NOT edit any code. It bridges with the exact command `/apex -f .claude/output/code-review/{slug}/code-review.md` for the fix pass (and notes /oneshot takes a description, not a file).",
+      "expected_output": "The skill produces and saves the report to ~/.claude/output/{project}/code-review/code-review-{slug}.md and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
       "files": []
     },
     {

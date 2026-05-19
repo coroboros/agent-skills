@@ -19,7 +19,8 @@ From SKILL.md entry point:
 | Variable | Description |
 |----------|-------------|
 | `{idea}` | The feature description |
-| `{slug}` | Kebab-case identifier |
+| `{project}` | Repo basename — keys the output dir |
+| `{slug}` | Kebab of the idea (≤5 words) — names the spec file |
 | `{auto_mode}` | Skip Q&A |
 | `{save_mode}` | Save spec to file |
 | `{issues_mode}` | Create GitHub issues |
@@ -32,7 +33,9 @@ From SKILL.md entry point:
 
 ### 1. Load prior context (if `{from_file}` is set)
 
-Read `{from_file}` and detect type:
+**`{from_file}` is an explicit path — `Read` it verbatim.** Per `.claude/rules/repo-conventions.md` § Pipeline chaining: the producer already printed its fully-expanded absolute path and the bridge command carries that literal path, so there is nothing to reconstruct, infer, or glob. If the path does not exist, fail loud — ask the user to correct it or regenerate it via the producer (e.g. `/brainstorm -s "<topic>"`).
+
+Then read the file and detect type:
 
 **Brainstorm report** (contains `# Brainstorm:` header):
 - Extract Summary, Recommendation, Alternatives considered, Assumption ledger, Risks & mitigations, Kill criteria, Open questions, Next steps.

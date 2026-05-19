@@ -38,8 +38,8 @@ class TestProducerConsumerPaths(unittest.TestCase):
 
     def test_code_review_documents_its_output_path(self):
         md = read_skill_md(REVIEW["producer"])
-        self.assertIn(".claude/output/code-review/", md)
-        self.assertIn("code-review.md", md)
+        self.assertIn(".claude/output/{project}/code-review/", md)
+        self.assertIn("code-review-{slug}.md", md)
 
     def test_apex_consumes_any_file_via_from(self):
         md = read_skill_md(REVIEW["consumer"])

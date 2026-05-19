@@ -42,13 +42,13 @@ Transform any starting point — raw text, a brainstorm report, a GitHub issue, 
 
 | Flag | Inverse | Behavior |
 |------|---------|----------|
-| `-s` / `--save` | `-S` / `--no-save` | Save spec to `.claude/output/spec/{slug}/spec.md` |
+| `-s` / `--save` | `-S` / `--no-save` | Save spec to `~/.claude/output/{project}/spec/spec-{slug}.md` (global; `{slug}` = kebab of the idea, ≤5 words) |
 | `-i` / `--issues` | `-I` / `--no-issues` | Create GitHub issues from workstreams (implies `-s`) |
 | `-a` / `--auto` | `-A` / `--no-auto` | Skip Q&A, make reasonable assumptions |
 | `-e` / `--economy` | `-E` / `--no-economy` | No subagents, direct tools only |
 | `-f <path>` / `--from <path>` | — | Prior context — file, GitHub issue (`#N`), or URL as foundational input. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
-Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. `{slug}` is kebab-case from `{idea}`, max 5 words.
+Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. `{slug}` = kebab of `{idea}` (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths.
 
 ### Requirements
 
@@ -58,7 +58,7 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 
 ```bash
 /spec -s add user authentication with OAuth
-/spec -s -f .claude/output/brainstorm/auth-strategy/brainstorm.md "OAuth authentication"  # from prior brainstorm
+/spec -s -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md "OAuth authentication"  # prior brainstorm — explicit path
 /spec -s -f "#42" "implement payment refunds"     # from GitHub issue
 /spec -s -a redesign the billing system           # skip Q&A
 /spec -s -a -i migrate from REST to GraphQL       # auto + create issues
@@ -68,9 +68,9 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 ## Pipeline
 
 ```
-/brainstorm -s "topic"              → brainstorm.md
-/spec -s -f brainstorm.md "..."     → spec.md  ← you are here
-/apex -f spec.md implement WS-1     → code
+/brainstorm -s "topic"                              → ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md
+/spec -s -f <abs brainstorm path> "..."             → ~/.claude/output/{project}/spec/spec-{slug}.md  ← you are here
+/apex -f <abs spec path> implement WS-1             → code
 ```
 
 Spec is the structural bridge. It reads context (a brainstorm, an issue, a conversation), produces workstreams with acceptance criteria, and hands off to `/apex` — which then implements one workstream at a time.
@@ -80,8 +80,8 @@ Spec is the structural bridge. It reads context (a brainstorm, an issue, a conve
 When `{save_mode}` = true:
 
 ```
-.claude/output/spec/{slug}/
-└── spec.md    # The structured spec document
+~/.claude/output/{project}/spec/
+└── spec-{slug}.md    # one file per intent — multiple specs coexist in a repo
 ```
 
 If `{issues_mode}` = true, a `## GitHub Issues` section is appended to `spec.md` after creation, mapping each workstream to its issue number.
@@ -115,14 +115,15 @@ Persist throughout all steps:
 | Variable | Type | Description |
 |----------|------|-------------|
 | `{idea}` | string | Feature/idea description (flags removed) |
-| `{slug}` | string | Kebab-case identifier, max 5 words |
+| `{project}` | string | Repo basename (git toplevel, else cwd) — keys the output dir |
+| `{slug}` | string | Kebab of `{idea}` (≤5 words) — the intent; names the file |
 | `{auto_mode}` | boolean | Skip Q&A |
 | `{save_mode}` | boolean | Save spec to file |
 | `{issues_mode}` | boolean | Create GitHub issues (forces save) |
 | `{economy_mode}` | boolean | No subagents |
 | `{from_file}` | string | Path to prior context (if `-f` provided) |
-| `{output_dir}` | string | `.claude/output/spec/{slug}/` |
-| `{output_file}` | string | `{output_dir}spec.md` |
+| `{output_dir}` | string | `~/.claude/output/{project}/spec/` (expanded to an absolute path for writes) |
+| `{output_file}` | string | `{output_dir}spec-{slug}.md` |
 
 ## Entry point
 
@@ -130,8 +131,8 @@ Persist throughout all steps:
 
 1. **Parse flags** — lowercase enables, uppercase disables, `-f` consumes next arg as `{from_file}`, remainder becomes `{idea}`.
 2. **Apply implications** — if `{issues_mode}` = true, force `{save_mode}` = true.
-3. **Generate identifiers** — `{slug}` = kebab-case from `{idea}` (max 5 words); `{output_dir}` = `.claude/output/spec/{slug}/`; `{output_file}` = `{output_dir}spec.md`.
-4. **Create output dir** — if `{save_mode}` = true, `mkdir -p {output_dir}`.
+3. **Generate identifiers** — `{slug}` = kebab of `{idea}` (≤5 words); `{project}` = kebab-cased basename of `git rev-parse --show-toplevel 2>/dev/null || pwd` (see `.claude/rules/repo-conventions.md` § Output paths); `{output_dir}` = `~/.claude/output/{project}/spec/`; `{output_file}` = `{output_dir}spec-{slug}.md`.
+4. **Create output dir** — if `{save_mode}` = true, `mkdir -p` the `$HOME`-expanded `{output_dir}`; report the fully-expanded absolute `{output_file}` to the user (no tilde, no magic).
 5. **Show compact summary** — one line + one table, then proceed immediately:
 
 ```
@@ -139,6 +140,7 @@ Persist throughout all steps:
 
 | Variable | Value |
 |----------|-------|
+| `{project}` | {project} |
 | `{slug}` | {slug} |
 | `{from_file}` | {path or —} |
 | `{auto_mode}` | true/false |

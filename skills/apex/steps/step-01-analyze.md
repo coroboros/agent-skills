@@ -88,7 +88,7 @@ From step-00-init:
 4. Use the issue content as foundational context — skip re-researching topics already described in the issue
 
 **Local file** (brainstorm report, spec, RFC, design doc, etc.):
-1. **Read the file** using the Read tool
+1. **`{from_file}` is an explicit path — `Read` it verbatim.** Per `.claude/rules/repo-conventions.md` § Pipeline chaining: the producer already printed its fully-expanded absolute path and the bridge command carries that literal path, so there is nothing to reconstruct, infer, or glob. If the path does not exist, fail loud — ask the user to correct it or regenerate it via the producer (e.g. `/spec -s "<idea>"`). Then read the file with the Read tool
 2. **Extract key findings**: recommendation, constraints, risks, decisions already made
 3. **Skip redundant research**: do NOT re-research topics already covered in the file — focus agents on implementation-specific questions (existing code patterns, file structure, utilities) that the prior analysis doesn't cover
 4. **Carry forward open questions**: flag any unresolved items from the prior analysis. If the prior context carries a **Blocking** / **Non-blocking** open-questions split (spec's format — match the content, not the filename), treat each blocking question as a gate — resolve it before implementing the workstream it blocks; non-blocking ones ride along during implementation

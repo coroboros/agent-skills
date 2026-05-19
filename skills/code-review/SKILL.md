@@ -39,11 +39,11 @@ A fresh-eyes pass over what a session changed. Four read-only subagents review t
 
 | Flag | Behavior |
 |------|----------|
-| `-s` | Save the report to `.claude/output/code-review/{slug}/code-review.md` |
+| `-s` | Save the report to `~/.claude/output/{project}/code-review/code-review-{slug}.md` (global; `{slug}` = kebab of the branch or a short description, ≤5 words) |
 | `-S` | Force no-save (override an ambient save mode) |
 | `-b <ref>` | Override the review base (skip auto-detection) |
 
-`{slug}` is kebab-case from the branch or a short description (max 5 words). Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
+`{slug}` = kebab of the branch name or a short description (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths. Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
 
 ```bash
 /code-review                 # auto-detect what changed, report
@@ -88,7 +88,7 @@ These four keys are canonical — the report table, the evals, and the pipeline 
 1. Resolve the target (above); read the rule hierarchy.
 2. Launch the four lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
 3. Aggregate findings; score each 0–100 (rubric in `references/lenses.md`); drop everything below the threshold.
-4. Emit the report from `templates/code-review.md`. Save to the `-s` path when set.
+4. Emit the report from `templates/code-review.md`. Save to the `-s` path when set, and report its fully-expanded absolute path to the user (no tilde, no magic).
 
 ## Deferral spine
 
@@ -107,7 +107,7 @@ No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state 
 
 This skill never edits code. After the report, bridge to the fix pass:
 
-- `/apex -f .claude/output/code-review/{slug}/code-review.md` — structured fix workstream (requires `-s`).
+- `/apex -f ~/.claude/output/{project}/code-review/code-review-{slug}.md` — structured fix workstream (requires `-s`; pass the absolute path the report printed).
 - `/oneshot "<finding>"` — single quick fix (manual; `/oneshot` takes a description, not a file).
 
 ## Rules

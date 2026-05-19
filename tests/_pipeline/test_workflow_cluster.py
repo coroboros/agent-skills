@@ -26,23 +26,43 @@ WORKFLOW = CLUSTERS["workflow"]
 
 
 class TestProducerConsumerPaths(unittest.TestCase):
-    """Each producer's output path convention is documented in the consumer's
-    SKILL.md — drift would silently break the pipeline."""
+    """v2 contract (repo-conventions.md § Pipeline chaining): a producer
+    saves to ~/.claude/output/{project}/{skill}/{skill}-{slug}.md and prints
+    that fully-expanded absolute path; the consumer is handed that explicit
+    path verbatim — no reconstruction, no inference, no glob. Pinned: the
+    producer's documented path shape appears in the consumer's bridge, and
+    the SSOT states the explicit-path rule. Drift in the path shape or the
+    rule breaks the chain in this diff."""
 
-    def test_spec_documents_brainstorm_output_path(self):
+    RULE = (
+        Path(__file__).resolve().parent.parent.parent
+        / ".claude" / "rules" / "repo-conventions.md"
+    ).read_text(encoding="utf-8")
+
+    def test_spec_bridges_brainstorm_explicit_path(self):
         spec_md = read_skill_md(WORKFLOW["consumer"])
-        self.assertIn(".claude/output/brainstorm/", spec_md)
-        self.assertIn("brainstorm.md", spec_md)
+        # spec's bridge inlines the brainstorm explicit path shape, never a
+        # bare reconstructed name.
+        self.assertIn("brainstorm/brainstorm-{slug}.md", spec_md)
+        self.assertNotIn("-f brainstorm.md", spec_md)
 
-    def test_apex_documents_spec_output_path(self):
+    def test_apex_bridges_spec_explicit_path(self):
         apex_md = read_skill_md(WORKFLOW["tertiary"])
-        self.assertIn(".claude/output/spec/", apex_md)
-        self.assertIn("spec.md", apex_md)
+        self.assertIn("spec/spec-{slug}.md", apex_md)
+        self.assertNotIn("-f spec.md", apex_md)
 
     def test_brainstorm_documents_canonical_filename(self):
         brainstorm_md = read_skill_md(WORKFLOW["producer"])
-        # brainstorm must commit to the canonical filename convention.
-        self.assertIn("brainstorm.md", brainstorm_md)
+        # brainstorm commits to the {skill}-{slug}.md filename convention.
+        self.assertIn("brainstorm-{slug}.md", brainstorm_md)
+
+    def test_ssot_documents_explicit_path_contract(self):
+        # The keystone is "explicit path, verbatim — no magic", not
+        # bare-name resolution.
+        self.assertIn("explicit path", self.RULE)
+        self.assertIn("verbatim", self.RULE)
+        self.assertRegex(self.RULE, r"reconstruct|never magic")
+        self.assertIn("fail loud", self.RULE)
 
 
 class TestSpecValidatorAcceptsRealisticOutput(unittest.TestCase):

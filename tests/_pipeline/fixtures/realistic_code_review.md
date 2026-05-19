@@ -33,4 +33,4 @@ Out-of-lane observations — pointers only, not reviewed here.
 
 ---
 
-_Report-only. To fix: `/apex -f .claude/output/code-review/add-rate-limiter/code-review.md` or `/oneshot "<finding>"`._
+_Report-only. To fix: `/apex -f code-review.md` or `/oneshot "<finding>"`._

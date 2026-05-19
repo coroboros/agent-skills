@@ -56,7 +56,7 @@ The voice doc lives at `./BRAND-VOICE.md` by default — at the project root, ve
 
 `extract` refuses to overwrite an existing file. To refresh, use `update`. To replace, delete first.
 
-When `-s` is passed alongside `extract`, the skill also writes a copy to `.claude/output/brand-voice/{slug}/voice.md` for pipeline-history consumers. The slug is derived from `voice.name` (kebab-case, max 5 words). The canonical file at `./BRAND-VOICE.md` remains the single source of truth.
+When `-s` is passed alongside `extract`, the skill also writes a copy to `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` for pipeline-history consumers (`{slug}` = kebab of `voice.name`; `{project}` = repo basename per `.claude/rules/repo-conventions.md` § Output paths) and reports its fully-expanded absolute path (no tilde, no magic). The canonical file at `./BRAND-VOICE.md` remains the single source of truth.
 
 ### Cross-repo distribution
 
@@ -183,7 +183,7 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 - **Never overwrite.** `extract` refuses to overwrite an existing file. `update` always shows a diff and asks for explicit `yes`. `diff` is read-only by definition.
 - **Manual sections are sacred.** A section marked `<!-- manual: true -->` is preserved verbatim by `update`. Do not re-synthesise.
 - **Conflicts surface, never override.** When two sources disagree, surface via `AskUserQuestion`. When a source contradicts the existing doc during `update`, surface. No silent picks.
-- **Output paths follow the repo contract.** Default canonical at `./BRAND-VOICE.md`. Pipeline copies under `.claude/output/brand-voice/{slug}/voice.md` only when `-s` is passed.
+- **Output paths follow the repo contract.** Default canonical at `./BRAND-VOICE.md`. Pipeline copies under `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` only when `-s` is passed.
 
 ## When to defer to another skill
 

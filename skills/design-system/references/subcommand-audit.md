@@ -16,15 +16,12 @@ Aliases: `check`, `lint` — route to this same workflow.
 
 | Flag | Meaning |
 |------|---------|
-| `-s` | Save the formatted report to `.claude/output/design-system/audit/{slug}/report.md` |
+| `-s` | Save the formatted report to `~/.claude/output/{project}/design-system/audit/report.md` |
 | `-S` | Force no-save (override ambient save mode) |
 | `--json` | Skip report composition; print the raw CLI JSON |
 | `--strict` | Cross-check against `/award-design`'s anti-patterns catalog and surface exemplar suggestions when the CLI lint is clean (see *Strict mode* below) |
 
-`{slug}` — strip the `.md` extension from the file basename, then kebab-case the remainder:
-- `./DESIGN.md` → `design`
-- `./docs/custom-design.md` → `custom-design`
-- `./brand/Theme.md` → `theme`
+`{project}` — repo basename (git toplevel, else cwd), kebab-cased — see `.claude/rules/repo-conventions.md` § Output paths. The three subcommands (`audit`, `diff`, `audit-extensions`) write sibling reports under the same `{project}/` directory.
 
 The script exits `0` when the lint has zero errors, `1` when errors are present — usable directly as a CI gate (`bash scripts/audit.sh DESIGN.md || exit 1`). This matches the underlying `@google/design.md lint` exit semantics.
 
@@ -38,7 +35,7 @@ The script exits `0` when the lint has zero errors, `1` when errors are present 
    The script emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file. Parse `RESULT: json=<tmp-path>` and `Read` that file to get `findings[]` and `summary`.
 3. **Handle CLI unavailability.** If `RESULT: status=npx-missing`, fall back to manual validation against `references/design-md-spec.md` — without a parser we can only check structural invariants (YAML present, eight sections in canonical order, no duplicate headings). Report what was checked and what was not.
 4. **Compose the report** using the template below.
-5. **Save** under `.claude/output/design-system/audit/{slug}/report.md` if `-s`.
+5. **Save** under `~/.claude/output/{project}/design-system/audit/report.md` if `-s`.
 6. **Return summary line** to the user: `✅ clean` or `⚠️ <n> warnings (acceptable)` or `❌ <n> errors — fix before shipping`.
 
 ## Report template

@@ -36,10 +36,10 @@ Strategic pre-implementation thinking for: $ARGUMENTS
 
 | Flag | Behavior |
 |------|----------|
-| `-s` | Save the brief to `.claude/output/brainstorm/{slug}/brainstorm.md` |
+| `-s` | Save the brief to `~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md` (global; `{slug}` = kebab of the topic, ≤5 words) |
 | `-S` | Force no-save (override any ambient save mode) |
 
-Flags are removed from input; remainder becomes `{topic}`. `{slug}` = kebab-case from the topic (max 5 words). Lowercase enables, uppercase disables — matches the repo-wide convention.
+Flags are removed from input; remainder becomes `{topic}`. `{slug}` = kebab of `{topic}` (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths. Lowercase enables, uppercase disables — matches the repo-wide convention.
 
 ## Rules
 
@@ -113,7 +113,7 @@ Be rigorous, not contrarian. Surface risks the user hasn't considered — for a 
 
 ### Phase 5 — Synthesize
 
-Produce the strategic brief. Output in conversation by default, or save to `.claude/output/brainstorm/{slug}/brainstorm.md` when `-s` is set.
+Produce the strategic brief. Output in conversation by default, or save to `~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md` when `-s` is set — derive `{project}`/`{slug}` per `.claude/rules/repo-conventions.md` § Output paths, `mkdir -p` the directory, and report the **fully-expanded absolute path** to the user (resolve `$HOME`/project root — no tilde, no magic).
 
 Use the canonical format in `references/brief-template.md` (read `${CLAUDE_SKILL_DIR}/references/brief-template.md` before writing).
 
@@ -127,12 +127,12 @@ After the brief:
 
 ## Bridge to next steps
 
-If the brainstorm leads to work that requires code, suggest the path forward based on scope:
+If the brainstorm leads to work that requires code, suggest the path forward based on scope. Inline the **fully-expanded absolute path** of the saved brief in the bridge command — the path is explicit, never reconstructed (placeholder form shown here; emit the resolved absolute path at runtime):
 
 **Complex work** (multiple workstreams, needs planning):
 
 ```
-/spec -s -f .claude/output/brainstorm/{slug}/brainstorm.md "{topic}"
+/spec -s -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md "{topic}"
 ```
 
 `/spec` turns the brainstorm into a structured execution spec with prioritized workstreams, dependencies, and acceptance criteria, then bridges to `/apex` or creates GitHub issues.
@@ -140,7 +140,7 @@ If the brainstorm leads to work that requires code, suggest the path forward bas
 **Focused work** (single clear task, ready to implement):
 
 ```
-/apex -f .claude/output/brainstorm/{slug}/brainstorm.md {description}
+/apex -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md {description}
 ```
 
 `-f` passes the brainstorm as foundational context — `/apex` skips redundant research and focuses its analyze phase on implementation specifics.

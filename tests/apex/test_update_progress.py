@@ -1,9 +1,10 @@
 """Tests for skills/apex/scripts/update-progress.sh.
 
-Strategy: build a fresh tempdir with a synthetic 00-context.md containing a
-Progress table, run the script with cwd=tempdir (so `git rev-parse
---show-toplevel` falls back to `pwd` outside any repo), and inspect the
-resulting file.
+Strategy: a synthetic 00-context.md is seeded at the script's resolved
+location — global `$HOME/.claude/output/{project}/apex/<task_id>/` where
+`{project}` = kebab-cased basename of the project root (pwd outside any repo,
+GIT_CEILING capping the git walk). HOME is isolated to a temp dir so the
+script never touches the developer's real `~`.
 """
 
 import os
@@ -32,15 +33,21 @@ CONTEXT_TEMPLATE = """\
 """
 
 
-def _run(*args, cwd):
+def _project(root: Path) -> str:
+    """Python mirror of the script's bash kebab."""
+    return re.sub(r"[^a-z0-9]+", "-", root.name.lower()).strip("-")
+
+
+def _run(*args, cwd, home):
     env = os.environ.copy()
     # Prevent `git rev-parse --show-toplevel` from walking above the tempdir
     # and discovering an unrelated repo on the host. The script's `|| pwd`
     # fallback then deterministically yields cwd as PROJECT_ROOT.
     env["GIT_CEILING_DIRECTORIES"] = str(Path(cwd).parent)
+    env["HOME"] = str(home)  # isolate global output dir from the dev's real ~
     return subprocess.run(
         [BASH, str(SCRIPT), *args],
-        cwd=cwd,
+        cwd=str(cwd),
         env=env,
         capture_output=True,
         text=True,
@@ -48,9 +55,18 @@ def _run(*args, cwd):
     )
 
 
-def _seed(workdir: Path, task_id: str = "01-add-auth",
+def _dirs(t):
+    """Sibling project + home dirs under one tempdir; project keys the path."""
+    proj = Path(t) / "proj"
+    home = Path(t) / "home"
+    proj.mkdir(exist_ok=True)
+    home.mkdir(exist_ok=True)
+    return proj, home
+
+
+def _seed(home: Path, project: str, task_id: str = "01-add-auth",
           body: str = CONTEXT_TEMPLATE) -> Path:
-    ctx_dir = workdir / ".claude" / "output" / "apex" / task_id
+    ctx_dir = home / ".claude" / "output" / project / "apex" / task_id
     ctx_dir.mkdir(parents=True)
     ctx_file = ctx_dir / "00-context.md"
     ctx_file.write_text(body, encoding="utf-8")
@@ -60,20 +76,23 @@ def _seed(workdir: Path, task_id: str = "01-add-auth",
 class TestArgValidation(unittest.TestCase):
     def test_no_args_exits_1(self):
         with tempfile.TemporaryDirectory() as t:
-            r = _run(cwd=t)
+            proj, home = _dirs(t)
+            r = _run(cwd=proj, home=home)
         self.assertEqual(r.returncode, 1)
         self.assertIn("Usage:", r.stdout + r.stderr)
 
     def test_partial_args_exits_1(self):
         with tempfile.TemporaryDirectory() as t:
-            r = _run("01-add-auth", "01", "analyze", cwd=t)
+            proj, home = _dirs(t)
+            r = _run("01-add-auth", "01", "analyze", cwd=proj, home=home)
         self.assertEqual(r.returncode, 1)
 
     def test_invalid_status_exits_1(self):
         with tempfile.TemporaryDirectory() as t:
-            tmp = Path(t)
-            _seed(tmp)
-            r = _run("01-add-auth", "01", "analyze", "started", cwd=t)
+            proj, home = _dirs(t)
+            _seed(home, _project(proj))
+            r = _run("01-add-auth", "01", "analyze", "started",
+                     cwd=proj, home=home)
         self.assertEqual(r.returncode, 1)
         self.assertIn("Invalid status", r.stdout + r.stderr)
 
@@ -81,7 +100,9 @@ class TestArgValidation(unittest.TestCase):
 class TestMissingContext(unittest.TestCase):
     def test_missing_context_file_exits_1(self):
         with tempfile.TemporaryDirectory() as t:
-            r = _run("01-add-auth", "01", "analyze", "complete", cwd=t)
+            proj, home = _dirs(t)
+            r = _run("01-add-auth", "01", "analyze", "complete",
+                     cwd=proj, home=home)
         self.assertEqual(r.returncode, 1)
         self.assertIn("Context file not found", r.stdout + r.stderr)
 
@@ -93,9 +114,10 @@ class TestRowMutation(unittest.TestCase):
 
     def test_in_progress_marks_step(self):
         with tempfile.TemporaryDirectory() as t:
-            tmp = Path(t)
-            ctx = _seed(tmp)
-            r = _run("01-add-auth", "01", "analyze", "in_progress", cwd=t)
+            proj, home = _dirs(t)
+            ctx = _seed(home, _project(proj))
+            r = _run("01-add-auth", "01", "analyze", "in_progress",
+                     cwd=proj, home=home)
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
             updated = ctx.read_text(encoding="utf-8")
@@ -109,9 +131,10 @@ class TestRowMutation(unittest.TestCase):
 
     def test_complete_marks_step(self):
         with tempfile.TemporaryDirectory() as t:
-            tmp = Path(t)
-            ctx = _seed(tmp)
-            r = _run("01-add-auth", "01", "analyze", "complete", cwd=t)
+            proj, home = _dirs(t)
+            ctx = _seed(home, _project(proj))
+            r = _run("01-add-auth", "01", "analyze", "complete",
+                     cwd=proj, home=home)
             self.assertEqual(r.returncode, 0)
             updated = ctx.read_text(encoding="utf-8")
         self.assertIn("✓ Complete", updated)
@@ -122,11 +145,13 @@ class TestRowMutation(unittest.TestCase):
         """Running twice with the same args yields one row for the step;
         the second run replaces the row with a fresh timestamp, no duplication."""
         with tempfile.TemporaryDirectory() as t:
-            tmp = Path(t)
-            ctx = _seed(tmp)
-            r1 = _run("01-add-auth", "01", "analyze", "complete", cwd=t)
+            proj, home = _dirs(t)
+            ctx = _seed(home, _project(proj))
+            r1 = _run("01-add-auth", "01", "analyze", "complete",
+                      cwd=proj, home=home)
             self.assertEqual(r1.returncode, 0)
-            r2 = _run("01-add-auth", "01", "analyze", "complete", cwd=t)
+            r2 = _run("01-add-auth", "01", "analyze", "complete",
+                      cwd=proj, home=home)
             self.assertEqual(r2.returncode, 0)
             updated = ctx.read_text(encoding="utf-8")
         rows = [ln for ln in updated.splitlines() if ln.startswith("| 01-analyze ")]
@@ -139,10 +164,11 @@ class TestUnknownStep(unittest.TestCase):
 
     def test_unknown_step_warns_and_leaves_file_intact(self):
         with tempfile.TemporaryDirectory() as t:
-            tmp = Path(t)
-            ctx = _seed(tmp)
+            proj, home = _dirs(t)
+            ctx = _seed(home, _project(proj))
             original = ctx.read_text(encoding="utf-8")
-            r = _run("01-add-auth", "99", "ghost-step", "complete", cwd=t)
+            r = _run("01-add-auth", "99", "ghost-step", "complete",
+                     cwd=proj, home=home)
             updated = ctx.read_text(encoding="utf-8")
         self.assertEqual(r.returncode, 0,
                          f"unknown step should still exit 0; got {r.returncode}")

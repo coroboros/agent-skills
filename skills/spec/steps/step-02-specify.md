@@ -20,12 +20,13 @@ From previous steps:
 | Variable | Description |
 |----------|-------------|
 | `{idea}` | Feature description |
-| `{slug}` | Kebab-case identifier |
+| `{project}` | Repo basename — keys the output dir |
+| `{slug}` | Kebab of the idea (≤5 words) — names the spec file |
 | `{auto_mode}` | Skip confirmations |
 | `{save_mode}` | Save spec to file |
 | `{issues_mode}` | Create GitHub issues |
 | `{output_dir}` | Output directory path |
-| `{output_file}` | `{output_dir}spec.md` |
+| `{output_file}` | `{output_dir}spec-{slug}.md` (fully-expanded absolute path) |
 | Discovery findings | From step-01 (codebase context, requirements, constraints, assumptions) |
 
 ## Reference: priority & complexity
@@ -170,4 +171,4 @@ Save this spec for later use:
 - `{issues_mode}` = true → `./step-03-issues.md`
 - `{issues_mode}` = false → show bridge commands, end workflow
 
-The spec must be detailed enough that `/apex -f spec.md` can execute each workstream without guessing.
+The spec must be detailed enough that `/apex -f {output_file}` (the absolute path, inlined) can execute each workstream without guessing.

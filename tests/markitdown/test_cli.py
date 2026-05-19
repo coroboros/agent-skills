@@ -10,6 +10,7 @@ check; the shim writes a known payload to whatever path is passed via `-o`.
 """
 
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -20,6 +21,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS = REPO_ROOT / "skills" / "markitdown" / "scripts"
 SCRIPT = SCRIPTS / "markitdown.sh"
+
+
+def _project(root: Path) -> str:
+    """Python mirror of the script's bash kebab (basename | lower | -cs | strip)."""
+    return re.sub(r"[^a-z0-9]+", "-", root.name.lower()).strip("-")
 
 
 SHIM_PAYLOAD = "# shim output\n"
@@ -116,13 +122,19 @@ class TestShimmedWrapper(unittest.TestCase):
         shutil.rmtree(cls.shim_dir, ignore_errors=True)
 
     def setUp(self):
-        # Each test runs in its own cwd so `.claude/output/...` is isolated.
+        # Per-test cwd (the project root) and an isolated HOME, so the global
+        # ~/.claude/output write never touches the developer's real home.
         self.cwd = Path(tempfile.mkdtemp(prefix="markitdown-cwd-"))
+        self.home = Path(tempfile.mkdtemp(prefix="markitdown-home-"))
 
     def tearDown(self):
         shutil.rmtree(self.cwd, ignore_errors=True)
+        shutil.rmtree(self.home, ignore_errors=True)
 
     def _run(self, *args, **env_extra):
+        # Isolate HOME; cap the git walk so PROJECT_ROOT == cwd deterministically.
+        env_extra.setdefault("HOME", str(self.home))
+        env_extra.setdefault("GIT_CEILING_DIRECTORIES", str(self.cwd.parent))
         return _run(*args, env=_shim_env(self.shim_dir, **env_extra), cwd=str(self.cwd))
 
     # --- arg-parsing -------------------------------------------------------
@@ -189,15 +201,19 @@ class TestShimmedWrapper(unittest.TestCase):
         # No `path=` key in no-save mode.
         self.assertNotIn("RESULT: path=", r.stdout)
 
-    def test_save_flag_writes_under_claude_output(self):
+    def test_save_flag_writes_under_global_output(self):
         f = self._write_input("Report Q1.PDF")
         r = self._run("-s", str(f))
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         self.assertIn("RESULT: saved=true", r.stdout)
         self.assertIn("RESULT: slug=report-q1", r.stdout)
-        self.assertIn("RESULT: path=.claude/output/markitdown/report-q1/Report Q1.md", r.stdout)
+        # Global, project-scoped, HOME-expanded absolute path.
+        out_file = (self.home / ".claude" / "output" / _project(self.cwd)
+                    / "markitdown" / "report-q1" / "Report Q1.md")
+        self.assertIn(f"RESULT: path={out_file}", r.stdout)
+        # De-pollution: nothing written inside the project tree.
+        self.assertFalse((self.cwd / ".claude").exists())
         # File on disk where the RESULT says.
-        out_file = self.cwd / ".claude" / "output" / "markitdown" / "report-q1" / "Report Q1.md"
         self.assertTrue(out_file.is_file())
         self.assertEqual(out_file.read_text(), SHIM_PAYLOAD)
         # Bytes value matches actual size.

@@ -36,4 +36,4 @@ _Omit any bullet with nothing to point at._
 
 ---
 
-_Report-only. To fix: `/apex -f .claude/output/code-review/{slug}/code-review.md` or `/oneshot "<finding>"`._
+_Report-only. To fix: `/apex -f ~/.claude/output/{project}/code-review/code-review-{slug}.md` or `/oneshot "<finding>"`._
