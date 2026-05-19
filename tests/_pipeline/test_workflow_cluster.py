@@ -26,23 +26,40 @@ WORKFLOW = CLUSTERS["workflow"]
 
 
 class TestProducerConsumerPaths(unittest.TestCase):
-    """Each producer's output path convention is documented in the consumer's
-    SKILL.md — drift would silently break the pipeline."""
+    """Under deterministic `-f` resolution (repo-conventions.md § Pipeline
+    chaining), a consumer no longer hardcodes the producer's full path — it
+    passes the bare canonical filename, which the resolution rule maps to
+    `~/.claude/output/<producer>/<project>/<name>`. The pinned contract is
+    therefore: the producer commits to a canonical filename, the consumer
+    references that bare filename, and the SSOT documents the resolution.
+    Drift in the filename or the rule still breaks the chain in this diff."""
 
-    def test_spec_documents_brainstorm_output_path(self):
+    RULE = (
+        Path(__file__).resolve().parent.parent.parent
+        / ".claude" / "rules" / "repo-conventions.md"
+    ).read_text(encoding="utf-8")
+
+    def test_spec_consumes_brainstorm_bare_filename(self):
         spec_md = read_skill_md(WORKFLOW["consumer"])
-        self.assertIn(".claude/output/brainstorm/", spec_md)
+        # spec passes the bare canonical name; resolution is deterministic.
         self.assertIn("brainstorm.md", spec_md)
+        self.assertNotIn(".claude/output/brainstorm/{slug}", spec_md)
 
-    def test_apex_documents_spec_output_path(self):
+    def test_apex_consumes_spec_bare_filename(self):
         apex_md = read_skill_md(WORKFLOW["tertiary"])
-        self.assertIn(".claude/output/spec/", apex_md)
         self.assertIn("spec.md", apex_md)
+        self.assertNotIn(".claude/output/spec/{slug}", apex_md)
 
     def test_brainstorm_documents_canonical_filename(self):
         brainstorm_md = read_skill_md(WORKFLOW["producer"])
         # brainstorm must commit to the canonical filename convention.
         self.assertIn("brainstorm.md", brainstorm_md)
+
+    def test_ssot_documents_deterministic_resolution(self):
+        # The rule that makes bare names resolve — the contract's keystone.
+        self.assertIn("`-f` resolution", self.RULE)
+        self.assertIn("~/.claude/output/", self.RULE)
+        self.assertRegex(self.RULE, r"fail loud|never .*glob|deterministic")
 
 
 class TestSpecValidatorAcceptsRealisticOutput(unittest.TestCase):

@@ -6,7 +6,7 @@
 #   validate_state.sh <task_id> <step_num>
 #
 # Checks in order:
-#   1. Task folder exists under .claude/output/apex/
+#   1. Task folder exists under ~/.claude/output/apex/{project}/
 #   2. 00-context.md exists inside it
 #   3. Every prior step file (01..step_num-1) exists
 #   4. Every prior step row in the 00-context.md Progress table reads
@@ -31,7 +31,8 @@ STEP_NUM="${2:?usage: validate_state.sh <task_id> <step_num>}"
 }
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-TASK_DIR="${PROJECT_ROOT}/.claude/output/apex/${TASK_ID}"
+PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+TASK_DIR="${HOME}/.claude/output/apex/${PROJECT}/${TASK_ID}"
 CONTEXT="${TASK_DIR}/00-context.md"
 
 if [[ ! -d "$TASK_DIR" ]]; then

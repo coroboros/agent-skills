@@ -19,7 +19,8 @@ fi
 
 # Find project root
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-CONTEXT_FILE="${PROJECT_ROOT}/.claude/output/apex/${TASK_ID}/00-context.md"
+PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+CONTEXT_FILE="${HOME}/.claude/output/apex/${PROJECT}/${TASK_ID}/00-context.md"
 
 # Validate context file exists
 if [[ ! -f "$CONTEXT_FILE" ]]; then

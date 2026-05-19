@@ -34,8 +34,10 @@ TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Must match resume_lookup.sh / update-progress.sh / validate_state.sh —
 # divergence strands output where the sibling scripts can't find it.
+# Global per repo-conventions.md § Output paths: ~/.claude/output/apex/{project}.
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
-APEX_OUTPUT_DIR="${PROJECT_ROOT}/.claude/output/apex"
+PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+APEX_OUTPUT_DIR="${HOME}/.claude/output/apex/${PROJECT}"
 
 # Create apex output directory if it doesn't exist
 mkdir -p "$APEX_OUTPUT_DIR"
