@@ -19,6 +19,12 @@
 #   5. default-prev        on default, no upstream, no tag → HEAD~1
 #   6. default-initial     single commit → the empty tree (all files as added)
 #
+# Ref rungs (explicit, default-upstream, default-tag) resolve `base` to
+# `merge-base <ref> HEAD` so it is always a diffable ancestor (or the empty
+# tree for default-initial). The skill therefore uses two-dot
+# `git diff <base> <target>` uniformly — no three-dot, no tree-vs-commit
+# edge case, no noise from commits the base gained in parallel.
+#
 # Exit:
 #   0   resolved
 #   2   unresolvable (no commits, detached HEAD, shallow w/o merge-base)
@@ -47,7 +53,8 @@ fi
 
 # Rung 1 — explicit override (skill passes a repo-declared base here too).
 if [[ -n "$BASE_OVERRIDE" ]]; then
-  echo "RESULT: base=$BASE_OVERRIDE target=$TARGET rule=explicit"
+  base=$(git merge-base "$BASE_OVERRIDE" HEAD 2>/dev/null || echo "$BASE_OVERRIDE")
+  echo "RESULT: base=$base target=$TARGET rule=explicit"
   exit 0
 fi
 
@@ -92,13 +99,15 @@ fi
 # On the default branch.
 # Rung 3 — upstream tracking branch.
 if up=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null); then
-  echo "RESULT: base=$up target=$TARGET rule=default-upstream"
+  base=$(git merge-base "$up" HEAD 2>/dev/null || echo "$up")
+  echo "RESULT: base=$base target=$TARGET rule=default-upstream"
   exit 0
 fi
 
 # Rung 4 — most recent tag.
 if tag=$(git describe --tags --abbrev=0 2>/dev/null); then
-  echo "RESULT: base=$tag target=$TARGET rule=default-tag"
+  base=$(git merge-base "$tag" HEAD 2>/dev/null || echo "$tag")
+  echo "RESULT: base=$base target=$TARGET rule=default-tag"
   exit 0
 fi
 

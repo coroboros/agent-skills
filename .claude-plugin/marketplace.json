@@ -11,14 +11,22 @@
   "plugins": [
     {
       "name": "workflow-skills",
-      "description": "Strategic thinking, planning, implementation, and review — brainstorm, spec, apex, oneshot, code-review",
+      "description": "Strategic thinking, planning, and implementation — brainstorm, spec, apex, oneshot",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/brainstorm",
         "./skills/spec",
         "./skills/apex",
-        "./skills/oneshot",
+        "./skills/oneshot"
+      ]
+    },
+    {
+      "name": "coding-skills",
+      "description": "Code review and coding-workflow tools — report-only review now; more coding skills landing soon",
+      "source": "./",
+      "strict": false,
+      "skills": [
         "./skills/code-review"
       ]
     },

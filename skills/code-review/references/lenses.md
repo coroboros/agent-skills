@@ -8,11 +8,13 @@ protocol, the confidence rubric, the exclusion contract, and aggregation.
 Launch **four read-only subagents in one message** (`Explore` type — read-only,
 fast, context-isolated). Each receives:
 
-- the resolved `base`, `target`, and the diff to review (`git diff <base>...<target>` for a branch range, or the working-tree diff for a dirty tree);
+- the resolved `base`/`target` (or "dirty tree") — the subagent reconstructs the review set itself, read-only: clean tree → `git diff <base> <target>` (two-dot); dirty tree → `git diff HEAD` **and** every path from `git ls-files --others --exclude-standard`, each read in full. Never skip untracked — a new file is part of the session;
 - the rule-hierarchy file paths (repo `CLAUDE.md` chain, `.claude/rules/*.md`, `~/.claude/rules/*.md`);
 - its lens brief (below);
 - the exclusion contract (below);
 - the confidence rubric (below).
+
+Lenses run as `Explore` subagents (fast, read-only). The orchestrator only resolves the target, dispatches, aggregates, scores, and filters — there is no second heavy reasoning pass. That is the cost posture: parallel light review, thin orchestration.
 
 Each subagent returns a list of findings, each with: `lens`, `severity`
 (High / Medium / Low), `location` (`file:line`), `finding`, `recommendation`,

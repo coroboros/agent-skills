@@ -105,6 +105,28 @@ class TestFeatureMergeBase(unittest.TestCase):
         self.assertEqual(res["rule"], "feature-merge-base")
         self.assertEqual(res["base"], root)
 
+    def test_merge_base_via_origin_fallback(self):
+        """Local default branch absent (only origin/<default> exists):
+        rung 2's `origin/<default>` fallback must still resolve."""
+        with tempfile.TemporaryDirectory() as t:
+            tmp = Path(t)
+            bare = tmp / "origin.git"
+            bare.mkdir()
+            _git(bare, "init", "-q", "--bare")
+            repo = _new_repo(tmp)
+            root = _commit(repo, "root")
+            _git(repo, "remote", "add", "origin", str(bare))
+            _git(repo, "push", "-q", "-u", "origin", "main")
+            _git(repo, "remote", "set-head", "origin", "main")
+            _git(repo, "checkout", "-q", "-b", "feature")
+            _commit(repo, "feature work")
+            _git(repo, "branch", "-D", "main")  # only origin/main remains
+            r = _run(repo)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        res = _result(r.stdout)
+        self.assertEqual(res["rule"], "feature-merge-base")
+        self.assertEqual(res["base"], root)
+
 
 @unittest.skipUnless(_GIT, "git required")
 class TestDefaultUpstream(unittest.TestCase):
@@ -118,11 +140,13 @@ class TestDefaultUpstream(unittest.TestCase):
             _commit(repo, "c1")
             _git(repo, "remote", "add", "origin", str(bare))
             _git(repo, "push", "-q", "-u", "origin", "main")
+            head = _git(repo, "rev-parse", "HEAD")
             r = _run(repo)
         self.assertEqual(r.returncode, 0, r.stderr)
         res = _result(r.stdout)
         self.assertEqual(res["rule"], "default-upstream")
-        self.assertEqual(res["base"], "origin/main")
+        # base is now the merge-base sha (diffable ancestor), not the ref name
+        self.assertEqual(res["base"], head)
 
 
 @unittest.skipUnless(_GIT, "git required")
@@ -131,14 +155,15 @@ class TestDefaultNoUpstream(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             repo = _new_repo(Path(t))
             _commit(repo, "c1")
-            _commit(repo, "c2")
+            c2 = _commit(repo, "c2")
             _git(repo, "tag", "1.0.0")
             _commit(repo, "c3")
             r = _run(repo)
         res = _result(r.stdout)
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(res["rule"], "default-tag")
-        self.assertEqual(res["base"], "1.0.0")
+        # merge-base(1.0.0, HEAD) == the tagged commit (c2), a diffable ancestor
+        self.assertEqual(res["base"], c2)
 
     def test_prev_when_no_tag(self):
         with tempfile.TemporaryDirectory() as t:

@@ -70,7 +70,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude |
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
-| Workflow | [code-review](#code-review) | opus | Report-only session-end review — bugs, drift, gaps, docs/version, tests, CLAUDE.md + local/global rule compliance; fresh-eyes, confidence-scored | Claude |
+| Coding | [code-review](#code-review) | opus | Report-only session-end review — bugs, drift, gaps, docs/version, tests, CLAUDE.md + local/global rule compliance; fresh-eyes, confidence-scored | Claude |
 | Design | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
 | Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
@@ -94,10 +94,10 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 
 ### Workflow Skills
 
-Strategic thinking, planning, implementation, and review — `brainstorm`, `spec`, `apex`, `oneshot`, `code-review`.
+Strategic thinking, planning, and implementation — `brainstorm`, `spec`, `apex`, `oneshot`.
 
 <details>
-<summary><em>brainstorm · spec · apex · oneshot · code-review</em></summary>
+<summary><em>brainstorm · spec · apex · oneshot</em></summary>
 
 <br>
 
@@ -255,7 +255,18 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 - [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint) — Explore/Code/Test loop with complexity escalation to `apex` or `spec`
 
+</details>
+
 ---
+
+### Coding Skills
+
+Code review and coding-workflow tools — `code-review`. More coding skills landing soon.
+
+<details>
+<summary><em>code-review</em></summary>
+
+<br>
 
 #### code-review
 
@@ -278,15 +289,15 @@ Report-only session-end review with fresh eyes. Dispatches four parallel read-on
 
 **What it does**
 
-- **Resolve target** — dirty tree → working + staged; clean → branch-vs-base via a deterministic 6-rung ladder (a base declared in the project's rules wins)
-- **Four lenses** — parallel read-only subagents review the diff against the project's own `CLAUDE.md` + local/global rule hierarchy
+- **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a base declared in the project's rules wins), always resolved to a diffable ancestor
+- **Four lenses** — parallel read-only subagents review the change against the project's own `CLAUDE.md` + local/global rule hierarchy
 - **Score + filter** — each finding scored 0–100; low-confidence, pre-existing, and out-of-lane findings dropped
 - **Report-only** — prioritized report; bridge to `/apex -f` or `/oneshot` to fix
 
 **Sources**
 
-- Anthropic knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)
-- Anthropic claude-code — plugins/code-review (parallel independent agents + 0–100 confidence scoring)
+- knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)
+- Anthropic Claude Code — plugins/code-review (parallel independent agents + 0–100 confidence scoring)
 
 </details>
 

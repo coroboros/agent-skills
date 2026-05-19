@@ -13,7 +13,7 @@
       "id": 2,
       "name": "auto-detects-dirty-working-tree",
       "prompt": "/code-review (uncommitted edits present in the working tree)",
-      "expected_output": "With a dirty tree the skill reviews uncommitted + staged changes (not a branch diff). The header states the working-tree target. resolve_base.sh is not consulted for the base in this path.",
+      "expected_output": "With a dirty tree the skill reviews everything not yet committed: `git diff HEAD` (staged + unstaged) PLUS untracked files (`git ls-files --others --exclude-standard`, read in full) — a brand-new unstaged file is never skipped. Not a branch diff; resolve_base.sh is not consulted in this path. The header states the dirty-tree target.",
       "files": []
     },
     {
@@ -27,14 +27,14 @@
       "id": 4,
       "name": "explicit-base-override",
       "prompt": "/code-review -b origin/main",
-      "expected_output": "The skill passes -b origin/main to resolve_base.sh, the header shows rule=explicit base=origin/main, and auto-detection is skipped.",
+      "expected_output": "The skill passes -b origin/main to resolve_base.sh; rule=explicit and auto-detection is skipped. base is resolved to merge-base(origin/main, HEAD) — a diffable ancestor SHA, not the literal ref — so the lenses' two-dot `git diff <base> <target>` is always correct. The header prints that base/target/rule.",
       "files": []
     },
     {
       "id": 5,
       "name": "reads-declared-base-from-rules",
       "prompt": "/code-review (clean tree; the repo CLAUDE.md declares the source branch is `develop`)",
-      "expected_output": "Before running the resolver, the skill reads the rule hierarchy, finds the declared source branch, and passes it via -b (rule=explicit base=develop). This is the skill-layer rung — resolve_base.sh itself does not parse rule files.",
+      "expected_output": "Before running the resolver, the skill reads the rule hierarchy, finds the declared source branch (e.g. develop), and passes it via -b. rule=explicit; base is merge-base(develop, HEAD) — a diffable ancestor SHA. This is the skill-layer rung — resolve_base.sh itself never parses rule files.",
       "files": []
     },
     {

@@ -10,8 +10,8 @@ disable-model-invocation: true
 metadata:
   author: coroboros
   sources:
-    - "Anthropic knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)"
-    - "Anthropic claude-code — plugins/code-review (parallel independent agents + 0–100 confidence scoring engine)"
+    - "knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)"
+    - "Anthropic Claude Code — plugins/code-review (parallel independent agents + 0–100 confidence scoring engine)"
 ---
 
 # Code review
@@ -55,10 +55,10 @@ A fresh-eyes pass over what a session changed. Four read-only subagents review t
 
 Resolve the target deterministically, and always print it in the report header so the scope is never silent:
 
-1. **Dirty working tree** → uncommitted + staged changes.
+1. **Dirty working tree** → everything not yet committed: tracked changes vs `HEAD` (`git diff HEAD` — staged and unstaged) **plus** untracked files (`git ls-files --others --exclude-standard`, each read in full). A new file written this session but not yet `git add`-ed is part of the session — never skip untracked, or the review silently misses whole new modules.
 2. **Clean tree** → branch-vs-base. Read the project's rule files (below) first; if a source/base branch is declared there (e.g., a `Source branch` line in `CLAUDE.md` or `.claude/rules/git-conventions.md`), pass it as `-b` to the resolver. Otherwise run `scripts/resolve_base.sh` and use its ladder.
 
-The resolved `base`/`target` define the diff every lens reviews: `git diff <base>...<target>` for a branch range, or the working-tree diff for a dirty tree.
+The review set every lens examines: **clean tree** → `git diff <base> <target>` (two-dot — the resolver guarantees `base` is a diffable ancestor or the empty tree, so this is always correct, with no noise from commits the base gained in parallel); **dirty tree** → `git diff HEAD` plus the untracked files above.
 
 ```bash
 bash "${CLAUDE_SKILL_DIR}/scripts/resolve_base.sh" [-b <ref>]
@@ -86,7 +86,7 @@ These four keys are canonical — the report table, the evals, and the pipeline 
 ## How it runs
 
 1. Resolve the target (above); read the rule hierarchy.
-2. Launch the four lens subagents **in one message** (parallel, read-only). Each receives the diff, the rule-hierarchy paths, its brief from `references/lenses.md`, and the exclusion contract.
+2. Launch the four lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
 3. Aggregate findings; score each 0–100 (rubric in `references/lenses.md`); drop everything below the threshold.
 4. Emit the report from `templates/code-review.md`. Save to the `-s` path when set.
 
