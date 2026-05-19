@@ -8,7 +8,7 @@ Skills that accept flags use a consistent lowercase/uppercase pattern parsed fro
 
 | Flag | Meaning |
 |------|---------|
-| `-s` | **S**ave output to `.claude/output/{skill}/{slug}/` |
+| `-s` | **S**ave output to `~/.claude/output/{skill}/{project}/` (global — see Output paths) |
 | `-S` | Disable save (override any ambient save mode) |
 | `-f <path>` | **F**eed — consume another skill's output as input (pipeline chaining) |
 | `-a`, `-b`, `-e`, `-i`, `-r` | Skill-specific — document in the skill's `## Parameters` section |
@@ -17,21 +17,38 @@ Pattern: lowercase flag enables, uppercase flag disables. Keep the convention co
 
 ## Output paths
 
-- Default save location: `.claude/output/{skill-name}/{slug}/`
-- `{slug}` is kebab-case, derived from the argument (max 5 words).
-- Skills that produce multiple outputs write sibling files under the same `{slug}/` directory.
+Skill scratch output is **global** — never inside a working tree, so it cannot pollute any repo:
+
+- Save location: `~/.claude/output/{skill}/{project}/` — one canonical file per skill per project.
+- `{project}` = kebab-cased basename of the git toplevel, else the cwd basename outside a git repo:
+
+  ```bash
+  root=$(git rev-parse --show-toplevel 2>/dev/null || pwd)   # identical to apex's scripts
+  project=$(basename "$root" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+  ```
+
+  Two distinct repos sharing a basename share a `{project}` folder — accepted limitation, not collision-proofed.
+- Re-running a skill overwrites its prior file for that project. Scratch is transient; git history and the produced code are the durable record. A skill emitting multiple files writes siblings under the same `{project}/` directory.
+- **Path display** — every path surfaced to the user is tilde-form (`~/.claude/output/...`), never the expanded `$HOME`/absolute form. Scripts expand via `$HOME`; the `Write` tool receives the expanded absolute path.
+- **apex diverges** — it keeps ordered `{NN-task}/` folders under `~/.claude/output/apex/{project}/` so `-r` resume can order tasks; a single canonical file carries no ordering. Documented in `skills/apex/SKILL.md`.
+
+Future skills MUST adopt this scheme — it is a conformance gate in the skill-authoring loop. A skill that writes inside a working tree is a review failure.
 
 ## Pipeline chaining
 
-Skills are composable via the `-f` flag. A skill passes its saved output to the next skill:
+Skills compose via the `-f` flag. A producer saves one canonical file; a consumer resolves it deterministically:
 
 ```bash
-/brainstorm -s "topic"              → .claude/output/brainstorm/topic/brainstorm.md
-/spec -s -f brainstorm.md "..."     → .claude/output/spec/topic/spec.md
+/brainstorm -s "topic"              → ~/.claude/output/brainstorm/{project}/brainstorm.md
+/spec -s -f brainstorm.md "..."     → ~/.claude/output/spec/{project}/spec.md
 /apex -f spec.md                    → implementation
 ```
 
-Contract: producer saves a single canonical file under `{slug}/`. Consumer reads it via the path passed to `-f`.
+**`-f` resolution** — deterministic, no glob, no model inference:
+
+- Bare filename, no `/` (e.g. `spec.md`) → `~/.claude/output/{producer}/{project}/{name}`, where `{producer}` is the skill owning that filename (`brainstorm.md`→brainstorm, `spec.md`→spec, `code-review.md`→code-review) and `{project}` is the current project.
+- Any value containing `/` or starting with `~`, `/`, or `.` → explicit path, used as-is.
+- Resolved file absent → fail loud with the resolved path and the exact producer command to regenerate it. Never fall back to a glob or a guess.
 
 ## Install model
 
