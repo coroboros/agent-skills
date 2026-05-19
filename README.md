@@ -337,8 +337,8 @@ Report-only session-end review with fresh eyes. Dispatches four parallel read-on
 
 **Sources**
 
-- knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)
-- Anthropic Claude Code — plugins/code-review (parallel independent agents + 0–100 confidence scoring)
+- [anthropics/knowledge-work-plugins — code-review](https://github.com/anthropics/knowledge-work-plugins/tree/main/engineering/skills/code-review) — review-dimension framing, report shape
+- [anthropics/claude-plugins-official — code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) — parallel independent agents + 0–100 confidence scoring
 
 </details>
 

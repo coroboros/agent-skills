@@ -10,8 +10,8 @@ disable-model-invocation: true
 metadata:
   author: coroboros
   sources:
-    - "knowledge-work-plugins — engineering/skills/code-review (review-dimension framing, report shape)"
-    - "Anthropic Claude Code — plugins/code-review (parallel independent agents + 0–100 confidence scoring engine)"
+    - github.com/anthropics/knowledge-work-plugins/tree/main/engineering/skills/code-review
+    - github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review
 ---
 
 # Code review
