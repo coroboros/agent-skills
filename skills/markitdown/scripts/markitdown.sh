@@ -3,7 +3,7 @@
 #
 # Usage: markitdown.sh [-s|-S] [-d] [-p] [-k] [-l] <file-or-url>
 #
-#   -s   save to .claude/output/markitdown/<slug>/<stem>.md
+#   -s   save to ~/.claude/output/markitdown/<project>/<slug>/<stem>.md
 #   -S   force no-save (default)
 #   -d   use Azure Document Intelligence (needs MARKITDOWN_DOCINTEL_ENDPOINT)
 #   -p   enable third-party markitdown plugins
@@ -81,7 +81,9 @@ SLUG=$(printf '%s' "$STEM" \
 [[ -z "$SLUG" ]] && SLUG="output"
 
 if [[ $SAVE -eq 1 ]]; then
-  OUT_DIR=".claude/output/markitdown/$SLUG"
+  # Global per repo-conventions.md § Output paths: ~/.claude/output/markitdown/{project}/{slug}.
+  PROJECT=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+  OUT_DIR="${HOME}/.claude/output/markitdown/${PROJECT}/$SLUG"
   mkdir -p "$OUT_DIR"
   OUT_FILE="$OUT_DIR/${STEM}.md"
   markitdown ${ARGS[@]+"${ARGS[@]}"} "$INPUT" -o "$OUT_FILE"

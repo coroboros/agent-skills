@@ -20,11 +20,11 @@ See `references/extended-tokens.md` for the full convention this subcommand enfo
 |------|---------|
 | `--css <path>` | Path to the `globals.css` (or other CSS file holding the `@theme` block). Auto-detected when omitted (see *CSS auto-detection* below). |
 | `--strict` | Promote `extension-orphan-css` warnings to errors. CI gate when authoring discipline is mandatory. |
-| `-s` | Save the formatted report to `.claude/output/design-system/audit-extensions/{slug}/report.md` |
+| `-s` | Save the formatted report to `~/.claude/output/design-system/{project}/audit-extensions/report.md` |
 | `-S` | Force no-save (override ambient save mode) |
 | `--json` | Emit JSON instead of the human-readable report |
 
-`{slug}` follows the same rule as `audit` — strip `.md` and kebab-case (`./DESIGN.md` → `design`).
+`{project}` follows the same rule as `audit` — repo basename per `.claude/rules/repo-conventions.md` § Output paths.
 
 The script exits `0` when zero errors, `1` when any errors are present (warnings alone do not fail). Usable as a CI gate.
 
@@ -44,7 +44,7 @@ The script exits `0` when zero errors, `1` when any errors are present (warnings
    ```
    Emits `RESULT: key=value` lines and per-finding `FINDING:` lines.
 4. **Compose the report** using the template below.
-5. **Save** under `.claude/output/design-system/audit-extensions/{slug}/report.md` if `-s`.
+5. **Save** under `~/.claude/output/design-system/{project}/audit-extensions/report.md` if `-s`.
 6. **Return summary line**: `✅ clean` or `⚠️ <n> warnings (acceptable)` or `❌ <n> errors — fix before shipping`.
 
 ## Drift-detection rules
