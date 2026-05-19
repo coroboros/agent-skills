@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "Agent skills for Claude Code and compatible agents — workflow, design, Claude Code meta, media, productivity, and writing",
-    "version": "1.22.0"
+    "version": "1.23.0"
   },
   "plugins": [
     {
@@ -22,12 +22,21 @@
       ]
     },
     {
-      "name": "design-skills",
-      "description": "Bootstrap projects, recommend design archetypes, and enforce DESIGN.md tokens across UI",
+      "name": "coding-skills",
+      "description": "Coding workflow — bootstrap projects (scaffold) and report-only code review (code-review)",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/scaffold",
+        "./skills/code-review"
+      ]
+    },
+    {
+      "name": "design-skills",
+      "description": "Recommend design archetypes and enforce DESIGN.md tokens across UI",
+      "source": "./",
+      "strict": false,
+      "skills": [
         "./skills/award-design",
         "./skills/design-system"
       ]

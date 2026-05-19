@@ -56,9 +56,11 @@ The repo ships a Claude Code plugin marketplace manifest at `.claude-plugin/mark
 | Plugin | Category label |
 |--------|----------------|
 | `workflow-skills` | Workflow Skills |
+| `coding-skills` | Coding Skills |
 | `design-skills` | Design Skills |
 | `claude-code-skills` | Claude Code Skills |
 | `media-skills` | Media Skills |
+| `productivity-skills` | Productivity Skills |
 | `writing-skills` | Writing Skills |
 
 See `.claude-plugin/marketplace.json` for the authoritative per-plugin skill list.

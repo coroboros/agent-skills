@@ -88,6 +88,31 @@ CLUSTERS = {
             "padding", "size", "height", "width",
         ),
     },
+    "review": {
+        # code-review → apex. Report-only producer; apex consumes the saved
+        # report via -f as generic foundational context (no apex change).
+        # /oneshot is intentionally NOT a -f consumer (it has no -f flag) —
+        # the skill points there manually with a description, never a file.
+        "producer": "code-review",
+        "producer_output": ".claude/output/code-review/{slug}/code-review.md",
+        "consumer": "apex",
+        # Schema the producer commits to and a consumer reads — drift in
+        # either side breaks the chain. Validated by test_review_cluster.
+        "report_required_sections": (
+            "Findings",
+            "Deferred to sibling skills",
+            "What looks good",
+            "Verdict",
+        ),
+        "report_lens_keys": (
+            "rules", "bugs-drift", "docs-version", "tests-blindspots",
+        ),
+        "report_severities": ("High", "Medium", "Low"),
+        "confidence_threshold": 80,
+        "deferral_targets": (
+            "/security-review", "/simplify", "/ultrareview", "/find-docs",
+        ),
+    },
 }
 
 
