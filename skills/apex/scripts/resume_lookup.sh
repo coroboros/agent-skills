@@ -22,6 +22,7 @@ PARTIAL="${1:?usage: resume_lookup.sh <partial_id>}"
 
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+: "${PROJECT:=unnamed}"  # all-non-alphanumeric basename kebabs empty — keep the path well-formed
 APEX_DIR="${HOME}/.claude/output/apex/${PROJECT}"
 
 if [[ ! -d "$APEX_DIR" ]]; then

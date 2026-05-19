@@ -27,7 +27,7 @@ Skill scratch output is **global** — never inside a working tree, so it cannot
   project=$(basename "$root" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
   ```
 
-  Two distinct repos sharing a basename share a `{project}` folder — accepted limitation, not collision-proofed.
+  Two distinct repos sharing a basename share a `{project}` folder — accepted limitation, not collision-proofed. A basename that kebabs to empty (all non-alphanumeric) falls back to `unnamed`.
 - Re-running a skill overwrites its prior file for that project. Scratch is transient; git history and the produced code are the durable record. A skill emitting multiple files writes siblings under the same `{project}/` directory.
 - **Path display** — every path surfaced to the user is tilde-form (`~/.claude/output/...`), never the expanded `$HOME`/absolute form. Scripts expand via `$HOME`; the `Write` tool receives the expanded absolute path.
 - **apex diverges** — it keeps ordered `{NN-task}/` folders under `~/.claude/output/apex/{project}/` so `-r` resume can order tasks; a single canonical file carries no ordering. Documented in `skills/apex/SKILL.md`.
@@ -48,7 +48,7 @@ Skills compose via the `-f` flag. A producer saves one canonical file; a consume
 
 - Bare filename, no `/` (e.g. `spec.md`) → `~/.claude/output/{producer}/{project}/{name}`, where `{producer}` is the skill owning that filename (`brainstorm.md`→brainstorm, `spec.md`→spec, `code-review.md`→code-review) and `{project}` is the current project.
 - Any value containing `/` or starting with `~`, `/`, or `.` → explicit path, used as-is.
-- Resolved file absent → fail loud with the resolved path and the exact producer command to regenerate it. Never fall back to a glob or a guess.
+- Resolved file absent → fail loud with the resolved path and the exact producer command to regenerate it; if the file lives elsewhere, pass an explicit absolute path to `-f` (the explicit-path case above). Never fall back to a glob or a guess.
 
 ## Install model
 

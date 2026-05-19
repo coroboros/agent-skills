@@ -36,7 +36,7 @@ From SKILL.md entry point:
 
 - Bare filename, no `/` (e.g. `brainstorm.md`) → `~/.claude/output/{producer}/{project}/{from_file}`, where `{producer}` is the skill owning that filename (`brainstorm.md`→brainstorm, `code-review.md`→code-review) and `{project}` is the current project (git-toplevel basename, else cwd).
 - Any value containing `/` or starting with `~`, `/`, or `.` → explicit path, used as-is.
-- Resolved file absent → fail loud with the resolved path and the producer command to regenerate it (e.g. `/brainstorm -s "<topic>"`). Never glob or guess.
+- Resolved file absent → fail loud with the resolved path and the producer command to regenerate it (e.g. `/brainstorm -s "<topic>"`); if the file is elsewhere, pass an explicit absolute path to `-f` instead. Never glob or guess.
 
 Then read the resolved file and detect type:
 

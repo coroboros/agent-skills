@@ -83,6 +83,7 @@ SLUG=$(printf '%s' "$STEM" \
 if [[ $SAVE -eq 1 ]]; then
   # Global per repo-conventions.md § Output paths: ~/.claude/output/markitdown/{project}/{slug}.
   PROJECT=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
+  : "${PROJECT:=unnamed}"  # all-non-alphanumeric basename kebabs empty — keep the path well-formed
   OUT_DIR="${HOME}/.claude/output/markitdown/${PROJECT}/$SLUG"
   mkdir -p "$OUT_DIR"
   OUT_FILE="$OUT_DIR/${STEM}.md"
