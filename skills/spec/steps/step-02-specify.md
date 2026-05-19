@@ -20,7 +20,7 @@ From previous steps:
 | Variable | Description |
 |----------|-------------|
 | `{idea}` | Feature description |
-| `{slug}` | Kebab-case identifier |
+| `{project}` | Repo basename — keys the output dir |
 | `{auto_mode}` | Skip confirmations |
 | `{save_mode}` | Save spec to file |
 | `{issues_mode}` | Create GitHub issues |

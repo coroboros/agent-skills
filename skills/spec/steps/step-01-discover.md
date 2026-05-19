@@ -19,7 +19,7 @@ From SKILL.md entry point:
 | Variable | Description |
 |----------|-------------|
 | `{idea}` | The feature description |
-| `{slug}` | Kebab-case identifier |
+| `{project}` | Repo basename — keys the output dir |
 | `{auto_mode}` | Skip Q&A |
 | `{save_mode}` | Save spec to file |
 | `{issues_mode}` | Create GitHub issues |
@@ -32,7 +32,13 @@ From SKILL.md entry point:
 
 ### 1. Load prior context (if `{from_file}` is set)
 
-Read `{from_file}` and detect type:
+**Resolve `{from_file}` first** — deterministic, per `.claude/rules/repo-conventions.md` § Pipeline chaining:
+
+- Bare filename, no `/` (e.g. `brainstorm.md`) → `~/.claude/output/{producer}/{project}/{from_file}`, where `{producer}` is the skill owning that filename (`brainstorm.md`→brainstorm, `code-review.md`→code-review) and `{project}` is the current project (git-toplevel basename, else cwd).
+- Any value containing `/` or starting with `~`, `/`, or `.` → explicit path, used as-is.
+- Resolved file absent → fail loud with the resolved path and the producer command to regenerate it (e.g. `/brainstorm -s "<topic>"`). Never glob or guess.
+
+Then read the resolved file and detect type:
 
 **Brainstorm report** (contains `# Brainstorm:` header):
 - Extract Summary, Recommendation, Alternatives considered, Assumption ledger, Risks & mitigations, Kill criteria, Open questions, Next steps.

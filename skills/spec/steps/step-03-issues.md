@@ -17,7 +17,7 @@ From previous steps:
 | Variable | Description |
 |----------|-------------|
 | `{idea}` | Feature description |
-| `{slug}` | Kebab-case identifier |
+| `{project}` | Repo basename — keys the output dir |
 | `{save_mode}` | true (required for issues) |
 | `{output_file}` | Path to spec.md |
 | Spec content | Workstreams with priorities, complexities, tasks, AC from step-02 |

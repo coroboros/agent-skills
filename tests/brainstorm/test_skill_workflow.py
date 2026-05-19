@@ -70,11 +70,11 @@ class TestParametersTable(unittest.TestCase):
 
     def test_save_flag_documented(self):
         body = _body()
-        # `-s` saves to the canonical .claude/output path.
+        # `-s` saves to the global ~/.claude/output path.
         self.assertRegex(
             body,
-            r"\|\s*`-s`\s*\|.*?\.claude/output/brainstorm",
-            "Parameters table must document `-s` saving to .claude/output/brainstorm/",
+            r"\|\s*`-s`\s*\|.*?~/\.claude/output/brainstorm",
+            "Parameters table must document `-s` saving to ~/.claude/output/brainstorm/",
         )
 
     def test_uppercase_S_documented(self):
@@ -144,36 +144,37 @@ class TestModelOpus(unittest.TestCase):
 
 class TestBridgeSection(unittest.TestCase):
     """The 'Bridge to next steps' section commits brainstorm to specific
-    hand-off paths (`/spec` for multi-workstream, `/apex` for focused
+    hand-off commands (`/spec` for multi-workstream, `/apex` for focused
     implementation). Drift in the documented `-f` syntax silently breaks
-    the producer→consumer chain — `/spec -f` and `/apex -f` MUST receive
-    a path matching the saved brainstorm output."""
+    the producer→consumer chain — both bridges MUST pass the bare canonical
+    filename `brainstorm.md`, which the consumer resolves deterministically
+    per `.claude/rules/repo-conventions.md` § Pipeline chaining."""
 
     def test_bridge_section_exists(self):
         self.assertIn("## Bridge to next steps", _body())
 
     def test_bridge_to_spec_documented(self):
         body = _body()
-        # Multi-workstream path → `/spec -s -f <brainstorm-output>`.
-        # Pin both the verb (-s -f) and the canonical output path so a
-        # change to either side surfaces here.
+        # Multi-workstream path → `/spec -s -f brainstorm.md`.
+        # Pin the verb (-s -f) and the bare canonical filename the
+        # consumer resolves deterministically.
         self.assertIn("/spec -s -f", body,
                       "bridge to /spec must use canonical -s -f flag combo")
         self.assertRegex(
             body,
-            r"/spec -s -f \.claude/output/brainstorm/.+?brainstorm\.md",
-            "bridge to /spec must point at the canonical brainstorm output path",
+            r"/spec -s -f brainstorm\.md",
+            "bridge to /spec must pass the bare canonical filename brainstorm.md",
         )
 
     def test_bridge_to_apex_documented(self):
         body = _body()
-        # Focused-work path → `/apex -f <brainstorm-output>`.
+        # Focused-work path → `/apex -f brainstorm.md`.
         self.assertIn("/apex -f", body,
                       "bridge to /apex must use the -f flag")
         self.assertRegex(
             body,
-            r"/apex -f \.claude/output/brainstorm/.+?brainstorm\.md",
-            "bridge to /apex must point at the canonical brainstorm output path",
+            r"/apex -f brainstorm\.md",
+            "bridge to /apex must pass the bare canonical filename brainstorm.md",
         )
 
     def test_bridge_documents_strategic_skip(self):

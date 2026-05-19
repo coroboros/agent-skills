@@ -39,11 +39,11 @@ A fresh-eyes pass over what a session changed. Four read-only subagents review t
 
 | Flag | Behavior |
 |------|----------|
-| `-s` | Save the report to `.claude/output/code-review/{slug}/code-review.md` |
+| `-s` | Save the report to `~/.claude/output/code-review/{project}/code-review.md` (global; `{project}` = repo basename) |
 | `-S` | Force no-save (override an ambient save mode) |
 | `-b <ref>` | Override the review base (skip auto-detection) |
 
-`{slug}` is kebab-case from the branch or a short description (max 5 words). Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
+`{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths (covers `{project}` derivation and tilde display). Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
 
 ```bash
 /code-review                 # auto-detect what changed, report
@@ -107,7 +107,7 @@ No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state 
 
 This skill never edits code. After the report, bridge to the fix pass:
 
-- `/apex -f .claude/output/code-review/{slug}/code-review.md` — structured fix workstream (requires `-s`).
+- `/apex -f code-review.md` — structured fix workstream (requires `-s`; resolves to `~/.claude/output/code-review/{project}/code-review.md`).
 - `/oneshot "<finding>"` — single quick fix (manual; `/oneshot` takes a description, not a file).
 
 ## Rules
