@@ -1,8 +1,8 @@
 """Tests for skills/apex/scripts/update-progress.sh.
 
 Strategy: a synthetic 00-context.md is seeded at the script's resolved
-location — global `$HOME/.claude/output/apex/<project>/<task_id>/` where
-`<project>` = kebab-cased basename of the project root (pwd outside any repo,
+location — global `$HOME/.claude/output/{project}/apex/<task_id>/` where
+`{project}` = kebab-cased basename of the project root (pwd outside any repo,
 GIT_CEILING capping the git walk). HOME is isolated to a temp dir so the
 script never touches the developer's real `~`.
 """

@@ -3,8 +3,8 @@
 Same project-root resolution as validate_state.sh: `git rev-parse` then `pwd`.
 Tests run with `cwd=` a temp project dir and `GIT_CEILING_DIRECTORIES` capping
 the git walk so the fallback is deterministic. Output is global —
-`$HOME/.claude/output/apex/<project>/` — so HOME is isolated to a temp dir and
-`<project>` = kebab-cased basename of the project root.
+`$HOME/.claude/output/{project}/apex/` — so HOME is isolated to a temp dir and
+`{project}` = kebab-cased basename of the project root.
 """
 
 import os
