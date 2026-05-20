@@ -252,16 +252,22 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
         self.assertGreaterEqual(out["artifacts"][0]["claim_count"], 1)
 
     def test_stale_artifact_emits_summary_only(self):
-        # Make the fixture artifact appear >90 days old by setting mtime.
-        fixture = FIXTURES / "stale-artifact"
-        artifact_path = fixture / "spec.md"
-        if not artifact_path.exists():
-            self.skipTest("fixture missing")
+        # Copy the committed fixture into a non-git tempdir so freshness
+        # falls back to mtime (the committed file's git timestamp is
+        # recent and would otherwise override our backdate).
+        import shutil
         import time as _time
-        ancient = _time.time() - (100 * 86400)
-        os.utime(artifact_path, (ancient, ancient))
-        out = _run_cli(fixture, reconcile=str(artifact_path))
-        # Artifact present, no findings (summary-only).
+        src = FIXTURES / "stale-artifact" / "spec.md"
+        if not src.exists():
+            self.skipTest("fixture missing")
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            dst = repo / "spec.md"
+            shutil.copy(src, dst)
+            ancient = _time.time() - (100 * 86400)
+            os.utime(dst, (ancient, ancient))
+            out = _run_cli(repo, str(dst))
+        # Artifact present, no findings (summary-only because >90d).
         self.assertEqual(len(out["artifacts"]), 1)
         self.assertEqual(out["findings"], [],
                          f"expected no findings for stale artifact, got {out['findings']}")

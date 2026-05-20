@@ -85,11 +85,23 @@ class TestReportSchema(unittest.TestCase):
     def test_coherence_graph_status_in_required_sections(self):
         self.assertIn("Coherence-graph status", REVIEW["report_required_sections"])
 
-    def test_realistic_fixture_carries_tier_header(self):
+    def test_derivation_coverage_in_required_sections(self):
+        self.assertIn("Derivation coverage", REVIEW["report_required_sections"])
+
+    def test_derivation_lens_key_present(self):
+        self.assertIn("derivation", REVIEW["report_lens_keys"])
+        # The five legacy keys stay alongside derivation — six total.
+        self.assertEqual(len(REVIEW["report_lens_keys"]), 6)
+
+    def test_realistic_fixture_carries_scope_header(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
-        # Tier + Tier rationale must always appear in the header.
-        self.assertIn("Tier:", text)
-        self.assertIn("Tier rationale:", text)
+        # Scope + Estimated wall-clock replace the legacy Tier / Tier
+        # rationale / Token estimate header fields after the always-Ultra
+        # refactor.
+        self.assertIn("Scope:", text)
+        self.assertIn("Estimated wall-clock:", text)
+        self.assertNotIn("Tier rationale:", text)
+        self.assertNotIn("Token estimate:", text)
 
     def test_realistic_fixture_lists_all_six_sub_graphs(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")

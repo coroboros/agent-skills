@@ -1,8 +1,8 @@
 # Code ultrareview — add-rate-limiter
 
 **Base:** 49d9a32 · **Target:** HEAD · **Rule:** feature-merge-base
-**Tier:** deep (chosen by audit phase) · **Tier rationale:** public-API touched + manifest delta + test gap
-**Token estimate:** 150000 (tier budget) · **Rules baseline:** CLAUDE.md chain + 3 rule files
+**Scope:** 6 files · public API · manifest · 2 planning artifacts (1d fresh) · **Estimated wall-clock:** 4m 30s
+**Rules baseline:** CLAUDE.md chain + 3 rule files
 **Reviewed:** 6 changed files
 
 ## Findings
@@ -46,6 +46,19 @@ Out-of-lane observations — pointers only, not reviewed here.
 | cross-reference | pass |
 | example | pass |
 | spec-conformance | skipped — no normative-spec mentions |
+
+## Derivation coverage
+
+| Field | Value |
+|-------|-------|
+| Artifacts compared | 2 (`brainstorm-rate-limiter.md` (1d), `spec-rate-limiter.md` (0d)) |
+| AC coverage | 3/4 acceptance criteria |
+| GAP | 1 (1 high-confidence) |
+| SCOPE-ADD | 0 |
+| DECISION-OVERRIDE | 0 |
+| CONSISTENT | 3 |
+
+**Notable callouts:** AC4 (per-IP allowlist override) — spec mandates the flag; diff omits it. GAP / High.
 
 ## Verdict
 

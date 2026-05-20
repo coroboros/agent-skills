@@ -114,11 +114,12 @@ CLUSTERS = {
             "Deferred to sibling skills",
             "What looks good",
             "Coherence-graph status",
+            "Derivation coverage",
             "Verdict",
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",
-            "coherence-graph",
+            "coherence-graph", "derivation",
         ),
         # High/Medium/Low retained for compatibility; Important/Nit/
         # Pre-existing added per Anthropic Managed Code Review and emitted
