@@ -113,13 +113,14 @@ Phase 3 — AGGREGATION  (1 synthesizer subagent)
   "unverified — recommend Deep pass" (never silent-dropped — A2)
 ```
 
-Audit-phase dispatch, JSON signal schema, weight table, and tier thresholds live in `references/audit-phase.md` — read before invoking. Lens briefs live in `references/lenses.md`.
+Audit-phase dispatch, JSON signal schema, weight table, and tier thresholds live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Ultra-tier build / fuzz / `--apply-safe` details live in `references/ultra-execution.md` — read before dispatching Ultra.
 
-1. Resolve the target (above); read the rule hierarchy; run the audit phase to pick the tier (unless `-t` is set).
+1. Resolve the target (above); read the rule hierarchy; run the audit phase to pick the tier (unless `-t` is set). Ultra confirms via `tier_router.py --gate` unless `--apply-safe` or `-y` is set.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
-3. Aggregate findings; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed (not dropped) — per A2 in the postmortem.
-4. At Ultra tier with `--apply-safe`, optionally write manifest version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — diff preview + per-file confirmation prompt before any write.
-5. Emit the report from `templates/code-ultrareview.md`. Save to the `-s` path when set, and report its fully-expanded absolute path to the user (no tilde, no magic).
+3. Aggregate findings via `scripts/aggregation.py`; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed to the report's Unverified sub-section (never silent-dropped — postmortem A2).
+4. Deep tier: re-pass sub-80 findings with build verification (one iteration per finding). Ultra tier: synthesize a property-fuzz harness when `fast-check` / `hypothesis` is present, run the canonical test command from `build_detect.py`, feed the verdict into Deep iteration.
+5. Ultra + `--apply-safe`: invoke the three writers (`version_sync`, `description_sync` with full-agreement guard, `failing_test_writer`) — diff preview + per-file confirmation prompt before any write.
+6. Emit the report from `templates/code-ultrareview.md`. Save to the `-s` path when set, and report its fully-expanded absolute path to the user (no tilde, no magic).
 
 ## Deferral spine
 
