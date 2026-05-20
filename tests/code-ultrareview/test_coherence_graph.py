@@ -383,7 +383,7 @@ class TestSpecConformanceStub(unittest.TestCase):
         self.assertEqual(len(findings), 1)
         self.assertEqual(findings[0].severity, "Low")
         self.assertEqual(findings[0].confidence, 50)
-        self.assertIn("deep", findings[0].recommendation.lower())
+        self.assertIn("spec-conformance", findings[0].recommendation.lower())
 
     def test_allowlisted_spec_suppressed(self):
         with tempfile.TemporaryDirectory() as t:

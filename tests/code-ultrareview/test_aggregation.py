@@ -3,10 +3,10 @@
 Pins the three postmortem-driven contracts:
   - A2: sub-80 findings are SURFACED with the unverified prefix, not dropped.
   - A1: spec-claim trigger formats a high-confidence finding with the quote.
-  - Deep iteration: build verdict promotes / drops / leaves sub-80 findings.
+  - Always-on iteration: build verdict promotes / drops / leaves sub-80 findings.
 
 Also covers dedup, ordering, severity-tier mapping, and the no-iteration
-path when the dispatcher runs Standard tier.
+path when no sub-80 findings exist.
 """
 
 from __future__ import annotations
@@ -191,7 +191,7 @@ class TestA1SpecClaimTrigger(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TestDeepIteration(unittest.TestCase):
+class TestAlwaysIteration(unittest.TestCase):
     def test_deep_iteration_promotes_confidence_when_build_confirms(self):
         unverified = [_finding(confidence=70)]
 
@@ -335,7 +335,7 @@ class TestSeverityTier(unittest.TestCase):
 # ---------------------------------------------------------------------------
 
 
-class TestSynthesize(unittest.TestCase):
+class TestAggregation(unittest.TestCase):
     def test_standard_tier_does_not_iterate(self):
         findings = [_finding(confidence=70)]
         calls = []

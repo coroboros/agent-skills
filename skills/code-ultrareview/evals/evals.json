@@ -1,6 +1,6 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the audit-first tier routing, the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the five lenses with their operational definitions, the coherence-graph lens across six sub-graphs, the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), Deep iteration, Ultra-tier execution with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the five lenses with their operational definitions, the coherence-graph lens across six sub-graphs, the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
   "evals": [
     {
       "id": 1,
@@ -98,34 +98,6 @@
       "name": "routes-to-lenses-reference",
       "prompt": "What exactly counts as 'drift' vs a 'blind spot', and what is the confidence cutoff?",
       "expected_output": "The skill routes to references/lenses.md for the operational definitions and the 0–100 rubric. Answer is concrete: drift = code vs its own doc/sibling pattern; blind spot = unstated assumption; 80 is the routing boundary (sub-80 → Unverified sub-section, not dropped). Cites the reference.",
-      "files": []
-    },
-    {
-      "id": 15,
-      "name": "audit-routes-small-low-risk-to-standard",
-      "prompt": "/code-ultrareview (diff: 30 LOC across 1 utility file, no public API, no spec, tests included)",
-      "expected_output": "Audit phase runs (Haiku subagent, ~30–60s), computes signals (loc_changed=30, files=1, public_api=false, …), produces score < 0.35, picks tier=standard. Rationale lists each non-zero contribution. Report header carries Tier: standard and the rationale. Standard runs the 5 lenses in parallel — no Deep iteration, no Ultra execution.",
-      "files": []
-    },
-    {
-      "id": 16,
-      "name": "audit-routes-public-api-change-to-deep",
-      "prompt": "/code-ultrareview (diff: 150 LOC, touches src/api/routes.ts + README.md + package.json, test ratio 0.4)",
-      "expected_output": "Audit signals fire public_api_touched + manifest_graph_delta + non-trivial loc + test gap → score in [0.35, 0.70) → tier=deep. Deep adds: spec-conformance lens, iteration on sub-80 findings with build verification (one re-pass per finding). Header rationale lists the contributing signals.",
-      "files": []
-    },
-    {
-      "id": 17,
-      "name": "audit-routes-rfc-citing-diff-to-ultra",
-      "prompt": "/code-ultrareview (diff: 400 LOC URI parser citing RFC 6874, touches public API + manifests, low test coverage)",
-      "expected_output": "Audit signals fire normative_spec_mentioned + public_api + manifest_delta + loc + test gap → score ≥ 0.70 → tier=ultra. The skill confirms Ultra via tier_router.py --gate (unless --apply-safe or -y). Ultra runs: build_detect, lens fan-out, spec-conformance with WebFetch + 7-day cache, Deep iteration, harness_synth if fast-check/hypothesis present, canonical test command.",
-      "files": []
-    },
-    {
-      "id": 18,
-      "name": "audit-routes-pre-1-0-large-refactor-to-ultra",
-      "prompt": "/code-ultrareview (diff: 800 LOC across 15 files, version 0.9.0 in package.json, public API + manifest delta)",
-      "expected_output": "Audit signals fire pre_1_0_or_freeze + loc + files + public_api + manifest_delta + test gap → score ≥ 0.70 → tier=ultra. Rationale enumerates each contribution. Ultra confirmation prompt fires unless --apply-safe or -y.",
       "files": []
     },
     {

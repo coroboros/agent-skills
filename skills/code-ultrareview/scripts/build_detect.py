@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build / test tool detection for the Ultra tier.
+"""Build / test tool detection for the execution phase.
 
 Probes the repo for a known manifest in a fixed order and returns the
 canonical test command + a flag indicating whether the underlying binary

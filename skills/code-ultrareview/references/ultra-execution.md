@@ -1,10 +1,9 @@
-# Ultra tier — execution, fuzz, `--apply-safe`
+# Execution layer — build, fuzz, `--apply-safe`
 
-The Ultra tier adds build verification, property-fuzz harness synthesis,
-spec-conformance fetching with a local cache, and the `--apply-safe`
-writers. Standard + Deep stay in-session and read-only; Ultra layers the
-extra verification on top. Read this before dispatching when the audit
-phase routes to Ultra or the user passes `-t ultra`.
+Always-on execution includes build verification, property-fuzz harness
+synthesis, spec-conformance fetching with a local cache, and the
+`--apply-safe` writers. Every run gets the full pass; there is no tier
+gating. Read this before dispatching.
 
 ## Build detection
 
@@ -24,19 +23,19 @@ returns the canonical test command. Probe order is fixed — first hit wins:
 
 Output JSON: `{"tool": "<name>", "test_command": "<cmd>", "available": <bool>}`.
 `available` is `false` when the underlying binary (`pnpm`, `pytest`, …) is
-not on PATH — the dispatcher reports the gap and skips Ultra execution
+not on PATH — the dispatcher reports the gap and skips the build/execute step
 rather than failing.
 
 ## Sandbox protocol
 
 Build commands run in the **repo's own working tree** via `subprocess.run`
 with a 120s timeout. There is no Docker / VM isolation at MVP — the user
-is expected to invoke `code-ultrareview -t ultra` on a clean tree (warning
-emitted otherwise). Future phase-2 work (`--remote`) escalates to
-Anthropic's Code Sandbox for true isolation.
+is expected to invoke `code-ultrareview` on a clean tree (warning emitted
+otherwise). Future phase-2 work (`--remote`) escalates to Anthropic's Code
+Sandbox for true isolation.
 
 The subagent runs the command, captures stdout + stderr + exit code, and
-feeds the result into the Deep iteration verdict (`confirmed` /
+feeds the result into the sub-80 iteration verdict (`confirmed` /
 `disproved` / `inconclusive`). Output longer than 10 KB is truncated to
 the last 100 lines — keeps the orchestrator context bounded.
 
@@ -89,7 +88,7 @@ generator coverage is documented in the harness skeleton, never silently.
 
 ## `--apply-safe` writers
 
-The Ultra tier opt-in `--apply-safe` flag enables three writers under
+The opt-in `--apply-safe` flag enables three writers under
 `scripts/apply_safe/`. Each writer:
 
 - Reads inputs from a JSON spec (passed via stdin or `--input`).
@@ -127,25 +126,25 @@ TypeScript: `tests/<bug-id>.test.ts`. Never modifies existing tests —
 additive only. The test is a single `assert` (or `expect`) that fails on
 the unfixed code and passes after the user fixes it.
 
-## Ultra-tier flow
+## Execution flow
 
-Detail of the orchestrator pass at Ultra:
+Detail of the orchestrator pass:
 
-1. Run audit + tier router → confirm `ultra`.
+1. Run audit (`audit_signals.py` → `audit_summary.py`) → report-header context.
 2. Build detection (`build_detect.py`). Report tool + availability.
-3. Standard + Deep lens fan-out (already covered by WS-2 + WS-4).
+3. Lens fan-out (5 lenses in parallel; see `references/lenses.md`).
 4. Spec-conformance fetch + iteration on flagged specs.
 5. Property-fuzz harness synthesis when a property lib is present.
-6. Run the canonical test command (`build_detect`'s `test_command`); pipe verdict into Deep iteration.
+6. Run the canonical test command (`build_detect`'s `test_command`); pipe verdict into the sub-80 iteration phase.
 7. If `--apply-safe`: invoke the three writers with per-file confirmation.
 8. Emit the canonical report from `templates/code-ultrareview.md` with the `## --apply-safe summary` section listing writes applied + skipped.
 
 ## Caveats
 
-- Ultra runs the repo's own test suite. Unit tests with side effects
-  (filesystem writes, network calls) will execute. The user is expected
-  to invoke Ultra on a clean working tree; a warning fires when
-  `git status --porcelain` is non-empty.
+- The execution phase runs the repo's own test suite. Unit tests with side
+  effects (filesystem writes, network calls) will execute. The user is
+  expected to invoke the skill on a clean working tree; a warning fires
+  when `git status --porcelain` is non-empty.
 - The full-agreement guard for description sync is conservative on
   purpose. When a repo legitimately wants divergent descriptions, the
   user allowlists the pair in `.coherence-ignore` and the lens stops

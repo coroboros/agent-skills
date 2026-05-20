@@ -1,9 +1,9 @@
-# Aggregation — A2, Deep iteration, dedup, severity tiers
+# Aggregation — A2, sub-80 iteration, dedup, severity tiers
 
 Aggregation is thin glue between lens subagents and the report template. It
-applies the postmortem A2 contract (no silent drop), runs Deep-tier iteration,
-deduplicates cross-lens hits, and maps confidence + severity to the
-report's tier labels.
+applies the postmortem A2 contract (no silent drop), runs the sub-80
+iteration pass, deduplicates cross-lens hits, and maps confidence + severity
+to the report's tier labels.
 
 ## A2 — no silent drop
 
@@ -44,7 +44,7 @@ spec_excerpt, diff_excerpt, location)` helper that returns a canonical
 `Finding` with confidence 85 and the spec quote in the recommendation.
 Subagents call this after `WebFetch` returns the cached body.
 
-## Deep-tier iteration
+## Iteration on sub-80 findings
 
 Sub-80 findings from the first pass are re-passed to their lens subagent
 with `--iterate`. The subagent:
@@ -106,7 +106,7 @@ an explicit clean note is unambiguous.
 `scripts/aggregation.py` exposes:
 
 - `apply_a2(findings) -> tuple[verified, unverified]` — A2 routing.
-- `deep_iterate(unverified, builder_fn) -> tuple[promoted, remaining, dropped]` — Deep-tier iteration.
+- `deep_iterate(unverified, builder_fn) -> tuple[promoted, remaining, dropped]` — sub-80 iteration (function name retained for API stability).
 - `dedupe(findings) -> findings` — cross-lens dedup.
 - `assign_anthropic_tier(finding) -> str` — Important / Nit / Pre-existing.
 - `order(findings) -> findings` — canonical ordering.

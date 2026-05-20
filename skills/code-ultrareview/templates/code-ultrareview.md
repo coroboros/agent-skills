@@ -1,8 +1,8 @@
 # Code ultrareview — {slug}
 
 **Base:** {base} · **Target:** {target} · **Rule:** {rung}
-**Tier:** {standard | deep | ultra} (chosen by audit phase) · **Tier rationale:** {one-line summary of audit signals}
-**Token estimate:** {N} (tier budget) · **Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
+**Scope:** {feature summary from audit_summary.py — e.g., "12 files · public API · normative spec (RFC 6874) · manifest"} · **Estimated wall-clock:** {Nm Ss}
+**Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
 **Reviewed:** {N} changed files{, or: unresolvable — <hint>}
 
 ## Findings
@@ -60,7 +60,7 @@ Per-sub-graph pass/fail summary when the coherence-graph lens ran. Each row repo
 
 ## --apply-safe summary
 
-_Present only when `--apply-safe` was used at Ultra tier._
+_Present only when `--apply-safe` was used._
 
 | Writer | Status | Targets |
 |--------|--------|---------|
@@ -70,4 +70,4 @@ _Present only when `--apply-safe` was used at Ultra tier._
 
 ---
 
-_Report-only by default. To fix: `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` or `/oneshot "<finding>"`. Opt-in `--apply-safe` (Ultra tier) writes manifest sync + failing tests with diff preview + per-file confirmation._
+_Report-only by default. To fix: `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` or `/oneshot "<finding>"`. Opt-in `--apply-safe` writes manifest sync + failing tests with diff preview + per-file confirmation._

@@ -1,10 +1,10 @@
 """Structural tests for `skills/code-ultrareview/templates/code-ultrareview.md`.
 
-Pins the section order, presence of mandatory header tokens (Tier + Tier
-rationale + Token estimate), the dual severity scheme columns in the
-Verified table, and the six sub-graphs in the Coherence-graph status
-table. The template is the wire format the synthesizer fills in — any
-drift here propagates to every report consumer.
+Pins the section order, presence of mandatory header tokens (Scope +
+Estimated wall-clock), the dual severity scheme columns in the Verified
+table, and the six sub-graphs in the Coherence-graph status table. The
+template is the wire format the synthesizer fills in — any drift here
+propagates to every report consumer.
 """
 
 from __future__ import annotations
@@ -77,21 +77,26 @@ class TestSectionOrder(unittest.TestCase):
 
 
 class TestHeaderTokens(unittest.TestCase):
-    def test_tier_in_header(self):
+    def test_scope_in_header(self):
         text = _read()
-        self.assertIn("**Tier:**", text)
+        self.assertIn("**Scope:**", text)
 
-    def test_tier_rationale_in_header(self):
+    def test_estimated_wall_clock_in_header(self):
         text = _read()
-        self.assertIn("Tier rationale:", text)
-
-    def test_token_estimate_in_header(self):
-        text = _read()
-        self.assertIn("Token estimate:", text)
+        self.assertIn("Estimated wall-clock:", text)
 
     def test_rules_baseline_in_header(self):
         text = _read()
         self.assertIn("Rules baseline:", text)
+
+    def test_no_legacy_tier_header_field(self):
+        # The old `**Tier:**` field is gone — only the Anthropic-severity
+        # `| Tier |` column inside the Verified findings table remains, and
+        # that column is verified by test_verified_table_has_tier_column.
+        text = _read()
+        self.assertNotIn("**Tier:**", text)
+        self.assertNotIn("Tier rationale:", text)
+        self.assertNotIn("Token estimate:", text)
 
 
 class TestFindingsSubSections(unittest.TestCase):

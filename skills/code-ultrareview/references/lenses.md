@@ -8,22 +8,18 @@ and the routing rules for sub-80 findings. Aggregation details live in
 ## Dispatch protocol
 
 Launch **read-only subagents in one message** (`Explore` type — read-only,
-fast, context-isolated). The tier (from the audit phase, or `-t` override)
-sets which subagents fire and which tier-additions they receive in their
-briefs.
-
-| Tier | Lens fan-out | Additions |
-|------|--------------|-----------|
-| Standard | 5 lenses in parallel | first pass only |
-| Deep | 5 lenses + spec-conformance + iteration | one re-pass on sub-80 findings; A1 spec fetch when the diff cites a normative spec |
-| Ultra | Deep + build/execute verification + property-fuzz | invoked by WS-5 — see `references/ultra-execution.md` |
+fast, context-isolated). The lens fan-out is unconditional: all five lenses
+run in parallel on every invocation, with A1 spec-claim triggering, iteration
+on sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis,
+and `--apply-safe` writers folded in as always-on behavior. The audit phase
+informs the report header (Scope + Estimated wall-clock); it does not gate
+dispatch.
 
 Each subagent receives:
 
 - the resolved `base`/`target` (or "dirty tree") — the subagent reconstructs the review set itself, read-only: clean tree → `git diff <base> <target>` (two-dot); dirty tree → `git diff HEAD` **and** every path from `git ls-files --others --exclude-standard`, each read in full. Never skip untracked — a new file is part of the session;
 - the rule-hierarchy file paths (repo `CLAUDE.md` chain, `.claude/rules/*.md`, `~/.claude/rules/*.md`);
-- the tier and tier-rationale (from `scripts/tier_router.py`);
-- its lens brief (below) plus tier-specific additions;
+- its lens brief (below);
 - the exclusion contract (below);
 - the confidence rubric (below);
 - the routing rule for sub-80 findings (no silent drop — see *Aggregation*).
@@ -53,7 +49,7 @@ is skipped (see *Graceful degradation*).
 - **Bug** — a logic error on a changed line: wrong condition, off-by-one, unhandled `null`/empty, mishandled error, race, resource leak.
 - **Drift** — code that no longer matches its own docstring, inline comment, README claim, or `CLAUDE.md` statement; or a change that diverges from an established sibling pattern in the same module without cause.
 
-**A1 — spec-claim triggering (Standard tier and above).** When the diff,
+**A1 — spec-claim triggering (always on).** When the diff,
 README, or `CLAUDE.md` cites a named normative spec (`RFC 6874`, `WHATWG`,
 `ISO/IEC 7816`, `OpenAPI`, etc. — same regex as `scripts/audit_signals.py`),
 the lens fetches the spec via `WebFetch`, quotes the governing clause
@@ -64,7 +60,7 @@ verifiable divergence scores **≥80** confidence — no longer scored as
 "doesn't survive light scrutiny" (postmortem A1 fix). Reference:
 `~/.claude/output/agent-skills/postmortem/postmortem-code-ultrareview.md`.
 
-**Deep tier addition.** Sub-80 bug/drift findings are re-passed with
+**Iteration on sub-80 findings (always on).** Sub-80 bug/drift findings are re-passed with
 `--iterate`: the subagent attempts a build (`npm test --no-coverage`,
 `pytest -x`, `cargo test`, or `go test` — auto-detected) on the changed
 file's nearest test neighbor. If the build confirms the bug, confidence

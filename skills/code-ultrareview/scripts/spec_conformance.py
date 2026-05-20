@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Spec-conformance lens — cache management.
 
-Owns the deterministic parts of the spec-conformance check at Ultra tier:
+Owns the deterministic parts of the spec-conformance check:
 cache directory layout, mtime-aware freshness policy, cache read/write,
 and the format of the unverified-fallback finding when fetch fails with
 no cache. `WebFetch` is the subagent's job — Python owns the cache.

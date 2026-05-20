@@ -1,4 +1,4 @@
-"""`--apply-safe` writers for the Ultra tier.
+"""`--apply-safe` writers (opt-in).
 
 Three writers, each gated by per-file confirmation:
     version_sync         — align version artifacts to most-recently-touched.

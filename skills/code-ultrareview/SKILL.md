@@ -1,8 +1,8 @@
 ---
 name: code-ultrareview
-description: In-session adaptive code review — audit-first three tiers (Standard / Deep / Ultra, never light), parallel lens subagents, coherence-graph lens for cross-artifact drift (README ↔ package.json ↔ marketplace ↔ About ↔ topics ↔ CHANGELOG ↔ git tag), and gated `--apply-safe` remediation at the Ultra tier. Report-only by default; defers security/performance/simplification to owning skills. Use before a commit or PR for a fresh-eyes pass calibrated to the diff's risk profile.
-when_to_use: User-invoked (via /code-ultrareview) at the end of a coding session, before a commit, or before opening a PR. The audit phase auto-calibrates tier (Standard floor; Deep adds spec-conformance + iteration; Ultra adds build + execute + property-fuzz + `--apply-safe` writers); user can override with `-t`. Invoke when you'd say "review my changes", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance", "does this follow CLAUDE.md / the rules". NOT a security audit (use /security-review); NOT performance or simplification (use /simplify); NOT Anthropic's remote billed command (use /ultrareview for that — distinct namespace, distinct posture). Report-only by default; opt-in `--apply-safe` at Ultra tier writes manifest-version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — never production logic.
-argument-hint: "[-t auto|standard|deep|ultra] [-b <ref>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
+description: In-session fresh-eyes code review at full strength — five parallel lens subagents (rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift across README ↔ package.json ↔ marketplace ↔ About ↔ topics ↔ CHANGELOG ↔ git tag), iteration on sub-80 findings with build verification, property-fuzz harness synthesis, gated `--apply-safe` writers. Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's built-in `/ultrareview` remote billed command — same lens family, in-session, on your subscription.
+when_to_use: User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers. The audit phase reads diff signals (LOC, public-API touches, normative-spec mentions, manifest delta, security paths) and surfaces a Scope summary + estimated wall-clock in the report header. Invoke when you'd say "review my changes", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance", "does this follow the rules". NOT a security audit (use /security-review); NOT performance / simplification (use /simplify); NOT Anthropic's remote billed command (use /ultrareview). Report-only by default; opt-in `--apply-safe` writes manifest-version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — never production logic.
+argument-hint: "[-b <ref>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
 model: opus
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
@@ -20,7 +20,7 @@ metadata:
 
 # Code ultrareview
 
-> **In-session adaptive code review.** Audit-first calibration picks Standard / Deep / Ultra (never light). Distinct from Anthropic's built-in `/ultrareview` remote command — different namespace (skill vs built-in), different posture (in-session on your subscription vs remote sandbox + billed).
+> **In-session fresh-eyes code review at full strength.** Always runs the full lens fan-out — no tiers, no calibration choice. Distinct from Anthropic's built-in `/ultrareview` remote command — different namespace (skill vs built-in), different posture (in-session on your subscription vs remote sandbox + billed).
 
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
@@ -39,28 +39,26 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 
 ## Objective
 
-A fresh-eyes pass over what changed, calibrated to the diff's risk profile. An audit phase extracts signals from the diff (LOC, public-API touch, normative-spec claims, manifest delta, test-coverage delta, pre-1.0 proximity, security surface) and routes to one of three tiers — Standard, Deep, or Ultra. Standard runs five lens subagents in parallel (`rules`, `bugs-drift`, `docs-version`, `tests-blindspots`, `coherence-graph`); Deep adds spec-conformance plus iteration on sub-80 findings; Ultra adds build + execute verification, property-fuzz harness synthesis from spec grammar, and `--apply-safe` writers. Findings are confidence-scored 0–100 and surfaced — sub-80 are routed to a deeper pass rather than silent-dropped. The skill writes no code by default and owns no checklist of its own — every criterion is read at runtime from the project. Anything outside its lane (security, performance, simplification) becomes a one-line pointer to the skill that owns it, never a finding.
+A fresh-eyes pass over what changed, at full strength every time. The audit phase reads deterministic signals from the diff (LOC, public-API touch, normative-spec claims, manifest delta, test-coverage delta, pre-1.0 proximity, security surface) and surfaces a Scope summary + estimated wall-clock in the report header — informational context only, no tier routing. Five lens subagents (`rules`, `bugs-drift`, `docs-version`, `tests-blindspots`, `coherence-graph`) run in parallel; sub-80 findings re-pass with build verification when feasible; spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI); property-fuzz harness synthesis from spec grammar when `fast-check` / `hypothesis` is present; opt-in `--apply-safe` writers gate write semantics. Findings are confidence-scored 0–100 and surfaced — sub-80 are routed to the Unverified sub-section rather than silent-dropped. The skill writes no code by default and owns no checklist of its own — every criterion is read at runtime from the project. Anything outside its lane (security, performance, simplification) becomes a one-line pointer to the skill that owns it, never a finding.
 
 ## Parameters
 
 | Flag | Behavior |
 |------|----------|
-| `-t auto\|standard\|deep\|ultra` | Tier selection. `auto` (default) runs the audit phase to pick; explicit values override |
 | `-s` | Save the report to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` (global; `{slug}` = kebab of the branch or a short description, ≤5 words) |
 | `-S` | Force no-save (override an ambient save mode) |
 | `-b <ref>` | Override the review base (skip auto-detection) |
-| `--apply-safe` | Ultra tier only: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation prompt before any write. Never modifies production logic |
+| `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation prompt before any write. Never modifies production logic |
 | `--include-prose` | Coherence-graph lens compares README freeform paragraphs as well (default: structured fields only — `package.json`, `marketplace.json`, SKILL.md frontmatter, GitHub About, topics) |
 | `--remote` | Reserved for phase-2 remote-sandbox escalation; current MVP is in-session |
 
 `{slug}` = kebab of the branch name or a short description (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths. Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
 
 ```bash
-/code-ultrareview                              # auto tier from audit phase, report
+/code-ultrareview                              # full review, print report
 /code-ultrareview -s                           # save the report for /apex -f
 /code-ultrareview -b origin/main               # review HEAD against an explicit base
-/code-ultrareview -t ultra                     # force Ultra tier
-/code-ultrareview -t ultra --apply-safe        # Ultra + low-risk fixes (gated)
+/code-ultrareview --apply-safe                 # full review + gated low-risk fixes
 /code-ultrareview --include-prose              # also compare README freeform prose
 ```
 
@@ -103,17 +101,17 @@ These five keys are canonical — the report table, the evals, and the pipeline 
 Phase 1 — AUDIT  (always-on, ~30–60s, 1 Haiku subagent)
   signals: LOC, files, public-API touched, spec claims, manifest delta,
            pre-1.0 proximity, test-coverage delta, security surface
-  output:  tier (standard | deep | ultra) + rationale + token estimate
-  user can override with -t
+  output:  Scope summary + estimated wall-clock for the report header
+           (deterministic context — no tier routing, no gate)
 
-Phase 2 — DISPATCH  (parallel lens subagents per tier)
-  Standard:  rules + bugs-drift (with A1 spec fetch) + docs-version
-             + tests-blindspots + coherence-graph (5 sub-graphs full
-             + spec-conformance stub)
-  Deep:      Standard + coherence-graph spec-conformance upgraded
-             to full fetch + iteration on sub-80 findings
-  Ultra:     Deep + property-fuzz harness + build/execute
-             + --apply-safe writers
+Phase 2 — DISPATCH  (5 lens subagents in parallel + execution layer)
+  Lenses:    rules + bugs-drift (with A1 spec fetch) + docs-version
+             + tests-blindspots + coherence-graph (6 sub-graphs)
+  Iteration: sub-80 findings re-passed with build verification (1/finding)
+  Spec fetch: WebFetch + 7-day ETag cache; quotes governing clause
+  Fuzz:      harness synthesis when fast-check / hypothesis present
+  Writers:   opt-in via --apply-safe — version_sync, description_sync,
+             failing_test_writer
 
 Phase 3 — AGGREGATION  (1 synthesizer subagent)
   dedupe by (location, finding-key); severity tiers
@@ -121,13 +119,13 @@ Phase 3 — AGGREGATION  (1 synthesizer subagent)
   "unverified — recommend Deep pass" (never silent-dropped — A2)
 ```
 
-Audit-phase dispatch, JSON signal schema, weight table, and tier thresholds live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Ultra-tier build / fuzz / `--apply-safe` details live in `references/ultra-execution.md` — read before dispatching Ultra. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
+Audit-phase signal schema and report-header formatting live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Build / fuzz / `--apply-safe` details live in `references/ultra-execution.md`. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
 
-1. Resolve the target (above); read the rule hierarchy; run the audit phase to pick the tier (unless `-t` is set). Ultra confirms via `tier_router.py --gate` unless `--apply-safe` or `-y` is set.
+1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals and format the Scope + Estimated wall-clock header.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
 3. Aggregate findings via `scripts/aggregation.py`; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed to the report's Unverified sub-section (never silent-dropped — postmortem A2).
-4. Deep tier: re-pass sub-80 findings with build verification (one iteration per finding). Ultra tier: synthesize a property-fuzz harness when `fast-check` / `hypothesis` is present, run the canonical test command from `build_detect.py`, feed the verdict into Deep iteration.
-5. Ultra + `--apply-safe`: invoke the three writers (`version_sync`, `description_sync` with full-agreement guard, `failing_test_writer`) — diff preview + per-file confirmation prompt before any write.
+4. Re-pass sub-80 findings with build verification (one iteration per finding); synthesize a property-fuzz harness when `fast-check` / `hypothesis` is present, run the canonical test command from `build_detect.py`, feed the verdict into the iteration phase.
+5. With `--apply-safe`: invoke the three writers (`version_sync`, `description_sync` with full-agreement guard, `failing_test_writer`) — diff preview + per-file confirmation prompt before any write.
 6. Emit the report from `templates/code-ultrareview.md`. Save to the `-s` path when set, and report its fully-expanded absolute path to the user (no tilde, no magic).
 
 ## Deferral spine
@@ -136,14 +134,14 @@ Out-of-lane findings are never reported as findings — emit a single pointer li
 
 - Security → `/security-review`
 - Performance / optimization / simplification → `/simplify`
-- Cases where in-session Ultra is inadequate (need remote multi-agent fleet with build-and-run) → Anthropic's `/ultrareview` (distinct from this skill; remote sandbox, billed per run)
+- Cases where the in-session execution is inadequate (need remote multi-agent fleet with build-and-run) → Anthropic's `/ultrareview` (distinct from this skill; remote sandbox, billed per run)
 - Reliance on possibly-stale library/API knowledge → `/find-docs`
 
 ## Graceful degradation
 
 No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state `Lens 1 (rules): skipped — no rules baseline found` in the report header, run the other four. The skill stays useful on any repo.
 
-Coherence-graph lens degrades sub-graph by sub-graph: if `gh` CLI is unavailable, the description / topics sub-graphs are skipped and the header notes the skip; if `WebFetch` is unavailable for the spec-conformance sub-graph at Deep/Ultra, the finding surfaces as `[unverified — needs network]` rather than dropping.
+Coherence-graph lens degrades sub-graph by sub-graph: if `gh` CLI is unavailable, the description / topics sub-graphs are skipped and the header notes the skip; if `WebFetch` is unavailable for the spec-conformance sub-graph, the finding surfaces as `[unverified — needs network]` rather than dropping.
 
 ## Report-only by default
 
@@ -152,7 +150,7 @@ This skill writes no code by default. After the report, bridge to the fix pass:
 - `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix workstream (requires `-s`; pass the absolute path the report printed).
 - `/oneshot "<finding>"` — single quick fix (manual; `/oneshot` takes a description, not a file).
 
-Opt-in `--apply-safe` at Ultra tier writes only:
+Opt-in `--apply-safe` writes only:
 - Manifest version sync (mechanical, idempotent — aligns all structured version sources to the most-recently-touched value).
 - Structured-field description sync (full-agreement guard — refuses unless every present source agrees on the new value).
 - One focused failing test per confirmed bug (additive — never modifies existing tests).

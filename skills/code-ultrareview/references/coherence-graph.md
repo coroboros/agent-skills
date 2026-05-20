@@ -112,7 +112,7 @@ one finding (severity `Medium`, confidence 80).
 The full spec-conformance lens (`WebFetch` + cache + grammar inference) lands
 in WS-5. WS-3 ships an entrypoint stub: it detects normative-spec mentions in
 diff/README/`CLAUDE.md` using the WS-2 regex and emits a deferred placeholder
-finding (severity `Low`, confidence 50, recommendation pointing to Deep tier).
+finding (severity `Low`, confidence 50, recommendation pointing to the spec-conformance iteration pass).
 
 ## Finding schema
 

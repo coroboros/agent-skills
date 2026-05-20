@@ -1,11 +1,11 @@
 # Remote-escalation design (phase 2)
 
-`--remote` is reserved for an MVP-next iteration. In-session Ultra tier
+`--remote` is reserved for an MVP-next iteration. In-session execution
 covers the current scope: build verification, property-fuzz harness,
 spec-conformance fetch, `--apply-safe` writers — all running on the
 user's Claude Code subscription. Phase 2 escalates to a remote sandbox
-when in-session Ultra runs prove cost-inadequate vs Anthropic's
-Code Sandbox + multi-agent fleet.
+when in-session runs prove cost-inadequate vs Anthropic's Code Sandbox +
+multi-agent fleet.
 
 ## Why phase 2 exists
 
@@ -13,14 +13,14 @@ In-session subagents share the orchestrator's working tree and shell
 context — fast for read-only review, fine for `--apply-safe`'s additive
 writers, but limited for:
 
-- Long-running test suites (Ultra's build step is bounded at 120s).
+- Long-running test suites (the build step is bounded at 120s).
 - Untrusted code execution (`/security-review` overlap when malicious diffs land).
 - Multi-agent fan-out beyond what one Claude Code session can hold without context pressure.
 - Property-fuzz runs that need bigger budgets than in-session timeouts allow.
 
 Anthropic's `/ultrareview` already covers this surface — billed,
 remote, 3-per-month rate-limited. `--remote` is the bridge: same skill,
-same flags, but the lens fan-out and Ultra execution run in Anthropic's
+same flags, but the lens fan-out and build/execute run in Anthropic's
 Code Sandbox via the planned MCP integration.
 
 ## Planned architecture
@@ -34,7 +34,7 @@ user → /code-ultrareview --remote
                   ↓
                   Sandbox starts a fresh ephemeral repo clone
                   ↓
-                  Standard + Deep + Ultra lenses fan out in parallel
+                  Lens fan-out + build/execute + writers run in parallel
                   ↓
                   Results stream back as JSON; aggregation runs locally
                   ↓
@@ -63,17 +63,17 @@ user → /code-ultrareview --remote
 
 Phase 2 prioritizes when the eval set (post-launch) shows:
 
-- Ultra in-session lags Anthropic remote by >20% on finding-rate or accuracy.
-- Users report Ultra's 120s build timeout consistently insufficient.
+- In-session execution lags Anthropic remote by >20% on finding-rate or accuracy.
+- Users report the 120s build timeout consistently insufficient.
 - Multi-agent fan-out hits the in-session context ceiling.
 
-Until then, in-session Ultra is the default and `--remote` redirects.
+Until then, in-session execution is the default and `--remote` redirects.
 
 ## Reference
 
 - Anthropic upstream `/ultrareview` docs: `code.claude.com/docs/en/ultrareview` (built-in remote review semantics this skill distinguishes itself from)
 - Managed Code Review: `code.claude.com/docs/en/code-review` (sibling reference for the remote-sandbox posture and the Important / Nit / Pre-existing severity tiers)
-- `references/ultra-execution.md` (the in-session Ultra design phase 2 supersedes for remote runs)
+- `references/ultra-execution.md` (the in-session execution design phase 2 supersedes for remote runs)
 
 ## Current behavior
 

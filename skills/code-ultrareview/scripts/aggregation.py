@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Aggregation primitives for code-ultrareview.
 
-Composes A2 routing (no silent drop), Deep-tier iteration, cross-lens
+Composes A2 routing (no silent drop), sub-80 iteration, cross-lens
 deduplication, severity-tier assignment, and canonical ordering. Pure
 stdlib; called from the dispatcher orchestrator after lens subagents
 return their findings.

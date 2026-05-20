@@ -1,9 +1,9 @@
 """Spec-conformance sub-graph entrypoint stub.
 
 Detects normative-spec mentions in README/CLAUDE.md and emits a deferred
-placeholder finding pointing to the Deep tier. Full implementation (WebFetch
-+ 7-day ETag cache + grammar inference) lands in WS-5 — see
-`references/ultra-execution.md`.
+placeholder finding. Full spec-conformance verification (WebFetch + 7-day
+ETag cache + grammar inference) runs in the always-on spec-conformance
+pass — see `references/ultra-execution.md`.
 """
 
 from __future__ import annotations
@@ -46,8 +46,8 @@ def run(repo: Path, ignore: IgnoreFile, **_) -> list[Finding]:
         location="(repo)",
         finding=(
             f"Normative spec mention(s) detected: {', '.join(surfaced)}. "
-            "Spec-conformance verification (fetch + quote + diff) requires the Deep tier."
+            "Spec-conformance verification (fetch + quote + diff) runs in the dedicated spec-conformance pass."
         ),
-        recommendation="Re-run with `-t deep` (or higher) to fetch the spec and verify conformance.",
+        recommendation="The spec-conformance pass fetches the spec, quotes the governing clause, and diffs the code against it.",
         confidence=50,
     )]

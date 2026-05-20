@@ -14,8 +14,8 @@ falls through to the regular in-session flow.
 import sys
 
 MESSAGE = (
-    "--remote is reserved for phase-2 escalation. In-session Ultra "
-    "tier is the current MVP. See references/remote-escalation-design.md "
+    "--remote is reserved for phase-2 escalation. In-session execution "
+    "is the current MVP. See references/remote-escalation-design.md "
     "for the planned remote-sandbox flow."
 )
 

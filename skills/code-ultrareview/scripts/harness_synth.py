@@ -4,8 +4,8 @@
 Detects `fast-check` (JS/TS) or `hypothesis` (Python) in repo manifests
 and emits a harness skeleton with TODO blocks where the user fills in
 the property assertions. Returns `{"skipped": True, "reason": "..."}`
-when neither library is present — Ultra tier reports the skip in the
-final report, never silently.
+when neither library is present — the execution phase reports the skip
+in the final report, never silently.
 
 The skeleton is intentionally minimal. MVP target: harness compiles and
 imports successfully; the user writes the actual property. Spec-grammar

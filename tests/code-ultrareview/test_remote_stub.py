@@ -25,7 +25,7 @@ class TestRemoteStub(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 0)
         self.assertIn("phase-2", result.stdout)
-        self.assertIn("In-session Ultra", result.stdout)
+        self.assertIn("In-session execution", result.stdout)
         self.assertIn("remote-escalation-design.md", result.stdout)
 
 
