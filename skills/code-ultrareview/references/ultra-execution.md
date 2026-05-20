@@ -132,7 +132,7 @@ Detail of the orchestrator pass:
 
 1. Run audit (`audit_signals.py` → `audit_summary.py`) → report-header context.
 2. Build detection (`build_detect.py`). Report tool + availability.
-3. Lens fan-out (5 lenses in parallel; see `references/lenses.md`).
+3. Lens fan-out (6 lenses in parallel; see `references/lenses.md`).
 4. Spec-conformance fetch + iteration on flagged specs.
 5. Property-fuzz harness synthesis when a property lib is present.
 6. Run the canonical test command (`build_detect`'s `test_command`); pipe verdict into the sub-80 iteration phase.

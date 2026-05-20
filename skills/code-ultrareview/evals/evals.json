@@ -1,12 +1,12 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the five lenses with their operational definitions, the coherence-graph lens across six sub-graphs, the derivation lens for code↔planning-artifact reconciliation, the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the six lenses with their operational definitions, the coherence-graph lens's six sub-graphs, the derivation lens's classification taxonomy (GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT), the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
   "evals": [
     {
       "id": 1,
       "name": "produces-canonical-report-shape",
       "prompt": "/code-ultrareview review the changes on this branch",
-      "expected_output": "A report matching templates/code-ultrareview.md: header with Base, Target, Rule, Tier, Tier rationale, Token estimate, Rules baseline status; ## Findings with ### Verified and ### Unverified — recommend Deep pass sub-sections; ## Deferred to sibling skills; ## What looks good; ## Coherence-graph status; ## Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
+      "expected_output": "A report matching templates/code-ultrareview.md: header with Base, Target, Rule, Scope, Estimated wall-clock, Rules baseline status; ## Findings with ### Verified and ### Unverified — recommend Deep pass sub-sections; ## Deferred to sibling skills; ## What looks good; ## Coherence-graph status; ## Derivation coverage (when --reconcile is used); ## Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
       "files": []
     },
     {
