@@ -1,0 +1,3 @@
+paths:
+  ignore_paths:
+    - spec.md

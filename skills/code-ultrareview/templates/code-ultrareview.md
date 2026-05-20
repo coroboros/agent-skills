@@ -54,6 +54,23 @@ Per-sub-graph pass/fail summary when the coherence-graph lens ran. Each row repo
 | example | pass · fail (N) · skipped — <reason> |
 | spec-conformance | pass · fail (N) · skipped — <reason> |
 
+## Derivation coverage
+
+_Present only when the derivation lens ran (`--reconcile` resolved to non-empty input). Reports artifact coverage + classification counts._
+
+| Field | Value |
+|-------|-------|
+| Artifacts compared | {N} ({list with freshness — e.g. `brainstorm-foo.md (2d)`, `spec-bar.md (5d)`}) |
+| AC coverage | {verified}/{total} acceptance criteria |
+| GAP | {N} ({N high-confidence}) |
+| SCOPE-ADD | {N} |
+| DECISION-OVERRIDE | {N} |
+| CONSISTENT | {N} |
+
+**Notable callouts:** {top 1–3 highest-severity findings, one line each}
+
+_When freshness > 90 days for an artifact, only the row above shows it — no per-claim findings emit. Per-repo `.derivation-ignore` overrides supply finer control._
+
 ## Verdict
 
 **{Ship | Fix-then-ship | Needs work}** — {one-line rationale}

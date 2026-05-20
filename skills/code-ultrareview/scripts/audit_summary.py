@@ -27,6 +27,8 @@ SECURITY_PATHS_SECONDS = 60
 BUILD_BASE_SECONDS = 60
 BUILD_PER_LOC = 0.3
 PROPERTY_FUZZ_SECONDS = 120
+DERIVATION_BASE_SECONDS = 30
+DERIVATION_PER_ARTIFACT_SECONDS = 15
 
 
 def _scope_tokens(signals: dict) -> list:
@@ -47,6 +49,12 @@ def _scope_tokens(signals: dict) -> list:
         tokens.append("security paths")
     if signals.get("pre_1_0_or_freeze"):
         tokens.append("pre-1.0/freeze")
+    breadth = signals.get("planning_artifact_breadth") or [0, -1]
+    if isinstance(breadth, (list, tuple)) and len(breadth) >= 1 and int(breadth[0]) > 0:
+        count = int(breadth[0])
+        days = int(breadth[1]) if len(breadth) > 1 else -1
+        freshness = f"{days}d fresh" if days >= 0 else "freshness unknown"
+        tokens.append(f"{count} planning artifact{'s' if count != 1 else ''} ({freshness})")
     return tokens
 
 
@@ -80,6 +88,13 @@ def _contributions(signals: dict, build_tool_available: bool,
         items.append((f"build/execute ({loc_changed} LOC)", build_secs))
     if property_fuzz_available:
         items.append(("property-fuzz", PROPERTY_FUZZ_SECONDS))
+    breadth = signals.get("planning_artifact_breadth") or [0, -1]
+    if isinstance(breadth, (list, tuple)) and len(breadth) >= 1 and int(breadth[0]) > 0:
+        count = int(breadth[0])
+        items.append((
+            f"derivation lens ({count} planning artifact{'s' if count != 1 else ''})",
+            DERIVATION_BASE_SECONDS + count * DERIVATION_PER_ARTIFACT_SECONDS,
+        ))
     return items
 
 

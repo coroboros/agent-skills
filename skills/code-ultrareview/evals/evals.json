@@ -1,6 +1,6 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the five lenses with their operational definitions, the coherence-graph lens across six sub-graphs, the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the five lenses with their operational definitions, the coherence-graph lens across six sub-graphs, the derivation lens for code↔planning-artifact reconciliation, the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
   "evals": [
     {
       "id": 1,
@@ -175,6 +175,55 @@
       "name": "ultra-apply-safe-description-sync-refuses-partial-agreement",
       "prompt": "/code-ultrareview -t ultra --apply-safe (package.json.description = A, marketplace.json.metadata.description = B)",
       "expected_output": "description_sync refuses with status `refusing: partial-agreement` — the full-agreement guard requires every present source to agree on the new value before writing. The risk #3 mitigation prevents auto-overwriting legitimate divergence; user allowlists via .coherence-ignore when intentional.",
+      "files": []
+    },
+    {
+      "id": 30,
+      "name": "derivation-no-input-skips-lens",
+      "prompt": "/code-ultrareview (without --reconcile; no planning artifacts auto-detected)",
+      "expected_output": "The derivation lens does not run. Phase 2 dispatches the 5 always-on lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph). The report omits the `## Derivation coverage` section entirely — no row, no empty placeholder. Audit signals still report `planning_artifact_breadth: [0, -1]` in the header rationale.",
+      "files": []
+    },
+    {
+      "id": 31,
+      "name": "derivation-auto-detects-conventional-paths",
+      "prompt": "/code-ultrareview --reconcile @auto (with brainstorm + spec + apex plan + PR body available)",
+      "expected_output": "The derivation lens auto-detects artifacts at ~/.claude/output/{project}/{brainstorm,spec,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
+      "files": []
+    },
+    {
+      "id": 32,
+      "name": "derivation-gap-detected",
+      "prompt": "/code-ultrareview --reconcile <spec-with-AC-not-in-diff>",
+      "expected_output": "An acceptance criterion in the spec has no matching code change in the diff. The lens emits a finding with `classification: GAP`, severity Medium (or High when the AC is numbered), confidence ≥80 once the subagent verifies. The finding's `recommendation` field describes what's missing. The `## Derivation coverage` section counts the gap in its GAP column.",
+      "files": []
+    },
+    {
+      "id": 33,
+      "name": "derivation-scope-add-flagged",
+      "prompt": "/code-ultrareview --reconcile <spec-silent-on-feature-in-diff>",
+      "expected_output": "The diff implements a feature the planning artifact does not mention. The lens emits a finding with `classification: SCOPE-ADD`, severity Low (default). Surfaced for reviewer attention; never blocks. Reviewer decides whether the addition is intentional discovery or scope creep — the lens does not judge.",
+      "files": []
+    },
+    {
+      "id": 34,
+      "name": "derivation-decision-override-surfaced",
+      "prompt": "/code-ultrareview --reconcile <brainstorm-decided-X-code-does-Y>",
+      "expected_output": "The brainstorm's 'Decisions resolved' block names decision X; the diff implements Y instead. The lens emits a finding with `classification: DECISION-OVERRIDE`, severity Medium-High depending on artifact authority (brainstorm < spec < explicit AC). The finding's `recommendation` cites the resolved decision verbatim and asks the reviewer to confirm or override-in-doc.",
+      "files": []
+    },
+    {
+      "id": 35,
+      "name": "derivation-stale-artifact-summary-only",
+      "prompt": "/code-ultrareview --reconcile <spec-from-100-days-ago>",
+      "expected_output": "Artifact freshness > 90 days. The lens emits no per-claim findings — only the artifact entry shows in the `## Derivation coverage` table (with freshness `100d` or similar). Severity caps for 31–90 day artifacts: classification semantics unchanged, but severity drops to Low regardless. `--strict` flag disables both caps.",
+      "files": []
+    },
+    {
+      "id": 36,
+      "name": "derivation-allowlist-suppresses",
+      "prompt": "/code-ultrareview --reconcile <spec> (with .derivation-ignore listing the matching path or claim text)",
+      "expected_output": "A `.derivation-ignore` entry under `paths.ignore_paths`, `paths.ignore_kinds`, or `claims.ignore_text` suppresses the matching artifact or claim. The lens emits no finding for the allowlisted item. Other artifacts/claims still produce findings normally. Parser grammar mirrors `.coherence-ignore`.",
       "files": []
     }
   ]

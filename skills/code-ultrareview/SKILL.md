@@ -1,8 +1,8 @@
 ---
 name: code-ultrareview
-description: In-session fresh-eyes code review at full strength — five parallel lens subagents (rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift across README ↔ package.json ↔ marketplace ↔ About ↔ topics ↔ CHANGELOG ↔ git tag), iteration on sub-80 findings with build verification, property-fuzz harness synthesis, gated `--apply-safe` writers. Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's built-in `/ultrareview` remote billed command — same lens family, in-session, on your subscription.
+description: In-session fresh-eyes code review at full strength — six parallel lens subagents (rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation via `--reconcile`), iteration on sub-80 findings with build verification, property-fuzz harness synthesis, gated `--apply-safe` writers. Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's built-in `/ultrareview` remote billed command — same lens family, in-session, on your subscription.
 when_to_use: User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers. The audit phase reads diff signals (LOC, public-API touches, normative-spec mentions, manifest delta, security paths) and surfaces a Scope summary + estimated wall-clock in the report header. Invoke when you'd say "review my changes", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance", "does this follow the rules". NOT a security audit (use /security-review); NOT performance / simplification (use /simplify); NOT Anthropic's remote billed command (use /ultrareview). Report-only by default; opt-in `--apply-safe` writes manifest-version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — never production logic.
-argument-hint: "[-b <ref>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
+argument-hint: "[-b <ref>] [--reconcile <input>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
 model: opus
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
@@ -48,6 +48,7 @@ A fresh-eyes pass over what changed, at full strength every time. The audit phas
 | `-s` | Save the report to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` (global; `{slug}` = kebab of the branch or a short description, ≤5 words) |
 | `-S` | Force no-save (override an ambient save mode) |
 | `-b <ref>` | Override the review base (skip auto-detection) |
+| `--reconcile <input>` | Activate the derivation lens. `<input>` may be `@auto` (auto-detect brainstorm + spec + apex plan + PR body), `@pr`, an explicit path or directory of `.md` files, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL. Comma-separate multiple inputs. Findings classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT with freshness-capped severity |
 | `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation prompt before any write. Never modifies production logic |
 | `--include-prose` | Coherence-graph lens compares README freeform paragraphs as well (default: structured fields only — `package.json`, `marketplace.json`, SKILL.md frontmatter, GitHub About, topics) |
 | `--remote` | Reserved for phase-2 remote-sandbox escalation; current MVP is in-session |
@@ -58,6 +59,8 @@ A fresh-eyes pass over what changed, at full strength every time. The audit phas
 /code-ultrareview                              # full review, print report
 /code-ultrareview -s                           # save the report for /apex -f
 /code-ultrareview -b origin/main               # review HEAD against an explicit base
+/code-ultrareview --reconcile @auto            # add derivation lens with auto-detected planning artifacts
+/code-ultrareview --reconcile @pr,gh:issue:owner/repo#42  # PR body + a specific issue
 /code-ultrareview --apply-safe                 # full review + gated low-risk fixes
 /code-ultrareview --include-prose              # also compare README freeform prose
 ```
@@ -83,7 +86,7 @@ The **rule hierarchy** every lens reviews against, read fresh each run:
 - `.claude/rules/*.md` (project)
 - `~/.claude/rules/*.md` (global)
 
-## The five lenses
+## The six lenses
 
 One read-only subagent per lens. Operational definitions, subagent briefs, and the confidence rubric live in `references/lenses.md` — read it before dispatching.
 
@@ -92,8 +95,9 @@ One read-only subagent per lens. Operational definitions, subagent briefs, and t
 3. **Docs + version** (key `docs-version`) — user-visible behavior changed without a doc/version update.
 4. **Tests + blind spots** (key `tests-blindspots`) — missing tests the convention implies, tests that can't fail, unstated assumptions.
 5. **Coherence-graph** (key `coherence-graph`) — cross-artifact drift across six sub-graphs: description, version, capability, cross-reference, example, spec-conformance. Default to structured fields only; `--include-prose` extends to README freeform. Sub-graph briefs and the `.coherence-ignore` allowlist format live in `references/coherence-graph.md`.
+6. **Derivation** (key `derivation`) — reconciles planning artifacts (brainstorm, spec, apex plan, PR body, issue body) against the diff. Activates on `--reconcile <input>`. Classifies each claim as GAP (planning said X, code missing), SCOPE-ADD (code has X, planning silent), DECISION-OVERRIDE (planning resolved X, code does Y), or CONSISTENT. Severity capped by artifact freshness (>30d → Low; >90d → coverage-summary only). Per-repo `.derivation-ignore` allowlist. Brief, classification taxonomy, and auto-detection set live in `references/derivation.md`.
 
-These five keys are canonical — the report table, the evals, and the pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
+These six keys are canonical — the report table, the evals, and the pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
 
 ## How it runs
 
@@ -104,9 +108,10 @@ Phase 1 — AUDIT  (always-on, ~30–60s, 1 Haiku subagent)
   output:  Scope summary + estimated wall-clock for the report header
            (deterministic context — no tier routing, no gate)
 
-Phase 2 — DISPATCH  (5 lens subagents in parallel + execution layer)
+Phase 2 — DISPATCH  (5 or 6 lens subagents in parallel + execution layer)
   Lenses:    rules + bugs-drift (with A1 spec fetch) + docs-version
              + tests-blindspots + coherence-graph (6 sub-graphs)
+             + derivation (when --reconcile resolves to non-empty input)
   Iteration: sub-80 findings re-passed with build verification (1/finding)
   Spec fetch: WebFetch + 7-day ETag cache; quotes governing clause
   Fuzz:      harness synthesis when fast-check / hypothesis present
@@ -119,7 +124,7 @@ Phase 3 — AGGREGATION  (1 synthesizer subagent)
   "unverified — recommend Deep pass" (never silent-dropped — A2)
 ```
 
-Audit-phase signal schema and report-header formatting live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Build / fuzz / `--apply-safe` details live in `references/ultra-execution.md`. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
+Audit-phase signal schema and report-header formatting live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Derivation lens — classification taxonomy, auto-detection set, `.derivation-ignore` format, interactive launch prompt — lives in `references/derivation.md`. Build / fuzz / `--apply-safe` details live in `references/ultra-execution.md`. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
 
 1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals and format the Scope + Estimated wall-clock header.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.

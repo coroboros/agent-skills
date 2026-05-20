@@ -14,9 +14,11 @@ Usage:
 
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 SPEC_REGEX = re.compile(
@@ -174,10 +176,74 @@ def detect_security_paths(files: list[str]) -> bool:
     return any(SECURITY_PATH_REGEX.search(f) for f in files)
 
 
+_APEX_TASK_RE = re.compile(r"^\d+-")
+
+
+def _project_name(repo: Path) -> str:
+    name = repo.name.lower()
+    return re.sub(r"[^a-z0-9]+", "-", name).strip("-") or "unnamed"
+
+
+def detect_planning_artifacts(repo: Path) -> tuple[int, int]:
+    """Count planning artifacts in the conventional set + min freshness days.
+
+    Mirrors derivation's @auto detection at a lighter weight (mtime-based
+    freshness, no `gh pr view` call — the audit phase stays offline).
+    Returns `(count, min_freshness_days)`. `(0, -1)` when none found.
+    """
+    home_str = os.environ.get("HOME") or ""
+    home = Path(home_str).expanduser() if home_str else Path()
+    project = _project_name(repo)
+    output_root = home / ".claude" / "output" / project
+
+    candidates: list[Path] = []
+
+    bd = output_root / "brainstorm"
+    if bd.is_dir():
+        candidates.extend(p for p in bd.glob("brainstorm-*.md") if p.is_file())
+
+    sd = output_root / "spec"
+    if sd.is_dir():
+        candidates.extend(p for p in sd.glob("spec-*.md") if p.is_file())
+
+    ad = output_root / "apex"
+    if ad.is_dir():
+        task_dirs = sorted(
+            [d for d in ad.iterdir() if d.is_dir() and _APEX_TASK_RE.match(d.name)],
+            reverse=True,
+        )
+        if task_dirs:
+            plan = task_dirs[0] / "02-plan.md"
+            if plan.is_file():
+                candidates.append(plan)
+
+    for sub in ("proposals", "design", "rfcs", "adr"):
+        d = repo / "docs" / sub
+        if d.is_dir():
+            candidates.extend(p for p in d.glob("*.md") if p.is_file())
+
+    if not candidates:
+        return (0, -1)
+
+    now = time.time()
+    ages: list[int] = []
+    for p in candidates:
+        try:
+            ts = os.path.getmtime(p)
+        except OSError:
+            continue
+        ages.append(max(0, int((now - ts) // 86400)))
+
+    if not ages:
+        return (len(candidates), -1)
+    return (len(candidates), min(ages))
+
+
 def audit(repo: Path, base: str, target: str) -> dict:
     loc, files, added_per_file = diff_numstat(repo, base, target)
     content = diff_content(repo, base, target)
     spec_found, spec_list = detect_normative_spec(repo, content)
+    artifact_count, artifact_min_freshness = detect_planning_artifacts(repo)
     return {
         "loc_changed": loc,
         "files_touched": len(files),
@@ -189,6 +255,7 @@ def audit(repo: Path, base: str, target: str) -> dict:
         "pre_1_0_or_freeze": detect_pre_1_0_or_freeze(repo),
         "test_coverage_delta": compute_test_coverage_delta(files, added_per_file),
         "security_sensitive_paths": detect_security_paths(files),
+        "planning_artifact_breadth": [artifact_count, artifact_min_freshness],
     }
 
 
