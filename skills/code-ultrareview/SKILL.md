@@ -113,6 +113,8 @@ Phase 3 — AGGREGATION  (1 synthesizer subagent)
   "unverified — recommend Deep pass" (never silent-dropped — A2)
 ```
 
+Audit-phase dispatch, JSON signal schema, weight table, and tier thresholds live in `references/audit-phase.md` — read before invoking. Lens briefs live in `references/lenses.md`.
+
 1. Resolve the target (above); read the rule hierarchy; run the audit phase to pick the tier (unless `-t` is set).
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
 3. Aggregate findings; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed (not dropped) — per A2 in the postmortem.
