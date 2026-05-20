@@ -213,6 +213,32 @@ class TestNormalizers(unittest.TestCase):
         self.assertEqual(_common.normalize_version("V1.2.3"), "1.2.3")
         self.assertEqual(_common.normalize_version("1.2.3"), "1.2.3")
 
+    def test_compare_versions_basic(self):
+        self.assertEqual(_common.compare_versions("1.2.3", "1.2.3"), 0)
+        self.assertEqual(_common.compare_versions("1.2.4", "1.2.3"), 1)
+        self.assertEqual(_common.compare_versions("1.2.3", "1.2.4"), -1)
+        self.assertEqual(_common.compare_versions("1.3.0", "1.2.99"), 1)
+        self.assertEqual(_common.compare_versions("2.0.0", "1.99.99"), 1)
+
+    def test_compare_versions_strips_v_prefix(self):
+        self.assertEqual(_common.compare_versions("v1.2.3", "1.2.3"), 0)
+        self.assertEqual(_common.compare_versions("V1.2.4", "v1.2.3"), 1)
+
+    def test_compare_versions_strips_prerelease_and_build(self):
+        # Pre-release / build metadata stripped before compare (MVP scope)
+        self.assertEqual(_common.compare_versions("1.2.3-rc.1", "1.2.3"), 0)
+        self.assertEqual(_common.compare_versions("1.2.3+build.42", "1.2.3"), 0)
+
+    def test_compare_versions_pads_short_inputs(self):
+        # Missing components default to 0 — "1" → (1, 0, 0)
+        self.assertEqual(_common.compare_versions("1", "1.0.0"), 0)
+        self.assertEqual(_common.compare_versions("1.2", "1.2.0"), 0)
+        self.assertEqual(_common.compare_versions("1.2", "1.2.1"), -1)
+
+    def test_compare_versions_unparseable_returns_equal(self):
+        # Unparseable input parses to (0, 0, 0) — equal to other unparseable
+        self.assertEqual(_common.compare_versions("garbage", "also-garbage"), 0)
+
 
 class TestDescriptionGraph(unittest.TestCase):
     def setUp(self):
@@ -258,6 +284,7 @@ class TestVersionGraph(unittest.TestCase):
         self.assertEqual(findings, [])
 
     def test_changelog_header_extracted(self):
+        # package.json (1.2.4) vs CHANGELOG (1.2.3) — both manifest, real inconsistency.
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             (repo / "package.json").write_text(
@@ -269,6 +296,73 @@ class TestVersionGraph(unittest.TestCase):
             findings = version_graph.run(repo, _common.IgnoreFile())
         self.assertEqual(len(findings), 1)
         self.assertEqual(findings[0].severity, "High")
+        self.assertIn("Bump the lagging source", findings[0].recommendation)
+
+    def test_recommendation_pair_manifest_ahead_of_release_skipped(self):
+        # marketplace (manifest) > git-tag (release): unreleased work, no finding.
+        self.assertIsNone(
+            version_graph._recommendation_for_pair("marketplace.json", "git-tag", 1)
+        )
+        self.assertIsNone(
+            version_graph._recommendation_for_pair("git-tag", "marketplace.json", -1)
+        )
+
+    def test_recommendation_pair_release_ahead_of_manifest_flagged(self):
+        # git-tag (release) > marketplace (manifest): real drift, finding emitted.
+        rec = version_graph._recommendation_for_pair("marketplace.json", "git-tag", -1)
+        self.assertIsNotNone(rec)
+        self.assertIn("Release ahead of manifest", rec)
+        rec2 = version_graph._recommendation_for_pair("git-tag", "marketplace.json", 1)
+        self.assertIn("Release ahead of manifest", rec2)
+
+    def test_recommendation_pair_same_class_flagged(self):
+        # Two manifests disagreeing — real inconsistency.
+        rec_mm = version_graph._recommendation_for_pair(
+            "package.json", "marketplace.json", 1
+        )
+        self.assertIn("Bump the lagging source", rec_mm)
+        # Two releases disagreeing.
+        rec_rr = version_graph._recommendation_for_pair("git-tag", "gh-release", 1)
+        self.assertIn("Bump the lagging source", rec_rr)
+
+    def test_marketplace_ahead_of_git_tag_no_finding(self):
+        """Integration: marketplace.json (1.25.0) > git-tag (1.24.0) — unreleased prep."""
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / ".claude-plugin").mkdir()
+            (repo / ".claude-plugin" / "marketplace.json").write_text(
+                json.dumps({"metadata": {"version": "1.25.0"}}), encoding="utf-8"
+            )
+            # Real git repo with tag at 1.24.0 — _from_git_tag needs `.git`.
+            env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
+                   "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"],
+                           check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "tag", "1.24.0"], check=True, env=env)
+            findings = version_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [],
+                         f"expected zero findings for manifest > tag; got {findings}")
+
+    def test_git_tag_ahead_of_marketplace_flagged(self):
+        """Integration: git-tag (1.25.0) > marketplace (1.24.0) — real drift."""
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / ".claude-plugin").mkdir()
+            (repo / ".claude-plugin" / "marketplace.json").write_text(
+                json.dumps({"metadata": {"version": "1.24.0"}}), encoding="utf-8"
+            )
+            env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
+                   "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"],
+                           check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "tag", "1.25.0"], check=True, env=env)
+            findings = version_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("Release ahead of manifest", findings[0].recommendation)
 
 
 class TestSpecConformanceStub(unittest.TestCase):

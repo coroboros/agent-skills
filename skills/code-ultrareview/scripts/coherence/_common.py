@@ -128,6 +128,44 @@ def normalize_version(value) -> str:
     return v
 
 
+def _parse_semver(value) -> tuple[int, int, int]:
+    """Parse `<major>.<minor>.<patch>` into a comparable int tuple.
+
+    Strips a leading `v`/`V`, then any `-pre` / `+build` suffix. Missing
+    components default to 0 (`1` → `(1, 0, 0)`). Returns `(0, 0, 0)` for
+    unparseable input — callers treat the tuple as comparable but should
+    fall back to string equality when both inputs parse to `(0, 0, 0)`.
+    """
+    s = normalize_version(value)
+    core = s.split("-", 1)[0].split("+", 1)[0]
+    parts = core.split(".")
+    try:
+        nums = [int(p) for p in parts[:3]]
+    except ValueError:
+        return (0, 0, 0)
+    while len(nums) < 3:
+        nums.append(0)
+    return (nums[0], nums[1], nums[2])
+
+
+def compare_versions(a, b) -> int:
+    """Compare two version strings semver-aware. Returns -1, 0, or 1.
+
+    Pre-release / build metadata is stripped before comparison (MVP scope:
+    `<major>.<minor>.<patch>` only). Inputs that fail to parse fall back
+    to normalized string equality — equal strings return 0, otherwise the
+    parsed `(0, 0, 0)` tuples make them compare equal, and the caller
+    treats the pair as "indeterminate but in-sync".
+    """
+    a_tup = _parse_semver(a)
+    b_tup = _parse_semver(b)
+    if a_tup < b_tup:
+        return -1
+    if a_tup > b_tup:
+        return 1
+    return 0
+
+
 def read_json_safe(path: Path):
     try:
         return json.loads(path.read_text(encoding="utf-8"))

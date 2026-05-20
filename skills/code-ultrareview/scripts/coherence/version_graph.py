@@ -16,10 +16,13 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from ._common import Finding, IgnoreFile, normalize_version, read_json_safe
+from ._common import Finding, IgnoreFile, compare_versions, normalize_version, read_json_safe
 
 CHANGELOG_HEADER_RE = re.compile(r"^##\s+\[?v?(\d+\.\d+\.\d+)", re.MULTILINE)
 GH_TIMEOUT_S = 5
+
+MANIFEST_SOURCES = frozenset({"package.json", "marketplace.json", "CHANGELOG.md"})
+RELEASE_SOURCES = frozenset({"git-tag", "gh-release"})
 
 
 def _from_package_json(repo: Path) -> str | None:
@@ -97,6 +100,41 @@ def collect_sources(repo: Path) -> list[tuple[str, str]]:
     return [(name, value) for name, value in candidates if value]
 
 
+def _recommendation_for_pair(a_id: str, b_id: str, cmp: int) -> str | None:
+    """Apply manifest-vs-release semantics to a non-equal pair.
+
+    Returns the finding's `recommendation` text, or `None` when the
+    divergence is the expected `manifest > release` "unreleased work"
+    state (no finding emitted).
+
+    Conventions:
+      - Manifests (package.json, marketplace.json, CHANGELOG.md) declare
+        the *intended* version; they bump first, in a PR.
+      - Releases (git-tag, gh-release) record the *published* version;
+        they bump only after merge.
+      - During pre-release prep the manifest is necessarily ahead of the
+        release. Flagging that is a false positive.
+      - When a release source moves ahead of a manifest source, the
+        manifest didn't get bumped after the tag — that IS real drift.
+      - Same-class disagreement (manifest ↔ manifest, release ↔ release)
+        is always a real inconsistency.
+    """
+    a_is_manifest = a_id in MANIFEST_SOURCES
+    a_is_release = a_id in RELEASE_SOURCES
+    b_is_manifest = b_id in MANIFEST_SOURCES
+    b_is_release = b_id in RELEASE_SOURCES
+
+    if a_is_manifest and b_is_release:
+        if cmp > 0:  # manifest ahead of release — unreleased work
+            return None
+        return "Release ahead of manifest — bump the manifest to match."
+    if a_is_release and b_is_manifest:
+        if cmp < 0:  # manifest ahead of release — unreleased work
+            return None
+        return "Release ahead of manifest — bump the manifest to match."
+    return "Bump the lagging source to the canonical version."
+
+
 def run(repo: Path, ignore: IgnoreFile, **_) -> list[Finding]:
     sources = collect_sources(repo)
     findings: list[Finding] = []
@@ -106,14 +144,18 @@ def run(repo: Path, ignore: IgnoreFile, **_) -> list[Finding]:
             if ignore.has("version", "ignore_pairs", f"{a_id}:{b_id}") or \
                     ignore.has("version", "ignore_pairs", f"{b_id}:{a_id}"):
                 continue
-            if normalize_version(a_val) == normalize_version(b_val):
+            cmp = compare_versions(a_val, b_val)
+            if cmp == 0 and normalize_version(a_val) == normalize_version(b_val):
+                continue
+            recommendation = _recommendation_for_pair(a_id, b_id, cmp)
+            if recommendation is None:
                 continue
             findings.append(Finding(
                 sub_graph="version",
                 severity="High",
                 location=f"{a_id} ↔ {b_id}",
                 finding=f"Version divergence: {a_id} = {a_val!r}; {b_id} = {b_val!r}",
-                recommendation="Bump the lagging source to the canonical version.",
+                recommendation=recommendation,
                 confidence=95,
             ))
     return findings

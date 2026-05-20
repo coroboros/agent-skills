@@ -46,18 +46,30 @@ as one finding (severity `Medium`, confidence 90).
 
 ### 2. version
 
-Compares all present version sources:
+Compares all present version sources, split into two roles:
 
-- `package.json` → `.version`
-- `.claude-plugin/marketplace.json` → `.metadata.version`
-- `CHANGELOG.md` → most recent `^## [vV]?\d+\.\d+\.\d+` header
-- `git tag -l --sort=-v:refname | head -1`
-- `gh release list -L 1 --json tagName`
+- **Manifest sources** (declared intent — bump first, in a PR):
+  - `package.json` → `.version`
+  - `.claude-plugin/marketplace.json` → `.metadata.version`
+  - `CHANGELOG.md` → most recent `^## [vV]?\d+\.\d+\.\d+` header
+- **Release sources** (published reality — bump after merge):
+  - `git tag -l --sort=-v:refname | head -1`
+  - `gh release list -L 1 --json tagName`
 
-Strict equality after stripping a leading `v`. Each disagreeing pair surfaces
-as one finding (severity `High`, confidence 95). Repos that legitimately keep
-the latest tag ahead of `package.json` (unreleased work) can allowlist the
-pair in `.coherence-ignore`.
+Comparison is semver-aware (`compare_versions` in `_common.py` — `major.minor.patch`
+tuple compare; pre-release / build suffixes stripped). The conventional flow is
+**manifest leads release**: between the version bump and the tag/release, manifest
+sources are ahead of release sources, and that is not drift. The sub-graph
+emits a finding only when:
+
+- A release source is **ahead** of a manifest source (someone tagged but didn't bump the manifest — real drift).
+- Two manifest sources or two release sources **disagree** with each other (real inconsistency, regardless of direction).
+
+Each emitted finding has severity `High` and confidence 95. The default — no
+finding for `manifest > release` — replaces the prior "allowlist via
+`.coherence-ignore`" workaround for normal pre-release prep. The allowlist
+still works for genuine exceptions (e.g., a tag intentionally divorced from
+the manifest stream).
 
 ### 3. capability
 
