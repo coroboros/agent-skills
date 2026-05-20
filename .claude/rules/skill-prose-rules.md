@@ -37,7 +37,7 @@ The sync script and the parity test read this list:
 - brainstorm
 - brand-voice
 - claude-md
-- code-review
+- code-ultrareview
 - oneshot
 - spec
 - suno-produce

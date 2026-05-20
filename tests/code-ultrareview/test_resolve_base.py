@@ -1,4 +1,4 @@
-"""Tests for skills/code-review/scripts/resolve_base.sh.
+"""Tests for skills/code-ultrareview/scripts/resolve_base.sh.
 
 Strategy: build a fresh tempdir git repo per ladder rung, run the script
 with cwd=repo, and assert the parsed `RESULT:` line + exit code. Git config
@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-SCRIPT = REPO_ROOT / "skills" / "code-review" / "scripts" / "resolve_base.sh"
+SCRIPT = REPO_ROOT / "skills" / "code-ultrareview" / "scripts" / "resolve_base.sh"
 
 BASH = shutil.which("bash") or "/bin/bash"
 _GIT = shutil.which("git")

@@ -1,12 +1,13 @@
-# Code review — {slug}
+# Code ultrareview — {slug}
 
 **Base:** {base} · **Target:** {target} · **Rule:** {rung}
-**Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
+**Tier:** {standard | deep | ultra} (chosen by audit phase) · **Tier rationale:** {one-line summary of audit signals}
+**Token estimate:** {N} (tier budget) · **Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
 **Reviewed:** {N} changed files{, or: unresolvable — <hint>}
 
 ## Findings
 
-Ordered by severity, then confidence. Findings below the confidence threshold are dropped, not listed.
+Ordered by severity, then confidence. Sub-80 findings appear in the **Unverified — recommend Deep pass** subsection below (never silent-dropped — postmortem A2).
 
 | # | Lens | Severity | Location | Conf | Finding | Recommendation |
 |---|------|----------|----------|------|---------|----------------|
@@ -36,4 +37,4 @@ _Omit any bullet with nothing to point at._
 
 ---
 
-_Report-only. To fix: `/apex -f ~/.claude/output/{project}/code-review/code-review-{slug}.md` or `/oneshot "<finding>"`._
+_Report-only by default. To fix: `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` or `/oneshot "<finding>"`. Opt-in `--apply-safe` (Ultra tier) writes manifest sync + failing tests with diff preview + per-file confirmation._

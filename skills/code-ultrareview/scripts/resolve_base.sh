@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# resolve_base.sh — resolve the review base for the code-review skill.
+# resolve_base.sh — resolve the review base for the code-ultrareview skill.
 #
 # Determines, deterministically, what a clean-tree review diffs against,
 # via an explicit precedence ladder. The skill prints the chosen rule in

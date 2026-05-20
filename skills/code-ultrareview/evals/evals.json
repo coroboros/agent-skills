@@ -1,96 +1,96 @@
 {
-  "skill_name": "code-review",
-  "description": "Behavioural evaluation set for the code-review skill. Cases pin the report shape, target auto-detection across the resolver ladder, the four lenses with their operational definitions, the exclusion/deferral contract (the refuse-to-report discipline), confidence filtering, graceful degradation without a rules baseline, report-only behaviour, and the references-routing for lens detail.",
+  "skill_name": "code-ultrareview",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape, target auto-detection across the resolver ladder, the four lenses with their operational definitions, the exclusion/deferral contract (the refuse-to-report discipline), confidence filtering, graceful degradation without a rules baseline, report-only behaviour, and the references-routing for lens detail.",
   "evals": [
     {
       "id": 1,
       "name": "produces-canonical-report-shape",
-      "prompt": "/code-review review the changes on this branch",
-      "expected_output": "A report matching templates/code-review.md: a header line with Base, Target, Rule and the rules-baseline status; a Findings table with columns # / Lens / Severity / Location / Conf / Finding / Recommendation ordered by severity then confidence; a Deferred to sibling skills section; What looks good; and a Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
+      "prompt": "/code-ultrareview review the changes on this branch",
+      "expected_output": "A report matching templates/code-ultrareview.md: a header line with Base, Target, Rule and the rules-baseline status; a Findings table with columns # / Lens / Severity / Location / Conf / Finding / Recommendation ordered by severity then confidence; a Deferred to sibling skills section; What looks good; and a Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
       "files": []
     },
     {
       "id": 2,
       "name": "auto-detects-dirty-working-tree",
-      "prompt": "/code-review (uncommitted edits present in the working tree)",
+      "prompt": "/code-ultrareview (uncommitted edits present in the working tree)",
       "expected_output": "With a dirty tree the skill reviews everything not yet committed: `git diff HEAD` (staged + unstaged) PLUS untracked files (`git ls-files --others --exclude-standard`, read in full) — a brand-new unstaged file is never skipped. Not a branch diff; resolve_base.sh is not consulted in this path. The header states the dirty-tree target.",
       "files": []
     },
     {
       "id": 3,
       "name": "clean-tree-uses-resolver-ladder",
-      "prompt": "/code-review (clean tree, on a feature branch)",
+      "prompt": "/code-ultrareview (clean tree, on a feature branch)",
       "expected_output": "Clean tree → the skill runs scripts/resolve_base.sh, gets RESULT: base=<merge-base> target=HEAD rule=feature-merge-base, and prints exactly that base/target/rule in the header. An unresolvable RESULT (exit 2) is surfaced verbatim with its hint — the skill does not guess a base.",
       "files": []
     },
     {
       "id": 4,
       "name": "explicit-base-override",
-      "prompt": "/code-review -b origin/main",
+      "prompt": "/code-ultrareview -b origin/main",
       "expected_output": "The skill passes -b origin/main to resolve_base.sh; rule=explicit and auto-detection is skipped. base is resolved to merge-base(origin/main, HEAD) — a diffable ancestor SHA, not the literal ref — so the lenses' two-dot `git diff <base> <target>` is always correct. The header prints that base/target/rule.",
       "files": []
     },
     {
       "id": 5,
       "name": "reads-declared-base-from-rules",
-      "prompt": "/code-review (clean tree; the repo CLAUDE.md declares the source branch is `develop`)",
+      "prompt": "/code-ultrareview (clean tree; the repo CLAUDE.md declares the source branch is `develop`)",
       "expected_output": "Before running the resolver, the skill reads the rule hierarchy, finds the declared source branch (e.g. develop), and passes it via -b. rule=explicit; base is merge-base(develop, HEAD) — a diffable ancestor SHA. This is the skill-layer rung — resolve_base.sh itself never parses rule files.",
       "files": []
     },
     {
       "id": 6,
       "name": "lens1-cites-exact-rule-line",
-      "prompt": "/code-review (a changed file violates a rule written in .claude/rules/)",
+      "prompt": "/code-ultrareview (a changed file violates a rule written in .claude/rules/)",
       "expected_output": "Lens 1 reports the violation with the exact rule line quoted verbatim and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not.",
       "files": []
     },
     {
       "id": 7,
       "name": "lens2-flags-drift-against-docstring",
-      "prompt": "/code-review (a function's behavior changed but its docstring/comment still describes the old behavior)",
+      "prompt": "/code-ultrareview (a function's behavior changed but its docstring/comment still describes the old behavior)",
       "expected_output": "Lens 2 reports drift: code no longer matches its own docstring/comment, with file:line and a recommendation to reconcile. Confidence reflects verification.",
       "files": []
     },
     {
       "id": 8,
       "name": "lens4-flags-gap-and-blind-spot",
-      "prompt": "/code-review (new code path added with no test and an unhandled empty-input case)",
+      "prompt": "/code-ultrareview (new code path added with no test and an unhandled empty-input case)",
       "expected_output": "Lens 4 reports a test gap (convention implies a test) and a blind spot (unhandled empty input) as distinct findings with locations. A test that cannot fail when logic changes is also flagged if present.",
       "files": []
     },
     {
       "id": 9,
       "name": "refuses-security-finding-defers-to-sibling",
-      "prompt": "/code-review (the diff is essentially a SQL query built via string concatenation — an injection risk)",
-      "expected_output": "The skill does NOT report the injection as a finding. It emits a single pointer line under Deferred to sibling skills: a one-liner → /security-review. Staying in lane by construction — security is never a code-review finding.",
+      "prompt": "/code-ultrareview (the diff is essentially a SQL query built via string concatenation — an injection risk)",
+      "expected_output": "The skill does NOT report the injection as a finding. It emits a single pointer line under Deferred to sibling skills: a one-liner → /security-review. Staying in lane by construction — security is never a code-ultrareview finding.",
       "files": []
     },
     {
       "id": 10,
       "name": "defers-performance-to-simplify",
-      "prompt": "/code-review (the change adds an O(n^2) loop that could be optimized)",
+      "prompt": "/code-ultrareview (the change adds an O(n^2) loop that could be optimized)",
       "expected_output": "Performance/optimization is not a finding. A one-line pointer → /simplify appears under Deferred to sibling skills. Same for pure simplification/dedup observations.",
       "files": []
     },
     {
       "id": 11,
       "name": "graceful-degradation-no-rules-baseline",
-      "prompt": "/code-review (repo has no CLAUDE.md, no .claude/rules, no ~/.claude/rules)",
+      "prompt": "/code-ultrareview (repo has no CLAUDE.md, no .claude/rules, no ~/.claude/rules)",
       "expected_output": "Lens 1 is skipped. The header states `Lens 1 (rules): skipped — no rules baseline found`. Lenses 2–4 still run and the report is produced — the skill remains useful on any repo. The skip is stated, never silent.",
       "files": []
     },
     {
       "id": 12,
       "name": "confidence-filter-drops-below-threshold",
-      "prompt": "/code-review (changes contain one real high-impact bug plus several pedantic nits and a pre-existing issue)",
+      "prompt": "/code-ultrareview (changes contain one real high-impact bug plus several pedantic nits and a pre-existing issue)",
       "expected_output": "The high-impact bug is reported (confidence ≥ 80). Pedantic nits, linter-catchable issues, and the pre-existing issue are scored low and dropped — they do not appear in the Findings table.",
       "files": []
     },
     {
       "id": 13,
       "name": "report-only-bridges-to-apex",
-      "prompt": "/code-review -s review this branch then fix the issues",
-      "expected_output": "The skill produces and saves the report to ~/.claude/output/{project}/code-review/code-review-{slug}.md and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
+      "prompt": "/code-ultrareview -s review this branch then fix the issues",
+      "expected_output": "The skill produces and saves the report to ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
       "files": []
     },
     {

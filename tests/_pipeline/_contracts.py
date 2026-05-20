@@ -91,12 +91,15 @@ CLUSTERS = {
         ),
     },
     "review": {
-        # code-review → apex. Report-only producer; apex consumes the saved
-        # report via -f as generic foundational context (no apex change).
-        # /oneshot is intentionally NOT a -f consumer (it has no -f flag) —
-        # the skill points there manually with a description, never a file.
-        "producer": "code-review",
-        "producer_output": "~/.claude/output/{project}/code-review/code-review-{slug}.md",
+        # code-ultrareview → apex. Report-only producer (by default); apex
+        # consumes the saved report via -f as generic foundational context
+        # (no apex change). /oneshot is intentionally NOT a -f consumer (it
+        # has no -f flag) — the skill points there manually with a
+        # description, never a file. confidence_threshold semantics: 80 is
+        # the routing boundary, not a silent drop — sub-80 findings surface
+        # as "unverified — recommend Deep pass" (postmortem A2).
+        "producer": "code-ultrareview",
+        "producer_output": "~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md",
         "consumer": "apex",
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.
@@ -108,6 +111,7 @@ CLUSTERS = {
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",
+            "coherence-graph",
         ),
         "report_severities": ("High", "Medium", "Low"),
         "confidence_threshold": 80,
