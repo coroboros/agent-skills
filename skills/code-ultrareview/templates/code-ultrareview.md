@@ -41,9 +41,32 @@ _Omit any bullet with nothing to point at._
 
 - {Specific positive — a correct edge-case handled, a test that encodes intent}
 
+## Coherence-graph status
+
+Per-sub-graph pass/fail summary when the coherence-graph lens ran. Each row reports `pass`, `fail (N findings)`, or `skipped — <reason>` (e.g. `gh unavailable`, `WebFetch unavailable`).
+
+| Sub-graph | Status |
+|-----------|--------|
+| description | pass · fail (N) · skipped — <reason> |
+| version | pass · fail (N) · skipped — <reason> |
+| capability | pass · fail (N) · skipped — <reason> |
+| cross-reference | pass · fail (N) · skipped — <reason> |
+| example | pass · fail (N) · skipped — <reason> |
+| spec-conformance | pass · fail (N) · skipped — <reason> |
+
 ## Verdict
 
 **{Ship | Fix-then-ship | Needs work}** — {one-line rationale}
+
+## --apply-safe summary
+
+_Present only when `--apply-safe` was used at Ultra tier._
+
+| Writer | Status | Targets |
+|--------|--------|---------|
+| version_sync | applied · skipped · no-op · refusing | `package.json`, `marketplace.json` |
+| description_sync | applied · skipped · no-op · refusing: partial-agreement | `package.json`, `marketplace.json` |
+| failing_test_writer | applied · skipped · refusing: existing-test | `tests/<bug-id>.{py,ts}` |
 
 ---
 

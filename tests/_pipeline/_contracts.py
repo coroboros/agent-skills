@@ -95,9 +95,15 @@ CLUSTERS = {
         # consumes the saved report via -f as generic foundational context
         # (no apex change). /oneshot is intentionally NOT a -f consumer (it
         # has no -f flag) — the skill points there manually with a
-        # description, never a file. confidence_threshold semantics: 80 is
-        # the routing boundary, not a silent drop — sub-80 findings surface
-        # as "unverified — recommend Deep pass" (postmortem A2).
+        # description, never a file.
+        #
+        # confidence_threshold (80) is the routing boundary, NOT a silent
+        # drop — sub-80 findings surface as "unverified — recommend Deep
+        # pass" (postmortem A2 contract). See references/aggregation.md
+        # for the full no-silent-drop semantics. The old (pre-rewrite)
+        # behavior dropped sub-80 findings entirely; consumers reading
+        # post-rewrite reports MUST expect both Verified and Unverified
+        # sub-sections under ## Findings.
         "producer": "code-ultrareview",
         "producer_output": "~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md",
         "consumer": "apex",
@@ -107,16 +113,31 @@ CLUSTERS = {
             "Findings",
             "Deferred to sibling skills",
             "What looks good",
+            "Coherence-graph status",
             "Verdict",
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",
             "coherence-graph",
         ),
-        "report_severities": ("High", "Medium", "Low"),
+        # High/Medium/Low retained for compatibility; Important/Nit/
+        # Pre-existing added per Anthropic Managed Code Review and emitted
+        # by `scripts/aggregation.py::assign_anthropic_tier`. Both schemes
+        # coexist on the same finding row — readers can parse either.
+        "report_severities": (
+            "High", "Medium", "Low",
+            "Important", "Nit", "Pre-existing",
+        ),
         "confidence_threshold": 80,
         "deferral_targets": (
             "/security-review", "/simplify", "/ultrareview", "/find-docs",
+        ),
+        # The six canonical coherence sub-graphs surfaced in the
+        # `## Coherence-graph status` table. Drift in this tuple breaks
+        # the structural test in test_report_template.py.
+        "coherence_sub_graphs": (
+            "description", "version", "capability",
+            "cross-reference", "example", "spec-conformance",
         ),
     },
 }

@@ -82,6 +82,58 @@ class TestReportSchema(unittest.TestCase):
             _missing_sections(text, REVIEW["report_required_sections"]), []
         )
 
+    def test_coherence_graph_status_in_required_sections(self):
+        self.assertIn("Coherence-graph status", REVIEW["report_required_sections"])
+
+    def test_realistic_fixture_carries_tier_header(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        # Tier + Tier rationale must always appear in the header.
+        self.assertIn("Tier:", text)
+        self.assertIn("Tier rationale:", text)
+
+    def test_realistic_fixture_lists_all_six_sub_graphs(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        for sub_graph in REVIEW["coherence_sub_graphs"]:
+            self.assertIn(sub_graph, text, f"sub-graph {sub_graph!r} missing")
+
+
+class TestSeverityScheme(unittest.TestCase):
+    """Dual severity scheme — High/Medium/Low retained for compatibility,
+    Important/Nit/Pre-existing added per Anthropic Managed Code Review."""
+
+    def test_dual_scheme_present(self):
+        for sev in ("High", "Medium", "Low"):
+            self.assertIn(sev, REVIEW["report_severities"])
+        for tier in ("Important", "Nit", "Pre-existing"):
+            self.assertIn(tier, REVIEW["report_severities"])
+
+    def test_realistic_fixture_uses_anthropic_tier(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        self.assertIn("Important", text)
+
+
+class TestProducerOutputTemplate(unittest.TestCase):
+    """The producer_output template must render to a valid path-shaped
+    string when formatted with {project}/{slug}."""
+
+    def test_template_formats_cleanly(self):
+        path = REVIEW["producer_output"].format(project="agent-skills", slug="audit")
+        self.assertTrue(path.endswith("code-ultrareview-audit.md"))
+        self.assertIn("/code-ultrareview/", path)
+
+
+class TestConfidenceThresholdSemantics(unittest.TestCase):
+    """confidence_threshold is the routing boundary, NOT a silent drop —
+    sub-80 findings surface in the Unverified sub-section per A2."""
+
+    def test_threshold_is_80(self):
+        self.assertEqual(REVIEW["confidence_threshold"], 80)
+
+    def test_realistic_fixture_documents_unverified_subsection(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        self.assertIn("Unverified", text)
+        self.assertIn("unverified — recommend Deep pass", text)
+
 
 if __name__ == "__main__":
     unittest.main()
