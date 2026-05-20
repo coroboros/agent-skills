@@ -8,12 +8,14 @@ and the routing rules for sub-80 findings. Aggregation details live in
 ## Dispatch protocol
 
 Launch **read-only subagents in one message** (`Explore` type — read-only,
-fast, context-isolated). The lens fan-out is unconditional: all five lenses
-run in parallel on every invocation, with A1 spec-claim triggering, iteration
-on sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis,
-and `--apply-safe` writers folded in as always-on behavior. The audit phase
-informs the report header (Scope + Estimated wall-clock); it does not gate
-dispatch.
+fast, context-isolated). The lens fan-out is unconditional: the five always-on
+lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph)
+run in parallel on every invocation. The sixth lens — `derivation` — joins
+the fan-out when `--reconcile` resolves to non-empty input. A1 spec-claim
+triggering, iteration on sub-80 findings, spec-conformance fetch,
+property-fuzz harness synthesis, and `--apply-safe` writers are folded in
+as always-on behavior. The audit phase informs the report header (Scope +
+Estimated wall-clock); it does not gate dispatch.
 
 Each subagent receives:
 
@@ -31,10 +33,12 @@ Each subagent returns a list of findings, each with: `lens`, `severity`
 
 **Canonical lens keys** (the `lens` field value — used by the report table
 and `tests/_pipeline/_contracts.py`): `rules`, `bugs-drift`, `docs-version`,
-`tests-blindspots`, `coherence-graph`. The coherence-graph lens has its own
-sub-graph keys defined in `references/coherence-graph.md`.
+`tests-blindspots`, `coherence-graph`, `derivation`. The coherence-graph
+lens has its own sub-graph keys defined in `references/coherence-graph.md`;
+the derivation lens has classification tags + freshness rules defined in
+`references/derivation.md`.
 
-## The five lenses
+## The six lenses
 
 ### Lens 1 — Rules compliance (key `rules`)
 
@@ -86,6 +90,22 @@ Cross-artifact drift across six sub-graphs: description, version, capability,
 cross-reference, example, spec-conformance. Default to structured fields
 only; `--include-prose` extends to README freeform. Per-repo
 `.coherence-ignore` allowlist. Full brief: `references/coherence-graph.md`.
+
+### Lens 6 — Derivation (key `derivation`)
+
+Reconciles planning artifacts (brainstorm, spec, apex plan, PR body, issue
+body) against the diff. Activates on `--reconcile <input>` — without it, the
+lens does not dispatch. Classification taxonomy: GAP (planning said X, code
+missing), SCOPE-ADD (code has X, planning silent), DECISION-OVERRIDE
+(planning resolved X, code does Y), CONSISTENT (claim verified — counted in
+coverage, no finding row). Severity capped by artifact freshness: >30 days
+→ Low; >90 days → coverage summary only. Per-repo `.derivation-ignore`
+allowlist (path / kind / claim text). The Python orchestrator extracts
+claims (AC items, Goals, Decisions, Tasks) and emits one UNCLASSIFIED
+finding per claim — the subagent rewrites the classification at dispatch
+time. Cap of 5 findings per artifact bounds noise (Risk #2 — LLM
+overcorrection guard, per arXiv 2603.00539); `--strict` lifts the cap.
+Full brief: `references/derivation.md`.
 
 ## Confidence rubric (0–100)
 
