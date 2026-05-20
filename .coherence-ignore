@@ -1,0 +1,12 @@
+# Coherence-graph allowlist for the agent-skills repo.
+#
+# WHATWG / OpenAPI mentions live in skill documentation (code-ultrareview
+# describes how its bugs-drift and spec-conformance lenses detect such
+# specs in other repos). The mentions are meta — they don't assert this
+# repo implements any of them. The spec-conformance sub-graph stub would
+# otherwise emit a Low/conf-50 placeholder on every run.
+
+spec-conformance:
+  ignore_specs:
+    - OpenAPI
+    - WHATWG
