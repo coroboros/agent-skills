@@ -23,7 +23,9 @@ Each subagent returns a list of findings, each with: `lens`, `severity`
 
 **Canonical lens keys** (the `lens` field value — used by the report table and
 `tests/_pipeline/_contracts.py`): `rules`, `bugs-drift`, `docs-version`,
-`tests-blindspots`.
+`tests-blindspots`, `coherence-graph`. The coherence-graph lens has its own
+sub-graph keys defined in `references/coherence-graph.md`; full lens
+contract for the multi-tier posture lands in WS-4.
 
 ## The four lenses
 
