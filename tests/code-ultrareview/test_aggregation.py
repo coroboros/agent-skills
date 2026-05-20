@@ -250,6 +250,22 @@ class TestDeepIteration(unittest.TestCase):
         promoted, _, _ = aggregation.deep_iterate([f], builder)
         self.assertEqual(promoted[0]["severity"], "High")
 
+    def test_apply_a2_then_deep_iterate_restores_original_severity(self):
+        # End-to-end regression: a High-severity sub-80 finding flows through
+        # apply_a2 (which downgrades to Low) and then deep_iterate (which
+        # promotes on confirm). The original High must survive.
+        raw = _finding(confidence=70, severity="High", finding="Off-by-one in parser")
+        _, unverified = aggregation.apply_a2([raw])
+        self.assertEqual(unverified[0]["severity"], "Low")
+        self.assertEqual(unverified[0]["meta"]["original_severity"], "High")
+
+        def builder(_):
+            return "confirmed"
+
+        promoted, _, _ = aggregation.deep_iterate(unverified, builder)
+        self.assertEqual(promoted[0]["severity"], "High")
+        self.assertGreaterEqual(promoted[0]["confidence"], aggregation.CONFIDENCE_THRESHOLD)
+
     def test_iteration_cap_is_one_call_per_finding(self):
         unverified = [_finding(confidence=70), _finding(confidence=60, location="b:1")]
         calls = []

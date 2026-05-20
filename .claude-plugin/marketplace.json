@@ -23,7 +23,7 @@
     },
     {
       "name": "coding-skills",
-      "description": "Coding workflow — bootstrap projects (scaffold) and adaptive multi-tier code review (code-ultrareview)",
+      "description": "Coding workflow — scaffold projects and code-ultrareview (adaptive multi-tier, coherence-graph drift)",
       "source": "./",
       "strict": false,
       "skills": [

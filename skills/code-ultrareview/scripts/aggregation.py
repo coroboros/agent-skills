@@ -100,6 +100,9 @@ def apply_a2(findings: list[dict]) -> tuple[list[dict], list[dict]]:
         rec = f.get("recommendation", "")
         if rationale not in rec:
             f["recommendation"] = f"{rationale} {rec}".strip()
+        meta = dict(f.get("meta") or {})
+        meta.setdefault("original_severity", f.get("severity", "Medium"))
+        f["meta"] = meta
         f["severity"] = "Low"
         unverified.append(f)
     return verified, unverified

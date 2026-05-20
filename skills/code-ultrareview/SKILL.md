@@ -89,7 +89,7 @@ One read-only subagent per lens. Operational definitions, subagent briefs, and t
 2. **Bugs + drift** (key `bugs-drift`) — logic errors on changed lines; code no longer matching its own doc/comment/claim or a sibling pattern. When the diff/README/CLAUDE.md cites a named normative spec (RFC, WHATWG, ISO/IEC, OpenAPI), the lens fetches the spec, quotes the governing clause, and diffs the code against it (A1).
 3. **Docs + version** (key `docs-version`) — user-visible behavior changed without a doc/version update.
 4. **Tests + blind spots** (key `tests-blindspots`) — missing tests the convention implies, tests that can't fail, unstated assumptions.
-5. **Coherence-graph** (key `coherence-graph`) — cross-artifact drift across six sub-graphs: description, version, capability, cross-reference, example, spec-conformance. Default to structured fields only; `--include-prose` extends to README freeform.
+5. **Coherence-graph** (key `coherence-graph`) — cross-artifact drift across six sub-graphs: description, version, capability, cross-reference, example, spec-conformance. Default to structured fields only; `--include-prose` extends to README freeform. Sub-graph briefs and the `.coherence-ignore` allowlist format live in `references/coherence-graph.md`.
 
 These five keys are canonical — the report table, the evals, and the pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
 
@@ -103,9 +103,13 @@ Phase 1 — AUDIT  (always-on, ~30–60s, 1 Haiku subagent)
   user can override with -t
 
 Phase 2 — DISPATCH  (parallel lens subagents per tier)
-  Standard:  rules + bugs-drift + docs-version + tests-blindspots + coherence-graph
-  Deep:      Standard + spec-conformance + iteration on sub-80 findings
-  Ultra:     Deep + property-fuzz harness + build/execute + --apply-safe writers
+  Standard:  rules + bugs-drift (with A1 spec fetch) + docs-version
+             + tests-blindspots + coherence-graph (5 sub-graphs full
+             + spec-conformance stub)
+  Deep:      Standard + coherence-graph spec-conformance upgraded
+             to full fetch + iteration on sub-80 findings
+  Ultra:     Deep + property-fuzz harness + build/execute
+             + --apply-safe writers
 
 Phase 3 — AGGREGATION  (1 synthesizer subagent)
   dedupe by (location, finding-key); severity tiers
@@ -113,7 +117,7 @@ Phase 3 — AGGREGATION  (1 synthesizer subagent)
   "unverified — recommend Deep pass" (never silent-dropped — A2)
 ```
 
-Audit-phase dispatch, JSON signal schema, weight table, and tier thresholds live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Ultra-tier build / fuzz / `--apply-safe` details live in `references/ultra-execution.md` — read before dispatching Ultra.
+Audit-phase dispatch, JSON signal schema, weight table, and tier thresholds live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Ultra-tier build / fuzz / `--apply-safe` details live in `references/ultra-execution.md` — read before dispatching Ultra. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
 
 1. Resolve the target (above); read the rule hierarchy; run the audit phase to pick the tier (unless `-t` is set). Ultra confirms via `tier_router.py --gate` unless `--apply-safe` or `-y` is set.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.

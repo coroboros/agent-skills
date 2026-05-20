@@ -57,7 +57,8 @@ file reads; no network).
 
 Test-path detection (used by `test_coverage_delta`): suffix in
 `(.test.ts, .test.js, .test.tsx, .spec.ts, .spec.js)`; OR directory contains
-`/tests/`/`/test/`; OR filename starts with `test_` (Python convention).
+`/tests/`/`/test/`; OR filename starts with `test_` (Python convention) or
+contains `_test.` (Go convention).
 
 ## Weight table (tier_router.py)
 
