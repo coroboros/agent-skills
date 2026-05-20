@@ -346,6 +346,10 @@ In-session adaptive code review — audit-first calibration picks one of three t
 
 - [anthropics/knowledge-work-plugins — code-review](https://github.com/anthropics/knowledge-work-plugins/tree/main/engineering/skills/code-review) — review-dimension framing, report shape
 - [anthropics/claude-plugins-official — code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) — parallel independent agents + 0–100 confidence scoring
+- [Anthropic — `/ultrareview` docs](https://code.claude.com/docs/en/ultrareview) — remote sandbox + multi-agent fleet + per-finding independent verification (the upstream this skill distinguishes itself from — in-session vs remote, distinct namespace)
+- [Anthropic — Code Review docs](https://code.claude.com/docs/en/code-review) — Managed Code Review severity tiers (Important / Nit / Pre-existing) adopted in this skill's report
+- [Anthropic — `/simplify` (commands reference)](https://code.claude.com/docs/en/commands) — three-agent parallel fan-out pattern (bundled skill, cited as in-session-fan-out precedent)
+- [Anthropic — Lessons from Building Claude Code: How We Use Skills](https://x.com/trq212/status/2033949937936085378) — `adversarial-review` skill (fresh-eyes subagent critique + iterate until findings degrade to nitpicks) as the closest pattern blueprint
 
 </details>
 

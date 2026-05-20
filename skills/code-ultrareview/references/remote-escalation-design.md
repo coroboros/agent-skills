@@ -71,9 +71,9 @@ Until then, in-session Ultra is the default and `--remote` redirects.
 
 ## Reference
 
-- Anthropic upstream `/ultrareview` docs: `docs.claude.com/en/docs/claude-code/commands` (covers built-in remote review semantics)
-- Managed Code Review by Anthropic (sibling reference for the remote-sandbox posture).
-- `references/ultra-execution.md` (the in-session Ultra design phase 2 supersedes for remote runs).
+- Anthropic upstream `/ultrareview` docs: `code.claude.com/docs/en/ultrareview` (built-in remote review semantics this skill distinguishes itself from)
+- Managed Code Review: `code.claude.com/docs/en/code-review` (sibling reference for the remote-sandbox posture and the Important / Nit / Pre-existing severity tiers)
+- `references/ultra-execution.md` (the in-session Ultra design phase 2 supersedes for remote runs)
 
 ## Current behavior
 

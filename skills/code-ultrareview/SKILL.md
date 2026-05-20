@@ -12,6 +12,10 @@ metadata:
   sources:
     - github.com/anthropics/knowledge-work-plugins/tree/main/engineering/skills/code-review
     - github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review
+    - code.claude.com/docs/en/ultrareview
+    - code.claude.com/docs/en/code-review
+    - code.claude.com/docs/en/commands
+    - x.com/trq212/status/2033949937936085378
 ---
 
 # Code ultrareview
