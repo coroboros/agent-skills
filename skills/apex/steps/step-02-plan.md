@@ -46,6 +46,7 @@ From previous steps:
 | `{task_description}` | What to implement |
 | `{task_id}` | Kebab-case identifier |
 | `{acceptance_criteria}` | Success criteria from step-01 |
+| `{negative_acceptance}` | Negative scope (must-NOT criteria) from step-01 |
 | `{auto_mode}` | Skip confirmations |
 | `{save_mode}` | Save outputs to files |
 | `{output_dir}` | Path to output (if save_mode) |

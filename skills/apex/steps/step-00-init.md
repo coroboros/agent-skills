@@ -52,6 +52,7 @@ save_mode: false # -s: Save outputs to ~/.claude/output/{project}/apex/
 economy_mode: false # -e: No subagents, save tokens (for limited plans)
 branch_mode: false # -b: Verify not on main, create branch if needed
 interactive_mode: false # -i: Configure flags interactively
+goal_mode: false # -g: Wire /goal to loop step-04 until AC verified (auto-on under `claude -p`)
 
 # Presets:
 # Budget-friendly:  economy_mode: true
@@ -75,6 +76,7 @@ interactive_mode: false # -i: Configure flags interactively
 {economy_mode} = <default>
 {branch_mode}  = <default>
 {interactive_mode} = <default>
+{goal_mode}    = <default>
 ```
 
 **Step 2: Parse user input and override defaults:**

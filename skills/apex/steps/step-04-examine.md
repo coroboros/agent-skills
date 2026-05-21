@@ -46,6 +46,8 @@ From previous steps:
 | `{task_description}` | What was implemented |
 | `{task_id}` | Kebab-case identifier |
 | `{acceptance_criteria}` | Success criteria |
+| `{negative_acceptance}` | Negative scope (must-NOT criteria) — read by derivation lens |
+| `{goal_mode}` | Emit `/goal` directive at start of this step |
 | `{auto_mode}` | Skip confirmations |
 | `{save_mode}` | Save outputs to files |
 | `{economy_mode}` | No subagents mode |

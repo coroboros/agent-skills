@@ -218,7 +218,7 @@ For implementation details, see `steps/step-00-init.md`.
 
 Step 00 handles:
 
-- Flag parsing (`-a`, `-s`, `-e`, `-b`, `-i`, `-f`, `-r`)
+- Flag parsing (`-a`, `-s`, `-e`, `-b`, `-i`, `-g`, `-f`, `-r`)
 - Resume mode detection and task lookup
 - Output folder creation (if `save_mode`)
 - `00-context.md` creation (if `save_mode`)
