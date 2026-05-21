@@ -85,12 +85,14 @@ Enable flags (lowercase - turn ON):
   -s or --save     → {save_mode} = true
   -e or --economy  → {economy_mode} = true
   -b or --branch   → {branch_mode} = true
+  -g or --goal     → {goal_mode} = true
 
 Disable flags (UPPERCASE - turn OFF):
   -A or --no-auto         → {auto_mode} = false
   -S or --no-save         → {save_mode} = false
   -E or --no-economy      → {economy_mode} = false
   -B or --no-branch       → {branch_mode} = false
+  -G or --no-goal         → {goal_mode} = false (explicit override)
 
 Interactive:
   -i or --interactive   → {interactive_mode} = true
@@ -112,6 +114,17 @@ Example: "add user authentication" → "add-user-authentication"
   - Script auto-detects next available number in ~/.claude/output/{project}/apex/
   - Result: "01-add-user-authentication" (or 02, 03, etc.)
 ```
+
+### 1a. Headless auto-detection (for `{goal_mode}`)
+
+If neither `-g` nor `-G` was passed explicitly AND any of these holds, default `{goal_mode}` = true:
+
+- `${CLAUDE_NONINTERACTIVE}` is set to any non-empty value, OR
+- stdin is not a TTY (`! [ -t 0 ]` in bash).
+
+If `-G` was passed explicitly, it always overrides auto-detection (`{goal_mode}` stays false).
+
+When auto-on fires, surface it in the init summary as **"headless: -g auto-on"** so the decision is observable.
 
 ### 2. Check Resume Mode
 
@@ -213,6 +226,7 @@ Show COMPACT initialization summary (one table, then proceed immediately):
 | `{save_mode}` | true/false |
 | `{economy_mode}` | true/false |
 | `{branch_mode}` | true/false |
+| `{goal_mode}` | true/false |
 
 → Analyzing...
 ```

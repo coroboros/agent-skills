@@ -2,7 +2,7 @@
 name: apex
 description: Systematic implementation using APEX methodology (Analyze-Plan-Execute-eXamine) with parallel subagents and self-validation. Use when implementing features, fixing bugs, or making code changes that benefit from structured workflow.
 when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/brainstorm` or `/spec`.
-argument-hint: "[-a] [-s] [-e] [-b] [-i] [-f <context>] [-r <task-id>] <task description>"
+argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
 model: opus
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
@@ -69,6 +69,7 @@ See **Parameters** below for the complete flag list.
 | `-r` | `--resume` | Resume mode: continue from a previous task |
 | `-b` | `--branch` | Branch mode: verify not on main, create branch if needed |
 | `-i` | `--interactive` | Interactive mode: configure flags via AskUserQuestion |
+| `-g` | `--goal` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; v2.1.139+ required) |
 | `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), spec, brainstorm report, or any file as foundational input for analysis. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
 **Disable flags (turn OFF):**
@@ -79,6 +80,7 @@ See **Parameters** below for the complete flag list.
 | `-S` | `--no-save` | Disable save mode |
 | `-E` | `--no-economy` | Disable economy mode |
 | `-B` | `--no-branch` | Disable branch mode |
+| `-G` | `--no-goal` | Disable `/goal` integration (overrides headless auto-on) |
 
 ### Examples
 
@@ -121,6 +123,14 @@ See **Parameters** below for the complete flag list.
 4. Task ID generated as `NN-kebab-case-description`
 
 For the detailed parsing algorithm, see `steps/step-00-init.md`.
+
+## Compatibility
+
+`-g` (the `/goal` integration) requires **Claude Code v2.1.139 or later**. On older versions, Claude Code rejects the unknown slash command and the flag becomes a no-op without halting apex.
+
+The `/goal` evaluator is **transcript-only** — it cannot run tools or read files independently. The emitted condition therefore forces command output into the transcript verbatim (e.g. `npm test exits 0`, not "tests pass") so the evaluator has a deterministic signal to judge.
+
+`-g` is **orthogonal to `-a`**: `-a` skips per-tool prompts within a turn; `-g` skips per-turn prompts across turns. Recommended together for unattended `claude -p "/apex …"` runs.
 
 ## Output Structure
 
@@ -187,6 +197,7 @@ For implementation details, see `steps/step-00-init.md`.
 | `{economy_mode}`        | boolean | No subagents, direct tool usage only                   |
 | `{branch_mode}`         | boolean | Verify not on main, create branch if needed            |
 | `{interactive_mode}`    | boolean | Configure flags interactively                          |
+| `{goal_mode}`           | boolean | Emit `/goal` directive at start of step-04 (auto-on under `claude -p`) |
 | `{from_file}`           | string  | Path to prior context file (if `-f` provided)          |
 | `{resume_task}`         | string  | Task ID to resume (if `-r` provided)                   |
 | `{output_dir}`          | string  | Full path to output directory                          |

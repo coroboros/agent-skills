@@ -57,6 +57,24 @@ From previous steps:
 
 ## EXECUTION SEQUENCE:
 
+### 0. Emit /goal directive (if `{goal_mode}`)
+
+**If `{goal_mode}` = true**, emit the `/goal` directive AT THE START of this step (before save initialization), populated with the discovered check commands from § 2 below and the acceptance criteria from step-01:
+
+```
+/goal All AC verified: <AC list one per line from {acceptance_criteria}>.
+Proof: <typecheck cmd> exits 0, <lint cmd> exits 0, <test cmd> exits 0.
+Derivation lens returns CONSISTENT or only DECISION-OVERRIDE with documented rationale.
+No file outside the planned scope is modified.
+Stop after 15 turns.
+```
+
+Resolve `<typecheck cmd>`, `<lint cmd>`, `<test cmd>` from § 2 "Discover Available Commands" before emission. If `{acceptance_criteria}` is empty (trivial task), substitute `(none — task trivially completes when checks pass)`.
+
+Command tokens must land verbatim in the transcript — the Haiku evaluator behind `/goal` only judges what it sees, so paraphrases like "tests pass" defeat the gate.
+
+If `{goal_mode}` = false, skip this step entirely.
+
 ### 1. Initialize Save Output (if save_mode)
 
 **If `{save_mode}` = true:**
