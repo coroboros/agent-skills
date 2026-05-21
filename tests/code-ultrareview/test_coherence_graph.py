@@ -447,6 +447,26 @@ class TestCrossReferenceGraph(unittest.TestCase):
             findings = cross_reference_graph.run(repo, _common.IgnoreFile())
         self.assertEqual(findings, [])
 
+    def test_autonomous_workflow_commands_skipped(self):
+        """`/goal` and `/loop` (Claude Code v2.1.139+ autonomous-workflow
+        commands) must not flag as missing-skill cross-references. Closes
+        the v1.26.0 ultrareview false-positive that fired 10 times on the
+        apex v2 PR when documenting the new `-g` flag."""
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            mp_dir = repo / ".claude-plugin"
+            mp_dir.mkdir()
+            (mp_dir / "marketplace.json").write_text(
+                json.dumps({"plugins": [{"name": "p", "skills": ["./skills/spec"]}]}),
+                encoding="utf-8",
+            )
+            (repo / "README.md").write_text(
+                "Wire `/goal` to loop until done. Or use `/loop` for time intervals.\n",
+                encoding="utf-8",
+            )
+            findings = cross_reference_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
+
 
 class TestExampleGraph(unittest.TestCase):
     def setUp(self):

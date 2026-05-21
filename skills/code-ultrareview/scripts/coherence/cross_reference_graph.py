@@ -33,6 +33,8 @@ KNOWN_EXTERNALS = {
     "feedback", "bug", "release-notes", "cost", "status", "model", "login",
     "logout", "permissions", "config", "doctor", "ide", "vim", "resume",
     "continue", "settings", "hooks",
+    # Autonomous-workflow commands (Claude Code v2.1.139+)
+    "goal", "loop",
     # Anthropic built-in review / sibling skill pointers
     "ultrareview", "security-review", "find-docs", "review", "simplify",
     "modernize", "oneshot",
