@@ -93,6 +93,16 @@ From step-00-init:
 3. **Skip redundant research**: do NOT re-research topics already covered in the file — focus agents on implementation-specific questions (existing code patterns, file structure, utilities) that the prior analysis doesn't cover
 4. **Carry forward open questions**: flag any unresolved items from the prior analysis. If the prior context carries a **Blocking** / **Non-blocking** open-questions split (spec's format — match the content, not the filename), treat each blocking question as a gate — resolve it before implementing the workstream it blocks; non-blocking ones ride along during implementation
 
+### 0a. Spec AC closure (when `-f` points to a spec)
+
+If `{from_file}` is a **spec** — H1 starts with `# Spec:` AND the file contains a `## Workstreams` H2 subheader — accept the spec's workstream acceptance criteria **verbatim** instead of re-inferring in § 5.
+
+- Log: `Spec AC accepted verbatim from {from_file}` in the analysis output.
+- Skip the AC inference step (§ 5 below) — the spec's AC are the contract.
+- Negative scope: copy each workstream's `## Not Included` block when present; copy the spec-level `## Non-goals` section when no per-workstream negative scope exists.
+
+This prevents silent AC drift when chaining `/spec → /apex -f <spec>`.
+
 The prior context (whether from an issue or a file) replaces the need for web research on topics it already covers. Codebase exploration subagents are still valuable since the prior context typically doesn't map implementation details.
 
 ### 1. Initialize Save Output (if save_mode)
@@ -282,21 +292,34 @@ Combine results into structured context:
 
 ### 5. Infer Acceptance Criteria
 
-Based on task and context, infer success criteria:
+**Skip this step if § 0a Spec AC closure applied** — the spec's AC are accepted verbatim, and inference would silently override the contract.
+
+Otherwise, infer success criteria in **Given/When/Then** form with explicit **negative scope**:
 
 ```markdown
 ## Inferred Acceptance Criteria
 
 Based on "{task_description}" and existing patterns:
 
-- [ ] AC1: [specific measurable outcome]
-- [ ] AC2: [specific measurable outcome]
-- [ ] AC3: [specific measurable outcome]
+- [ ] Given <precondition>, when <action>, then <observable outcome>  (happy path)
+- [ ] Given <error precondition>, when <action>, then <safe outcome>  (error path)
+- [ ] Given <boundary condition>, when <action>, then <observable outcome>  (edge case — recommended)
 
-_These will be refined in the planning step._
+## Not Included (negative scope)
+
+- <feature explicitly out of scope>
+- <refactor explicitly deferred>
 ```
 
-**If `{save_mode}` = true:** Update 00-context.md with acceptance criteria
+Rules:
+- At least one happy-path AC AND one error-path AC are mandatory.
+- One edge/boundary AC is recommended when the task surface admits it.
+- The `## Not Included` header always appears; bullets may be empty when genuinely nothing is excluded.
+- AC must be testable in the transcript — the eXamine step's derivation lens reads them.
+
+_These will be refined in the planning step._
+
+**If `{save_mode}` = true:** Update 00-context.md with both Acceptance Criteria and Not Included sections.
 
 ### 6. Present Context Summary
 

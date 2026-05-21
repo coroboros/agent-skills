@@ -181,6 +181,7 @@ For implementation details, see `steps/step-00-init.md`.
 | `{feature_name}`        | string  | Kebab-case name without number (e.g., `add-auth-middleware`) |
 | `{task_id}`             | string  | Full identifier with number (e.g., `01-add-auth-middleware`) |
 | `{acceptance_criteria}` | list    | Success criteria (inferred or explicit)                |
+| `{negative_acceptance}` | list    | Negative scope — explicit must-NOT criteria (inferred or accepted verbatim from a spec via `-f`) |
 | `{auto_mode}`           | boolean | Skip confirmations, use recommended options            |
 | `{save_mode}`           | boolean | Save outputs to `~/.claude/output/{project}/apex/`     |
 | `{economy_mode}`        | boolean | No subagents, direct tool usage only                   |
