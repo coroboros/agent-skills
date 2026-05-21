@@ -2,7 +2,7 @@
 name: apex
 description: Systematic implementation using APEX methodology (Analyze-Plan-Execute-eXamine) with parallel subagents and self-validation. Use when implementing features, fixing bugs, or making code changes that benefit from structured workflow.
 when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/brainstorm` or `/spec`.
-argument-hint: "[-a] [-s] [-e] [-b] [-i] [-f <context>] [-r <task-id>] <task description>"
+argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
 model: opus
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
@@ -69,6 +69,7 @@ See **Parameters** below for the complete flag list.
 | `-r` | `--resume` | Resume mode: continue from a previous task |
 | `-b` | `--branch` | Branch mode: verify not on main, create branch if needed |
 | `-i` | `--interactive` | Interactive mode: configure flags via AskUserQuestion |
+| `-g` | `--goal` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; v2.1.139+ required) |
 | `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), spec, brainstorm report, or any file as foundational input for analysis. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
 **Disable flags (turn OFF):**
@@ -79,6 +80,7 @@ See **Parameters** below for the complete flag list.
 | `-S` | `--no-save` | Disable save mode |
 | `-E` | `--no-economy` | Disable economy mode |
 | `-B` | `--no-branch` | Disable branch mode |
+| `-G` | `--no-goal` | Disable `/goal` integration (overrides headless auto-on) |
 
 ### Examples
 
@@ -122,6 +124,14 @@ See **Parameters** below for the complete flag list.
 
 For the detailed parsing algorithm, see `steps/step-00-init.md`.
 
+## Compatibility
+
+`-g` (the `/goal` integration) requires **Claude Code v2.1.139 or later**. On older versions, Claude Code rejects the unknown slash command and the flag becomes a no-op without halting apex.
+
+The `/goal` evaluator is **transcript-only** — it cannot run tools or read files independently. The emitted condition therefore forces command output into the transcript verbatim (e.g. `npm test exits 0`, not "tests pass") so the evaluator has a deterministic signal to judge.
+
+`-g` is **orthogonal to `-a`**: `-a` skips per-tool prompts within a turn; `-g` skips per-turn prompts across turns. Recommended together for unattended `claude -p "/apex …"` runs.
+
 ## Output Structure
 
 The output path is `~/.claude/output/{project}/apex/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.claude/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
@@ -145,17 +155,26 @@ All outputs saved under the global user dir, keyed by `{project}` (kebab-cased b
 
 **Resume mode (`-r {task-id}`):**
 
-Resolve the partial ID deterministically, then restore state:
+Resolve the partial ID deterministically, then **auto-validate state** before restoring:
 
 ```bash
 bash ${CLAUDE_SKILL_DIR}/scripts/resume_lookup.sh {partial_id}
+# → resolves to {task_dir}
+bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {task_id} {step_num}
+# → exit 0: state consistent, continue restoration
+# → non-zero: halt with the script's stderr findings; do NOT restore
 ```
 
+`resume_lookup.sh`:
 - Exit 0 → absolute task path on stdout; continue.
 - Exit 1 → ambiguous; candidates print on stderr. Show them to the user, ask which one.
 - Exit 2 → no match; halt with a clear error.
 
-Step-00 then restores state from `{task_dir}/00-context.md` and continues from the next pending step.
+`validate_state.sh` (auto-runs on every resume):
+- Exit 0 → prior steps complete and consistent; safe to enter `{step_num}`.
+- Non-zero → state is corrupt or partial (missing task folder, missing step file, prior step not marked complete). Halt and surface findings.
+
+Step-00 reads `{task_dir}/00-context.md` to determine the next pending step, invokes `validate_state.sh` against that step, then restores state variables and continues.
 
 For implementation details, see `steps/step-00-init.md`.
 
@@ -181,11 +200,13 @@ For implementation details, see `steps/step-00-init.md`.
 | `{feature_name}`        | string  | Kebab-case name without number (e.g., `add-auth-middleware`) |
 | `{task_id}`             | string  | Full identifier with number (e.g., `01-add-auth-middleware`) |
 | `{acceptance_criteria}` | list    | Success criteria (inferred or explicit)                |
+| `{negative_acceptance}` | list    | Negative scope — explicit must-NOT criteria (inferred or accepted verbatim from a spec via `-f`) |
 | `{auto_mode}`           | boolean | Skip confirmations, use recommended options            |
 | `{save_mode}`           | boolean | Save outputs to `~/.claude/output/{project}/apex/`     |
 | `{economy_mode}`        | boolean | No subagents, direct tool usage only                   |
 | `{branch_mode}`         | boolean | Verify not on main, create branch if needed            |
 | `{interactive_mode}`    | boolean | Configure flags interactively                          |
+| `{goal_mode}`           | boolean | Emit `/goal` directive at start of step-04 (auto-on under `claude -p`) |
 | `{from_file}`           | string  | Path to prior context file (if `-f` provided)          |
 | `{resume_task}`         | string  | Task ID to resume (if `-r` provided)                   |
 | `{output_dir}`          | string  | Full path to output directory                          |
@@ -197,7 +218,7 @@ For implementation details, see `steps/step-00-init.md`.
 
 Step 00 handles:
 
-- Flag parsing (`-a`, `-s`, `-e`, `-b`, `-i`, `-f`, `-r`)
+- Flag parsing (`-a`, `-s`, `-e`, `-b`, `-i`, `-g`, `-f`, `-r`)
 - Resume mode detection and task lookup
 - Output folder creation (if `save_mode`)
 - `00-context.md` creation (if `save_mode`)
@@ -259,7 +280,7 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 2. Append findings/outputs to the pre-created step file
 3. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
 
-`scripts/validate_state.sh` is shipped as a manual debugging utility — invoke it on demand to verify a task's state is consistent (e.g., when a resume looks suspicious). It is not part of the per-step workflow.
+`scripts/validate_state.sh` auto-runs on every `-r` resume (see § Resume Workflow). It is also available manually for ad-hoc state verification — invoke it on demand against any task to confirm consistency.
 
 **Template system benefits:**
 

@@ -210,6 +210,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 | `-s` / `-S` | Save outputs to `~/.claude/output/{project}/apex/{task-id}/` / force no-save |
 | `-e` / `-E` | Economy mode — no subagents / disable |
 | `-b` / `-B` | Branch mode — verify not on main, create branch if needed / disable |
+| `-g` / `-G` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; requires Claude Code v2.1.139+) / disable |
 | `-f` | Load prior context (GitHub issue `#N`, spec, brainstorm report, RFC) |
 | `-r` | Resume a previous task by ID |
 | `-i` | Interactive flag configuration |
@@ -218,10 +219,11 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 
 **What it does**
 
-- **Analyze** — launches 1–10 parallel subagents based on task complexity
-- **Plan** — file-by-file implementation strategy with acceptance criteria
-- **Execute** — todo-driven implementation with progressive step loading
-- **eXamine** — self-check against acceptance criteria, lint, and typecheck
+- **Analyze** — launches 1–10 parallel subagents based on task complexity. Infers acceptance criteria in Given/When/Then form with explicit `## Not Included` negative scope. When `-f` points to a spec (H1 `# Spec:` + `## Workstreams`), accepts the spec's AC verbatim (closure rule) instead of re-inferring.
+- **Plan** — file-by-file implementation strategy with AC mapping. Inline Challenge mini-phase (premortem + alternative consideration) stress-tests the plan. Surgical-scope advisory fires when the plan touches >5 files, >2 systems, or introduces cross-cutting concerns — advisory only, never blocks.
+- **Execute** — todo-driven implementation with progressive step loading.
+- **eXamine** — derivation lens (code↔plan reconciliation, classifying each divergence as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT) runs before typecheck/lint/tests. GAP blocks completion; SCOPE-ADD advisory unless declared in negative scope; DECISION-OVERRIDE surfaces for user judgment. Optional `/goal` integration via `-g` loops the session until AC verified — transcript-only Haiku evaluator, requires Claude Code v2.1.139+; auto-on under `claude -p`.
+- **Resume** — `-r` auto-validates state via `validate_state.sh` before restoration; partial or corrupt task dirs fail loud rather than cascade.
 
 Accepts output from `spec` or `brainstorm` via `-f`. Works standalone.
 

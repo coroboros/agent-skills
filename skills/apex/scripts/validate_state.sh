@@ -19,6 +19,10 @@
 #   3   prior step not marked complete
 #
 # Emits RESULT: lines; detailed findings go to stderr.
+#
+# Auto-invoked on every `-r` resume in step-00-init.md to catch corrupt
+# or partial state before continuation. Also runnable manually for
+# ad-hoc verification.
 
 set -euo pipefail
 

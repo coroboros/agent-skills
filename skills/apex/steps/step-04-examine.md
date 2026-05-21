@@ -46,6 +46,8 @@ From previous steps:
 | `{task_description}` | What was implemented |
 | `{task_id}` | Kebab-case identifier |
 | `{acceptance_criteria}` | Success criteria |
+| `{negative_acceptance}` | Negative scope (must-NOT criteria) — read by derivation lens |
+| `{goal_mode}` | Emit `/goal` directive at start of this step |
 | `{auto_mode}` | Skip confirmations |
 | `{save_mode}` | Save outputs to files |
 | `{economy_mode}` | No subagents mode |
@@ -56,6 +58,24 @@ From previous steps:
 ---
 
 ## EXECUTION SEQUENCE:
+
+### 0. Emit /goal directive (if `{goal_mode}`)
+
+**If `{goal_mode}` = true**, emit the `/goal` directive AT THE START of this step (before save initialization), populated with the discovered check commands from § 2 below and the acceptance criteria from step-01:
+
+```
+/goal All AC verified: <AC list one per line from {acceptance_criteria}>.
+Proof: <typecheck cmd> exits 0, <lint cmd> exits 0, <test cmd> exits 0.
+Derivation lens returns CONSISTENT or only DECISION-OVERRIDE with documented rationale.
+No file outside the planned scope is modified.
+Stop after 15 turns.
+```
+
+Resolve `<typecheck cmd>`, `<lint cmd>`, `<test cmd>` from § 2 "Discover Available Commands" before emission. If `{acceptance_criteria}` is empty (trivial task), substitute `(none — task trivially completes when checks pass)`.
+
+Command tokens must land verbatim in the transcript — the Haiku evaluator behind `/goal` only judges what it sees, so paraphrases like "tests pass" defeat the gate.
+
+If `{goal_mode}` = false, skip this step entirely.
 
 ### 1. Initialize Save Output (if save_mode)
 
@@ -73,6 +93,23 @@ Check `package.json` scripts and CLAUDE.md for the project's exact command names
 Look for: `typecheck`, `lint`, `test`, `build`, `format` (or equivalents).
 
 ### 3. Run Validation Suite
+
+**3.0 Derivation lens**
+
+Load `references/derivation-lens.md` and run the lens — code-ultrareview's Python orchestrator if detected, else the inline fallback. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence.
+
+**Gating:**
+
+- **GAP** findings → **MUST PASS**. Workflow blocks; surface planned-but-missing items; user resolves each (implement OR amend plan + AC) before completion.
+- **SCOPE-ADD** findings → continue (advisory). Escalate to **Medium and require user acknowledgement** when the addition matches a `## Not Included` entry from the plan's negative scope.
+- **DECISION-OVERRIDE** findings → continue. Surface for user judgment.
+- **CONSISTENT** → no finding; counted in coverage.
+
+Log a one-line summary to `04-examine.md`:
+
+```
+**Derivation lens:** GAP: <n> · SCOPE-ADD: <n> (advisory) · DECISION-OVERRIDE: <n> · CONSISTENT: <n>
+```
 
 **3.1 Typecheck**
 
@@ -118,11 +155,6 @@ Verify each item:
 - [ ] New tests written for new functionality
 - [ ] No skipped tests without reason
 
-**Acceptance Criteria:**
-- [ ] Each AC demonstrably met
-- [ ] Can explain how implementation satisfies AC
-- [ ] Edge cases considered
-
 **Patterns Followed:**
 - [ ] Code follows existing patterns
 - [ ] Error handling consistent
@@ -146,9 +178,7 @@ Re-run typecheck and lint commands. Both MUST pass.
 **Tests:** ✓ {X}/{X} passing
 **Format:** ✓ Applied
 
-**Acceptance Criteria:**
-- [✓] AC1: Verified by [how]
-- [✓] AC2: Verified by [how]
+**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (advisory) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
 **Files Modified:** {list}
 
@@ -170,9 +200,7 @@ Re-run typecheck and lint commands. Both MUST pass.
 - Lint: ✓ Passed
 - Tests: ✓ Passed
 
-**Acceptance Criteria:**
-- [✓] AC1: Verified
-- [✓] AC2: Verified
+**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (advisory) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
 **Files Modified:** {list}
 

@@ -52,6 +52,7 @@ save_mode: false # -s: Save outputs to ~/.claude/output/{project}/apex/
 economy_mode: false # -e: No subagents, save tokens (for limited plans)
 branch_mode: false # -b: Verify not on main, create branch if needed
 interactive_mode: false # -i: Configure flags interactively
+goal_mode: false # -g: Wire /goal to loop step-04 until AC verified (auto-on under `claude -p`)
 
 # Presets:
 # Budget-friendly:  economy_mode: true
@@ -75,6 +76,7 @@ interactive_mode: false # -i: Configure flags interactively
 {economy_mode} = <default>
 {branch_mode}  = <default>
 {interactive_mode} = <default>
+{goal_mode}    = <default>
 ```
 
 **Step 2: Parse user input and override defaults:**
@@ -85,12 +87,14 @@ Enable flags (lowercase - turn ON):
   -s or --save     → {save_mode} = true
   -e or --economy  → {economy_mode} = true
   -b or --branch   → {branch_mode} = true
+  -g or --goal     → {goal_mode} = true
 
 Disable flags (UPPERCASE - turn OFF):
   -A or --no-auto         → {auto_mode} = false
   -S or --no-save         → {save_mode} = false
   -E or --no-economy      → {economy_mode} = false
   -B or --no-branch       → {branch_mode} = false
+  -G or --no-goal         → {goal_mode} = false (explicit override)
 
 Interactive:
   -i or --interactive   → {interactive_mode} = true
@@ -113,6 +117,17 @@ Example: "add user authentication" → "add-user-authentication"
   - Result: "01-add-user-authentication" (or 02, 03, etc.)
 ```
 
+### 1a. Headless auto-detection (for `{goal_mode}`)
+
+If neither `-g` nor `-G` was passed explicitly AND any of these holds, default `{goal_mode}` = true:
+
+- `${CLAUDE_NONINTERACTIVE}` is set to any non-empty value, OR
+- stdin is not a TTY (`! [ -t 0 ]` in bash).
+
+If `-G` was passed explicitly, it always overrides auto-detection (`{goal_mode}` stays false).
+
+When auto-on fires, surface it in the init summary as **"headless: -g auto-on"** so the decision is observable.
+
 ### 2. Check Resume Mode
 
 <critical>
@@ -129,9 +144,15 @@ If {resume_task} is NOT set, skip directly to step 3.
    ```
 
 2. **If exact match found:**
-   - Read `00-context.md` to restore state variables
-   - Scan step files to find last completed step (check for completion marker)
-   - Load next incomplete step
+   - Read `00-context.md`'s `## Progress` table. Find the first row not marked `✓ Complete`; extract the numeric prefix from that step name (e.g., `04` from `04-examine`). Assign the integer (1–4) to `{step_num}` — the value passes to `validate_state.sh` below.
+   - **Auto-validate state** before any restoration:
+     ```bash
+     bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {resume_task} {step_num}
+     ```
+     Non-zero exit halts the resume with the script's stderr findings — do **not** continue state restoration on failure (the task is corrupt or partial; surface the diagnostic to the user).
+   - Restore state variables from `00-context.md`.
+   - Scan step files to find last completed step (check for completion marker).
+   - Load next incomplete step.
    - **STOP** - do not continue with fresh init
 
 3. **If partial match (e.g., `-r 01`):**
@@ -213,6 +234,7 @@ Show COMPACT initialization summary (one table, then proceed immediately):
 | `{save_mode}` | true/false |
 | `{economy_mode}` | true/false |
 | `{branch_mode}` | true/false |
+| `{goal_mode}` | true/false |
 
 → Analyzing...
 ```
