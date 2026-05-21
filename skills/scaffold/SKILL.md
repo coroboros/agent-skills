@@ -1,6 +1,6 @@
 ---
 name: scaffold
-description: Bootstrap a new web project on a strictly opinionated Cloudflare Workers stack — Next.js 16 or Astro 6, TypeScript strict, pnpm, Biome, Tailwind. No fallbacks: no Vercel/Netlify, no ESLint/Prettier, no swap. Skip if the user wants any of these. Use when the user says "start a new project", "bootstrap", "init", "scaffold", "create a new site", or is working in an empty directory and wants production-ready foundations.
+description: 'Bootstrap a new web project on a strictly opinionated Cloudflare Workers stack — Next.js 16 or Astro 6, TypeScript strict, pnpm, Biome, Tailwind. No fallbacks: no Vercel/Netlify, no ESLint/Prettier, no swap. Skip if the user wants any of these. Use when the user says "start a new project", "bootstrap", "init", "scaffold", "create a new site", or is working in an empty directory and wants production-ready foundations.'
 when_to_use: When the user wants to start a new web project from scratch with a production-ready stack on Cloudflare Workers. Keywords — scaffold, bootstrap, init, start, new project, create site, new app, empty directory, greenfield. Works on empty dirs or brand-new ones. Skip when the project already has `package.json` / `astro.config.*` / `next.config.*` — use `/design-system` or `/award-design` on existing projects. Skip when the user wants a non-Cloudflare stack — this skill is opinionated toward Workers.
 argument-hint: "<scaffold> [project-name]  — scaffolds: next-cloudflare, astro-cloudflare"
 model: haiku
