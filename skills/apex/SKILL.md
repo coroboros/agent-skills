@@ -155,17 +155,26 @@ All outputs saved under the global user dir, keyed by `{project}` (kebab-cased b
 
 **Resume mode (`-r {task-id}`):**
 
-Resolve the partial ID deterministically, then restore state:
+Resolve the partial ID deterministically, then **auto-validate state** before restoring:
 
 ```bash
 bash ${CLAUDE_SKILL_DIR}/scripts/resume_lookup.sh {partial_id}
+# → resolves to {task_dir}
+bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {task_id} {step_num}
+# → exit 0: state consistent, continue restoration
+# → non-zero: halt with the script's stderr findings; do NOT restore
 ```
 
+`resume_lookup.sh`:
 - Exit 0 → absolute task path on stdout; continue.
 - Exit 1 → ambiguous; candidates print on stderr. Show them to the user, ask which one.
 - Exit 2 → no match; halt with a clear error.
 
-Step-00 then restores state from `{task_dir}/00-context.md` and continues from the next pending step.
+`validate_state.sh` (auto-runs on every resume):
+- Exit 0 → prior steps complete and consistent; safe to enter `{step_num}`.
+- Non-zero → state is corrupt or partial (missing task folder, missing step file, prior step not marked complete). Halt and surface findings.
+
+Step-00 reads `{task_dir}/00-context.md` to determine the next pending step, invokes `validate_state.sh` against that step, then restores state variables and continues.
 
 For implementation details, see `steps/step-00-init.md`.
 
@@ -271,7 +280,7 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 2. Append findings/outputs to the pre-created step file
 3. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
 
-`scripts/validate_state.sh` is shipped as a manual debugging utility — invoke it on demand to verify a task's state is consistent (e.g., when a resume looks suspicious). It is not part of the per-step workflow.
+`scripts/validate_state.sh` auto-runs on every `-r` resume (see § Resume Workflow). It is also available manually for ad-hoc state verification — invoke it on demand against any task to confirm consistency.
 
 **Template system benefits:**
 

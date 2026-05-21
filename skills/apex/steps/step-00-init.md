@@ -142,9 +142,15 @@ If {resume_task} is NOT set, skip directly to step 3.
    ```
 
 2. **If exact match found:**
-   - Read `00-context.md` to restore state variables
-   - Scan step files to find last completed step (check for completion marker)
-   - Load next incomplete step
+   - Read `00-context.md` to determine the next pending step (call it `{step_num}`).
+   - **Auto-validate state** before any restoration:
+     ```bash
+     bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {resume_task} {step_num}
+     ```
+     Non-zero exit halts the resume with the script's stderr findings — do **not** continue state restoration on failure (the task is corrupt or partial; surface the diagnostic to the user).
+   - Restore state variables from `00-context.md`.
+   - Scan step files to find last completed step (check for completion marker).
+   - Load next incomplete step.
    - **STOP** - do not continue with fresh init
 
 3. **If partial match (e.g., `-r 01`):**
