@@ -31,6 +31,15 @@ Each subagent returns a list of findings, each with: `lens`, `severity`
 `rule` (the quoted rule line — lens 1 only), and a self-assigned
 `confidence` 0–100. Subagents never modify files.
 
+Severity ↔ marker mapping (canonical, surfaced in every report):
+**🔴 High** — blocks ship, must fix; **🟠 Medium** — fix soon, won't break
+ship; **🟢 Low** — nit / informational, noted. Markers attach via
+`aggregation.py::_attach_marker` after A2 routing, so unverified findings
+(severity downgraded to Low) render as 🟢. The verdict algorithm
+(`references/verdict-logic.md`) reads markers + Anthropic tier; the action
+plan (`references/skill-routing.md`) groups by `(lens, marker)` for
+delegation.
+
 **Canonical lens keys** (the `lens` field value — used by the report table
 and `tests/_pipeline/_contracts.py`): `rules`, `bugs-drift`, `docs-version`,
 `tests-blindspots`, `coherence-graph`, `derivation`. The coherence-graph

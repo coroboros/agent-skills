@@ -107,24 +107,52 @@ an explicit clean note is unambiguous.
 
 `scripts/aggregation.py` exposes:
 
-- `apply_a2(findings) -> tuple[verified, unverified]` — A2 routing.
+- `apply_a2(findings) -> tuple[verified, unverified]` — A2 routing; also attaches `meta.marker` to every retained finding.
 - `iterate_unverified(unverified, builder_fn) -> tuple[promoted, remaining, dropped]` — sub-80 iteration; one call per finding.
 - `dedupe(findings) -> findings` — cross-lens dedup.
 - `assign_anthropic_tier(finding) -> str` — Important / Nit / Pre-existing.
 - `order(findings) -> findings` — canonical ordering.
+- `compute_severity_counts(verified) -> dict[str, int]` — verified-finding counts by marker (🔴 / 🟠 / 🟢).
+- `compute_lens_summary(verified, unverified, ran_lenses) -> list[dict]` — per-lens status snapshot for every canonical lens (clean ones included; skipped lenses marked).
+- `compute_verdict(verified) -> dict` — deterministic Ship / Fix-then-ship / Needs work with rationale + drivers. Spec: `references/verdict-logic.md`.
+- `compute_action_plan(verified, unverified, installed_skills, route_fn) -> dict` — per-cluster paste-ready delegation prompts, severity-ordered. Spec: `references/skill-routing.md`.
 
 The orchestrator composes them in this order:
 
 ```
 findings = collect_from_all_lenses()
 findings = dedupe(findings)
-verified, unverified = apply_a2(findings)
+verified, unverified = apply_a2(findings)   # attaches meta.marker
 if builder_fn is not None:
     promoted, unverified, _ = iterate_unverified(unverified, builder_fn)
     verified.extend(promoted)
 verified = order([assign_anthropic_tier(f) for f in verified])
 unverified = order(unverified)
+
+severity_counts = compute_severity_counts(verified)
+lens_summary    = compute_lens_summary(verified, unverified, ran_lenses)
+verdict         = compute_verdict(verified)
+action_plan     = compute_action_plan(verified, unverified, installed_skills, route_fn)
 ```
 
 Subagent prompts never see the synthesizer — they emit findings; the
-orchestrator handles A2, iteration, dedup, ordering.
+orchestrator handles A2, iteration, dedup, ordering, and the four
+closing-block computations.
+
+## Closing-block extension (synthesize() return keys)
+
+`synthesize()` returns a dict with seven keys. The first three are the
+original wire format; the last four are the closing-block extensions
+consumed by `templates/code-ultrareview.md`.
+
+| Key | Type | Shape |
+|-----|------|-------|
+| `verified` | `list[dict]` | Findings ≥80 confidence, ordered. |
+| `unverified` | `list[dict]` | A2-routed sub-80 findings, marker always 🟢. |
+| `iteration_dropped` | `list[dict]` | Findings disproved by build verification (logging only). |
+| `severity_counts` | `dict[str, int]` | `{"🔴": N, "🟠": N, "🟢": N}` — verified set only. Keys always present. |
+| `lens_summary` | `list[dict]` | Six rows, canonical lens order. Each: `{lens, status, verified_count, unverified_count, top_finding}`. Status ∈ `🔴 / 🟠 / 🟢 / skipped`. |
+| `verdict` | `dict` | `{label, rationale, drivers}` — label ∈ `Ship / Fix-then-ship / Needs work`. |
+| `action_plan` | `dict` | `{zero_findings, clusters, unverified_block}` — clusters severity-ordered (🔴 → 🟠 → 🟢 cross-lens). |
+
+Backward-compatible: existing callers reading only `verified`, `unverified`, `iteration_dropped` are unaffected.

@@ -72,7 +72,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
-| Coding | [code-ultrareview](#code-ultrareview) | opus | Fresh-eyes review at full strength — six parallel lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`), iteration on sub-80 findings, gated `--apply-safe`. Distinct from Anthropic's remote `/ultrareview` | Claude |
+| Coding | [code-ultrareview](#code-ultrareview) | opus | Fresh-eyes review at full strength — six parallel lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`), iteration on sub-80 findings, gated `--apply-safe`. Closes with 🔴/🟠/🟢 markers, deterministic verdict, and paste-ready delegation prompts. Distinct from Anthropic's remote `/ultrareview` | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
 | Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
@@ -343,6 +343,7 @@ Fresh-eyes code review at full strength, in-session. Pinned to `model: opus` and
 - **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a rules-declared base wins), always resolved to a diffable ancestor.
 - **Six lenses** — parallel read-only subagents on every invocation; derivation joins when `--reconcile` resolves to non-empty input. A1 spec-claim triggering, iteration on sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis are always-on. Review runs against the project's own `CLAUDE.md` + local/global rule hierarchy.
 - **Score + route** — each finding scored 0–100; sub-80 surfaces as `[unverified — recommend Deep pass]` (never silent-dropped, per postmortem A2). Out-of-lane findings → pointer to `/security-review` / `/simplify` / `/ultrareview` / `/find-docs`, never a finding.
+- **Actionable closing block** — every report ends with a six-lens summary table (every canonical lens, including clean ones, with 🔴/🟠/🟢 status), a deterministic verdict (`Ship` / `Fix-then-ship` / `Needs work` computed from severity markers + Anthropic tier, never a placeholder), and per-cluster paste-ready delegation prompts. The action plan routes each cluster to the most-specialized installed skill — `/humanize-en` for prose tone drift, `/fix-grammar` for grammar nits, `/oneshot` for low-severity polish — falling back to `/apex` when absent. Never advertises a skill the user doesn't have installed.
 - **Report-only by default** — bridge to `/apex -f` or `/oneshot` for fixes. Opt-in `--apply-safe` writes manifest sync, description sync, and failing tests only (never production logic).
 
 **Sources**
