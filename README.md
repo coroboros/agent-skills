@@ -7,7 +7,7 @@
 
 **AI agent skills for Claude Code and compatible agents**
 
-Six plugins — workflow, design, Claude Code meta, media, productivity, writing. Tested across every skill, scanned by Cisco's `skill-scanner`.
+Seven plugins — workflow, coding, design, Claude Code meta, media, productivity, writing. Tested across every skill, scanned by Cisco's `skill-scanner`.
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![ci](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/ci.yml?branch=main&style=flat-square&label=ci&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/ci.yml)
@@ -72,7 +72,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
-| Coding | [code-review](#code-review) | opus | Report-only session-end review — bugs, drift, gaps, docs/version, tests, CLAUDE.md + local/global rule compliance; fresh-eyes, confidence-scored | Claude |
+| Coding | [code-ultrareview](#code-ultrareview) | opus | Fresh-eyes review at full strength — six parallel lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`), iteration on sub-80 findings, gated `--apply-safe`. Distinct from Anthropic's remote `/ultrareview` | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
 | Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
@@ -262,10 +262,10 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 ### Coding Skills
 
-Bootstrap projects and review changes before commit — `scaffold`, `code-review`.
+Bootstrap projects and review changes before commit — `scaffold`, `code-ultrareview`.
 
 <details>
-<summary><em>scaffold · code-review</em></summary>
+<summary><em>scaffold · code-ultrareview</em></summary>
 
 <br>
 
@@ -309,36 +309,48 @@ Optionally chains to `award-design` and `design-system`.
 
 ---
 
-#### code-review
+#### code-ultrareview
 
-Report-only session-end review with fresh eyes. Dispatches four parallel read-only lens subagents — rules compliance, bugs + drift, docs + version, tests + blind spots — over what changed, confidence-scores findings, and defers security/performance/simplification to the skill that owns them. Never edits code.
+Fresh-eyes code review at full strength, in-session. Pinned to `model: opus` and `effort: max` so every invocation gets the deepest reasoning budget regardless of session defaults. Six parallel lens subagents — rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation — run on every invocation. Sub-80 findings re-pass with build verification. Spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI). Property-fuzz harness synthesis when `fast-check` or `hypothesis` is present. Opt-in `--apply-safe` writes manifest version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug. Distinct from Anthropic's remote `/ultrareview` — same lens family, in-session on the user's subscription.
 
 **Usage**
 
 ```bash
-/code-review                 # auto-detect what changed, report
-/code-review -s              # also save the report for /apex -f
-/code-review -b origin/main  # review HEAD against an explicit base
+/code-ultrareview                                # full review, print report
+/code-ultrareview -s                             # save the report for /apex -f
+/code-ultrareview -b origin/main                 # review HEAD against an explicit base
+/code-ultrareview --reconcile @auto              # add derivation lens with auto-detected planning artifacts
+/code-ultrareview --apply-safe                   # full review + gated low-risk fixes
+/code-ultrareview --include-prose                # also compare README freeform prose
 ```
 
 **Flags**
 
 | Flag | Description |
 |------|-------------|
-| `-s` / `-S` | Save the report to `~/.claude/output/{project}/code-review/code-review-{slug}.md` / force no-save |
+| `-s` / `-S` | Save the report to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` / force no-save |
 | `-b <ref>` | Override the review base (skip auto-detection) |
+| `--reconcile <input>` | Activate the derivation lens. `<input>` accepts `@auto`, `@pr`, a file path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL. Comma-separate multiple inputs. Findings classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT with severity capped by artifact freshness |
+| `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), failing-test author. Diff preview + per-file confirmation. Never modifies production logic |
+| `--include-prose` | Coherence-graph lens compares README freeform paragraphs (default: structured fields only) |
+| `--remote` | Reserved for phase-2 remote-sandbox escalation |
 
 **What it does**
 
-- **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a base declared in the project's rules wins), always resolved to a diffable ancestor
-- **Four lenses** — parallel read-only subagents review the change against the project's own `CLAUDE.md` + local/global rule hierarchy
-- **Score + filter** — each finding scored 0–100; low-confidence, pre-existing, and out-of-lane findings dropped
-- **Report-only** — prioritized report; bridge to `/apex -f` or `/oneshot` to fix
+- **Audit phase** — extracts deterministic signals (LOC, public-API touch, normative-spec claims, manifest delta, planning-artifact breadth, security surface) and surfaces Scope + Estimated wall-clock in the report header. No tier routing.
+- **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a rules-declared base wins), always resolved to a diffable ancestor.
+- **Six lenses** — parallel read-only subagents on every invocation; derivation joins when `--reconcile` resolves to non-empty input. A1 spec-claim triggering, iteration on sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis are always-on. Review runs against the project's own `CLAUDE.md` + local/global rule hierarchy.
+- **Score + route** — each finding scored 0–100; sub-80 surfaces as `[unverified — recommend Deep pass]` (never silent-dropped, per postmortem A2). Out-of-lane findings → pointer to `/security-review` / `/simplify` / `/ultrareview` / `/find-docs`, never a finding.
+- **Report-only by default** — bridge to `/apex -f` or `/oneshot` for fixes. Opt-in `--apply-safe` writes manifest sync, description sync, and failing tests only (never production logic).
 
 **Sources**
 
 - [anthropics/knowledge-work-plugins — code-review](https://github.com/anthropics/knowledge-work-plugins/tree/main/engineering/skills/code-review) — review-dimension framing, report shape
 - [anthropics/claude-plugins-official — code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) — parallel independent agents + 0–100 confidence scoring
+- [Anthropic — `/ultrareview` docs](https://code.claude.com/docs/en/ultrareview) — remote sandbox + multi-agent fleet + per-finding independent verification (the upstream this skill distinguishes itself from — in-session vs remote, distinct namespace)
+- [Anthropic — Code Review docs](https://code.claude.com/docs/en/code-review) — Managed Code Review severity tiers (Important / Nit / Pre-existing) adopted in this skill's report
+- [Anthropic — `/simplify` (commands reference)](https://code.claude.com/docs/en/commands) — three-agent parallel fan-out pattern (bundled skill, cited as in-session-fan-out precedent)
+- [Anthropic — Lessons from Building Claude Code: How We Use Skills](https://x.com/trq212/status/2033949937936085378) — `adversarial-review` skill (fresh-eyes subagent critique + iterate until findings degrade to nitpicks) as the closest pattern blueprint
 
 </details>
 
@@ -1107,12 +1119,12 @@ Skills chain together by design. Each works standalone; chaining covers longer w
       |
 /apex -f <abs spec path> "<task>"            implement systematically
       |
-/code-review -s                      review the change (report-only)
+/code-ultrareview -s                       review the change (adaptive, report-only)
       |
-/apex -f <abs code-review path>      fix the findings
+/apex -f <abs code-ultrareview path>       fix the findings
 ```
 
-Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` without brainstorming, or `/oneshot` for trivial tasks. Run `/code-review` after any change for an independent fresh-eyes pass before committing.
+Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` without brainstorming, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for an adaptive fresh-eyes pass before committing.
 
 ### Design → Develop
 
@@ -1231,7 +1243,7 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 
 ### Canonical writing rules
 
-Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brainstorm`, `brand-voice`, `claude-md`, `code-review`, `oneshot`, `spec`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
+Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brainstorm`, `brand-voice`, `claude-md`, `code-ultrareview`, `oneshot`, `spec`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
 
 The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md). Run `scripts/sync_writing_rules.py` after editing it to propagate changes. The parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity and blocks merge if any declared skill drifts.
 

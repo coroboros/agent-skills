@@ -512,7 +512,7 @@ Use context for:
 
 ## Prompt caching interaction
 
-Prompt caching (see [subagents.md](subagents.md#prompt_caching)) works best with stable context.
+Prompt caching (see [subagents.md](subagents.md#prompt-caching)) works best with stable context.
 
 ### Cache-friendly context
 

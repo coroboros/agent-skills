@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "description": "Marketplace with two skills."
+  },
+  "plugins": [
+    {
+      "name": "demo-skills",
+      "description": "Demo plugin",
+      "skills": [
+        "./skills/spec",
+        "./skills/apex"
+      ]
+    }
+  ]
+}

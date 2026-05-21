@@ -1,0 +1,8 @@
+{
+  "name": "rfc-6874-zone-id-bug",
+  "version": "1.0.0",
+  "description": "URI parser claiming RFC 6874 compliance.",
+  "devDependencies": {
+    "fast-check": "^3.0.0"
+  }
+}

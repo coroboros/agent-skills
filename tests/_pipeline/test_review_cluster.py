@@ -1,6 +1,6 @@
-"""Pipeline contract: code-review → apex (report-only producer).
+"""Pipeline contract: code-ultrareview → apex (report-only producer).
 
-code-review saves a report under .claude/output/code-review/{slug}/; /apex
+code-ultrareview saves a report under .claude/output/code-ultrareview/{slug}/; /apex
 consumes it via -f as generic foundational context (no apex change needed).
 /oneshot is intentionally excluded — it has no -f flag and takes a
 description, not a file. A realistic report fixture must satisfy the schema;
@@ -36,10 +36,10 @@ class TestProducerConsumerPaths(unittest.TestCase):
     consumer documents generic -f consumption; the excluded skill must not
     expose an -f file flag."""
 
-    def test_code_review_documents_its_output_path(self):
+    def test_code_ultrareview_documents_its_output_path(self):
         md = read_skill_md(REVIEW["producer"])
-        self.assertIn(".claude/output/{project}/code-review/", md)
-        self.assertIn("code-review-{slug}.md", md)
+        self.assertIn(".claude/output/{project}/code-ultrareview/", md)
+        self.assertIn("code-ultrareview-{slug}.md", md)
 
     def test_apex_consumes_any_file_via_from(self):
         md = read_skill_md(REVIEW["consumer"])
@@ -59,7 +59,7 @@ class TestReportSchema(unittest.TestCase):
     fails it loudly."""
 
     def test_realistic_fixture_conforms(self):
-        text = (FIX / "realistic_code_review.md").read_text(encoding="utf-8")
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
         self.assertEqual(
             _missing_sections(text, REVIEW["report_required_sections"]), []
         )
@@ -77,10 +77,78 @@ class TestReportSchema(unittest.TestCase):
             self.assertIn(target, text)
 
     def test_malformed_fixture_fails(self):
-        text = (FIX / "malformed_code_review.md").read_text(encoding="utf-8")
+        text = (FIX / "malformed_code_ultrareview.md").read_text(encoding="utf-8")
         self.assertNotEqual(
             _missing_sections(text, REVIEW["report_required_sections"]), []
         )
+
+    def test_coherence_graph_status_in_required_sections(self):
+        self.assertIn("Coherence-graph status", REVIEW["report_required_sections"])
+
+    def test_derivation_coverage_in_required_sections(self):
+        self.assertIn("Derivation coverage", REVIEW["report_required_sections"])
+
+    def test_derivation_lens_key_present(self):
+        self.assertIn("derivation", REVIEW["report_lens_keys"])
+        # The five legacy keys stay alongside derivation — six total.
+        self.assertEqual(len(REVIEW["report_lens_keys"]), 6)
+
+    def test_realistic_fixture_carries_scope_header(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        # Scope + Estimated wall-clock replace the legacy Tier / Tier
+        # rationale / Token estimate header fields after the always-Ultra
+        # refactor.
+        self.assertIn("Scope:", text)
+        self.assertIn("Estimated wall-clock:", text)
+        self.assertNotIn("Tier rationale:", text)
+        self.assertNotIn("Token estimate:", text)
+
+    def test_realistic_fixture_lists_all_six_sub_graphs(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        for sub_graph in REVIEW["coherence_sub_graphs"]:
+            self.assertIn(sub_graph, text, f"sub-graph {sub_graph!r} missing")
+
+
+class TestSeverityScheme(unittest.TestCase):
+    """Dual severity scheme — High/Medium/Low retained for compatibility,
+    Important/Nit/Pre-existing added per Anthropic Managed Code Review."""
+
+    def test_dual_scheme_present(self):
+        for sev in ("High", "Medium", "Low"):
+            self.assertIn(sev, REVIEW["report_severities"])
+        for tier in ("Important", "Nit", "Pre-existing"):
+            self.assertIn(tier, REVIEW["report_severities"])
+
+    def test_realistic_fixture_uses_anthropic_tier(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        self.assertIn("Important", text)
+
+
+class TestProducerOutputTemplate(unittest.TestCase):
+    """The producer_output template must render to a valid path-shaped
+    string when formatted with {project}/{slug}."""
+
+    def test_template_formats_cleanly(self):
+        path = REVIEW["producer_output"].format(project="agent-skills", slug="audit")
+        self.assertTrue(path.endswith("code-ultrareview-audit.md"))
+        self.assertIn("/code-ultrareview/", path)
+
+
+class TestConfidenceThresholdSemantics(unittest.TestCase):
+    """confidence_threshold is the routing boundary, NOT a silent drop —
+    sub-80 findings surface in the Unverified sub-section per A2."""
+
+    def test_threshold_is_80(self):
+        self.assertEqual(REVIEW["confidence_threshold"], 80)
+
+    def test_realistic_fixture_documents_unverified_subsection(self):
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        self.assertIn("### Unverified", text)
+        self.assertIn("[unverified]", text)
+        self.assertIn("verify locally before action", text)
+        # Always-Ultra refactor: no dead tier flag in the fixture.
+        self.assertNotIn("-t deep", text)
+        self.assertNotIn("recommend Deep pass", text)
 
 
 if __name__ == "__main__":
