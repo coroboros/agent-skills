@@ -110,9 +110,10 @@ Full brief: `references/derivation.md`.
 ## Confidence rubric (0–100)
 
 Score every finding; **sub-80 findings are surfaced, not dropped** (postmortem
-A2). The orchestrator routes them to the `### Unverified — recommend Deep
-pass` sub-section of the report with the prefix `[unverified — recommend
-Deep pass]` on the finding text and the rationale in the recommendation.
+A2). The orchestrator routes them to the `### Unverified` sub-section of
+the report with the prefix `[unverified]` on the finding text and the
+rationale `Sub-80 confidence ({score}) — verify locally before action.`
+in the recommendation.
 
 - **0** — false positive: doesn't survive light scrutiny, or is pre-existing (not introduced by the diff). Score 0 = drop, with rationale documented.
 - **25** — maybe real, could not verify.
@@ -158,4 +159,4 @@ Detailed contract in `references/aggregation.md`. Summary:
 - Deduplicate findings reported by more than one lens — keep the one with the highest confidence, note the secondary lens.
 - Order findings by severity (High → Low), then confidence (high → low).
 - A lens that returns nothing contributes a "clean" note, not silence.
-- **No silent drop.** Sub-80 findings are routed to `### Unverified — recommend Deep pass`, never omitted (postmortem A2).
+- **No silent drop.** Sub-80 findings are routed to `### Unverified`, never omitted (postmortem A2).

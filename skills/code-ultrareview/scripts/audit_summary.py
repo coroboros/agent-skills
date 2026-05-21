@@ -33,6 +33,8 @@ DERIVATION_PER_ARTIFACT_SECONDS = 15
 
 def _scope_tokens(signals: dict) -> list:
     tokens = []
+    if signals.get("dirty_tree"):
+        tokens.append("dirty tree")
     files_touched = int(signals.get("files_touched", 0) or 0)
     if files_touched:
         tokens.append(f"{files_touched} file{'s' if files_touched != 1 else ''}")

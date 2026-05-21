@@ -106,7 +106,10 @@ class TestFindingsSubSections(unittest.TestCase):
 
     def test_unverified_subsection(self):
         text = _read()
-        self.assertIn("### Unverified — recommend Deep pass", text)
+        self.assertIn("### Unverified", text)
+        # Always-Ultra refactor: no dead tier flag CTA, no "Deep pass" label.
+        self.assertNotIn("recommend Deep pass", text)
+        self.assertNotIn("-t deep", text)
 
     def test_verified_table_has_tier_column(self):
         text = _read()

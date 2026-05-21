@@ -111,8 +111,8 @@ def trigger_unverified_a1_finding(
             f"could not fetch governing clause ({reason})."
         ),
         "recommendation": (
-            f"Re-run with `-t deep` once {spec_name} is reachable, or "
-            f"pre-populate the cache at {SPEC_CACHE_DIR}/."
+            f"Re-fetch when {spec_name} is reachable, or pre-populate the "
+            "cache at `~/.claude/cache/code-ultrareview/specs/`."
         ),
         "confidence": 50,
     }

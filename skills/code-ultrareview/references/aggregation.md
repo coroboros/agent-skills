@@ -16,10 +16,10 @@ filter. **A2 replaces drop with routing.**
 Rules:
 
 - Any finding with `confidence < 80` AND `confidence > 0` is **surfaced**, not dropped.
-- Its `finding` text is prefixed `[unverified — recommend Deep pass]`.
-- Its `recommendation` text is prefixed with the routing rationale: `Sub-80 confidence ({score}) — re-run with -t deep to verify.`
+- Its `finding` text is prefixed `[unverified]`.
+- Its `recommendation` text is prefixed with the routing rationale: `Sub-80 confidence ({score}) — verify locally before action.`
 - Severity is downgraded to `Low` (regardless of original severity).
-- It appears in the report under `### Unverified — recommend Deep pass` (a sub-section of `## Findings`), separate from verified findings.
+- It appears in the report under `### Unverified` (a sub-section of `## Findings`), separate from verified findings.
 
 `confidence == 0` is still a drop — by rubric, 0 means "doesn't survive light scrutiny, or pre-existing." Drops include rationale in the synthesizer's debug output (never in the user-facing report).
 
@@ -46,10 +46,10 @@ Subagents call this after `WebFetch` returns the cached body.
 
 ## Iteration on sub-80 findings
 
-Sub-80 findings from the first pass are re-passed to their lens subagent
-with `--iterate`. The subagent:
+Iteration is always-on: whenever the dispatcher supplies a `builder_fn`,
+every sub-80 finding gets one verification pass. The subagent:
 
-1. Detects the repo's build/test tool (`scripts/build_detect.py`, landing in WS-5).
+1. Detects the repo's build/test tool (`scripts/build_detect.py`).
 2. Runs the canonical test command on a fixture or test neighbor.
 3. Interprets the result:
    - Build confirms the finding → promote confidence to ≥80 (originally-scored confidence + 30, capped at 95). Move to verified.
@@ -57,9 +57,11 @@ with `--iterate`. The subagent:
    - Build fails to run (env missing) → no promotion, no drop. Finding stays in Unverified.
 4. Cap: **one iteration per finding** — bounds the cost increase to roughly 2× the first-pass tokens.
 
-`aggregation.deep_iterate(findings, builder_fn)` exposes the orchestration.
-The `builder_fn` is supplied by the dispatcher and returns one of
-`"confirmed"`, `"disproved"`, or `"inconclusive"` per finding.
+`aggregation.iterate_unverified(findings, builder_fn)` exposes the
+orchestration. The `builder_fn` is supplied by the dispatcher and returns
+one of `"confirmed"`, `"disproved"`, or `"inconclusive"` per finding.
+Pass `builder_fn=None` to `synthesize()` when no build harness is
+available — the unverified set surfaces without promotion attempts.
 
 ## Deduplication
 
@@ -106,7 +108,7 @@ an explicit clean note is unambiguous.
 `scripts/aggregation.py` exposes:
 
 - `apply_a2(findings) -> tuple[verified, unverified]` — A2 routing.
-- `deep_iterate(unverified, builder_fn) -> tuple[promoted, remaining, dropped]` — sub-80 iteration (function name retained for API stability).
+- `iterate_unverified(unverified, builder_fn) -> tuple[promoted, remaining, dropped]` — sub-80 iteration; one call per finding.
 - `dedupe(findings) -> findings` — cross-lens dedup.
 - `assign_anthropic_tier(finding) -> str` — Important / Nit / Pre-existing.
 - `order(findings) -> findings` — canonical ordering.
@@ -117,8 +119,8 @@ The orchestrator composes them in this order:
 findings = collect_from_all_lenses()
 findings = dedupe(findings)
 verified, unverified = apply_a2(findings)
-if tier == "deep":
-    promoted, unverified, _ = deep_iterate(unverified, builder)
+if builder_fn is not None:
+    promoted, unverified, _ = iterate_unverified(unverified, builder_fn)
     verified.extend(promoted)
 verified = order([assign_anthropic_tier(f) for f in verified])
 unverified = order(unverified)

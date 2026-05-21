@@ -21,10 +21,23 @@ the result through `audit_summary.py` for header formatting. No reasoning,
 no synthesis — the scripts are deterministic.
 
 ```bash
+# Clean tree
 python3 "${CLAUDE_SKILL_DIR}/scripts/audit_signals.py" \
   --base "<base>" --target "<target>" --json \
 | python3 "${CLAUDE_SKILL_DIR}/scripts/audit_summary.py" [--build] [--fuzz]
+
+# Dirty tree (uncommitted: git diff HEAD + untracked files, each read in full)
+python3 "${CLAUDE_SKILL_DIR}/scripts/audit_signals.py" \
+  --dirty-tree --json \
+| python3 "${CLAUDE_SKILL_DIR}/scripts/audit_summary.py" [--build] [--fuzz]
 ```
+
+The dirty-tree mode mirrors the lens contract in `references/lenses.md:22`:
+tracked changes from `git diff HEAD` plus every path from
+`git ls-files --others --exclude-standard`, each counted as all-added
+LOC. Output carries `"dirty_tree": true` so the summary prefixes the
+scope with `dirty tree` and the report header reflects the real diff
+rather than collapsing to `trivial diff`.
 
 The `--build` and `--fuzz` flags are caller-supplied — the orchestrator runs
 `build_detect.py` and inspects the manifest for `fast-check`/`hypothesis` before

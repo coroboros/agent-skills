@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Aggregation primitives for code-ultrareview.
 
-Composes A2 routing (no silent drop), sub-80 iteration, cross-lens
-deduplication, severity-tier assignment, and canonical ordering. Pure
-stdlib; called from the dispatcher orchestrator after lens subagents
-return their findings.
+Composes A2 routing (no silent drop), always-on iteration on sub-80
+findings (when a builder is supplied), cross-lens deduplication,
+severity-tier assignment, and canonical ordering. Pure stdlib; called
+from the dispatcher orchestrator after lens subagents return their
+findings.
 
 Findings are passed as plain dicts to keep the wire format identical to
 the JSON the lens subagents emit. The shape is:
@@ -26,9 +27,9 @@ import re
 from typing import Callable
 
 CONFIDENCE_THRESHOLD = 80
-DEEP_PROMOTION_BONUS = 30
-DEEP_PROMOTION_CAP = 95
-UNVERIFIED_PREFIX = "[unverified — recommend Deep pass]"
+PROMOTION_BONUS = 30
+PROMOTION_CAP = 95
+UNVERIFIED_PREFIX = "[unverified]"
 
 SEVERITY_ORDER = {"High": 0, "Medium": 1, "Low": 2}
 
@@ -96,7 +97,10 @@ def apply_a2(findings: list[dict]) -> tuple[list[dict], list[dict]]:
         finding_text = f.get("finding", "")
         if not finding_text.startswith(UNVERIFIED_PREFIX):
             f["finding"] = f"{UNVERIFIED_PREFIX} {finding_text}".strip()
-        rationale = f"Sub-{CONFIDENCE_THRESHOLD} confidence ({conf}) — re-run with -t deep to verify."
+        rationale = (
+            f"Sub-{CONFIDENCE_THRESHOLD} confidence ({conf}) — "
+            "verify locally before action."
+        )
         rec = f.get("recommendation", "")
         if rationale not in rec:
             f["recommendation"] = f"{rationale} {rec}".strip()
@@ -108,7 +112,7 @@ def apply_a2(findings: list[dict]) -> tuple[list[dict], list[dict]]:
     return verified, unverified
 
 
-def deep_iterate(
+def iterate_unverified(
     unverified: list[dict],
     builder_fn: Callable[[dict], str],
 ) -> tuple[list[dict], list[dict], list[dict]]:
@@ -118,7 +122,7 @@ def deep_iterate(
     or `"inconclusive"`. Cap: one iteration per finding (the dispatcher
     never re-calls). Returns `(promoted, remaining, dropped)`.
 
-    - confirmed   → confidence += DEEP_PROMOTION_BONUS (capped), severity
+    - confirmed   → confidence += PROMOTION_BONUS (capped), severity
                     restored to the original (stripped of "Low" downgrade
                     if A2 had applied it), unverified prefix removed.
     - disproved   → finding dropped (returned for logging, not surfaced).
@@ -133,7 +137,7 @@ def deep_iterate(
         if verdict == "confirmed":
             f = dict(raw)
             old_conf = int(f.get("confidence", 0))
-            new_conf = min(DEEP_PROMOTION_CAP, old_conf + DEEP_PROMOTION_BONUS)
+            new_conf = min(PROMOTION_CAP, old_conf + PROMOTION_BONUS)
             f["confidence"] = max(new_conf, CONFIDENCE_THRESHOLD)
             text = f.get("finding", "")
             if text.startswith(UNVERIFIED_PREFIX):
@@ -194,16 +198,24 @@ def order(findings: list[dict]) -> list[dict]:
 
 def synthesize(
     findings: list[dict],
-    tier: str = "standard",
     builder_fn: Callable[[dict], str] | None = None,
 ) -> dict:
-    """End-to-end aggregation. Returns the report payload."""
+    """End-to-end aggregation. Returns the report payload.
+
+    Iteration on sub-80 findings runs whenever `builder_fn` is supplied —
+    that is the always-on contract documented in `references/lenses.md`.
+    Callers that lack a build harness (no test runner detected, sandbox
+    disabled) pass `builder_fn=None` and the unverified set surfaces
+    without promotion attempts.
+    """
     findings = dedupe(findings)
     verified, unverified = apply_a2(findings)
 
-    deep_dropped: list[dict] = []
-    if tier == "deep" and builder_fn is not None:
-        promoted, unverified, deep_dropped = deep_iterate(unverified, builder_fn)
+    iteration_dropped: list[dict] = []
+    if builder_fn is not None:
+        promoted, unverified, iteration_dropped = iterate_unverified(
+            unverified, builder_fn
+        )
         verified.extend(promoted)
 
     verified = order([assign_anthropic_tier(f) for f in verified])
@@ -212,6 +224,5 @@ def synthesize(
     return {
         "verified": verified,
         "unverified": unverified,
-        "deep_iteration_dropped": deep_dropped,
-        "tier": tier,
+        "iteration_dropped": iteration_dropped,
     }

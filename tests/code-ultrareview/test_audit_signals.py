@@ -376,6 +376,106 @@ class TestErrors(unittest.TestCase):
             )
         self.assertEqual(r.returncode, 2)
 
+    def test_missing_base_without_dirty_tree_errors(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            r = subprocess.run(
+                [PYTHON, str(SCRIPT), "--repo", str(repo), "--json"],
+                capture_output=True, text=True, timeout=10,
+            )
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("--base", r.stderr)
+
+
+def _run_dirty(repo: Path) -> dict:
+    r = subprocess.run(
+        [PYTHON, str(SCRIPT), "--repo", str(repo), "--dirty-tree", "--json"],
+        cwd=repo, env=_env(repo), capture_output=True, text=True, timeout=30,
+    )
+    if r.returncode != 0:
+        raise AssertionError(f"audit_signals --dirty-tree failed: {r.stderr}")
+    return json.loads(r.stdout)
+
+
+@unittest.skipUnless(_GIT, "git required")
+class TestDirtyTree(unittest.TestCase):
+    """Dirty-tree mode reviews uncommitted work: tracked changes + untracked
+    files, each read in full. Closes the audit-phase gap where a brand-new
+    untracked module would surface as 'trivial diff' in the report header."""
+
+    def test_dirty_tree_flag_is_recorded_in_output(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            out = _run_dirty(repo)
+        self.assertTrue(out.get("dirty_tree"))
+
+    def test_dirty_tree_counts_untracked_loc(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            # Brand-new untracked module — must be reviewed, not skipped.
+            _write(repo, "src/feature.ts", "line 1\nline 2\nline 3\n")
+            out = _run_dirty(repo)
+        self.assertIn("src/feature.ts", out["files_touched_list"])
+        self.assertGreaterEqual(out["loc_changed"], 3)
+
+    def test_dirty_tree_counts_unstaged_tracked_changes(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            # Tracked file modified but not staged.
+            _write(repo, "a.ts", "x\ny\nz\n")
+            out = _run_dirty(repo)
+        self.assertIn("a.ts", out["files_touched_list"])
+        self.assertGreaterEqual(out["loc_changed"], 2)
+
+    def test_dirty_tree_merges_tracked_and_untracked(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            _write(repo, "a.ts", "x\ny\n")               # tracked modify (+1)
+            _write(repo, "src/new.ts", "n1\nn2\nn3\n")    # untracked (+3)
+            out = _run_dirty(repo)
+        self.assertEqual(out["files_touched"], 2)
+        self.assertIn("a.ts", out["files_touched_list"])
+        self.assertIn("src/new.ts", out["files_touched_list"])
+        self.assertGreaterEqual(out["loc_changed"], 4)
+
+    def test_dirty_tree_detects_normative_spec_in_untracked(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            _write(repo, "src/uri.ts", "// implements RFC 6874\nexport const z = 1;\n")
+            out = _run_dirty(repo)
+        self.assertTrue(out["normative_spec_mentioned"])
+        self.assertIn("RFC 6874", out["normative_specs_list"])
+
+    def test_dirty_tree_detects_manifest_delta_via_untracked(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            _write(repo, "package.json", '{"name":"x","version":"0.1.0"}\n')
+            out = _run_dirty(repo)
+        self.assertTrue(out["manifest_graph_delta"])
+
+    def test_dirty_tree_on_clean_tree_is_trivial(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = _new_repo(Path(t))
+            _write(repo, "a.ts", "x\n")
+            _commit_all(repo, "init")
+            out = _run_dirty(repo)
+        self.assertEqual(out["loc_changed"], 0)
+        self.assertEqual(out["files_touched"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

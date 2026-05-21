@@ -77,7 +77,10 @@ class TestA2NoSilentDrop(unittest.TestCase):
         _, unverified = aggregation.apply_a2(findings)
         self.assertIn("Sub-80", unverified[0]["recommendation"])
         self.assertIn("55", unverified[0]["recommendation"])
-        self.assertIn("-t deep", unverified[0]["recommendation"])
+        self.assertIn("verify locally", unverified[0]["recommendation"])
+        # Always-Ultra refactor: no dead tier-flag CTA in the routing rationale.
+        self.assertNotIn("-t deep", unverified[0]["recommendation"])
+        self.assertNotIn("-t ultra", unverified[0]["recommendation"])
 
     def test_high_confidence_finding_unchanged_by_a2(self):
         original = _finding(confidence=95, severity="High",
@@ -187,41 +190,41 @@ class TestA1SpecClaimTrigger(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Deep-tier iteration
+# Always-on iteration on sub-80 findings
 # ---------------------------------------------------------------------------
 
 
 class TestAlwaysIteration(unittest.TestCase):
-    def test_deep_iteration_promotes_confidence_when_build_confirms(self):
+    def test_iteration_promotes_confidence_when_build_confirms(self):
         unverified = [_finding(confidence=70)]
 
         def builder(_):
             return "confirmed"
 
-        promoted, remaining, dropped = aggregation.deep_iterate(unverified, builder)
+        promoted, remaining, dropped = aggregation.iterate_unverified(unverified, builder)
         self.assertEqual(len(promoted), 1)
         self.assertEqual(remaining, [])
         self.assertEqual(dropped, [])
         self.assertGreaterEqual(promoted[0]["confidence"], 80)
 
-    def test_deep_iteration_drops_when_build_disproves(self):
+    def test_iteration_drops_when_build_disproves(self):
         unverified = [_finding(confidence=70)]
 
         def builder(_):
             return "disproved"
 
-        promoted, remaining, dropped = aggregation.deep_iterate(unverified, builder)
+        promoted, remaining, dropped = aggregation.iterate_unverified(unverified, builder)
         self.assertEqual(promoted, [])
         self.assertEqual(remaining, [])
         self.assertEqual(len(dropped), 1)
 
-    def test_deep_iteration_keeps_inconclusive_in_remaining(self):
+    def test_iteration_keeps_inconclusive_in_remaining(self):
         unverified = [_finding(confidence=70)]
 
         def builder(_):
             return "inconclusive"
 
-        promoted, remaining, dropped = aggregation.deep_iterate(unverified, builder)
+        promoted, remaining, dropped = aggregation.iterate_unverified(unverified, builder)
         self.assertEqual(promoted, [])
         self.assertEqual(len(remaining), 1)
         self.assertEqual(dropped, [])
@@ -235,7 +238,7 @@ class TestAlwaysIteration(unittest.TestCase):
         def builder(_):
             return "confirmed"
 
-        promoted, _, _ = aggregation.deep_iterate([with_prefix], builder)
+        promoted, _, _ = aggregation.iterate_unverified([with_prefix], builder)
         self.assertFalse(promoted[0]["finding"].startswith(aggregation.UNVERIFIED_PREFIX))
 
     def test_promoted_finding_restores_original_severity(self):
@@ -247,13 +250,13 @@ class TestAlwaysIteration(unittest.TestCase):
         def builder(_):
             return "confirmed"
 
-        promoted, _, _ = aggregation.deep_iterate([f], builder)
+        promoted, _, _ = aggregation.iterate_unverified([f], builder)
         self.assertEqual(promoted[0]["severity"], "High")
 
-    def test_apply_a2_then_deep_iterate_restores_original_severity(self):
+    def test_apply_a2_then_iterate_restores_original_severity(self):
         # End-to-end regression: a High-severity sub-80 finding flows through
-        # apply_a2 (which downgrades to Low) and then deep_iterate (which
-        # promotes on confirm). The original High must survive.
+        # apply_a2 (which downgrades to Low) and then iterate_unverified
+        # (which promotes on confirm). The original High must survive.
         raw = _finding(confidence=70, severity="High", finding="Off-by-one in parser")
         _, unverified = aggregation.apply_a2([raw])
         self.assertEqual(unverified[0]["severity"], "Low")
@@ -262,7 +265,7 @@ class TestAlwaysIteration(unittest.TestCase):
         def builder(_):
             return "confirmed"
 
-        promoted, _, _ = aggregation.deep_iterate(unverified, builder)
+        promoted, _, _ = aggregation.iterate_unverified(unverified, builder)
         self.assertEqual(promoted[0]["severity"], "High")
         self.assertGreaterEqual(promoted[0]["confidence"], aggregation.CONFIDENCE_THRESHOLD)
 
@@ -274,7 +277,7 @@ class TestAlwaysIteration(unittest.TestCase):
             calls.append(f["location"])
             return "inconclusive"
 
-        aggregation.deep_iterate(unverified, builder)
+        aggregation.iterate_unverified(unverified, builder)
         self.assertEqual(calls, ["src/a.ts:10", "b:1"])
 
 
@@ -336,24 +339,16 @@ class TestSeverityTier(unittest.TestCase):
 
 
 class TestAggregation(unittest.TestCase):
-    def test_standard_tier_does_not_iterate(self):
+    def test_no_builder_does_not_iterate(self):
         findings = [_finding(confidence=70)]
-        calls = []
-
-        def builder(_):
-            calls.append(1)
-            return "confirmed"
-
-        out = aggregation.synthesize(findings, tier="standard", builder_fn=builder)
+        out = aggregation.synthesize(findings)
         self.assertEqual(out["verified"], [])
         self.assertEqual(len(out["unverified"]), 1)
-        self.assertEqual(calls, [])
+        self.assertEqual(out["iteration_dropped"], [])
 
-    def test_deep_tier_promotes_via_builder(self):
+    def test_builder_promotes_when_supplied(self):
         findings = [_finding(confidence=70)]
-        out = aggregation.synthesize(
-            findings, tier="deep", builder_fn=lambda _: "confirmed"
-        )
+        out = aggregation.synthesize(findings, builder_fn=lambda _: "confirmed")
         self.assertEqual(len(out["verified"]), 1)
         self.assertEqual(out["unverified"], [])
 
@@ -362,7 +357,7 @@ class TestAggregation(unittest.TestCase):
             _finding(severity="Low", confidence=90, location="z:1"),
             _finding(severity="High", confidence=90, location="a:1"),
         ]
-        out = aggregation.synthesize(findings, tier="standard")
+        out = aggregation.synthesize(findings)
         self.assertEqual(out["verified"][0]["location"], "a:1")
 
 

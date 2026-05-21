@@ -122,8 +122,7 @@ def format_unverified_finding(
     """Canonical Finding when the spec body cannot be fetched.
 
     Confidence 50 so the A2 contract routes it to the report's
-    `### Unverified — recommend Deep pass` sub-section rather than
-    dropping it silently.
+    `### Unverified` sub-section rather than dropping it silently.
     """
     return {
         "lens": "bugs-drift",
@@ -135,8 +134,8 @@ def format_unverified_finding(
             f"governing clause could not be fetched ({reason})."
         ),
         "recommendation": (
-            f"Pre-populate the cache at {DEFAULT_CACHE_DIR}/ or re-run when "
-            f"the network is available."
+            "Pre-populate the cache at `~/.claude/cache/code-ultrareview/specs/` "
+            "or re-run when the network is available."
         ),
         "confidence": 50,
     }

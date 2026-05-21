@@ -18,11 +18,11 @@ Findings with confidence ≥ 80, ordered by severity then confidence.
 | 3 | docs-version | Medium | Important | `README.md:1` | 85 | New `RATE_LIMIT_RPM` env var is undocumented | Add it to the Configuration table |
 | 4 | tests-blindspots | Medium | Important | `src/api/limiter.ts:55` | 88 | No test for the concurrent-burst path; empty-IP input unhandled | Add a burst test and guard `ip === ""` |
 
-### Unverified — recommend Deep pass
+### Unverified
 
 | # | Lens | Severity | Location | Conf | Finding | Recommendation |
 |---|------|----------|----------|------|---------|----------------|
-| 1 | coherence-graph | Low | `package.json ↔ marketplace.json` | 70 | `[unverified — recommend Deep pass]` Description divergence | Sub-80 confidence (70) — re-run with -t deep to verify. |
+| 1 | coherence-graph | Low | `package.json ↔ marketplace.json` | 70 | `[unverified]` Description divergence | Sub-80 confidence (70) — verify locally before action. |
 
 ## Deferred to sibling skills
 

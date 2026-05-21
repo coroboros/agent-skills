@@ -16,13 +16,13 @@ Findings with confidence ≥ 80, ordered by severity then confidence. Each row a
 | 1 | rules | High | Important | `path:line` | 95 | What is wrong | What to do — rule: "{verbatim rule line}" |
 | 2 | bugs-drift | Medium | Important | `path:line` | 85 | … | … |
 
-### Unverified — recommend Deep pass
+### Unverified
 
-Findings with confidence < 80 surfaced per A2 (no silent drop). Each is prefixed `[unverified — recommend Deep pass]`; rerun with `-t deep` to verify via build iteration.
+Findings with confidence < 80 surfaced per A2 (no silent drop). Each is prefixed `[unverified]`; the rationale states the score so the reader can decide whether to verify locally, strengthen the test, or drop.
 
 | # | Lens | Severity | Location | Conf | Finding | Recommendation |
 |---|------|----------|----------|------|---------|----------------|
-| 1 | tests-blindspots | Low | `path:line` | 65 | `[unverified — recommend Deep pass]` … | Sub-80 confidence (65) — re-run with -t deep to verify. … |
+| 1 | tests-blindspots | Low | `path:line` | 65 | `[unverified]` … | Sub-80 confidence (65) — verify locally before action. … |
 
 _If a lens found nothing:_ **Lens N (name): clean.**
 

@@ -143,8 +143,12 @@ class TestConfidenceThresholdSemantics(unittest.TestCase):
 
     def test_realistic_fixture_documents_unverified_subsection(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
-        self.assertIn("Unverified", text)
-        self.assertIn("unverified — recommend Deep pass", text)
+        self.assertIn("### Unverified", text)
+        self.assertIn("[unverified]", text)
+        self.assertIn("verify locally before action", text)
+        # Always-Ultra refactor: no dead tier flag in the fixture.
+        self.assertNotIn("-t deep", text)
+        self.assertNotIn("recommend Deep pass", text)
 
 
 if __name__ == "__main__":

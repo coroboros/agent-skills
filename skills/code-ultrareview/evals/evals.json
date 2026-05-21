@@ -6,7 +6,7 @@
       "id": 1,
       "name": "produces-canonical-report-shape",
       "prompt": "/code-ultrareview review the changes on this branch",
-      "expected_output": "A report matching templates/code-ultrareview.md: header with Base, Target, Rule, Scope, Estimated wall-clock, Rules baseline status; ## Findings with ### Verified and ### Unverified — recommend Deep pass sub-sections; ## Deferred to sibling skills; ## What looks good; ## Coherence-graph status; ## Derivation coverage (when --reconcile is used); ## Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
+      "expected_output": "A report matching templates/code-ultrareview.md: header with Base, Target, Rule, Scope, Estimated wall-clock, Rules baseline status; ## Findings with ### Verified and ### Unverified sub-sections; ## Deferred to sibling skills; ## What looks good; ## Coherence-graph status; ## Derivation coverage (when --reconcile is used); ## Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
       "files": []
     },
     {
@@ -83,7 +83,7 @@
       "id": 12,
       "name": "sub-80-routes-to-unverified-not-dropped",
       "prompt": "/code-ultrareview (changes contain one real high-impact bug at confidence 90 plus a maybe-issue scored at 70)",
-      "expected_output": "The high-impact bug appears in ### Verified (confidence 90). The maybe-issue appears in ### Unverified — recommend Deep pass with the prefix [unverified — recommend Deep pass] and a recommendation explaining the routing rationale (sub-80 confidence — re-run with -t deep). Neither is dropped — postmortem A2 contract.",
+      "expected_output": "The high-impact bug appears in ### Verified (confidence 90). The maybe-issue appears in ### Unverified with the prefix [unverified] and a recommendation explaining the routing rationale (Sub-80 confidence (70) — verify locally before action). Neither is dropped — postmortem A2 contract.",
       "files": []
     },
     {
@@ -139,21 +139,21 @@
       "id": 24,
       "name": "a2-sub-80-finding-surfaces-with-prefix",
       "prompt": "/code-ultrareview (a finding scored at confidence 70 — maybe real, could not verify)",
-      "expected_output": "The finding appears in ### Unverified — recommend Deep pass with finding text prefixed `[unverified — recommend Deep pass]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — re-run with -t deep to verify.' Never dropped silently (postmortem A2).",
+      "expected_output": "The finding appears in ### Unverified with finding text prefixed `[unverified]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — verify locally before action.' Never dropped silently (postmortem A2).",
       "files": []
     },
     {
       "id": 25,
       "name": "deep-iteration-promotes-confirmed-finding",
-      "prompt": "/code-ultrareview -t deep (a sub-80 bug-drift finding that a focused build run confirms)",
-      "expected_output": "Deep iteration re-passes the sub-80 finding with build verification (build_detect picks the canonical test command). When the build proves the bug, confidence promotes to ≥80 (originally-scored + 30, capped at 95), the unverified prefix is stripped, original severity restored, finding moves into ### Verified.",
+      "prompt": "/code-ultrareview (a sub-80 bug-drift finding that the always-on iteration confirms via a focused build run)",
+      "expected_output": "Iteration re-passes the sub-80 finding with build verification (build_detect picks the canonical test command). When the build proves the bug, confidence promotes to ≥80 (originally-scored + 30, capped at 95), the unverified prefix is stripped, original severity restored, finding moves into ### Verified.",
       "files": []
     },
     {
       "id": 26,
       "name": "deep-iteration-drops-disproved-finding",
-      "prompt": "/code-ultrareview -t deep (a sub-80 finding that the build disproves)",
-      "expected_output": "Deep iteration runs the build; the verdict is `disproved`. The finding is dropped from the user-facing report with rationale logged in the synthesizer's debug output (never silently — A2 distinguishes 'drop with rationale' from 'silent drop').",
+      "prompt": "/code-ultrareview (a sub-80 finding that the always-on iteration disproves via the build)",
+      "expected_output": "Iteration runs the build; the verdict is `disproved`. The finding is dropped from the user-facing report with rationale logged in the synthesizer's debug output (never silently — A2 distinguishes 'drop with rationale' from 'silent drop').",
       "files": []
     },
     {
@@ -166,14 +166,14 @@
     {
       "id": 28,
       "name": "ultra-apply-safe-version-sync-recency-wins",
-      "prompt": "/code-ultrareview -t ultra --apply-safe (3 version sources disagree: package.json 1.2.3, marketplace.json 1.2.4, CHANGELOG 1.2.5)",
+      "prompt": "/code-ultrareview --apply-safe (3 version sources disagree: package.json 1.2.3, marketplace.json 1.2.4, CHANGELOG 1.2.5)",
       "expected_output": "version_sync picks the most-recently-touched source via `git log -1 --format=%ct -- <file>`. Diff preview is printed per file. Confirmation prompt fires per file (bypassed with -y or --apply-safe alone). Running twice is a no-op (idempotent). Git tag is never modified.",
       "files": []
     },
     {
       "id": 29,
       "name": "ultra-apply-safe-description-sync-refuses-partial-agreement",
-      "prompt": "/code-ultrareview -t ultra --apply-safe (package.json.description = A, marketplace.json.metadata.description = B)",
+      "prompt": "/code-ultrareview --apply-safe (package.json.description = A, marketplace.json.metadata.description = B)",
       "expected_output": "description_sync refuses with status `refusing: partial-agreement` — the full-agreement guard requires every present source to agree on the new value before writing. The risk #3 mitigation prevents auto-overwriting legitimate divergence; user allowlists via .coherence-ignore when intentional.",
       "files": []
     },

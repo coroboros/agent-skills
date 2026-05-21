@@ -1,9 +1,10 @@
 ---
 name: code-ultrareview
 description: In-session fresh-eyes code review at full strength — six parallel lens subagents (rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation via `--reconcile`), iteration on sub-80 findings with build verification, property-fuzz harness synthesis, gated `--apply-safe` writers. Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's built-in `/ultrareview` remote billed command — same lens family, in-session, on your subscription.
-when_to_use: User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers. The audit phase reads diff signals (LOC, public-API touches, normative-spec mentions, manifest delta, security paths) and surfaces a Scope summary + estimated wall-clock in the report header. Invoke when you'd say "review my changes", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance", "does this follow the rules". NOT a security audit (use /security-review); NOT performance / simplification (use /simplify); NOT Anthropic's remote billed command (use /ultrareview). Report-only by default; opt-in `--apply-safe` writes manifest-version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — never production logic.
+when_to_use: User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers, `effort: max`. Audit phase reads diff signals (LOC, public-API touches, normative-spec mentions, manifest delta, security paths) and surfaces Scope + estimated wall-clock in the report header. Invoke when you'd say "review my changes", "ultrathink review", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance", "does this follow the rules". NOT a security audit (use /security-review); NOT performance / simplification (use /simplify); NOT Anthropic's remote billed command (use /ultrareview). Report-only by default; opt-in `--apply-safe` writes manifest-version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — never production logic.
 argument-hint: "[-b <ref>] [--reconcile <input>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
 model: opus
+effort: max
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 disable-model-invocation: true
@@ -75,9 +76,14 @@ Resolve the target deterministically, and always print it in the report header s
 The review set every lens examines: **clean tree** → `git diff <base> <target>` (two-dot — the resolver guarantees `base` is a diffable ancestor or the empty tree, so this is always correct, with no noise from commits the base gained in parallel); **dirty tree** → `git diff HEAD` plus the untracked files above.
 
 ```bash
+# Clean tree
 bash "${CLAUDE_SKILL_DIR}/scripts/resolve_base.sh" [-b <ref>]
 # → RESULT: base=<ref> target=<ref> rule=<rung>   (exit 0)
 # → RESULT: rule=unresolvable hint=<text>          (exit 2 — report it, do not guess)
+
+# Dirty tree — skip the resolver; audit-phase reads HEAD + untracked directly
+python3 "${CLAUDE_SKILL_DIR}/scripts/audit_signals.py" --dirty-tree --json
+# Details in references/audit-phase.md.
 ```
 
 The **rule hierarchy** every lens reviews against, read fresh each run:
@@ -121,7 +127,7 @@ Phase 2 — DISPATCH  (5 or 6 lens subagents in parallel + execution layer)
 Phase 3 — AGGREGATION  (1 synthesizer subagent)
   dedupe by (location, finding-key); severity tiers
   (Important / Nit / Pre-existing); sub-80 surfaced as
-  "unverified — recommend Deep pass" (never silent-dropped — A2)
+  "[unverified]" (never silent-dropped — A2)
 ```
 
 Audit-phase signal schema and report-header formatting live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Derivation lens — classification taxonomy, auto-detection set, `.derivation-ignore` format, interactive launch prompt — lives in `references/derivation.md`. Build / fuzz / `--apply-safe` details live in `references/ultra-execution.md`. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
@@ -167,6 +173,6 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 - **Report-only by default.** No code changes unless `--apply-safe` is set; even then, only the three write classes above.
 - **Stay in lane.** Security, performance, simplification → pointer only, never a finding.
 - **Only new findings.** Issues the diff introduces, not pre-existing ones (Pre-existing tier accepted for context).
-- **No silent drop.** Sub-80 findings surface as `[unverified — recommend Deep pass]` with rationale — never omitted (A2).
+- **No silent drop.** Sub-80 findings surface as `[unverified]` with the rationale `Sub-80 confidence ({score}) — verify locally before action.` — never omitted (A2).
 - **Fail loud.** A lens that cannot run (unresolvable base, missing baseline, fetch failure) is stated in the header or surfaced as a finding, never silently skipped.
 - **Cite precisely.** Every finding carries `file:line`; rule findings quote the violated rule line verbatim; spec-conformance findings quote the governing clause.

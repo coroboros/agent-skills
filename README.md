@@ -311,7 +311,7 @@ Optionally chains to `award-design` and `design-system`.
 
 #### code-ultrareview
 
-Fresh-eyes code review at full strength, in-session. Six parallel lens subagents — rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation — run on every invocation. Sub-80 findings re-pass with build verification. Spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI). Property-fuzz harness synthesis when `fast-check` or `hypothesis` is present. Opt-in `--apply-safe` writes manifest version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug. Distinct from Anthropic's remote `/ultrareview` — same lens family, in-session on the user's subscription.
+Fresh-eyes code review at full strength, in-session. Pinned to `model: opus` and `effort: max` so every invocation gets the deepest reasoning budget regardless of session defaults. Six parallel lens subagents — rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation — run on every invocation. Sub-80 findings re-pass with build verification. Spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI). Property-fuzz harness synthesis when `fast-check` or `hypothesis` is present. Opt-in `--apply-safe` writes manifest version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug. Distinct from Anthropic's remote `/ultrareview` — same lens family, in-session on the user's subscription.
 
 **Usage**
 

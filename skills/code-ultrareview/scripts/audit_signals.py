@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 """Audit-phase signal extractor for code-ultrareview.
 
-Computes eight deterministic signals from a git diff between two refs and
-emits them as JSON. The tier router consumes this output to pick a review
-tier (standard / deep / ultra) and surface a rationale.
+Computes deterministic signals from a git diff and emits them as JSON.
+`audit_summary.py` consumes the output to format the report-header Scope
+and Estimated wall-clock block. The fan-out runs at full strength either
+way — signals are informational, not gating.
+
+Two review modes:
+    - clean tree: `git diff <base> <target>` (two-dot).
+    - dirty tree: `git diff HEAD` plus every untracked file (each read in
+      full, counted as all-added). A fresh untracked module is never
+      silently skipped — the report header reflects the real diff.
 
 The script is stdlib-only and subprocess-driven, mirroring the posture of
 `resolve_base.sh`: failures are loud (exit 2), output is machine-readable.
 
 Usage:
     python3 audit_signals.py --base <ref> [--target <ref>] [--repo <path>] [--json]
+    python3 audit_signals.py --dirty-tree [--repo <path>] [--json]
 """
 
 import argparse
@@ -43,15 +51,26 @@ def run_git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     )
 
 
-def diff_numstat(repo: Path, base: str, target: str):
-    """Return (total_loc_changed, files_list, per_file_added_dict)."""
-    r = run_git(repo, "diff", "--numstat", f"{base}..{target}")
+def _untracked_files(repo: Path) -> list[str]:
+    """Return paths reported by `git ls-files --others --exclude-standard`."""
+    r = run_git(repo, "ls-files", "--others", "--exclude-standard")
     if r.returncode != 0:
-        return 0, [], {}
-    loc = 0
-    files: list[str] = []
-    added_per_file: dict[str, int] = {}
-    for line in r.stdout.splitlines():
+        return []
+    return [line for line in r.stdout.splitlines() if line]
+
+
+def _file_line_count(path: Path) -> int:
+    """Line count of `path`, or 0 on any error."""
+    try:
+        with open(path, "r", encoding="utf-8", errors="ignore") as f:
+            return sum(1 for _ in f)
+    except OSError:
+        return 0
+
+
+def _parse_numstat(stdout: str, loc: int, files: list, added_per_file: dict):
+    """Fold one `git diff --numstat` output block into the accumulators."""
+    for line in stdout.splitlines():
         parts = line.split("\t")
         if len(parts) != 3:
             continue
@@ -62,14 +81,68 @@ def diff_numstat(repo: Path, base: str, target: str):
         except ValueError:
             continue
         loc += added + deleted
-        files.append(path)
+        if path not in added_per_file:
+            files.append(path)
         added_per_file[path] = added
+    return loc
+
+
+def diff_numstat(repo: Path, base: str, target: str, *, dirty_tree: bool = False):
+    """Return (total_loc_changed, files_list, per_file_added_dict).
+
+    Clean tree: numstat of `base..target`.
+    Dirty tree: numstat of `HEAD` (tracked changes) plus every untracked
+    file (counted as all-added LOC). `base`/`target` are ignored when
+    `dirty_tree=True`.
+    """
+    loc = 0
+    files: list[str] = []
+    added_per_file: dict[str, int] = {}
+
+    if dirty_tree:
+        r = run_git(repo, "diff", "--numstat", "HEAD")
+    else:
+        r = run_git(repo, "diff", "--numstat", f"{base}..{target}")
+    if r.returncode == 0:
+        loc = _parse_numstat(r.stdout, loc, files, added_per_file)
+
+    if dirty_tree:
+        for path in _untracked_files(repo):
+            full = repo / path
+            if not full.is_file():
+                continue
+            n = _file_line_count(full)
+            loc += n
+            if path not in added_per_file:
+                files.append(path)
+            added_per_file[path] = added_per_file.get(path, 0) + n
+
     return loc, files, added_per_file
 
 
-def diff_content(repo: Path, base: str, target: str) -> str:
-    r = run_git(repo, "diff", f"{base}..{target}")
-    return r.stdout if r.returncode == 0 else ""
+def diff_content(repo: Path, base: str, target: str, *, dirty_tree: bool = False) -> str:
+    """Full diff content. For dirty tree: `git diff HEAD` plus the body of
+    every untracked file inlined as `+`-prefixed lines so downstream regexes
+    (`detect_public_api`, `detect_normative_spec`) see untracked work."""
+    if dirty_tree:
+        r = run_git(repo, "diff", "HEAD")
+    else:
+        r = run_git(repo, "diff", f"{base}..{target}")
+    content = r.stdout if r.returncode == 0 else ""
+
+    if dirty_tree:
+        for path in _untracked_files(repo):
+            full = repo / path
+            if not full.is_file():
+                continue
+            try:
+                text = full.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            content += f"\n+++ b/{path}\n"
+            for line in text.splitlines():
+                content += f"+{line}\n"
+    return content
 
 
 def is_test_path(path: str) -> bool:
@@ -239,9 +312,9 @@ def detect_planning_artifacts(repo: Path) -> tuple[int, int]:
     return (len(candidates), min(ages))
 
 
-def audit(repo: Path, base: str, target: str) -> dict:
-    loc, files, added_per_file = diff_numstat(repo, base, target)
-    content = diff_content(repo, base, target)
+def audit(repo: Path, base: str, target: str, *, dirty_tree: bool = False) -> dict:
+    loc, files, added_per_file = diff_numstat(repo, base, target, dirty_tree=dirty_tree)
+    content = diff_content(repo, base, target, dirty_tree=dirty_tree)
     spec_found, spec_list = detect_normative_spec(repo, content)
     artifact_count, artifact_min_freshness = detect_planning_artifacts(repo)
     return {
@@ -256,6 +329,7 @@ def audit(repo: Path, base: str, target: str) -> dict:
         "test_coverage_delta": compute_test_coverage_delta(files, added_per_file),
         "security_sensitive_paths": detect_security_paths(files),
         "planning_artifact_breadth": [artifact_count, artifact_min_freshness],
+        "dirty_tree": dirty_tree,
     }
 
 
@@ -263,11 +337,17 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Audit-phase signal extractor for code-ultrareview"
     )
-    parser.add_argument("--base", required=True, help="base ref (e.g., HEAD~5, origin/main)")
+    parser.add_argument("--base", help="base ref (e.g., HEAD~5, origin/main)")
     parser.add_argument("--target", default="HEAD", help="target ref (default: HEAD)")
+    parser.add_argument("--dirty-tree", action="store_true",
+                        help="Review uncommitted work: git diff HEAD plus every untracked file. "
+                             "When set, --base and --target are ignored.")
     parser.add_argument("--repo", default=".", help="repo path (default: cwd)")
     parser.add_argument("--json", action="store_true", help="emit JSON (default behavior)")
     args = parser.parse_args()
+
+    if not args.dirty_tree and not args.base:
+        parser.error("--base is required (or pass --dirty-tree for uncommitted work)")
 
     repo = Path(args.repo).resolve()
     if not (repo / ".git").exists() and not (repo / ".git").is_file():
@@ -275,7 +355,8 @@ def main() -> int:
         return 2
 
     try:
-        result = audit(repo, args.base, args.target)
+        result = audit(repo, args.base or "HEAD", args.target,
+                       dirty_tree=args.dirty_tree)
     except subprocess.TimeoutExpired as exc:
         print(f"ERROR: git timed out: {exc.cmd}", file=sys.stderr)
         return 2
