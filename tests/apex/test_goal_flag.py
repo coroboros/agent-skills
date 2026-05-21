@@ -2,6 +2,15 @@
 
 Verifies SKILL.md flag tables + argument-hint + Compatibility section,
 step-00 parsing + headless auto-detection, step-04 /goal emission template.
+
+Test approach. Apex is a prose-driven skill — no `apex.sh` / `apex.py`
+entrypoint to subprocess-invoke. Per `.claude/rules/skill-authoring.md`
+§ Testing, the convention for prompt-driven skills is structural tests
+over runtime subprocess tests. The assertions below verify the documented
+contracts (flag tables, parsing rules, headless detection logic, /goal
+template shape). Runtime emission of the directive is exercised by
+actual `/apex -g` invocations in user sessions, not by simulated
+subprocess calls that wouldn't actually exercise apex.
 """
 
 import unittest

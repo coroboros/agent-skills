@@ -3,6 +3,15 @@
 Verifies step-01-analyze.md adopted the Given/When/Then AC template, the
 `## Not Included (negative scope)` section, and the `### 0a. Spec AC closure`
 rule that accepts spec AC verbatim when `-f` points to a spec.
+
+Test approach. Apex is a prose-driven skill — no `apex.sh` / `apex.py`
+entrypoint to subprocess-invoke. Per `.claude/rules/skill-authoring.md`
+§ Testing, the convention for prompt-driven skills is structural tests
+over runtime subprocess tests. The assertions below verify that the
+SKILL.md / step files / templates document the contracts. Runtime
+emission of the documented behavior is exercised by the universal
+`tests/_meta/` suite (frontmatter, references, parity) plus actual
+`/apex` invocations in user sessions.
 """
 
 import re
@@ -117,6 +126,22 @@ class TestACTemplate(unittest.TestCase):
             "## Workstreams",
             brainstorm,
             "brainstorm-input.md must not contain `## Workstreams` (would trigger spec-closure)",
+        )
+
+    def test_malformed_spec_does_not_match_spec_heuristic(self):
+        """A file with `# Spec:` H1 but no `## Workstreams` subheader is NOT a
+        valid spec for closure. The heuristic is AND-gated — both must be
+        present. Exercises the negative case for the AND-gate that the
+        brainstorm fixture (different H1) does not cover."""
+        malformed = (FIXTURES / "malformed-spec.md").read_text(encoding="utf-8")
+        self.assertTrue(
+            malformed.lstrip().startswith("# Spec:"),
+            "malformed-spec.md must start with `# Spec:` (H1 half of the gate)",
+        )
+        self.assertNotIn(
+            "## Workstreams",
+            malformed,
+            "malformed-spec.md must lack `## Workstreams` to exercise the negative case",
         )
 
 

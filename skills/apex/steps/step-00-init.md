@@ -144,7 +144,7 @@ If {resume_task} is NOT set, skip directly to step 3.
    ```
 
 2. **If exact match found:**
-   - Read `00-context.md` to determine the next pending step (call it `{step_num}`).
+   - Read `00-context.md`'s `## Progress` table. Find the first row not marked `✓ Complete`; extract the numeric prefix from that step name (e.g., `04` from `04-examine`). Assign the integer (1–4) to `{step_num}` — the value passes to `validate_state.sh` below.
    - **Auto-validate state** before any restoration:
      ```bash
      bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {resume_task} {step_num}
