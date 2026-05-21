@@ -161,6 +161,36 @@ questions:
 
 **If `{save_mode}` = true:** Append full plan to 02-plan.md
 
+### 4a. Challenge the plan (inline, no user gate)
+
+After writing the plan but before verification, stress-test it inline. Write directly to `02-plan.md`:
+
+- **Premortem** — one bullet: "6 months out, this plan failed AC1 because ___." Imagine the failure as already certain — surfaces more failure modes than "what could go wrong?".
+- **Alternative** — one bullet: "Is there a simpler file-change path that hits 80% of the AC?" Name the alternative concretely, then state why the leading plan still wins.
+
+No `AskUserQuestion` here — this is model reasoning in the artifact, not a user prompt. Interactive mode (`-i`) handles user pauses separately.
+
+### 4b. Surgical-scope check (advisory)
+
+Score the plan against three thresholds:
+
+- **Files** — > 5 modified or added → flag.
+- **Systems / domains** — > 2 distinct (e.g., auth + billing + notifications) → flag.
+- **Cross-cutting concerns** — database migration, API + client coupled changes, auth/permission rewrite → flag any.
+
+If any threshold trips, append a `⚠️ Scope advisory` block to `02-plan.md`:
+
+```
+⚠️ Scope advisory
+- Files: <count> (threshold 5)
+- Systems: <list> (threshold 2)
+- Cross-cutting: <list or none>
+
+This is within apex's design scope. Consider `/spec` for explicit decomposition if scope is unclear.
+```
+
+Advisory only — never blocks step-02. The check is the dogfood for solo apex runs without an upstream brainstorm/spec; apex documents its own scope when it grows.
+
 ### 5. Verify Plan Completeness
 
 Checklist:
