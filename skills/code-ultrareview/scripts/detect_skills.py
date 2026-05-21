@@ -16,7 +16,9 @@ Two responsibilities:
    when not present, flagging `fallback_used: True` — the report stays
    actionable while the user repairs their install.
 
-Pure stdlib. CLI entrypoint prints the detection map as JSON.
+Pure stdlib. The `--json` CLI is a dev/debugging entry point for
+inspecting the routing-fallback chain; the skill itself imports the
+functions directly, never shelling out.
 """
 
 from __future__ import annotations

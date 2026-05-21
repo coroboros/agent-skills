@@ -110,13 +110,20 @@ CLUSTERS = {
         "consumer": "apex",
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.
+        # Sections every rendered report must carry. `--apply-safe summary`
+        # is opt-in (only emitted when --apply-safe was used) — required in
+        # the TEMPLATE but not in the contract; see
+        # `tests/code-ultrareview/test_report_template.py::CANONICAL_SECTIONS`
+        # for the broader template-level list.
         "report_required_sections": (
+            "Lens summary",
             "Findings",
             "Deferred to sibling skills",
             "What looks good",
             "Coherence-graph status",
             "Derivation coverage",
             "Verdict",
+            "Action plan",
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",

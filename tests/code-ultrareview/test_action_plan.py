@@ -241,5 +241,66 @@ class TestActionPlanInSynthesize(unittest.TestCase):
         self.assertIn("zero_findings", out["action_plan"])
 
 
+class TestActionPlanLazyDetectFallback(unittest.TestCase):
+    """Exercise the sentinel-action_plan path when the lazy import returns None.
+
+    `synthesize()` lazy-imports `detect_skills` for the default
+    `installed_skills` and `route_fn`. If the sibling module is
+    unavailable, `_lazy_detect_skills()` returns None and the action
+    plan collapses to the empty-clusters sentinel — surfaced separately
+    so the caller can detect routing was skipped.
+    """
+
+    def _swap_lazy_detect(self, replacement):
+        """Monkeypatch context for `_lazy_detect_skills` on the dynamically
+        loaded aggregation module — setattr/getattr keeps type checkers happy
+        despite the import-via-spec_from_file_location pattern."""
+        original = getattr(aggregation, "_lazy_detect_skills")
+        setattr(aggregation, "_lazy_detect_skills", replacement)
+        return original
+
+    def test_returns_sentinel_when_lazy_detect_returns_none(self):
+        findings = [
+            {
+                "lens": "bugs-drift",
+                "severity": "High",
+                "location": "src/a.ts:1",
+                "finding": "Race condition",
+                "recommendation": "Add a mutex",
+                "confidence": 90,
+            }
+        ]
+        original = self._swap_lazy_detect(lambda: None)
+        try:
+            out = aggregation.synthesize(findings)
+        finally:
+            setattr(aggregation, "_lazy_detect_skills", original)
+
+        self.assertEqual(out["action_plan"], {
+            "zero_findings": False,
+            "clusters": [],
+            "unverified_block": None,
+        })
+        # Verified findings still flow through — only the action plan
+        # collapses, not the rest of the closing block.
+        self.assertEqual(len(out["verified"]), 1)
+        self.assertIn("severity_counts", out)
+        self.assertIn("lens_summary", out)
+        self.assertIn("verdict", out)
+
+    def test_sentinel_for_zero_findings_when_lazy_detect_returns_none(self):
+        original = self._swap_lazy_detect(lambda: None)
+        try:
+            out = aggregation.synthesize([])
+        finally:
+            setattr(aggregation, "_lazy_detect_skills", original)
+
+        # Zero findings with no route_fn still uses the same sentinel
+        # shape (clusters empty, unverified_block None). `zero_findings`
+        # flag tracks "had no findings AT ALL", which is true here.
+        self.assertEqual(out["action_plan"]["clusters"], [])
+        self.assertIsNone(out["action_plan"]["unverified_block"])
+
+
 if __name__ == "__main__":
     unittest.main()
