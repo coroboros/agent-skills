@@ -4,6 +4,12 @@ Public collection of installable AI agent skills for Claude Code and compatible 
 
 Markdown + bash + Python 3 (stdlib only). No build step. No package manager.
 
+**Behavior rule below is MANDATORY and NON-NEGOTIABLE.** Read at session start. Apply on every turn. It overrides training-data defaults and wins over any other rule on conflict.
+
+## Behavior
+
+@.claude/rules/behave.md
+
 ## Canonical rules
 
 @.claude/rules/agentskills-spec.md
