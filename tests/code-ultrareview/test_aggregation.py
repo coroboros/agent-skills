@@ -1,6 +1,6 @@
 """Tests for skills/code-ultrareview/scripts/aggregation.py and spec_claim.py.
 
-Pins the three postmortem-driven contracts:
+Pins the three core aggregation contracts:
   - A2: sub-80 findings are SURFACED with the unverified prefix, not dropped.
   - A1: spec-claim trigger formats a high-confidence finding with the quote.
   - Always-on iteration: build verdict promotes / drops / leaves sub-80 findings.
@@ -279,6 +279,38 @@ class TestAlwaysIteration(unittest.TestCase):
 
         aggregation.iterate_unverified(unverified, builder)
         self.assertEqual(calls, ["src/a.ts:10", "b:1"])
+
+    def test_promotion_caps_at_promotion_cap(self):
+        # Boundary: 70 + 30 = 100, capped at PROMOTION_CAP (95).
+        unverified = [_finding(confidence=70, severity="High")]
+        _, unverified = aggregation.apply_a2(unverified)
+        promoted, _, _ = aggregation.iterate_unverified(
+            unverified, lambda _: "confirmed"
+        )
+        self.assertEqual(promoted[0]["confidence"], aggregation.PROMOTION_CAP)
+
+    def test_promotion_floor_at_confidence_threshold(self):
+        # Below cap: 50 + 30 = 80, equals CONFIDENCE_THRESHOLD floor.
+        unverified = [_finding(confidence=50, severity="Medium")]
+        _, unverified = aggregation.apply_a2(unverified)
+        promoted, _, _ = aggregation.iterate_unverified(
+            unverified, lambda _: "confirmed"
+        )
+        self.assertEqual(
+            promoted[0]["confidence"], aggregation.CONFIDENCE_THRESHOLD
+        )
+
+    def test_promotion_below_cap_below_threshold_lifts_to_threshold(self):
+        # Edge: very low confidence promoted should not undershoot threshold.
+        # 10 + 30 = 40, but floor lifts to 80.
+        unverified = [_finding(confidence=10, severity="High")]
+        _, unverified = aggregation.apply_a2(unverified)
+        promoted, _, _ = aggregation.iterate_unverified(
+            unverified, lambda _: "confirmed"
+        )
+        self.assertEqual(
+            promoted[0]["confidence"], aggregation.CONFIDENCE_THRESHOLD
+        )
 
 
 # ---------------------------------------------------------------------------

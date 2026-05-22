@@ -41,7 +41,7 @@ the last 100 lines — keeps the orchestrator context bounded.
 
 ## Spec-conformance lens (full implementation)
 
-`scripts/spec_conformance.py` extends the WS-3 stub with cache management:
+`scripts/spec_conformance.py` extends the entrypoint stub with cache management:
 
 - Cache directory: `~/.claude/cache/code-ultrareview/specs/`
 - File name: `{spec-slug}-{date}.txt`, where `spec-slug` is

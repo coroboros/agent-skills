@@ -35,18 +35,28 @@ def _section_positions(text: str) -> list[tuple[str, int]]:
     ]
 
 
+# All canonical top-level `##` sections in canonical order. `Lens summary`,
+# `Derivation coverage`, and `Action plan` joined the prior six. Drift in this
+# tuple fails both the presence and
+# ordering tests below; mirror updates to
+# `tests/_pipeline/_contracts.py::CLUSTERS["review"]["report_required_sections"]`.
+CANONICAL_SECTIONS = (
+    "Lens summary",
+    "Findings",
+    "Deferred to sibling skills",
+    "What looks good",
+    "Coherence-graph status",
+    "Derivation coverage",
+    "Verdict",
+    "Action plan",
+    "--apply-safe summary",
+)
+
+
 class TestSectionPresence(unittest.TestCase):
-    def test_all_eight_canonical_sections_present(self):
+    def test_all_canonical_sections_present(self):
         text = _read()
-        canonical = (
-            "Findings",
-            "Deferred to sibling skills",
-            "What looks good",
-            "Coherence-graph status",
-            "Verdict",
-            "--apply-safe summary",
-        )
-        for section in canonical:
+        for section in CANONICAL_SECTIONS:
             self.assertIn(
                 f"## {section}", text, f"section `## {section}` missing"
             )
@@ -61,15 +71,7 @@ class TestSectionOrder(unittest.TestCase):
     def test_canonical_section_order(self):
         text = _read()
         order = [t for t, _ in _section_positions(text)]
-        canonical = [
-            "Findings",
-            "Deferred to sibling skills",
-            "What looks good",
-            "Coherence-graph status",
-            "Verdict",
-            "--apply-safe summary",
-        ]
-        positions = [order.index(s) for s in canonical]
+        positions = [order.index(s) for s in CANONICAL_SECTIONS]
         self.assertEqual(
             positions, sorted(positions),
             f"sections out of canonical order: {order}",
