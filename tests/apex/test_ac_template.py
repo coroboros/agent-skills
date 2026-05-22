@@ -1,4 +1,4 @@
-"""Tests for WS-1: AC discipline upgrade in step-01 analyze.
+"""Tests for the AC discipline upgrade in step-01 analyze.
 
 Verifies step-01-analyze.md adopted the Given/When/Then AC template, the
 `## Not Included (negative scope)` section, and the `### 0a. Spec AC closure`

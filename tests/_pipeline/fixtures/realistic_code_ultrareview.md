@@ -4,6 +4,18 @@
 **Scope:** 6 files · public API · manifest · 2 planning artifacts (1d fresh) · **Estimated wall-clock:** 4m 30s
 **Rules baseline:** CLAUDE.md chain + 3 rule files
 **Reviewed:** 6 changed files
+**Findings:** 3 🔴 · 2 🟠 · 0 🟢 (verified) · 1 unverified
+
+## Lens summary
+
+| Lens | Status | Verified | Unverified | Top finding |
+|------|--------|----------|------------|-------------|
+| rules | 🔴 | 1 | 0 | console.log for request logging in src/api |
+| bugs-drift | 🔴 | 1 | 0 | Window resets on every request — boundary off-by-one |
+| docs-version | 🟠 | 1 | 0 | RATE_LIMIT_RPM env var undocumented |
+| tests-blindspots | 🟠 | 1 | 0 | No test for concurrent-burst path |
+| coherence-graph | 🟢 | 0 | 1 | — |
+| derivation | 🔴 | 1 | 0 | AC4 (per-IP allowlist override) GAP |
 
 ## Findings
 
@@ -62,7 +74,57 @@ Out-of-lane observations — pointers only, not reviewed here.
 
 ## Verdict
 
-**Fix-then-ship** — two High findings (logging rule, boundary off-by-one) must land before merge; the rest can follow.
+**Needs work** — 3 🔴 Important (1 in rules, 1 in bugs-drift, 1 in derivation) — fix red before ship.
+
+Drivers:
+- 1 in rules
+- 1 in bugs-drift
+- 1 in derivation
+
+## Action plan
+
+### 🔴 Fix now (3 findings)
+
+```
+/apex apply rules fixes (1 finding):
+  - src/api/limiter.ts:24 — console.log used for request logging in src/api
+      → Use the project logger; rule: "NEVER use console.* in src/api"
+```
+
+```
+/apex apply bugs-drift fixes (1 finding):
+  - src/api/limiter.ts:41 — Window resets on every request (boundary off-by-one on `>=`)
+      → Use `>` so the Nth request in the window is allowed
+```
+
+```
+/apex apply derivation fixes (1 finding):
+  - src/api/limiter.ts (GAP) — AC4 (per-IP allowlist override) missing; spec mandates the flag
+      → Implement the allowlist override behind the documented env var
+```
+
+### 🟠 Fix soon (2 findings)
+
+> No specialized skill installed for docs-version 🟠 — routed to /apex.
+
+```
+/apex apply docs-version fixes (1 finding):
+  - README.md:1 — RATE_LIMIT_RPM env var undocumented
+      → Add it to the Configuration table
+```
+
+```
+/apex apply tests-blindspots fixes (1 finding):
+  - src/api/limiter.ts:55 — No test for concurrent-burst path; empty-IP input unhandled
+      → Add a burst test and guard `ip === ""`
+```
+
+### Unverified follow-up
+
+```
+/apex investigate and decide on the following unverified findings:
+  - package.json ↔ marketplace.json — Description divergence [coherence-graph]
+```
 
 ---
 

@@ -338,9 +338,9 @@ class TestVersionGraph(unittest.TestCase):
                    "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
             subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
-            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"],
+            subprocess.run(["git", "-C", str(repo), "-c", "commit.gpgsign=false", "commit", "-q", "-m", "init"],
                            check=True, env=env)
-            subprocess.run(["git", "-C", str(repo), "tag", "1.24.0"], check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "-c", "tag.gpgsign=false", "tag", "1.24.0"], check=True, env=env)
             findings = version_graph.run(repo, _common.IgnoreFile())
         self.assertEqual(findings, [],
                          f"expected zero findings for manifest > tag; got {findings}")
@@ -357,9 +357,9 @@ class TestVersionGraph(unittest.TestCase):
                    "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
             subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
-            subprocess.run(["git", "-C", str(repo), "commit", "-q", "-m", "init"],
+            subprocess.run(["git", "-C", str(repo), "-c", "commit.gpgsign=false", "commit", "-q", "-m", "init"],
                            check=True, env=env)
-            subprocess.run(["git", "-C", str(repo), "tag", "1.25.0"], check=True, env=env)
+            subprocess.run(["git", "-C", str(repo), "-c", "tag.gpgsign=false", "tag", "1.25.0"], check=True, env=env)
             findings = version_graph.run(repo, _common.IgnoreFile())
         self.assertEqual(len(findings), 1)
         self.assertIn("Release ahead of manifest", findings[0].recommendation)

@@ -52,6 +52,13 @@
       "files": []
     },
     {
+      "id": 15,
+      "name": "lens2-flags-single-source-of-truth-drift",
+      "prompt": "/code-ultrareview (the diff hardcodes the same deploy path as a literal in both the install script and the task runner)",
+      "expected_output": "Lens 2 (bugs-drift) reports a single-source-of-truth drift risk: a literal that must stay equal (path/URL/endpoint/constant/version/env-var name) is duplicated across two or more sites introduced by the diff, so a change to one copy silently diverges from the others. The finding cites both sites (file:line each) and recommends a single definition referenced everywhere. Pure cosmetic repetition with no divergence consequence is NOT reported here — it defers to /simplify.",
+      "files": []
+    },
+    {
       "id": 8,
       "name": "lens4-flags-gap-and-blind-spot",
       "prompt": "/code-ultrareview (new code path added with no test and an unhandled empty-input case)",
@@ -83,7 +90,7 @@
       "id": 12,
       "name": "sub-80-routes-to-unverified-not-dropped",
       "prompt": "/code-ultrareview (changes contain one real high-impact bug at confidence 90 plus a maybe-issue scored at 70)",
-      "expected_output": "The high-impact bug appears in ### Verified (confidence 90). The maybe-issue appears in ### Unverified with the prefix [unverified] and a recommendation explaining the routing rationale (Sub-80 confidence (70) — verify locally before action). Neither is dropped — postmortem A2 contract.",
+      "expected_output": "The high-impact bug appears in ### Verified (confidence 90). The maybe-issue appears in ### Unverified with the prefix [unverified] and a recommendation explaining the routing rationale (Sub-80 confidence (70) — verify locally before action). Neither is dropped — A2 no-silent-drop contract.",
       "files": []
     },
     {
@@ -139,7 +146,7 @@
       "id": 24,
       "name": "a2-sub-80-finding-surfaces-with-prefix",
       "prompt": "/code-ultrareview (a finding scored at confidence 70 — maybe real, could not verify)",
-      "expected_output": "The finding appears in ### Unverified with finding text prefixed `[unverified]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — verify locally before action.' Never dropped silently (postmortem A2).",
+      "expected_output": "The finding appears in ### Unverified with finding text prefixed `[unverified]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — verify locally before action.' Never dropped silently (A2 no-silent-drop contract).",
       "files": []
     },
     {

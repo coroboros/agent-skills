@@ -1,4 +1,4 @@
-"""Tests for WS-4: /goal integration via -g flag.
+"""Tests for /goal integration via -g flag.
 
 Verifies SKILL.md flag tables + argument-hint + Compatibility section,
 step-00 parsing + headless auto-detection, step-04 /goal emission template.

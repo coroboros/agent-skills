@@ -1,4 +1,4 @@
-"""Tests for WS-3: Derivation lens in step-04 eXamine.
+"""Tests for the derivation lens in step-04 eXamine.
 
 Verifies the reference file taxonomy + severity rules + detection protocol,
 step-04's invocation sub-step ordering, removal of the legacy AC checklist,

@@ -109,9 +109,10 @@ one finding (severity `Medium`, confidence 80).
 
 ### 6. spec-conformance
 
-The full spec-conformance lens (`WebFetch` + cache + grammar inference) lands
-in WS-5. WS-3 ships an entrypoint stub: it detects normative-spec mentions in
-diff/README/`CLAUDE.md` using the WS-2 regex and emits a deferred placeholder
+The full spec-conformance lens (`WebFetch` + cache + grammar inference) is a
+later iteration. The current entrypoint is a stub: it detects normative-spec
+mentions in diff/README/`CLAUDE.md` using the normative-spec regex and emits a
+deferred placeholder
 finding (severity `Low`, confidence 50, recommendation pointing to the spec-conformance iteration pass).
 
 ## Finding schema
@@ -132,7 +133,7 @@ Each finding matches the canonical lens schema:
 
 `sub_graph` is the coherence-graph-specific field — readers can filter by
 which sub-graph fired. The orchestrator preserves it through aggregation
-(WS-6 keeps it as `meta.sub_graph` on the canonical finding row).
+(kept as `meta.sub_graph` on the canonical finding row).
 
 ## `.coherence-ignore` format
 
@@ -205,8 +206,8 @@ when sub-graphs emit zero findings). Non-zero exit means a hard failure
 - The example sub-graph parses only `bash`/`sh`/`shell` fences. Examples
   marked `console`, `terminal`, or unlabelled are skipped — false negatives
   acceptable at MVP.
-- Spec-conformance is intentionally stubbed in WS-3. The full lens
-  (`WebFetch` + 7-day ETag cache + grammar inference) lands in WS-5.
+- Spec-conformance is intentionally stubbed for now. The full lens
+  (`WebFetch` + 7-day ETag cache + grammar inference) is a later iteration.
 
 ## Fixtures
 

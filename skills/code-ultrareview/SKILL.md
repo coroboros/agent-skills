@@ -1,7 +1,7 @@
 ---
 name: code-ultrareview
-description: In-session fresh-eyes code review at full strength — six parallel lens subagents (rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation via `--reconcile`), iteration on sub-80 findings with build verification, property-fuzz harness synthesis, gated `--apply-safe` writers. Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's built-in `/ultrareview` remote billed command — same lens family, in-session, on your subscription.
-when_to_use: 'User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers, `effort: max`. Audit phase reads diff signals (LOC, public-API touches, normative-spec mentions, manifest delta, security paths) and surfaces Scope + estimated wall-clock in the report header. Invoke when you''d say "review my changes", "ultrathink review", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance", "does this follow the rules". NOT a security audit (use /security-review); NOT performance / simplification (use /simplify); NOT Anthropic''s remote billed command (use /ultrareview). Report-only by default; opt-in `--apply-safe` writes manifest-version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug — never production logic.'
+description: In-session fresh-eyes code review at full strength — six parallel lens subagents (rules, bugs-drift with A1 spec triggers, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`), iteration on sub-80 findings with build verification, property-fuzz harness, gated `--apply-safe` writers. Every report ends with a six-lens summary (🔴 / 🟠 / 🟢), a deterministic verdict (Ship / Fix-then-ship / Needs work), and per-cluster action-plan prompts routed to the most-specialized installed skill (falling back to `/apex`). Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's remote `/ultrareview` — same lenses, in-session.
+when_to_use: 'User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers, `effort: max`. Audit phase surfaces Scope + estimated wall-clock in the report header. Invoke when you''d say "review my changes", "ultrathink review", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance". NOT a security audit (use /security-review); NOT performance/simplification (use /simplify); NOT Anthropic''s remote billed command (use /ultrareview).'
 argument-hint: "[-b <ref>] [--reconcile <input>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
 model: opus
 effort: max
@@ -134,10 +134,28 @@ Audit-phase signal schema and report-header formatting live in `references/audit
 
 1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals and format the Scope + Estimated wall-clock header.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
-3. Aggregate findings via `scripts/aggregation.py`; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed to the report's Unverified sub-section (never silent-dropped — postmortem A2).
+3. Aggregate findings via `scripts/aggregation.py`; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed to the report's Unverified sub-section (never silent-dropped — A2).
 4. Re-pass sub-80 findings with build verification (one iteration per finding); synthesize a property-fuzz harness when `fast-check` / `hypothesis` is present, run the canonical test command from `build_detect.py`, feed the verdict into the iteration phase.
 5. With `--apply-safe`: invoke the three writers (`version_sync`, `description_sync` with full-agreement guard, `failing_test_writer`) — diff preview + per-file confirmation prompt before any write.
 6. Emit the report from `templates/code-ultrareview.md`. Save to the `-s` path when set, and report its fully-expanded absolute path to the user (no tilde, no magic).
+
+## Final report layout
+
+Closing-block order, emitted in every report:
+
+1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified`. Omitted on a fully clean review.
+2. **Lens summary** — six-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional.
+3. **Findings** — Verified and Unverified tables. Severity column renders the visual marker prefix: `🔴 High`, `🟠 Medium`, `🟢 Low`.
+4. **Deferred to sibling skills** — out-of-lane pointers (security, performance, depth, stale-API).
+5. **What looks good** — positive callouts.
+6. **Coherence-graph status** — per-sub-graph pass/fail.
+7. **Derivation coverage** — artifact list + classification counts (present only when `--reconcile` ran).
+8. **Verdict** — `Ship` / `Fix-then-ship` / `Needs work`, computed deterministically from severity markers + Anthropic tier. Algorithm + worked examples: `references/verdict-logic.md`.
+9. **Action plan** — paste-ready delegation prompts, severity-ordered (🔴 → 🟠 → 🟢 cross-lens). Each prompt routes to the most-specialized installed skill, falling back to `/apex` when absent. Routing table + fallback contract: `references/skill-routing.md`. Unverified findings render in a separate follow-up sub-block (no fix sketch — confidence too low).
+
+Severity marker mapping (canonical): **🔴 High** blocks ship; **🟠 Medium** fix-soon; **🟢 Low** nit/informational. Markers attach in `aggregation.py::_attach_marker` after A2 routing, so unverified findings (A2-downgraded to Low) render 🟢.
+
+Synthesize dict keys consumed by the template: `severity_counts`, `lens_summary`, `verdict`, `action_plan` — full schema in `references/aggregation.md` § *Closing-block extension*.
 
 ## Deferral spine
 
@@ -158,7 +176,7 @@ Coherence-graph lens degrades sub-graph by sub-graph: if `gh` CLI is unavailable
 
 This skill writes no code by default. After the report, bridge to the fix pass:
 
-- `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix workstream (requires `-s`; pass the absolute path the report printed).
+- `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix pass (requires `-s`; pass the absolute path the report printed).
 - `/oneshot "<finding>"` — single quick fix (manual; `/oneshot` takes a description, not a file).
 
 Opt-in `--apply-safe` writes only:

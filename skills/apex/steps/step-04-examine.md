@@ -160,6 +160,11 @@ Verify each item:
 - [ ] Error handling consistent
 - [ ] Naming conventions match
 
+**Deliverable Hygiene:**
+- [ ] No internal labels (workstream `WS-N`, task IDs, plan phase names) in code, comments, commit/PR text, or docs the change ships
+- [ ] No references to the plan/spec/brainstorm/postmortem, APEX phases, or scratch-file paths in shipped artifacts
+- [ ] Comments explain a why the code cannot — no comment that merely restates the next line
+
 ### 5. Format Code
 
 Run the project's format command if available.
