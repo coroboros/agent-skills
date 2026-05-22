@@ -1,4 +1,4 @@
-"""Tests for the WS-5 action-plan computation in aggregation.py."""
+"""Tests for the action-plan computation in aggregation.py."""
 
 from __future__ import annotations
 

@@ -61,6 +61,7 @@ is skipped (see *Graceful degradation*).
 
 - **Bug** — a logic error on a changed line: wrong condition, off-by-one, unhandled `null`/empty, mishandled error, race, resource leak.
 - **Drift** — code that no longer matches its own docstring, inline comment, README claim, or `CLAUDE.md` statement; or a change that diverges from an established sibling pattern in the same module without cause.
+- **Single source of truth** — a literal that must stay equal across sites (path, URL, endpoint, constant, version, env-var name) introduced or duplicated by the diff in two or more places. A change to one copy silently diverges from the others, so report it as drift and cite both sites. Distinct from cosmetic dedup (→ `/simplify`): report only when divergence would break behavior, never for stylistic repetition.
 
 **A1 — spec-claim triggering (always on).** When the diff,
 README, or `CLAUDE.md` cites a named normative spec (`RFC 6874`, `WHATWG`,
@@ -68,10 +69,9 @@ README, or `CLAUDE.md` cites a named normative spec (`RFC 6874`, `WHATWG`,
 the lens fetches the spec via `WebFetch`, quotes the governing clause
 verbatim in the finding's `recommendation`, and diffs the code against the
 quoted clause. The cache at `~/.claude/cache/code-ultrareview/specs/` is
-shared with the spec-conformance lens (WS-5); ETag refresh ≥7 days. A
-verifiable divergence scores **≥80** confidence — no longer scored as
-"doesn't survive light scrutiny" (postmortem A1 fix). Reference:
-`~/.claude/output/agent-skills/postmortem/postmortem-code-ultrareview.md`.
+shared with the spec-conformance lens; ETag refresh ≥7 days. A
+verifiable divergence scores **≥80** confidence — the quoted spec clause
+is the evidence.
 
 **Iteration on sub-80 findings (always on).** Sub-80 bug/drift findings are re-passed with
 `--iterate`: the subagent attempts a build (`npm test --no-coverage`,
@@ -118,8 +118,8 @@ Full brief: `references/derivation.md`.
 
 ## Confidence rubric (0–100)
 
-Score every finding; **sub-80 findings are surfaced, not dropped** (postmortem
-A2). The orchestrator routes them to the `### Unverified` sub-section of
+Score every finding; **sub-80 findings are surfaced, not dropped.** The
+orchestrator routes them to the `### Unverified` sub-section of
 the report with the prefix `[unverified]` on the finding text and the
 rationale `Sub-80 confidence ({score}) — verify locally before action.`
 in the recommendation.
@@ -168,4 +168,4 @@ Detailed contract in `references/aggregation.md`. Summary:
 - Deduplicate findings reported by more than one lens — keep the one with the highest confidence, note the secondary lens.
 - Order findings by severity (High → Low), then confidence (high → low).
 - A lens that returns nothing contributes a "clean" note, not silence.
-- **No silent drop.** Sub-80 findings are routed to `### Unverified`, never omitted (postmortem A2).
+- **No silent drop.** Sub-80 findings are routed to `### Unverified`, never omitted.

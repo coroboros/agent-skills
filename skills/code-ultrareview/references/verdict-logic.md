@@ -8,7 +8,7 @@ Verified findings only. Unverified findings (sub-80 confidence, routed to `### U
 
 Each finding carries:
 
-- `meta.marker` ∈ {🔴, 🟠, 🟢} — attached by `_attach_marker` (see WS-1).
+- `meta.marker` ∈ {🔴, 🟠, 🟢} — attached by `_attach_marker`.
 - `meta.anthropic_tier` ∈ {Important, Nit, Pre-existing, None} — attached by `assign_anthropic_tier`.
 
 A finding is **Important** when `tier == "Important"` (≥80 confidence + High/Medium severity, and not `pre_existing=True`). Pre-existing findings on unchanged lines are excluded from the ship decision.
@@ -92,6 +92,6 @@ Output: `Ship — Six lenses ran clean. Ship.` (assuming no other Important find
 
 ## Why not LLM-judged?
 
-The original template (pre-WS-4) emitted `**{Ship | Fix-then-ship | Needs work}** — {one-line rationale}` as a literal placeholder, leaving the synthesizer subagent to pick a verdict implicitly. Outcomes drifted across runs and were not auditable. The deterministic algorithm above is reproducible: the same finding set always yields the same verdict.
+The original template emitted `**{Ship | Fix-then-ship | Needs work}** — {one-line rationale}` as a literal placeholder, leaving the synthesizer subagent to pick a verdict implicitly. Outcomes drifted across runs and were not auditable. The deterministic algorithm above is reproducible: the same finding set always yields the same verdict.
 
 If the verdict surprises you, check `meta.marker` and `meta.anthropic_tier` on the verified findings — those are the only inputs.

@@ -1,4 +1,4 @@
-"""Tests for the WS-3 installed-skill detection + routing in detect_skills.py."""
+"""Tests for the installed-skill detection + routing in detect_skills.py."""
 
 from __future__ import annotations
 

@@ -272,7 +272,7 @@ def order(findings: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------------------
-# Closing-block extension (WS-1, WS-2, WS-4, WS-5)
+# Closing-block computations: severity counts, lens summary, verdict, action plan
 # ---------------------------------------------------------------------------
 
 

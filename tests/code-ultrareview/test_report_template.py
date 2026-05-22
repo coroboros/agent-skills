@@ -35,9 +35,9 @@ def _section_positions(text: str) -> list[tuple[str, int]]:
     ]
 
 
-# All canonical top-level `##` sections in canonical order. Updated
-# post-WS-1..5: `Lens summary`, `Derivation coverage`, and `Action plan`
-# joined the prior six. Drift in this tuple fails both the presence and
+# All canonical top-level `##` sections in canonical order. `Lens summary`,
+# `Derivation coverage`, and `Action plan` joined the prior six. Drift in this
+# tuple fails both the presence and
 # ordering tests below; mirror updates to
 # `tests/_pipeline/_contracts.py::CLUSTERS["review"]["report_required_sections"]`.
 CANONICAL_SECTIONS = (

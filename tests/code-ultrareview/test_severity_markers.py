@@ -1,4 +1,4 @@
-"""Tests for the WS-1 severity-marker pipeline in aggregation.py.
+"""Tests for the severity-marker pipeline in aggregation.py.
 
 Covers `_attach_marker`, marker propagation through `apply_a2`,
 `iterate_unverified`, and `synthesize`, plus `compute_severity_counts`.

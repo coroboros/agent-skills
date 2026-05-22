@@ -1,6 +1,6 @@
 """Tests for skills/code-ultrareview/scripts/aggregation.py and spec_claim.py.
 
-Pins the three postmortem-driven contracts:
+Pins the three core aggregation contracts:
   - A2: sub-80 findings are SURFACED with the unverified prefix, not dropped.
   - A1: spec-claim trigger formats a high-confidence finding with the quote.
   - Always-on iteration: build verdict promotes / drops / leaves sub-80 findings.

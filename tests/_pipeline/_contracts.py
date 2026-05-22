@@ -100,7 +100,7 @@ CLUSTERS = {
         # confidence_threshold (80) is the routing boundary, NOT a silent
         # drop — sub-80 findings surface as "[unverified]" with the
         # rationale "Sub-80 confidence ({score}) — verify locally before
-        # action." (postmortem A2 contract). See references/aggregation.md
+        # action." (the A2 no-silent-drop contract). See references/aggregation.md
         # for the full no-silent-drop semantics. The old (pre-rewrite)
         # behavior dropped sub-80 findings entirely; consumers reading
         # post-rewrite reports MUST expect both Verified and Unverified

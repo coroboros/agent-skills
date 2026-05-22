@@ -1,4 +1,4 @@
-"""Tests for the WS-2 lens-summary computation in aggregation.py."""
+"""Tests for the lens-summary computation in aggregation.py."""
 
 from __future__ import annotations
 

@@ -1,4 +1,4 @@
-"""Tests for the WS-4 verdict computation in aggregation.py."""
+"""Tests for the verdict computation in aggregation.py."""
 
 from __future__ import annotations
 

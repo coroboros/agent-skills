@@ -1,16 +1,14 @@
 # Aggregation — A2, sub-80 iteration, dedup, severity tiers
 
 Aggregation is thin glue between lens subagents and the report template. It
-applies the postmortem A2 contract (no silent drop), runs the sub-80
+applies the no-silent-drop contract, runs the sub-80
 iteration pass, deduplicates cross-lens hits, and maps confidence + severity
 to the report's tier labels.
 
 ## A2 — no silent drop
 
 The earlier `code-review` implementation dropped any finding with
-`confidence < 80`. The postmortem at
-`~/.claude/output/agent-skills/postmortem/postmortem-code-ultrareview.md`
-identified this as a structural hole: real findings were lost to a heuristic
+`confidence < 80` — a structural hole: real findings were lost to a heuristic
 filter. **A2 replaces drop with routing.**
 
 Rules:
