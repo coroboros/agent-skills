@@ -1,7 +1,7 @@
-"""Tests for skills/spec/scripts/setup-labels.sh.
+"""Tests for skills/forge/scripts/setup-labels.sh.
 
 The script delegates to `gh label create` for each of 8 labels (P0/P1/P2,
-size:S/M/L/XL, spec). Tests use a stub `gh` on PATH to capture invocations
+size:S/M/L/XL, forge). Tests use a stub `gh` on PATH to capture invocations
 and force exit codes — the real `gh` binary is never exercised.
 """
 
@@ -14,7 +14,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-SCRIPT = REPO_ROOT / "skills" / "spec" / "scripts" / "setup-labels.sh"
+SCRIPT = REPO_ROOT / "skills" / "forge" / "scripts" / "setup-labels.sh"
 
 BASH = shutil.which("bash") or "/bin/bash"
 
@@ -82,7 +82,7 @@ class TestStubSuccess(unittest.TestCase):
         self.assertEqual(set(names), {
             "P0", "P1", "P2",
             "size:S", "size:M", "size:L", "size:XL",
-            "spec",
+            "forge",
         })
 
 

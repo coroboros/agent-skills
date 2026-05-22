@@ -1,6 +1,6 @@
 # Spec craft
 
-Hardening techniques for step-02. Read this when writing acceptance criteria, setting priorities, or phrasing goals — not on every run. The discipline here is what separates a spec `/apex` can execute blind from one it has to guess at.
+Hardening techniques for the Forge phase. Read this when writing acceptance criteria, setting priorities, or phrasing goals — not on every run. The discipline here is what separates a plan `/apex` can execute blind from one it has to guess at.
 
 ## Acceptance criteria
 

@@ -1,11 +1,30 @@
 # Spec: {title}
 
+<!-- Code-bearing artifact. For a pure-strategy outcome (a choice with no immediate code),
+     retitle this `# Decision: {title}`, keep Decision + Assumption ledger + Overview
+     (plus Risks / Open questions as needed), and omit Workstreams, Dependencies, and
+     Execution order. -->
+
 **Date:** {YYYY-MM-DD}
 **Status:** Draft
 
+## Decision
+
+- **Chosen:** {approach} — {1-2 sentence rationale}
+- **Runner-up:** {alternative} — {the condition under which it would win}
+- **Escalated forks:** {the few user-owned questions, or "none"}
+
+## Assumption ledger
+
+Tag each as **verified fact**, **assumption**, or **inherited convention**. Flag the shakiest — it becomes an open question or a risk.
+
+- [verified fact] {what is known, and the source}
+- [assumption] {what was assumed, and why}
+- [inherited convention] {what was taken as given from existing code or prior docs}
+
 ## Overview
 
-[2-4 sentences. What this is, why it matters, what it enables. Written for someone who has no prior context.]
+[2-4 sentences. What this is, why it matters, what it enables. Written for someone with no prior context.]
 
 ## Goals
 
@@ -13,16 +32,14 @@
 
 - [Goal 1: measurable outcome]
 - [Goal 2: measurable outcome]
-- [Goal 3: measurable outcome]
 
 ## Non-goals
 
-- [Explicit exclusion 1 — tag the rationale: not enough impact / too complex for now / separate initiative / premature]
-- [Explicit exclusion 2 — rationale]
+- [Explicit exclusion — tag the rationale: not enough impact / too complex for now / separate initiative / premature]
 
 ## Background
 
-[What exists today. What problem this solves. If from a brainstorm, reference it. If a codebase exists, summarize relevant architecture. 3-5 sentences max.]
+[What exists today. What problem this solves. If from prior context, reference it. 3-5 sentences max.]
 
 ---
 
@@ -47,19 +64,19 @@
 - [ ] {Given <precondition>, when <action>, then <observable outcome>}
 - [ ] {negative — what must NOT happen}
 
-**Technical notes:** [Optional. Only when there are specific codebase references, patterns to follow, or non-obvious implementation hints. Omit entirely if nothing genuinely helpful to add.]
+**Technical notes:** [Optional. Only when there are specific codebase references, patterns to follow, or non-obvious hints. Omit entirely if nothing genuinely helpful to add.]
 
 ---
 
 ### WS-2: {workstream title}
 
-[Same structure as WS-1. Repeat for each workstream.]
+[Same structure as WS-1. Repeat for each workstream — 3-7 total.]
 
 ---
 
 ## Dependencies
 
-[Only include if workstreams have dependencies on each other.]
+[Only include if workstreams depend on each other.]
 
 ```
 WS-1 --> WS-3
@@ -76,19 +93,9 @@ WS-3 --> WS-5
 
 [Only genuine risks — not generic "things might change" filler.]
 
-## Assumptions
-
-[Include if `{auto_mode}` was used, if specific assumptions were necessary, or carried forward from a brainstorm Assumption ledger.]
-
-Tag each as **verified fact**, **assumption**, or **inherited convention**. Flag the shakiest — it becomes an open question or a risk.
-
-- [verified fact] {what is known, and the source}
-- [assumption] {what was assumed, and why}
-- [inherited convention] {what was taken as given from existing code or prior docs}
-
 ## Open questions
 
-[Only genuinely unresolved items needing human decision. Split by whether they block a workstream start.]
+[Only genuinely unresolved items needing human decision — the escalated forks. Split by whether they block a workstream start.]
 
 **Blocking** — must be answered before the dependent workstream starts:
 - [ ] {question} → blocks WS-{N}
@@ -98,7 +105,7 @@ Tag each as **verified fact**, **assumption**, or **inherited convention**. Flag
 
 ## Parking lot
 
-[Good ideas surfaced but deliberately out of scope for this spec — captured so they are neither lost nor allowed to creep into the workstreams. Omit if empty.]
+[Good ideas surfaced but deliberately out of scope — captured so they neither get lost nor creep into the workstreams. Omit if empty.]
 
 - {idea} — revisit when {trigger}
 
@@ -109,4 +116,3 @@ Recommended implementation sequence:
 1. **WS-{N}** (P0) — {one-line rationale for why this is first}
 2. **WS-{N}** (P0) — {rationale}
 3. **WS-{N}** (P1) — {rationale}
-4. **WS-{N}** (P2) — {rationale}

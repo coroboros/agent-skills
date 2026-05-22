@@ -1,8 +1,8 @@
-"""Pipeline contract: brainstorm → spec → apex.
+"""Pipeline contract: forge → apex.
 
-Each skill documents the path convention it produces or consumes. A realistic
-spec.md fixture (3 workstreams, dep chain) must pass validate_spec.py — pinning
-the producer→validator contract end-to-end.
+forge documents the path convention it produces; apex documents consuming it
+via -f. A realistic spec-shaped fixture (3 workstreams, dep chain) must pass
+validate_spec.py — pinning the producer→validator contract end-to-end.
 """
 
 import sys
@@ -13,7 +13,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from _contracts import CLUSTERS, read_skill_md  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(REPO_ROOT / "skills" / "spec" / "scripts"))
+sys.path.insert(0, str(REPO_ROOT / "skills" / "forge" / "scripts"))
 from validate_spec import (  # noqa: E402
     build_graph,
     find_cycle,
@@ -29,32 +29,32 @@ class TestProducerConsumerPaths(unittest.TestCase):
     """v2 contract (repo-conventions.md § Pipeline chaining): a producer
     saves to ~/.claude/output/{project}/{skill}/{skill}-{slug}.md and prints
     that fully-expanded absolute path; the consumer is handed that explicit
-    path verbatim — no reconstruction, no inference, no glob. Pinned: the
-    producer's documented path shape appears in the consumer's bridge, and
-    the SSOT states the explicit-path rule. Drift in the path shape or the
-    rule breaks the chain in this diff."""
+    path verbatim — no reconstruction, no inference, no glob. Pinned: forge's
+    documented path shape appears in its own bridge to apex, apex's -f example
+    consumes it, and the SSOT states the explicit-path rule. Drift in the path
+    shape or the rule breaks the chain in this diff."""
 
     RULE = (
         Path(__file__).resolve().parent.parent.parent
         / ".claude" / "rules" / "repo-conventions.md"
     ).read_text(encoding="utf-8")
 
-    def test_spec_bridges_brainstorm_explicit_path(self):
-        spec_md = read_skill_md(WORKFLOW["consumer"])
-        # spec's bridge inlines the brainstorm explicit path shape, never a
+    def test_forge_bridges_apex_explicit_path(self):
+        forge_md = read_skill_md(WORKFLOW["producer"])
+        # forge's bridge inlines the explicit forge artifact path, never a
         # bare reconstructed name.
-        self.assertIn("brainstorm/brainstorm-{slug}.md", spec_md)
-        self.assertNotIn("-f brainstorm.md", spec_md)
+        self.assertIn("forge/forge-{slug}.md", forge_md)
+        self.assertNotIn("-f forge.md", forge_md)
 
-    def test_apex_bridges_spec_explicit_path(self):
-        apex_md = read_skill_md(WORKFLOW["tertiary"])
-        self.assertIn("spec/spec-{slug}.md", apex_md)
-        self.assertNotIn("-f spec.md", apex_md)
+    def test_apex_consumes_forge_explicit_path(self):
+        apex_md = read_skill_md(WORKFLOW["consumer"])
+        self.assertIn("forge/forge-{slug}.md", apex_md)
+        self.assertNotIn("-f forge.md", apex_md)
 
-    def test_brainstorm_documents_canonical_filename(self):
-        brainstorm_md = read_skill_md(WORKFLOW["producer"])
-        # brainstorm commits to the {skill}-{slug}.md filename convention.
-        self.assertIn("brainstorm-{slug}.md", brainstorm_md)
+    def test_forge_documents_canonical_filename(self):
+        forge_md = read_skill_md(WORKFLOW["producer"])
+        # forge commits to the {skill}-{slug}.md filename convention.
+        self.assertIn("forge-{slug}.md", forge_md)
 
     def test_ssot_documents_explicit_path_contract(self):
         # The keystone is "explicit path, verbatim — no magic", not
@@ -66,13 +66,13 @@ class TestProducerConsumerPaths(unittest.TestCase):
 
 
 class TestSpecValidatorAcceptsRealisticOutput(unittest.TestCase):
-    """A spec.md shaped like real consumer output (3 workstreams, dep chain,
-    P0/P1 priorities, M/L complexity) must pass validate_spec.py — pins the
-    producer→validator contract end-to-end."""
+    """A forge code-bearing artifact shaped like real output (3 workstreams,
+    dep chain, P0/P1 priorities, M/L complexity) must pass validate_spec.py —
+    pins the producer→validator contract end-to-end."""
 
     SPEC_FIXTURE = (
-        "# Auth System Spec\n\n"
-        "## Summary\n\nBuild authentication infrastructure.\n\n"
+        "# Spec: Auth System\n\n"
+        "## Decision\n\n- **Chosen:** session cookies — simplest fit.\n\n"
         "## Workstreams\n\n"
         "### WS-1: Database schema\n\n"
         "| Priority | P0 |\n| Complexity | M |\n| Depends on | — |\n\n"

@@ -90,7 +90,7 @@ Resolves every relative link in `.md` files at the repo root and in
 - File-existence checks for relative paths (`./foo.md`, `../bar/baz.md`).
 - Anchor-existence checks for `#section` references (heading present in
   target file).
-- Skill-name references — `/spec`, `/apex` etc. — resolved against
+- Skill-name references — `/forge`, `/apex` etc. — resolved against
   `.claude-plugin/marketplace.json` → `.plugins[].skills`.
 
 A missing target surfaces as one finding (severity `High`, confidence 95).

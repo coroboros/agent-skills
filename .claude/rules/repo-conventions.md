@@ -40,9 +40,9 @@ Future skills MUST adopt this scheme — it is a conformance gate in the skill-a
 Skills compose via the `-f` flag. A producer saves its file, then reports the **fully-expanded absolute path** and the exact next command with that path inlined:
 
 ```
-/brainstorm -s "oauth authentication"
-  saved → /Users/<you>/.claude/output/<project>/brainstorm/brainstorm-oauth-authentication.md
-  next  → /spec -s -f /Users/<you>/.claude/output/<project>/brainstorm/brainstorm-oauth-authentication.md
+/forge -s "oauth authentication"
+  saved → /Users/<you>/.claude/output/<project>/forge/forge-oauth-authentication.md
+  next  → /apex -f /Users/<you>/.claude/output/<project>/forge/forge-oauth-authentication.md
 ```
 
 **`-f <path>`** — the value is an **explicit path, used verbatim**. The consumer `Read`s exactly that path. No filename reconstruction, no `{producer}`/`{project}` inference, no glob, no "latest" guess — the producer already printed the real path and the bridge carries it literally. A path that does not exist → fail loud (regenerate via the producer, or correct the path). That is the whole contract: paths are explicit, never magic.

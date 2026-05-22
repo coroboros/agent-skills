@@ -5,7 +5,7 @@ The keystone is no longer bare-name reconstruction — it is the opposite:
 files that can silently drift apart:
 
 - `.claude/rules/repo-conventions.md`  — the SSOT rule (§ Pipeline chaining)
-- `skills/spec/steps/step-01-discover.md` — spec's consumer-side application
+- `skills/forge/SKILL.md` — forge's consumer-side application (Hunt phase, `-f`)
 - `skills/apex/steps/step-01-analyze.md`  — apex's consumer-side application
 
 This pins all three to the same invariants so a future edit to one cannot
@@ -20,7 +20,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent.parent
 SOURCES = {
     "rule": REPO / ".claude" / "rules" / "repo-conventions.md",
-    "spec-step": REPO / "skills" / "spec" / "steps" / "step-01-discover.md",
+    "forge": REPO / "skills" / "forge" / "SKILL.md",
     "apex-step": REPO / "skills" / "apex" / "steps" / "step-01-analyze.md",
 }
 

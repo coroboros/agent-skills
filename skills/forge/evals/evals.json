@@ -1,0 +1,111 @@
+{
+  "skill_name": "forge",
+  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase flow (Hunt/Judge/Decide/Forge), the decide-vs-escalate discipline that is forge's discriminator, the canonical artifact shape (Decision header + Assumption ledger + 3-7 workstreams with priority/complexity/tasks/AC when there is code), the Diverge and Challenge rigor, acceptance-criteria craft, schema validation, GitHub-issue creation, the pure-strategy variant, and the bridge to /apex.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "produces-canonical-artifact-shape",
+      "prompt": "/forge add user authentication with OAuth and email/password",
+      "expected_output": "Output is a `# Spec:` artifact with a Decision header (chosen approach + rationale, runner-up + what flips it, escalated forks), an Assumption ledger tagging each assumption verified fact / assumption / inherited convention, then Overview, Goals, Non-goals, Background, 3-7 ### WS-N workstreams each with Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, and Acceptance criteria, plus Execution order.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "decides-engineering-calls-escalates-only-user-forks",
+      "prompt": "/forge -s build a notifications service for our app",
+      "expected_output": "Forge DECIDES the engineering judgment calls (queue vs cron, table shape, retry strategy, library choice) and records a one-line rationale for each in the Decision and Assumption ledger; it ESCALATES only the few forks the user genuinely owns (which channels to launch with, any budget ceiling). The artifact surfaces a handful of sharp open questions, not a long list of unresolved engineering decisions.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "reframes-stated-problem-before-research",
+      "prompt": "/forge we need to add a caching layer to speed up the dashboard",
+      "expected_output": "Phase 1 (Hunt) reframes the stated solution ('add a caching layer') into the real problem and writes 1-3 'How might we' framings before any research. It does not accept the solution-in-disguise at face value, and names the framing it will pursue.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "diverges-before-evaluating",
+      "prompt": "/forge should we move our background jobs off Cloudflare Queues",
+      "expected_output": "Phase 2 (Judge) produces at least 3 approaches that differ in mechanism (not three variants of one), states why each is structurally distinct, and includes one option that removes or stops something and one that inverts the obvious default. No scoring or 'recommended' label is applied during divergence — evaluation is deferred to the stress-test.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "challenge-runs-premortem-and-steelman",
+      "prompt": "/forge should we adopt a Turborepo monorepo for our 4 services",
+      "expected_output": "The stress-test runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. These feed the Decision's runner-up line and the Assumption ledger.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "saves-to-canonical-path",
+      "prompt": "/forge -s redesign the billing system",
+      "expected_output": "With -s, the artifact is written to `~/.claude/output/{project}/forge/forge-{slug}.md` ({slug} = kebab of the idea; {project} = repo basename), and the fully-expanded absolute path is reported back with the `/apex -f <that path>` bridge command.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "acceptance-criteria-given-when-then",
+      "prompt": "/forge add CSV export to the reports page",
+      "expected_output": "Every workstream's acceptance criteria stay `- [ ]` checklist items phrased Given/When/Then, cover happy + error + edge, and include at least one negative criterion (what must NOT happen). No vague words (fast, intuitive, robust). The skill routes to references/spec-craft.md for the criteria discipline rather than re-deriving it inline.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "validates-before-finalizing",
+      "prompt": "/forge -s add a real-time collaboration layer to the document editor",
+      "expected_output": "After writing the artifact, the skill runs `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py <output_file>` and requires exit 0. On a schema violation (workstream count out of 3-7, missing Priority/Complexity/AC, unknown dependency, or a cycle) it rewrites the flagged workstreams and re-validates rather than finalizing a broken plan.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "pure-strategy-stops-at-decision",
+      "prompt": "/forge should we use Neon or Supabase for our serverless Postgres",
+      "expected_output": "When the outcome is a choice with no immediate code, forge emits a pure-strategy artifact: H1 `# Decision:`, the chosen option with rationale and the runner-up with what would flip it, no workstreams, and no `/apex` bridge. The skill concludes the discussion rather than handing off to implementation.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "bridges-to-apex-without-implementing",
+      "prompt": "/forge -s add search functionality to the docs site",
+      "expected_output": "After presenting the decision and the plan, the skill shows the exact `/apex -f <output_file> implement WS-N` bridge command and stops — it implements no code and waits for the user. Forge produces a document, not code changes.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "creates-github-issues-with-flag",
+      "prompt": "/forge -a -i migrate from REST to GraphQL",
+      "expected_output": "With -i (which forces -s), the skill reads references/issue-creation.md, verifies gh auth, creates labels idempotently, then creates a parent epic plus one child issue per workstream with priority/complexity/forge labels and parent-child cross-references, and appends a ## GitHub Issues mapping to the artifact. A single-workstream plan gets one issue and no parent epic.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "auto-decides-reasonable-forks",
+      "prompt": "/forge -a -s build an internal documentation site for the engineering team",
+      "expected_output": "Under -a, the skill skips Q&A, makes the reasonable assumption on each open fork, records it in the Assumption ledger, and proceeds to a complete artifact — escalating nothing it can reasonably decide on its own.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "routes-to-thinking-tools-when-stuck",
+      "prompt": "/forge every database option I consider is just a variant of 'use Postgres' — help me break out",
+      "expected_output": "When divergence collapses to one mechanism, the skill routes to references/thinking-tools.md for an on-demand technique (first-principles, inversion, reverse-brainstorm, or elimination) rather than inlining the technique list. It reads the reference only when the option set is thin, not on every run.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "name": "too-many-workstreams-suggests-split",
+      "prompt": "/forge rebuild the entire admin dashboard: auth, RBAC, billing, analytics, audit log, settings, notifications, and a public API",
+      "expected_output": "When the work decomposes into more than 7 workstreams, the skill recommends splitting it into multiple plans rather than producing one bloated artifact. It does not silently emit 12 workstreams.",
+      "files": []
+    },
+    {
+      "id": 15,
+      "name": "non-markdown-from-file-aborts",
+      "prompt": "/forge -f requirements.pdf \"plan the requirements\"",
+      "expected_output": "A non-Markdown -f source (.pdf, .docx, audio, video, YouTube) is not read as binary. The skill stops and instructs the user to pre-process with `/markitdown -s <path>` and pass the saved Markdown path, rather than guessing at the contents.",
+      "files": []
+    }
+  ]
+}

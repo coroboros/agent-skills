@@ -11,7 +11,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-SCRIPTS = REPO_ROOT / "skills" / "spec" / "scripts"
+SCRIPTS = REPO_ROOT / "skills" / "forge" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from validate_spec import build_graph, find_cycle, split_blocks, validate_workstream  # noqa: E402

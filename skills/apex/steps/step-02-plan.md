@@ -187,10 +187,10 @@ If any threshold trips, append a `⚠️ Scope advisory` block to `02-plan.md`:
 - Systems: <list> (threshold 2)
 - Cross-cutting: <list or none>
 
-This is within apex's design scope. Consider `/spec` for explicit decomposition if scope is unclear.
+This is within apex's design scope. Consider `/forge` for explicit decomposition if scope is unclear.
 ```
 
-Advisory only — never blocks step-02. The check is the dogfood for solo apex runs without an upstream brainstorm/spec; apex documents its own scope when it grows.
+Advisory only — never blocks step-02. The check is the dogfood for solo apex runs without an upstream forge plan; apex documents its own scope when it grows.
 
 ### 5. Verify Plan Completeness
 

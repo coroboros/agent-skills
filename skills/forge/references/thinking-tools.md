@@ -1,6 +1,6 @@
 # Thinking tools
 
-On-demand techniques for the Diverge and Challenge phases. Read this only when the option set is thin or the recommendation feels anchored — not on every run.
+On-demand techniques for the Judge phase — divergence and the stress-test. Read this only when the option set is thin or the recommendation feels anchored — not on every run.
 
 ## First-principles decomposition
 

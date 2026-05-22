@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Idempotent label setup for /spec -i
+# Idempotent label setup for /forge -i
 # Creates priority, complexity, and type labels. --force updates color/description if label exists.
 
 set -euo pipefail
@@ -13,4 +13,4 @@ gh label create "size:M" --color "bfd4f2" --description "Medium — 1-4 hours" -
 gh label create "size:L" --color "d4c5f9" --description "Large — 4-8 hours" --force
 gh label create "size:XL" --color "e6ccb3" --description "Extra large — over 1 day" --force
 
-gh label create "spec" --color "0e8a16" --description "Spec-generated workstream" --force
+gh label create "forge" --color "0e8a16" --description "Forge-generated workstream" --force

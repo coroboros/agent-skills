@@ -125,7 +125,7 @@
       "id": 21,
       "name": "coherence-detects-broken-cross-skill-reference",
       "prompt": "/code-ultrareview (README mentions `/nonexistent` skill; marketplace.json has no such skill)",
-      "expected_output": "Coherence-graph cross-reference sub-graph emits a finding: 'Reference to /nonexistent but no matching skill in marketplace.json.' Anchor reference for `/init`, `/memory`, `/spec` etc. is NOT flagged (known external + present in marketplace).",
+      "expected_output": "Coherence-graph cross-reference sub-graph emits a finding: 'Reference to /nonexistent but no matching skill in marketplace.json.' Anchor reference for `/init`, `/memory`, `/forge` etc. is NOT flagged (known external + present in marketplace).",
       "files": []
     },
     {
@@ -194,8 +194,8 @@
     {
       "id": 31,
       "name": "derivation-auto-detects-conventional-paths",
-      "prompt": "/code-ultrareview --reconcile @auto (with brainstorm + spec + apex plan + PR body available)",
-      "expected_output": "The derivation lens auto-detects artifacts at ~/.claude/output/{project}/{brainstorm,spec,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
+      "prompt": "/code-ultrareview --reconcile @auto (with forge + apex plan + PR body available)",
+      "expected_output": "The derivation lens auto-detects artifacts at ~/.claude/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
       "files": []
     },
     {
@@ -215,8 +215,8 @@
     {
       "id": 34,
       "name": "derivation-decision-override-surfaced",
-      "prompt": "/code-ultrareview --reconcile <brainstorm-decided-X-code-does-Y>",
-      "expected_output": "The brainstorm's 'Decisions resolved' block names decision X; the diff implements Y instead. The lens emits a finding with `classification: DECISION-OVERRIDE`, severity Medium-High depending on artifact authority (brainstorm < spec < explicit AC). The finding's `recommendation` cites the resolved decision verbatim and asks the reviewer to confirm or override-in-doc.",
+      "prompt": "/code-ultrareview --reconcile <forge-decided-X-code-does-Y>",
+      "expected_output": "The forge plan's 'Decision' block names decision X; the diff implements Y instead. The lens emits a finding with `classification: DECISION-OVERRIDE`, severity Medium-High depending on artifact authority (forge plan < explicit AC). The finding's `recommendation` cites the resolved decision verbatim and asks the reviewer to confirm or override-in-doc.",
       "files": []
     },
     {

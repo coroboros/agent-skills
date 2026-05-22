@@ -6,17 +6,16 @@
   },
   "metadata": {
     "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
-    "version": "1.28.1"
+    "version": "1.29.0"
   },
   "plugins": [
     {
       "name": "workflow-skills",
-      "description": "Strategic thinking, planning, and implementation — brainstorm, spec, apex, oneshot",
+      "description": "Strategic thinking, planning, and implementation — forge, apex, oneshot",
       "source": "./",
       "strict": false,
       "skills": [
-        "./skills/brainstorm",
-        "./skills/spec",
+        "./skills/forge",
         "./skills/apex",
         "./skills/oneshot"
       ]

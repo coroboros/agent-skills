@@ -119,7 +119,7 @@ class TestGetSkillDirsContract(unittest.TestCase):
         path-resolution bugs that return an empty list."""
         names = {d.name for d in get_skill_dirs()}
         # A representative sample — adding to this set is intentional.
-        for known in ("brand-voice", "humanize-en", "spec", "apex"):
+        for known in ("brand-voice", "humanize-en", "forge", "apex"):
             with self.subTest(known=known):
                 self.assertIn(
                     known, names,

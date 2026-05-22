@@ -67,8 +67,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 
 | Plugin | Skill | Model | Description | Scope |
 |--------|-------|-------|-------------|-------|
-| Workflow | [brainstorm](#brainstorm) | opus | Strategic analysis and deep thinking before implementation | Claude |
-| Workflow | [spec](#spec) | opus | Transform ideas into structured specs with prioritized workstreams | Claude |
+| Workflow | [forge](#forge) | opus | Pre-implementation thinking — research, decide, and emit one apex-ready plan | Claude |
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
@@ -95,88 +94,54 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 
 ### Workflow Skills
 
-Strategic thinking, planning, and implementation — `brainstorm`, `spec`, `apex`, `oneshot`.
+Strategic thinking, planning, and implementation — `forge`, `apex`, `oneshot`.
 
 <details>
-<summary><em>brainstorm · spec · apex · oneshot</em></summary>
+<summary><em>forge · apex · oneshot</em></summary>
 
 <br>
 
-#### brainstorm
+#### forge
 
-Strategic analysis and deep thinking before implementation. Researches the problem space, challenges assumptions, and produces a strategic brief.
+Pre-implementation thinking — research the problem space, weigh approaches with devil's-advocate rigor, decide every engineering call within scope, and emit one apex-ready plan. The "think" half; `apex` is the "build" half.
 
 **Usage**
 
 ```bash
-/brainstorm should we use Neon or PlanetScale for our database?
-/brainstorm -s which auth strategy for our multi-tenant SaaS?
+# Pure-strategy decision (no code)
+/forge should we use Neon or Supabase for our serverless Postgres?
+
+# Plan a feature, save the artifact
+/forge -s add user authentication with OAuth and email/password
+
+# Auto mode + create GitHub issues
+/forge -s -a -i migrate from REST to GraphQL
 ```
 
 **Flags**
 
 | Flag | Description |
 |------|-------------|
-| `-s` | Save report to `~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md` |
-| `-S` | Force no-save (override any ambient save mode) |
+| `-s` / `-S` | Save artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` / force no-save |
+| `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
+| `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks / disable |
+| `-e` / `-E` | Economy mode — no subagents / disable |
+| `-f` | Load prior context (forge plan, RFC, GitHub issue `#N` or URL) |
+
+Uppercase forms disable the ambient default when the skill runs with a pre-set mode. Requires `gh` authenticated when using `-i` or passing a GitHub URL/`#N` to `-f`.
 
 **What it does**
 
-1. **Frame** — clarifies the problem, reframes it, sets success criteria and constraints
-2. **Research** — parallel subagents investigate from multiple angles (codebase, technical, external)
-3. **Diverge** — generates ≥3 structurally distinct approaches before judging any
-4. **Challenge** — premortem + steelman the runner-up; stress-tests risks, hidden costs, simpler paths
-5. **Synthesize** — produces a structured brief (recommendation, assumption ledger, alternatives, risks, kill criteria, next steps)
-6. **Discuss** — presents findings and waits — never implements
+1. **Hunt** — frames and reframes the real problem, then researches wide via parallel subagents; cross-references sources rather than picking one
+2. **Judge** — diverges ≥3 structurally distinct approaches, then stress-tests with premortem + steelman of the runner-up
+3. **Decide** — resolves every engineering judgment call (architecture, library, decomposition, trade-offs); escalates only the few irreversible/costly or genuinely user-owned forks
+4. **Forge** — emits one artifact: the decision + assumption ledger, and when there's code to build, 3-7 workstreams (priority, complexity, dependencies, Given/When/Then AC), validated by `scripts/validate_spec.py`
 
-Bridges to `/spec -f` for planning or `/apex -f` for direct implementation. Both optional.
+Code-bearing artifacts (H1 `# Spec:` + `## Workstreams`) bridge to `/apex -f <abs forge path> implement WS-1`; with `-i`, workstreams also become GitHub issues. Pure-strategy artifacts (H1 `# Decision:`) conclude the discussion — no apex handoff.
 
 **Sources**
 
 - [anthropics/knowledge-work-plugins — product-brainstorming](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming) — divergent/convergent ideation modes and frameworks
-- [Melvynx/aiblueprint — ultrathink](https://github.com/Melvynx/aiblueprint) — craftsman simplification discipline
-
----
-
-#### spec
-
-Transform ideas into structured execution specs with prioritized workstreams, dependencies, and acceptance criteria.
-
-**Usage**
-
-```bash
-# From an idea
-/spec -s add user authentication with OAuth and email/password
-
-# From a brainstorm report
-/spec -s -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md "OAuth authentication"
-
-# Auto mode + create GitHub issues
-/spec -s -a -i migrate from REST to GraphQL
-```
-
-**Flags**
-
-| Flag | Description |
-|------|-------------|
-| `-s` / `-S` | Save spec to `~/.claude/output/{project}/spec/spec-{slug}.md` / force no-save |
-| `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
-| `-a` / `-A` | Auto mode — skip Q&A, make reasonable assumptions / disable |
-| `-e` / `-E` | Economy mode — no subagents / disable |
-| `-f` | Load prior context (brainstorm report, RFC, GitHub issue URL) |
-
-Uppercase forms disable the ambient default when the skill runs with a pre-set mode. Requires `gh` authenticated when using `-i` or passing a GitHub URL to `-f`.
-
-**What it does**
-
-1. **Discover** — reads prior docs (`-f`), carrying a brainstorm's Assumption ledger forward, explores the codebase, asks clarifying questions
-2. **Specify** — writes workstreams (WS-1, WS-2…), priorities (P0-P2), complexity (S/M/L/XL), dependencies, Given/When/Then acceptance criteria
-3. **Issues** (optional `-i`) — creates a parent epic + one issue per workstream via `gh`
-
-Chains: `/brainstorm` → `/spec` → `/apex -f <abs spec path>` or `/apex -f "#42"`.
-
-**Sources**
-
 - [anthropics/knowledge-work-plugins — write-spec](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/write-spec) — PRD structure, acceptance-criteria craft, ruthless prioritization
 - [Melvynx/aiblueprint — ultrathink](https://github.com/Melvynx/aiblueprint) — craftsman simplification discipline
 
@@ -195,8 +160,8 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 # From a GitHub issue
 /apex -f "#42" implement what issue 42 describes
 
-# From a prior spec or brainstorm report
-/apex -f ~/.claude/output/{project}/spec/spec-{slug}.md implement WS-1
+# From a prior forge plan
+/apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
 
 # Resume a previous task
 /apex -r 01-auth-middleware
@@ -211,7 +176,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 | `-e` / `-E` | Economy mode — no subagents / disable |
 | `-b` / `-B` | Branch mode — verify not on main, create branch if needed / disable |
 | `-g` / `-G` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; requires Claude Code v2.1.139+) / disable |
-| `-f` | Load prior context (GitHub issue `#N`, spec, brainstorm report, RFC) |
+| `-f` | Load prior context (GitHub issue `#N`, forge plan, RFC) |
 | `-r` | Resume a previous task by ID |
 | `-i` | Interactive flag configuration |
 
@@ -225,7 +190,7 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 - **eXamine** — derivation lens (code↔plan reconciliation, classifying each divergence as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT) runs before typecheck/lint/tests. GAP blocks completion; SCOPE-ADD advisory unless declared in negative scope; DECISION-OVERRIDE surfaces for user judgment. Optional `/goal` integration via `-g` loops the session until AC verified — transcript-only Haiku evaluator, requires Claude Code v2.1.139+; auto-on under `claude -p`.
 - **Resume** — `-r` auto-validates state via `validate_state.sh` before restoration; partial or corrupt task dirs fail loud rather than cascade.
 
-Accepts output from `spec` or `brainstorm` via `-f`. Works standalone.
+Accepts output from `forge` via `-f`. Works standalone.
 
 **Sources**
 
@@ -248,7 +213,7 @@ Single-pass feature implementation — Explore, Code, Test. Ship now, iterate la
 
 1. **Resolve** — if input is a GitHub issue (`#N` or URL), fetches via `gh` and uses the title/body
 2. **Explore** — finds 2–3 key files, searches for patterns (no tours)
-3. **Complexity check** — if >5 files or multiple systems, suggests `/apex` or `/spec` instead
+3. **Complexity check** — if >5 files or multiple systems, suggests `/apex` or `/forge` instead
 4. **Code** — follows existing codebase patterns exactly
 5. **Test** — runs lint and typecheck, fixes only what it broke
 
@@ -256,7 +221,7 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 **Sources**
 
-- [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint) — Explore/Code/Test loop with complexity escalation to `apex` or `spec`
+- [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint) — Explore/Code/Test loop with complexity escalation to `apex` or `forge`
 
 </details>
 
@@ -1116,18 +1081,16 @@ Skills chain together by design. Each works standalone; chaining covers longer w
 ### Thinking → Planning → Building
 
 ```
-/brainstorm -s "topic"     explore and analyze
+/forge -s "<question or idea>"               think, decide, and plan
       |
-/spec -s -f <abs brainstorm path> "<topic>"  structure into workstreams
-      |
-/apex -f <abs spec path> "<task>"            implement systematically
+/apex -f <abs forge path> "<task>"           implement systematically
       |
 /code-ultrareview -s                       review the change (adaptive, report-only)
       |
 /apex -f <abs code-ultrareview path>       fix the findings
 ```
 
-Or skip steps: `/brainstorm` → `/apex` for focused work, `/spec` → `/apex` without brainstorming, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for an adaptive fresh-eyes pass before committing.
+Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for an adaptive fresh-eyes pass before committing.
 
 ### Design → Develop
 
@@ -1189,10 +1152,8 @@ All dependencies are optional — each skill works standalone.
 
 ```mermaid
 graph LR
-  brainstorm -->|"-f"| spec
-  brainstorm -->|"-f"| apex
-  spec -->|"-f"| apex
-  spec -->|"-i"| issues(GitHub Issues)
+  forge -->|"-f"| apex
+  forge -->|"-i"| issues(GitHub Issues)
   issues -->|"-f #N"| apex
 
   scaffold --> award-design
@@ -1204,7 +1165,7 @@ graph LR
   style issues fill:#2d333b,stroke:#8b949e,stroke-dasharray: 5 5
 ```
 
-`oneshot` optionally escalates to `apex` or `spec` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `brand-voice` produces `BRAND-VOICE.md` consumed by `humanize-en -f` for brand-aware rewriting; both work standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `fix-grammar`) are standalone too.
+`oneshot` optionally escalates to `apex` or `forge` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `brand-voice` produces `BRAND-VOICE.md` consumed by `humanize-en -f` for brand-aware rewriting; both work standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `fix-grammar`) are standalone too.
 
 </details>
 
@@ -1246,7 +1207,7 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 
 ### Canonical writing rules
 
-Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brainstorm`, `brand-voice`, `claude-md`, `code-ultrareview`, `oneshot`, `spec`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
+Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brand-voice`, `claude-md`, `code-ultrareview`, `forge`, `oneshot`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
 
 The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md). Run `scripts/sync_writing_rules.py` after editing it to propagate changes. The parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity and blocks merge if any declared skill drifts.
 

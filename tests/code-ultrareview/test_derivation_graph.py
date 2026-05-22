@@ -1,6 +1,6 @@
 """Tests for the derivation lens (skills/code-ultrareview/scripts/derivation/).
 
-The derivation lens reconciles planning artifacts (brainstorm, spec, apex
+The derivation lens reconciles planning artifacts (forge, spec, apex
 plan, PR body, issue body) against the diff. The Python orchestrator owns
 deterministic structure extraction; LLM-driven classification happens in
 the dispatched Explore subagent at runtime. Tests assert the Python
@@ -105,7 +105,7 @@ class TestExtractor(unittest.TestCase):
         self.assertEqual(claims[0].text, "AC1")
 
     def test_detect_artifact_kind_from_filename(self):
-        self.assertEqual(extractor.detect_artifact_kind("brainstorm-foo.md"), "brainstorm")
+        self.assertEqual(extractor.detect_artifact_kind("forge-foo.md"), "forge")
         self.assertEqual(extractor.detect_artifact_kind("spec-bar.md"), "spec")
         self.assertEqual(extractor.detect_artifact_kind("/proj/docs/rfcs/0001-foo.md"), "rfc")
         self.assertEqual(extractor.detect_artifact_kind("/proj/docs/adr/0001-x.md"), "adr")

@@ -3,8 +3,8 @@
 The sixth lens in the code-ultrareview family. Closes the code↔internal-plan
 axis (parallel to bugs-drift / code↔own-docstring, coherence-graph /
 code↔manifest, spec-conformance / code↔external-spec). Activates on
-`--reconcile <input>` and compares planning artifacts (brainstorm, spec,
-apex plan, PR body, issue body) against the diff, classifying each
+`--reconcile <input>` and compares planning artifacts (forge, apex plan,
+PR body, issue body) against the diff, classifying each
 divergence as **GAP** (planning said X, code missing), **SCOPE-ADD** (code
 has X, planning silent), **DECISION-OVERRIDE** (planning resolved X, code
 does Y), or **CONSISTENT**.
@@ -47,8 +47,7 @@ Multiple inputs may be comma-separated: `--reconcile @auto,gh:pr:42`.
 ## Auto-detection set (`@auto`)
 
 ```
-~/.claude/output/{project}/brainstorm/brainstorm-*.md
-~/.claude/output/{project}/spec/spec-*.md
+~/.claude/output/{project}/forge/forge-*.md
 ~/.claude/output/{project}/apex/{NN-task}/02-plan.md  (latest task only)
 docs/proposals/*.md  docs/design/*.md  docs/rfcs/*.md  docs/adr/*.md
 gh pr view (current branch's PR body)
@@ -73,8 +72,8 @@ user before fan-out:
 
 ```
 Found 3 planning artifacts:
-  1. ~/.claude/output/{project}/brainstorm/brainstorm-derivation-lens.md (2d)
-  2. ~/.claude/output/{project}/spec/spec-code-ultrareview-coherent.md (1d)
+  1. ~/.claude/output/{project}/forge/forge-derivation-lens.md (2d)
+  2. ~/.claude/output/{project}/apex/03-derivation-lens/02-plan.md (1d)
   3. PR #43 body (0d)
 
 Use these for the derivation lens? [Y/n/list other]
@@ -93,9 +92,9 @@ explicit path/URL; the lens skips silently when the user declines.
 | `DECISION-OVERRIDE` | Planning resolved decision X; the diff implements Y instead | Medium |
 | `CONSISTENT` | Claim verified in the diff (no finding row; counted in coverage) | — |
 
-Severity for GAP escalates to High when the artifact is a spec and the
-claim is a numbered acceptance criterion. Severity for DECISION-OVERRIDE
-varies by artifact authority: brainstorm < spec < explicit AC.
+Severity for GAP escalates to High when the artifact is a forge plan and
+the claim is a numbered acceptance criterion. Severity for DECISION-OVERRIDE
+varies by artifact authority: forge plan < explicit AC.
 
 `UNCLASSIFIED` is the Python-stage placeholder before the subagent fills
 in the classification. Consumers should treat it as in-flight, not as
@@ -124,7 +123,7 @@ Per-repo allowlist at repo root. Same minimal YAML subset as
 # Skip specific planning artifacts (full or substring path match).
 paths:
   ignore_paths:
-    - ~/.claude/output/{project}/spec/spec-legacy.md
+    - ~/.claude/output/{project}/forge/forge-legacy.md
   ignore_kinds:
     - rfc
 

@@ -63,7 +63,7 @@ Out-of-lane observations — pointers only, not reviewed here.
 
 | Field | Value |
 |-------|-------|
-| Artifacts compared | 2 (`brainstorm-rate-limiter.md` (1d), `spec-rate-limiter.md` (0d)) |
+| Artifacts compared | 1 (`forge-rate-limiter.md` (0d)) |
 | AC coverage | 3/4 acceptance criteria |
 | GAP | 1 (1 high-confidence) |
 | SCOPE-ADD | 0 |

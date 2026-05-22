@@ -1,6 +1,6 @@
 {
   "skill_name": "oneshot",
-  "description": "Behavioural evaluation set for the oneshot skill. Cases pin the Explore→Code→Test workflow, the complexity-check circuit breaker (escalation to /apex or /spec), and the disciplined output format.",
+  "description": "Behavioural evaluation set for the oneshot skill. Cases pin the Explore→Code→Test workflow, the complexity-check circuit breaker (escalation to /apex or /forge), and the disciplined output format.",
   "evals": [
     {
       "id": 1,
@@ -20,14 +20,14 @@
       "id": 3,
       "name": "circuit-breaker-fires-on-multi-file",
       "prompt": "Rewrite the authentication system to support OAuth, magic links, and SAML SSO across the API, the web app, and the mobile app.",
-      "expected_output": "After Explore, the complexity check fires (>5 files, >2 distinct systems, cross-cutting). Skill stops, warns the user with a concrete reason, and recommends `/apex <task>` or `/spec -s <task>` instead. Waits for explicit confirmation before continuing.",
+      "expected_output": "After Explore, the complexity check fires (>5 files, >2 distinct systems, cross-cutting). Skill stops, warns the user with a concrete reason, and recommends `/apex <task>` or `/forge -s <task>` instead. Waits for explicit confirmation before continuing.",
       "files": []
     },
     {
       "id": 4,
       "name": "circuit-breaker-fires-on-cross-cutting",
       "prompt": "Add a new column to the users table — store last_active timestamp and update the auth flow + admin dashboard to display it.",
-      "expected_output": "Complexity check fires on cross-cutting concerns (database migration + multi-component change). Recommends `/spec` to plan the migration steps and rollback strategy.",
+      "expected_output": "Complexity check fires on cross-cutting concerns (database migration + multi-component change). Recommends `/forge` to plan the migration steps and rollback strategy.",
       "files": []
     },
     {
@@ -41,7 +41,7 @@
       "id": 6,
       "name": "stops-after-two-attempts",
       "prompt": "Update the deployment script to use the new Cloudflare Workers API. (The script has unfamiliar legacy patterns.)",
-      "expected_output": "If after 2 attempts the change still fails (lint, typecheck, or behaviour), the skill reports the blocker and stops. Does not thrash with a third attempt. Output cites the specific failure mode and suggests a heavier-weight skill (`/apex` or `/spec`) for next iteration.",
+      "expected_output": "If after 2 attempts the change still fails (lint, typecheck, or behaviour), the skill reports the blocker and stops. Does not thrash with a third attempt. Output cites the specific failure mode and suggests a heavier-weight skill (`/apex` or `/forge`) for next iteration.",
       "files": []
     }
   ]

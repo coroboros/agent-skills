@@ -1,6 +1,6 @@
-# Brainstorm — decision-override fixture
+# Forge — decision-override fixture
 
-A brainstorm that resolves decisions; the diff (out of band) overrides one.
+A forge plan that resolves decisions; the diff (out of band) overrides one.
 
 ## Decisions resolved
 

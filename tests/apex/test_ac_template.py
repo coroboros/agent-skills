@@ -114,18 +114,18 @@ class TestACTemplate(unittest.TestCase):
             "spec-input.md must contain `## Workstreams` subheader",
         )
 
-    def test_brainstorm_fixture_does_not_match_spec_heuristic(self):
-        """brainstorm-input.md must NOT match the spec heuristic — starts with
-        `# Brainstorm:` and has no `## Workstreams`."""
-        brainstorm = (FIXTURES / "brainstorm-input.md").read_text(encoding="utf-8")
+    def test_decision_fixture_does_not_match_spec_heuristic(self):
+        """forge-decision-input.md (a pure-strategy forge artifact) must NOT match
+        the spec heuristic — H1 is `# Decision:` and there is no `## Workstreams`."""
+        decision = (FIXTURES / "forge-decision-input.md").read_text(encoding="utf-8")
         self.assertTrue(
-            brainstorm.lstrip().startswith("# Brainstorm:"),
-            "brainstorm-input.md must start with `# Brainstorm:`",
+            decision.lstrip().startswith("# Decision:"),
+            "forge-decision-input.md must start with `# Decision:`",
         )
         self.assertNotIn(
             "## Workstreams",
-            brainstorm,
-            "brainstorm-input.md must not contain `## Workstreams` (would trigger spec-closure)",
+            decision,
+            "forge-decision-input.md must not contain `## Workstreams` (would trigger spec-closure)",
         )
 
     def test_malformed_spec_does_not_match_spec_heuristic(self):
