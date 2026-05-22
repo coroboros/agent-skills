@@ -1,4 +1,4 @@
-"""Tests for WS-5: Resume auto-validates state via validate_state.sh.
+"""Tests for resume auto-validating state via validate_state.sh.
 
 Step-00-init.md invokes validate_state.sh on every -r resume before state
 restoration. SKILL.md Resume Workflow documents the auto-validate. The

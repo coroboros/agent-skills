@@ -1,4 +1,4 @@
-"""Tests for WS-2: Plan-step guardrails — Challenge mini-phase + Surgical-scope check.
+"""Tests for the plan-step guardrails — Challenge mini-phase + Surgical-scope check.
 
 The Challenge mini-phase is an inline artifact write at step-02 § 4a (no
 user gate). The surgical-scope check at § 4b is advisory and never blocks.
