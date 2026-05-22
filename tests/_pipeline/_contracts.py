@@ -100,7 +100,7 @@ CLUSTERS = {
         # confidence_threshold (80) is the routing boundary, NOT a silent
         # drop — sub-80 findings surface as "[unverified]" with the
         # rationale "Sub-80 confidence ({score}) — verify locally before
-        # action." (postmortem A2 contract). See references/aggregation.md
+        # action." (the A2 no-silent-drop contract). See references/aggregation.md
         # for the full no-silent-drop semantics. The old (pre-rewrite)
         # behavior dropped sub-80 findings entirely; consumers reading
         # post-rewrite reports MUST expect both Verified and Unverified
@@ -110,13 +110,20 @@ CLUSTERS = {
         "consumer": "apex",
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.
+        # Sections every rendered report must carry. `--apply-safe summary`
+        # is opt-in (only emitted when --apply-safe was used) — required in
+        # the TEMPLATE but not in the contract; see
+        # `tests/code-ultrareview/test_report_template.py::CANONICAL_SECTIONS`
+        # for the broader template-level list.
         "report_required_sections": (
+            "Lens summary",
             "Findings",
             "Deferred to sibling skills",
             "What looks good",
             "Coherence-graph status",
             "Derivation coverage",
             "Verdict",
+            "Action plan",
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",

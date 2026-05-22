@@ -73,8 +73,8 @@ user before fan-out:
 
 ```
 Found 3 planning artifacts:
-  1. ~/.claude/output/agent-skills/brainstorm/brainstorm-derivation-lens.md (2d)
-  2. ~/.claude/output/agent-skills/spec/spec-code-ultrareview-coherent.md (1d)
+  1. ~/.claude/output/{project}/brainstorm/brainstorm-derivation-lens.md (2d)
+  2. ~/.claude/output/{project}/spec/spec-code-ultrareview-coherent.md (1d)
   3. PR #43 body (0d)
 
 Use these for the derivation lens? [Y/n/list other]
@@ -124,14 +124,14 @@ Per-repo allowlist at repo root. Same minimal YAML subset as
 # Skip specific planning artifacts (full or substring path match).
 paths:
   ignore_paths:
-    - ~/.claude/output/agent-skills/spec/spec-legacy.md
+    - ~/.claude/output/{project}/spec/spec-legacy.md
   ignore_kinds:
     - rfc
 
 # Suppress specific claim text (exact match).
 claims:
   ignore_text:
-    - "out of scope per WS-4"
+    - "out of scope per the v2 milestone"
 ```
 
 Parser lives in `scripts/derivation/_common.py` (`load_ignore`). Unknown
