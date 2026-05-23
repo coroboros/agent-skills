@@ -190,7 +190,6 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 - **Apply the voice on a prose draft** → `/humanize-en -f BRAND-VOICE.md <draft>`. This skill never humanises.
 - **Convert a non-Markdown source to MD first** → `/markitdown -s <source>`, then `/brand-voice extract -f <markitdown-output>`.
 - **Extract design tokens, not voice** → `/award-design` and `/design-system`. Brand voice is prose; brand visuals are tokens. Different docs, different lifecycles.
-- **Pure grammar fix on the voice doc** → `/fix-grammar BRAND-VOICE.md`. This skill governs structure and content, not typos.
 
 ## Reference
 

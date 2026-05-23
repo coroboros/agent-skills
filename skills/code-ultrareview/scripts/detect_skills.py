@@ -58,11 +58,7 @@ ROUTING_TABLE: dict[str, dict[str, list[tuple[str, str]]]] = {
     "docs-version": {
         "🔴": [("apex", "/apex")],
         "🟠": [("humanize-en", "/humanize-en"), ("apex", "/apex")],
-        "🟢": [
-            ("fix-grammar", "/fix-grammar"),
-            ("oneshot", "/oneshot"),
-            ("apex", "/apex"),
-        ],
+        "🟢": [("oneshot", "/oneshot"), ("apex", "/apex")],
     },
     "tests-blindspots": {
         "🔴": [("apex", "/apex")],

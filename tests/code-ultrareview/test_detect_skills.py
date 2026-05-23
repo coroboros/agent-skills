@@ -144,10 +144,10 @@ class TestRouteCluster(unittest.TestCase):
         self.assertEqual(result["command"], "/apex")
         self.assertTrue(result["fallback_used"])
 
-    def test_docs_version_green_routes_through_fix_grammar(self):
-        installed = {"fix-grammar": Path("/x"), "apex": Path("/y")}
+    def test_docs_version_green_routes_through_oneshot(self):
+        installed = {"oneshot": Path("/x"), "apex": Path("/y")}
         result = detect_skills.route_cluster("docs-version", "🟢", installed)
-        self.assertEqual(result["command"], "/fix-grammar")
+        self.assertEqual(result["command"], "/oneshot")
         self.assertFalse(result["fallback_used"])
 
     def test_unknown_lens_raises(self):

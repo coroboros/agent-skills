@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
-    "version": "2.1.0"
+    "version": "3.0.0"
   },
   "plugins": [
     {
@@ -79,7 +79,6 @@
       "skills": [
         "./skills/brand-voice",
         "./skills/write-clear-readme",
-        "./skills/fix-grammar",
         "./skills/humanize-en"
       ]
     }

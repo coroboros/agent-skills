@@ -44,7 +44,6 @@ The sync script and the parity test read this list:
 
 ## Excluded skills (with reason)
 
-- `fix-grammar` — explicit no-rephrasing contract; embedding "concision" rules conflicts with the skill's scope.
 - `humanize-en` — IS the scrubber; circular dependency.
 - `audio-loop` — tooling skill emitting short status reports, not prose artifacts.
 - `video-loop` — tooling skill emitting short status reports, not prose artifacts.

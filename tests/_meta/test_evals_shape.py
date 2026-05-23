@@ -99,8 +99,7 @@ class TestEvalsShape(unittest.TestCase):
         """The 4 pure-prompt skills must ship evals — that's how their behaviour
         is pinned beyond unit-test structural checks."""
         pure_prompt = {
-            "agent-creator", "award-design",
-            "fix-grammar", "oneshot",
+            "agent-creator", "award-design", "oneshot",
         }
         with_evals = {name for name, _ in _evals_files()}
         missing = pure_prompt - with_evals

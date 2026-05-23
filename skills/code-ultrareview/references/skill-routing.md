@@ -16,7 +16,7 @@ The action plan emitted in every report routes each finding cluster (per-lens, p
 |------|-----------|-------------|----------|
 | rules | `/apex` | `/apex` | `/oneshot` → `/apex` |
 | bugs-drift | `/apex` | `/apex` | `/oneshot` → `/apex` |
-| docs-version | `/apex` | `/humanize-en` → `/apex` | `/fix-grammar` → `/oneshot` → `/apex` |
+| docs-version | `/apex` | `/humanize-en` → `/apex` | `/oneshot` → `/apex` |
 | tests-blindspots | `/apex` | `/apex` | `/oneshot` → `/apex` |
 | coherence-graph | `/apex` | `/apex` | `/oneshot` → `/apex` |
 | derivation | `/apex` | `/apex` | `/oneshot` → `/apex` |
@@ -27,8 +27,7 @@ Authoritative source: `scripts/detect_skills.py::ROUTING_TABLE`. Tests in `tests
 
 - **🔴 High everywhere → `/apex`** — high-severity findings need analysis + multi-file changes. `/apex`'s plan-execute-examine fits.
 - **`docs-version` 🟠 → `/humanize-en`** — prose tone drift is the specialized lane; falls to `/apex` otherwise.
-- **`docs-version` 🟢 → `/fix-grammar` → `/oneshot`** — grammar nits are the most specialized lane; `/oneshot` is a generic quick-fix below `/apex`.
-- **🟢 across other lenses → `/oneshot`** — low-severity findings are quick polish work, well-suited to a single-pass fix skill.
+- **🟢 across lenses → `/oneshot`** — low-severity findings are quick polish work, well-suited to a single-pass fix skill.
 
 ## Detection
 

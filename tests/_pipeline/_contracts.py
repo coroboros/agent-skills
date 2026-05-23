@@ -42,16 +42,6 @@ CLUSTERS = {
         # in-your-face, etc. legitimately admitted by some voices).
         "lexical_exceptions_inner_keys": ("acronyms", "compound_idioms"),
     },
-    "writing-v2": {
-        # humanize-en + fix-grammar (sequential, no shared file)
-        "producer": "humanize-en",
-        "consumer": "fix-grammar",
-        # The two skills stake out distinct surfaces — overlapping coverage
-        # would create double-edit risks when chained. Validated by
-        # test_writing_v2.TestSeparationOfConcerns.
-        "humanize_territory": ("ai-tells", "patterns", "rule of three", "em-dash"),
-        "fix_grammar_territory": ("grammar", "spelling", "typo"),
-    },
     "design": {
         # award-design → design-system
         "producer": "award-design",
