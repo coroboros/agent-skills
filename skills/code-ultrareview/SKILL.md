@@ -141,19 +141,22 @@ Audit-phase signal schema and report-header formatting live in `references/audit
 
 ## Final report layout
 
-Closing-block order, emitted in every report:
+Every `##` section below renders verbatim, in this order, with a `---` separator above it and its canonical emoji prefix. The template at `templates/code-ultrareview.md` is the wire format — section names are not rewritten, merged, reordered, or replaced. This applies to terminal output and to the `-s` saved file: the saved report and what prints to the chat must match heading-for-heading.
 
 1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified`. Omitted on a fully clean review.
-2. **Lens summary** — six-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional.
-3. **Findings** — Verified and Unverified tables. Severity column renders the visual marker prefix: `🔴 High`, `🟠 Medium`, `🟢 Low`.
-4. **Deferred to sibling skills** — out-of-lane pointers (security, performance, depth, stale-API).
-5. **What looks good** — positive callouts.
-6. **Coherence-graph status** — per-sub-graph pass/fail.
-7. **Derivation coverage** — artifact list + classification counts (present only when `--reconcile` ran).
-8. **Verdict** — `Ship` / `Fix-then-ship` / `Needs work`, computed deterministically from severity markers + Anthropic tier. Algorithm + worked examples: `references/verdict-logic.md`.
-9. **Action plan** — paste-ready delegation prompts, severity-ordered (🔴 → 🟠 → 🟢 cross-lens). Each prompt routes to the most-specialized installed skill, falling back to `/apex` when absent. Routing table + fallback contract: `references/skill-routing.md`. Unverified findings render in a separate follow-up sub-block (no fix sketch — confidence too low).
+2. **`## 📋 Lens summary`** — six-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional.
+3. **`## 🔎 Findings`** — split into four mandatory sub-sections in this order: `### 🔴 High`, `### 🟠 Medium`, `### 🟢 Low`, `### ⚠️ Unverified`. The severity emoji is part of the heading and is never dropped. The row tables omit the Severity column (severity lives in the heading) and use per-section ID prefixes — `H1`, `H2`, …, `M1`, …, `L1`, …, `U1`, … — so findings stay addressable. Each sub-section renders even when its count is zero (body `_None._`).
+4. **`## 🧭 Deferred to sibling skills`** — out-of-lane pointers (security, performance, depth, stale-API).
+5. **`## ✅ What looks good`** — positive callouts.
+6. **`## 🕸️ Coherence-graph status`** — per-sub-graph pass/fail.
+7. **`## 📐 Derivation coverage`** — artifact list + classification counts (present only when `--reconcile` ran).
+8. **`## ⚖️ Verdict`** — `Ship` / `Fix-then-ship` / `Needs work`, computed deterministically from severity markers + Anthropic tier. Algorithm + worked examples: `references/verdict-logic.md`.
+9. **`## 🛠️ Action plan`** — paste-ready delegation prompts, severity-ordered (🔴 → 🟠 → 🟢 cross-lens). Each prompt routes to the most-specialized installed skill, falling back to `/apex` when absent. Routing table + fallback contract: `references/skill-routing.md`. Unverified findings render in a separate follow-up sub-block (no fix sketch — confidence too low).
+10. **`## 🪛 --apply-safe summary`** — emitted only when `--apply-safe` was used; three-writer status table.
 
-Severity marker mapping (canonical): **🔴 High** blocks ship; **🟠 Medium** fix-soon; **🟢 Low** nit/informational. Markers attach in `aggregation.py::_attach_marker` after A2 routing, so unverified findings (A2-downgraded to Low) render 🟢.
+Severity marker mapping (canonical): **🔴 High** blocks ship; **🟠 Medium** fix-soon; **🟢 Low** nit/informational; **⚠️ Unverified** sub-80 confidence, A2-routed. Markers attach in `aggregation.py::_attach_marker` after A2 routing, so unverified findings (A2-downgraded to Low) carry both the Unverified section emoji and the per-finding 🟢 in `meta.marker`.
+
+No section beyond this list — `Dropped`, `Derivation reconciliation`, `Per-ask verification`, and similar improvised headings are out of contract; debug data (e.g., `iteration_dropped`) stays out of the user-facing report by design.
 
 Synthesize dict keys consumed by the template: `severity_counts`, `lens_summary`, `verdict`, `action_plan` — full schema in `references/aggregation.md` § *Closing-block extension*.
 
@@ -194,3 +197,4 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 - **No silent drop.** Sub-80 findings surface as `[unverified]` with the rationale `Sub-80 confidence ({score}) — verify locally before action.` — never omitted (A2).
 - **Fail loud.** A lens that cannot run (unresolvable base, missing baseline, fetch failure) is stated in the header or surfaced as a finding, never silently skipped.
 - **Cite precisely.** Every finding carries `file:line`; rule findings quote the violated rule line verbatim; spec-conformance findings quote the governing clause.
+- **Canonical sections only.** The 9 `##` headings listed in *Final report layout* are exhaustive — each emoji prefix and the `---` separator above each section are mandatory in terminal output and in the `-s` saved file. The four `### 🔴 / 🟠 / 🟢 / ⚠️` sub-sections inside `## 🔎 Findings` render in that order, every time, even when a count is zero (body `_None._`). Never invent, rename, merge, or reorder sections; debug data (e.g., dropped findings, internal logs) does not surface in the user report.

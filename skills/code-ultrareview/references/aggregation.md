@@ -17,7 +17,7 @@ Rules:
 - Its `finding` text is prefixed `[unverified]`.
 - Its `recommendation` text is prefixed with the routing rationale: `Sub-80 confidence ({score}) — verify locally before action.`
 - Severity is downgraded to `Low` (regardless of original severity).
-- It appears in the report under `### Unverified` (a sub-section of `## Findings`), separate from verified findings.
+- It appears in the report under `### ⚠️ Unverified` (a sub-section of `## 🔎 Findings`), separate from verified findings.
 
 `confidence == 0` is still a drop — by rubric, 0 means "doesn't survive light scrutiny, or pre-existing." Drops include rationale in the synthesizer's debug output (never in the user-facing report).
 
@@ -81,7 +81,7 @@ confidence + severity:
 | ≥80 | High | Important |
 | ≥80 | Medium | Important |
 | ≥80 | Low | Nit |
-| < 80 | any | (omitted — finding is in Unverified sub-section) |
+| < 80 | any | (omitted — finding is in `### ⚠️ Unverified` sub-section) |
 | (out of diff) | any | Pre-existing |
 
 Pre-existing is flagged by the lens itself when the finding is on an
@@ -89,17 +89,23 @@ unchanged line — the synthesizer never re-classifies.
 
 ## Order
 
-Within each section (Verified, Unverified), order by:
+Within each sub-section of `## 🔎 Findings` (`### 🔴 High`, `### 🟠 Medium`,
+`### 🟢 Low`, `### ⚠️ Unverified`), order findings by:
 
-1. Severity: High → Medium → Low.
-2. Confidence: high → low.
-3. Location (lexicographic) — stable tiebreak.
+1. Confidence: high → low.
+2. Location (lexicographic) — stable tiebreak.
+
+Severity ordering is implicit in the sub-section split itself, so the High →
+Medium → Low → Unverified sequence is enforced by the template, not by the
+sort key.
 
 ## "Clean" notes
 
 A lens that returns zero findings contributes a `Lens <name>: clean.` line
-under `## Findings`, not silence. Silence is ambiguous (did the lens run?);
-an explicit clean note is unambiguous.
+under `## 🔎 Findings`, not silence. Silence is ambiguous (did the lens run?);
+an explicit clean note is unambiguous. Per-severity sub-sections with zero
+findings render as `_None._` under their heading (same reason — silence is
+ambiguous).
 
 ## Implementation
 

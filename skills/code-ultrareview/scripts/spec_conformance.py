@@ -122,7 +122,7 @@ def format_unverified_finding(
     """Canonical Finding when the spec body cannot be fetched.
 
     Confidence 50 so the A2 contract routes it to the report's
-    `### Unverified` sub-section rather than dropping it silently.
+    `### ⚠️ Unverified` sub-section rather than dropping it silently.
     """
     return {
         "lens": "bugs-drift",

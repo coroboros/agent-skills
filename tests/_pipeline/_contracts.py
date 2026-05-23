@@ -101,27 +101,38 @@ CLUSTERS = {
         # action." (the A2 no-silent-drop contract). See references/aggregation.md
         # for the full no-silent-drop semantics. The old (pre-rewrite)
         # behavior dropped sub-80 findings entirely; consumers reading
-        # post-rewrite reports MUST expect both Verified and Unverified
-        # sub-sections under ## Findings.
+        # post-rewrite reports MUST expect per-severity sub-sections
+        # (### 🔴 High / ### 🟠 Medium / ### 🟢 Low / ### ⚠️ Unverified) under
+        # ## 🔎 Findings — every ## section is emoji-prefixed and HR-separated.
         "producer": "code-ultrareview",
         "producer_output": "~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md",
         "consumer": "apex",
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.
-        # Sections every rendered report must carry. `--apply-safe summary`
-        # is opt-in (only emitted when --apply-safe was used) — required in
-        # the TEMPLATE but not in the contract; see
+        # Sections every rendered report must carry, each with its canonical
+        # emoji prefix. `--apply-safe summary` is opt-in (only emitted when
+        # --apply-safe was used) — required in the TEMPLATE but not in the
+        # contract; see
         # `tests/code-ultrareview/test_report_template.py::CANONICAL_SECTIONS`
-        # for the broader template-level list.
+        # for the broader template-level list. The emoji prefix is part of the
+        # section identity — `## Findings` (without emoji) is non-conformant.
         "report_required_sections": (
-            "Lens summary",
-            "Findings",
-            "Deferred to sibling skills",
-            "What looks good",
-            "Coherence-graph status",
-            "Derivation coverage",
-            "Verdict",
-            "Action plan",
+            "📋 Lens summary",
+            "🔎 Findings",
+            "🧭 Deferred to sibling skills",
+            "✅ What looks good",
+            "🕸️ Coherence-graph status",
+            "📐 Derivation coverage",
+            "⚖️ Verdict",
+            "🛠️ Action plan",
+        ),
+        # The four mandatory sub-sections inside `## 🔎 Findings`. Render in
+        # this order, every time, even when count is 0 (body `_None._`).
+        "report_findings_subsections": (
+            "🔴 High",
+            "🟠 Medium",
+            "🟢 Low",
+            "⚠️ Unverified",
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",

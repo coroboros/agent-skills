@@ -137,7 +137,7 @@ Detail of the orchestrator pass:
 5. Property-fuzz harness synthesis when a property lib is present.
 6. Run the canonical test command (`build_detect`'s `test_command`); pipe verdict into the sub-80 iteration phase.
 7. If `--apply-safe`: invoke the three writers with per-file confirmation.
-8. Emit the canonical report from `templates/code-ultrareview.md` with the `## --apply-safe summary` section listing writes applied + skipped.
+8. Emit the canonical report from `templates/code-ultrareview.md` with the `## 🪛 --apply-safe summary` section listing writes applied + skipped.
 
 ## Caveats
 

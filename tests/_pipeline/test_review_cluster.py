@@ -83,10 +83,10 @@ class TestReportSchema(unittest.TestCase):
         )
 
     def test_coherence_graph_status_in_required_sections(self):
-        self.assertIn("Coherence-graph status", REVIEW["report_required_sections"])
+        self.assertIn("🕸️ Coherence-graph status", REVIEW["report_required_sections"])
 
     def test_derivation_coverage_in_required_sections(self):
-        self.assertIn("Derivation coverage", REVIEW["report_required_sections"])
+        self.assertIn("📐 Derivation coverage", REVIEW["report_required_sections"])
 
     def test_derivation_lens_key_present(self):
         self.assertIn("derivation", REVIEW["report_lens_keys"])
@@ -143,12 +143,17 @@ class TestConfidenceThresholdSemantics(unittest.TestCase):
 
     def test_realistic_fixture_documents_unverified_subsection(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
-        self.assertIn("### Unverified", text)
+        self.assertIn("### ⚠️ Unverified", text)
         self.assertIn("[unverified]", text)
         self.assertIn("verify locally before action", text)
         # Always-Ultra refactor: no dead tier flag in the fixture.
         self.assertNotIn("-t deep", text)
         self.assertNotIn("recommend Deep pass", text)
+        # The legacy pre-fix layout had `### Verified` / `### Unverified`
+        # plain headings; the new layout splits Verified by severity and the
+        # Unverified heading carries the ⚠️ prefix.
+        self.assertNotIn("### Verified\n", text)
+        self.assertNotIn("### Unverified\n", text)
 
 
 if __name__ == "__main__":
