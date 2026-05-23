@@ -73,7 +73,7 @@
     },
     {
       "name": "writing-skills",
-      "description": "English writing for project documentation — brand voice, READMEs, grammar polish, AI-tell removal",
+      "description": "English writing for project documentation — brand voice, READMEs, AI-tell removal",
       "source": "./",
       "strict": false,
       "skills": [
