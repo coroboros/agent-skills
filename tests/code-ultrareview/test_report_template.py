@@ -79,9 +79,9 @@ class TestSectionPresence(unittest.TestCase):
             self.assertIn(f"## {section}", text)
 
     def test_no_plain_section_headings_without_emoji(self):
-        """A plain `## Findings` or `## Verdict` etc. would mean the emoji
-        prefix dropped off — the bug the user reported. Catch it at the
-        template level."""
+        """A plain `## Findings` or `## Verdict` etc. means the emoji prefix
+        dropped off the heading — the regression this PR fixes. Catch it at
+        the template level."""
         text = _read()
         plain_headings = (
             "## Lens summary",
@@ -167,9 +167,9 @@ class TestHeaderTokens(unittest.TestCase):
 
 class TestFindingsSubSections(unittest.TestCase):
     """The Findings section uses four per-severity sub-sections (one per
-    severity tier plus Unverified), each emoji-prefixed. Drift here was the
-    bug the user reported — the emoji prefix dropped off when the model
-    improvised."""
+    severity tier plus Unverified), each emoji-prefixed. The regression that
+    motivated this layout: the emoji prefix dropped off when the model
+    improvised a per-severity split from the previous single-table layout."""
 
     def test_findings_uses_per_severity_subsections(self):
         text = _read()
