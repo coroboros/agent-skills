@@ -132,7 +132,8 @@ class TestACTemplate(unittest.TestCase):
         """A file with `# Spec:` H1 but no `## Workstreams` subheader is NOT a
         valid spec for closure. The heuristic is AND-gated — both must be
         present. Exercises the negative case for the AND-gate that the
-        brainstorm fixture (different H1) does not cover."""
+        forge-decision-input.md fixture (decision-only forge artifact, different
+        H1) does not cover."""
         malformed = (FIXTURES / "malformed-spec.md").read_text(encoding="utf-8")
         self.assertTrue(
             malformed.lstrip().startswith("# Spec:"),

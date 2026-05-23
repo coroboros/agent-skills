@@ -166,7 +166,8 @@ Keep it minimal — no verbose parsing logs, no separators.
 - **Think hardest at Judge and Decide.** Don't overthink Hunt-phase triage — gathering is cheap.
 - **Load references on demand.** Read `references/*.md` only when the phase needs them — keep the main context lean.
 - **Always include concrete acceptance criteria** — every workstream, Given/When/Then + ≥1 negative; see `references/spec-craft.md`.
-- **Validate before finalizing.** When the artifact has workstreams, run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` — exit 0 required (3-7 workstreams; Priority/Complexity set; deps resolve; no cycles). Rewrite flagged workstreams until it clears.
+- **3-7 workstreams.** Code-bearing artifacts have between 3 and 7 workstreams. Fewer means one task — go straight to `/oneshot` or `/apex`. More means re-decompose. Enforced by `scripts/validate_spec.py`.
+- **Validate before finalizing.** When the artifact has workstreams, run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` — exit 0 required (Priority/Complexity set; deps resolve; no cycles). Rewrite flagged workstreams until it clears.
 
 ## Workflow — four phases
 

@@ -44,7 +44,7 @@ class TestCircuitBreakerScenarios(unittest.TestCase):
 
 
 class TestEscalationRecommendation(unittest.TestCase):
-    """When the breaker fires, the skill must recommend `/apex` or `/spec`.
+    """When the breaker fires, the skill must recommend `/apex` or `/forge`.
     At least one case must verify the escalation recommendation."""
 
     def test_escalation_target_named(self):
@@ -52,12 +52,12 @@ class TestEscalationRecommendation(unittest.TestCase):
         hits = []
         for case in cases:
             expected = case.get("expected_output", "")
-            if "/apex" in expected or "/spec" in expected:
+            if "/apex" in expected or "/forge" in expected:
                 hits.append(case.get("name") or case["id"])
         self.assertGreater(
             len(hits), 0,
             "no eval verifies the escalation recommendation. "
-            "Expected at least one case where expected_output names /apex or /spec.",
+            "Expected at least one case where expected_output names /apex or /forge.",
         )
 
 
