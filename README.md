@@ -191,6 +191,10 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 
 Accepts output from `forge` via `-f`. Works standalone.
 
+**Trust model**
+
+Analyze fetches third-party content into the workflow — web research via `general-purpose` subagents, library docs via Context7, GitHub issue bodies via `-f #N`, any file passed to `-f`. An adversarial document hosted at a fetched URL, or pasted into an issue body, can attempt indirect prompt injection. User review of the analysis report before approving the plan is the trust boundary — confirm the surfaced files, patterns, and acceptance criteria match intent. Pass `-e` (economy mode) to disable subagents and remove the third-party surface entirely. Full disclosure in `skills/apex/SKILL.md` § *Trust model*.
+
 **Sources**
 
 - [Melvynx/aiblueprint — apex](https://github.com/Melvynx/aiblueprint) — APEX methodology (Analyze, Plan, Execute, eXamine) reference implementation
