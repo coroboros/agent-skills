@@ -116,28 +116,31 @@ class TestSectionOrder(unittest.TestCase):
 
 
 class TestSectionSeparators(unittest.TestCase):
-    """Every `##` section (except the very first appearance in the file) is
-    preceded by a `---` horizontal-rule separator, on its own line, with a
-    blank line above and below. The HR is the visual cue the user asked for
-    to make sections scannable."""
+    """Every `##` section is preceded by a `---` horizontal-rule separator —
+    the immediately-preceding non-blank line is `---`. The HR is the visual
+    cue for scanning between sections."""
 
     def test_every_section_preceded_by_hr(self):
         text = _read()
-        # All `## ` heading offsets in document order.
-        heading_offsets = [
-            m.start() for m in re.finditer(r"^## ", text, re.MULTILINE)
-        ]
-        # The first `##` heading must be preceded by `---` somewhere in the
-        # document preamble; every subsequent `##` heading must be preceded by
-        # `---` on its own line within the immediate ~4 lines above it.
-        for offset in heading_offsets:
-            # Look at the ~10 lines preceding this heading.
-            window = text[max(0, offset - 200):offset]
-            self.assertRegex(
-                window,
-                r"(?m)^---\s*$",
-                f"section at offset {offset} missing `---` separator above",
-            )
+        lines = text.splitlines()
+        violations: list[str] = []
+        for idx, line in enumerate(lines):
+            if not line.startswith("## "):
+                continue
+            # Walk backwards to find the previous non-blank line.
+            prev = idx - 1
+            while prev >= 0 and lines[prev].strip() == "":
+                prev -= 1
+            if prev < 0 or lines[prev].strip() != "---":
+                violations.append(
+                    f"line {idx + 1} (`{line}`) — previous non-blank line is "
+                    f"{lines[prev] if prev >= 0 else '(start of file)'!r}, "
+                    "not `---`"
+                )
+        self.assertEqual(
+            violations, [],
+            "Sections missing `---` separator above:\n  " + "\n  ".join(violations),
+        )
 
 
 class TestHeaderTokens(unittest.TestCase):
