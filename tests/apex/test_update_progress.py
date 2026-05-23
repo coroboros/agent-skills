@@ -158,6 +158,58 @@ class TestRowMutation(unittest.TestCase):
         self.assertEqual(len(rows), 1, "step row duplicated on re-run")
 
 
+class TestTempFileScoping(unittest.TestCase):
+    """The progress-update script must NOT create temp files on the world-writable
+    /tmp surface (W011 external-scanner finding). The mktemp template is scoped
+    to $HOME/.claude/output/ — apex's own output dir."""
+
+    def test_source_mktemp_carries_apex_progress_template(self):
+        """Source-level contract: every mktemp call has a template arg whose
+        leaf carries the `apex-progress` identity. Runtime path verification
+        is covered by test_runtime_temp_file_lands_under_home_apex_output."""
+        src = SCRIPT.read_text(encoding="utf-8")
+        mktemps = re.findall(r"mktemp\b[^\n]*", src)
+        self.assertTrue(mktemps, "expected at least one mktemp call in the script")
+        for m in mktemps:
+            self.assertIn(".apex-progress", m,
+                          f"mktemp must use scoped .apex-progress template: {m}")
+            self.assertNotRegex(
+                m, r"mktemp\s*\)?\s*$",
+                f"bare mktemp (no template arg) re-introduces W011: {m}",
+            )
+
+    def test_runtime_temp_file_lands_under_home_apex_output(self):
+        """End-to-end: run the script under bash -x and verify the traced
+        mktemp invocation expanded to a path under $HOME/.claude/output/."""
+        with tempfile.TemporaryDirectory() as t:
+            proj, home = _dirs(t)
+            _seed(home, _project(proj))
+            env = os.environ.copy()
+            env["GIT_CEILING_DIRECTORIES"] = str(Path(proj).parent)
+            env["HOME"] = str(home)
+            r = subprocess.run(
+                [BASH, "-x", str(SCRIPT),
+                 "01-add-auth", "01", "analyze", "complete"],
+                cwd=str(proj),
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        self.assertEqual(r.returncode, 0,
+                         f"stderr={r.stderr}\nstdout={r.stdout}")
+        # bash -x prints `+ mktemp /abs/path/.apex-progress.XXXXXX` to stderr.
+        trace_lines = [ln for ln in r.stderr.splitlines() if "mktemp" in ln]
+        self.assertTrue(trace_lines,
+                        f"no mktemp trace in stderr; saw:\n{r.stderr[:600]}")
+        for ln in trace_lines:
+            if ln.lstrip().startswith("+"):
+                self.assertIn(str(home), ln,
+                              f"mktemp ran outside isolated $HOME: {ln}")
+                self.assertIn(".claude/output", ln,
+                              f"mktemp ran outside apex output dir: {ln}")
+
+
 class TestUnknownStep(unittest.TestCase):
     """Unknown step: the awk END block warns to stderr; the script still
     exits 0 because awk completes normally and `mv` succeeds."""

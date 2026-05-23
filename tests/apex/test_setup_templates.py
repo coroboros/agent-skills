@@ -145,6 +145,48 @@ class TestProjectRootAnchor(unittest.TestCase):
             self.assertFalse((proj / ".claude").exists())
 
 
+class TestMetacharSafety(unittest.TestCase):
+    """awk -v with index/substr substitution renders TASK_DESCRIPTION
+    literally — no regex interpretation of sed s/// metachars (|, &, \\, /, $).
+    Pins the W011 hardening: shell metachars in user input cannot escape into
+    the template machinery."""
+
+    NASTY = "pipe|amp&backslash\\slash/dollar$quote\"apos'brace{close}"
+
+    def test_metachars_render_literally_in_context(self):
+        with tempfile.TemporaryDirectory() as t:
+            proj = Path(t) / "proj"
+            home = Path(t) / "home"
+            proj.mkdir()
+            home.mkdir()
+            r = _run("metachar-test", self.NASTY, cwd=proj, home=home)
+            self.assertEqual(r.returncode, 0,
+                             f"stderr={r.stderr}\nstdout={r.stdout}")
+
+            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            task = next(apex.iterdir())
+            ctx = (task / "00-context.md").read_text(encoding="utf-8")
+            self.assertIn(self.NASTY, ctx,
+                          f"TASK_DESCRIPTION metachars not preserved literally; "
+                          f"context excerpt:\n{ctx[:600]}")
+
+    def test_sed_delimiter_pipe_does_not_break_substitution(self):
+        """A bare `|` in TASK_DESCRIPTION would have crashed the old sed
+        s|...|...| chain — must now render as a plain pipe character."""
+        with tempfile.TemporaryDirectory() as t:
+            proj = Path(t) / "proj"
+            home = Path(t) / "home"
+            proj.mkdir()
+            home.mkdir()
+            r = _run("pipe-test", "a|b|c", cwd=proj, home=home)
+            self.assertEqual(r.returncode, 0,
+                             f"stderr={r.stderr}\nstdout={r.stdout}")
+            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            task = next(apex.iterdir())
+            ctx = (task / "00-context.md").read_text(encoding="utf-8")
+            self.assertIn("a|b|c", ctx)
+
+
 class TestAutoIncrement(unittest.TestCase):
     def test_second_run_increments_task_number(self):
         with tempfile.TemporaryDirectory() as t:
