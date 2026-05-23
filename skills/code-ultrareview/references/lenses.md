@@ -119,7 +119,7 @@ Full brief: `references/derivation.md`.
 ## Confidence rubric (0–100)
 
 Score every finding; **sub-80 findings are surfaced, not dropped.** The
-orchestrator routes them to the `### Unverified` sub-section of
+orchestrator routes them to the `### ⚠️ Unverified` sub-section of
 the report with the prefix `[unverified]` on the finding text and the
 rationale `Sub-80 confidence ({score}) — verify locally before action.`
 in the recommendation.
@@ -168,4 +168,4 @@ Detailed contract in `references/aggregation.md`. Summary:
 - Deduplicate findings reported by more than one lens — keep the one with the highest confidence, note the secondary lens.
 - Order findings by severity (High → Low), then confidence (high → low).
 - A lens that returns nothing contributes a "clean" note, not silence.
-- **No silent drop.** Sub-80 findings are routed to `### Unverified`, never omitted.
+- **No silent drop.** Sub-80 findings are routed to `### ⚠️ Unverified`, never omitted.

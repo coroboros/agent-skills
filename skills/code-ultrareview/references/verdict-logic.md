@@ -1,10 +1,10 @@
 # Verdict logic
 
-The closing `## Verdict` line in every report is computed deterministically from the verified-finding set, not chosen by an LLM. This document specifies the algorithm.
+The closing `## ⚖️ Verdict` line in every report is computed deterministically from the verified-finding set, not chosen by an LLM. This document specifies the algorithm.
 
 ## Inputs
 
-Verified findings only. Unverified findings (sub-80 confidence, routed to `### Unverified`) are excluded by design — sub-80 is not load-bearing for a ship decision. Documented in `aggregation.py::compute_verdict` and pinned by `tests/code-ultrareview/test_verdict.py::TestVerdictExclusions`.
+Verified findings only. Unverified findings (sub-80 confidence, routed to `### ⚠️ Unverified`) are excluded by design — sub-80 is not load-bearing for a ship decision. Documented in `aggregation.py::compute_verdict` and pinned by `tests/code-ultrareview/test_verdict.py::TestVerdictExclusions`.
 
 Each finding carries:
 
@@ -75,7 +75,7 @@ Output: `Needs work — 1 🔴 Important (1 in bugs-drift) — fix red before sh
 
 ### Sub-80 High routed to Unverified
 
-Input: one High-severity finding, confidence 65. A2 downgrades to Low/🟢, routes to `### Unverified`.
+Input: one High-severity finding, confidence 65. A2 downgrades to Low/🟢, routes to `### ⚠️ Unverified`.
 Output: `Ship — Six lenses ran clean. Ship.`. The unverified finding still shows in the report; it just does not flip the verdict.
 
 ### Pre-existing High
@@ -87,7 +87,7 @@ Output: `Ship — Six lenses ran clean. Ship.` (assuming no other Important find
 
 - `aggregation.py::compute_verdict` — implementation.
 - `tests/code-ultrareview/test_verdict.py` — full assertion set.
-- `templates/code-ultrareview.md` — `## Verdict` section consumes the dict directly.
+- `templates/code-ultrareview.md` — `## ⚖️ Verdict` section consumes the dict directly.
 - `references/skill-routing.md` — companion routing for the action plan that follows.
 
 ## Why not LLM-judged?

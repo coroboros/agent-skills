@@ -1,12 +1,12 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (Verified + Unverified sub-sections), target auto-detection across the resolver ladder, the six lenses with their operational definitions, the coherence-graph lens's six sub-graphs, the derivation lens's classification taxonomy (GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT), the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (per-severity 🔴 High / 🟠 Medium / 🟢 Low + ⚠️ Unverified sub-sections, each ## section emoji-prefixed and HR-separated), target auto-detection across the resolver ladder, the six lenses with their operational definitions, the coherence-graph lens's six sub-graphs, the derivation lens's classification taxonomy (GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT), the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
   "evals": [
     {
       "id": 1,
       "name": "produces-canonical-report-shape",
       "prompt": "/code-ultrareview review the changes on this branch",
-      "expected_output": "A report matching templates/code-ultrareview.md: header with Base, Target, Rule, Scope, Estimated wall-clock, Rules baseline status; ## Findings with ### Verified and ### Unverified sub-sections; ## Deferred to sibling skills; ## What looks good; ## Coherence-graph status; ## Derivation coverage (when --reconcile is used); ## Verdict (Ship / Fix-then-ship / Needs work). No code is modified.",
+      "expected_output": "A report matching templates/code-ultrareview.md verbatim — heading-for-heading. Header carries Base, Target, Rule, Scope, Estimated wall-clock, Rules baseline status. Every ## section is emoji-prefixed and preceded by `---`: ## 📋 Lens summary, ## 🔎 Findings (with ### 🔴 High, ### 🟠 Medium, ### 🟢 Low, ### ⚠️ Unverified — every sub-section rendered even when count is 0), ## 🧭 Deferred to sibling skills, ## ✅ What looks good, ## 🕸️ Coherence-graph status, ## 📐 Derivation coverage (when --reconcile is used), ## ⚖️ Verdict (Ship / Fix-then-ship / Needs work), ## 🛠️ Action plan. No code is modified. No improvised sections (e.g., 'Dropped', 'Derivation reconciliation', 'Per-ask verification').",
       "files": []
     },
     {
@@ -90,7 +90,7 @@
       "id": 12,
       "name": "sub-80-routes-to-unverified-not-dropped",
       "prompt": "/code-ultrareview (changes contain one real high-impact bug at confidence 90 plus a maybe-issue scored at 70)",
-      "expected_output": "The high-impact bug appears in ### Verified (confidence 90). The maybe-issue appears in ### Unverified with the prefix [unverified] and a recommendation explaining the routing rationale (Sub-80 confidence (70) — verify locally before action). Neither is dropped — A2 no-silent-drop contract.",
+      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue appears in ### ⚠️ Unverified with the prefix [unverified] and a recommendation explaining the routing rationale (Sub-80 confidence (70) — verify locally before action). Neither is dropped — A2 no-silent-drop contract.",
       "files": []
     },
     {
@@ -146,14 +146,14 @@
       "id": 24,
       "name": "a2-sub-80-finding-surfaces-with-prefix",
       "prompt": "/code-ultrareview (a finding scored at confidence 70 — maybe real, could not verify)",
-      "expected_output": "The finding appears in ### Unverified with finding text prefixed `[unverified]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — verify locally before action.' Never dropped silently (A2 no-silent-drop contract).",
+      "expected_output": "The finding appears in ### ⚠️ Unverified with finding text prefixed `[unverified]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — verify locally before action.' Never dropped silently (A2 no-silent-drop contract).",
       "files": []
     },
     {
       "id": 25,
       "name": "deep-iteration-promotes-confirmed-finding",
       "prompt": "/code-ultrareview (a sub-80 bug-drift finding that the always-on iteration confirms via a focused build run)",
-      "expected_output": "Iteration re-passes the sub-80 finding with build verification (build_detect picks the canonical test command). When the build proves the bug, confidence promotes to ≥80 (originally-scored + 30, capped at 95), the unverified prefix is stripped, original severity restored, finding moves into ### Verified.",
+      "expected_output": "Iteration re-passes the sub-80 finding with build verification (build_detect picks the canonical test command). When the build proves the bug, confidence promotes to ≥80 (originally-scored + 30, capped at 95), the unverified prefix is stripped, original severity restored, finding moves into the matching verified sub-section (### 🔴 High / ### 🟠 Medium / ### 🟢 Low).",
       "files": []
     },
     {
@@ -188,21 +188,21 @@
       "id": 30,
       "name": "derivation-no-input-skips-lens",
       "prompt": "/code-ultrareview (without --reconcile; no planning artifacts auto-detected)",
-      "expected_output": "The derivation lens does not run. Phase 2 dispatches the 5 always-on lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph). The report omits the `## Derivation coverage` section entirely — no row, no empty placeholder. Audit signals still report `planning_artifact_breadth: [0, -1]` in the header rationale.",
+      "expected_output": "The derivation lens does not run. Phase 2 dispatches the 5 always-on lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph). The report omits the `## 📐 Derivation coverage` section entirely — no row, no empty placeholder. Audit signals still report `planning_artifact_breadth: [0, -1]` in the header rationale.",
       "files": []
     },
     {
       "id": 31,
       "name": "derivation-auto-detects-conventional-paths",
       "prompt": "/code-ultrareview --reconcile @auto (with forge + apex plan + PR body available)",
-      "expected_output": "The derivation lens auto-detects artifacts at ~/.claude/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
+      "expected_output": "The derivation lens auto-detects artifacts at ~/.claude/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## 📐 Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
       "files": []
     },
     {
       "id": 32,
       "name": "derivation-gap-detected",
       "prompt": "/code-ultrareview --reconcile <spec-with-AC-not-in-diff>",
-      "expected_output": "An acceptance criterion in the spec has no matching code change in the diff. The lens emits a finding with `classification: GAP`, severity Medium (or High when the AC is numbered), confidence ≥80 once the subagent verifies. The finding's `recommendation` field describes what's missing. The `## Derivation coverage` section counts the gap in its GAP column.",
+      "expected_output": "An acceptance criterion in the spec has no matching code change in the diff. The lens emits a finding with `classification: GAP`, severity Medium (or High when the AC is numbered), confidence ≥80 once the subagent verifies. The finding's `recommendation` field describes what's missing. The `## 📐 Derivation coverage` section counts the gap in its GAP column.",
       "files": []
     },
     {
@@ -223,7 +223,7 @@
       "id": 35,
       "name": "derivation-stale-artifact-summary-only",
       "prompt": "/code-ultrareview --reconcile <spec-from-100-days-ago>",
-      "expected_output": "Artifact freshness > 90 days. The lens emits no per-claim findings — only the artifact entry shows in the `## Derivation coverage` table (with freshness `100d` or similar). Severity caps for 31–90 day artifacts: classification semantics unchanged, but severity drops to Low regardless. `--strict` flag disables both caps.",
+      "expected_output": "Artifact freshness > 90 days. The lens emits no per-claim findings — only the artifact entry shows in the `## 📐 Derivation coverage` table (with freshness `100d` or similar). Severity caps for 31–90 day artifacts: classification semantics unchanged, but severity drops to Low regardless. `--strict` flag disables both caps.",
       "files": []
     },
     {

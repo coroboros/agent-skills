@@ -100,7 +100,7 @@ def trigger_unverified_a1_finding(
     """A1 finding when the spec body can't be fetched.
 
     Surfaces with confidence 50 — routes through A2's no-silent-drop
-    contract into the report's Unverified sub-section.
+    contract into the report's `### ⚠️ Unverified` sub-section.
     """
     return {
         "lens": "bugs-drift",

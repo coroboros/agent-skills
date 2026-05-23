@@ -171,7 +171,7 @@ DECISION-OVERRIDE with evidence, lower for SCOPE-ADD on judgment).
 }
 ```
 
-The `## Derivation coverage` section in the report template renders:
+The `## 📐 Derivation coverage` section in the report template renders:
 
 - Artifacts compared (with freshness)
 - AC coverage (verified vs total)

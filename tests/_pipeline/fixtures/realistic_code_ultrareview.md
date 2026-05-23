@@ -6,7 +6,9 @@
 **Reviewed:** 6 changed files
 **Findings:** 3 🔴 · 2 🟠 · 0 🟢 (verified) · 1 unverified
 
-## Lens summary
+---
+
+## 📋 Lens summary
 
 | Lens | Status | Verified | Unverified | Top finding |
 |------|--------|----------|------------|-------------|
@@ -17,38 +19,54 @@
 | coherence-graph | 🟢 | 0 | 1 | — |
 | derivation | 🔴 | 1 | 0 | AC4 (per-IP allowlist override) GAP |
 
-## Findings
+---
 
-### Verified
+## 🔎 Findings
 
-Findings with confidence ≥ 80, ordered by severity then confidence.
+### 🔴 High (3 findings)
 
-| # | Lens | Severity | Tier | Location | Conf | Finding | Recommendation |
-|---|------|----------|------|----------|------|---------|----------------|
-| 1 | rules | High | Important | `src/api/limiter.ts:24` | 95 | New module uses `console.log` for request logging | Use the project logger — rule: "NEVER use console.* in src/api (.claude/rules/logging.md)" |
-| 2 | bugs-drift | High | Important | `src/api/limiter.ts:41` | 90 | Window resets on every request — off-by-one on the boundary check `>=` vs `>` | Use `>` so the Nth request in the window is allowed |
-| 3 | docs-version | Medium | Important | `README.md:1` | 85 | New `RATE_LIMIT_RPM` env var is undocumented | Add it to the Configuration table |
-| 4 | tests-blindspots | Medium | Important | `src/api/limiter.ts:55` | 88 | No test for the concurrent-burst path; empty-IP input unhandled | Add a burst test and guard `ip === ""` |
+| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+|---|------|------|----------|------|---------|----------------|
+| H1 | rules | Important | `src/api/limiter.ts:24` | 95 | New module uses `console.log` for request logging | Use the project logger — rule: "NEVER use console.* in src/api (.claude/rules/logging.md)" |
+| H2 | bugs-drift | Important | `src/api/limiter.ts:41` | 90 | Window resets on every request — off-by-one on the boundary check `>=` vs `>` | Use `>` so the Nth request in the window is allowed |
+| H3 | derivation | Important | `src/api/limiter.ts` (GAP) | 90 | AC4 (per-IP allowlist override) — spec mandates the flag; diff omits it | Implement the allowlist override behind the documented env var |
 
-### Unverified
+### 🟠 Medium (2 findings)
 
-| # | Lens | Severity | Location | Conf | Finding | Recommendation |
-|---|------|----------|----------|------|---------|----------------|
-| 1 | coherence-graph | Low | `package.json ↔ marketplace.json` | 70 | `[unverified]` Description divergence | Sub-80 confidence (70) — verify locally before action. |
+| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+|---|------|------|----------|------|---------|----------------|
+| M1 | tests-blindspots | Important | `src/api/limiter.ts:55` | 88 | No test for the concurrent-burst path; empty-IP input unhandled | Add a burst test and guard `ip === ""` |
+| M2 | docs-version | Important | `README.md:1` | 85 | New `RATE_LIMIT_RPM` env var is undocumented | Add it to the Configuration table |
 
-## Deferred to sibling skills
+### 🟢 Low (0 findings)
+
+_None._
+
+### ⚠️ Unverified (1 finding)
+
+| # | Lens | Location | Conf | Finding | Recommendation |
+|---|------|----------|------|---------|----------------|
+| U1 | coherence-graph | `package.json ↔ marketplace.json` | 70 | `[unverified]` Description divergence | Sub-80 confidence (70) — verify locally before action. |
+
+---
+
+## 🧭 Deferred to sibling skills
 
 Out-of-lane observations — pointers only, not reviewed here.
 
 - **Security:** the limiter keys on a client-supplied `X-Forwarded-For` header → `/security-review`
 - **Performance / simplification:** the in-memory map grows unbounded → `/simplify`
 
-## What looks good
+---
+
+## ✅ What looks good
 
 - The token-bucket refill is correct and the unit on `refillRate` matches the docstring.
 - Error responses follow the existing `ApiError` pattern in `src/api/errors.ts`.
 
-## Coherence-graph status
+---
+
+## 🕸️ Coherence-graph status
 
 | Sub-graph | Status |
 |-----------|--------|
@@ -59,7 +77,9 @@ Out-of-lane observations — pointers only, not reviewed here.
 | example | pass |
 | spec-conformance | skipped — no normative-spec mentions |
 
-## Derivation coverage
+---
+
+## 📐 Derivation coverage
 
 | Field | Value |
 |-------|-------|
@@ -72,7 +92,9 @@ Out-of-lane observations — pointers only, not reviewed here.
 
 **Notable callouts:** AC4 (per-IP allowlist override) — spec mandates the flag; diff omits it. GAP / High.
 
-## Verdict
+---
+
+## ⚖️ Verdict
 
 **Needs work** — 3 🔴 Important (1 in rules, 1 in bugs-drift, 1 in derivation) — fix red before ship.
 
@@ -81,7 +103,9 @@ Drivers:
 - 1 in bugs-drift
 - 1 in derivation
 
-## Action plan
+---
+
+## 🛠️ Action plan
 
 ### 🔴 Fix now (3 findings)
 

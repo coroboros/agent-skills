@@ -83,10 +83,10 @@ class TestReportSchema(unittest.TestCase):
         )
 
     def test_coherence_graph_status_in_required_sections(self):
-        self.assertIn("Coherence-graph status", REVIEW["report_required_sections"])
+        self.assertIn("🕸️ Coherence-graph status", REVIEW["report_required_sections"])
 
     def test_derivation_coverage_in_required_sections(self):
-        self.assertIn("Derivation coverage", REVIEW["report_required_sections"])
+        self.assertIn("📐 Derivation coverage", REVIEW["report_required_sections"])
 
     def test_derivation_lens_key_present(self):
         self.assertIn("derivation", REVIEW["report_lens_keys"])
@@ -107,6 +107,19 @@ class TestReportSchema(unittest.TestCase):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
         for sub_graph in REVIEW["coherence_sub_graphs"]:
             self.assertIn(sub_graph, text, f"sub-graph {sub_graph!r} missing")
+
+    def test_realistic_fixture_carries_all_findings_subsections(self):
+        """The four mandatory `### <emoji> <severity>` sub-sections inside
+        `## 🔎 Findings` must appear in the canonical fixture. Closes the
+        contract gap where `report_findings_subsections` was only pinned at
+        the template level — a fixture edit that drops or reorders sub-sections
+        now breaks this test."""
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        for sub in REVIEW["report_findings_subsections"]:
+            self.assertIn(
+                f"### {sub}", text,
+                f"fixture missing finding sub-section `### {sub}`",
+            )
 
 
 class TestSeverityScheme(unittest.TestCase):
@@ -143,12 +156,17 @@ class TestConfidenceThresholdSemantics(unittest.TestCase):
 
     def test_realistic_fixture_documents_unverified_subsection(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
-        self.assertIn("### Unverified", text)
+        self.assertIn("### ⚠️ Unverified", text)
         self.assertIn("[unverified]", text)
         self.assertIn("verify locally before action", text)
         # Always-Ultra refactor: no dead tier flag in the fixture.
         self.assertNotIn("-t deep", text)
         self.assertNotIn("recommend Deep pass", text)
+        # The legacy pre-fix layout had `### Verified` / `### Unverified`
+        # plain headings; the new layout splits Verified by severity and the
+        # Unverified heading carries the ⚠️ prefix.
+        self.assertNotIn("### Verified\n", text)
+        self.assertNotIn("### Unverified\n", text)
 
 
 if __name__ == "__main__":
