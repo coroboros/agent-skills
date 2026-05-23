@@ -34,12 +34,11 @@ The sync script and the parity test read this list:
 - agent-creator
 - apex
 - award-design
-- brainstorm
 - brand-voice
 - claude-md
 - code-ultrareview
+- forge
 - oneshot
-- spec
 - suno-produce
 - write-clear-readme
 

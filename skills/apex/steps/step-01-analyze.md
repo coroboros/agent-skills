@@ -87,8 +87,8 @@ From step-00-init:
 3. If the issue body contains acceptance criteria or task lists, carry them forward as `{acceptance_criteria}`
 4. Use the issue content as foundational context — skip re-researching topics already described in the issue
 
-**Local file** (brainstorm report, spec, RFC, design doc, etc.):
-1. **`{from_file}` is an explicit path — `Read` it verbatim.** Per `.claude/rules/repo-conventions.md` § Pipeline chaining: the producer already printed its fully-expanded absolute path and the bridge command carries that literal path, so there is nothing to reconstruct, infer, or glob. If the path does not exist, fail loud — ask the user to correct it or regenerate it via the producer (e.g. `/spec -s "<idea>"`). Then read the file with the Read tool
+**Local file** (forge plan, RFC, design doc, etc.):
+1. **`{from_file}` is an explicit path — `Read` it verbatim.** Per `.claude/rules/repo-conventions.md` § Pipeline chaining: the producer already printed its fully-expanded absolute path and the bridge command carries that literal path, so there is nothing to reconstruct, infer, or glob. If the path does not exist, fail loud — ask the user to correct it or regenerate it via the producer (e.g. `/forge -s "<idea>"`). Then read the file with the Read tool
 2. **Extract key findings**: recommendation, constraints, risks, decisions already made
 3. **Skip redundant research**: do NOT re-research topics already covered in the file — focus agents on implementation-specific questions (existing code patterns, file structure, utilities) that the prior analysis doesn't cover
 4. **Carry forward open questions**: flag any unresolved items from the prior analysis. If the prior context carries a **Blocking** / **Non-blocking** open-questions split (spec's format — match the content, not the filename), treat each blocking question as a gate — resolve it before implementing the workstream it blocks; non-blocking ones ride along during implementation
@@ -101,7 +101,7 @@ If `{from_file}` is a **spec** — H1 starts with `# Spec:` AND the file contain
 - Skip the AC inference step (§ 5 below) — the spec's AC are the contract.
 - Negative scope: copy each workstream's `## Not Included` block when present; copy the spec-level `## Non-goals` section when no per-workstream negative scope exists.
 
-This prevents silent AC drift when chaining `/spec → /apex -f <spec>`.
+This prevents silent AC drift when chaining `/forge → /apex -f <forge plan>`.
 
 The prior context (whether from an issue or a file) replaces the need for web research on topics it already covers. Codebase exploration subagents are still valuable since the prior context typically doesn't map implementation details.
 

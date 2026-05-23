@@ -24,7 +24,7 @@ GOAL_ITEM = re.compile(r"^\s*-\s+(?:\*\*[\w\d-]+\*\*\s*[—:-]\s*)?(.+?)\s*$")
 
 # Decision items inside a "Decisions resolved" / "Decisions" block.
 DECISION_SECTION_HEADER = re.compile(
-    r"^(#{1,6})\s+(decisions(?:\s+resolved)?|resolved\s+decisions)\s*$", re.IGNORECASE
+    r"^(#{1,6})\s+(decisions?(?:\s+resolved)?|resolved\s+decisions?)\s*$", re.IGNORECASE
 )
 DECISION_ITEM = re.compile(r"^\s*-\s+(?:\*\*[\w\d-]+\*\*\s*[—:-]\s*)?(.+?)\s*$")
 
@@ -110,8 +110,8 @@ def detect_artifact_kind(path) -> str:
     This helper covers @auto-discovered paths.
     """
     name = str(path).lower()
-    if "brainstorm" in name:
-        return "brainstorm"
+    if "forge" in name:
+        return "forge"
     if "spec" in name:
         return "spec"
     if "/apex/" in name or name.endswith("/apex"):

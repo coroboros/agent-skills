@@ -102,7 +102,7 @@ only; `--include-prose` extends to README freeform. Per-repo
 
 ### Lens 6 — Derivation (key `derivation`)
 
-Reconciles planning artifacts (brainstorm, spec, apex plan, PR body, issue
+Reconciles planning artifacts (forge, apex plan, PR body, issue
 body) against the diff. Activates on `--reconcile <input>` — without it, the
 lens does not dispatch. Classification taxonomy: GAP (planning said X, code
 missing), SCOPE-ADD (code has X, planning silent), DECISION-OVERRIDE

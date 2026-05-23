@@ -76,7 +76,7 @@ _Present only when the derivation lens ran (`--reconcile` resolved to non-empty 
 
 | Field | Value |
 |-------|-------|
-| Artifacts compared | {N} ({list with freshness — e.g. `brainstorm-foo.md (2d)`, `spec-bar.md (5d)`}) |
+| Artifacts compared | {N} ({list with freshness — e.g. `forge-foo.md (2d)`}) |
 | AC coverage | {verified}/{total} acceptance criteria |
 | GAP | {N} ({N high-confidence}) |
 | SCOPE-ADD | {N} |

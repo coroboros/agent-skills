@@ -84,7 +84,7 @@ class Artifact:
     """One resolved planning artifact."""
 
     path: str
-    kind: str  # "brainstorm" | "spec" | "apex-plan" | "pr-body" | "issue-body" | "doc"
+    kind: str  # "forge" | "spec" | "apex-plan" | "pr-body" | "issue-body" | "doc"
     freshness_days: int = -1
     claims: list = field(default_factory=list)
 

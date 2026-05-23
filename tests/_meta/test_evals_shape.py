@@ -96,10 +96,10 @@ class TestEvalsShape(unittest.TestCase):
                                  f"{path}: duplicate eval ids: {ids}")
 
     def test_pure_prompt_skills_have_evals(self):
-        """The 5 pure-prompt skills must ship evals — that's how their behaviour
+        """The 4 pure-prompt skills must ship evals — that's how their behaviour
         is pinned beyond unit-test structural checks."""
         pure_prompt = {
-            "agent-creator", "award-design", "brainstorm",
+            "agent-creator", "award-design",
             "fix-grammar", "oneshot",
         }
         with_evals = {name for name, _ in _evals_files()}

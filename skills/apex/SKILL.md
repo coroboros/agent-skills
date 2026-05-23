@@ -1,7 +1,7 @@
 ---
 name: apex
 description: Systematic implementation using APEX methodology (Analyze-Plan-Execute-eXamine) with parallel subagents and self-validation. Use when implementing features, fixing bugs, or making code changes that benefit from structured workflow.
-when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/brainstorm` or `/spec`.
+when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`.
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
 model: opus
 license: MIT
@@ -70,7 +70,7 @@ See **Parameters** below for the complete flag list.
 | `-b` | `--branch` | Branch mode: verify not on main, create branch if needed |
 | `-i` | `--interactive` | Interactive mode: configure flags via AskUserQuestion |
 | `-g` | `--goal` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; v2.1.139+ required) |
-| `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), spec, brainstorm report, or any file as foundational input for analysis. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
+| `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), forge plan, or any file as foundational input for analysis. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
 **Disable flags (turn OFF):**
 
@@ -101,9 +101,8 @@ See **Parameters** below for the complete flag list.
 # From a GitHub issue
 /apex -f "#42" implement what issue 42 describes
 
-# From prior analysis (spec, brainstorm report, RFC) — pass the explicit path the producer printed
-/apex -f ~/.claude/output/{project}/spec/spec-{slug}.md implement WS-1
-/apex -f ~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md implement Neon database
+# From a prior forge plan (or RFC) — pass the explicit path the producer printed
+/apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
 
 # Economy mode (save tokens)
 /apex -e add auth middleware

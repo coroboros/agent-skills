@@ -3,7 +3,7 @@
 Walks `.md` files at repo root and inside `skills/*/`. Resolves:
     - Relative file links (./foo.md, ../bar/baz.md) — file existence
     - Anchor links (path#section, #section) — heading existence in target
-    - Skill-name references (`/spec`, `/apex`) — match against marketplace skills
+    - Skill-name references (`/forge`, `/apex`) — match against marketplace skills
 """
 
 from __future__ import annotations

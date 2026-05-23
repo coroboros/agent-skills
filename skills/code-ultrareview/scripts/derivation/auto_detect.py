@@ -2,8 +2,7 @@
 
 Resolves `--reconcile @auto` to the conventional set of planning sources:
 
-    ~/.claude/output/{project}/brainstorm/brainstorm-*.md
-    ~/.claude/output/{project}/spec/spec-*.md
+    ~/.claude/output/{project}/forge/forge-*.md
     ~/.claude/output/{project}/apex/{task-id}/                 (latest only)
     docs/proposals/*.md  docs/design/*.md  docs/rfcs/*.md  docs/adr/*.md
     PR body of the current branch (via `gh pr view`)
@@ -188,8 +187,7 @@ def auto_detect(repo: Path, *, include_pr: bool = True) -> list:
     callers can detect the gap from the returned list shape.
     """
     artifacts: list = []
-    artifacts.extend(_glob_artifacts(repo, "brainstorm", "brainstorm-*.md", "brainstorm"))
-    artifacts.extend(_glob_artifacts(repo, "spec", "spec-*.md", "spec"))
+    artifacts.extend(_glob_artifacts(repo, "forge", "forge-*.md", "forge"))
     apex = latest_apex_task(repo)
     if apex is not None:
         artifacts.append(apex)

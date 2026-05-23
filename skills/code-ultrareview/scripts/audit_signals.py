@@ -271,13 +271,9 @@ def detect_planning_artifacts(repo: Path) -> tuple[int, int]:
 
     candidates: list[Path] = []
 
-    bd = output_root / "brainstorm"
-    if bd.is_dir():
-        candidates.extend(p for p in bd.glob("brainstorm-*.md") if p.is_file())
-
-    sd = output_root / "spec"
-    if sd.is_dir():
-        candidates.extend(p for p in sd.glob("spec-*.md") if p.is_file())
+    fd = output_root / "forge"
+    if fd.is_dir():
+        candidates.extend(p for p in fd.glob("forge-*.md") if p.is_file())
 
     ad = output_root / "apex"
     if ad.is_dir():

@@ -17,12 +17,10 @@ SKILLS_DIR = REPO_ROOT / "skills"
 
 CLUSTERS = {
     "workflow": {
-        # brainstorm → spec → apex
-        "producer": "brainstorm",
-        "producer_output": "~/.claude/output/{project}/brainstorm/brainstorm-{slug}.md",
-        "consumer": "spec",
-        "consumer_output": "~/.claude/output/{project}/spec/spec-{slug}.md",
-        "tertiary": "apex",  # apex consumes spec.md
+        # forge → apex
+        "producer": "forge",
+        "producer_output": "~/.claude/output/{project}/forge/forge-{slug}.md",
+        "consumer": "apex",  # apex consumes the forge plan via -f
         # Schema keys the producer commits to and the consumer reads — drift
         # in either side breaks the chain. Validated by test_workflow_cluster.
         "spec_workstream_required_columns": ("Priority", "Complexity", "Depends on"),

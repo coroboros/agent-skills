@@ -38,7 +38,7 @@ class TestOneshotFrontmatter(unittest.TestCase):
 
 
 class TestCircuitBreakerDocumented(unittest.TestCase):
-    """oneshot escalates to /apex or /spec when complexity signals trip.
+    """oneshot escalates to /apex or /forge when complexity signals trip.
     The 'Complexity check (circuit breaker)' section must exist AND mention both
     escalation targets within its scope — not just somewhere in the file. Catches
     a real regression where the section gets refactored away while leaving stale
@@ -67,11 +67,11 @@ class TestCircuitBreakerDocumented(unittest.TestCase):
         self.assertIn("/apex", section,
                       "/apex not mentioned within the circuit-breaker section")
 
-    def test_section_names_spec_as_escalation(self):
+    def test_section_names_forge_as_escalation(self):
         section = self._circuit_breaker_section()
         self.assertIsNotNone(section, "circuit-breaker section missing")
-        self.assertIn("/spec", section,
-                      "/spec not mentioned within the circuit-breaker section")
+        self.assertIn("/forge", section,
+                      "/forge not mentioned within the circuit-breaker section")
 
     def test_section_describes_signals(self):
         """The circuit-breaker section must describe what trips it — at least one
