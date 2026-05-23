@@ -141,6 +141,8 @@ Audit-phase signal schema and report-header formatting live in `references/audit
 
 ## Final report layout
 
+**Terminal echo is mandatory.** The full canonical report prints to the chat-terminal on every invocation — header, every `##` section, every finding sub-section. The `-s` flag is purely additive: it writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. It never gates, truncates, or summarises what the user sees in chat. Terminal output and saved file are byte-for-byte identical.
+
 Every `##` section below renders verbatim, in this order, with a `---` separator above it and its canonical emoji prefix. The template at `templates/code-ultrareview.md` is the wire format — section names are not rewritten, merged, reordered, or replaced. This applies to terminal output and to the `-s` saved file: the saved report and what prints to the chat must match heading-for-heading.
 
 1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified`. Omitted on a fully clean review.
@@ -198,3 +200,4 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 - **Fail loud.** A lens that cannot run (unresolvable base, missing baseline, fetch failure) is stated in the header or surfaced as a finding, never silently skipped.
 - **Cite precisely.** Every finding carries `file:line`; rule findings quote the violated rule line verbatim; spec-conformance findings quote the governing clause.
 - **Canonical sections only.** The 9 `##` headings listed in *Final report layout* are exhaustive — each emoji prefix and the `---` separator above each section are mandatory in terminal output and in the `-s` saved file. The four `### 🔴 / 🟠 / 🟢 / ⚠️` sub-sections inside `## 🔎 Findings` render in that order, every time, even when a count is zero (body `_None._`). Never invent, rename, merge, or reorder sections; debug data (e.g., dropped findings, internal logs) does not surface in the user report.
+- **Full report in chat every time.** Print the complete canonical report — header, every `##` section, every finding sub-section — to the chat-terminal on every invocation. `-s` is additive: it writes the same bytes to disk; it does not gate, truncate, or summarise the chat-terminal output. A run that saves to disk but echoes a digest to the user breaks this contract.

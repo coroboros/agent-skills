@@ -9,6 +9,8 @@
 _Omit the **Findings** line on a fully clean review._
 
 > **Section discipline (mandatory).** Every `##` heading below is canonical — render it verbatim, including the emoji prefix and the `---` separator above it. Do not rename, merge, reorder, or invent sections. Every severity sub-section inside `## 🔎 Findings` renders even when its count is `0` (body: `_None._`). The model is a formatter here, not an editor.
+>
+> **Terminal echo is mandatory.** The full report below prints to the chat-terminal on every invocation. The `-s` flag is purely additive — it writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. It does not gate, truncate, or summarise what the user sees in chat. Terminal output and saved file are byte-for-byte identical.
 
 ---
 

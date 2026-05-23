@@ -108,6 +108,19 @@ class TestReportSchema(unittest.TestCase):
         for sub_graph in REVIEW["coherence_sub_graphs"]:
             self.assertIn(sub_graph, text, f"sub-graph {sub_graph!r} missing")
 
+    def test_realistic_fixture_carries_all_findings_subsections(self):
+        """The four mandatory `### <emoji> <severity>` sub-sections inside
+        `## 🔎 Findings` must appear in the canonical fixture. Closes the
+        contract gap where `report_findings_subsections` was only pinned at
+        the template level — a fixture edit that drops or reorders sub-sections
+        now breaks this test."""
+        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
+        for sub in REVIEW["report_findings_subsections"]:
+            self.assertIn(
+                f"### {sub}", text,
+                f"fixture missing finding sub-section `### {sub}`",
+            )
+
 
 class TestSeverityScheme(unittest.TestCase):
     """Dual severity scheme — High/Medium/Low retained for compatibility,

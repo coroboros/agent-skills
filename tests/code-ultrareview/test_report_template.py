@@ -192,6 +192,53 @@ class TestFindingsSubSections(unittest.TestCase):
         for sub in REVIEW["report_findings_subsections"]:
             self.assertIn(f"### {sub}", text)
 
+    def test_findings_subsections_contained_within_findings_section(self):
+        """The four sub-sections must sit INSIDE `## 🔎 Findings`, not under
+        `## 🛠️ Action plan` or any other `##`. Closes the implicit-assumption
+        gap where `assertIn(f"### {sub}", text)` would pass even if a
+        sub-section slipped to a wrong parent section."""
+        text = _read()
+        # Find the `## 🔎 Findings` HEADING (line start), not any inline
+        # backtick mention inside a blockquote.
+        heading_match = re.search(r"^## 🔎 Findings\s*$", text, re.MULTILINE)
+        if heading_match is None:
+            self.fail("`## 🔎 Findings` heading not found in template")
+        findings_idx = heading_match.start()
+        # Block runs from heading to the next `## ` heading.
+        rest = text[findings_idx:]
+        next_h2 = re.search(r"^## ", rest[1:], re.MULTILINE)
+        findings_block = rest if next_h2 is None else rest[:next_h2.start() + 1]
+        for sub in FINDINGS_SUBSECTIONS:
+            self.assertIn(
+                f"### {sub}", findings_block,
+                f"sub-section `### {sub}` not inside `## 🔎 Findings` block",
+            )
+
+    def test_findings_zero_count_renders_none_body(self):
+        """SKILL.md and the template prose mandate `_None._` as the zero-count
+        body for each sub-section. The realistic fixture has `### 🟢 Low (0
+        findings)` followed by `_None._` — pin this so a future template edit
+        that silently drops the `_None._` body fails the suite."""
+        fixture = (REPO_ROOT / "tests" / "_pipeline" / "fixtures"
+                   / "realistic_code_ultrareview.md")
+        fixture_text = fixture.read_text(encoding="utf-8")
+        # The fixture has at least one zero-count sub-section followed by
+        # `_None._`. Locate the `(0 findings)` marker and assert `_None._`
+        # appears in the block before the next heading.
+        match = re.search(
+            r"### .+? \(0 findings?\)\s*\n+(.+?)(\n### |\n## )",
+            fixture_text, re.DOTALL,
+        )
+        if match is None:
+            self.fail(
+                "fixture has no zero-count sub-section to exercise the contract"
+            )
+        body = match.group(1).strip()
+        self.assertIn(
+            "_None._", body,
+            f"zero-count sub-section body is `{body!r}`, expected `_None._`",
+        )
+
     def test_legacy_verified_unverified_headings_removed(self):
         """Pre-fix layout used `### Verified` and `### Unverified` as the only
         two sub-sections. The new layout splits Verified by severity and uses

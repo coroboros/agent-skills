@@ -128,6 +128,11 @@ CLUSTERS = {
         ),
         # The four mandatory sub-sections inside `## 🔎 Findings`. Render in
         # this order, every time, even when count is 0 (body `_None._`).
+        # Test-only SSOT: consumed by tests/code-ultrareview/test_report_template.py
+        # (template parity), tests/_pipeline/test_review_cluster.py (fixture
+        # parity), and tests/code-ultrareview/test_section_emoji_drift.py (regression
+        # sweep). No skill code reads this; the tuple pins the contract so
+        # template ↔ fixture drift breaks the suite.
         "report_findings_subsections": (
             "🔴 High",
             "🟠 Medium",

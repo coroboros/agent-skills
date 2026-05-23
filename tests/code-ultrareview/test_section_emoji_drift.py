@@ -173,5 +173,62 @@ class TestEvalsJsonIsValid(unittest.TestCase):
         self.assertTrue(payload["evals"], "evals list is empty")
 
 
+class TestTerminalEchoRuleMirroredInThreePlaces(unittest.TestCase):
+    """The terminal-echo rule states the full canonical report prints to the
+    chat-terminal on every invocation, and that `-s` is purely additive (writes
+    to disk, never gates the terminal output). The rule must be present in
+    three places — SKILL.md `Final report layout`, SKILL.md `Rules`, and the
+    template's `Section discipline` blockquote — so a model reading any of
+    them encounters the contract. A future edit that removes the rule from
+    one of the three breaks this test."""
+
+    SENTINEL_PHRASES = (
+        "byte-for-byte identical",
+        "chat-terminal",
+    )
+
+    def _section_block(self, text: str, heading: str) -> str:
+        """Extract the block from `## <heading>` up to (but excluding) the
+        next `## ` heading."""
+        idx = text.index(heading)
+        rest = text[idx:]
+        next_h2 = re.search(r"\n## ", rest[1:])
+        return rest if next_h2 is None else rest[:next_h2.start() + 1]
+
+    def test_rule_in_skill_md_final_report_layout(self):
+        text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        block = self._section_block(text, "## Final report layout")
+        for phrase in self.SENTINEL_PHRASES:
+            self.assertIn(
+                phrase, block,
+                f"`## Final report layout` missing terminal-echo phrase {phrase!r}",
+            )
+
+    def test_rule_in_skill_md_rules(self):
+        text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        block = self._section_block(text, "## Rules")
+        # `## Rules` block carries the additive contract — `-s` does not gate
+        # the chat-terminal output.
+        self.assertRegex(
+            block,
+            r"(?i)full report in chat every time",
+            "`## Rules` missing terminal-echo mandate",
+        )
+
+    def test_rule_in_template_section_discipline(self):
+        text = (SKILL_DIR / "templates" / "code-ultrareview.md").read_text(
+            encoding="utf-8"
+        )
+        # The `Section discipline` blockquote is the only blockquote near the
+        # top of the template. Pin both sentinel phrases — they must appear
+        # together inside it.
+        for phrase in self.SENTINEL_PHRASES:
+            self.assertIn(
+                phrase, text,
+                f"template missing terminal-echo phrase {phrase!r} in "
+                "Section discipline blockquote",
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
