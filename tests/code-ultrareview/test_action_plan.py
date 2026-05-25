@@ -56,7 +56,6 @@ ALL_SKILLS = {
     "apex": Path("/x/apex/SKILL.md"),
     "oneshot": Path("/x/oneshot/SKILL.md"),
     "humanize-en": Path("/x/humanize-en/SKILL.md"),
-    "fix-grammar": Path("/x/fix-grammar/SKILL.md"),
 }
 
 

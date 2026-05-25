@@ -131,6 +131,21 @@ The `/goal` evaluator is **transcript-only** — it cannot run tools or read fil
 
 `-g` is **orthogonal to `-a`**: `-a` skips per-tool prompts within a turn; `-g` skips per-turn prompts across turns. Recommended together for unattended `claude -p "/apex …"` runs.
 
+## Trust model
+
+Analyze can fetch third-party content into the workflow:
+
+- **Web research** — `general-purpose` subagents run web searches and `WebFetch`.
+- **Library docs** — `/find-docs` or Context7 lookups pull current API references.
+- **GitHub issues** — `-f #N` ingests title, body, and comments verbatim.
+- **Any `-f <path>`** — forge plan, RFC, design doc, markitdown output of a PDF — read literally.
+
+Fetched content feeds the analysis report that Plan and Execute work from. An adversarial document hosted at a fetched URL, or pasted into an issue body, can attempt **indirect prompt injection** — instructions disguised as data that the model could misread as directives.
+
+**User review is the trust boundary.** Apex returns the analysis report and proposed plan for explicit approval before Execute begins (unless `-a` is set). Confirm the surfaced files, patterns, and acceptance criteria match intent before approving — anything fetched during Analyze passes through that review.
+
+**To remove the surface entirely**, pass `-e` (economy mode): no subagents, no web fetches, direct tools only. Trade-off: less depth on unfamiliar libraries.
+
 ## Output Structure
 
 The output path is `~/.claude/output/{project}/apex/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.claude/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
@@ -245,6 +260,7 @@ After initialization, step-00 loads `step-01-analyze.md`.
 - **Follow next_step directive** at end of each step
 - **Save outputs** if `{save_mode}` = true (append to step file)
 - **Use parallel agents** for independent exploration tasks
+- **Third-party content runs through user review** — see § *Trust model*. Web research, library docs, GitHub issue bodies, and `-f` files reach Execute only after the user approves the analysis report.
 
 ### Smart Agent Strategy in Analyze Phase
 

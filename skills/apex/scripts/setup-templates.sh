@@ -46,7 +46,10 @@ mkdir -p "$APEX_OUTPUT_DIR"
 # Find the next available number
 NEXT_NUM=1
 if [[ -d "$APEX_OUTPUT_DIR" ]]; then
-    # Find highest existing number prefix (tolerate empty dir: grep returns 1 on no match)
+    # Find highest existing number prefix (tolerate empty dir: grep returns 1 on no match).
+    # SC2010 disabled: filenames this script creates are strictly NN-kebab-case ASCII —
+    # the warning's "non-alphanumeric filenames" concern does not apply.
+    # shellcheck disable=SC2010
     HIGHEST=$(ls -1 "$APEX_OUTPUT_DIR" 2>/dev/null | grep -oE '^[0-9]+' | sort -n | tail -1 || true)
     if [[ -n "$HIGHEST" ]]; then
         # Force base-10 interpretation (leading zeros would be treated as octal)
@@ -69,23 +72,48 @@ TEMPLATE_DIR="${SKILL_DIR}/templates"
 # Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-# Function to replace template variables
+# Function to replace template variables. Values pass through awk's ENVIRON[]
+# array (literal strings, no escape processing) — eliminates both the sed s///
+# regex-metachar surface and the awk -v backslash-escape interpretation. The
+# inner loop uses index/substr (literal substring substitution, never regex),
+# so user-controlled TASK_DESCRIPTION can carry any byte without breaking
+# templating. This is the W011 hardening surface flagged by external scanners.
 render_template() {
     local template_file="$1"
     local output_file="$2"
 
-    # Read template and replace variables
-    sed -e "s|{{task_id}}|${TASK_ID}|g" \
-        -e "s|{{task_description}}|${TASK_DESCRIPTION}|g" \
-        -e "s|{{timestamp}}|${TIMESTAMP}|g" \
-        -e "s|{{auto_mode}}|${AUTO_MODE}|g" \
-        -e "s|{{save_mode}}|${SAVE_MODE}|g" \
-        -e "s|{{economy_mode}}|${ECONOMY_MODE}|g" \
-        -e "s|{{branch_mode}}|${BRANCH_MODE}|g" \
-        -e "s|{{interactive_mode}}|${INTERACTIVE_MODE}|g" \
-        -e "s|{{branch_name}}|${BRANCH_NAME}|g" \
-        -e "s|{{original_input}}|${ORIGINAL_INPUT}|g" \
-        "$template_file" > "$output_file"
+    TASK_ID="$TASK_ID" \
+    TASK_DESCRIPTION="$TASK_DESCRIPTION" \
+    TIMESTAMP="$TIMESTAMP" \
+    AUTO_MODE="$AUTO_MODE" \
+    SAVE_MODE="$SAVE_MODE" \
+    ECONOMY_MODE="$ECONOMY_MODE" \
+    BRANCH_MODE="$BRANCH_MODE" \
+    INTERACTIVE_MODE="$INTERACTIVE_MODE" \
+    BRANCH_NAME="$BRANCH_NAME" \
+    ORIGINAL_INPUT="$ORIGINAL_INPUT" \
+    awk '
+        BEGIN {
+            keys[1]  = "{{task_id}}";          vals[1]  = ENVIRON["TASK_ID"]
+            keys[2]  = "{{task_description}}"; vals[2]  = ENVIRON["TASK_DESCRIPTION"]
+            keys[3]  = "{{timestamp}}";        vals[3]  = ENVIRON["TIMESTAMP"]
+            keys[4]  = "{{auto_mode}}";        vals[4]  = ENVIRON["AUTO_MODE"]
+            keys[5]  = "{{save_mode}}";        vals[5]  = ENVIRON["SAVE_MODE"]
+            keys[6]  = "{{economy_mode}}";     vals[6]  = ENVIRON["ECONOMY_MODE"]
+            keys[7]  = "{{branch_mode}}";      vals[7]  = ENVIRON["BRANCH_MODE"]
+            keys[8]  = "{{interactive_mode}}"; vals[8]  = ENVIRON["INTERACTIVE_MODE"]
+            keys[9]  = "{{branch_name}}";      vals[9]  = ENVIRON["BRANCH_NAME"]
+            keys[10] = "{{original_input}}";   vals[10] = ENVIRON["ORIGINAL_INPUT"]
+        }
+        {
+            for (i = 1; i <= 10; i++) {
+                while ((p = index($0, keys[i])) > 0) {
+                    $0 = substr($0, 1, p - 1) vals[i] substr($0, p + length(keys[i]))
+                }
+            }
+            print
+        }
+        ' "$template_file" > "$output_file"
 }
 
 # Initialize 00-context.md

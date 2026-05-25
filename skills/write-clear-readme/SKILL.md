@@ -1,7 +1,7 @@
 ---
 name: write-clear-readme
 description: Author, audit, or polish a project README — clarity, structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first, proposes diffs, applies on approval.
-when_to_use: When the user wants to create, restructure, audit, or polish a README for clarity, conciseness, or scannable structure. Keywords — write readme, author readme, audit readme, polish readme, clarify readme, optimize readme, restructure readme, README clarity, README wording, scannable readme. Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages. Skip when the user wants only spelling/grammar corrections — use `/fix-grammar` instead.
+when_to_use: When the user wants to create, restructure, audit, or polish a README for clarity, conciseness, or scannable structure. Keywords — write readme, author readme, audit readme, polish readme, clarify readme, optimize readme, restructure readme, README clarity, README wording, scannable readme. Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
 model: opus
 disable-model-invocation: true
@@ -195,7 +195,6 @@ The canonical *Writing rules* block above carries the universal prose rules. The
 
 ## Adjacent skills
 
-- **`/fix-grammar`** — optional typo / spelling pre-pass before authoring, or post-pass after polish when the source has obvious errors. Skip when the text is already clean — this skill never introduces grammar errors.
 - **`/humanize-en`** — AI-tell stripping. Called by `author` and `polish` modes after clarity edits; `audit` mode flags AI tells without rewriting. Also usable standalone.
 
 ## AI-tell removal — skill-specific notes

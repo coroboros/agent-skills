@@ -42,8 +42,11 @@ else
     exit 1
 fi
 
-# Create temp file
-TEMP_FILE=$(mktemp)
+# Scope the temp file under ~/.claude/output — keeps inter-process state off
+# the world-writable /tmp surface flagged by external scanners (W011).
+APEX_TEMP_DIR="${HOME}/.claude/output"
+mkdir -p "$APEX_TEMP_DIR"
+TEMP_FILE=$(mktemp "$APEX_TEMP_DIR/.apex-progress.XXXXXX")
 
 # Update the progress table
 awk -v step="${STEP_NUMBER}-${STEP_NAME}" \

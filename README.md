@@ -83,7 +83,6 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Productivity | [notion](#notion) | opus | Notion access via the official MCP connector (default) or `ntn` CLI (uploads, Workers, headless/CI, raw API, shell piping) | Claude |
 | Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
 | Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
-| Writing | [fix-grammar](#fix-grammar) | haiku | Fix grammar/spelling preserving formatting | Claude |
 | Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; brand-aware via `-f BRAND-VOICE.md` (deterministic prescan + post-rewrite validation gate + auto-iteration) | Claude |
 
 **About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill, regardless of session default — predictable results across runs. Opus-tier skills consume more tokens; override with the Claude Code `--model` flag, or skip those skills on a tight plan.
@@ -191,6 +190,10 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 - **Resume** — `-r` auto-validates state via `validate_state.sh` before restoration; partial or corrupt task dirs fail loud rather than cascade.
 
 Accepts output from `forge` via `-f`. Works standalone.
+
+**Trust model**
+
+Analyze fetches third-party content into the workflow — web research via `general-purpose` subagents, library docs via Context7, GitHub issue bodies via `-f #N`, any file passed to `-f`. An adversarial document hosted at a fetched URL, or pasted into an issue body, can attempt indirect prompt injection. User review of the analysis report before approving the plan is the trust boundary — confirm the surfaced files, patterns, and acceptance criteria match intent. Pass `-e` (economy mode) to disable subagents and remove the third-party surface entirely. Full disclosure in `skills/apex/SKILL.md` § *Trust model*.
 
 **Sources**
 
@@ -308,7 +311,7 @@ Fresh-eyes code review at full strength, in-session. Pinned to `model: opus` and
 - **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a rules-declared base wins), always resolved to a diffable ancestor.
 - **Six lenses** — parallel read-only subagents on every invocation; derivation joins when `--reconcile` resolves to non-empty input. A1 spec-claim triggering, iteration on sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis are always-on. Review runs against the project's own `CLAUDE.md` + local/global rule hierarchy.
 - **Score + route** — each finding scored 0–100; sub-80 surfaces as `[unverified — recommend Deep pass]` (never silent-dropped). Out-of-lane findings → pointer to `/security-review` / `/simplify` / `/ultrareview` / `/find-docs`, never a finding.
-- **Actionable closing block** — every report ends with a six-lens summary table (every canonical lens, including clean ones, with 🔴/🟠/🟢 status), a deterministic verdict (`Ship` / `Fix-then-ship` / `Needs work` computed from severity markers + Anthropic tier, never a placeholder), and per-cluster paste-ready delegation prompts. The action plan routes each cluster to the most-specialized installed skill (`/humanize-en` for prose tone drift, `/fix-grammar` for grammar nits, `/oneshot` for low-severity polish), falling back to `/apex` when absent. Never advertises a skill the user doesn't have installed.
+- **Actionable closing block** — every report ends with a six-lens summary table (every canonical lens, including clean ones, with 🔴/🟠/🟢 status), a deterministic verdict (`Ship` / `Fix-then-ship` / `Needs work` computed from severity markers + Anthropic tier, never a placeholder), and per-cluster paste-ready delegation prompts. The action plan routes each cluster to the most-specialized installed skill (`/humanize-en` for prose tone drift, `/oneshot` for low-severity polish), falling back to `/apex` when absent. Never advertises a skill the user doesn't have installed.
 - **Scannable section layout** — every `##` section is emoji-prefixed and separated by a `---` horizontal rule (📋 Lens summary · 🔎 Findings · 🧭 Deferred · ✅ What looks good · 🕸️ Coherence-graph · 📐 Derivation · ⚖️ Verdict · 🛠️ Action plan · 🪛 --apply-safe). Findings split into four mandatory sub-sections — `### 🔴 High`, `### 🟠 Medium`, `### 🟢 Low`, `### ⚠️ Unverified` — each rendered even when its count is zero. Same layout in the terminal and in the `-s` saved report.
 - **Report-only by default** — bridge to `/apex -f` or `/oneshot` for fixes. Opt-in `--apply-safe` writes manifest sync, description sync, and failing tests only (never production logic).
 
@@ -863,10 +866,10 @@ list every Notion API endpoint that touches comments
 
 ### Writing Skills
 
-Structural and prose writing for project documentation — `brand-voice`, `write-clear-readme`, `fix-grammar`, `humanize-en`.
+Structural and prose writing for project documentation — `brand-voice`, `write-clear-readme`, `humanize-en`.
 
 <details>
-<summary><em>brand-voice · write-clear-readme · fix-grammar · humanize-en</em></summary>
+<summary><em>brand-voice · write-clear-readme · humanize-en</em></summary>
 
 <br>
 
@@ -999,31 +1002,6 @@ Author, audit, or polish a project README — clarity, scannable structure (Patt
 
 ---
 
-#### fix-grammar
-
-Fix grammar and spelling errors in files while preserving formatting, meaning, and technical terms.
-
-**Usage**
-
-```bash
-/fix-grammar docs/guide.md
-/fix-grammar README.md CHANGELOG.md docs/api.md
-```
-
-**What it does**
-
-- Fixes **only** spelling and grammar errors — no rephrasing, no style improvements
-- Preserves code blocks, MDX tags, frontmatter, and custom syntax
-- Handles multilingual content naturally (e.g., French text with English technical terms)
-- Processes multiple files in parallel using subagents
-- Reports corrections count per file
-
-**Sources**
-
-- [Melvynx/aiblueprint — fix-grammar](https://github.com/Melvynx/aiblueprint) — multilingual handling and parallel-subagent processing patterns
-
----
-
 #### humanize-en
 
 Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (*delve*, *tapestry*, *crucial*, *pivotal*, *underscore*, *showcase*), vague attributions, promotional tone, conjunctive padding (*moreover*, *furthermore*, *indeed*), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing.
@@ -1064,7 +1042,7 @@ Invoked as a subroutine by [`write-clear-readme`](#write-clear-readme) after cla
 **Scope**
 
 - **In** — neutral pattern removal on docs, READMEs, release notes, blog drafts, PR bodies, commentary
-- **Out** — voice/personality injection (only on explicit request, via opt-in `references/voice.md`); grammar-only fixes (use `fix-grammar`); structural restructuring (use `write-clear-readme`); non-English text
+- **Out** — voice/personality injection (only on explicit request, via opt-in `references/voice.md`); structural restructuring (use `write-clear-readme`); non-English text
 
 **Sources**
 
@@ -1166,7 +1144,7 @@ graph LR
   style issues fill:#2d333b,stroke:#8b949e,stroke-dasharray: 5 5
 ```
 
-`oneshot` optionally escalates to `apex` or `forge` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `brand-voice` produces `BRAND-VOICE.md` consumed by `humanize-en -f` for brand-aware rewriting; both work standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`, `fix-grammar`) are standalone too.
+`oneshot` optionally escalates to `apex` or `forge` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `brand-voice` produces `BRAND-VOICE.md` consumed by `humanize-en -f` for brand-aware rewriting; both work standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`) are standalone too.
 
 </details>
 

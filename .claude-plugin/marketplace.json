@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
-    "version": "2.1.0"
+    "version": "3.0.0"
   },
   "plugins": [
     {
@@ -73,13 +73,12 @@
     },
     {
       "name": "writing-skills",
-      "description": "English writing for project documentation — brand voice, READMEs, grammar polish, AI-tell removal",
+      "description": "English writing for project documentation — brand voice, READMEs, AI-tell removal",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/brand-voice",
         "./skills/write-clear-readme",
-        "./skills/fix-grammar",
         "./skills/humanize-en"
       ]
     }
