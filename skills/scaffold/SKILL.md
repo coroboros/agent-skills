@@ -29,110 +29,27 @@ If the user does not specify a scaffold or is ambiguous, show this table and ask
 
 ## Workflow
 
-### 1. Preflight — environment check
+### 1. Preflight
 
-```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/preflight.sh {project_dir}
-```
-
-Parse `RESULT:` lines. Stop-conditions:
-- `pnpm=no` → suggest `corepack enable && corepack prepare pnpm@latest --activate`, then ask the user to retry.
-- `node=too-old` → ask the user to upgrade (suggest `fnm`, `nvm`, or Volta). Do not auto-install.
-- `target=occupied` → warn that `package.json` / framework config already exists; ask before proceeding.
-- `ok=true` → continue.
+`bash ${CLAUDE_SKILL_DIR}/scripts/preflight.sh {project_dir}` → check `RESULT:` lines. Stop-conditions: `pnpm=no` → suggest `corepack enable && corepack prepare pnpm@latest --activate`; `node=too-old` → ask user to upgrade; `target=occupied` → confirm before proceeding; `ok=true` → continue.
 
 ### 2. Parse arguments
 
-Extract `{scaffold}` and `{project_name}` from `$ARGUMENTS`.
+Extract `{scaffold}` and `{project_name}` from `$ARGUMENTS`. Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`. Missing `{scaffold}` → show the *Available scaffolds* table and ask. Missing `{project_name}` → derive from cwd or ask. `{project_dir}` defaults to `.`.
 
-- `{scaffold}` missing or unknown → show the table and ask.
-- `{project_name}` missing → derive from current directory name or ask.
-- Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`.
-- `{project_dir}` defaults to `.`; respect a user-supplied path.
+### 3. Install
 
-### 3. Run the framework CLI
-
-Use the framework's own CLI to create the boilerplate — `tsconfig`, Tailwind config, directory structure, version-specific files.
-
-**next-cloudflare:**
-```bash
-pnpm create next-app@latest {project_dir} --typescript --tailwind --eslint=false --app --src-dir --import-alias "@/*" --turbopack
-```
-
-**astro-cloudflare:**
-```bash
-pnpm create astro@latest {project_dir} -- --template minimal --typescript strictest --install --no-git
-cd {project_dir} && pnpm astro add cloudflare tailwind sitemap --yes
-```
-
-### 4. Remove conflicts
-
-Delete files that conflict with the opinionated stack. The framework CLI may or may not have created them — delete idempotently.
-
-- `.eslintrc*`, `eslint.config.*`, `.prettierrc*`, `prettier.config.*`
-- Empty `src/app/globals.css` (next-cloudflare — keep the file, clear its contents; `/design-system` later rewrites it from DESIGN.md, re-adding `@import "tailwindcss"` + the `@theme` token block)
-- `src/app/page.module.css`
-- For astro: replace the default `src/pages/index.astro` with a minimal placeholder
-
-### 5. Overlay templates + merge package.json scripts
+Per-scaffold steps (framework CLI, conflict removal, dependency installs, CSS-token setup): `references/setup-{scaffold}.md`. Then apply the shared overlay:
 
 ```bash
 bash ${CLAUDE_SKILL_DIR}/scripts/overlay_templates.sh {scaffold} {project_name} {project_dir}
 ```
 
-Writes `biome.json`, `.gitignore`, `.worktreeinclude`, `.claude/rules/cloudflare-tooling.md`, `CLAUDE.md`, `wrangler.jsonc`, framework-specific configs; merges opinionated scripts into `package.json` and sets `"type": "module"` / `"private": true`. Idempotent — skips existing files unless called with `--force`. Requires `jq` (brew install jq).
+Writes opinionated configs (`biome.json`, `.gitignore`, `.worktreeinclude`, `CLAUDE.md`, `wrangler.jsonc`, framework configs), merges `package.json` scripts, sets `"type": "module"` / `"private": true`. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial. Requires `jq`.
 
-Parse `RESULT:` lines:
-- `ok=true` → proceed.
-- `ok=partial` → some files existed; show the skipped list, ask the user whether to rerun with `--force` or keep the partial overlay.
+### 4. Verify and summarize
 
-### 6. Install additional dependencies
-
-**next-cloudflare:**
-```bash
-pnpm add @opennextjs/cloudflare drizzle-orm @neondatabase/serverless zod better-auth
-pnpm add -D wrangler @biomejs/biome drizzle-kit vitest @playwright/test
-```
-
-**astro-cloudflare:**
-```bash
-pnpm add -D wrangler @biomejs/biome
-```
-
-### 7. Init remaining files
-
-- Write `.node-version` containing `22`.
-- Write `.dev.vars.example` with a short comment explaining its purpose.
-- CSS tokens (scaffold-specific):
-  - **next-cloudflare** — Tailwind v4 keeps tokens in `src/app/globals.css` (`create-next-app` created it; step 4 emptied it). No `tailwind.config.ts`, no `src/styles/`. Nothing to create here.
-  - **astro-cloudflare** — create `src/styles/global.css` (empty — for CSS custom properties) if absent.
-
-### 8. Verify
-
-```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/verify_scaffold.sh {project_dir}
-```
-
-Runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surfaces the first 60 diagnostic lines on stderr. `biome=fail` or `typecheck=fail` → report the diagnostics to the user with a suggested fix. Do not mark the scaffold as complete.
-
-### 9. Summary
-
-Print:
-
-```
-## Scaffolded: {project_name} ({scaffold})
-
-**Files created/modified:**
-- CLAUDE.md, biome.json, .gitignore, .worktreeinclude, .node-version
-- [framework-specific list from overlay_templates output]
-- .claude/rules/ [if applicable]
-
-**Next steps:**
-1. Configure `.dev.vars` with your Cloudflare bindings.
-2. Create DESIGN.md — run `/award-design <one-line brief>`, then `/design-system audit DESIGN.md` to lint the result.
-3. `/design-system` auto-enforces the resulting tokens during subsequent UI edits.
-4. `pnpm dev` to start developing.
-```
+`bash ${CLAUDE_SKILL_DIR}/scripts/verify_scaffold.sh {project_dir}` runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surface the first 60 diagnostic lines + a fix; do not mark the scaffold complete. On success, report files created and next steps: configure `.dev.vars`, run `/award-design <brief>`, then `/design-system audit DESIGN.md`, finally `pnpm dev`.
 
 ## Rules
 
