@@ -37,6 +37,7 @@ CANONICAL_LENSES = (
     "tests-blindspots",
     "coherence-graph",
     "derivation",
+    "prose-hygiene",
 )
 
 SEVERITY_MARKERS = ("🔴", "🟠", "🟢")
@@ -74,6 +75,21 @@ ROUTING_TABLE: dict[str, dict[str, list[tuple[str, str]]]] = {
         "🔴": [("apex", "/apex")],
         "🟠": [("apex", "/apex")],
         "🟢": [("oneshot", "/oneshot"), ("apex", "/apex")],
+    },
+    "prose-hygiene": {
+        # 🔴 prose issues (leaks, AI signature footers) — fix-then-ship; apex
+        # owns the bridge to the source repo for a clean rewrite.
+        "🔴": [("apex", "/apex")],
+        # 🟠 (rule-restatement, length overflow, adopted-CC misses) — apex.
+        "🟠": [("apex", "/apex")],
+        # 🟢 (AI vocabulary, em-dash density, soft-cap warnings) — route to
+        # humanize-en when present (the dedicated prose scrubber); otherwise
+        # oneshot for a quick polish; apex is the universal fallback.
+        "🟢": [
+            ("humanize-en", "/humanize-en"),
+            ("oneshot", "/oneshot"),
+            ("apex", "/apex"),
+        ],
     },
 }
 

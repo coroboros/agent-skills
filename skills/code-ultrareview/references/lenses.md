@@ -1,6 +1,6 @@
 # Lenses — briefs, dispatch, scoring
 
-Read this before dispatching. It defines the five review lenses, the
+Read this before dispatching. It defines the seven review lenses, the
 multi-tier subagent protocol, the confidence rubric, the exclusion contract,
 and the routing rules for sub-80 findings. Aggregation details live in
 `references/aggregation.md`.
@@ -8,14 +8,17 @@ and the routing rules for sub-80 findings. Aggregation details live in
 ## Dispatch protocol
 
 Launch **read-only subagents in one message** (`Explore` type — read-only,
-fast, context-isolated). The lens fan-out is unconditional: the five always-on
-lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph)
-run in parallel on every invocation. The sixth lens — `derivation` — joins
-the fan-out when `--reconcile` resolves to non-empty input. A1 spec-claim
-triggering, iteration on sub-80 findings, spec-conformance fetch,
-property-fuzz harness synthesis, and `--apply-safe` writers are folded in
-as always-on behavior. The audit phase informs the report header (Scope +
-Estimated wall-clock); it does not gate dispatch.
+fast, context-isolated). The lens fan-out is unconditional: the six always-on
+lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph,
+prose-hygiene) run in parallel on every invocation. The seventh lens —
+`derivation` — joins the fan-out when `--reconcile` resolves to non-empty
+input. The `--no-prose-hygiene` flag is the only opt-out — when set, the
+dispatcher skips the prose-hygiene subagent and marks its lens-summary row
+`— skipped (--no-prose-hygiene)`. A1 spec-claim triggering, iteration on
+sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis,
+and `--apply-safe` writers are folded in as always-on behavior. The audit
+phase informs the report header (Scope + Estimated wall-clock); it does
+not gate dispatch.
 
 Each subagent receives:
 
@@ -42,12 +45,14 @@ delegation.
 
 **Canonical lens keys** (the `lens` field value — used by the report table
 and `tests/_pipeline/_contracts.py`): `rules`, `bugs-drift`, `docs-version`,
-`tests-blindspots`, `coherence-graph`, `derivation`. The coherence-graph
-lens has its own sub-graph keys defined in `references/coherence-graph.md`;
-the derivation lens has classification tags + freshness rules defined in
-`references/derivation.md`.
+`tests-blindspots`, `coherence-graph`, `derivation`, `prose-hygiene`. The
+coherence-graph lens has its own sub-graph keys defined in
+`references/coherence-graph.md`; the derivation lens has classification tags
++ freshness rules defined in `references/derivation.md`; the prose-hygiene
+lens has its inputs, scope filter, portable baseline, and layered discovery
+defined in `references/prose-hygiene.md`.
 
-## The six lenses
+## The seven lenses
 
 ### Lens 1 — Rules compliance (key `rules`)
 
@@ -116,6 +121,29 @@ time. Cap of 5 findings per artifact bounds noise (Risk #2 — LLM
 overcorrection guard, per arXiv 2603.00539); `--strict` lifts the cap.
 Full brief: `references/derivation.md`.
 
+### Lens 7 — Prose hygiene (key `prose-hygiene`)
+
+Reviews public-displayed prose touched by the session: PR body + title
+(when a PR is open for the current branch), every commit between the
+resolved base and HEAD, and user-facing `*.md` files in the diff (README,
+CHANGELOG, RELEASE-NOTES, `docs/`). Runs `scripts/fetch_pr_meta.sh`,
+`scripts/fetch_commits.sh`, and `scripts/check_prose_hygiene.py` to
+detect: internal leaks (local paths, personal emails, machine hostnames)
+→ 🔴; AI signature footers (`Co-Authored-By: Claude`, `🤖 Generated
+with`) → 🔴; rule-restatement / silent-compliance violations and filler
+test-plan items → 🟠; length overflow (PR body > 150 lines; commit
+subject > 72 chars) → 🟠; AI vocabulary, em-dash density, soft length
+warnings → 🟢; conventional-commit shape gated by adoption auto-detect
+(`.commitlintrc*` present, `commitlint` in `package.json`, or ≥50% of
+recent commits match) — 🟠 when adopted, 🟢 informational otherwise.
+Always-on; `--no-prose-hygiene` skips. Scope excludes `SKILL.md`,
+`CLAUDE.md`, `evals.json`, `.claude/rules/`, and `skills/<name>/` —
+model-instruction files, not shared prose deliverables. Layered
+discovery loads user-global and project rules from standard Claude Code
+locations (`~/.claude/rules/*.md`, `<repo>/CLAUDE.md`,
+`<repo>/.claude/rules/*.md`); project rules win on conflict per
+`overrides.md`. Full brief: `references/prose-hygiene.md`.
+
 ## Confidence rubric (0–100)
 
 Score every finding; **sub-80 findings are surfaced, not dropped.** The
@@ -154,7 +182,7 @@ is "primarily" security/perf, defer it — do not double-report.
 
 If none of repo `CLAUDE.md`, `.claude/rules`, `~/.claude/rules` exist, skip
 lens 1, state `Lens 1 (rules): skipped — no rules baseline found` in the
-report header, and run lenses 2–5. Never fail silently.
+report header, and run lenses 2–7. Never fail silently.
 
 `WebFetch` unavailable (A1 spec lookup) → finding surfaces with prefix
 `[unverified — needs network]` and confidence 50; routed per A2 to the

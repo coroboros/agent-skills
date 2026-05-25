@@ -155,7 +155,7 @@ consumed by `templates/code-ultrareview.md`.
 | `unverified` | `list[dict]` | A2-routed sub-80 findings, marker always 🟢. |
 | `iteration_dropped` | `list[dict]` | Findings disproved by build verification (logging only). |
 | `severity_counts` | `dict[str, int]` | `{"🔴": N, "🟠": N, "🟢": N}` — verified set only. Keys always present. |
-| `lens_summary` | `list[dict]` | Six rows, canonical lens order. Each: `{lens, status, verified_count, unverified_count, top_finding}`. Status ∈ `🔴 / 🟠 / 🟢 / skipped`. |
+| `lens_summary` | `list[dict]` | Seven rows, canonical lens order. Each: `{lens, status, verified_count, unverified_count, top_finding}`. Status ∈ `🔴 / 🟠 / 🟢 / skipped`. |
 | `verdict` | `dict` | `{label, rationale, drivers}` — label ∈ `Ship / Fix-then-ship / Needs work`. |
 | `action_plan` | `dict` | `{zero_findings, clusters, unverified_block}` — clusters severity-ordered (🔴 → 🟠 → 🟢 cross-lens). |
 

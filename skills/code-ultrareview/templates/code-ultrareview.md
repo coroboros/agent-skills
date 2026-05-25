@@ -16,7 +16,9 @@ _Omit the **Findings** line on a fully clean review._
 
 ## 📋 Lens summary
 
-Per-lens status snapshot — all six canonical lenses appear, including clean ones. The derivation lens row reads `— skipped (no --reconcile)` when the conditional lens is not run. Status reflects the highest verified severity within the lens: 🔴 if any verified High, else 🟠 if any verified Medium, else 🟢.
+Per-lens status snapshot — all seven canonical lenses appear, including clean ones. The derivation lens row reads `— skipped (no --reconcile)` when the conditional lens is not run; the prose-hygiene lens row reads `— skipped (--no-prose-hygiene)` when opted out. Status reflects the highest verified severity within the lens: 🔴 if any verified High, else 🟠 if any verified Medium, else 🟢.
+
+When the prose-hygiene lens runs, the report header (above this section) carries a one-line `Prose rules: <discovered list, or "baseline only">` after the existing **Rules baseline** line — so readers see which user/project rules layered onto the portable baseline.
 
 | Lens | Status | Verified | Unverified | Top finding |
 |------|--------|----------|------------|-------------|
@@ -26,6 +28,7 @@ Per-lens status snapshot — all six canonical lenses appear, including clean on
 | tests-blindspots | {lens_summary[3].status} | {N} | {N} | {top_finding or —} |
 | coherence-graph | {lens_summary[4].status} | {N} | {N} | {top_finding or —} |
 | derivation | {lens_summary[5].status} | {N} | {N} | {top_finding or — skipped (no --reconcile)} |
+| prose-hygiene | {lens_summary[6].status} | {N} | {N} | {top_finding or — skipped (--no-prose-hygiene)} |
 
 ---
 
