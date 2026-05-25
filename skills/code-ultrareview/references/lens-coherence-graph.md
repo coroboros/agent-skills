@@ -194,6 +194,51 @@ The orchestrator's exit code is always `0` when extractors complete (even
 when sub-graphs emit zero findings). Non-zero exit means a hard failure
 (missing script, invalid `.coherence-ignore`, repo path doesn't exist).
 
+## Repo-kind branches
+
+The lens reads `repo_kind` to tune the description, version, and
+capability sub-graphs. Cross-reference, example, and spec-conformance
+sub-graphs stay repo-agnostic (already file-existence or regex-driven).
+
+### Description sub-graph
+
+| `repo_kind` | Sources compared |
+|-------------|------------------|
+| `skills` (multi-skill, `skill_md_count` > 1) | `marketplace.json` `.metadata.description` ↔ `gh repo view --json description`. Per-SKILL.md cross-comparison is skipped — each SKILL.md is per-skill and a single repo-level description cannot match every one. |
+| `skills` (single-skill, `skill_md_count` == 1) | Existing behavior — all four structured sources including the lone SKILL.md frontmatter. |
+| `app`, `library` | Existing behavior — `package.json` `.description` ↔ marketplace ↔ `gh About` ↔ SKILL.md frontmatter (where present). |
+| `python`, `rust`, `go` | `gh repo view --json description` ↔ language-manifest description if present (`pyproject.toml` `[project].description`, `Cargo.toml` `[package].description`); marketplace/SKILL.md sources skipped. |
+| `docs` | Docs-site-config title/description ↔ `gh About`. |
+| `monorepo` | Top-level `package.json` `.description` ↔ `gh About` only; per-workspace not specialized at MVP. |
+| `unknown` | Existing behavior — every present source compared, none assumed. |
+
+### Version sub-graph
+
+| `repo_kind` | Manifest sources |
+|-------------|------------------|
+| `skills` | `.claude-plugin/marketplace.json` `.metadata.version`. |
+| `app`, `library` | `package.json` `.version` + `CHANGELOG.md` most-recent header. |
+| `python` | `pyproject.toml` `[project].version`. |
+| `rust` | `Cargo.toml` `[package].version`. |
+| `go` | (No manifest source — release sources only.) |
+| `docs` | Version field from the docs-site config (Docusaurus `versions.json`, MkDocs config). |
+| `monorepo` | Per-workspace; sub-graph emits zero findings at the repo root (per-workspace specialization parked for MVP). The `Repo: monorepo` header line carries the context. |
+| `unknown` | Every detected source compared; no kind-specific routing. |
+
+Release sources (`git tag -l --sort=-v:refname | head -1` + `gh release
+list -L 1 --json tagName`) stay unchanged across kinds.
+
+### Capability sub-graph
+
+| `repo_kind` | Capability resolution |
+|-------------|------------------------|
+| `skills` | README skills-table rows resolve to `skills/<name>/SKILL.md` AND a `.claude-plugin/marketplace.json` skill entry. A row missing either reference emits one finding. |
+| `app`, `library` | Existing behavior — README features resolve to source files, functions, or flag references via the `argparse` / `parse_args` / glob heuristics. |
+| `python`, `rust`, `go` | README features resolve to language-native targets (Python functions, Rust crate items, Go exported identifiers). |
+| `docs` | README sections resolve to docs-site nav entries; missing pages emit one finding. |
+| `monorepo` | Per-workspace; sub-graph emits zero findings at the repo root (per-workspace specialization parked for MVP). The `Repo: monorepo` header line carries the context. |
+| `unknown` | Existing behavior. |
+
 ## Caveats
 
 - Description case-insensitive comparison normalizes whitespace but not

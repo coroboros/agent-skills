@@ -1,8 +1,8 @@
 ---
 name: code-ultrareview
-description: In-session fresh-eyes code review at full strength — seven parallel lens subagents (rules, bugs-drift with A1 spec triggers, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`, prose-hygiene over PR body + commits + user-facing docs with `--no-prose-hygiene` opt-out), iteration on sub-80 findings with build verification, property-fuzz harness, gated `--apply-safe` writers. Every report ends with a seven-lens summary (🔴 / 🟠 / 🟢), a deterministic verdict (Ship / Fix-then-ship / Needs work), and per-cluster action-plan prompts routed to the most-specialized installed skill (falling back to `/apex`). Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's remote `/ultrareview` — same lenses, in-session.
+description: In-session fresh-eyes code review at full strength — seven parallel lens subagents (rules, bugs-drift with A1 spec triggers, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`, prose-hygiene over PR body + commits + user-facing docs with `--no-prose-hygiene` opt-out), repo-kind-aware heuristics (skills/app/library/docs/monorepo/python/rust/go, override via `--repo-kind` or `.code-ultrareview.yaml`), iteration on sub-80 findings with build verification, property-fuzz harness, gated `--apply-safe` writers. Every report ends with a seven-lens summary (🔴 / 🟠 / 🟢), a deterministic verdict (Ship / Fix-then-ship / Needs work), and per-cluster action-plan prompts routed to the most-specialized installed skill (falling back to `/apex`). Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's remote `/ultrareview` — same lenses, in-session.
 when_to_use: 'User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers, `effort: max`. Audit phase surfaces Scope + estimated wall-clock in the report header. Invoke when you''d say "review my changes", "ultrathink review", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance". NOT a security audit (use /security-review); NOT performance/simplification (use /simplify); NOT Anthropic''s remote billed command (use /ultrareview).'
-argument-hint: "[-b <ref>] [--reconcile <input>] [--apply-safe] [--include-prose] [--no-prose-hygiene] [--remote] [-s] [-S]"
+argument-hint: "[-b <ref>] [--reconcile <input>] [--repo-kind <kind>] [--apply-safe] [--include-prose] [--no-prose-hygiene] [--remote] [-s] [-S]"
 model: opus
 effort: max
 license: MIT
@@ -55,6 +55,7 @@ Operational detail follows in `## How it runs` and per-lens references.
 | `-S` | Force no-save (override an ambient save mode) |
 | `-b <ref>` | Override the review base (skip auto-detection) |
 | `--reconcile <input>` | Activate the derivation lens. `<input>` may be `@auto` (auto-detect forge + apex plan + PR body), `@pr`, an explicit path or directory of `.md` files, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL. Comma-separate multiple inputs. Findings classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT with freshness-capped severity |
+| `--repo-kind <kind>` | Override the audit-phase classifier. `<kind>` is one of `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo override lives at `.code-ultrareview.yaml` (`repo_kind: <kind>`); the flag wins on conflict. Invalid value exits 2. See `references/audit-phase.md` § *Repo-kind detection* |
 | `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation prompt before any write. Never modifies production logic |
 | `--include-prose` | Coherence-graph lens compares README freeform paragraphs as well (default: structured fields only — `package.json`, `marketplace.json`, SKILL.md frontmatter, GitHub About, topics) |
 | `--no-prose-hygiene` | Skip the prose-hygiene lens (PR body, commits, user-facing `*.md` checks). Lens runs by default; the row reads `— skipped (--no-prose-hygiene)` in the lens summary when set |
@@ -90,8 +91,18 @@ bash "${CLAUDE_SKILL_DIR}/scripts/resolve_base.sh" [-b <ref>]
 
 # Dirty tree — skip the resolver; audit-phase reads HEAD + untracked directly
 python3 "${CLAUDE_SKILL_DIR}/scripts/audit_signals.py" --dirty-tree --json
-# Details in references/audit-phase.md.
+
+# Override the detected repo_kind (one-off)
+python3 "${CLAUDE_SKILL_DIR}/scripts/audit_signals.py" --dirty-tree --repo-kind skills --json
+# Details in references/audit-phase.md (signal schema + Repo-kind detection + override).
 ```
+
+The audit phase also classifies the repo into one of nine `repo_kind` values
+(`skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`,
+`unknown`) and surfaces it on a `Repo: <kind>` header line. Each lens
+subagent reads its `## Repo-kind branches` section in `references/lens-<key>.md`
+before applying heuristics — so a skills repo is reviewed as a skills repo,
+not as code-with-docstrings.
 
 The **rule hierarchy** every lens reviews against, read fresh each run:
 
@@ -138,8 +149,8 @@ Detail references:
 - `references/skill-routing.md` — action-plan routing
 - `references/verdict-logic.md` — Ship / Fix-then-ship / Needs work algorithm
 
-1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals and format the Scope + Estimated wall-clock header.
-2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
+1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals (including `repo_kind` + `repo_kind_signals`) and format the Scope + Estimated wall-clock header.
+2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree"), the rule-hierarchy paths, AND the resolved `repo_kind` + `repo_kind_signals` from the audit phase. Each lens reads the `## Repo-kind branches` section in its `references/lens-<key>.md` brief and applies the relevant rules before evaluating findings.
 3. Aggregate findings via `scripts/aggregation.py`; score each 0–100 (rubric in `references/lenses.md`); sub-80 routed to the report's Unverified sub-section (never silent-dropped — A2).
 4. Re-pass sub-80 findings with build verification (one iteration per finding); synthesize a property-fuzz harness when `fast-check` / `hypothesis` is present, run the canonical test command from `build_detect.py`, feed the verdict into the iteration phase.
 5. With `--apply-safe`: invoke the three writers (`version_sync`, `description_sync` with full-agreement guard, `failing_test_writer`) — diff preview + per-file confirmation prompt before any write.
@@ -151,7 +162,7 @@ Detail references:
 
 Every `##` section below renders verbatim, in this order, with a `---` separator above it and its canonical emoji prefix. The template at `templates/code-ultrareview.md` is the wire format — section names are not rewritten, merged, reordered, or replaced. This applies to terminal output and to the `-s` saved file: the saved report and what prints to the chat must match heading-for-heading.
 
-1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified`. Omitted on a fully clean review.
+1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified` plus a separate `Repo: <kind>` line surfaced from the audit-phase classifier. The Findings line is omitted on a fully clean review; the Repo line always renders (`Repo: unknown — heuristics not specialized` when the classifier returns `unknown`).
 2. **`## 📋 Lens summary`** — seven-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional; prose-hygiene reads `— skipped (--no-prose-hygiene)` when opted out.
 3. **`## 🔎 Findings`** — split into four mandatory sub-sections in this order: `### 🔴 High`, `### 🟠 Medium`, `### 🟢 Low`, `### ⚠️ Unverified`. The severity emoji is part of the heading and is never dropped. The row tables omit the Severity column (severity lives in the heading) and use per-section ID prefixes — `H1`, `H2`, …, `M1`, …, `L1`, …, `U1`, … — so findings stay addressable. Each sub-section renders even when its count is zero (body `_None._`).
 4. **`## 🧭 Deferred to sibling skills`** — out-of-lane pointers (security, performance, depth, stale-API).
@@ -182,6 +193,8 @@ Out-of-lane findings are never reported as findings — emit a single pointer li
 No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state `Lens 1 (rules): skipped — no rules baseline found` in the report header, run the other always-on lenses (2-7). The skill stays useful on any repo.
 
 Coherence-graph lens degrades sub-graph by sub-graph: if `gh` CLI is unavailable, the description / topics sub-graphs are skipped and the header notes the skip; if `WebFetch` is unavailable for the spec-conformance sub-graph, the finding surfaces as `[unverified — needs network]` rather than dropping.
+
+Unknown `repo_kind` → every lens runs at full strength with its `unknown` branch (existing pre-classifier behavior); the report header reads `Repo: unknown — heuristics not specialized` so readers see the fan-out wasn't tuned. Override via `--repo-kind <kind>` or `.code-ultrareview.yaml` when detection misclassifies — the override surfaces in the header so any review trail makes the human's call visible.
 
 ## Report-only by default
 

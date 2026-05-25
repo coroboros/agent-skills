@@ -23,3 +23,20 @@ or `go test` — auto-detected) on the changed file's nearest test
 neighbor. If the build confirms the bug, confidence promotes to ≥80;
 if the build disproves it, the finding is dropped with the build output
 in the rationale. Cap: one iteration per finding.
+
+## Repo-kind branches
+
+The lens reads `repo_kind` from the audit phase and applies the rules
+below before evaluating drift. Default (`unknown`) preserves the
+operational definitions above.
+
+| `repo_kind` | Drift framing |
+|-------------|---------------|
+| `skills` | Drift reframes from "code vs docstring" to "bundled scripts (`skills/<name>/scripts/`) vs the SKILL.md spec". The SKILL.md IS the canonical spec — it cannot drift from itself. Fire when: SKILL.md declares a flag absent from the script's parser; SKILL.md declares an output schema the script doesn't emit; SKILL.md cites a behavior the script no longer produces. Pure-prompt skills (no `scripts/` folder) emit no drift findings. |
+| `app`, `library` | Existing behavior — code vs docstring vs README claim. |
+| `python` | Docstring-aware (triple-quoted blocks); otherwise as code. |
+| `rust` | `///` doc comments are the docstring surface. |
+| `go` | `// godoc` comments are the docstring surface. |
+| `docs` | No executable surface for drift. Lens emits zero findings; summary row renders 🟢 — the `Repo: docs` header line carries the context that the lens did not specialize. |
+| `monorepo` | Cannot specialize at MVP. Subagent applies the most-permissive ruleset (treat as code repo); per-workspace tuning is parked. |
+| `unknown` | Existing behavior. |

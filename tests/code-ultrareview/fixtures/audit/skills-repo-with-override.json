@@ -1,0 +1,31 @@
+{
+  "loc_changed": 20,
+  "files_touched": 1,
+  "files_touched_list": ["skills/foo/SKILL.md"],
+  "public_api_touched": true,
+  "normative_spec_mentioned": false,
+  "normative_specs_list": [],
+  "manifest_graph_delta": true,
+  "pre_1_0_or_freeze": false,
+  "test_coverage_delta": 0.0,
+  "security_sensitive_paths": false,
+  "planning_artifact_breadth": [0, -1],
+  "dirty_tree": false,
+  "repo_kind": "skills",
+  "repo_kind_signals": {
+    "marketplace_json": ".claude-plugin/marketplace.json",
+    "skill_md_count": 5,
+    "package_json": "package.json",
+    "package_json_role": "app",
+    "pyproject_toml": null,
+    "cargo_toml": null,
+    "go_mod": null,
+    "framework_configs": [],
+    "docs_site_configs": [],
+    "workspace_configs": [],
+    "python_layout": false,
+    "primary_signal": "marketplace.json + skills/*/SKILL.md",
+    "competing_signals": ["npm tooling"],
+    "override_source": "--repo-kind flag"
+  }
+}

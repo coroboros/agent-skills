@@ -254,6 +254,133 @@ class TestCLI(unittest.TestCase):
         return _ctx()
 
 
+class TestRepoKindScopeToken(unittest.TestCase):
+    """Pin the WS-2 contract: repo_kind prepends a kind label, competing
+    signals append "(+ ...)", override_source appends "(override: ...)".
+    "unknown" emits no token so legacy fixtures still render trivial-diff."""
+
+    def test_skills_kind_prepends_token(self):
+        result = audit_summary.format_header({
+            "files_touched": 2,
+            "repo_kind": "skills",
+            "repo_kind_signals": {"competing_signals": [], "override_source": None},
+        })
+        self.assertTrue(result["scope"].startswith("skills repo · "))
+
+    def test_app_kind_token(self):
+        result = audit_summary.format_header({
+            "files_touched": 3,
+            "repo_kind": "app",
+            "repo_kind_signals": {"competing_signals": [], "override_source": None},
+        })
+        self.assertTrue(result["scope"].startswith("app · "))
+
+    def test_competing_signals_render_as_suffix(self):
+        result = audit_summary.format_header({
+            "files_touched": 1,
+            "repo_kind": "app",
+            "repo_kind_signals": {
+                "competing_signals": ["workspaces"],
+                "override_source": None,
+            },
+        })
+        self.assertIn("app (+ workspaces)", result["scope"])
+
+    def test_competing_signals_capped_at_two(self):
+        result = audit_summary.format_header({
+            "repo_kind": "skills",
+            "repo_kind_signals": {
+                "competing_signals": ["npm tooling", "workspaces", "Python tooling"],
+                "override_source": None,
+            },
+        })
+        self.assertIn("npm tooling, workspaces", result["scope"])
+        self.assertNotIn("Python tooling", result["scope"])
+
+    def test_flag_override_surfaces(self):
+        result = audit_summary.format_header({
+            "repo_kind": "app",
+            "repo_kind_signals": {
+                "competing_signals": [],
+                "override_source": "--repo-kind flag",
+            },
+        })
+        self.assertIn("(override: --repo-kind)", result["scope"])
+
+    def test_config_override_surfaces(self):
+        result = audit_summary.format_header({
+            "repo_kind": "library",
+            "repo_kind_signals": {
+                "competing_signals": [],
+                "override_source": "config:.code-ultrareview.yaml",
+            },
+        })
+        self.assertIn("(override: .code-ultrareview.yaml)", result["scope"])
+
+    def test_unknown_kind_omits_token_and_preserves_trivial_diff(self):
+        # No other signals — empty kind + unknown → "trivial diff".
+        result = audit_summary.format_header({
+            "repo_kind": "unknown",
+            "repo_kind_signals": {"competing_signals": [], "override_source": None},
+        })
+        self.assertEqual(result["scope"], "trivial diff")
+
+    def test_legacy_signals_without_repo_kind_render_as_before(self):
+        # Pre-classifier callers don't emit repo_kind — scope must not crash
+        # and must omit any kind token.
+        result = audit_summary.format_header({"files_touched": 4})
+        self.assertEqual(result["scope"], "4 files")
+
+    def test_kind_token_precedes_dirty_tree(self):
+        result = audit_summary.format_header({
+            "dirty_tree": True,
+            "files_touched": 2,
+            "repo_kind": "skills",
+            "repo_kind_signals": {"competing_signals": [], "override_source": None},
+        })
+        # `skills repo` precedes `dirty tree` in the token list.
+        self.assertLess(
+            result["scope"].index("skills repo"),
+            result["scope"].index("dirty tree"),
+        )
+
+
+class TestWallClockUnchangedByClassifier(unittest.TestCase):
+    """The classifier is free — adding repo_kind/repo_kind_signals to the
+    payload MUST NOT shift the wall-clock estimate. Pins WS-2 AC."""
+
+    def test_wall_clock_byte_equal_with_and_without_repo_kind(self):
+        base_signals = {
+            "loc_changed": 500, "files_touched": 8,
+            "public_api_touched": True, "manifest_graph_delta": True,
+        }
+        with_kind = audit_summary.format_header({
+            **base_signals,
+            "repo_kind": "skills",
+            "repo_kind_signals": {
+                "competing_signals": ["npm tooling"],
+                "override_source": "--repo-kind flag",
+            },
+        }, build_tool_available=True)
+        without_kind = audit_summary.format_header(
+            base_signals, build_tool_available=True,
+        )
+        self.assertEqual(
+            with_kind["estimated_wall_clock_seconds"],
+            without_kind["estimated_wall_clock_seconds"],
+        )
+
+    def test_wall_clock_constants_unchanged(self):
+        # The cost-model constants stay untouched by the classifier.
+        self.assertEqual(audit_summary.BASE_SECONDS, 60)
+        self.assertEqual(audit_summary.PER_FILE_SECONDS, 5)
+        self.assertEqual(audit_summary.PUBLIC_API_SECONDS, 60)
+        self.assertEqual(audit_summary.NORMATIVE_SPEC_SECONDS, 90)
+        self.assertEqual(audit_summary.MANIFEST_DELTA_SECONDS, 60)
+        self.assertEqual(audit_summary.SECURITY_PATHS_SECONDS, 60)
+        self.assertEqual(audit_summary.BUILD_BASE_SECONDS, 60)
+
+
 class TestA2Rationale(unittest.TestCase):
     """Boundary marker — A2 (sub-80 routing) is the synthesizer's concern.
 

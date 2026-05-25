@@ -252,6 +252,14 @@ The lens never aborts the review — every degradation is announced in the
 finding set (or the absence thereof) and surfaced in the Lens summary
 row.
 
+## Repo-kind branches
+
+No branches — the lens is already file-type-aware via the two-tier scope
+model (`FULL_PROSE_RE` / `SKIP_RE`). `SKILL.md`, `CLAUDE.md`, source code,
+and model-instruction files all classify as Tier 2 (leak-only) regardless
+of `repo_kind`; full-prose files (`README*`, `CHANGELOG*`, `docs/`) get
+every check independent of repo kind.
+
 ## Deferred routing
 
 When `humanize-en` is installed on the user's machine

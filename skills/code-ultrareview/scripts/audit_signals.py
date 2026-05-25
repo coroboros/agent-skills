@@ -43,6 +43,40 @@ ROUTE_PATH_HINTS = ("route.ts", "route.js", "routes.ts", "routes.js")
 MANIFEST_FILES = ("package.json", "marketplace.json", "README.md", "SKILL.md")
 GIT_TIMEOUT_S = 30
 
+# Repo-kind classification. Precedence order — skills > monorepo > docs > app
+# > library > {python, rust, go} > unknown. Tie-breaking documented in
+# `references/audit-phase.md` § Repo-kind detection; the precedence-doc test
+# reads the same order from there.
+_REPO_KIND_VALUES = (
+    "skills", "app", "library", "docs", "monorepo",
+    "python", "rust", "go", "unknown",
+)
+_FRAMEWORK_CONFIGS = (
+    "next.config.js", "next.config.ts", "next.config.mjs",
+    "astro.config.js", "astro.config.ts", "astro.config.mjs",
+    "vite.config.js", "vite.config.ts", "vite.config.mjs",
+)
+_APP_ONLY_FRAMEWORKS = (
+    "next.config.js", "next.config.ts", "next.config.mjs",
+    "astro.config.js", "astro.config.ts", "astro.config.mjs",
+)
+_DOCS_SITE_CONFIGS = (
+    "docusaurus.config.js", "docusaurus.config.ts", "docusaurus.config.mjs",
+    "mkdocs.yml", "mkdocs.yaml",
+    "hugo.toml", "hugo.yaml", "hugo.yml",
+    "_config.yml",
+)
+_WORKSPACE_CONFIGS = (
+    "pnpm-workspace.yaml", "lerna.json", "turbo.json", "nx.json",
+)
+_COMPETING_LABELS = {
+    "package_json": "npm tooling",
+    "pyproject_toml": "Python tooling",
+    "workspace_configs": "workspaces",
+    "cargo_toml": "Rust tooling",
+    "go_mod": "Go tooling",
+}
+
 
 def run_git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
@@ -308,11 +342,216 @@ def detect_planning_artifacts(repo: Path) -> tuple[int, int]:
     return (len(candidates), min(ages))
 
 
-def audit(repo: Path, base: str, target: str, *, dirty_tree: bool = False) -> dict:
+def _detect_repo_signals(repo: Path) -> dict:
+    """Probe the filesystem for repo-kind signals. Silent on missing files."""
+    signals = {
+        "marketplace_json": None,
+        "skill_md_count": 0,
+        "package_json": None,
+        "package_json_role": None,
+        "pyproject_toml": None,
+        "cargo_toml": None,
+        "go_mod": None,
+        "framework_configs": [],
+        "docs_site_configs": [],
+        "workspace_configs": [],
+        "python_layout": False,
+    }
+
+    mp = repo / ".claude-plugin" / "marketplace.json"
+    if mp.is_file():
+        signals["marketplace_json"] = ".claude-plugin/marketplace.json"
+
+    skills_dir = repo / "skills"
+    if skills_dir.is_dir():
+        signals["skill_md_count"] = sum(
+            1 for p in skills_dir.glob("*/SKILL.md") if p.is_file()
+        )
+
+    pj = repo / "package.json"
+    if pj.is_file():
+        signals["package_json"] = "package.json"
+        data = _read_json_safe(pj)
+        signals["package_json_role"] = _package_json_role(repo, data)
+
+    for cfg in _FRAMEWORK_CONFIGS:
+        if (repo / cfg).is_file():
+            signals["framework_configs"].append(cfg)
+
+    for cfg in _DOCS_SITE_CONFIGS:
+        if (repo / cfg).is_file():
+            signals["docs_site_configs"].append(cfg)
+
+    for cfg in _WORKSPACE_CONFIGS:
+        if (repo / cfg).is_file():
+            signals["workspace_configs"].append(cfg)
+
+    pp = repo / "pyproject.toml"
+    if pp.is_file():
+        signals["pyproject_toml"] = "pyproject.toml"
+        if (repo / "src").is_dir():
+            signals["python_layout"] = True
+        else:
+            try:
+                for child in repo.iterdir():
+                    if child.is_dir() and (child / "__init__.py").is_file():
+                        signals["python_layout"] = True
+                        break
+            except OSError:
+                pass
+
+    cr = repo / "Cargo.toml"
+    if cr.is_file():
+        signals["cargo_toml"] = "Cargo.toml"
+
+    gm = repo / "go.mod"
+    if gm.is_file():
+        signals["go_mod"] = "go.mod"
+
+    return signals
+
+
+def _package_json_role(repo: Path, data) -> str | None:
+    """Classify a package.json as 'app' or 'library'. Returns None on missing/invalid."""
+    if not isinstance(data, dict):
+        return None
+    scripts_raw = data.get("scripts")
+    scripts: dict = scripts_raw if isinstance(scripts_raw, dict) else {}
+    has_app_script = any(k in scripts for k in ("dev", "start"))
+    has_bin = "bin" in data
+    has_app_framework = any((repo / cfg).is_file() for cfg in _APP_ONLY_FRAMEWORKS)
+    if has_app_script or has_bin or has_app_framework:
+        return "app"
+    if any(k in data for k in ("exports", "module", "types")):
+        return "library"
+    # Permissive default — a bare package.json without role signals reads as app.
+    return "app"
+
+
+def _resolve_repo_kind(signals: dict) -> tuple[str, str, list[str]]:
+    """Apply the precedence table. Returns (kind, primary_signal, competing_signals)."""
+    competing: list[str] = []
+
+    def add_competing(key: str):
+        if signals.get(key):
+            label = _COMPETING_LABELS.get(key)
+            if label and label not in competing:
+                competing.append(label)
+
+    if signals["marketplace_json"] and signals["skill_md_count"] >= 1:
+        for key in ("package_json", "workspace_configs", "pyproject_toml"):
+            add_competing(key)
+        return "skills", "marketplace.json + skills/*/SKILL.md", competing
+
+    if signals["workspace_configs"]:
+        primary = "workspace config: " + signals["workspace_configs"][0]
+        for key in ("package_json", "pyproject_toml"):
+            add_competing(key)
+        return "monorepo", primary, competing
+
+    if signals["docs_site_configs"]:
+        primary = "docs site config: " + signals["docs_site_configs"][0]
+        for key in ("package_json", "workspace_configs"):
+            add_competing(key)
+        return "docs", primary, competing
+
+    if signals["package_json_role"] == "app":
+        if signals["framework_configs"]:
+            competing.append("framework: " + signals["framework_configs"][0])
+        if signals["workspace_configs"]:
+            add_competing("workspace_configs")
+        return "app", "package.json (app role)", competing
+
+    if signals["package_json_role"] == "library":
+        return "library", "package.json (library role)", competing
+
+    if signals["pyproject_toml"]:
+        for key in ("cargo_toml", "go_mod"):
+            add_competing(key)
+        return "python", "pyproject.toml", competing
+
+    if signals["cargo_toml"]:
+        for key in ("go_mod", "pyproject_toml"):
+            add_competing(key)
+        return "rust", "Cargo.toml", competing
+
+    if signals["go_mod"]:
+        add_competing("pyproject_toml")
+        return "go", "go.mod", competing
+
+    return "unknown", "no recognized signature", competing
+
+
+def _load_repo_kind_config(repo: Path) -> str | None:
+    """Read `.code-ultrareview.yaml` at repo root for a `repo_kind:` override.
+
+    Minimal one-key YAML parser — line-by-line, comment-stripped. Returns the
+    raw string; caller validates against `_REPO_KIND_VALUES`.
+    """
+    cfg = repo / ".code-ultrareview.yaml"
+    if not cfg.is_file():
+        return None
+    try:
+        text = cfg.read_text(encoding="utf-8")
+    except OSError:
+        return None
+    for raw in text.splitlines():
+        line = raw.split("#", 1)[0].strip()
+        if not line or ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        if key.strip() != "repo_kind":
+            continue
+        value = value.strip().strip('"').strip("'")
+        if value:
+            return value
+    return None
+
+
+def classify_repo(repo: Path, override: str | None = None) -> tuple[str, dict]:
+    """Resolve repo_kind from filesystem signals + config + explicit override.
+
+    Precedence: override (CLI flag) > config (.code-ultrareview.yaml) > detection.
+    Invalid override raises ValueError; invalid config falls through to detection.
+    Returns (repo_kind, repo_kind_signals) where repo_kind_signals carries the
+    raw detection signals plus `primary_signal`, `competing_signals`, and
+    `override_source`.
+    """
+    signals = _detect_repo_signals(repo)
+    detected_kind, primary, competing = _resolve_repo_kind(signals)
+
+    override_source: str | None = None
+    final_kind = detected_kind
+
+    if override is not None:
+        if override not in _REPO_KIND_VALUES:
+            raise ValueError(
+                f"invalid repo_kind override: {override!r} "
+                f"(expected one of: {', '.join(_REPO_KIND_VALUES)})"
+            )
+        final_kind = override
+        override_source = "--repo-kind flag"
+    else:
+        cfg_value = _load_repo_kind_config(repo)
+        if cfg_value is not None and cfg_value in _REPO_KIND_VALUES:
+            final_kind = cfg_value
+            override_source = "config:.code-ultrareview.yaml"
+
+    return final_kind, {
+        **signals,
+        "primary_signal": primary,
+        "competing_signals": competing,
+        "override_source": override_source,
+    }
+
+
+def audit(repo: Path, base: str, target: str, *, dirty_tree: bool = False,
+          repo_kind_override: str | None = None) -> dict:
     loc, files, added_per_file = diff_numstat(repo, base, target, dirty_tree=dirty_tree)
     content = diff_content(repo, base, target, dirty_tree=dirty_tree)
     spec_found, spec_list = detect_normative_spec(repo, content)
     artifact_count, artifact_min_freshness = detect_planning_artifacts(repo)
+    repo_kind, repo_kind_signals = classify_repo(repo, override=repo_kind_override)
     return {
         "loc_changed": loc,
         "files_touched": len(files),
@@ -326,6 +565,8 @@ def audit(repo: Path, base: str, target: str, *, dirty_tree: bool = False) -> di
         "security_sensitive_paths": detect_security_paths(files),
         "planning_artifact_breadth": [artifact_count, artifact_min_freshness],
         "dirty_tree": dirty_tree,
+        "repo_kind": repo_kind,
+        "repo_kind_signals": repo_kind_signals,
     }
 
 
@@ -339,6 +580,10 @@ def main() -> int:
                         help="Review uncommitted work: git diff HEAD plus every untracked file. "
                              "When set, --base and --target are ignored.")
     parser.add_argument("--repo", default=".", help="repo path (default: cwd)")
+    parser.add_argument("--repo-kind", dest="repo_kind", default=None,
+                        choices=_REPO_KIND_VALUES,
+                        help=("Override detected repo kind. One of: "
+                              + ", ".join(_REPO_KIND_VALUES)))
     parser.add_argument("--json", action="store_true", help="emit JSON (default behavior)")
     args = parser.parse_args()
 
@@ -352,7 +597,8 @@ def main() -> int:
 
     try:
         result = audit(repo, args.base or "HEAD", args.target,
-                       dirty_tree=args.dirty_tree)
+                       dirty_tree=args.dirty_tree,
+                       repo_kind_override=args.repo_kind)
     except subprocess.TimeoutExpired as exc:
         print(f"ERROR: git timed out: {exc.cmd}", file=sys.stderr)
         return 2

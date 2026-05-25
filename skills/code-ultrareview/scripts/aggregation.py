@@ -35,6 +35,21 @@ UNVERIFIED_PREFIX = "[unverified]"
 
 SEVERITY_ORDER = {"High": 0, "Medium": 1, "Low": 2}
 
+# Repo-kind report-header rendering. Mirrors audit_summary._REPO_KIND_LABELS
+# but keeps a separate map — the audit-summary token feeds the scope line;
+# the repo-kind-header token feeds its own line in the report header.
+_REPO_KIND_HEADER_LABELS = {
+    "skills": "skills",
+    "app": "app",
+    "library": "library",
+    "docs": "docs",
+    "monorepo": "monorepo",
+    "python": "python",
+    "rust": "rust",
+    "go": "go",
+}
+_REPO_KIND_HEADER_UNKNOWN = "unknown — heuristics not specialized"
+
 # 3-tier visual markers surfaced in every report.
 # 🔴 High — blocks ship. 🟠 Medium — fix soon. 🟢 Low — nit / informational.
 SEVERITY_MARKERS = {"High": "🔴", "Medium": "🟠", "Low": "🟢"}
@@ -278,6 +293,30 @@ def order(findings: list[dict]) -> list[dict]:
 # ---------------------------------------------------------------------------
 # Closing-block computations: severity counts, lens summary, verdict, action plan
 # ---------------------------------------------------------------------------
+
+
+def compute_repo_kind_header(audit_signals: dict | None) -> str:
+    """Build the `Repo: <kind>` header token from the audit JSON.
+
+    `audit_signals` is the dict emitted by `audit_signals.py::audit()`.
+    Missing `repo_kind` → falls back to `unknown` so legacy audit JSON
+    (no classifier) still renders a clean header. The override suffix
+    grammar mirrors `audit_summary._repo_kind_token` so readers see a
+    consistent format across both surfaces.
+    """
+    if not audit_signals:
+        return f"Repo: {_REPO_KIND_HEADER_UNKNOWN}"
+    repo_kind = audit_signals.get("repo_kind") or "unknown"
+    if repo_kind == "unknown":
+        return f"Repo: {_REPO_KIND_HEADER_UNKNOWN}"
+    label = _REPO_KIND_HEADER_LABELS.get(repo_kind, repo_kind)
+    sidecar = audit_signals.get("repo_kind_signals") or {}
+    override = sidecar.get("override_source")
+    if override == "--repo-kind flag":
+        label = f"{label} (override: --repo-kind)"
+    elif isinstance(override, str) and override.startswith("config:"):
+        label = f"{label} (override: .code-ultrareview.yaml)"
+    return f"Repo: {label}"
 
 
 def compute_severity_counts(verified: list[dict]) -> dict[str, int]:
@@ -546,6 +585,7 @@ def synthesize(
     ran_lenses: tuple[str, ...] | list[str] | None = None,
     installed_skills: dict | None = None,
     route_fn: Callable | None = None,
+    audit_signals: dict | None = None,
 ) -> dict:
     """End-to-end aggregation. Returns the report payload.
 
@@ -611,4 +651,5 @@ def synthesize(
         "lens_summary": lens_summary,
         "verdict": verdict,
         "action_plan": action_plan,
+        "repo_kind_header": compute_repo_kind_header(audit_signals),
     }

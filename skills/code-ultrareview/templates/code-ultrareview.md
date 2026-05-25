@@ -1,12 +1,13 @@
 # Code ultrareview — {slug}
 
 **Base:** {base} · **Target:** {target} · **Rule:** {rung}
-**Scope:** {feature summary from audit_summary.py — e.g., "12 files · public API · normative spec (RFC 6874) · manifest"} · **Estimated wall-clock:** {Nm Ss}
+**Scope:** {feature summary from audit_summary.py — e.g., "skills repo · 12 files · public API · normative spec (RFC 6874) · manifest"} · **Estimated wall-clock:** {Nm Ss}
 **Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
 **Reviewed:** {N} changed files{, or: unresolvable — <hint>}
+**{repo_kind_header}**
 **Findings:** {severity_counts.🔴} 🔴 · {severity_counts.🟠} 🟠 · {severity_counts.🟢} 🟢 (verified) · {unverified count} unverified
 
-_Omit the **Findings** line on a fully clean review._
+_Omit the **Findings** line on a fully clean review. The **Repo:** line always renders — `Repo: unknown — heuristics not specialized` when the classifier returns `unknown` so readers see the lens fan-out's repo-kind context._
 
 > **Section discipline (mandatory).** Every `##` heading below is canonical — render it verbatim, including the emoji prefix and the `---` separator above it. Do not rename, merge, reorder, or invent sections. Every severity sub-section inside `## 🔎 Findings` renders even when its count is `0` (body: `_None._`). The model is a formatter here, not an editor.
 >
