@@ -2,7 +2,7 @@
 
 Apex's step-04 examine compares the actual diff against the saved plan (`02-plan.md`) and classifies each divergence. Catches the failure class typecheck/lint/tests cannot: "implemented the wrong thing" or "added scope creep".
 
-**Canonical taxonomy** lives at `skills/code-ultrareview/references/derivation.md`. This file is apex's standalone profile of that taxonomy plus the detection + inline-fallback protocol so apex's examine stays runnable when code-ultrareview is not installed.
+**Canonical taxonomy** lives at `skills/code-ultrareview/references/lens-derivation.md`. This file is apex's standalone profile of that taxonomy plus the detection + inline-fallback protocol so apex's examine stays runnable when code-ultrareview is not installed.
 
 ## Classifications
 
@@ -75,5 +75,5 @@ After the lens runs:
 
 ## See also
 
-- `skills/code-ultrareview/references/derivation.md` — canonical taxonomy, freshness rules, allowlist (`.derivation-ignore`), full finding schema. Apex inherits the four classifications and default severities verbatim.
+- `skills/code-ultrareview/references/lens-derivation.md` — canonical taxonomy, freshness rules, allowlist (`.derivation-ignore`), full finding schema. Apex inherits the four classifications and default severities verbatim.
 - `skills/code-ultrareview/scripts/derivation/run.py` — Python orchestrator apex invokes when available.

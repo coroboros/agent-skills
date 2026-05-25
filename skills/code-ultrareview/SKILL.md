@@ -96,17 +96,23 @@ The **rule hierarchy** every lens reviews against, read fresh each run:
 
 ## The seven lenses
 
-One read-only subagent per lens. Operational definitions, subagent briefs, and the confidence rubric live in `references/lenses.md` — read it before dispatching.
+One read-only subagent per lens. Each lens has a `references/lens-<key>.md`
+brief with its operational definition; `references/lenses.md` owns the
+dispatch protocol, confidence rubric, exclusion contract, and graceful
+degradation.
 
-1. **Rules compliance** (key `rules`) — new violations of the rule hierarchy, citing the exact rule line.
-2. **Bugs + drift** (key `bugs-drift`) — logic errors on changed lines; code no longer matching its own doc/comment/claim or a sibling pattern. When the diff/README/CLAUDE.md cites a named normative spec (RFC, WHATWG, ISO/IEC, OpenAPI), the lens fetches the spec, quotes the governing clause, and diffs the code against it (A1).
-3. **Docs + version** (key `docs-version`) — user-visible behavior changed without a doc/version update.
-4. **Tests + blind spots** (key `tests-blindspots`) — missing tests the convention implies, tests that can't fail, unstated assumptions.
-5. **Coherence-graph** (key `coherence-graph`) — cross-artifact drift across six sub-graphs: description, version, capability, cross-reference, example, spec-conformance. Default to structured fields only; `--include-prose` extends to README freeform. Sub-graph briefs and the `.coherence-ignore` allowlist format live in `references/coherence-graph.md`.
-6. **Derivation** (key `derivation`) — reconciles planning artifacts (forge, apex plan, PR body, issue body) against the diff. Activates on `--reconcile <input>`. Classifies each claim as GAP (planning said X, code missing), SCOPE-ADD (code has X, planning silent), DECISION-OVERRIDE (planning resolved X, code does Y), or CONSISTENT. Severity capped by artifact freshness (>30d → Low; >90d → coverage-summary only). Per-repo `.derivation-ignore` allowlist. Brief, classification taxonomy, and auto-detection set live in `references/derivation.md`.
-7. **Prose hygiene** (key `prose-hygiene`) — public-displayed prose touched by the session: PR body + title (when a PR is open for the current branch), commits between base and HEAD, user-facing `*.md` files in the diff (README, CHANGELOG, RELEASE-NOTES, `docs/`). Checks length budgets, internal leaks (local paths, personal emails, machine hostnames), AI signature footers, rule-restatement / silent-compliance violations, AI vocabulary, em-dash density, and conventional-commit shape (auto-detect adoption: ≥50% of last 20 commits, `.commitlintrc*`, or `commitlint` in `package.json`). Ships a portable baseline; layers user/project rules on top via standard Claude Code discovery. Always-on; `--no-prose-hygiene` skips. SKILL.md, CLAUDE.md, evals.json, `.claude/rules/`, `skills/<name>/` are scope-excluded (model-instruction files, not shared prose). Full brief: `references/prose-hygiene.md`.
+| Key | One-line | Brief |
+|-----|----------|-------|
+| `rules` | New violations of the rule hierarchy | `references/lens-rules.md` |
+| `bugs-drift` | Logic errors + drift + single-source-of-truth (A1 spec triggers, sub-80 iteration always-on) | `references/lens-bugs-drift.md` |
+| `docs-version` | User-visible behavior changed without doc/version update | `references/lens-docs-version.md` |
+| `tests-blindspots` | Test gaps, weak tests, unstated assumptions | `references/lens-tests-blindspots.md` |
+| `coherence-graph` | Cross-artifact drift across 6 sub-graphs; `--include-prose` extends to README freeform | `references/lens-coherence-graph.md` |
+| `derivation` | Reconcile planning artifacts against the diff; activates on `--reconcile` | `references/lens-derivation.md` |
+| `prose-hygiene` | PR body + commits + user-facing `*.md`; `--no-prose-hygiene` opt-out | `references/lens-prose-hygiene.md` |
 
-These seven keys are canonical — the report table, the evals, and the pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
+These seven keys are canonical — the report table, the evals, and the
+pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
 
 ## How it runs
 
@@ -135,7 +141,16 @@ Phase 3 — AGGREGATION  (1 synthesizer subagent)
   "[unverified]" (never silent-dropped — A2)
 ```
 
-Audit-phase signal schema and report-header formatting live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Derivation lens — classification taxonomy, auto-detection set, `.derivation-ignore` format, interactive launch prompt — lives in `references/derivation.md`. Prose-hygiene lens — inputs, scope filter, portable baseline, layered discovery, opt-out behavior — lives in `references/prose-hygiene.md`. Build / fuzz / `--apply-safe` details live in `references/ultra-execution.md`. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
+Detail references:
+
+- `references/audit-phase.md` — signal schema + report-header formatting
+- `references/lenses.md` — dispatch protocol + scoring rubric + contracts
+- `references/lens-<key>.md` — per-lens briefs (one per canonical lens key above)
+- `references/aggregation.md` — A2 no-silent-drop + dedup
+- `references/ultra-execution.md` — build / fuzz / `--apply-safe`
+- `references/remote-escalation-design.md` — `--remote` phase-2 escalation
+- `references/skill-routing.md` — action-plan routing
+- `references/verdict-logic.md` — Ship / Fix-then-ship / Needs work algorithm
 
 1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals and format the Scope + Estimated wall-clock header.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
