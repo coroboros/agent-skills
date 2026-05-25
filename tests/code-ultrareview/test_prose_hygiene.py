@@ -85,6 +85,25 @@ def _categories(findings: list[dict]) -> set[str]:
     return {f["category"] for f in findings}
 
 
+def _read_main_readme() -> str | None:
+    """Return the content of README.md as it lives on the main branch.
+
+    Tries `main` then `origin/main`. Returns None when neither ref is
+    reachable — CI checkouts with `fetch-depth: 1` only see the PR head;
+    skip the main-corpus sanity checks in that case rather than failing.
+    """
+    for ref in ("main", "origin/main"):
+        result = subprocess.run(
+            ["git", "show", f"{ref}:README.md"],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode == 0:
+            return result.stdout
+    return None
+
+
 class TestInternalLeaks(unittest.TestCase):
     def test_macos_home_path_flagged_high(self):
         findings = _run("--pr-body-file", str(FIX / "pr-body-leak.md"))
@@ -167,13 +186,9 @@ class TestAuthoringProcessTrace(unittest.TestCase):
         # README must produce zero authoring-process-trace findings. The
         # path-context anchor is what makes this hold; loosening the regex
         # will fire on legitimate `brand-voice` skill references.
-        main_readme = subprocess.run(
-            ["git", "show", "main:README.md"],
-            cwd=str(REPO_ROOT),
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout
+        main_readme = _read_main_readme()
+        if main_readme is None:
+            self.skipTest("main README not reachable (shallow CI clone)")
         tmp_path = _write_tmp(main_readme)
         findings = _run("--prose-file", tmp_path)
         traces = [f for f in findings if f["category"] == "authoring-process-trace"]
@@ -257,13 +272,9 @@ class TestDefensiveNegation(unittest.TestCase):
         # current main README should produce ≤2 defensive-negation findings.
         # >2 means the heuristic over-fires on legitimate prose; tighten the
         # patterns or defer the category to a follow-up version.
-        main_readme = subprocess.run(
-            ["git", "show", "main:README.md"],
-            cwd=str(REPO_ROOT),
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout
+        main_readme = _read_main_readme()
+        if main_readme is None:
+            self.skipTest("main README not reachable (shallow CI clone)")
         tmp_path = _write_tmp(main_readme)
         findings = _run("--prose-file", tmp_path)
         negs = [f for f in findings if f["category"] == "defensive-negation"]
