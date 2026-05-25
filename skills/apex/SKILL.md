@@ -66,7 +66,7 @@ See **Parameters** below for the complete flag list.
 | `-i` | `--interactive` | — | — | Configure flags via AskUserQuestion |
 | `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on under `claude -p`) |
 | `-r` | `--resume` | — | — | Continue from a previous task (takes `<task-id>`) |
-| `-f` | `--from` | — | — | Prior context file (takes `<path>`). Non-Markdown → pre-process via `/markitdown -s` |
+| `-f` | `--from` | — | — | Prior context: GitHub issue (`#N`, URL), forge plan (e.g. `~/.claude/output/{project}/forge/forge-{slug}.md`), or any file as foundational input. Non-Markdown → pre-process via `/markitdown -s` |
 
 Parsing algorithm, defaults, examples, and override semantics (lowercase enables, uppercase disables): `steps/step-00-init.md`.
 
