@@ -24,5 +24,7 @@
   "manifest_graph_delta": true,
   "pre_1_0_or_freeze": true,
   "test_coverage_delta": 0.1,
-  "security_sensitive_paths": false
+  "security_sensitive_paths": false,
+  "repo_kind": "unknown",
+  "repo_kind_signals": {"competing_signals": [], "override_source": null}
 }

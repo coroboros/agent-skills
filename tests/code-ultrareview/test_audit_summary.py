@@ -370,7 +370,7 @@ class TestWallClockUnchangedByClassifier(unittest.TestCase):
             without_kind["estimated_wall_clock_seconds"],
         )
 
-    def test_wall_clock_constants_unchanged(self):
+    def test_constants_unchanged_post_classifier(self):
         # The cost-model constants stay untouched by the classifier.
         self.assertEqual(audit_summary.BASE_SECONDS, 60)
         self.assertEqual(audit_summary.PER_FILE_SECONDS, 5)

@@ -1,6 +1,6 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (per-severity 🔴 High / 🟠 Medium / 🟢 Low + ⚠️ Unverified sub-sections, each ## section emoji-prefixed and HR-separated), target auto-detection across the resolver ladder, the seven lenses with their operational definitions, the coherence-graph lens's six sub-graphs, the derivation lens's classification taxonomy (GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT), the prose-hygiene lens's portable baseline + layered discovery (PR body, commits, user-facing *.md; scope excludes SKILL.md / CLAUDE.md / evals.json / .claude/rules/ / skills/*; always-on with --no-prose-hygiene opt-out), the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (per-severity 🔴 High / 🟠 Medium / 🟢 Low + ⚠️ Unverified sub-sections, each ## section emoji-prefixed and HR-separated), target auto-detection across the resolver ladder, the seven lenses with their operational definitions, the coherence-graph lens's six sub-graphs, the derivation lens's classification taxonomy (GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT), the prose-hygiene lens's portable baseline + layered discovery (PR body, commits, user-facing *.md; scope excludes SKILL.md / CLAUDE.md / evals.json / .claude/rules/ / skills/*; always-on with --no-prose-hygiene opt-out), the audit-phase repo-kind classifier (nine kinds — skills/app/library/docs/monorepo/python/rust/go/unknown; CLI flag + .code-ultrareview.yaml override; Repo: <kind> header line; per-lens ## Repo-kind branches), the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
   "evals": [
     {
       "id": 1,
@@ -105,6 +105,27 @@
       "name": "routes-to-lenses-reference",
       "prompt": "What exactly counts as 'drift' vs a 'blind spot', and what is the confidence cutoff?",
       "expected_output": "The skill routes to references/lenses.md for the operational definitions and the 0–100 rubric. Answer is concrete: drift = code vs its own doc/sibling pattern; blind spot = unstated assumption; 80 is the routing boundary (sub-80 → Unverified sub-section, not dropped). Cites the reference.",
+      "files": []
+    },
+    {
+      "id": 16,
+      "name": "repo-kind-skills-detected-renders-header",
+      "prompt": "/code-ultrareview (repo carries `.claude-plugin/marketplace.json` AND ≥1 `skills/*/SKILL.md`)",
+      "expected_output": "Audit phase classifies `repo_kind: skills` via `classify_repo()`; primary_signal reads `marketplace.json + skills/*/SKILL.md`. The report header carries a dedicated `Repo: skills` line (separate from the Findings roll-up); the scope token starts with `skills repo · `. Each lens subagent receives `repo_kind` + `repo_kind_signals` and reads its `## Repo-kind branches` section: bugs-drift reframes drift as bundled-scripts-vs-SKILL.md (the SKILL.md cannot drift from itself); tests-blindspots checks `tests/<skill-name>/` (never beside source); coherence-graph version sub-graph reads `marketplace.json.metadata.version`; docs-version skips `CHANGELOG.md` (release notes live in `gh release create` body). Competing `package.json` (when present) surfaces as `(+ npm tooling)` in the scope token, not as a finding.",
+      "files": []
+    },
+    {
+      "id": 17,
+      "name": "repo-kind-flag-override-surfaces-in-header",
+      "prompt": "/code-ultrareview --repo-kind app (repo would otherwise auto-detect as skills)",
+      "expected_output": "Override mechanism: CLI flag wins over `.code-ultrareview.yaml` config wins over detection. `repo_kind_signals.override_source` records `--repo-kind flag`. The report header reads `Repo: app (override: --repo-kind)`; the scope token mirrors the same suffix grammar. Detected signals (`primary_signal`, `competing_signals`) still surface in `repo_kind_signals` so readers see what was detected vs what the human picked. Lenses apply their `app` branches (drift as code-vs-docstring, tests beside source). Invalid `--repo-kind <kind>` exits 2 with argparse's `invalid choice` error; no JSON output. Persistent override via `.code-ultrareview.yaml` (`repo_kind: <kind>`) at repo root yields `override_source: config:.code-ultrareview.yaml` and header suffix `(override: .code-ultrareview.yaml)`.",
+      "files": []
+    },
+    {
+      "id": 18,
+      "name": "repo-kind-unknown-preserves-existing-behavior",
+      "prompt": "/code-ultrareview (repo with no recognizable signature — no marketplace.json, no package.json, no pyproject.toml/Cargo.toml/go.mod, no docs-site config, no workspace config)",
+      "expected_output": "Classifier returns `repo_kind: unknown` (safe default); `primary_signal` reads `no recognized signature`. Header carries `Repo: unknown — heuristics not specialized` so readers see the lens fan-out's repo-kind context explicitly (never silent). Scope token omits the kind prefix — when no other signals fire, the scope renders as `trivial diff`. Each lens applies its `unknown` branch — existing pre-classifier behavior, full strength on every lens. Legacy audit JSON (written before the classifier landed, no `repo_kind` key) renders the same `unknown` cue via `aggregation.compute_repo_kind_header`'s fallback — no `KeyError`, no missing-section crash.",
       "files": []
     },
     {

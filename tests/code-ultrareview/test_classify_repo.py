@@ -136,6 +136,23 @@ class TestCompoundCases(unittest.TestCase):
         self.assertEqual(kind, "docs")
         self.assertIn("npm tooling", sigs["competing_signals"])
 
+    def test_bare_package_json_resolves_to_app_via_permissive_default(self):
+        """A `package.json` with neither app indicators (`scripts.dev|start`,
+        `bin`, app-only framework config) nor library indicators (`exports`,
+        `module`, `types`) takes the permissive default — role becomes `app`
+        and the kind resolves to `app`. Pins `_package_json_role`'s
+        documented permissive widening (see `audit-phase.md` §
+        Repo-kind detection, "permissive default")."""
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text(
+                json.dumps({"name": "x"}), encoding="utf-8"
+            )
+            kind, sigs = classify_repo(repo)
+        self.assertEqual(kind, "app")
+        self.assertEqual(sigs["package_json_role"], "app")
+        self.assertEqual(sigs["framework_configs"], [])
+
     def test_monorepo_with_skills_remains_skills(self):
         """Workspace configs alongside a skills layout still resolves to skills.
         Workspaces surface as a competing signal."""

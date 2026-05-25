@@ -97,12 +97,10 @@ python3 "${CLAUDE_SKILL_DIR}/scripts/audit_signals.py" --dirty-tree --repo-kind 
 # Details in references/audit-phase.md (signal schema + Repo-kind detection + override).
 ```
 
-The audit phase also classifies the repo into one of nine `repo_kind` values
-(`skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`,
-`unknown`) and surfaces it on a `Repo: <kind>` header line. Each lens
-subagent reads its `## Repo-kind branches` section in `references/lens-<key>.md`
-before applying heuristics — so a skills repo is reviewed as a skills repo,
-not as code-with-docstrings.
+The audit phase also resolves `repo_kind` (see Parameters table for values
+and overrides) and surfaces it on a `Repo: <kind>` header line. Each lens
+reads its `## Repo-kind branches` section before applying heuristics — so
+a skills repo is reviewed as a skills repo, not as code-with-docstrings.
 
 The **rule hierarchy** every lens reviews against, read fresh each run:
 
@@ -194,7 +192,7 @@ No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state 
 
 Coherence-graph lens degrades sub-graph by sub-graph: if `gh` CLI is unavailable, the description / topics sub-graphs are skipped and the header notes the skip; if `WebFetch` is unavailable for the spec-conformance sub-graph, the finding surfaces as `[unverified — needs network]` rather than dropping.
 
-Unknown `repo_kind` → every lens runs at full strength with its `unknown` branch (existing pre-classifier behavior); the report header reads `Repo: unknown — heuristics not specialized` so readers see the fan-out wasn't tuned. Override via `--repo-kind <kind>` or `.code-ultrareview.yaml` when detection misclassifies — the override surfaces in the header so any review trail makes the human's call visible.
+Unknown `repo_kind` → every lens runs at full strength with its `unknown` branch (pre-classifier behavior preserved); the header line surfaces the unspecialized status. Misclassification → override via `--repo-kind` or `.code-ultrareview.yaml` (Parameters table).
 
 ## Report-only by default
 
