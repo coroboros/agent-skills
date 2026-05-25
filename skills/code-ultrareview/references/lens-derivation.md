@@ -194,6 +194,12 @@ The `## 📐 Derivation coverage` section in the report template renders:
   shape (per `skills/apex/SKILL.md`). Custom apex output paths are out
   of scope.
 
+## Repo-kind branches
+
+No branches — the derivation lens reads planning artifacts (forge plans,
+apex plans, PR/issue bodies, repo `docs/proposals|design|rfcs|adr/`)
+which are repo-kind-independent.
+
 ## Fixtures
 
 Derivation fixtures live under `tests/code-ultrareview/fixtures/derivation/`,

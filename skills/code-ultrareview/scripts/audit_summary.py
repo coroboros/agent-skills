@@ -30,9 +30,50 @@ PROPERTY_FUZZ_SECONDS = 120
 DERIVATION_BASE_SECONDS = 30
 DERIVATION_PER_ARTIFACT_SECONDS = 15
 
+# Human-readable labels for the scope-line repo-kind prefix. "unknown" is
+# omitted — falls through to "trivial diff" or the other scope tokens.
+_REPO_KIND_LABELS = {
+    "skills": "skills repo",
+    "app": "app",
+    "library": "library",
+    "docs": "docs site",
+    "monorepo": "monorepo",
+    "python": "python project",
+    "rust": "rust project",
+    "go": "go module",
+}
+# Cap the competing-signals suffix to keep the header line scannable.
+_COMPETING_SHOWN_MAX = 2
+
+
+def _repo_kind_token(signals: dict) -> str | None:
+    """Build the leading scope token from repo_kind + sidecar dict.
+
+    Returns None when repo_kind is "unknown" or absent — caller suppresses it
+    so legacy fixtures still render as "trivial diff" / file count etc.
+    """
+    repo_kind = signals.get("repo_kind") or "unknown"
+    if repo_kind == "unknown":
+        return None
+    label = _REPO_KIND_LABELS.get(repo_kind, repo_kind)
+    sidecar = signals.get("repo_kind_signals") or {}
+    competing = sidecar.get("competing_signals") or []
+    if competing:
+        shown = list(competing)[:_COMPETING_SHOWN_MAX]
+        label = f"{label} (+ {', '.join(shown)})"
+    override = sidecar.get("override_source")
+    if override == "--repo-kind flag":
+        label = f"{label} (override: --repo-kind)"
+    elif isinstance(override, str) and override.startswith("config:"):
+        label = f"{label} (override: .code-ultrareview.yaml)"
+    return label
+
 
 def _scope_tokens(signals: dict) -> list:
     tokens = []
+    kind_token = _repo_kind_token(signals)
+    if kind_token:
+        tokens.append(kind_token)
     if signals.get("dirty_tree"):
         tokens.append("dirty tree")
     files_touched = int(signals.get("files_touched", 0) or 0)

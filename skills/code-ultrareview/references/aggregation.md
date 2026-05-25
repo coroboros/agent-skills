@@ -158,5 +158,11 @@ consumed by `templates/code-ultrareview.md`.
 | `lens_summary` | `list[dict]` | Seven rows, canonical lens order. Each: `{lens, status, verified_count, unverified_count, top_finding}`. Status ∈ `🔴 / 🟠 / 🟢 / skipped`. |
 | `verdict` | `dict` | `{label, rationale, drivers}` — label ∈ `Ship / Fix-then-ship / Needs work`. |
 | `action_plan` | `dict` | `{zero_findings, clusters, unverified_block}` — clusters severity-ordered (🔴 → 🟠 → 🟢 cross-lens). |
+| `repo_kind_header` | `str` | One-line header token rendered in the report's header block. Format: `Repo: <kind>` or `Repo: <kind> (override: --repo-kind)` / `Repo: <kind> (override: .code-ultrareview.yaml)`. Always present — `Repo: unknown — heuristics not specialized` when the audit phase did not classify (legacy callers) or returned `unknown`. |
+
+`synthesize()` takes an optional `audit_signals` kwarg (the dict emitted by
+`scripts/audit_signals.py::audit()`); the orchestrator passes the audit JSON
+verbatim. When omitted, `repo_kind_header` falls back to the `unknown` text
+so legacy callers still get a valid header.
 
 Backward-compatible: existing callers reading only `verified`, `unverified`, `iteration_dropped` are unaffected.

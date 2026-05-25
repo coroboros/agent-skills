@@ -39,6 +39,7 @@ Each subagent receives:
 
 - the resolved `base`/`target` (or `dirty tree`) — the subagent reconstructs the review set itself, read-only: clean tree → `git diff <base> <target>` (two-dot); dirty tree → `git diff HEAD` **and** every path from `git ls-files --others --exclude-standard`, each read in full;
 - the rule-hierarchy file paths (repo `CLAUDE.md` chain, `.claude/rules/*.md`, `~/.claude/rules/*.md`);
+- the resolved `repo_kind` (str) and `repo_kind_signals` (dict), surfaced by the audit phase — the subagent reads the `## Repo-kind branches` section in its lens brief and applies the relevant rules before evaluating the diff;
 - its lens brief (the corresponding `lens-<key>.md`);
 - the exclusion contract (below);
 - the confidence rubric (below);

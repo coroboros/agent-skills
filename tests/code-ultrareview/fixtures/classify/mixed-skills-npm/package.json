@@ -1,0 +1,6 @@
+{
+  "name": "fixture-mixed-skills-npm",
+  "scripts": {
+    "lint": "biome check ."
+  }
+}

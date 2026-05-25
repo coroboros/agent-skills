@@ -156,6 +156,12 @@ class TestHeaderTokens(unittest.TestCase):
         text = _read()
         self.assertIn("Rules baseline:", text)
 
+    def test_repo_kind_header_placeholder_present(self):
+        """The template renders `{repo_kind_header}` so the synthesizer's
+        Repo line surfaces in chat + saved file. WS-4 contract."""
+        text = _read()
+        self.assertIn("{repo_kind_header}", text)
+
     def test_no_legacy_tier_header_field(self):
         # The old `**Tier:**` field is gone — only the Anthropic-severity
         # `| Tier |` column inside the per-severity findings tables remains.
@@ -316,6 +322,78 @@ class TestSeveritySchemeInTemplate(unittest.TestCase):
         # Example rows in the per-severity tables demonstrate the Anthropic tier.
         for term in ("Important",):
             self.assertIn(term, text)
+
+
+class TestRepoKindHeaderSynthesis(unittest.TestCase):
+    """Pin the WS-4 contract: `compute_repo_kind_header` builds the header
+    token from the audit JSON in the format the report template expects.
+    Legacy audit JSON (no repo_kind) renders the `unknown` fallback —
+    nothing crashes."""
+
+    @classmethod
+    def setUpClass(cls):
+        import importlib.util
+        agg_path = (REPO_ROOT / "skills" / "code-ultrareview" / "scripts"
+                    / "aggregation.py")
+        spec = importlib.util.spec_from_file_location("aggregation", agg_path)
+        assert spec is not None and spec.loader is not None
+        cls.aggregation = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(cls.aggregation)
+
+    def test_skills_repo_renders_repo_skills(self):
+        header = self.aggregation.compute_repo_kind_header({
+            "repo_kind": "skills",
+            "repo_kind_signals": {"override_source": None},
+        })
+        self.assertEqual(header, "Repo: skills")
+
+    def test_app_with_flag_override_renders_suffix(self):
+        header = self.aggregation.compute_repo_kind_header({
+            "repo_kind": "app",
+            "repo_kind_signals": {"override_source": "--repo-kind flag"},
+        })
+        self.assertEqual(header, "Repo: app (override: --repo-kind)")
+
+    def test_library_with_config_override_renders_suffix(self):
+        header = self.aggregation.compute_repo_kind_header({
+            "repo_kind": "library",
+            "repo_kind_signals": {"override_source": "config:.code-ultrareview.yaml"},
+        })
+        self.assertEqual(
+            header, "Repo: library (override: .code-ultrareview.yaml)",
+        )
+
+    def test_unknown_kind_renders_explicit_cue(self):
+        header = self.aggregation.compute_repo_kind_header({
+            "repo_kind": "unknown",
+            "repo_kind_signals": {"override_source": None},
+        })
+        self.assertEqual(header, "Repo: unknown — heuristics not specialized")
+
+    def test_legacy_audit_json_no_repo_kind_renders_unknown(self):
+        """Audit JSON written before the classifier landed has no
+        `repo_kind` key — the header still renders, falling back to the
+        unknown cue. No KeyError, no missing-section crash."""
+        header = self.aggregation.compute_repo_kind_header({
+            "files_touched": 5, "loc_changed": 80,
+        })
+        self.assertEqual(header, "Repo: unknown — heuristics not specialized")
+
+    def test_none_audit_signals_renders_unknown(self):
+        header = self.aggregation.compute_repo_kind_header(None)
+        self.assertEqual(header, "Repo: unknown — heuristics not specialized")
+
+    def test_synthesize_emits_repo_kind_header_key(self):
+        """End-to-end: `synthesize()` populates the new key so the report
+        template's `{repo_kind_header}` placeholder is satisfied."""
+        result = self.aggregation.synthesize(
+            [], audit_signals={
+                "repo_kind": "skills",
+                "repo_kind_signals": {"override_source": None},
+            },
+        )
+        self.assertIn("repo_kind_header", result)
+        self.assertEqual(result["repo_kind_header"], "Repo: skills")
 
 
 if __name__ == "__main__":
