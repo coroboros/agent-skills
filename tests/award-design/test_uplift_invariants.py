@@ -128,23 +128,23 @@ class TestBriefSignalRouting(unittest.TestCase):
 
 
 class TestPreDesignMdPlan(unittest.TestCase):
-    """Step 6 (Produce DESIGN.md) requires a five-bullet pre-plan as the
-    contract for what follows. The pre-plan is the gate that catches a
-    misaligned brief before tokens get committed; losing it returns the
-    skill to the silent-drift failure mode."""
+    """Phase 3 (Tokens) requires a five-bullet pre-plan as the contract for
+    what follows. The pre-plan is the gate that catches a misaligned brief
+    before tokens get committed; losing it returns the skill to the
+    silent-drift failure mode. (Was anchored to step 6 pre-refactor.)"""
 
-    def test_step_6_carries_pre_plan_contract(self):
+    def test_phase_3_carries_pre_plan_contract(self):
         body = _read(SKILL_MD)
         m = re.search(
-            r"^6\.\s+\*\*Produce DESIGN\.md\*\*(.*?)(?=^\d+\.\s+\*\*|\Z)",
+            r"^### Phase 3 — Tokens(.*?)(?=^### Phase|\Z|^##\s)",
             body, re.DOTALL | re.MULTILINE,
         )
-        self.assertIsNotNone(m, "step 6 missing")
+        self.assertIsNotNone(m, "Phase 3 (Tokens) missing")
         section = m.group(1)
         # The "five-bullet" / "pre-plan" terminology is the contract.
         self.assertRegex(
             section, r"(five[- ]bullet|5[- ]bullet|pre[- ]plan)",
-            "step 6 must mandate a five-bullet pre-plan",
+            "Phase 3 must mandate a five-bullet pre-plan",
         )
         # And the five contract elements must be named — at minimum
         # signature moment + atmosphere scores, the two that anchor the rest.

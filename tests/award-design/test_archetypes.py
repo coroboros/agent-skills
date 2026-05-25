@@ -36,8 +36,10 @@ ARCHETYPES = [
 # Cross-cutting references that must exist for the workflow to function
 CROSS_CUTTING = [
     "anti-patterns.md",
+    "atmosphere-calibration.md",
     "audit-rubric.md",
     "brand-extraction.md",
+    "design-md-anatomy.md",
     "exemplars.md",
     "foundations.md",
     "premium-patterns.md",
@@ -97,19 +99,22 @@ class TestArchetypeSelectorTable(unittest.TestCase):
 
 
 class TestAtmosphereCalibration(unittest.TestCase):
-    """Atmosphere Calibration in SKILL.md has two tables that drive design decisions:
+    """Atmosphere Calibration has two tables that drive design decisions:
     (1) the axis-range table (3 axes × 3 ranges) and (2) the default-scores table
     (9 archetypes × 3 axes). Both must stay aligned with the archetype list — drift
-    here corrupts the calibration step of the workflow silently."""
+    here corrupts the calibration step of the workflow silently. (Both tables live
+    in references/atmosphere-calibration.md after the refactor; SKILL.md carries
+    only the pointer.)"""
 
     AXES = ["Density", "Variance", "Motion"]
+    CALIBRATION_MD = REFS / "atmosphere-calibration.md"
 
     def _atmosphere_section(self):
-        text = SKILL_MD.read_text(encoding="utf-8")
-        m = re.search(r"### Atmosphere Calibration\s*\n(.*?)(?=^##|\Z)",
-                      text, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "Atmosphere Calibration section missing")
-        return m.group(1)
+        self.assertTrue(
+            self.CALIBRATION_MD.is_file(),
+            "references/atmosphere-calibration.md must exist after the refactor",
+        )
+        return self.CALIBRATION_MD.read_text(encoding="utf-8")
 
     def test_axis_table_lists_three_axes(self):
         """The axis-range table has one body row per axis (Density, Variance, Motion)."""

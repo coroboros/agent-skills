@@ -16,6 +16,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_MD = REPO_ROOT / "skills" / "award-design" / "SKILL.md"
+ANATOMY_MD = REPO_ROOT / "skills" / "award-design" / "references" / "design-md-anatomy.md"
 
 sys.path.insert(0, str(REPO_ROOT / "tests" / "_pipeline"))
 from _contracts import CLUSTERS  # noqa: E402
@@ -27,64 +28,67 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-class TestStep6References(unittest.TestCase):
-    """Step 6 (Produce DESIGN.md) is where the agent decides what goes in
-    the file. The extension contract must be explicit there — leaving it to
-    inference reproduces the field-tested failure mode."""
+def _anatomy():
+    return ANATOMY_MD.read_text(encoding="utf-8")
+
+
+class TestTokensPhaseReferences(unittest.TestCase):
+    """Phase 3 (Tokens) is where the agent decides what goes in DESIGN.md.
+    The extension contract must be explicit there — leaving it to inference
+    reproduces the field-tested failure mode. (Was: step 6 anchor, pre-refactor.)"""
 
     def setUp(self):
         body = _body()
         m = re.search(
-            r"^6\.\s+\*\*Produce DESIGN\.md\*\*(.*?)(?=^\d+\.\s+\*\*|\Z)",
+            r"^### Phase 3 — Tokens(.*?)(?=^### Phase|\Z|^##\s)",
             body, re.DOTALL | re.MULTILINE,
         )
-        self.assertIsNotNone(m, "step 6 (Produce DESIGN.md) missing or mis-numbered")
-        self.step_6 = m.group(1)
+        self.assertIsNotNone(m, "Phase 3 (Tokens) missing or mis-numbered")
+        self.phase_3 = m.group(1)
 
-    def test_step_6_lists_canonical_5_namespaces(self):
+    def test_phase_3_lists_canonical_5_namespaces(self):
         for namespace in DESIGN["design_md_token_groups"]:
             with self.subTest(namespace=namespace):
                 self.assertIn(
-                    namespace, self.step_6,
-                    f"step 6 must name canonical namespace `{namespace}`",
+                    namespace, self.phase_3,
+                    f"Phase 3 must name canonical namespace `{namespace}`",
                 )
 
-    def test_step_6_lists_extension_namespaces(self):
-        """Without extension names in step 6, agents invent (or omit) them."""
+    def test_phase_3_lists_extension_namespaces(self):
+        """Without extension names in Phase 3, agents invent (or omit) them."""
         for namespace in DESIGN["design_md_extension_namespaces"]:
             with self.subTest(namespace=namespace):
                 self.assertIn(
-                    namespace, self.step_6,
-                    f"step 6 must name extension namespace `{namespace}`",
+                    namespace, self.phase_3,
+                    f"Phase 3 must name extension namespace `{namespace}`",
                 )
 
-    def test_step_6_states_components_canonical_only_rule(self):
+    def test_phase_3_states_components_canonical_only_rule(self):
         """Components binding to extension namespaces was the field-tested lint
-        failure mode. Step 6 must explicitly forbid it."""
-        text = self.step_6.lower()
-        # Either phrasing: "8 canonical" / "canonical property tokens" /
-        # "8 property tokens" — pin the rule's existence with a flexible match.
+        failure mode. Phase 3 must explicitly forbid it."""
+        text = self.phase_3.lower()
         self.assertRegex(
             text,
             r"(8|eight)\s+canonical|canonical\s+property\s+tokens|8\s+property\s+tokens",
-            "step 6 must state the components-bind-only-to-8-canonical-property-tokens rule",
+            "Phase 3 must state the components-bind-only-to-8-canonical-property-tokens rule",
         )
 
-    def test_step_6_cross_references_extended_tokens_md(self):
+    def test_phase_3_cross_references_extended_tokens_md(self):
         self.assertIn(
-            "extended-tokens.md", self.step_6,
-            "step 6 must cross-reference the shared extended-tokens.md convention",
+            "extended-tokens.md", self.phase_3,
+            "Phase 3 must cross-reference the shared extended-tokens.md convention",
         )
 
-    def test_step_6_documents_audit_extensions_step(self):
+    def test_phase_3_documents_audit_extensions_step(self):
         """The bidirectional drift check is required after the canonical audit."""
-        self.assertIn("audit-extensions", self.step_6)
+        self.assertIn("audit-extensions", self.phase_3)
 
 
 class TestProseSectionMapping(unittest.TestCase):
-    """The DESIGN.md anatomy section must map every award-grade narrative
+    """The DESIGN.md anatomy reference must map every award-grade narrative
     concept to one of the eight canonical Google sections — the user's
-    explicit requirement that nothing vital is dropped."""
+    explicit requirement that nothing vital is dropped. (Was checked against
+    SKILL.md pre-refactor; content now lives in references/design-md-anatomy.md.)"""
 
     REQUIRED_NARRATIVES = (
         "Atmosphere",
@@ -97,11 +101,20 @@ class TestProseSectionMapping(unittest.TestCase):
         "Motion philosophy",
     )
 
-    def test_anatomy_section_exists(self):
-        self.assertIn("DESIGN.md anatomy", _body())
+    def test_anatomy_reference_file_exists(self):
+        self.assertTrue(
+            ANATOMY_MD.is_file(),
+            "references/design-md-anatomy.md must exist after the refactor",
+        )
+
+    def test_skill_md_points_at_anatomy_reference(self):
+        self.assertIn(
+            "design-md-anatomy.md", _body(),
+            "SKILL.md must cross-reference references/design-md-anatomy.md",
+        )
 
     def test_anatomy_lists_all_narrative_concepts(self):
-        body = _body()
+        body = _anatomy()
         for narrative in self.REQUIRED_NARRATIVES:
             with self.subTest(narrative=narrative):
                 self.assertIn(
@@ -112,7 +125,7 @@ class TestProseSectionMapping(unittest.TestCase):
     def test_anatomy_lists_all_eight_canonical_sections(self):
         """Every canonical Google section must appear at least once in the
         anatomy mapping — otherwise the agent can't tell where to put content."""
-        body = _body()
+        body = _anatomy()
         for section in DESIGN["design_md_canonical_sections"]:
             with self.subTest(section=section):
                 self.assertIn(
