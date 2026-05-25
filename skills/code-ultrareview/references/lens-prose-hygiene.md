@@ -21,32 +21,60 @@ without round-tripping JSON through bash.
 
 ## Scope
 
-**In scope** — public-displayed prose, anything a reader sees after merge.
+The lens has four input channels: PR title, PR body, commit messages,
+and prose files in the diff. The first three are public-displayed prose
+at the contract level and run every applicable check. The fourth — files
+in the diff — classifies into a two-tier model with different check
+subsets per tier.
 
-- PR body and PR title
-- Commit subjects and bodies
-- `README.md`, `README.mdx`
-- `CHANGELOG.md`, `RELEASE-NOTES.md`
-- Any `*.md` / `*.mdx` under `docs/`
-- Any `*.md` / `*.mdx` at repo root (excluded files below take precedence)
+### Input-channel checks
 
-**Out of scope** — model-instruction files, not shared prose deliverables.
-The scope filter strips these from the diff file list before any check
-runs.
+- **PR title** — leak + signature + authoring-process (a one-line title
+  does not warrant style/length checks).
+- **PR body** — leak + signature + authoring-process + defensive-negation
+  + rule-restatement + AI vocabulary + em-dash density + length overflow.
+- **Commit subject + body** — leak + signature + authoring-process +
+  defensive-negation (body) + length overflow + CC-shape (subject).
 
-- `SKILL.md`
-- `CLAUDE.md`
-- `evals.json`
-- Anything under `.claude/rules/`
-- Anything under `skills/<name>/` (skill source — `/skill-creator` owns
-  prose quality there)
+### Files in the diff — two-tier model
 
-Scope-exclusion regex (canonical, mirrored in
-`scripts/check_prose_hygiene.py::SCOPE_EXCLUDE_RE`):
+**Tier 1 — full prose** (all categories apply):
 
-```
-(?:^|/)(?:SKILL\.md|CLAUDE\.md|evals\.json|\.claude/rules/|skills/[^/]+/)
-```
+- `README*.{md,mdx,rst,txt}`
+- `CHANGELOG*.{md,mdx,rst,txt}`
+- `RELEASE-NOTES*.{md,mdx,rst,txt}` (and `RELEASE_NOTES*` underscored)
+- `CONTRIBUTING*.{md,mdx,rst,txt}`
+- Any `*.{md,mdx,rst}` under `docs/`
+
+**Tier 2 — leak-only** (only leak + signature + authoring-process apply):
+
+Everything not in Tier 1 and not in skip — model-instruction files
+(`SKILL.md`, `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, `.claude/rules/`,
+`.cursor/`, `evals.json`) and source code (`.py`, `.ts`, `.js`, `.go`,
+`.rs`, `.java`, `.c`, `.cpp`, `.rb`, `.php`, `.sh`, …).
+
+A local path, personal email, machine hostname, or AI co-author footer
+is a leak regardless of file type — these checks anchor on concrete
+strings, not style. Style/length/vocab/defensive-negation categories are
+prose contracts that do not apply to model instructions or source code.
+
+**Skip** — build artifacts and generated binaries:
+
+`dist/`, `build/`, `out/`, `target/`, `coverage/`, `node_modules/`,
+`vendor/`, `__pycache__/`, `.venv/`, `.tox/`, `.next/`, `.nuxt/`,
+lockfiles (`*.lock`, `pnpm-lock.yaml`, `package-lock.json`,
+`bun.lockb`), minified bundles (`*.min.js`, `*.min.css`), compiled
+binaries (`*.pyc`, `*.so`, `*.class`, `*.jar`, `*.wasm`, `*.map`, …).
+
+Nothing runs on the skip tier.
+
+### Scope regexes (canonical, mirrored in `scripts/check_prose_hygiene.py`)
+
+- `FULL_PROSE_RE` — matches Tier 1 paths.
+- `SKIP_RE` — matches the skip tier.
+- `classify_scope(path)` returns `'full'` / `'leak-only'` / `'skip'`.
+- `filter_scope(paths)` drops only the skip tier — model-instruction
+  files pass through to leak-only.
 
 ## Portable baseline
 

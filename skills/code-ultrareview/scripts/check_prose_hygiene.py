@@ -226,11 +226,47 @@ FILLER_TEST_PLAN_RE = re.compile(
     re.MULTILINE | re.IGNORECASE,
 )
 
-# Scope-exclusion regex for prose file paths — these are model-instruction
-# files, never shared prose deliverables.
-SCOPE_EXCLUDE_RE = re.compile(
-    r"(?:^|/)(?:SKILL\.md|CLAUDE\.md|evals\.json|\.claude/rules/|skills/[^/]+/)"
+# Scope tiers — every file in the diff classifies into one tier, and each
+# tier runs a different check subset:
+#
+# - 'full'      — Tier 1, shared prose (README, CHANGELOG, RELEASE-NOTES,
+#                 CONTRIBUTING, docs/). All baseline categories apply.
+# - 'leak-only' — Tier 2, model-instruction files (SKILL.md, CLAUDE.md,
+#                 AGENTS.md, .cursorrules, .claude/rules/, .cursor/,
+#                 evals.json) AND source code (.py, .ts, .js, .go, …).
+#                 Only leak + signature + authoring-process checks run.
+#                 A local path, personal email, machine hostname, or AI
+#                 co-author footer is a leak regardless of file type.
+#                 Style/length/vocab/defensive-negation categories are
+#                 prose contracts that do not apply to model instructions
+#                 or source code.
+# - 'skip'      — Build artifacts and generated binaries. Nothing runs.
+
+FULL_PROSE_RE = re.compile(
+    r"(?:^|/)(?:"
+    r"README(?:\.[A-Za-z_-]+)?\.(?:md|mdx|rst|txt)"
+    r"|CHANGELOG(?:\.[A-Za-z_-]+)?\.(?:md|mdx|rst|txt)"
+    r"|RELEASE[-_]?NOTES?(?:\.[A-Za-z_-]+)?\.(?:md|mdx|rst|txt)"
+    r"|CONTRIBUTING(?:\.[A-Za-z_-]+)?\.(?:md|mdx|rst|txt)"
+    r"|docs?/.*\.(?:md|mdx|rst)"
+    r")$",
+    re.IGNORECASE,
 )
+
+SKIP_RE = re.compile(
+    r"(?:^|/)(?:"
+    r"dist/|build/|out/|target/|coverage/|node_modules/|\.git/|\.next/|"
+    r"\.nuxt/|vendor/|__pycache__/|\.venv/|venv/|env/|\.tox/|\.pytest_cache/"
+    r")"
+    r"|(?:^|/)(?:pnpm-lock\.yaml|package-lock\.json|npm-shrinkwrap\.json)$"
+    r"|\.(?:lock|lockb|min\.js|min\.css|pyc|pyo|so|o|a|dylib|class|jar|"
+    r"war|wasm|map|tsbuildinfo)$",
+    re.IGNORECASE,
+)
+
+# Deprecated alias — old consumers that imported `SCOPE_EXCLUDE_RE` get
+# skip-only semantics. New callers should use `classify_scope`.
+SCOPE_EXCLUDE_RE = SKIP_RE
 
 
 # ---------------------------------------------------------------------------
@@ -745,16 +781,28 @@ def _check_commit_shape(
             _check_defensive_negation(body, f"commit {sha_short}:body", findings)
 
 
+def classify_scope(path) -> str:
+    """Return 'full' | 'leak-only' | 'skip' for a file path.
+
+    See the comment block above `FULL_PROSE_RE` for the tier definitions.
+    """
+    norm = str(path).replace("\\", "/")
+    if SKIP_RE.search(norm):
+        return "skip"
+    if FULL_PROSE_RE.search(norm):
+        return "full"
+    return "leak-only"
+
+
 def filter_scope(paths: Iterable[str]) -> list[str]:
-    """Filter out model-instruction files from the prose-files list."""
-    kept: list[str] = []
-    for path in paths:
-        # Normalize to forward slashes for the regex.
-        norm = str(path).replace("\\", "/")
-        if SCOPE_EXCLUDE_RE.search(norm):
-            continue
-        kept.append(path)
-    return kept
+    """Return paths that are not in the `skip` tier.
+
+    Old semantics filtered model-instruction files entirely; the new
+    semantics only filter the skip tier — model-instruction files pass
+    through to the leak-only tier where leak / signature /
+    authoring-process checks still apply.
+    """
+    return [p for p in paths if classify_scope(p) != "skip"]
 
 
 # ---------------------------------------------------------------------------
@@ -825,18 +873,31 @@ def main(argv: list[str] | None = None) -> int:
         adopted = cc_is_adopted(args.repo_root)
         _check_commit_shape(commits, adopted, findings)
 
-    # Prose files in the diff — scope-filter first, then run text checks.
-    for path_str in filter_scope(args.prose_files):
+    # Prose files in the diff — classify per tier, then run the
+    # appropriate check subset.
+    for path_str in args.prose_files:
+        tier = classify_scope(path_str)
+        if tier == "skip":
+            continue
         path = Path(path_str)
         if not path.is_file():
             continue
         text = path.read_text(encoding="utf-8", errors="replace")
+
+        # Leak / signature / authoring-process checks run at both tiers —
+        # these patterns anchor on concrete strings that are leaks
+        # regardless of file type.
         _check_text_leaks(text, path_str, findings)
         _check_signature_footers(text, path_str, findings)
         _check_authoring_process(text, path_str, findings)
-        _check_defensive_negation(text, path_str, findings)
-        _check_ai_vocabulary(text, path_str, findings)
-        _check_em_dash_density(text, path_str, findings)
+
+        # Style + length + vocab + defensive-negation checks run only at
+        # the full-prose tier — they are prose contracts that do not
+        # apply to model instructions or source code.
+        if tier == "full":
+            _check_defensive_negation(text, path_str, findings)
+            _check_ai_vocabulary(text, path_str, findings)
+            _check_em_dash_density(text, path_str, findings)
 
     _emit(findings)
     return 0

@@ -173,13 +173,42 @@ class TestAuthoringProcessTrace(unittest.TestCase):
         findings = _run("--pr-body-file", str(FIX / "pr-body-clean.md"))
         self.assertNotIn("authoring-process-trace", _categories(findings))
 
-    def test_skill_md_scope_excluded(self):
-        kept = detector.filter_scope([
+    def test_skill_md_classifies_as_leak_only(self):
+        # SKILL.md is Tier 2 (leak-only): it passes through filter_scope
+        # but only the leak / signature / authoring-process checks run on
+        # it. The style/length/vocab checks are prose contracts that do
+        # not apply to model-instruction files.
+        self.assertEqual(
+            detector.classify_scope("skills/code-ultrareview/SKILL.md"),
+            "leak-only",
+        )
+        self.assertIn(
             "skills/code-ultrareview/SKILL.md",
-            "README.md",
-            "skills/brand-voice/SKILL.md",
-        ])
-        self.assertEqual(set(kept), {"README.md"})
+            detector.filter_scope([
+                "skills/code-ultrareview/SKILL.md",
+                "README.md",
+            ]),
+        )
+
+    def test_authoring_trace_fires_on_skill_md_leak(self):
+        # A model-instruction file that accidentally cites an authoring
+        # path (`~/.claude/brand-voices/...`) is still a leak — Tier 2
+        # runs the authoring-process-trace check.
+        body = "Internal: see ~/.claude/brand-voices/example/BRAND-VOICE.md."
+        with tempfile.NamedTemporaryFile(
+            "w", prefix="SKILL_", suffix=".md", delete=False
+        ) as fh:
+            fh.write(body)
+            path = fh.name
+        findings = _run("--prose-file", path)
+        traces = [
+            f for f in findings
+            if f["category"] == "authoring-process-trace"
+        ]
+        self.assertTrue(
+            traces,
+            "Tier 2 should still emit authoring-process-trace findings",
+        )
 
     def test_main_corpus_emits_no_authoring_trace(self):
         # Sanity check — running the new detector against the current main
@@ -261,10 +290,26 @@ class TestDefensiveNegation(unittest.TestCase):
         negs = [f for f in findings if f["category"] == "defensive-negation"]
         self.assertEqual(negs, [], f"skip-regions should suppress; got: {negs}")
 
-    def test_scope_filter_protects_defensive_negation(self):
-        self.assertNotIn(
-            "skills/code-ultrareview/SKILL.md",
-            detector.filter_scope(["skills/code-ultrareview/SKILL.md", "README.md"]),
+    def test_defensive_negation_skipped_on_leak_only_tier(self):
+        # SKILL.md is Tier 2 (leak-only). Defensive-negation is a prose
+        # contract that does not apply to model-instruction files, so
+        # the dispatcher skips it for the leak-only tier — even when the
+        # pattern matches the file content.
+        body = "The lens never names a specific config file."
+        with tempfile.NamedTemporaryFile(
+            "w", prefix="CLAUDE_", suffix=".md", delete=False
+        ) as fh:
+            fh.write(body)
+            path = fh.name
+        # Confirm the test path classifies as leak-only (tempfile names
+        # include `CLAUDE_` prefix but live in /tmp, so they don't match
+        # Tier 1's repo-relative patterns).
+        self.assertEqual(detector.classify_scope(path), "leak-only")
+        findings = _run("--prose-file", path)
+        negs = [f for f in findings if f["category"] == "defensive-negation"]
+        self.assertEqual(
+            negs, [],
+            "Tier 2 should skip defensive-negation; got: " + str(negs),
         )
 
     def test_main_corpus_fp_rate_under_threshold(self):
@@ -399,21 +444,82 @@ class TestCommitShape(unittest.TestCase):
 
 
 class TestScopeFilter(unittest.TestCase):
-    def test_skill_md_excluded_from_prose_files(self):
-        kept = detector.filter_scope([
-            "README.md",
-            "skills/code-ultrareview/SKILL.md",
-            "CLAUDE.md",
-            ".claude/rules/writing.md",
-            "evals.json",
-            "skills/forge/templates/forge-artifact.md",
-            "docs/intro.md",
-        ])
-        self.assertEqual(set(kept), {"README.md", "docs/intro.md"})
+    def test_classify_scope_assigns_correct_tiers(self):
+        cases = {
+            # Tier 1 — full prose
+            "README.md": "full",
+            "README.en.md": "full",
+            "CHANGELOG.md": "full",
+            "RELEASE-NOTES.md": "full",
+            "RELEASE_NOTES.md": "full",
+            "CONTRIBUTING.md": "full",
+            "docs/intro.md": "full",
+            "docs/guide/api.mdx": "full",
+            # Tier 2 — leak-only (model-instruction files + source code)
+            "skills/code-ultrareview/SKILL.md": "leak-only",
+            "CLAUDE.md": "leak-only",
+            "AGENTS.md": "leak-only",
+            ".cursorrules": "leak-only",
+            ".claude/rules/writing.md": "leak-only",
+            ".cursor/rules.md": "leak-only",
+            "skills/forge/evals/evals.json": "leak-only",
+            "src/foo.py": "leak-only",
+            "lib/util.ts": "leak-only",
+            "internal/server.go": "leak-only",
+            "scripts/build.sh": "leak-only",
+            # Skip — build artifacts
+            "dist/bundle.js": "skip",
+            "build/output.js": "skip",
+            "node_modules/foo/package.json": "skip",
+            "pnpm-lock.yaml": "skip",
+            "yarn.lock": "skip",
+            "bundle.min.js": "skip",
+            "app.min.css": "skip",
+            "foo.pyc": "skip",
+            "lib.so": "skip",
+            "coverage/lcov.info": "skip",
+            "__pycache__/cached.pyc": "skip",
+        }
+        for path, expected in cases.items():
+            with self.subTest(path=path):
+                self.assertEqual(detector.classify_scope(path), expected)
 
-    def test_scope_filter_handles_windows_paths(self):
-        kept = detector.filter_scope([r"skills\code-ultrareview\SKILL.md"])
-        self.assertEqual(kept, [])
+    def test_classify_scope_handles_windows_paths(self):
+        # Backslashes normalize to forward slashes before classification.
+        self.assertEqual(
+            detector.classify_scope(r"skills\code-ultrareview\SKILL.md"),
+            "leak-only",
+        )
+        self.assertEqual(
+            detector.classify_scope(r"dist\bundle.js"),
+            "skip",
+        )
+        self.assertEqual(
+            detector.classify_scope(r"docs\intro.md"),
+            "full",
+        )
+
+    def test_filter_scope_drops_skip_tier_only(self):
+        kept = detector.filter_scope([
+            "README.md",                          # full → kept
+            "skills/code-ultrareview/SKILL.md",   # leak-only → kept
+            "CLAUDE.md",                          # leak-only → kept
+            ".claude/rules/writing.md",           # leak-only → kept
+            "src/foo.py",                         # leak-only → kept
+            "dist/bundle.js",                     # skip → dropped
+            "node_modules/lib/index.js",          # skip → dropped
+            "pnpm-lock.yaml",                     # skip → dropped
+        ])
+        self.assertEqual(
+            set(kept),
+            {
+                "README.md",
+                "skills/code-ultrareview/SKILL.md",
+                "CLAUDE.md",
+                ".claude/rules/writing.md",
+                "src/foo.py",
+            },
+        )
 
 
 class TestEmptyInputs(unittest.TestCase):
