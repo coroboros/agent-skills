@@ -89,6 +89,47 @@ INTERNAL_LEAK_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     ),
 ]
 
+# Authoring-process traces — references to internal authoring tooling that
+# ship to readers who have no access to that environment. Anchored on
+# path-context so plain mentions of a public tool by name (e.g. a README
+# row describing the `brand-voice` skill) do not fire — only paths and
+# possessive constructions tied to authoring.
+AUTHORING_TRACE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (
+        re.compile(
+            r"(?:~|\$HOME|/Users/[A-Za-z0-9_.-]+|/home/[A-Za-z0-9_.-]+)"
+            r"/(?:\.claude/)?brand-voices?/",
+            re.IGNORECASE,
+        ),
+        "brand-voice-path",
+    ),
+    (
+        re.compile(
+            r"(?:~|\$HOME|/Users/[A-Za-z0-9_.-]+|/home/[A-Za-z0-9_.-]+)"
+            r"/(?:[A-Za-z0-9_.-]+/)*BRAND-VOICE(?:-[A-Z_]+)?\.md\b",
+        ),
+        "brand-voice-path-filename",
+    ),
+    (
+        re.compile(r"\bmaintainer-specific\b", re.IGNORECASE),
+        "maintainer-specific",
+    ),
+    (
+        re.compile(
+            r"\bmaintainer'?s?\s+(?:path|tool|config|voice|rules)\b",
+            re.IGNORECASE,
+        ),
+        "maintainer-possessive",
+    ),
+    (
+        re.compile(
+            r"\b(?:internal|private)\s+(?:voice|rules|tooling|tool|config|path)\b",
+            re.IGNORECASE,
+        ),
+        "internal-tooling",
+    ),
+]
+
 AI_SIGNATURE_PATTERNS: list[tuple[re.Pattern[str], str]] = [
     (re.compile(r"^Co-Authored-By:\s*Claude\b", re.MULTILINE | re.IGNORECASE), "claude-coauthor"),
     (re.compile(r"^Co-Authored-By:\s*Cursor\b", re.MULTILINE | re.IGNORECASE), "cursor-coauthor"),
@@ -129,6 +170,42 @@ RULE_RESTATEMENT_PATTERNS: list[tuple[re.Pattern[str], str]] = [
         ),
         "silent-compliance-restatement",
     ),
+]
+
+# Defensive negations — sentences that describe skill behavior in the
+# negative when a positive assertion is equivalent. Anchored on
+# `~/.claude/rules/writing.md` § "Assert positively. Reserve negation for
+# real constraints (`NEVER commit secrets`)." Allowlist (below) carves
+# out the legitimate mandates and behavioral contracts.
+DEFENSIVE_NEGATION_PATTERNS: list[tuple[re.Pattern[str], str]] = [
+    (
+        re.compile(
+            r"\b(?:The|This|Our)\s+(?:lens|skill|script|tool|check|detector|orchestrator)"
+            r"\s+never\s+(?:names?|mentions?|references?|uses?|exposes?|hardcodes?|leaks?)\b",
+            re.IGNORECASE,
+        ),
+        "skill-subject-negation",
+    ),
+    (
+        re.compile(r"\bno\s+\w+-specific\s+\w+\b", re.IGNORECASE),
+        "defensive-scoping",
+    ),
+    (
+        re.compile(
+            r"\bnever\s+(?:names?|mentions?|references?)\s+(?:any|a)\s+\w+",
+            re.IGNORECASE,
+        ),
+        "anchored-negation",
+    ),
+]
+
+MANDATE_ALLOWLIST: list[re.Pattern[str]] = [
+    re.compile(r"\bNEVER\b"),  # case-sensitive — uppercase is the mandate marker.
+    re.compile(r"\bnever fail(?:s|ing)? silently\b", re.IGNORECASE),
+    re.compile(r"\bnever break(?:s|ing)? the public API\b", re.IGNORECASE),
+    re.compile(r"\bnever aborts?\b", re.IGNORECASE),
+    re.compile(r"\bnever advertises?\b", re.IGNORECASE),
+    re.compile(r"\bnever silent[- ]drop", re.IGNORECASE),
 ]
 
 AI_VOCABULARY = (
@@ -323,6 +400,77 @@ def _check_text_leaks(text: str, source: str, findings: list[Finding]) -> None:
                     ),
                     confidence=CONF_HIGH,
                     category="internal-leak",
+                    meta={"pattern": category},
+                )
+            )
+
+
+def _check_authoring_process(text: str, source: str, findings: list[Finding]) -> None:
+    for pattern, category in AUTHORING_TRACE_PATTERNS:
+        for match in pattern.finditer(text):
+            line_no = text.count("\n", 0, match.start()) + 1
+            findings.append(
+                Finding(
+                    severity="High",
+                    location=f"{source}:{line_no}",
+                    finding=f"Authoring-process trace ({category}): `{match.group(0)}`",
+                    recommendation=(
+                        "Scrub before publishing — the artifact ships to readers "
+                        "who have no access to the authoring environment."
+                    ),
+                    confidence=CONF_HIGH,
+                    category="authoring-process-trace",
+                    meta={"pattern": category},
+                )
+            )
+
+
+def _compute_skip_regions(text: str) -> list[tuple[int, int]]:
+    """Byte-offset spans that defensive-negation must not match against.
+
+    Fenced code blocks quote prose verbatim (often other people's), HTML
+    comments are author scratchpad, and table cells are structural —
+    negation in any of these is rarely a body assertion.
+    """
+    regions: list[tuple[int, int]] = []
+    for m in re.finditer(r"```[\s\S]*?```", text):
+        regions.append((m.start(), m.end()))
+    for m in re.finditer(r"<!--[\s\S]*?-->", text):
+        regions.append((m.start(), m.end()))
+    for m in re.finditer(r"^\s*\|.*$", text, re.MULTILINE):
+        regions.append((m.start(), m.end()))
+    return regions
+
+
+def _in_skip_region(pos: int, regions: list[tuple[int, int]]) -> bool:
+    return any(start <= pos < end for start, end in regions)
+
+
+def _check_defensive_negation(text: str, source: str, findings: list[Finding]) -> None:
+    skip_regions = _compute_skip_regions(text)
+    for pattern, category in DEFENSIVE_NEGATION_PATTERNS:
+        for match in pattern.finditer(text):
+            if _in_skip_region(match.start(), skip_regions):
+                continue
+            line_start = text.rfind("\n", 0, match.start()) + 1
+            line_end = text.find("\n", match.end())
+            if line_end == -1:
+                line_end = len(text)
+            line = text[line_start:line_end]
+            if any(allow.search(line) for allow in MANDATE_ALLOWLIST):
+                continue
+            line_no = text.count("\n", 0, match.start()) + 1
+            findings.append(
+                Finding(
+                    severity="Medium",
+                    location=f"{source}:{line_no}",
+                    finding=f"Defensive negation ({category}): `{match.group(0)}`",
+                    recommendation=(
+                        "Assert positively. Reserve negation for real constraints "
+                        "(`NEVER commit secrets`)."
+                    ),
+                    confidence=CONF_MED,
+                    category="defensive-negation",
                     meta={"pattern": category},
                 )
             )
@@ -588,10 +736,13 @@ def _check_commit_shape(
                     )
                 )
 
-        # Signature footer + leaks live in the commit body too.
+        # Signature footer, leaks, authoring traces, and defensive negations
+        # all apply to the commit body.
         if body:
             _check_signature_footers(body, f"commit {sha_short}:body", findings)
             _check_text_leaks(body, f"commit {sha_short}:body", findings)
+            _check_authoring_process(body, f"commit {sha_short}:body", findings)
+            _check_defensive_negation(body, f"commit {sha_short}:body", findings)
 
 
 def filter_scope(paths: Iterable[str]) -> list[str]:
@@ -652,12 +803,16 @@ def main(argv: list[str] | None = None) -> int:
     if args.pr_title:
         _check_text_leaks(args.pr_title, "PR title:1", findings)
         _check_signature_footers(args.pr_title, "PR title:1", findings)
+        _check_authoring_process(args.pr_title, "PR title:1", findings)
+        _check_defensive_negation(args.pr_title, "PR title:1", findings)
 
     # PR body — full check set.
     if args.pr_body_file and args.pr_body_file.is_file():
         body = args.pr_body_file.read_text(encoding="utf-8")
         _check_text_leaks(body, "PR body", findings)
         _check_signature_footers(body, "PR body", findings)
+        _check_authoring_process(body, "PR body", findings)
+        _check_defensive_negation(body, "PR body", findings)
         _check_rule_restatement(body, "PR body", findings)
         _check_ai_vocabulary(body, "PR body", findings)
         _check_em_dash_density(body, "PR body", findings)
@@ -678,6 +833,8 @@ def main(argv: list[str] | None = None) -> int:
         text = path.read_text(encoding="utf-8", errors="replace")
         _check_text_leaks(text, path_str, findings)
         _check_signature_footers(text, path_str, findings)
+        _check_authoring_process(text, path_str, findings)
+        _check_defensive_negation(text, path_str, findings)
         _check_ai_vocabulary(text, path_str, findings)
         _check_em_dash_density(text, path_str, findings)
 

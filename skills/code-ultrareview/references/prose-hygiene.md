@@ -96,6 +96,22 @@ words; shorter prose escapes the check).
 | `<user>@<gmail|icloud|yahoo|hotmail|outlook|proton|me|aol>.<tld>` | High | Personal email |
 | `<Name>'s-MacBook…` style hostnames | High | Machine identifier |
 
+### Authoring-process traces
+
+| Pattern | Severity | Reason |
+|---------|----------|--------|
+| `(?:~|$HOME|/Users/<name>|/home/<name>)/(?:\.claude/)?brand-voices?/` | High | Authoring-tool path leak |
+| `(?:~|$HOME|/Users/<name>|/home/<name>)/<seg>/BRAND-VOICE(?:-[A-Z_]+)?\.md` | High | Authoring-tool filename in path context |
+| `maintainer-specific` | High | Internal-author/user split |
+| `maintainer's (path|tool|config|voice|rules)` | High | Internal-author/user split |
+| `(internal|private) (voice|rules|tooling|tool|config|path)` | High | Internal-tooling reference |
+
+Path-context anchoring keeps the check tight — plain mentions of a
+public skill by name (e.g. a README row describing the `brand-voice`
+skill) do not fire; only paths and possessive constructions tied to the
+authoring environment trigger. The check runs on the same surfaces as
+internal-leak: PR title, PR body, commit body, prose files in the diff.
+
 ### AI signature footers
 
 | Pattern | Severity |
@@ -105,6 +121,22 @@ words; shorter prose escapes the check).
 | `🤖 Generated with` | High |
 | `Generated with [Cc]laude` (line start) | High |
 | `As an AI…` (line start) | High |
+
+### Defensive negations
+
+| Pattern | Severity | Reason |
+|---------|----------|--------|
+| `(?:The|This|Our)\s+(?:lens|skill|script|tool|check|detector|orchestrator)\s+never\s+(?:names?|mentions?|references?|uses?|exposes?|hardcodes?|leaks?)` | Medium | Skill-subject negation |
+| `no\s+\w+-specific\s+\w+` | Medium | Defensive scoping |
+| `never\s+(?:names?|mentions?|references?)\s+(?:any|a)\s+\w+` | Medium | Anchored negation |
+
+Mandate allowlist — phrases on the same line suppress any defensive
+match: uppercase `\bNEVER\b`, `never fail silently`, `never break the
+public API`, `never aborts`, `never advertises`, `never silent-drop`.
+Fenced code blocks, HTML comments, and table cells are skipped before
+matching — quoted prose and structural cells are not body assertions.
+Anchor: `~/.claude/rules/writing.md` § "Assert positively. Reserve
+negation for real constraints (`NEVER commit secrets`)."
 
 ### Rule-restatement / silent-compliance
 
@@ -151,10 +183,6 @@ report header can surface a one-line `Prose rules: <list>` (or `Prose
 rules: baseline only` when none are found). Discovery is path-based and
 does not parse rule content — content interpretation is the subagent's
 job at dispatch time.
-
-The lens **never names** any specific brand-voice file or
-maintainer-specific path. Discovery walks the standard Claude Code
-locations only.
 
 ## Severity map
 

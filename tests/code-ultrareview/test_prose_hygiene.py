@@ -124,6 +124,156 @@ class TestSignatureFooters(unittest.TestCase):
         self.assertNotIn("ai-signature-footer", _categories(findings))
 
 
+class TestAuthoringProcessTrace(unittest.TestCase):
+    def test_path_anchored_brand_voice_flagged_high(self):
+        findings = _run("--pr-body-file", str(FIX / "pr-body-authoring-trace.md"))
+        traces = [f for f in findings if f["category"] == "authoring-process-trace"]
+        self.assertGreaterEqual(len(traces), 4)
+        self.assertTrue(all(f["severity"] == "High" for f in traces))
+        self.assertTrue(all(f["confidence"] >= 80 for f in traces))
+
+    def test_pattern_tags_cover_all_families(self):
+        findings = _run("--pr-body-file", str(FIX / "pr-body-authoring-trace.md"))
+        patterns = {
+            f["meta"]["pattern"]
+            for f in findings
+            if f["category"] == "authoring-process-trace"
+        }
+        self.assertIn("brand-voice-path", patterns)
+        self.assertIn("brand-voice-path-filename", patterns)
+        self.assertIn("internal-tooling", patterns)
+        self.assertTrue(
+            {"maintainer-specific", "maintainer-possessive"} & patterns,
+            f"expected at least one maintainer-* hit, got {patterns}",
+        )
+
+    def test_bare_brand_voice_mentions_not_flagged(self):
+        # Plain mentions of the public `brand-voice` skill and bare
+        # `BRAND-VOICE.md` (no path prefix) must not fire — patterns are
+        # anchored on path-context, not on the bare slug or filename.
+        findings = _run("--pr-body-file", str(FIX / "pr-body-clean.md"))
+        self.assertNotIn("authoring-process-trace", _categories(findings))
+
+    def test_skill_md_scope_excluded(self):
+        kept = detector.filter_scope([
+            "skills/code-ultrareview/SKILL.md",
+            "README.md",
+            "skills/brand-voice/SKILL.md",
+        ])
+        self.assertEqual(set(kept), {"README.md"})
+
+    def test_main_corpus_emits_no_authoring_trace(self):
+        # Sanity check — running the new detector against the current main
+        # README must produce zero authoring-process-trace findings. The
+        # path-context anchor is what makes this hold; loosening the regex
+        # will fire on legitimate `brand-voice` skill references.
+        main_readme = subprocess.run(
+            ["git", "show", "main:README.md"],
+            cwd=str(REPO_ROOT),
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        tmp_path = _write_tmp(main_readme)
+        findings = _run("--prose-file", tmp_path)
+        traces = [f for f in findings if f["category"] == "authoring-process-trace"]
+        self.assertEqual(
+            traces, [],
+            f"unexpected authoring-process-trace findings on main README: {traces}",
+        )
+
+
+class TestDefensiveNegation(unittest.TestCase):
+    def test_skill_subject_negation_flagged_medium(self):
+        findings = _run("--pr-body-file", str(FIX / "pr-body-defensive-negation.md"))
+        negs = [f for f in findings if f["category"] == "defensive-negation"]
+        self.assertTrue(negs, "expected defensive-negation findings on the fixture")
+        self.assertTrue(all(f["severity"] == "Medium" for f in negs))
+        self.assertTrue(all(f["confidence"] >= 70 for f in negs))
+
+    def test_pattern_tags_cover_all_families(self):
+        findings = _run("--pr-body-file", str(FIX / "pr-body-defensive-negation.md"))
+        patterns = {
+            f["meta"]["pattern"]
+            for f in findings
+            if f["category"] == "defensive-negation"
+        }
+        self.assertIn("skill-subject-negation", patterns)
+        self.assertIn("defensive-scoping", patterns)
+        self.assertIn("anchored-negation", patterns)
+
+    def test_clean_fixture_emits_no_findings(self):
+        # Mandate / behavioral-contract forms (NEVER commit secrets, never
+        # aborts, never silent-drops) live in the clean fixture and must
+        # not fire on their own — bare defensive patterns are absent.
+        findings = _run("--pr-body-file", str(FIX / "pr-body-clean.md"))
+        self.assertNotIn("defensive-negation", _categories(findings))
+
+    def test_uppercase_NEVER_allowlist_suppresses_on_same_line(self):
+        # A defensive-pattern match on the same line as the uppercase NEVER
+        # mandate marker is suppressed — the line is policy, not scaffold.
+        body = "The lens never names a thing — NEVER commit secrets is the rule."
+        with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
+            fh.write(body)
+            path = fh.name
+        findings = _run("--pr-body-file", path)
+        negs = [f for f in findings if f["category"] == "defensive-negation"]
+        self.assertEqual(negs, [], f"allowlist should suppress; got: {negs}")
+
+    def test_never_aborts_allowlist_suppresses_on_same_line(self):
+        body = "The lens never names any input — never aborts the review."
+        with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
+            fh.write(body)
+            path = fh.name
+        findings = _run("--pr-body-file", path)
+        negs = [f for f in findings if f["category"] == "defensive-negation"]
+        self.assertEqual(negs, [], f"allowlist should suppress; got: {negs}")
+
+    def test_code_block_and_table_rows_skipped(self):
+        body = (
+            "Body text first.\n\n"
+            "```\n"
+            "The lens never names a thing.\n"
+            "```\n\n"
+            "| Header | Value |\n"
+            "|---|---|\n"
+            "| This skill never names any item | x |\n"
+        )
+        with tempfile.NamedTemporaryFile("w", suffix=".md", delete=False) as fh:
+            fh.write(body)
+            path = fh.name
+        findings = _run("--pr-body-file", path)
+        negs = [f for f in findings if f["category"] == "defensive-negation"]
+        self.assertEqual(negs, [], f"skip-regions should suppress; got: {negs}")
+
+    def test_scope_filter_protects_defensive_negation(self):
+        self.assertNotIn(
+            "skills/code-ultrareview/SKILL.md",
+            detector.filter_scope(["skills/code-ultrareview/SKILL.md", "README.md"]),
+        )
+
+    def test_main_corpus_fp_rate_under_threshold(self):
+        # WS-C ship-or-defer sanity check. Running the detector against the
+        # current main README should produce ≤2 defensive-negation findings.
+        # >2 means the heuristic over-fires on legitimate prose; tighten the
+        # patterns or defer the category to a follow-up version.
+        main_readme = subprocess.run(
+            ["git", "show", "main:README.md"],
+            cwd=str(REPO_ROOT),
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+        tmp_path = _write_tmp(main_readme)
+        findings = _run("--prose-file", tmp_path)
+        negs = [f for f in findings if f["category"] == "defensive-negation"]
+        self.assertLessEqual(
+            len(negs), 2,
+            f"FP rate too high on main README: {len(negs)} hits — tighten patterns. "
+            f"Hits: {negs}",
+        )
+
+
 class TestRuleRestatement(unittest.TestCase):
     def test_no_ai_footer_restatement_flagged(self):
         findings = _run(
