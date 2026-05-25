@@ -42,8 +42,8 @@ else
     exit 1
 fi
 
-# Create temp file scoped to apex's own output dir — keeps inter-process state
-# off the world-writable /tmp surface flagged by external scanners (W011).
+# Scope the temp file under ~/.claude/output — keeps inter-process state off
+# the world-writable /tmp surface flagged by external scanners (W011).
 APEX_TEMP_DIR="${HOME}/.claude/output"
 mkdir -p "$APEX_TEMP_DIR"
 TEMP_FILE=$(mktemp "$APEX_TEMP_DIR/.apex-progress.XXXXXX")
