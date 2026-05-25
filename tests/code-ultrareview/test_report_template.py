@@ -292,7 +292,7 @@ class TestCoherenceGraphStatus(unittest.TestCase):
             self.assertIn(sub_graph, block, f"sub-graph {sub_graph!r} missing")
 
     def test_six_sub_graphs_match_coherence_graph_reference(self):
-        ref = REPO_ROOT / "skills" / "code-ultrareview" / "references" / "coherence-graph.md"
+        ref = REPO_ROOT / "skills" / "code-ultrareview" / "references" / "lens-coherence-graph.md"
         ref_text = ref.read_text(encoding="utf-8")
         for sub_graph in REVIEW["coherence_sub_graphs"]:
             self.assertIn(sub_graph, ref_text)

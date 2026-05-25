@@ -39,11 +39,11 @@ def _finding(**overrides) -> dict:
 
 
 class TestLensSummaryShape(unittest.TestCase):
-    def test_returns_six_rows(self):
+    def test_returns_seven_rows(self):
         summary = aggregation.compute_lens_summary(
             [], [], aggregation.ALWAYS_ON_LENSES
         )
-        self.assertEqual(len(summary), 6)
+        self.assertEqual(len(summary), 7)
 
     def test_canonical_lens_order(self):
         summary = aggregation.compute_lens_summary(

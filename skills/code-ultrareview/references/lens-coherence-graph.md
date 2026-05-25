@@ -1,10 +1,9 @@
-# Coherence-graph lens
+# Lens: Coherence-graph (key `coherence-graph`)
 
-The industry-blank differentiator. Detects cross-artifact drift across six
-structured sub-graphs: description, version, capability, cross-reference,
-example, spec-conformance. Catches the README ↔ `package.json` ↔ About ↔
-marketplace ↔ topics ↔ CHANGELOG drift that motivated `code-ultrareview`'s
-rewrite.
+Detects cross-artifact drift across six structured sub-graphs: description,
+version, capability, cross-reference, example, spec-conformance. Catches
+the README ↔ `package.json` ↔ About ↔ marketplace ↔ topics ↔ CHANGELOG
+drift that motivated this skill's rewrite.
 
 ## Dispatch protocol
 

@@ -90,8 +90,11 @@ class TestReportSchema(unittest.TestCase):
 
     def test_derivation_lens_key_present(self):
         self.assertIn("derivation", REVIEW["report_lens_keys"])
-        # The five legacy keys stay alongside derivation — six total.
-        self.assertEqual(len(REVIEW["report_lens_keys"]), 6)
+
+    def test_prose_hygiene_lens_key_present(self):
+        self.assertIn("prose-hygiene", REVIEW["report_lens_keys"])
+        # The five legacy keys + derivation + prose-hygiene = seven total.
+        self.assertEqual(len(REVIEW["report_lens_keys"]), 7)
 
     def test_realistic_fixture_carries_scope_header(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")

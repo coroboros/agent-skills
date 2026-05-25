@@ -48,15 +48,19 @@ CANONICAL_LENSES = (
     "tests-blindspots",
     "coherence-graph",
     "derivation",
+    "prose-hygiene",
 )
 
 # Always-on lenses. Derivation is conditional (requires --reconcile).
+# prose-hygiene is always-on with `--no-prose-hygiene` opt-out — the
+# dispatcher strips the flag from $ARGUMENTS and skips this lens when set.
 ALWAYS_ON_LENSES = (
     "rules",
     "bugs-drift",
     "docs-version",
     "tests-blindspots",
     "coherence-graph",
+    "prose-hygiene",
 )
 
 # Tokens used to build the dedup key from a finding text.

@@ -1,8 +1,8 @@
 ---
 name: code-ultrareview
-description: In-session fresh-eyes code review at full strength — six parallel lens subagents (rules, bugs-drift with A1 spec triggers, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`), iteration on sub-80 findings with build verification, property-fuzz harness, gated `--apply-safe` writers. Every report ends with a six-lens summary (🔴 / 🟠 / 🟢), a deterministic verdict (Ship / Fix-then-ship / Needs work), and per-cluster action-plan prompts routed to the most-specialized installed skill (falling back to `/apex`). Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's remote `/ultrareview` — same lenses, in-session.
+description: In-session fresh-eyes code review at full strength — seven parallel lens subagents (rules, bugs-drift with A1 spec triggers, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`, prose-hygiene over PR body + commits + user-facing docs with `--no-prose-hygiene` opt-out), iteration on sub-80 findings with build verification, property-fuzz harness, gated `--apply-safe` writers. Every report ends with a seven-lens summary (🔴 / 🟠 / 🟢), a deterministic verdict (Ship / Fix-then-ship / Needs work), and per-cluster action-plan prompts routed to the most-specialized installed skill (falling back to `/apex`). Report-only by default; defers security/performance/simplification to owning skills. Distinct from Anthropic's remote `/ultrareview` — same lenses, in-session.
 when_to_use: 'User-invoked at the end of a coding session, before a commit, or before opening a PR. Always runs the full lens fan-out — no tiers, `effort: max`. Audit phase surfaces Scope + estimated wall-clock in the report header. Invoke when you''d say "review my changes", "ultrathink review", "did I miss anything", "check before I commit", "drift / gaps / blind spots", "manifest coherence", "spec conformance". NOT a security audit (use /security-review); NOT performance/simplification (use /simplify); NOT Anthropic''s remote billed command (use /ultrareview).'
-argument-hint: "[-b <ref>] [--reconcile <input>] [--apply-safe] [--include-prose] [--remote] [-s] [-S]"
+argument-hint: "[-b <ref>] [--reconcile <input>] [--apply-safe] [--include-prose] [--no-prose-hygiene] [--remote] [-s] [-S]"
 model: opus
 effort: max
 license: MIT
@@ -40,7 +40,12 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 
 ## Objective
 
-A fresh-eyes pass over what changed, at full strength every time. The audit phase reads deterministic signals from the diff (LOC, public-API touch, normative-spec claims, manifest delta, test-coverage delta, pre-1.0 proximity, security surface) and surfaces a Scope summary + estimated wall-clock in the report header — informational context only, no tier routing. Six lens subagents (`rules`, `bugs-drift`, `docs-version`, `tests-blindspots`, `coherence-graph`, `derivation`) run in parallel; sub-80 findings re-pass with build verification when feasible; spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI); property-fuzz harness synthesis from spec grammar when `fast-check` / `hypothesis` is present; opt-in `--apply-safe` writers gate write semantics. Findings are confidence-scored 0–100 and surfaced — sub-80 are routed to the Unverified sub-section rather than silent-dropped. The skill writes no code by default and owns no checklist of its own — every criterion is read at runtime from the project. Anything outside its lane (security, performance, simplification) becomes a one-line pointer to the skill that owns it, never a finding.
+Fresh-eyes pass over the diff, at full strength. Seven lens subagents run in
+parallel; criteria come from the project's rule hierarchy at runtime, not a
+baked checklist. Findings score 0–100 and surface verbatim — sub-80 route
+to the Unverified sub-section (A2 contract). Out-of-lane work (security,
+performance, simplification) emits a single pointer line, never a finding.
+Operational detail follows in `## How it runs` and per-lens references.
 
 ## Parameters
 
@@ -52,6 +57,7 @@ A fresh-eyes pass over what changed, at full strength every time. The audit phas
 | `--reconcile <input>` | Activate the derivation lens. `<input>` may be `@auto` (auto-detect forge + apex plan + PR body), `@pr`, an explicit path or directory of `.md` files, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL. Comma-separate multiple inputs. Findings classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT with freshness-capped severity |
 | `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation prompt before any write. Never modifies production logic |
 | `--include-prose` | Coherence-graph lens compares README freeform paragraphs as well (default: structured fields only — `package.json`, `marketplace.json`, SKILL.md frontmatter, GitHub About, topics) |
+| `--no-prose-hygiene` | Skip the prose-hygiene lens (PR body, commits, user-facing `*.md` checks). Lens runs by default; the row reads `— skipped (--no-prose-hygiene)` in the lens summary when set |
 | `--remote` | Reserved for phase-2 remote-sandbox escalation; current MVP is in-session |
 
 `{slug}` = kebab of the branch name or a short description (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths. Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
@@ -64,6 +70,7 @@ A fresh-eyes pass over what changed, at full strength every time. The audit phas
 /code-ultrareview --reconcile @pr,gh:issue:owner/repo#42  # PR body + a specific issue
 /code-ultrareview --apply-safe                 # full review + gated low-risk fixes
 /code-ultrareview --include-prose              # also compare README freeform prose
+/code-ultrareview --no-prose-hygiene           # skip the prose-hygiene lens
 ```
 
 ## What it reviews
@@ -92,45 +99,44 @@ The **rule hierarchy** every lens reviews against, read fresh each run:
 - `.claude/rules/*.md` (project)
 - `~/.claude/rules/*.md` (global)
 
-## The six lenses
+## The seven lenses
 
-One read-only subagent per lens. Operational definitions, subagent briefs, and the confidence rubric live in `references/lenses.md` — read it before dispatching.
+One read-only subagent per lens. Each lens has a `references/lens-<key>.md`
+brief with its operational definition; `references/lenses.md` owns the
+dispatch protocol, confidence rubric, exclusion contract, and graceful
+degradation.
 
-1. **Rules compliance** (key `rules`) — new violations of the rule hierarchy, citing the exact rule line.
-2. **Bugs + drift** (key `bugs-drift`) — logic errors on changed lines; code no longer matching its own doc/comment/claim or a sibling pattern. When the diff/README/CLAUDE.md cites a named normative spec (RFC, WHATWG, ISO/IEC, OpenAPI), the lens fetches the spec, quotes the governing clause, and diffs the code against it (A1).
-3. **Docs + version** (key `docs-version`) — user-visible behavior changed without a doc/version update.
-4. **Tests + blind spots** (key `tests-blindspots`) — missing tests the convention implies, tests that can't fail, unstated assumptions.
-5. **Coherence-graph** (key `coherence-graph`) — cross-artifact drift across six sub-graphs: description, version, capability, cross-reference, example, spec-conformance. Default to structured fields only; `--include-prose` extends to README freeform. Sub-graph briefs and the `.coherence-ignore` allowlist format live in `references/coherence-graph.md`.
-6. **Derivation** (key `derivation`) — reconciles planning artifacts (forge, apex plan, PR body, issue body) against the diff. Activates on `--reconcile <input>`. Classifies each claim as GAP (planning said X, code missing), SCOPE-ADD (code has X, planning silent), DECISION-OVERRIDE (planning resolved X, code does Y), or CONSISTENT. Severity capped by artifact freshness (>30d → Low; >90d → coverage-summary only). Per-repo `.derivation-ignore` allowlist. Brief, classification taxonomy, and auto-detection set live in `references/derivation.md`.
+| Key | One-line | Brief |
+|-----|----------|-------|
+| `rules` | New violations of the rule hierarchy | `references/lens-rules.md` |
+| `bugs-drift` | Logic errors + drift + single-source-of-truth (A1 spec triggers, sub-80 iteration always-on) | `references/lens-bugs-drift.md` |
+| `docs-version` | User-visible behavior changed without doc/version update | `references/lens-docs-version.md` |
+| `tests-blindspots` | Test gaps, weak tests, unstated assumptions | `references/lens-tests-blindspots.md` |
+| `coherence-graph` | Cross-artifact drift across 6 sub-graphs; `--include-prose` extends to README freeform | `references/lens-coherence-graph.md` |
+| `derivation` | Reconcile planning artifacts against the diff; activates on `--reconcile` | `references/lens-derivation.md` |
+| `prose-hygiene` | PR body + commits + user-facing `*.md`; `--no-prose-hygiene` opt-out | `references/lens-prose-hygiene.md` |
 
-These six keys are canonical — the report table, the evals, and the pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
+These seven keys are canonical — the report table, the evals, and the
+pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
 
 ## How it runs
 
-```
-Phase 1 — AUDIT  (always-on, ~30–60s, 1 Haiku subagent)
-  signals: LOC, files, public-API touched, spec claims, manifest delta,
-           pre-1.0 proximity, test-coverage delta, security surface
-  output:  Scope summary + estimated wall-clock for the report header
-           (deterministic context — no tier routing, no gate)
+Three phases: **AUDIT** (~30–60s, 1 Haiku subagent — extracts signals into
+the header), **DISPATCH** (6-7 lens subagents in parallel + execution
+layer for iteration, spec fetch, fuzz harness, opt-in `--apply-safe`
+writers), **AGGREGATION** (1 synthesizer — dedupe, severity tiers, A2
+routing).
 
-Phase 2 — DISPATCH  (5 or 6 lens subagents in parallel + execution layer)
-  Lenses:    rules + bugs-drift (with A1 spec fetch) + docs-version
-             + tests-blindspots + coherence-graph (6 sub-graphs)
-             + derivation (when --reconcile resolves to non-empty input)
-  Iteration: sub-80 findings re-passed with build verification (1/finding)
-  Spec fetch: WebFetch + 7-day ETag cache; quotes governing clause
-  Fuzz:      harness synthesis when fast-check / hypothesis present
-  Writers:   opt-in via --apply-safe — version_sync, description_sync,
-             failing_test_writer
+Detail references:
 
-Phase 3 — AGGREGATION  (1 synthesizer subagent)
-  dedupe by (location, finding-key); severity tiers
-  (Important / Nit / Pre-existing); sub-80 surfaced as
-  "[unverified]" (never silent-dropped — A2)
-```
-
-Audit-phase signal schema and report-header formatting live in `references/audit-phase.md`. Lens briefs and the no-silent-drop (A2) contract live in `references/lenses.md` and `references/aggregation.md`. Coherence-graph sub-graphs and the `.coherence-ignore` allowlist live in `references/coherence-graph.md`. Derivation lens — classification taxonomy, auto-detection set, `.derivation-ignore` format, interactive launch prompt — lives in `references/derivation.md`. Build / fuzz / `--apply-safe` details live in `references/ultra-execution.md`. The `--remote` phase-2 escalation design lives in `references/remote-escalation-design.md`.
+- `references/audit-phase.md` — signal schema + report-header formatting
+- `references/lenses.md` — dispatch protocol + scoring rubric + contracts
+- `references/lens-<key>.md` — per-lens briefs (one per canonical lens key above)
+- `references/aggregation.md` — A2 no-silent-drop + dedup
+- `references/ultra-execution.md` — build / fuzz / `--apply-safe`
+- `references/remote-escalation-design.md` — `--remote` phase-2 escalation
+- `references/skill-routing.md` — action-plan routing
+- `references/verdict-logic.md` — Ship / Fix-then-ship / Needs work algorithm
 
 1. Resolve the target (above); read the rule hierarchy; run the audit phase to extract signals and format the Scope + Estimated wall-clock header.
 2. Launch the lens subagents **in one message** (parallel, read-only). Each is given the resolved `base`/`target` (or "dirty tree") and the rule-hierarchy paths, then reconstructs its own review set read-only per `references/lenses.md` (never skipping untracked files), with its lens brief and the exclusion contract.
@@ -146,7 +152,7 @@ Audit-phase signal schema and report-header formatting live in `references/audit
 Every `##` section below renders verbatim, in this order, with a `---` separator above it and its canonical emoji prefix. The template at `templates/code-ultrareview.md` is the wire format — section names are not rewritten, merged, reordered, or replaced. This applies to terminal output and to the `-s` saved file: the saved report and what prints to the chat must match heading-for-heading.
 
 1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified`. Omitted on a fully clean review.
-2. **`## 📋 Lens summary`** — six-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional.
+2. **`## 📋 Lens summary`** — seven-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional; prose-hygiene reads `— skipped (--no-prose-hygiene)` when opted out.
 3. **`## 🔎 Findings`** — split into four mandatory sub-sections in this order: `### 🔴 High`, `### 🟠 Medium`, `### 🟢 Low`, `### ⚠️ Unverified`. The severity emoji is part of the heading and is never dropped. The row tables omit the Severity column (severity lives in the heading) and use per-section ID prefixes — `H1`, `H2`, …, `M1`, …, `L1`, …, `U1`, … — so findings stay addressable. Each sub-section renders even when its count is zero (body `_None._`).
 4. **`## 🧭 Deferred to sibling skills`** — out-of-lane pointers (security, performance, depth, stale-API).
 5. **`## ✅ What looks good`** — positive callouts.
@@ -173,7 +179,7 @@ Out-of-lane findings are never reported as findings — emit a single pointer li
 
 ## Graceful degradation
 
-No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state `Lens 1 (rules): skipped — no rules baseline found` in the report header, run the other four. The skill stays useful on any repo.
+No `CLAUDE.md`, no `.claude/rules`, no `~/.claude/rules` → skip lens 1, state `Lens 1 (rules): skipped — no rules baseline found` in the report header, run the other always-on lenses (2-7). The skill stays useful on any repo.
 
 Coherence-graph lens degrades sub-graph by sub-graph: if `gh` CLI is unavailable, the description / topics sub-graphs are skipped and the header notes the skip; if `WebFetch` is unavailable for the spec-conformance sub-graph, the finding surfaces as `[unverified — needs network]` rather than dropping.
 
@@ -193,11 +199,11 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 
 ## Rules
 
-- **Report-only by default.** No code changes unless `--apply-safe` is set; even then, only the three write classes above.
-- **Stay in lane.** Security, performance, simplification → pointer only, never a finding.
 - **Only new findings.** Issues the diff introduces, not pre-existing ones (Pre-existing tier accepted for context).
 - **No silent drop.** Sub-80 findings surface as `[unverified]` with the rationale `Sub-80 confidence ({score}) — verify locally before action.` — never omitted (A2).
 - **Fail loud.** A lens that cannot run (unresolvable base, missing baseline, fetch failure) is stated in the header or surfaced as a finding, never silently skipped.
 - **Cite precisely.** Every finding carries `file:line`; rule findings quote the violated rule line verbatim; spec-conformance findings quote the governing clause.
-- **Canonical sections only.** The 9 `##` headings listed in *Final report layout* are exhaustive — each emoji prefix and the `---` separator above each section are mandatory in terminal output and in the `-s` saved file. The four `### 🔴 / 🟠 / 🟢 / ⚠️` sub-sections inside `## 🔎 Findings` render in that order, every time, even when a count is zero (body `_None._`). Never invent, rename, merge, or reorder sections; debug data (e.g., dropped findings, internal logs) does not surface in the user report.
-- **Full report in chat every time.** Print the complete canonical report — header, every `##` section, every finding sub-section — to the chat-terminal on every invocation. `-s` is additive: it writes the same bytes to disk; it does not gate, truncate, or summarise the chat-terminal output. A run that saves to disk but echoes a digest to the user breaks this contract.
+- **Full report in chat every time.** Print the complete canonical report — header, every `##` section, every finding sub-section — to the chat-terminal on every invocation. `-s` is additive: it writes the same bytes to disk; it does not gate, truncate, or summarise the chat-terminal output. Terminal output and saved file are byte-for-byte identical. (Mirrored in `## Final report layout` and `templates/code-ultrareview.md` — enforced by `test_section_emoji_drift.TestTerminalEchoRuleMirroredInThreePlaces`.)
+
+Report-only default + deferral spine + canonical sections live in their own
+sections above — not restated here.

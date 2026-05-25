@@ -131,7 +131,7 @@ CLUSTERS = {
         ),
         "report_lens_keys": (
             "rules", "bugs-drift", "docs-version", "tests-blindspots",
-            "coherence-graph", "derivation",
+            "coherence-graph", "derivation", "prose-hygiene",
         ),
         # High/Medium/Low retained for compatibility; Important/Nit/
         # Pre-existing added per Anthropic Managed Code Review and emitted
