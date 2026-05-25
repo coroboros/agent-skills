@@ -1,13 +1,10 @@
-# Derivation lens — reconcile planning artifacts vs the diff
+# Lens: Derivation (key `derivation`)
 
-The sixth lens in the code-ultrareview family. Closes the code↔internal-plan
-axis (parallel to bugs-drift / code↔own-docstring, coherence-graph /
-code↔manifest, spec-conformance / code↔external-spec). Activates on
-`--reconcile <input>` and compares planning artifacts (forge, apex plan,
-PR body, issue body) against the diff, classifying each
-divergence as **GAP** (planning said X, code missing), **SCOPE-ADD** (code
-has X, planning silent), **DECISION-OVERRIDE** (planning resolved X, code
-does Y), or **CONSISTENT**.
+Reconciles planning artifacts (forge, apex plan, PR body, issue body)
+against the diff. Closes the code↔internal-plan axis — parallel to
+bugs-drift (code↔own-docstring), coherence-graph (code↔manifest), and
+spec-conformance (code↔external-spec). Activates on `--reconcile <input>`.
+Classification taxonomy + severities live below.
 
 ## Dispatch protocol
 

@@ -1,22 +1,11 @@
-# Prose-hygiene lens — brief, dispatch, baseline
+# Lens: Prose hygiene (key `prose-hygiene`)
 
-The prose-hygiene lens reviews shared prose artifacts touched by the
-session: the PR body and title (when a PR is open for the current
-branch), every commit on the branch between the resolved base and HEAD,
-and user-facing `*.md` files in the diff. It ships a portable baseline of
-rules and layers any user/project rules it discovers on top — project
-rules win on conflict.
-
-## Why a dedicated lens
-
-The other lenses review code and structured docs against repo-declared
-rules. Shared prose (PR body, commits, README, CHANGELOG, release notes)
-is public-displayed, gets read by reviewers and merged into release
-history, and rots there if it leaks local paths, AI signature footers, or
-restates rules the body claims to follow. The prose-hygiene lens fills
-that gap with a portable baseline so the skill stays useful on any repo,
-and discovers project-declared rules so a repo's own conventions take
-precedence on conflict.
+Reviews shared prose touched by the session — PR body + title (when a PR
+is open), every commit between the resolved base and HEAD, and
+user-facing `*.md` files in the diff. Ships a portable baseline; layers
+user/project rules on top via standard Claude Code discovery; project
+rules win on conflict. Closes the public-prose hygiene axis the other
+lenses do not cover.
 
 ## Inputs
 
@@ -183,24 +172,6 @@ report header can surface a one-line `Prose rules: <list>` (or `Prose
 rules: baseline only` when none are found). Discovery is path-based and
 does not parse rule content — content interpretation is the subagent's
 job at dispatch time.
-
-## Severity map
-
-| Category | Severity | Confidence anchor |
-|----------|----------|-------------------|
-| internal-leak | 🔴 High | Regex match on concrete pattern → 90 |
-| ai-signature-footer | 🔴 High | Regex match on signed line → 90 |
-| rule-restatement | 🟠 Medium | Anchor-keyed bullet pattern → 80 |
-| length-overflow (hard cap, > 150 / > 72-char subject) | 🟠 Medium | Deterministic line/char count → 90 |
-| commit-shape-non-cc (when adopted) | 🟠 Medium | Pattern miss with adoption signal → 90 |
-| ai-vocabulary | 🟢 Low | Word-list match → 70 |
-| em-dash-density | 🟢 Low | Ratio over threshold → 70 |
-| length-overflow (soft cap, 80–150) | 🟢 Low | Deterministic, advisory → 80 |
-| commit-shape-non-cc (not adopted) | 🟢 Low | Informational → 70 |
-
-Verdict impact follows the standard `aggregation.py::compute_verdict`
-mapping: 🔴 + Important → Needs work; 🟠 + Important → Fix-then-ship;
-🟢 alone → Ship.
 
 ## Dispatch
 

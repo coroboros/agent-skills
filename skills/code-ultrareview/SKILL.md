@@ -40,7 +40,12 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 
 ## Objective
 
-A fresh-eyes pass over what changed, at full strength every time. The audit phase reads deterministic signals from the diff (LOC, public-API touch, normative-spec claims, manifest delta, test-coverage delta, pre-1.0 proximity, security surface) and surfaces a Scope summary + estimated wall-clock in the report header — informational context only, no tier routing. Seven lens subagents (`rules`, `bugs-drift`, `docs-version`, `tests-blindspots`, `coherence-graph`, `derivation`, `prose-hygiene`) run in parallel; sub-80 findings re-pass with build verification when feasible; spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI); property-fuzz harness synthesis from spec grammar when `fast-check` / `hypothesis` is present; opt-in `--apply-safe` writers gate write semantics. Findings are confidence-scored 0–100 and surfaced — sub-80 are routed to the Unverified sub-section rather than silent-dropped. The skill writes no code by default and owns no checklist of its own — every criterion is read at runtime from the project. Anything outside its lane (security, performance, simplification) becomes a one-line pointer to the skill that owns it, never a finding.
+Fresh-eyes pass over the diff, at full strength. Seven lens subagents run in
+parallel; criteria come from the project's rule hierarchy at runtime, not a
+baked checklist. Findings score 0–100 and surface verbatim — sub-80 route
+to the Unverified sub-section (A2 contract). Out-of-lane work (security,
+performance, simplification) emits a single pointer line, never a finding.
+Operational detail follows in `## How it runs` and per-lens references.
 
 ## Parameters
 
@@ -116,30 +121,11 @@ pipeline contract (`tests/_pipeline/_contracts.py`) all key off them.
 
 ## How it runs
 
-```
-Phase 1 — AUDIT  (always-on, ~30–60s, 1 Haiku subagent)
-  signals: LOC, files, public-API touched, spec claims, manifest delta,
-           pre-1.0 proximity, test-coverage delta, security surface
-  output:  Scope summary + estimated wall-clock for the report header
-           (deterministic context — no tier routing, no gate)
-
-Phase 2 — DISPATCH  (6 or 7 lens subagents in parallel + execution layer)
-  Lenses:    rules + bugs-drift (with A1 spec fetch) + docs-version
-             + tests-blindspots + coherence-graph (6 sub-graphs)
-             + prose-hygiene (PR body + commits + user-facing *.md;
-               opt-out via --no-prose-hygiene)
-             + derivation (when --reconcile resolves to non-empty input)
-  Iteration: sub-80 findings re-passed with build verification (1/finding)
-  Spec fetch: WebFetch + 7-day ETag cache; quotes governing clause
-  Fuzz:      harness synthesis when fast-check / hypothesis present
-  Writers:   opt-in via --apply-safe — version_sync, description_sync,
-             failing_test_writer
-
-Phase 3 — AGGREGATION  (1 synthesizer subagent)
-  dedupe by (location, finding-key); severity tiers
-  (Important / Nit / Pre-existing); sub-80 surfaced as
-  "[unverified]" (never silent-dropped — A2)
-```
+Three phases: **AUDIT** (~30–60s, 1 Haiku subagent — extracts signals into
+the header), **DISPATCH** (6-7 lens subagents in parallel + execution
+layer for iteration, spec fetch, fuzz harness, opt-in `--apply-safe`
+writers), **AGGREGATION** (1 synthesizer — dedupe, severity tiers, A2
+routing).
 
 Detail references:
 
@@ -213,11 +199,11 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 
 ## Rules
 
-- **Report-only by default.** No code changes unless `--apply-safe` is set; even then, only the three write classes above.
-- **Stay in lane.** Security, performance, simplification → pointer only, never a finding.
 - **Only new findings.** Issues the diff introduces, not pre-existing ones (Pre-existing tier accepted for context).
 - **No silent drop.** Sub-80 findings surface as `[unverified]` with the rationale `Sub-80 confidence ({score}) — verify locally before action.` — never omitted (A2).
 - **Fail loud.** A lens that cannot run (unresolvable base, missing baseline, fetch failure) is stated in the header or surfaced as a finding, never silently skipped.
 - **Cite precisely.** Every finding carries `file:line`; rule findings quote the violated rule line verbatim; spec-conformance findings quote the governing clause.
-- **Canonical sections only.** The 9 `##` headings listed in *Final report layout* are exhaustive — each emoji prefix and the `---` separator above each section are mandatory in terminal output and in the `-s` saved file. The four `### 🔴 / 🟠 / 🟢 / ⚠️` sub-sections inside `## 🔎 Findings` render in that order, every time, even when a count is zero (body `_None._`). Never invent, rename, merge, or reorder sections; debug data (e.g., dropped findings, internal logs) does not surface in the user report.
-- **Full report in chat every time.** Print the complete canonical report — header, every `##` section, every finding sub-section — to the chat-terminal on every invocation. `-s` is additive: it writes the same bytes to disk; it does not gate, truncate, or summarise the chat-terminal output. A run that saves to disk but echoes a digest to the user breaks this contract.
+- **Full report in chat every time.** Print the complete canonical report — header, every `##` section, every finding sub-section — to the chat-terminal on every invocation. `-s` is additive: it writes the same bytes to disk; it does not gate, truncate, or summarise the chat-terminal output. Terminal output and saved file are byte-for-byte identical. (Mirrored in `## Final report layout` and `templates/code-ultrareview.md` — enforced by `test_section_emoji_drift.TestTerminalEchoRuleMirroredInThreePlaces`.)
+
+Report-only default + deferral spine + canonical sections live in their own
+sections above — not restated here.
