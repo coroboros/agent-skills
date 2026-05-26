@@ -144,11 +144,23 @@ Full axis map and inter-axis precedence: `references/axes-overview.md`.
 
 ### Phase 4 — Validation
 
-For every still-sub-80 finding from Phase 3, the orchestrator launches one Haiku validator (batched ≤10 parallel). Each validator:
+The orchestrator (main thread) prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one Haiku `Task` per finding in the same message — batched ≤10 parallel. Each validator receives the finding + diff context + the deepest matching CLAUDE.md snippet + the verbatim rubric.
 
-1. Receives the finding + diff context + relevant CLAUDE.md snippet + the verbatim rubric.
-2. Re-scores 0-100 against the rubric.
-3. Re-checks that the cited CLAUDE.md rule actually exists in `claude_md_chain`. Demotes with explicit reason if not found.
+```bash
+python3 scripts/run_validators.py prepare \
+  --scope <scope.json> \
+  --findings <axis-findings.jsonl> \
+  --diff <diff.patch> \
+  --output-dir <run-dir>
+```
+
+The script emits `{count, batches: [[idx, ...], ...], bundles: {idx: {input_path, prompt_path}}}`. The orchestrator reads each batch's `prompt_path`, fans out one `Task` per index in one message, collects stdout as `{index, score, reason}` lines, then runs `scripts/run_validators.py ingest` to apply A2-preserving promote/demote logic on top of `scripts/synthesis_core.py` primitives.
+
+Each validator:
+
+1. Re-scores 0-100 against the verbatim rubric.
+2. Re-checks that the cited CLAUDE.md rule actually exists in `claude_md_chain`. Demotes with explicit reason if not found (`CLAUDE.md rule not found at <path>`).
+3. Stays read-only — no Write/Edit/Bash, no nested subagent spawn.
 
 Confidence threshold = 80 (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic.
 
