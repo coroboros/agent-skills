@@ -1,0 +1,18 @@
+[
+  {
+    "id": "endpoint-removed",
+    "level": 3,
+    "operation": "GET",
+    "path": "/users/{id}",
+    "text": "Endpoint was removed",
+    "source": {"file": "openapi.yaml", "line": 42}
+  },
+  {
+    "id": "response-property-removed",
+    "level": 2,
+    "operation": "POST",
+    "path": "/orders",
+    "text": "Response property 'total' was removed",
+    "source": {"file": "openapi.yaml", "line": 120}
+  }
+]

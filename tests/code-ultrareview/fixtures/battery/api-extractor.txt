@@ -1,0 +1,4 @@
+Reading config file: api-extractor.json
+Analysis will use the bundled TypeScript version
+Warning: src/index.ts:42:5 - (ae-missing-getter) The property "foo" has a setter but no getter
+Error: src/index.ts:50:1 - (ae-internal-missing-underscore) The internal item "_bar" must have an underscore

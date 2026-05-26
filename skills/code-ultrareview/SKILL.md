@@ -90,7 +90,7 @@ Runs `scripts/run_battery.sh` (WS-2). Deterministic CLIs feed `tool-findings.jso
 
 - **JS/TS** — `npx knip` (dead code), `npx jscpd` (duplication), `npx markdownlint-cli2`, optional `npx @microsoft/api-extractor`.
 - **Python** — `uvx lizard` (complexity), `uvx vulture` (dead code), `uvx semgrep --config=auto`, `npx jscpd` (cross-language).
-- **Go** — `deadcode`, `gocyclo`, `dupl`, `npx jscpd`.
+- **Go** — `deadcode`, `gocyclo`, `dupl`, `npx jscpd`, `uvx lizard`.
 - **Rust** — `cargo-machete`, `npx jscpd`, `uvx lizard -l rust`.
 - **Universal** — `uvx semgrep` with bundled `references/perf-rules/` (N+1 and sync-I/O rules).
 - **API** — `oasdiff` when an OpenAPI file appears in the diff.

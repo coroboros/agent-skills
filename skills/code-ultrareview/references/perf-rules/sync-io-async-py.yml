@@ -1,0 +1,29 @@
+rules:
+  - id: code-ultrareview-sync-io-in-async-py
+    message: |
+      Blocking call inside async function. The event loop stalls until the
+      call returns. Use the asyncio counterpart — asyncio.sleep, aiohttp /
+      httpx.AsyncClient, aiofiles, asyncio.create_subprocess_exec.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      axis: performance
+      source_tool: semgrep
+      category: sync-io-in-async
+    patterns:
+      - pattern-inside: |
+          async def $FUNC(...):
+              ...
+      - pattern-either:
+          - pattern: time.sleep(...)
+          - pattern: requests.get(...)
+          - pattern: requests.post(...)
+          - pattern: requests.put(...)
+          - pattern: requests.delete(...)
+          - pattern: requests.patch(...)
+          - pattern: requests.request(...)
+          - pattern: urllib.request.urlopen(...)
+          - pattern: subprocess.run(...)
+          - pattern: subprocess.check_output(...)
+          - pattern: subprocess.check_call(...)
+          - pattern: subprocess.call(...)

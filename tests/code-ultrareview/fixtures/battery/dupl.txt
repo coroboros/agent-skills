@@ -1,0 +1,5 @@
+found 1 clones:
+
+src/a.go:10,30
+src/b.go:50,70
+

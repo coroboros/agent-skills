@@ -1,0 +1,29 @@
+rules:
+  - id: code-ultrareview-n-plus-one-sqlalchemy
+    message: |
+      Potential N+1 query: lazy-loaded relationship accessed inside a loop over
+      a SQLAlchemy query result. Use joinedload() / selectinload() for eager
+      loading, or batch-fetch related rows with a single IN query.
+    languages: [python]
+    severity: WARNING
+    metadata:
+      axis: performance
+      source_tool: semgrep
+      category: n-plus-one
+    patterns:
+      - pattern-either:
+          - patterns:
+              - pattern-inside: |
+                  for $X in $SESSION.query(...).all():
+                      ...
+              - pattern: $X.$REL
+          - patterns:
+              - pattern-inside: |
+                  for $X in $SESSION.query(...):
+                      ...
+              - pattern: $X.$REL
+          - patterns:
+              - pattern-inside: |
+                  for $X in $SESSION.scalars(...).all():
+                      ...
+              - pattern: $X.$REL

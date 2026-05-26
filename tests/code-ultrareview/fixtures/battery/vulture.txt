@@ -1,0 +1,3 @@
+src/foo.py:10: unused function 'helper' (90% confidence)
+src/foo.py:20: unused variable 'tmp' (60% confidence)
+src/bar.py:5: unused import 'os' (90% confidence)

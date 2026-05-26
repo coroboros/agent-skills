@@ -1,0 +1,24 @@
+{
+  "Files": [
+    {
+      "Name": "migrations/001_init.sql",
+      "Reports": [
+        {
+          "Diagnostics": [
+            {"Pos": 1, "Text": "Adding NOT NULL column without default", "Code": "MF101"}
+          ]
+        }
+      ]
+    },
+    {
+      "Name": "migrations/002_drop.sql",
+      "Reports": [
+        {
+          "Diagnostics": [
+            {"Pos": 10, "Text": "Dropping table is destructive", "Code": "DS103"}
+          ]
+        }
+      ]
+    }
+  ]
+}

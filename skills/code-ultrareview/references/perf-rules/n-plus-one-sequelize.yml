@@ -1,0 +1,32 @@
+rules:
+  - id: code-ultrareview-n-plus-one-sequelize
+    message: |
+      Potential N+1 query: awaited Sequelize fetch inside a loop iterating a
+      result set. Pass `include: [...]` to the parent findAll for eager
+      loading, or use `where: { id: { [Op.in]: ids } }` to batch-fetch.
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      axis: performance
+      source_tool: semgrep
+      category: n-plus-one
+    patterns:
+      - pattern-either:
+          - pattern: |
+              for (const $X of $LIST) {
+                ...
+                await $X.$METHOD(...)
+                ...
+              }
+          - pattern: |
+              for (let $X of $LIST) {
+                ...
+                await $X.$METHOD(...)
+                ...
+              }
+          - pattern: |
+              for ($X of $LIST) {
+                ...
+                await $X.$METHOD(...)
+                ...
+              }

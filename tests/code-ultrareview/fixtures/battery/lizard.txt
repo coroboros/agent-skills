@@ -1,0 +1,5 @@
+NLOC,CCN,token,PARAM,length,location
+5,1,30,2,8,"simple_func@3-10@src/main.py"
+20,15,100,4,30,"complex_func@11-50@src/main.py"
+3,2,20,1,5,"trivial@60-65@src/main.py"
+40,8,200,7,80,"too_many_params@70-150@src/util.py"
