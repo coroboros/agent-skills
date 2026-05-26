@@ -164,6 +164,8 @@ Each validator:
 
 Confidence threshold = 80 (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic.
 
+**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s total. Latency is dominated by Haiku launch overhead, not validator inference; 25+ findings spread over 2-3 batches stay under ~2 min.
+
 **A2 contract.** No sub-80 finding silently dropped. Each one is promoted to ≥80, demoted with reason, or surfaced in `### ⚠️ Unverified` with the validator's reason text.
 
 **Phase 3.5 — `--verify-build`.** Build verification runs BEFORE validators. Confirmed findings get +30 confidence (capped at 95, floor at the 80 threshold) and skip the validator phase. Implementation: `scripts/build_detect.py` returns the canonical test command; the loop runs one iteration per sub-80 finding.
