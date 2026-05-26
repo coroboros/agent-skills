@@ -6,7 +6,7 @@
       "id": 1,
       "name": "produces-canonical-report-shape",
       "prompt": "/code-ultrareview review the changes on this branch",
-      "expected_output": "A report matching templates/code-ultrareview.md verbatim — heading-for-heading. Header carries Base, Target, Rule, Scope, Estimated wall-clock, Rules baseline status. Every ## section is emoji-prefixed and preceded by `---`: ## 📋 Lens summary, ## 🔎 Findings (with ### 🔴 High, ### 🟠 Medium, ### 🟢 Low, ### ⚠️ Unverified — every sub-section rendered even when count is 0), ## 🧭 Deferred to sibling skills, ## ✅ What looks good, ## 🕸️ Coherence-graph status, ## 📐 Derivation coverage (when --reconcile is used), ## ⚖️ Verdict (Ship / Fix-then-ship / Needs work), ## 🛠️ Action plan. No code is modified. No improvised sections (e.g., 'Dropped', 'Derivation reconciliation', 'Per-ask verification').",
+      "expected_output": "A report matching templates/code-ultrareview.md verbatim — heading-for-heading. Header carries Base, Target, Rule, Repo, Languages, Rules baseline, Reviewed, Coherence axis state, Findings counts. Every ## section is emoji-prefixed and preceded by `---`: ## 📋 Axis summary (one row per canonical axis + coherence), ## 🔎 Findings (with ### 🔴 High, ### 🟠 Medium, ### 🟢 Low, ### ⚠️ Unverified — every sub-section rendered even when count is 0), ## ✅ What looks good, ## ⚖️ Verdict (Ship / Fix-then-ship / Needs work), ## 🧰 Tools skipped, ## 🛡️ What I did NOT check, plus opt-in ## 📐 Derivation coverage (only with --reconcile) and ## 🪛 --apply-safe summary (only with --apply-safe). No code is modified. No improvised sections (e.g., 'Dropped', 'Derivation reconciliation', 'Per-ask verification').",
       "files": []
     },
     {

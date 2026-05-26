@@ -31,16 +31,17 @@ from _contracts import CLUSTERS  # noqa: E402
 
 # Canonical `##` base-names (without the leading emoji). A reference to
 # `## <base-name>` is a regression because the canonical form is
-# `## <emoji> <base-name>`.
+# `## <emoji> <base-name>`. Mirror the 8-axis section list pinned in
+# `tests/_pipeline/_contracts.py::CLUSTERS["review"]["report_required_sections"]`
+# plus the two opt-in sections (`Derivation coverage`, `--apply-safe summary`).
 CANONICAL_H2_BASE_NAMES = (
-    "Lens summary",
+    "Axis summary",
     "Findings",
-    "Deferred to sibling skills",
     "What looks good",
-    "Coherence-graph status",
-    "Derivation coverage",
     "Verdict",
-    "Action plan",
+    "Tools skipped",
+    "What I did NOT check",
+    "Derivation coverage",
     "--apply-safe summary",
 )
 

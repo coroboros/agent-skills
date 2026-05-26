@@ -333,3 +333,71 @@ def compute_severity_counts(verified: list[dict]) -> dict[str, int]:
         if marker in counts:
             counts[marker] += 1
     return counts
+
+
+# ---------------------------------------------------------------------------
+# Inter-axis precedence — WS-5 Phase 5 synthesis dedup
+# ---------------------------------------------------------------------------
+
+
+_AXIS_RANK = {axis: idx for idx, axis in enumerate(AXIS_PRIORITY)}
+
+
+def _dedup_key(finding: dict) -> tuple[str, str]:
+    """Bucket key for inter-axis dedup: `(location, finding-text)`.
+
+    Two axes flagging the same `file:line` with the same finding text
+    collide on this key. Different findings at the same line — say a
+    correctness null-deref and a tests missing-assert — keep distinct keys
+    so both survive (they describe different problems at coincident lines).
+    """
+    loc = str(finding.get("location", ""))
+    text = str(finding.get("finding", "")).strip()
+    return (loc, text)
+
+
+def _precedence_key(finding: dict) -> tuple[int, int]:
+    """Sort key for picking the winner inside a dedup bucket.
+
+    Lower tuple wins. Severity first (`SEVERITY_ORDER`), axis-priority
+    second (`AXIS_PRIORITY` position). Unknown axes sort to the end.
+    """
+    severity = SEVERITY_ORDER.get(finding.get("severity", "Low"), 99)
+    axis_rank = _AXIS_RANK.get(finding.get("axis", ""), len(AXIS_PRIORITY))
+    return (severity, axis_rank)
+
+
+def dedup_by_precedence(findings: list[dict]) -> list[dict]:
+    """Dedup findings by (location, finding text). When ≥2 axes flag the
+    same `file:line` with the same wording, highest severity wins;
+    ties resolve via `AXIS_PRIORITY` (Correctness > Design/API >
+    Simplification > Tests > Documentation > Style > Intent > Performance >
+    Coherence). Input order is preserved within the surviving set —
+    callers can re-`order(...)` to apply canonical sort.
+
+    Findings with empty `location` are not deduped — they pass through.
+    """
+    buckets: dict[tuple[str, str], dict] = {}
+    survivors: list[dict] = []
+    untouched: list[dict] = []
+    for raw in findings:
+        f = dict(raw)
+        loc = str(f.get("location", "")).strip()
+        if not loc:
+            untouched.append(f)
+            continue
+        key = _dedup_key(f)
+        current = buckets.get(key)
+        if current is None or _precedence_key(f) < _precedence_key(current):
+            buckets[key] = f
+    seen: set[tuple[str, str]] = set()
+    for raw in findings:
+        loc = str(raw.get("location", "")).strip()
+        if not loc:
+            continue
+        key = _dedup_key(raw)
+        if key in seen:
+            continue
+        seen.add(key)
+        survivors.append(buckets[key])
+    return survivors + untouched
