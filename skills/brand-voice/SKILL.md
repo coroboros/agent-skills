@@ -204,3 +204,13 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 - [`scripts/extract_rules.py`](./scripts/extract_rules.py) — emits flat testable rules. Resolves `voice.extends` chain by default. `--full` (default) includes `core_attributes`/`contexts`/`source_urls`; `--legacy` emits the v1 minimal output. Consumed by `humanize-en -f`.
 - [`scripts/lint_all.py`](./scripts/lint_all.py) — globs every `BRAND-VOICE*.md` under a root and lints each. Single-command audit for the parent-change blast-radius problem: a parent edit that breaks N children surfaces as N RED verdicts. CI-friendly; recommended in pre-merge hooks.
 - [`scripts/utils.py`](./scripts/utils.py) — shared I/O helpers, chain resolution (`resolve_extends_chain`), merge engine (`merge_voice_dicts`, `apply_replace_overrides`, `apply_remove_overrides`). Not invoked directly.
+
+## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+
+These five facts are stable: production-observed `voice.extends` inheritance and lint footguns.
+
+1. **Child `_replace` directives win over parent rules — even when `--chain` shows the parent.** `scripts/utils.py:resolve_extends_chain` walks parent → child; merge applies overrides last. Verify final state with `voice_lint.py --chain` before merging.
+2. **A structurally invalid parent passes chain resolution but fails lint when linted directly.** Fix: lint every file in the chain via `scripts/lint_all.py`, not just the target; block writes if any ancestor is RED.
+3. **`_replace` / `_remove` on unsupported field types no-ops at merge and surfaces only at lint time.** `rewrite_rules` is a list, not a dict — `_replace: rewrite_rules:` fails silently. Always run `voice_lint.py` on the child after override edits.
+4. **7-hop `voice.extends` depth limit truncates silently in older `extract_rules.py` builds.** Fix: keep chains short (≤3 hops); flatten when a child needs >2 ancestors.
+5. **`extract_rules.py` path mismatch breaks `humanize-en -f` silently.** Consumers try three candidates and degrade to universal patterns if none resolve. Symlink or copy the script when your install path is non-standard.

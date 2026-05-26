@@ -49,7 +49,7 @@ The discriminator is the Decide phase. Forge resolves the judgment calls a senio
 | `-e` / `--economy` | `-E` / `--no-economy` | No subagents — direct tools only |
 | `-f <path>` / `--from <path>` | — | Prior context — file, GitHub issue (`#N`), or URL as foundational input. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
-Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. `{slug}` = kebab of `{idea}` (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths.
+Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. Output path per `.claude/rules/repo-conventions.md` § Output paths (`{slug}` = kebab of `{idea}`, ≤5 words).
 
 ### Requirements
 
@@ -136,7 +136,7 @@ Persist throughout:
 
 1. **Parse flags** — lowercase enables, uppercase disables; `-f` consumes the next arg as `{from_file}`; remainder becomes `{idea}`.
 2. **Apply implications** — if `{issues_mode}` = true, force `{save_mode}` = true.
-3. **Generate identifiers** — `{slug}` = kebab of `{idea}` (≤5 words); `{project}` = kebab-cased basename of `git rev-parse --show-toplevel 2>/dev/null || pwd`; `{output_dir}` = `~/.claude/output/{project}/forge/`; `{output_file}` = `{output_dir}forge-{slug}.md`.
+3. **Generate identifiers** — derive `{slug}` and `{project}` per § Parameters; `{output_dir}` = `~/.claude/output/{project}/forge/`; `{output_file}` = `{output_dir}forge-{slug}.md`.
 4. **Create output dir** — if `{save_mode}` = true, `mkdir -p` the `$HOME`-expanded `{output_dir}`; report the fully-expanded absolute `{output_file}` (no tilde, no magic).
 5. **Show a compact summary** — one line + one table — then proceed to Hunt:
 
@@ -253,6 +253,15 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 - `references/issue-creation.md` — GitHub issue orchestration; read only when `-i` is set
 - `scripts/validate_spec.py` — schema + dependency-graph validator (Forge; requires Python 3.7+)
 - `scripts/setup-labels.sh` — idempotent GitHub label creation (used by issue creation)
+
+## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+
+These four facts are stable: production-observed validator and orchestration failure modes.
+
+1. **Workstream count outside 3-7 fails `scripts/validate_spec.py:158-161`.** Headings that don't match `### WS-N:` (`### WS1`, `### WS-1.5`) silently skip. Under 3 → use `/oneshot` or `/apex` directly; over 7 → re-group.
+2. **Dependency cycle halts save with exit 2** (`scripts/validate_spec.py:100-138`, DFS with path reconstruction). Run the validator manually before save; rewrite **Depends on** to break any cycle.
+3. **Missing Priority or Complexity in any workstream blocks exit 0** (`scripts/validate_spec.py:63-66`). Values strict: `P0`/`P1`/`P2` and `S`/`M`/`L`/`XL`. Every workstream needs both rows.
+4. **`-i` silently fails when `gh` is unauthenticated** — artifact saves, `## GitHub Issues` section appends with empty numbers. Run `gh auth status` before `-i`.
 
 ## Success criteria
 

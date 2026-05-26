@@ -286,3 +286,12 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 - ALWAYS match the existing README's style (quote convention, heading hierarchy, badge format) when editing.
 - ALWAYS verify the rendered output before declaring done (GitHub preview, IDE preview, or user confirmation).
 - Empty `$ARGUMENTS` follows the *Subcommands* default row above. Non-empty: first token is the subcommand, second is the path.
+
+## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+
+These four facts are stable: production-observed structure and style failure modes.
+
+1. **Mixed `<details>` collapse across peers is a minefield.** Pattern A/B require uniformity — every peer at the chosen level collapses or none does. When applying collapse, audit every peer; normalize before declaring done.
+2. **Topic-form headings ("About installation", "Installation overview") violate the questions-or-commands rule** at § README-specific style. Convert to imperative ("Install") or question ("How do I install?").
+3. **Numeric content-counts adjacent to nouns rot fast** — "25 symlinks", "14 tasks" go stale the moment a row lands. Use qualitative descriptors ("symlinks installed by `install.sh`").
+4. **`<details>` wrapping a heading breaks GitHub anchors.** `<details><summary>### API</summary>` makes `#api` un-clickable from external links — the disclosure does not auto-expand on anchor click. Keep headings outside `<details>`.
