@@ -209,6 +209,6 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 
 1. **Child `_replace` directives win over parent rules even when `--chain` shows the parent.** `scripts/utils.py:resolve_extends_chain` walks parent → child; merge applies overrides last. Verify final state with `voice_lint.py --chain` before merging.
 2. **A structurally invalid parent passes chain resolution but fails lint when linted directly.** Fix: lint every file in the chain via `scripts/lint_all.py`, not just the target; block writes if any ancestor is RED.
-3. **`_replace` / `_remove` on unsupported field types no-ops at merge and surfaces only at lint time.** `rewrite_rules` is a list, not a dict; `_replace: rewrite_rules:` fails silently. Always run `voice_lint.py` on the child after override edits.
-4. **Chains over 7 hops fail with `extends-depth-exceeded`.** Fix: keep chains short (≤3 hops); flatten when a child needs more than 2 ancestors.
+3. **`_replace` / `_remove` only apply to fields in `REPLACE_ALLOWED_FIELDS` / `REMOVE_ALLOWED_FIELDS`** (`scripts/utils.py:336-355`). Overrides on other fields (e.g., `voice`, `source_urls`, `signature_traits`) no-op at merge and surface only at lint time. Always run `voice_lint.py` on the child after override edits.
+4. **Chains over 5 hops fail with `extends-depth-exceeded`** (`scripts/utils.py:334`: `MAX_EXTENDS_DEPTH = 5`). Fix: keep chains short (≤3 hops); flatten when a child needs more than 2 ancestors.
 5. **`extract_rules.py` path mismatch breaks `humanize-en -f` silently.** Consumers try three candidates and degrade to universal patterns if none resolve. Symlink or copy the script when your install path is non-standard.

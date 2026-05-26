@@ -103,9 +103,3 @@ If the user reports a visible jump despite running the skill, first check whethe
 - Audio is always stripped (`-an`) — background videos are muted
 - The script rejects `-d >= duration/2` — a too-long fade would leave the middle segment empty
 - Always report original vs output sizes so the user sees the quality/size tradeoff
-
-## Gotchas
-
-1. **Crossfade duration ≥ source/2 corrupts the output silently.** The script rejects `-d >= duration/2` (Rules above), but the model sometimes passes the duration without probing source length first; ffmpeg accepts the call but the output has no middle segment. Fix: probe source duration with ffprobe before invocation; clamp `-d` to under half the source length and surface the clamp to the user.
-2. **Re-running on an already-encoded output re-encodes the corruption.** Running the skill on `hero-opt.mp4` (a prior output) re-encodes the already-compressed file, compounding artifacts; the user usually meant to point at the original source. Fix: check the input codec; warn if the file appears already-encoded (H.264 with low bitrate); ask the user to confirm or repoint to the original.
-3. **ffmpeg / ffprobe missing from PATH fails mid-pipeline, not at preflight.** The script invokes ffmpeg directly without a preflight check; the error surfaces deep into the pipeline with no indication that the binary is missing. Fix: add `command -v ffmpeg ffprobe` at step 1; fail hard with install instructions if absent.
