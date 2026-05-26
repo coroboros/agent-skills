@@ -101,6 +101,8 @@ Per-tool axis routing lives in `scripts/battery_ingest.py` (WS-2).
 
 **Graceful skip.** Missing tools (no `npx`, no `uvx`, no PATH binary) emit `WARN: <tool> not found — install: <command>` to stderr and append to `scope.json["tools_skipped"]`. The skill continues. The battery NEVER auto-installs — no `brew install`, no `cargo install`, no `go install`, no `pip install`, no `npm install -g`.
 
+**Phase 2 extension — `--mutation-test`.** `scripts/run_mutation.sh` dispatches per-language mutation tools (Stryker for JS/TS, mutmut for Python, pitest-maven for JVM) scoped to changed files only. Surviving mutants route to the Tests axis as 🟠 Medium findings with `confidence: 100` (deterministic CLI output — skips Phase 4 validators). Runtime can exceed 10 minutes per language; the default 600 s timeout is overridable via `MUTATION_TIMEOUT`. Graceful skip on missing tool or missing config.
+
 ### Phase 3 — Axis review
 
 The orchestrator (main thread) prepares 8 per-axis bundles + 1 conditional Coherence bundle via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` subagent in one message. Subagents cannot spawn other subagents — the main thread always launches both axis reviewers AND validators.
@@ -168,7 +170,7 @@ Confidence threshold = 80 (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). To
 
 **A2 contract.** No sub-80 finding silently dropped. Each one is promoted to ≥80, demoted with reason, or surfaced in `### ⚠️ Unverified` with the validator's reason text.
 
-**Phase 3.5 — `--verify-build`.** Build verification runs BEFORE validators. Confirmed findings get +30 confidence (capped at 95, floor at the 80 threshold) and skip the validator phase. Implementation: `scripts/build_detect.py` returns the canonical test command; the loop runs one iteration per sub-80 finding.
+**Phase 3.5 — `--verify-build`.** Build verification runs BEFORE validators via `scripts/run_build_verify.py`, which composes `scripts/build_detect.py` (canonical test command per repo type) with `scripts/synthesis_core.py:iterate_unverified` (+30 confidence, cap 95, floor 80). The test command runs once with a 120 s default timeout; for each sub-80 finding on `correctness` / `tests` / `design-api` / `performance`, a non-zero exit promotes the finding past the validator phase. Other axes pass through unchanged.
 
 ### Phase 5 — Synthesis
 
@@ -233,6 +235,19 @@ After the report ships, bridge to the fix pass:
 - `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix pass (requires `-s`; pass the absolute path the report prints).
 - `/oneshot "<finding>"` — single-finding quick fix (manual; `/oneshot` takes a description, not a file).
 
+### Opt-in flag composition
+
+The four opt-in flags layer orthogonally on the always-on pipeline:
+
+| Combination | Effect |
+|-------------|--------|
+| `--verify-build --mutation-test` | Mutation tests join Phase 2 tool-findings; build verification runs Phase 3.5. Different phases, no interaction. |
+| `--verify-build --reconcile @auto` | Phase 3.5 runs on sub-80 findings; Intent axis runs the derivation sub-mode in Phase 3. Build-verification ignores Intent findings (axis filter). |
+| `--mutation-test --apply-safe` | Surviving mutants surface in the report's Tests-axis section; `--apply-safe` writers run post-synthesis. Writers never touch code-under-test in response to mutation findings — that belongs to `/apex` or `/oneshot`. |
+| All four | Phase 2 extended (mutation), Phase 3 enriched (reconcile derivation), Phase 3.5 active (build verification), post-synthesis writers gated by confirmation. |
+
+Without a flag, its feature is off — `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, and the `apply_safe/` writers are not invoked. Full opt-in flag reference: `references/ultra-execution.md`.
+
 ## What this skill is NOT
 
 - **Not a security audit.** Defers to `/security-review`. The closing section makes this explicit on every report.
@@ -245,10 +260,15 @@ After the report ships, bridge to the fix pass:
 - `references/anthropic-verbatim.md` — verbatim rubric, HIGH SIGNAL criteria, false-positive taxonomy, agent-assumption rule.
 - `references/axes-overview.md` — 8 axes + Coherence conditional + inter-axis precedence rule.
 - `references/axes/<name>.md` — per-axis briefs (WS-3, one file per axis).
+- `references/ultra-execution.md` — full reference for the four opt-in flags (`--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`).
 - `scripts/scope.py` — Phase 1 deterministic scope output.
-- `scripts/synthesis_core.py` — A2 routing + severity markers + verdict algorithm.
+- `scripts/synthesis_core.py` — A2 routing + severity markers + verdict algorithm + `iterate_unverified` for Phase 3.5.
 - `scripts/resolve_base.sh` — clean-tree base resolution ladder.
-- `scripts/build_detect.py` — gated by `--verify-build`; detects the canonical test command per repo type.
+- `scripts/build_detect.py` — first-hit-wins probe for the canonical test command.
+- `scripts/run_build_verify.py` — Phase 3.5 orchestrator (gated by `--verify-build`).
+- `scripts/run_mutation.sh` — Phase 2 mutation-testing extension (gated by `--mutation-test`).
+- `scripts/derivation/run.py` — Intent-axis derivation sub-mode (gated by `--reconcile`).
+- `scripts/apply_safe/{version_sync,description_sync,failing_test_writer}.py` — `--apply-safe` writers with diff preview + per-file confirmation.
 
 ## Gotchas
 
