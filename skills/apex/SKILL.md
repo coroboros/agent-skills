@@ -57,71 +57,18 @@ See **Parameters** below for the complete flag list.
 
 ## Parameters
 
-### Flags
+| Short | Long | Off | Long-off | Behavior |
+|-------|------|-----|----------|----------|
+| `-a` | `--auto` | `-A` | `--no-auto` | Skip confirmations, auto-approve plans |
+| `-s` | `--save` | `-S` | `--no-save` | Save outputs to `~/.claude/output/{project}/apex/` |
+| `-e` | `--economy` | `-E` | `--no-economy` | No subagents, direct tools only |
+| `-b` | `--branch` | `-B` | `--no-branch` | Verify not on main; create branch if needed |
+| `-i` | `--interactive` | — | — | Configure flags via AskUserQuestion |
+| `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on under `claude -p`) |
+| `-r` | `--resume` | — | — | Continue from a previous task (takes `<task-id>`) |
+| `-f` | `--from` | — | — | Prior context: GitHub issue (`#N`, URL), forge plan (e.g. `~/.claude/output/{project}/forge/forge-{slug}.md`), or any file as foundational input. Non-Markdown → pre-process via `/markitdown -s` |
 
-**Enable flags (turn ON):**
-
-| Short | Long | Description |
-|-------|------|-------------|
-| `-a` | `--auto` | Autonomous mode: skip confirmations, auto-approve plans |
-| `-s` | `--save` | Save mode: output each step to `~/.claude/output/{project}/apex/` |
-| `-e` | `--economy` | Economy mode: no subagents, save tokens (for limited plans) |
-| `-r` | `--resume` | Resume mode: continue from a previous task |
-| `-b` | `--branch` | Branch mode: verify not on main, create branch if needed |
-| `-i` | `--interactive` | Interactive mode: configure flags via AskUserQuestion |
-| `-g` | `--goal` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; v2.1.139+ required) |
-| `-f` | `--from` | Prior context: GitHub issue (`#N`, URL), forge plan, or any file as foundational input for analysis. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
-
-**Disable flags (turn OFF):**
-
-| Short | Long | Description |
-|-------|------|-------------|
-| `-A` | `--no-auto` | Disable auto mode |
-| `-S` | `--no-save` | Disable save mode |
-| `-E` | `--no-economy` | Disable economy mode |
-| `-B` | `--no-branch` | Disable branch mode |
-| `-G` | `--no-goal` | Disable `/goal` integration (overrides headless auto-on) |
-
-### Examples
-
-```bash
-# Basic
-/apex add auth middleware
-
-# Autonomous (skip confirmations)
-/apex -a add auth middleware
-
-# Save outputs
-/apex -a -s add auth middleware
-
-# Resume previous task
-/apex -r 01-auth-middleware
-/apex -r 01  # Partial match
-
-# From a GitHub issue
-/apex -f "#42" implement what issue 42 describes
-
-# From a prior forge plan (or RFC) — pass the explicit path the producer printed
-/apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
-
-# Economy mode (save tokens)
-/apex -e add auth middleware
-
-# Interactive flag config
-/apex -i add auth middleware
-
-# Disable flags (uppercase)
-/apex -A add auth middleware  # Disable auto
-```
-
-### Parsing Rules
-
-1. Defaults loaded from `steps/step-00-init.md` `## Default Configuration` section
-2. Command-line flags override defaults (enable with lowercase `-x`, disable with uppercase `-X`)
-3. Flags removed from input, remainder becomes `{task_description}`
-4. Task ID generated as `NN-kebab-case-description`
-
-For the detailed parsing algorithm, see `steps/step-00-init.md`.
+Parsing algorithm, defaults, examples, and override semantics (lowercase enables, uppercase disables): `steps/step-00-init.md`.
 
 ## Compatibility
 
@@ -192,39 +139,9 @@ Step-00 reads `{task_dir}/00-context.md` to determine the next pending step, inv
 
 For implementation details, see `steps/step-00-init.md`.
 
-## Workflow
-
-**Standard flow:**
-
-1. Parse flags and task description
-2. If `-r`: Execute resume workflow
-3. If `-s`: Create output folder and `00-context.md`
-4. Load `step-01-analyze.md` → gather context
-5. Load `step-02-plan.md` → create strategy
-6. Load `step-03-execute.md` → implement
-7. Load `step-04-examine.md` → verify and complete
-
 ## State Variables
 
-**Persist throughout all steps:**
-
-| Variable                | Type    | Description                                            |
-| ----------------------- | ------- | ------------------------------------------------------ |
-| `{task_description}`    | string  | What to implement (flags removed)                      |
-| `{feature_name}`        | string  | Kebab-case name without number (e.g., `add-auth-middleware`) |
-| `{task_id}`             | string  | Full identifier with number (e.g., `01-add-auth-middleware`) |
-| `{acceptance_criteria}` | list    | Success criteria (inferred or explicit)                |
-| `{negative_acceptance}` | list    | Negative scope — explicit must-NOT criteria (inferred or accepted verbatim from a spec via `-f`) |
-| `{auto_mode}`           | boolean | Skip confirmations, use recommended options            |
-| `{save_mode}`           | boolean | Save outputs to `~/.claude/output/{project}/apex/`     |
-| `{economy_mode}`        | boolean | No subagents, direct tool usage only                   |
-| `{branch_mode}`         | boolean | Verify not on main, create branch if needed            |
-| `{interactive_mode}`    | boolean | Configure flags interactively                          |
-| `{goal_mode}`           | boolean | Emit `/goal` directive at start of step-04 (auto-on under `claude -p`) |
-| `{from_file}`           | string  | Path to prior context file (if `-f` provided)          |
-| `{resume_task}`         | string  | Task ID to resume (if `-r` provided)                   |
-| `{output_dir}`          | string  | Full path to output directory                          |
-| `{branch_name}`         | string  | Created branch name (if branch_mode)                   |
+Step state persists across steps. **Strings:** `{task_description}` `{feature_name}` `{task_id}` `{output_dir}` `{branch_name}` `{from_file}` `{resume_task}`. **Lists:** `{acceptance_criteria}` `{negative_acceptance}` (must-NOT criteria, inferred or accepted verbatim from a spec via `-f`). **Booleans:** `{auto_mode}` `{save_mode}` `{economy_mode}` `{branch_mode}` `{interactive_mode}` `{goal_mode}`. Full definitions: `steps/step-00-init.md`.
 
 ## Entry Point
 

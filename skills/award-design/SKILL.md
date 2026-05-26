@@ -39,125 +39,37 @@ Build websites that score 8+ on Awwwards. AI-generated designs are immediately r
 
 ## Workflow
 
-1. **Understand the brief**: What is being built? For whom? What must it communicate? What's the one thing someone will remember?
-   - If `-u <url>` was passed, read `references/brand-extraction.md` first and reverse-engineer a DESIGN.md observation from the live site — that observation seeds the archetype recommendation in step 2, it doesn't replace the brief.
-   - If the URL is the user's own legacy site and the intent is "upgrade without rebuilding", read `references/retrofit.md` instead — it carries the seven-step priority order (font swap → color cleanup → hover/active → layout → component replacement → empty/error/loading → typography polish) for targeted lift without re-architecting.
-2. **Recommend an archetype**: Analyze the brief and recommend the single best archetype from the table below. The recommendation is the product of four independent picks — **archetype × expression × atmosphere band × signature-moment type**. Treating all four as variables (not defaults) is what prevents the canonical AI same-output failure. Present it with:
-   - The archetype name and its signature trait — defined by DNA, not by a single style lock. Each archetype carries 2–4 named common expressions in its reference file (e.g., Immersive splits into cinematic-dark / editorial-portrait / daylight-automotive). The user picks the expression that matches the brief.
-   - Why it fits this brief specifically (not generic reasoning)
-   - The default Density/Variance/Motion scores
-   - **Ask the user to validate before proceeding.** Do not continue until confirmed.
-   - If the user wants to explore alternatives, present all 9 archetypes as a compact list:
-     - **Minimalist** — extreme whitespace, typography carries everything
-     - **Brutalist** — typography is the design, deliberate anti-polish
-     - **Editorial** — serif + sans-serif pairing, magazine grids, pull quotes
-     - **Bold / Maximal** — organized chaos, kinetic typography as art
-     - **Immersive / Cinematic** — full-screen video, WebGL 3D, scroll as narrative
-     - **Experimental** — bespoke navigation metaphor, creative coding, no template
-     - **Corporate Luxury** — quiet sophistication, custom serifs, generous whitespace
-     - **Bento / Card** — modular asymmetric tiles, self-contained units
-     - **Spatial Organic** — dimensional depth, organic shapes, tactile textures *(forward archetype — trend-credentialed, no SOTM-tier reference yet)*
-   - The user is free to pick any archetype — the recommendation is guidance, not a constraint.
-   - See `references/exemplars.md` for 2–4 real-world brands per archetype. Share 2–3 alongside the recommendation — exemplars travel faster than prose and give the user a concrete "that feel" to react to.
-3. **Read archetype reference**: Once the archetype is confirmed, read its reference file from the table below.
-4. **Calibrate atmosphere**: Set Density, Variance, and Motion scores using the Atmosphere Calibration table. Adjust ±2 from defaults based on the brief. Present the calibrated scores to the user for validation.
-5. **Load foundations**: Read `references/foundations.md` for cross-cutting technical implementation (typography systems, color theory, animation toolkit, performance, UX quality, accessibility).
-6. **Produce DESIGN.md**: Before drafting any DESIGN.md content, output a five-bullet **pre-plan** — brief restated in one sentence, archetype + signature expression + why-this-fit, calibrated Density/Variance/Motion scores, signature moment intent (the one unforgettable interaction), photography and copy register. The plan is the contract for what follows. If it doesn't ring true, restart from step 1 rather than drafting tokens that won't hold up. Then, if the project has no `DESIGN.md`, create one following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter with design tokens (`colors`, `typography`, `rounded`, `spacing`, `components`) plus eight ordered prose sections (Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts). Record the calibrated atmosphere scores as prose in the Overview section — the spec does not define atmosphere tokens. If the `/design-system` skill is installed, follow its `references/design-md-spec.md` and the example files for shape; otherwise, the sections listed in the archetype reference files cover the same ground. **Extension boundary** — beyond the canonical 5 namespaces, top-level extension namespaces are spec-blessed and required at award-grade register: `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` (full namespace × prose-section map below). **Components bind ONLY to the 8 canonical property tokens** (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — extension tokens are referenced canonically in prose, never as `components:` keys (the empirical lint-failure mode). **Two-stage validation pipeline** — both must exit 0 before shipping: (a) `/design-system audit DESIGN.md` (preferred — human-readable report with fix proposals per finding) catches broken token references (`broken-ref`) and contrast violations below WCAG AA; fall back to `npx @google/design.md lint DESIGN.md` if `/design-system` is unavailable; (b) `/design-system audit-extensions DESIGN.md` is the bidirectional drift check between YAML extensions, prose references, and the `globals.css` `@theme` mirror — extensions are preserved-but-unvalidated by the Google CLI, this subcommand closes the loop. If the user hands you an existing legacy DESIGN.md with the Stitch 9-section format, recommend `/design-system migrate <path>` first to port it, then resume. Every applicable section must be complete — the `/design-system` skill governs this file for all future UI changes, and incomplete sections create token gaps that agents fill with defaults. Full extension convention: `skills/design-system/references/extended-tokens.md`.
-7. **Design with intent**: Every visual choice serves communication. One signature unforgettable moment outperforms scattered effects everywhere. **Do not ship the first obvious solution** — push at least three axes beyond the generic SaaS template (composition, typography, hero scale, image treatment, section rhythm, framing). If the design could pass for default Tailwind output, escalate. For concrete component techniques (Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, performance locks for perpetual animation, Liquid Glass Refraction, Inline Typography Images, Perpetual Micro-Interactions when Motion ≥ 5), read `references/premium-patterns.md`. For multi-section pages, also apply the **composition variety mandates** in `references/foundations.md` (≥3 different composition anchors across the page, varied background mode per section, CTA shape varied at least once, mixed section ambition) — uniform per-section treatment reads as templated even when each section is individually strong. These cross-cutting patterns lift Hierarchy and Spacing audit scores by 1–2 points each and apply across archetypes — particularly Corporate Luxury, Spatial Organic, Bento (motion-engine variant), and Bold/Maximal.
-8. **Production hardening**: When implementation touches video, scroll-driven cinematic reveals, or full-screen heroes on mobile browsers, read `references/production-hardening.md`. Most patterns are cross-browser (viewport units, scroll-restoration, autoplay belt-and-suspenders, fail-safe reveal logic, proportional layout) with iOS Safari flagged as the sharpest test case. Each section states its scope — genuinely iOS-only rules are marked. Skip if the project is desktop-only with no video or scroll choreography.
-9. **Validate**: Read `references/anti-patterns.md` and check the design against it — axiomatic rejections first (any hit is stop-and-fix), then AI tells, performance failures, UX anti-patterns. Cross-check `references/foundations.md` UX Quality and Accessibility sections. For a calibrated score with an actionable punch list, run `references/audit-rubric.md` (7 categories, 0–10 each, P0/P1 fixes with CSS snippets). Verify against the judging criteria below.
-10. **Visual review** *(optional)*: If `dev-browser` CLI is available, screenshot key states (hero, mobile, signature interaction, dark mode) and iterate. If not available, suggest installing it from `https://github.com/SawyerHood/dev-browser` — the skill works without it, but visual verification catches issues that code review alone misses.
+### Phase 1 — Discovery
 
-### Changing archetype mid-project
+Intake the brief: what is being built, for whom, what must it communicate, what's the one thing someone will remember? If `-u <url>` was passed, read `references/brand-extraction.md` first and reverse-engineer a DESIGN.md observation from the live site (it seeds the archetype recommendation; it does not replace the brief). If the URL is the user's own legacy site and the intent is "upgrade without rebuilding", switch to `references/retrofit.md` for the seven-step priority order (font swap → color → hover/active → layout → component swap → empty/error/loading → typography polish).
 
-If the user wants to switch archetypes after initial selection (during design or even after implementation has started):
+Recommend the single best archetype from the *Archetype Selector* table — product of four independent picks (**archetype × expression × atmosphere band × signature-moment type**, treating all four as variables prevents the canonical AI same-output failure). Present the archetype's DNA + signature trait + named expression matching the brief, why-this-fit reasoning, default Density/Variance/Motion scores, and 2-3 real-world exemplars from `references/exemplars.md`. **Ask the user to validate before proceeding.** The user can pick any archetype — the recommendation is guidance, not a constraint.
 
-1. Confirm the new archetype choice
-2. Read the new archetype's reference file
-3. **Recalibrate atmosphere** — the new archetype has different default scores. Present the recalibrated scores for validation
-4. **Regenerate DESIGN.md** — the entire file must be rewritten from the new archetype's foundations. Do not patch the old file — archetype tokens are deeply interconnected
-5. If code already exists, flag which components need updating based on the token diff between old and new DESIGN.md
+### Phase 2 — Decision
 
-### Combining archetypes (remix)
+Once the archetype is confirmed, read its reference file from the *Archetype Selector* table. Calibrate atmosphere on three axes (1-10): **Density** (Gallery airy → Cockpit dense), **Variance** (Predictable → Artsy chaotic), **Motion** (Static → Cinematic) — adjust ±2 from the archetype's defaults based on the brief. Defaults per archetype + dial-to-CSS heuristics: `references/atmosphere-calibration.md`. Present calibrated scores for validation. Load `references/foundations.md` for cross-cutting technical implementation (typography, color, animation, performance, UX quality, accessibility).
 
-If the brief refuses to pick a single archetype — "Linear rigor but Anthropic warmth", "Brutalist character for luxury clients", a creative studio serving enterprise — read `references/remixing.md`. It gives an arbitration framework (parent DNA percentage, 7 rules that pick one parent per dimension, one-paragraph identity declaration) so the remix reads as a third coherent brand rather than a blend. Default is still to pick one archetype; reach for a remix only when a single archetype leaves the brief unsatisfied after two attempts.
+**Mid-project changes:** to switch archetype after selection, recalibrate atmosphere and regenerate DESIGN.md from the new archetype's foundations (token interconnections forbid patching the old file). For hybrid briefs that refuse a single archetype, read `references/remixing.md` — arbitration framework (parent DNA percentage, 7 rules per dimension, identity declaration) keeps the remix coherent rather than blended. Default is still to pick one archetype.
 
-## DESIGN.md anatomy — token namespaces + prose mapping
+### Phase 3 — Tokens
 
-The DESIGN.md produced by step 6 carries award-grade content across two layers — YAML frontmatter for tokens, eight ordered prose sections for narrative and intent. Both layers are required; an empty layer makes the file useless to its consumer.
+Before drafting DESIGN.md content, output a five-bullet **pre-plan** (brief restated, archetype + signature expression + why-this-fit, calibrated atmosphere scores Density / Variance / Motion, signature moment intent — the one unforgettable interaction, photography + copy register). If it doesn't ring true, restart from Phase 1 rather than drafting tokens that won't hold up.
 
-### YAML namespaces
+Produce DESIGN.md per the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter with canonical 5 namespaces (`colors`, `typography`, `rounded`, `spacing`, `components`) plus extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers`) and eight ordered prose sections (Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts). Components bind ONLY to the 8 canonical property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — extension tokens are referenced from prose only, never as `components:` keys (empirical lint-failure mode). Two-stage validation: `/design-system audit DESIGN.md` (broken-ref + contrast — fall back to `npx @google/design.md lint` if absent) and `/design-system audit-extensions DESIGN.md` (bidirectional drift between YAML extensions, prose, and the `globals.css` `@theme` mirror). Legacy Stitch 9-section file → recommend `/design-system migrate <path>` first. Full spec: `references/design-md-anatomy.md`. Cross-skill extension convention: `skills/design-system/references/extended-tokens.md`.
 
-| Type | Namespaces | Validated by Google CLI |
-|---|---|---|
-| Canonical | `colors`, `typography`, `rounded`, `spacing`, `components` | yes (broken-ref, contrast-ratio, missing-primary, etc.) |
-| Extension (preserved) | `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` | no (preserved-but-unvalidated per spec); validated by `/design-system audit-extensions` against the `globals.css` `@theme` mirror |
+Apply premium components (`references/premium-patterns.md`) — Doppelrand nested cards, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, Liquid Glass Refraction, Perpetual Micro-Interactions when Motion ≥ 5. For multi-section pages, apply composition variety mandates from `references/foundations.md` (≥3 composition anchors, varied background mode per section, CTA shape varied at least once, mixed section ambition). Push at least three axes beyond the generic SaaS template — if the design could pass for default Tailwind output, escalate.
 
-Components bind ONLY to the 8 canonical property tokens — `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`. Extension tokens are referenced from prose only (e.g., `{motion.duration-reveal-slow}`), never as `components:` keys. The closed property-token set is the empirical lint-failure mode.
+### Phase 4 — Production
 
-### Award-grade prose mapping
+When implementation touches video, scroll-driven cinematic reveals, or full-screen heroes on mobile, read `references/production-hardening.md` (viewport units, autoplay belt-and-suspenders, fail-safe reveal logic, proportional layout, iOS Safari quirks). Skip if desktop-only with no video or scroll choreography.
 
-Every vital narrative element from this skill maps to one of the eight ordered sections — nothing is dropped:
+Validate against `references/anti-patterns.md` (axiomatic rejections → AI tells → performance failures → UX) and `references/foundations.md` UX Quality + Accessibility sections. For a calibrated score with an actionable punch list, run `references/audit-rubric.md` (7 categories, 0-10 each, P0/P1 fixes with CSS snippets). Verify against the *Judging Criteria* below.
 
-| Award-grade narrative | DESIGN.md section |
-|---|---|
-| Atmosphere scores (Density / Variance / Motion) | 1. Overview |
-| Archetype identity + remix declaration | 1. Overview |
-| Signature moment (the one unforgettable interaction) | 1. Overview |
-| Photography direction (cinematic / editorial / flat-lay register) | 1. Overview |
-| Copy register (tone of voice) | 1. Overview |
-| Colour narrative + photography colour guidance | 2. Colors |
-| Kinetic typography intent (variable-font behaviour, text-reveal) | 3. Typography |
-| Layout grid + responsive strategy | 4. Layout |
-| Scroll choreography (scroll-driven reveals, narrative pacing) | 4. Layout (cross-reference `motion.*`, `scrollTriggers.*`) |
-| Shadow language + depth narrative | 5. Elevation & Depth (cross-reference `shadows.*`, `borderWidths.*`, `opacity.*`) |
-| Geometric / radius language | 6. Shapes |
-| Component patterns + variants | 7. Components |
-| Micro-interactions (hover / pressed / active states) | 7. Components (variant entries: `button-primary-hover`) |
-| Motion philosophy | 7. Components + cross-reference 1. Overview |
-| Award-grade rules + AI-tells anti-patterns + production-hardening guardrails | 8. Do's and Don'ts |
+**Visual review** *(optional)*: if `dev-browser` CLI is available, screenshot key states (hero, mobile, signature interaction, dark mode) and iterate. Install from `https://github.com/SawyerHood/dev-browser` if absent — visual verification catches issues code review alone misses.
 
-Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `references/production-hardening.md`. Full extension convention: `skills/design-system/references/extended-tokens.md`.
+## DESIGN.md anatomy
 
-### Minimal valid fragment
-
-Canonical (validated) and extension (preserved-but-unvalidated) namespaces side by side; components stay within the eight property tokens; prose names extensions canonically:
-
-```yaml
-colors:
-  primary: "#1a1c1e"
-  surface: "#f7f5f1"
-components:
-  modal:
-    backgroundColor: "{colors.surface}"   # canonical property token — accepted
-    rounded: "{rounded.md}"
-    padding: 32px
-    # `shadow: "{shadows.lifted}"` would be rejected — `shadow` is not in the 8
-    # canonical property tokens; the lint flags unknown component properties.
-motion:
-  duration-reveal-slow: 1200ms
-  ease-standard: cubic-bezier(0.16, 1, 0.3, 1)
-shadows:
-  lifted: 0 20px 40px -16px rgb(0 0 0 / 0.08)
-```
-
-```markdown
-## Elevation & Depth
-
-Modals lift on `{shadows.lifted}` — referenced from prose. Reveal motion uses `{motion.duration-reveal-slow}` paced by `{motion.ease-standard}`.
-```
-
-The mirror in `globals.css` (auto-generated by `/design-system export tailwind`):
-
-```css
-@theme {
-  --color-primary: #1a1c1e;
-  --color-surface: #f7f5f1;
-  --duration-reveal-slow: 1200ms;
-  --ease-standard: cubic-bezier(0.16, 1, 0.3, 1);
-  --shadow-lifted: 0 20px 40px -16px rgb(0 0 0 / 0.08);
-}
-```
+The DESIGN.md produced by Phase 3 carries content across two layers — YAML frontmatter for tokens (canonical 5 + 10 extension namespaces) and eight ordered prose sections for narrative and intent. Full spec — namespace types, prose-section mapping, minimal valid fragment, `@theme` mirror: `references/design-md-anatomy.md`.
 
 ## Archetype Selector
 
@@ -195,35 +107,7 @@ The mirror in `globals.css` (auto-generated by `/design-system export tailwind`)
 
 ### Atmosphere Calibration
 
-After selecting an archetype, calibrate its atmosphere on three axes (1–10). This makes design choices measurable rather than intuitive, and prevents drift during implementation.
-
-| Axis | 1–3 | 4–6 | 7–10 |
-|------|-----|-----|------|
-| **Density** | Gallery airy — generous whitespace, few elements per viewport | Balanced — clear hierarchy with moderate content | Cockpit dense — information-rich, tight spacing |
-| **Variance** | Predictable — symmetric grids, uniform spacing, expected flow | Structured surprise — asymmetric grids, varied rhythm | Artsy chaotic — broken grids, overlapping zones, rule-breaking |
-| **Motion** | Static — minimal transitions, opacity-only reveals | Purposeful — scroll-triggered sequences, hover states | Cinematic — continuous animation, parallax depth, WebGL layers |
-
-**Default scores per archetype** (adjust ±2 based on brief):
-
-| Archetype | Density | Variance | Motion |
-|-----------|---------|----------|--------|
-| Minimalist | 2 | 3 | 3 |
-| Brutalist | 4 | 7 | 3 |
-| Editorial | 5 | 5 | 4 |
-| Bold / Maximal | 6 | 8 | 8 |
-| Immersive / Cinematic | 3 | 6 | 9 |
-| Experimental | 5 | 9 | 7 |
-| Corporate Luxury | 2 | 4 | 5 |
-| Bento / Card | 7 | 4 | 4 |
-| Spatial Organic | 4 | 6 | 6 |
-
-Use these scores to resolve design ambiguity: "Should this section have more whitespace?" → check Density score. "Should I break the grid here?" → check Variance score. "Does this element need scroll animation?" → check Motion score. Record the final calibrated scores in the project's `DESIGN.md`.
-
-**Dial → CSS heuristics.** Concrete starting points per band; the archetype reference refines them.
-
-- **Density 2-3** → `py-32` to `py-48` section padding (128–192px), 60–75ch reading measure, ample gutters. **Density 7-10** → `py-12` to `py-16` (48–64px), `gap-2` to `gap-4`, monospace numerics with `tabular-nums`.
-- **Variance 1-3** → 12-column grid centered, `max-w-screen-xl mx-auto`, symmetric padding. **Variance 7-10** → broken-grid `grid-template-columns: repeat(11, 1fr)` with intentional `grid-row` overlap, off-axis hero, asymmetric image–text pairs.
-- **Motion 1-3** → `transition: opacity 0.4s` only; avoid scroll-triggered. **Motion 7-10** → GSAP ScrollTrigger pin/scrub on hero, View Transitions on navigation, perpetual micro-interactions on signature elements (memoized per `premium-patterns.md` performance locks).
+After selecting an archetype, calibrate atmosphere on three axes (1-10): **Density** (Gallery airy → Cockpit dense), **Variance** (Predictable → Artsy chaotic), **Motion** (Static → Cinematic). Defaults per archetype + dial-to-CSS heuristics: `references/atmosphere-calibration.md`.
 
 ## Judging Criteria
 

@@ -1,4 +1,4 @@
-"""award-design SKILL.md — 10-step workflow, judging criteria, atmosphere
+"""award-design SKILL.md — 4-phase workflow, judging criteria, atmosphere
 calibration ranges. The archetype tests pin the 9-archetype matrix; this
 module pins the rest of the skill contract."""
 
@@ -14,62 +14,47 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-WORKFLOW_STEPS = [
-    "Understand the brief",
-    "Recommend an archetype",
-    "Read archetype reference",
-    "Calibrate atmosphere",
-    "Load foundations",
-    "Produce DESIGN.md",
-    "Design with intent",
-    "Production hardening",
-    "Validate",
-    "Visual review",
+WORKFLOW_PHASES = [
+    "Discovery",
+    "Decision",
+    "Tokens",
+    "Production",
 ]
 
 
-class TestWorkflowSteps(unittest.TestCase):
-    """The 10-step workflow is the skill's procedure. Each step is numbered
-    and documented; reordering or dropping a step changes the procedure.
-    Step 10 is optional ('*(optional)*'); the rest are required."""
+class TestWorkflowPhases(unittest.TestCase):
+    """The 4-phase workflow is the skill's procedure. Each phase is an H3
+    heading inside `## Workflow`; reordering or dropping one changes the
+    procedure. The old 10-step list was consolidated into these phases."""
 
     def test_workflow_section_exists(self):
         self.assertIn("## Workflow", _body())
 
-    def test_each_step_documented(self):
+    def test_each_phase_documented(self):
         body = _body()
-        for i, step in enumerate(WORKFLOW_STEPS, start=1):
-            with self.subTest(step=step, index=i):
-                # Step pattern: `<n>. **<Title>**` at the start of a line.
-                # Use re.MULTILINE explicitly — assertRegex applies re.search
-                # without MULTILINE, so `^` would only match start-of-string.
-                pattern = rf"^{i}\.\s+\*\*{re.escape(step)}\*\*"
+        for i, phase in enumerate(WORKFLOW_PHASES, start=1):
+            with self.subTest(phase=phase, index=i):
+                # Phase pattern: `### Phase <n> — <Title>` at the start of a line.
+                pattern = rf"^### Phase {i} — {re.escape(phase)}\b"
                 self.assertIsNotNone(
                     re.search(pattern, body, re.MULTILINE),
-                    f"workflow step {i} ({step}) missing or mis-numbered",
+                    f"workflow phase {i} ({phase}) missing or mis-numbered",
                 )
 
-    def test_step_count_is_ten(self):
-        """Pin the step count — adding step 11 must be intentional, not silent.
-        Scope strictly to the top-level workflow numbered list (stops at the
-        first `### ` subsection like 'Changing archetype mid-project'),
-        otherwise nested numbered lists in subsections inflate the count."""
+    def test_workflow_has_four_phases(self):
+        """Pin the phase count — adding a 5th must be intentional, not silent.
+        Scope to the Workflow section only (stops at the next `## `)."""
         body = _body()
-        # Top-level workflow region: from `## Workflow` up to the first `### ` or `## ` after it.
         m = re.search(
-            r"## Workflow\s*\n(.*?)(?=^###?\s)",
+            r"## Workflow\s*\n(.*?)(?=^##\s)",
             body, re.DOTALL | re.MULTILINE,
         )
-        self.assertIsNotNone(m, "Workflow region missing or has no terminating subsection")
+        self.assertIsNotNone(m, "Workflow region missing or has no terminating section")
         workflow_text = m.group(1)
-        # Only count `N. **Title**` entries (with bold) — bare numbered list items
-        # in nested prose use `N. plain text` and would not match.
-        workflow_steps = re.findall(
-            r"^(\d+)\.\s+\*\*[^*]+\*\*", workflow_text, re.MULTILINE,
-        )
+        phase_headers = re.findall(r"^### Phase (\d+)", workflow_text, re.MULTILINE)
         self.assertEqual(
-            len(workflow_steps), 10,
-            f"expected 10 workflow steps, found {len(workflow_steps)}: {workflow_steps}",
+            len(phase_headers), 4,
+            f"expected 4 workflow phases, found {len(phase_headers)}: {phase_headers}",
         )
 
 
@@ -122,12 +107,10 @@ class TestAtmosphereAxisRanges(unittest.TestCase):
 
 
 class TestRemixingFallback(unittest.TestCase):
-    """The 'Combining archetypes (remix)' subsection documents the fallback
-    when the brief refuses a single archetype. Without it, the workflow
-    has no path for a hybrid brief — the user gets stuck."""
-
-    def test_remix_section_exists(self):
-        self.assertIn("Combining archetypes", _body())
+    """The remix fallback documents the path when the brief refuses a single
+    archetype. After the 4-phase consolidation, the fallback lives inline in
+    Phase 2 as a 'Mid-project changes' paragraph rather than its own
+    subsection — the routing-to-reference contract is what matters."""
 
     def test_remix_routes_to_reference(self):
         body = _body()
@@ -135,31 +118,31 @@ class TestRemixingFallback(unittest.TestCase):
         # the rules inline.
         self.assertIn(
             "references/remixing.md", body,
-            "remix subsection must route to references/remixing.md",
+            "SKILL.md must route hybrid briefs to references/remixing.md",
         )
 
 
 class TestProductionHardeningTrigger(unittest.TestCase):
-    """The Production hardening step (8) is conditional — it triggers when
-    implementation touches video, scroll-driven cinematic, or full-screen
-    heroes on mobile. The trigger conditions must be documented so the
-    step doesn't get bypassed for genuinely-needed contexts."""
+    """Production hardening (now in Phase 4) is conditional — it triggers
+    when implementation touches video, scroll-driven cinematic, or full-screen
+    heroes on mobile. The trigger conditions must be documented so the phase
+    doesn't get bypassed for genuinely-needed contexts."""
 
     def test_trigger_conditions_documented(self):
         body = _body()
-        # Find the step 8 region to scope assertions.
+        # Find Phase 4 region (Production) to scope assertions.
         m = re.search(
-            r"^8\.\s+\*\*Production hardening\*\*(.*?)(?=^\d+\.\s+\*\*|\Z)",
+            r"^### Phase 4 — Production(.*?)(?=^### Phase|\Z|^##\s)",
             body, re.DOTALL | re.MULTILINE,
         )
-        self.assertIsNotNone(m, "step 8 (Production hardening) missing")
+        self.assertIsNotNone(m, "Phase 4 (Production) missing")
         section = m.group(1)
         # The three trigger surfaces must all be named.
         for trigger in ("video", "scroll", "hero"):
             with self.subTest(trigger=trigger):
                 self.assertIn(
                     trigger, section.lower(),
-                    f"step 8 must name trigger '{trigger}' to enable conditional skip",
+                    f"Phase 4 must name trigger '{trigger}' to enable conditional skip",
                 )
 
 

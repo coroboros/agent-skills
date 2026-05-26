@@ -119,27 +119,7 @@ See [references/rules-directory-guide.md](references/rules-directory-guide.md) f
 
 ## Content Structure
 
-Structure CLAUDE.md with only these sections:
-
-1. **Project purpose** (1–3 lines) — What the project is
-2. **Tech stack** (compact) — Only non-obvious technologies
-3. **Commands** — Non-obvious dev, build, and test commands
-4. **Important files** — Architecture-critical, non-obvious files only
-5. **Rules** — Prohibitions and constraints that prevent mistakes (highest-value lines)
-6. **Workflow** (optional) — Only if non-standard
-
-**Do NOT include** — the 6 bloat categories. Any line matching one of these pays tokens for zero behavioral gain, because the agent either discovers the information directly or a tool enforces it:
-
-1. **Linter-enforced rules** (ESLint, Prettier, Biome, TypeScript strict) — the tool enforces it, the agent doesn't need a reminder
-2. **Marketing / goals / vision** — zero code value
-3. **Obvious info the agent discovers itself** — directory structure, framework defaults, deps from config files
-4. **Verbose explanations** — paragraphs where one line suffices, tutorials, history
-5. **Redundant specs** — copies of config files, schema descriptions, env var lists
-6. **Generic best practices** — "write clean code", "DRY", "SOLID"
-
-Full examples for each category live in [references/optimize-guide.md](references/optimize-guide.md). Use them both when *writing* new CLAUDE.md files and when *optimizing* existing ones — the list is the same.
-
-See [references/section-templates.md](references/section-templates.md) for ready-to-use templates, and [references/project-patterns.md](references/project-patterns.md) for framework-specific patterns.
+The 6 sections every CLAUDE.md should have and the 6 bloat categories to avoid (linter rules, agent-discoverable, marketing/vision, redundant specs, verbose prose, generic best-practices): [references/optimize-guide.md](references/optimize-guide.md).
 
 ## CLAUDE.md-specific writing rules
 
@@ -190,9 +170,7 @@ Imports load eagerly at launch alongside the referencing file. Relative and abso
 
 ## Auto Memory
 
-A parallel memory system: Claude saves notes for itself (build commands, debugging insights, preferences) as it works — `~/.claude/projects/<project>/memory/MEMORY.md`, machine-local, loaded per session. CLAUDE.md is for rules you author; auto memory is for what Claude noticed. Run `/memory` to view both.
-
-Layout, loading caps, settings keys, env overrides, and subagent memory live in [references/auto-memory.md](references/auto-memory.md) — version-specific claims drift across releases, so the details are kept out of this file.
+Auto memory layout, loading caps, settings keys, env overrides, and subagent memory: [references/auto-memory.md](references/auto-memory.md).
 
 ## Workflow
 
