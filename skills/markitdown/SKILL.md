@@ -51,7 +51,7 @@ For Azure Document Intelligence, also export `MARKITDOWN_DOCINTEL_ENDPOINT=https
 | `-k` | off | Keep data URIs (base64 images) inline in the output |
 | `-l` | — | List installed plugins and exit |
 
-`<slug>` is the kebab-cased input basename, max 5 words; `<project>` is the repo basename (git toplevel, else cwd) — see `.claude/rules/repo-conventions.md` § Output paths. Pipeline-friendly — typical downstream: `/forge -s -f <path>` decomposes the extracted content into workstreams; `/apex -f <path>` implements from it; any skill accepting `-f` can consume.
+Output saved under `~/.claude/output/{project}/markitdown/{slug}/`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd) and `{slug}` is a kebab of the input basename (≤5 words). Pipeline-friendly — typical downstream: `/forge -s -f <path>` decomposes the extracted content into workstreams; `/apex -f <path>` implements from it; any skill accepting `-f` can consume.
 
 ## Workflow
 

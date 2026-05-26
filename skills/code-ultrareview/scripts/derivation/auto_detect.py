@@ -34,8 +34,8 @@ APEX_TASK_DIR_RE = re.compile(r"^\d+-[a-z0-9][a-z0-9-]*$")
 def project_name(repo: Path) -> str:
     """Kebab-cased basename of the git toplevel (or the input dir).
 
-    Mirrors the convention in `.claude/rules/repo-conventions.md` § Output
-    paths.
+    Same derivation used across the skills' output paths
+    (`~/.claude/output/{project}/{skill}/`).
     """
     try:
         r = subprocess.run(

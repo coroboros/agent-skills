@@ -61,7 +61,7 @@ Operational detail follows in `## How it runs` and per-lens references.
 | `--no-prose-hygiene` | Skip the prose-hygiene lens (PR body, commits, user-facing `*.md` checks). Lens runs by default; the row reads `— skipped (--no-prose-hygiene)` in the lens summary when set |
 | `--remote` | Reserved for phase-2 remote-sandbox escalation; current MVP is in-session |
 
-`{slug}` = kebab of the branch name or a short description (≤5 words); `{project}` = kebab-cased basename of the git toplevel (else cwd) — see `.claude/rules/repo-conventions.md` § Output paths. Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
+Output saved to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd) and `{slug}` is a kebab of the branch name or short description (≤5 words). Lowercase enables, uppercase disables. No `-f`: this skill is a producer, not a consumer.
 
 ```bash
 /code-ultrareview                              # full review, print report
@@ -156,26 +156,11 @@ Detail references:
 
 ## Final report layout
 
-**Terminal echo is mandatory.** The full canonical report prints to the chat-terminal on every invocation — header, every `##` section, every finding sub-section. The `-s` flag is purely additive: it writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. It never gates, truncates, or summarises what the user sees in chat. Terminal output and saved file are byte-for-byte identical.
+The template at `templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; section names are not rewritten, merged, or reordered.
 
-Every `##` section below renders verbatim, in this order, with a `---` separator above it and its canonical emoji prefix. The template at `templates/code-ultrareview.md` is the wire format — section names are not rewritten, merged, reordered, or replaced. This applies to terminal output and to the `-s` saved file: the saved report and what prints to the chat must match heading-for-heading.
+**Terminal echo is mandatory.** The full canonical report prints to the chat-terminal on every invocation. The `-s` flag is purely additive: it writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — terminal output and saved file are byte-for-byte identical. Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80), per-section IDs, and dict-key schema: `references/aggregation.md`.
 
-1. **Header + severity roll-up** — `Findings: {N} 🔴 · {N} 🟠 · {N} 🟢 (verified) · {N} unverified` plus a separate `Repo: <kind>` line surfaced from the audit-phase classifier. The Findings line is omitted on a fully clean review; the Repo line always renders (`Repo: unknown — heuristics not specialized` when the classifier returns `unknown`).
-2. **`## 📋 Lens summary`** — seven-row table, every canonical lens present (clean or otherwise). Derivation reads `— skipped (no --reconcile)` when conditional; prose-hygiene reads `— skipped (--no-prose-hygiene)` when opted out.
-3. **`## 🔎 Findings`** — split into four mandatory sub-sections in this order: `### 🔴 High`, `### 🟠 Medium`, `### 🟢 Low`, `### ⚠️ Unverified`. The severity emoji is part of the heading and is never dropped. The row tables omit the Severity column (severity lives in the heading) and use per-section ID prefixes — `H1`, `H2`, …, `M1`, …, `L1`, …, `U1`, … — so findings stay addressable. Each sub-section renders even when its count is zero (body `_None._`).
-4. **`## 🧭 Deferred to sibling skills`** — out-of-lane pointers (security, performance, depth, stale-API).
-5. **`## ✅ What looks good`** — positive callouts.
-6. **`## 🕸️ Coherence-graph status`** — per-sub-graph pass/fail.
-7. **`## 📐 Derivation coverage`** — artifact list + classification counts (present only when `--reconcile` ran).
-8. **`## ⚖️ Verdict`** — `Ship` / `Fix-then-ship` / `Needs work`, computed deterministically from severity markers + Anthropic tier. Algorithm + worked examples: `references/verdict-logic.md`.
-9. **`## 🛠️ Action plan`** — paste-ready delegation prompts, severity-ordered (🔴 → 🟠 → 🟢 cross-lens). Each prompt routes to the most-specialized installed skill, falling back to `/apex` when absent. Routing table + fallback contract: `references/skill-routing.md`. Unverified findings render in a separate follow-up sub-block (no fix sketch — confidence too low).
-10. **`## 🪛 --apply-safe summary`** — emitted only when `--apply-safe` was used; three-writer status table.
-
-Severity marker mapping (canonical): **🔴 High** blocks ship; **🟠 Medium** fix-soon; **🟢 Low** nit/informational; **⚠️ Unverified** sub-80 confidence, A2-routed. Markers attach in `aggregation.py::_attach_marker` after A2 routing, so unverified findings (A2-downgraded to Low) carry both the Unverified section emoji and the per-finding 🟢 in `meta.marker`.
-
-No section beyond this list — `Dropped`, `Derivation reconciliation`, `Per-ask verification`, and similar improvised headings are out of contract; debug data (e.g., `iteration_dropped`) stays out of the user-facing report by design.
-
-Synthesize dict keys consumed by the template: `severity_counts`, `lens_summary`, `verdict`, `action_plan` — full schema in `references/aggregation.md` § *Closing-block extension*.
+No section beyond the template's list — `Dropped`, `Derivation reconciliation`, `Per-ask verification`, and similar improvised headings are out of contract; debug data stays out of the user-facing report by design.
 
 ## Deferral spine
 
@@ -218,3 +203,10 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 
 Report-only default + deferral spine + canonical sections live in their own
 sections above — not restated here.
+
+## Gotchas
+
+1. **Sub-80 findings can be dropped instead of surfaced in `### ⚠️ Unverified`.** The contract (lines above + `scripts/aggregation.py:31-34`, `CONFIDENCE_THRESHOLD = 80`, `PROMOTION_BONUS = 30`) is no-silent-drop: sub-80 lands in the Unverified sub-section with `[unverified]` rationale. The model sometimes treats the sub-80 score as a rejection signal and omits the finding entirely. Fix: scan the `### ⚠️ Unverified` section explicitly on every report; compare finding count to lens output to catch drops.
+2. **Lens routing falls back to `/apex` when the specialized skill is not installed.** `references/skill-routing.md` defines the per-finding routing chain; absent skills fall through to `/apex`. Symptom: an Action plan prompt that should route to `/simplify` or `/security-review` lists `/apex` instead. Fix: install the routed skills before running review; or manually re-route by invoking the specialist with the finding ID.
+3. **`--reconcile @auto` fails on invalid forge/apex frontmatter.** `scripts/derivation/auto_detect.py` scans `~/.claude/output/{project}/` for plans and tasks; a `# Spec:` or `# Decision:` header with malformed YAML frontmatter (unclosed `---`, tab indentation, unquoted colons in values) breaks discovery silently. Verify with `head -20 ~/.claude/output/{project}/forge/forge-*.md` before relying on `@auto`.
+4. **Dirty-tree review pulls untracked files into scope.** Per § What it reviews: untracked files (`git ls-files --others --exclude-standard`) are read in full and counted. A new module written this session but not yet `git add`-ed inflates diff size and the wall-clock estimate. Fix: run on a clean tree (`git add` first) when scope tightness matters; or accept the dirty-tree behavior and verify the Scope line lists the untracked files.

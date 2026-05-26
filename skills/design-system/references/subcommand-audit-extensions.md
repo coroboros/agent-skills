@@ -24,7 +24,7 @@ See `references/extended-tokens.md` for the full convention this subcommand enfo
 | `-S` | Force no-save (override ambient save mode) |
 | `--json` | Emit JSON instead of the human-readable report |
 
-`{project}` follows the same rule as `audit` — repo basename per `.claude/rules/repo-conventions.md` § Output paths.
+`{project}` follows the same rule as `audit` — kebab-cased basename of the git toplevel (else cwd).
 
 The script exits `0` when zero errors, `1` when any errors are present (warnings alone do not fail). Usable as a CI gate.
 

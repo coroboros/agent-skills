@@ -249,4 +249,4 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 
 ## About
 
-`claude-md` contains the reserved substring `claude`. Per `.claude/rules/agentskills-spec.md` § *Narrow exception — first-party filename conventions*, this is intentional — the skill operates directly on the first-party `CLAUDE.md` filename, and alternatives (`memory-md`, `ctx-md`) lose essential semantic clarity.
+`claude-md` contains the reserved substring `claude`. This is intentional: the agentskills.io open standard reserves `anthropic` / `claude` in skill names but permits a narrow exception for first-party filename conventions, declared in the skill body. This skill operates directly on the first-party `CLAUDE.md` filename; alternatives (`memory-md`, `ctx-md`) lose essential semantic clarity.

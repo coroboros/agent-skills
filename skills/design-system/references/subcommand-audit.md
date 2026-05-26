@@ -21,7 +21,7 @@ Aliases: `check`, `lint` — route to this same workflow.
 | `--json` | Skip report composition; print the raw CLI JSON |
 | `--strict` | Cross-check against `/award-design`'s anti-patterns catalog and surface exemplar suggestions when the CLI lint is clean (see *Strict mode* below) |
 
-`{project}` — repo basename (git toplevel, else cwd), kebab-cased — see `.claude/rules/repo-conventions.md` § Output paths. The three subcommands (`audit`, `diff`, `audit-extensions`) write sibling reports under the same `{project}/` directory.
+Output saved under `~/.claude/output/{project}/design-system/`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd). The three subcommands (`audit`, `diff`, `audit-extensions`) write sibling reports under the same `{project}/` directory.
 
 The script exits `0` when the lint has zero errors, `1` when errors are present — usable directly as a CI gate (`bash scripts/audit.sh DESIGN.md || exit 1`). This matches the underlying `@google/design.md lint` exit semantics.
 
