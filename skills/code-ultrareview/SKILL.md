@@ -86,91 +86,31 @@ The output also feeds the report header lines `Repo: <kind>`, `Base: <ref>`, `Fi
 
 ### Phase 2 — Tool battery
 
-Runs `scripts/run_battery.sh` (WS-2). Deterministic CLIs feed `tool-findings.jsonl` tagged by axis with `confidence: 100`. Tools dispatched per `scope.json["languages"]`:
+Runs `scripts/run_battery.sh` (WS-2). Deterministic CLIs feed `tool-findings.jsonl` tagged by axis with `confidence: 100`. Tools dispatch per `scope.json["languages"]`: npx-wrapped (`knip` / `jscpd` / `markdownlint-cli2` / `@microsoft/api-extractor`) and uvx-wrapped (`lizard` / `vulture` / `semgrep` / `vale`) tools wrap zero-install; native binaries (`oasdiff` / `atlas` / Go `deadcode` `gocyclo` `dupl` / `cargo-machete`) fall back to PATH. Bundled `references/perf-rules/` carries the universal N+1 and sync-I/O semgrep rules. Per-tool axis routing lives in `scripts/battery_ingest.py`. Full Tool → Axis → Install table in `README.md`.
 
-- **JS/TS** — `npx knip` (dead code), `npx jscpd` (duplication), `npx markdownlint-cli2`, optional `npx @microsoft/api-extractor`.
-- **Python** — `uvx lizard` (complexity), `uvx vulture` (dead code), `uvx semgrep --config=auto`, `npx jscpd` (cross-language).
-- **Go** — `deadcode`, `gocyclo`, `dupl`, `npx jscpd`, `uvx lizard`.
-- **Rust** — `cargo-machete`, `npx jscpd`, `uvx lizard -l rust`.
-- **Universal** — `uvx semgrep` with bundled `references/perf-rules/` (N+1 and sync-I/O rules).
-- **API** — `oasdiff` when an OpenAPI file appears in the diff.
-- **DB** — `atlas migrate lint` when `migrations/` appears in the diff.
-- **Prose** — `uvx vale` when `.vale.ini` is present.
+**Graceful skip.** Missing tools emit `WARN: <tool> not found — install: <command>` to stderr and append to `scope.json["tools_skipped"]`; the skill continues. The battery NEVER auto-installs — no `brew`, `cargo`, `go`, `pip`, or `npm` install runs.
 
-Per-tool axis routing lives in `scripts/battery_ingest.py` (WS-2).
-
-**Graceful skip.** Missing tools (no `npx`, no `uvx`, no PATH binary) emit `WARN: <tool> not found — install: <command>` to stderr and append to `scope.json["tools_skipped"]`. The skill continues. The battery NEVER auto-installs — no `brew install`, no `cargo install`, no `go install`, no `pip install`, no `npm install -g`.
-
-**Phase 2 extension — `--mutation-test`.** `scripts/run_mutation.sh` dispatches per-language mutation tools (Stryker for JS/TS, mutmut for Python, pitest-maven for JVM) scoped to changed files only. Surviving mutants route to the Tests axis as 🟠 Medium findings with `confidence: 100` (deterministic CLI output — skips Phase 4 validators). Runtime can exceed 10 minutes per language; the default 600 s timeout is overridable via `MUTATION_TIMEOUT`. Graceful skip on missing tool or missing config.
+**Phase 2 extension — `--mutation-test`.** `scripts/run_mutation.sh` dispatches Stryker (JS/TS), mutmut (Python), or pitest-maven (JVM) scoped to changed files only. Surviving mutants route to the Tests axis as 🟠 Medium with `confidence: 100` (skips Phase 4 validators). Runtime can exceed 10 minutes per language; default 600 s timeout overridable via `MUTATION_TIMEOUT`. Graceful skip on missing tool or config. Details: `references/ultra-execution.md`.
 
 ### Phase 3 — Axis review
 
-The orchestrator (main thread) prepares 8 per-axis bundles + 1 conditional Coherence bundle via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` subagent in one message. Subagents cannot spawn other subagents — the main thread always launches both axis reviewers AND validators.
+The orchestrator prepares 8 per-axis bundles (+ Coherence when active) via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` `Task` in one message. Each subagent reads its axis brief, the rubric in `references/anthropic-verbatim.md`, the diff, and its filtered tool findings. Each emits canonical-schema JSONL on stdout. Subagents cannot spawn other subagents — the main thread launches both axis reviewers AND validators.
 
-```bash
-python3 scripts/axis_dispatch.py prepare \
-  --scope <scope.json> \
-  --findings <tool-findings.jsonl> \
-  --diff <diff.patch> \
-  --output-dir <run-dir>
-```
-
-The script emits a JSON map `{axis: {input_path, prompt_path, findings_count}}`. The orchestrator reads each axis's `prompt_path`, then fans out one `Task` call per axis in the same message.
-
-Each subagent receives via its bundle (`axis-input/{axis}.json`):
-
-- `scope` — repo kind, languages, CLAUDE.md chain, files touched.
-- `findings` — tool findings filtered to its own axis only (`scripts/battery_ingest.py` axis routing). Other axes' findings are excluded so the subagent's context stays lean.
-- `diff_text` — the diff itself.
-- `brief_path` — its axis brief at `references/axes/{axis}.md`.
-- `anthropic_verbatim_path` — `references/anthropic-verbatim.md` carrying the 0-100 rubric, HIGH SIGNAL criteria, false-positive taxonomy, and agent-assumption rule.
-
-Each subagent emits findings as JSONL on stdout, one finding per line, against the canonical schema (`axis`, `severity`, `location`, `finding`, `recommendation`, `confidence`).
-
-| # | Axis | Scope | Brief |
-|---|------|-------|-------|
-| 1 | Correctness | Bugs, logic errors, type errors, regressions, unhandled edges | `references/axes/correctness.md` |
-| 2 | Simplification | Over-engineering, single-use abstractions, dead-code judgment, nested ternaries | `references/axes/simplification.md` |
-| 3 | Tests | Coverage of changed lines, test smells, weak assertions, strictness flags | `references/axes/tests.md` |
-| 4 | Documentation | Public API docs, README drift, ADR drift, prose hygiene | `references/axes/documentation.md` |
-| 5 | Style | CLAUDE.md violations, linter-deferred concerns | `references/axes/style.md` |
-| 6 | Intent | PR description vs diff, code vs comment drift, lockfile drift, optional `--reconcile` | `references/axes/intent.md` |
-| 7 | Design/API | Public API breaking, DB schema breaking, race conditions | `references/axes/design-api.md` |
-| 8 | Performance | N+1 patterns, sync I/O in async, bundle-size delta | `references/axes/performance.md` |
-
-**Conditional 9th — Coherence.** `references/axes/coherence.md`. `axis_dispatch.prepare` adds it to the bundle list when `scope.json["activates_coherence"]` is true (still within the soft 10-parallel concurrency cap). When inactive, the report header surfaces `Coherence axis: inactive`.
-
-**No silent failure.** If any axis subagent returns no output (timeout, error, malformed JSON), the orchestrator emits a 🔴 High finding for that axis citing the failure mode — never a silent skip.
-
-Full axis map and inter-axis precedence: `references/axes-overview.md`.
+The 8 always-on axes: **Correctness** · **Simplification** · **Tests** · **Documentation** · **Style** · **Intent** · **Design/API** · **Performance**. Each maps to `references/axes/<name>.md` for scope + repo-kind branches. Coherence is the conditional 9th — added when `scope.json["activates_coherence"]` is true; when inactive, the header surfaces `Coherence axis: inactive` so the absence is visible. Full axis map, inter-axis precedence, and orchestration details (prepare CLI, bundle schema, no-silent-failure contract): `references/axes-overview.md` + `references/orchestration.md`.
 
 ### Phase 4 — Validation
 
-The orchestrator (main thread) prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one Haiku `Task` per finding in the same message — batched ≤10 parallel. Each validator receives the finding + diff context + the deepest matching CLAUDE.md snippet + the verbatim rubric.
+The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one Haiku `Task` per finding in the same message — batched ≤10 parallel. Each validator receives the finding + diff context + the deepest matching CLAUDE.md snippet + the verbatim rubric, re-scores 0-100, and re-checks the cited CLAUDE.md rule actually exists in `claude_md_chain` (demotes with `CLAUDE.md rule not found at <path>` if not).
 
-```bash
-python3 scripts/run_validators.py prepare \
-  --scope <scope.json> \
-  --findings <axis-findings.jsonl> \
-  --diff <diff.patch> \
-  --output-dir <run-dir>
-```
+Confidence threshold = 80 (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic. Validators stay read-only — no Write / Edit / Bash, no nested subagent spawn.
 
-The script emits `{count, batches: [[idx, ...], ...], bundles: {idx: {input_path, prompt_path}}}`. The orchestrator reads each batch's `prompt_path`, fans out one `Task` per index in one message, collects stdout as `{index, score, reason}` lines, then runs `scripts/run_validators.py ingest` to apply A2-preserving promote/demote logic on top of `scripts/synthesis_core.py` primitives.
-
-Each validator:
-
-1. Re-scores 0-100 against the verbatim rubric.
-2. Re-checks that the cited CLAUDE.md rule actually exists in `claude_md_chain`. Demotes with explicit reason if not found (`CLAUDE.md rule not found at <path>`).
-3. Stays read-only — no Write/Edit/Bash, no nested subagent spawn.
-
-Confidence threshold = 80 (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic.
-
-**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s total. Latency is dominated by Haiku launch overhead, not validator inference; 25+ findings spread over 2-3 batches stay under ~2 min.
+**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s. 25+ findings spread over 2-3 batches stay under ~2 min. Latency is dominated by Haiku launch overhead, not inference.
 
 **A2 contract.** No sub-80 finding silently dropped. Each one is promoted to ≥80, demoted with reason, or surfaced in `### ⚠️ Unverified` with the validator's reason text.
 
-**Phase 3.5 — `--verify-build`.** Build verification runs BEFORE validators via `scripts/run_build_verify.py`, which composes `scripts/build_detect.py` (canonical test command per repo type) with `scripts/synthesis_core.py:iterate_unverified` (+30 confidence, cap 95, floor 80). The test command runs once with a 120 s default timeout; for each sub-80 finding on `correctness` / `tests` / `design-api` / `performance`, a non-zero exit promotes the finding past the validator phase. Other axes pass through unchanged.
+Validator prepare CLI, bundle schema, ingest pass details: `references/orchestration.md`.
+
+**Phase 3.5 — `--verify-build`.** Build verification runs BEFORE validators via `scripts/run_build_verify.py` (composing `scripts/build_detect.py` + `synthesis_core.iterate_unverified` — +30 confidence, cap 95, floor 80). Sub-80 findings on `correctness` / `tests` / `design-api` / `performance` get promoted past the validator phase when the build fails. Other axes pass through unchanged. Details: `references/orchestration.md`.
 
 ### Phase 5 — Synthesis
 
@@ -186,28 +126,20 @@ The closing **"What I did NOT check"** section is mandatory and always present, 
 
 ## Final report layout
 
-The template at `templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; section names are not rewritten, merged, or reordered.
-
-**Terminal echo is mandatory.** The full canonical report prints to the chat-terminal on every invocation. The `-s` flag is purely additive: it writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — terminal output and saved file are byte-for-byte identical. Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80) and the dict-key schema live in `scripts/synthesis_core.py:SEVERITY_MARKERS`.
-
-No section beyond the template's list — improvised headings like `Dropped`, `Per-ask verification`, or `Debug` are out of contract; debug data stays out of the user-facing report by design.
+`templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; no rename, merge, reorder, or improvise. **Terminal echo is mandatory** — the full canonical report prints to the chat-terminal on every invocation; `-s` is purely additive (writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, byte-for-byte identical to terminal output). Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80) lives in `scripts/synthesis_core.py:SEVERITY_MARKERS`.
 
 ## Trust model
 
-This skill ingests third-party content: CLAUDE.md files, PR bodies (`--reconcile @pr`), external planning artifacts (`--reconcile <path>`), GitHub issue bodies. These can carry indirect prompt-injection attempts.
-
-- Axis reviewers and validators are read-only — no Write/Edit/Bash mutation beyond the controlled scope.
-- The synthesis phase emits the report; user review is the trust boundary before any `--apply-safe` write.
-- `--apply-safe` writes go through diff preview + per-file confirmation. No silent modifications.
+The skill ingests third-party content — CLAUDE.md files, PR bodies, planning artifacts (`--reconcile`), GitHub issue bodies — which can carry indirect prompt-injection. Axis reviewers and validators are read-only (no Write / Edit / Bash mutation). User review of the report is the trust boundary before any `--apply-safe` write; `--apply-safe` itself gates writes behind diff preview + per-file confirmation.
 
 ## Rules
 
-- **Only new findings.** Issues the diff introduces, not pre-existing ones. Pre-existing findings carry the `Pre-existing` tier for context but never flip the verdict.
-- **No silent drop (A2).** Sub-80 findings surface in `### ⚠️ Unverified` with the rationale `Sub-80 confidence ({score}) — verify locally before action.` Never omitted.
-- **Fail loud.** A phase that cannot run (unresolvable base, missing tool with no graceful skip path, dependency failure) is stated in the header or surfaced as a finding. Never silently skipped.
-- **Cite precisely.** Every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>` with the full SHA resolved via `git rev-parse HEAD`.
-- **Full report in chat every time.** Print the complete report — header + every section + every finding — to the terminal on every invocation. `-s` is additive: it writes the same bytes to disk; it does NOT gate, truncate, or summarize the chat output.
-- **NEVER auto-install tools.** Missing native tools surface install commands in the report and `scope.json["tools_skipped"]`. The user installs them.
+- **Only new findings.** Issues the diff introduces. Pre-existing findings carry the `Pre-existing` tier for context, never flip the verdict.
+- **No silent drop (A2).** Sub-80 findings surface in `### ⚠️ Unverified` with rationale `Sub-80 confidence ({score}) — verify locally before action.`
+- **Fail loud.** A phase that cannot run (unresolvable base, missing tool with no skip path, dependency failure) appears in the header or as a finding. Never silent.
+- **Cite precisely.** Every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>` (full SHA via `git rev-parse HEAD`).
+- **Full report in chat every time.** The complete report prints to the terminal on every invocation. `-s` writes the same bytes to disk; it never gates or summarises chat output.
+- **NEVER auto-install tools.** Missing tools surface install commands in the report and `scope.json["tools_skipped"]`. The user installs them.
 - **NEVER modify code without `--apply-safe`.** Default is read-only review. `--apply-safe` writers are surgical and per-file confirmed.
 
 ## Deferrals
@@ -230,23 +162,14 @@ The closing "What I did NOT check" section always names these — explicit user-
 
 ## Composition
 
-After the report ships, bridge to the fix pass:
+Bridge to the fix pass after the report ships:
 
 - `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix pass (requires `-s`; pass the absolute path the report prints).
-- `/oneshot "<finding>"` — single-finding quick fix (manual; `/oneshot` takes a description, not a file).
+- `/oneshot "<finding>"` — single-finding quick fix (takes a description, not a file).
 
 ### Opt-in flag composition
 
-The four opt-in flags layer orthogonally on the always-on pipeline:
-
-| Combination | Effect |
-|-------------|--------|
-| `--verify-build --mutation-test` | Mutation tests join Phase 2 tool-findings; build verification runs Phase 3.5. Different phases, no interaction. |
-| `--verify-build --reconcile @auto` | Phase 3.5 runs on sub-80 findings; Intent axis runs the derivation sub-mode in Phase 3. Build-verification ignores Intent findings (axis filter). |
-| `--mutation-test --apply-safe` | Surviving mutants surface in the report's Tests-axis section; `--apply-safe` writers run post-synthesis. Writers never touch code-under-test in response to mutation findings — that belongs to `/apex` or `/oneshot`. |
-| All four | Phase 2 extended (mutation), Phase 3 enriched (reconcile derivation), Phase 3.5 active (build verification), post-synthesis writers gated by confirmation. |
-
-Without a flag, its feature is off — `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, and the `apply_safe/` writers are not invoked. Full opt-in flag reference: `references/ultra-execution.md`.
+The four opt-in flags layer orthogonally on the always-on pipeline: mutation tests join Phase 2 tool findings; `--verify-build` adds Phase 3.5; `--reconcile` enriches the Intent axis in Phase 3; `--apply-safe` writers run post-synthesis with diff preview + per-file confirmation. Without a flag, its feature is off. Full composition matrix and per-flag details: `references/ultra-execution.md`.
 
 ## What this skill is NOT
 
@@ -257,18 +180,9 @@ Without a flag, its feature is off — `run_build_verify.py`, `run_mutation.sh`,
 
 ## References
 
-- `references/anthropic-verbatim.md` — verbatim rubric, HIGH SIGNAL criteria, false-positive taxonomy, agent-assumption rule.
-- `references/axes-overview.md` — 8 axes + Coherence conditional + inter-axis precedence rule.
-- `references/axes/<name>.md` — per-axis briefs (WS-3, one file per axis).
-- `references/ultra-execution.md` — full reference for the four opt-in flags (`--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`).
-- `scripts/scope.py` — Phase 1 deterministic scope output.
-- `scripts/synthesis_core.py` — A2 routing + severity markers + verdict algorithm + `iterate_unverified` for Phase 3.5.
-- `scripts/resolve_base.sh` — clean-tree base resolution ladder.
-- `scripts/build_detect.py` — first-hit-wins probe for the canonical test command.
-- `scripts/run_build_verify.py` — Phase 3.5 orchestrator (gated by `--verify-build`).
-- `scripts/run_mutation.sh` — Phase 2 mutation-testing extension (gated by `--mutation-test`).
-- `scripts/derivation/run.py` — Intent-axis derivation sub-mode (gated by `--reconcile`).
-- `scripts/apply_safe/{version_sync,description_sync,failing_test_writer}.py` — `--apply-safe` writers with diff preview + per-file confirmation.
+- **Reviewer primitives** — `references/anthropic-verbatim.md` (rubric + HIGH SIGNAL + false-positive taxonomy), `references/axes-overview.md` (8 axes + Coherence + inter-axis precedence), `references/axes/<name>.md` (per-axis briefs), `references/orchestration.md` (Phase 3 + 4 + 3.5 prepare CLIs and bundle schemas).
+- **Opt-in flags** — `references/ultra-execution.md` covers `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe` in full.
+- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.
 
 ## Gotchas
 

@@ -1,6 +1,6 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the report shape (per-severity 🔴 High / 🟠 Medium / 🟢 Low + ⚠️ Unverified sub-sections, each ## section emoji-prefixed and HR-separated), target auto-detection across the resolver ladder, the seven lenses with their operational definitions, the coherence-graph lens's six sub-graphs, the derivation lens's classification taxonomy (GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT), the prose-hygiene lens's portable baseline + layered discovery (PR body, commits, user-facing *.md; scope excludes SKILL.md / CLAUDE.md / evals.json / .claude/rules/ / skills/*; always-on with --no-prose-hygiene opt-out), the audit-phase repo-kind classifier (nine kinds — skills/app/library/docs/monorepo/python/rust/go/unknown; CLI flag + .code-ultrareview.yaml override; Repo: <kind> header line; per-lens ## Repo-kind branches), the exclusion/deferral contract (the refuse-to-report discipline), no-silent-drop (A2) routing, spec-claim triggering (A1), iteration on sub-80 findings, always-on build + execute with --apply-safe gating, graceful degradation without a rules baseline, and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the 5-phase pipeline (scope → tool battery → 8 axis reviewers → Haiku validators on sub-80 → synthesis), the 8 always-on axes (correctness, simplification, tests, documentation, style, intent, design-api, performance) plus the conditional Coherence axis (activates on metadata in diff), the report shape (per-severity 🔴 High / 🟠 Medium / 🟢 Low + ⚠️ Unverified sub-sections, each ## section emoji-prefixed and HR-separated), the deferral contract (security → /security-review; runtime perf + flaky detection out of scope), no-silent-drop (A2) routing, the Anthropic verbatim rubric + Haiku validator CLAUDE.md re-check, repo-kind classification (skills/app/library/docs/monorepo/python/rust/go/unknown), the four opt-in flags (--verify-build promotes sub-80 via build verification, --mutation-test routes surviving mutants to Tests axis, --reconcile activates Intent-axis derivation sub-mode with GAP/SCOPE-ADD/DECISION-OVERRIDE/CONSISTENT taxonomy, --apply-safe gates surgical writers with diff preview + per-file confirmation), the tool battery's zero-install posture (npx/uvx-preferred, graceful skip on missing native binaries, never auto-install), and reference routing.",
   "evals": [
     {
       "id": 1,
@@ -27,7 +27,7 @@
       "id": 4,
       "name": "explicit-base-override",
       "prompt": "/code-ultrareview -b origin/main",
-      "expected_output": "The skill passes -b origin/main to resolve_base.sh; rule=explicit and auto-detection is skipped. base is resolved to merge-base(origin/main, HEAD) — a diffable ancestor SHA, not the literal ref — so the lenses' two-dot `git diff <base> <target>` is always correct. The header prints that base/target/rule.",
+      "expected_output": "The skill passes -b origin/main to resolve_base.sh; rule=explicit and auto-detection is skipped. base is resolved to merge-base(origin/main, HEAD) — a diffable ancestor SHA, not the literal ref — so each axis's two-dot `git diff <base> <target>` is always correct. The header prints that base/target/rule.",
       "files": []
     },
     {
@@ -39,219 +39,240 @@
     },
     {
       "id": 6,
-      "name": "lens1-cites-exact-rule-line",
+      "name": "style-axis-cites-claude-md-rule",
       "prompt": "/code-ultrareview (a changed file violates a rule written in .claude/rules/)",
-      "expected_output": "Lens 1 reports the violation with the exact rule line quoted verbatim and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not.",
+      "expected_output": "The Style axis reports the violation with the exact rule line quoted verbatim and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not. The Haiku validator (Phase 4) re-checks the cited CLAUDE.md rule actually exists in `claude_md_chain` — if absent at the cited path, the finding is demoted with `CLAUDE.md rule not found at <path>`.",
       "files": []
     },
     {
       "id": 7,
-      "name": "lens2-flags-drift-against-docstring",
+      "name": "intent-axis-flags-comment-drift",
       "prompt": "/code-ultrareview (a function's behavior changed but its docstring/comment still describes the old behavior)",
-      "expected_output": "Lens 2 reports drift: code no longer matches its own docstring/comment, with file:line and a recommendation to reconcile. Confidence reflects verification.",
+      "expected_output": "The Intent axis reports drift: code no longer matches its own docstring/comment, with file:line and a recommendation to reconcile. Confidence reflects verification. The finding routes to ### 🔴 High when the comment claim is load-bearing (used by callers or as the only API doc) and ### 🟠 Medium otherwise.",
       "files": []
     },
     {
       "id": 15,
-      "name": "lens2-flags-single-source-of-truth-drift",
+      "name": "correctness-axis-flags-single-source-of-truth-drift",
       "prompt": "/code-ultrareview (the diff hardcodes the same deploy path as a literal in both the install script and the task runner)",
-      "expected_output": "Lens 2 (bugs-drift) reports a single-source-of-truth drift risk: a literal that must stay equal (path/URL/endpoint/constant/version/env-var name) is duplicated across two or more sites introduced by the diff, so a change to one copy silently diverges from the others. The finding cites both sites (file:line each) and recommends a single definition referenced everywhere. Pure cosmetic repetition with no divergence consequence is NOT reported here — it defers to /simplify.",
+      "expected_output": "The Correctness axis reports a single-source-of-truth drift risk: a literal that must stay equal (path / URL / endpoint / constant / version / env-var name) is duplicated across two or more sites introduced by the diff, so a change to one copy silently diverges from the others. The finding cites both sites (file:line each) and recommends a single definition referenced everywhere. Pure cosmetic repetition with no divergence consequence is NOT reported here — it routes to the Simplification axis (duplication signal from jscpd) at most.",
       "files": []
     },
     {
       "id": 8,
-      "name": "lens4-flags-gap-and-blind-spot",
+      "name": "tests-axis-flags-gap-and-blind-spot",
       "prompt": "/code-ultrareview (new code path added with no test and an unhandled empty-input case)",
-      "expected_output": "Lens 4 reports a test gap (convention implies a test) and a blind spot (unhandled empty input) as distinct findings with locations. A test that cannot fail when logic changes is also flagged if present.",
+      "expected_output": "The Tests axis reports a test gap (convention implies a test) and the Correctness axis flags the unhandled empty-input as a blind spot — distinct findings with locations on the two axes. A test that cannot fail when logic changes is also flagged by the Tests axis if present (no-asserts / magic-sleeps / `.skip` smell).",
       "files": []
     },
     {
       "id": 9,
       "name": "refuses-security-finding-defers-to-sibling",
       "prompt": "/code-ultrareview (the diff is essentially a SQL query built via string concatenation — an injection risk)",
-      "expected_output": "The skill does NOT report the injection as a finding. It emits a single pointer line under Deferred to sibling skills: a one-liner → /security-review. Staying in lane by construction — security is never a code-ultrareview finding.",
+      "expected_output": "The skill does NOT report the injection as a finding on any axis. The mandatory closing `## 🛡️ What I did NOT check` section lists Security → /security-review as the deferral target. Staying in lane by construction — security is never a code-ultrareview finding. The deferral is verbatim every run, even when no security signal triggered.",
       "files": []
     },
     {
       "id": 10,
-      "name": "defers-performance-to-simplify",
-      "prompt": "/code-ultrareview (the change adds an O(n^2) loop that could be optimized)",
-      "expected_output": "Performance/optimization is not a finding. A one-line pointer → /simplify appears under Deferred to sibling skills. Same for pure simplification/dedup observations.",
+      "name": "defers-runtime-perf-and-flaky-detection",
+      "prompt": "/code-ultrareview (the change adds an O(n^2) loop that could be optimized at runtime)",
+      "expected_output": "The Performance axis catches the static pattern via semgrep if rule-detectable (N+1 from bundled perf-rules; sync I/O in async). Runtime profiling, benchmarks, flamegraphs, and memory traces are NOT in scope — surfaced in `## 🛡️ What I did NOT check` under Runtime performance. The closing section makes the boundary explicit every run.",
       "files": []
     },
     {
       "id": 11,
       "name": "graceful-degradation-no-rules-baseline",
       "prompt": "/code-ultrareview (repo has no CLAUDE.md, no .claude/rules, no ~/.claude/rules)",
-      "expected_output": "Lens 1 is skipped. The header states `Lens 1 (rules): skipped — no rules baseline found`. Lenses 2–5 still run and the report is produced — the skill remains useful on any repo. The skip is stated, never silent.",
+      "expected_output": "The Style axis is skipped. The header states `Style axis: skipped — no rules baseline found`. The other 7 axes still run and the report is produced — the skill remains useful on any repo. The skip is stated, never silent.",
       "files": []
     },
     {
       "id": 12,
       "name": "sub-80-routes-to-unverified-not-dropped",
       "prompt": "/code-ultrareview (changes contain one real high-impact bug at confidence 90 plus a maybe-issue scored at 70)",
-      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue appears in ### ⚠️ Unverified with the prefix [unverified] and a recommendation explaining the routing rationale (Sub-80 confidence (70) — verify locally before action). Neither is dropped — A2 no-silent-drop contract.",
+      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue first passes through the Haiku validator (Phase 4); if the validator demotes (stays sub-80), the finding appears in ### ⚠️ Unverified with the prefix [unverified] and the validator's reason in the recommendation (e.g. `CLAUDE.md rule not found at .claude/rules/api.md` or `Sub-80 confidence (70) — verify locally before action`). Neither is dropped — A2 no-silent-drop contract.",
       "files": []
     },
     {
       "id": 13,
       "name": "report-only-bridges-to-apex",
       "prompt": "/code-ultrareview -s review this branch then fix the issues",
-      "expected_output": "The skill produces and saves the report to ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
+      "expected_output": "The skill produces and saves the report to ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md and the JSONL alongside, and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
       "files": []
     },
     {
       "id": 14,
-      "name": "routes-to-lenses-reference",
-      "prompt": "What exactly counts as 'drift' vs a 'blind spot', and what is the confidence cutoff?",
-      "expected_output": "The skill routes to references/lenses.md for the operational definitions and the 0–100 rubric. Answer is concrete: drift = code vs its own doc/sibling pattern; blind spot = unstated assumption; 80 is the routing boundary (sub-80 → Unverified sub-section, not dropped). Cites the reference.",
+      "name": "routes-to-axes-reference",
+      "prompt": "What exactly counts as 'drift' vs a 'blind spot', what's the 0-100 rubric, and what's the confidence cutoff?",
+      "expected_output": "The skill routes to references/axes-overview.md for the 8-axis taxonomy and inter-axis precedence, references/anthropic-verbatim.md for the 0-100 confidence rubric and HIGH SIGNAL criteria, and the per-axis briefs at references/axes/<name>.md for operational definitions. Answer is concrete: drift = code vs its own doc / sibling pattern (Intent axis) or code vs prior decision (Intent axis derivation sub-mode); blind spot = unstated assumption / unhandled edge (Correctness axis); 80 is the routing boundary (sub-80 → Unverified sub-section, not dropped). Cites the references.",
       "files": []
     },
     {
       "id": 16,
       "name": "repo-kind-skills-detected-renders-header",
       "prompt": "/code-ultrareview (repo carries `.claude-plugin/marketplace.json` AND ≥1 `skills/*/SKILL.md`)",
-      "expected_output": "Audit phase classifies `repo_kind: skills` via `classify_repo()`; primary_signal reads `marketplace.json + skills/*/SKILL.md`. The report header carries a dedicated `Repo: skills` line (separate from the Findings roll-up); the scope token starts with `skills repo · `. Each lens subagent receives `repo_kind` + `repo_kind_signals` and reads its `## Repo-kind branches` section: bugs-drift reframes drift as bundled-scripts-vs-SKILL.md (the SKILL.md cannot drift from itself); tests-blindspots checks `tests/<skill-name>/` (never beside source); coherence-graph version sub-graph reads `marketplace.json.metadata.version`; docs-version skips `CHANGELOG.md` (release notes live in `gh release create` body). Competing `package.json` (when present) surfaces as `(+ npm tooling)` in the scope token, not as a finding.",
+      "expected_output": "Phase 1 (scope) classifies `repo_kind: skills` via `scripts/scope.py`; primary signal reads `marketplace.json + skills/*/SKILL.md`. The report header carries a `Repo: skills` line; the scope token starts with `skills repo · `. Each axis reviewer receives `repo_kind` + signals via its bundle and reads its `## Repo-kind branches` section in `references/axes/<axis>.md`: Simplification reframes duplication tolerance for bundled scripts; Tests checks `tests/<skill-name>/` (never beside source); Coherence (when active) reads `marketplace.json.metadata.version`; Documentation skips `CHANGELOG.md` for skills repos (release notes live in `gh release create` body). Competing `package.json` (when present) surfaces as `(+ npm tooling)` in the scope token, not as a finding.",
       "files": []
     },
     {
       "id": 17,
       "name": "repo-kind-flag-override-surfaces-in-header",
       "prompt": "/code-ultrareview --repo-kind app (repo would otherwise auto-detect as skills)",
-      "expected_output": "Override mechanism: CLI flag wins over `.code-ultrareview.yaml` config wins over detection. `repo_kind_signals.override_source` records `--repo-kind flag`. The report header reads `Repo: app (override: --repo-kind)`; the scope token mirrors the same suffix grammar. Detected signals (`primary_signal`, `competing_signals`) still surface in `repo_kind_signals` so readers see what was detected vs what the human picked. Lenses apply their `app` branches (drift as code-vs-docstring, tests beside source). Invalid `--repo-kind <kind>` exits 2 with argparse's `invalid choice` error; no JSON output. Persistent override via `.code-ultrareview.yaml` (`repo_kind: <kind>`) at repo root yields `override_source: config:.code-ultrareview.yaml` and header suffix `(override: .code-ultrareview.yaml)`.",
+      "expected_output": "Override precedence: CLI flag wins over `.code-ultrareview.yaml` config wins over detection. `repo_kind_signals.override_source` records `--repo-kind flag`. The report header reads `Repo: app (override: --repo-kind)`. Detected signals (`primary_signal`, `competing_signals`) still surface so readers see what was detected vs what the human picked. Axes apply their `app` branches (drift as code-vs-docstring, tests beside source). Invalid `--repo-kind <kind>` exits 2 with argparse's `invalid choice` error; no JSON output. Persistent override via `.code-ultrareview.yaml` (`repo_kind: <kind>`) at repo root yields `override_source: config:.code-ultrareview.yaml` and header suffix `(override: .code-ultrareview.yaml)`.",
       "files": []
     },
     {
       "id": 18,
       "name": "repo-kind-unknown-preserves-existing-behavior",
       "prompt": "/code-ultrareview (repo with no recognizable signature — no marketplace.json, no package.json, no pyproject.toml/Cargo.toml/go.mod, no docs-site config, no workspace config)",
-      "expected_output": "Classifier returns `repo_kind: unknown` (safe default); `primary_signal` reads `no recognized signature`. Header carries `Repo: unknown — heuristics not specialized` so readers see the lens fan-out's repo-kind context explicitly (never silent). Scope token omits the kind prefix — when no other signals fire, the scope renders as `trivial diff`. Each lens applies its `unknown` branch — existing pre-classifier behavior, full strength on every lens. Legacy audit JSON (written before the classifier landed, no `repo_kind` key) renders the same `unknown` cue via `aggregation.compute_repo_kind_header`'s fallback — no `KeyError`, no missing-section crash.",
+      "expected_output": "Classifier returns `repo_kind: unknown` (safe default); `primary_signal` reads `no recognized signature`. Header carries `Repo: unknown — heuristics not specialized`. Scope token omits the kind prefix — when no other signals fire, the scope renders as `trivial diff`. Each axis applies its `unknown` branch — no specialization, full strength on every axis.",
       "files": []
     },
     {
       "id": 19,
-      "name": "coherence-detects-description-divergence-structured",
-      "prompt": "/code-ultrareview (package.json.description = 'Alpha'; marketplace.json.metadata.description = 'Beta')",
-      "expected_output": "Coherence-graph lens fires. Default mode (structured fields only) detects the divergence between package.json and marketplace.json — emits one finding with sub_graph=description, severity=Medium, confidence ≥ 80. README first paragraph is NOT compared unless --include-prose. Status table shows description: fail (1).",
+      "name": "coherence-axis-activates-on-metadata-in-diff",
+      "prompt": "/code-ultrareview (package.json.description = 'Alpha'; marketplace.json.metadata.description = 'Beta'; both in diff)",
+      "expected_output": "`scripts/scope.py:activates_coherence` returns true because metadata files appear in the diff. Phase 3 launches 9 parallel subagents (8 always-on + Coherence). Header reads `Coherence axis: active`. The Coherence axis description sub-graph detects the divergence between package.json and marketplace.json — emits one finding with sub_graph=description, severity Medium, confidence ≥80. README first paragraph is NOT compared unless `--include-prose`. The Axis summary row reads `coherence | 🟠 | 1 | 0 | …`.",
       "files": []
     },
     {
       "id": 20,
-      "name": "coherence-detects-version-mismatch",
+      "name": "coherence-axis-detects-version-mismatch",
       "prompt": "/code-ultrareview (package.json version 1.2.3; marketplace.json metadata.version 1.2.4; CHANGELOG header 1.2.5)",
-      "expected_output": "Coherence-graph version sub-graph detects pairwise divergences — emits findings with sub_graph=version, severity=High, confidence ≥ 95. Status table shows version: fail (N).",
+      "expected_output": "Coherence axis version sub-graph detects pairwise divergences across the three sources — emits findings with sub_graph=version, severity High, confidence ≥95. Status table shows version: fail (N). The Axis summary row reads `coherence | 🔴 | N | 0 | version divergence: pkg=1.2.3 / marketplace=1.2.4 / CHANGELOG=1.2.5`.",
       "files": []
     },
     {
       "id": 21,
-      "name": "coherence-detects-broken-cross-skill-reference",
+      "name": "coherence-axis-detects-broken-cross-skill-reference",
       "prompt": "/code-ultrareview (README mentions `/nonexistent` skill; marketplace.json has no such skill)",
-      "expected_output": "Coherence-graph cross-reference sub-graph emits a finding: 'Reference to /nonexistent but no matching skill in marketplace.json.' Anchor reference for `/init`, `/memory`, `/forge` etc. is NOT flagged (known external + present in marketplace).",
+      "expected_output": "Coherence axis cross-reference sub-graph emits a finding: 'Reference to /nonexistent but no matching skill in marketplace.json.' Anchor references for `/init`, `/memory`, `/forge` etc. are NOT flagged (known external + present in marketplace).",
       "files": []
     },
     {
       "id": 22,
-      "name": "coherence-detects-broken-example",
+      "name": "coherence-axis-detects-broken-example",
       "prompt": "/code-ultrareview (README uses `python3 scripts/demo.py --foo` in a fenced block; demo.py only parses --bar)",
-      "expected_output": "Coherence-graph example sub-graph flags the unrecognized --foo flag. Allowlisted flags in .coherence-ignore (example.ignore_flags) are skipped.",
+      "expected_output": "Coherence axis example sub-graph flags the unrecognized --foo flag. Allowlisted flags in .coherence-ignore (example.ignore_flags) are skipped.",
       "files": []
     },
     {
       "id": 23,
-      "name": "coherence-include-prose-catches-readme-divergence",
+      "name": "coherence-axis-include-prose-catches-readme-divergence",
       "prompt": "/code-ultrareview --include-prose (README first paragraph diverges from package.json.description)",
-      "expected_output": "With --include-prose, the description sub-graph extends to the README's first paragraph. The divergence surfaces as a coherence-graph finding with severity=Low, confidence ≈ 60 (downgraded — heuristic). Without --include-prose, the same repo would emit zero description findings.",
+      "expected_output": "With --include-prose, the description sub-graph extends to the README's first paragraph. The divergence surfaces as a Coherence axis finding with severity Low, confidence ≈60 (downgraded — heuristic). Without --include-prose, the same repo would emit zero description findings.",
       "files": []
     },
     {
       "id": 24,
-      "name": "a2-sub-80-finding-surfaces-with-prefix",
-      "prompt": "/code-ultrareview (a finding scored at confidence 70 — maybe real, could not verify)",
-      "expected_output": "The finding appears in ### ⚠️ Unverified with finding text prefixed `[unverified]`, severity downgraded to Low, and a recommendation explaining: 'Sub-80 confidence (70) — verify locally before action.' Never dropped silently (A2 no-silent-drop contract).",
+      "name": "coherence-inactive-when-no-metadata-in-diff",
+      "prompt": "/code-ultrareview (diff touches only src/*.ts — no manifest, no SKILL.md, no README, no tsconfig.json)",
+      "expected_output": "`scripts/scope.py:activates_coherence` returns false. Phase 3 launches 8 parallel subagents (no Coherence). Header reads `Coherence axis: inactive`. The Axis summary table still includes the coherence row with `— inactive (no metadata in diff)` in the Status cell — the absence is visible, never silent.",
       "files": []
     },
     {
       "id": 25,
-      "name": "deep-iteration-promotes-confirmed-finding",
-      "prompt": "/code-ultrareview (a sub-80 bug-drift finding that the always-on iteration confirms via a focused build run)",
-      "expected_output": "Iteration re-passes the sub-80 finding with build verification (build_detect picks the canonical test command). When the build proves the bug, confidence promotes to ≥80 (originally-scored + 30, capped at 95), the unverified prefix is stripped, original severity restored, finding moves into the matching verified sub-section (### 🔴 High / ### 🟠 Medium / ### 🟢 Low).",
+      "name": "verify-build-flag-promotes-confirmed-finding",
+      "prompt": "/code-ultrareview --verify-build (a sub-80 Correctness finding that the build run confirms via a failing test)",
+      "expected_output": "Phase 3.5 runs `scripts/run_build_verify.py`: `build_detect.py` picks the canonical test command, the build runs, and the failing exit promotes the finding through `synthesis_core.iterate_unverified` (+30 confidence, capped 95, floored 80). The unverified prefix is stripped, original severity is restored, the finding moves into the matching verified sub-section (### 🔴 High / ### 🟠 Medium / ### 🟢 Low). The finding skips Phase 4 validators (build verification is the stronger signal). Without `--verify-build`, Phase 3.5 does not run.",
       "files": []
     },
     {
       "id": 26,
-      "name": "deep-iteration-drops-disproved-finding",
-      "prompt": "/code-ultrareview (a sub-80 finding that the always-on iteration disproves via the build)",
-      "expected_output": "Iteration runs the build; the verdict is `disproved`. The finding is dropped from the user-facing report with rationale logged in the synthesizer's debug output (never silently — A2 distinguishes 'drop with rationale' from 'silent drop').",
+      "name": "haiku-validator-demotes-bad-claude-md-citation",
+      "prompt": "/code-ultrareview (a sub-80 Style axis finding cites a CLAUDE.md rule that doesn't exist at the cited path)",
+      "expected_output": "Phase 4 launches one Haiku validator for the finding. The validator re-checks the cited rule against `claude_md_chain` from `scope.json`, finds no matching rule at the cited path, and demotes with `CLAUDE.md rule not found at <path>`. The finding lands in ### ⚠️ Unverified with that reason text verbatim. A2 contract preserved — never silently dropped.",
       "files": []
     },
     {
       "id": 27,
-      "name": "a1-spec-claim-fetches-and-quotes",
-      "prompt": "/code-ultrareview (diff cites RFC 6874 and the parser accepts arbitrary ZoneID strings)",
-      "expected_output": "Lens 2 (bugs-drift) A1 trigger: detects 'RFC 6874' via regex, the subagent invokes WebFetch, caches the body under ~/.claude/cache/code-ultrareview/specs/rfc-6874-{date}.txt (7-day freshness), quotes the governing clause `ZoneID = 1*( unreserved / pct-encoded )` in the finding's recommendation. Confidence ≥ 80 (the spec is the evidence). Fetch failure with no cache → finding surfaces as [unverified — needs network] (A2 routing).",
+      "name": "mutation-test-flag-routes-surviving-mutants-to-tests-axis",
+      "prompt": "/code-ultrareview --mutation-test (changed file in a JS/TS repo with Stryker config)",
+      "expected_output": "Phase 2 extension runs `scripts/run_mutation.sh` per language (Stryker for JS/TS, mutmut for Python, pitest-maven for JVM) scoped to changed files only. Surviving mutants route to the Tests axis as 🟠 Medium findings with `confidence: 100` (deterministic CLI output — skips Phase 4 validators). Runtime can exceed 10 minutes; default 600 s timeout overridable via `MUTATION_TIMEOUT`. Without `--mutation-test`, the extension does not run.",
       "files": []
     },
     {
       "id": 28,
-      "name": "ultra-apply-safe-version-sync-recency-wins",
+      "name": "apply-safe-version-sync-recency-wins",
       "prompt": "/code-ultrareview --apply-safe (3 version sources disagree: package.json 1.2.3, marketplace.json 1.2.4, CHANGELOG 1.2.5)",
-      "expected_output": "version_sync picks the most-recently-touched source via `git log -1 --format=%ct -- <file>`. Diff preview is printed per file. Confirmation prompt fires per file (bypassed with -y or --apply-safe alone). Running twice is a no-op (idempotent). Git tag is never modified.",
+      "expected_output": "version_sync picks the most-recently-touched source via `git log -1 --format=%ct -- <file>`. Diff preview is printed per file. Per-file confirmation prompt fires before any write. Running twice is a no-op (idempotent). Git tags are never modified. Without `--apply-safe`, no file is touched.",
       "files": []
     },
     {
       "id": 29,
-      "name": "ultra-apply-safe-description-sync-refuses-partial-agreement",
+      "name": "apply-safe-description-sync-refuses-partial-agreement",
       "prompt": "/code-ultrareview --apply-safe (package.json.description = A, marketplace.json.metadata.description = B)",
-      "expected_output": "description_sync refuses with status `refusing: partial-agreement` — the full-agreement guard requires every present source to agree on the new value before writing. The risk #3 mitigation prevents auto-overwriting legitimate divergence; user allowlists via .coherence-ignore when intentional.",
+      "expected_output": "description_sync refuses with status `refusing: partial-agreement` — the full-agreement guard requires every present source to agree on the new value before writing. The mitigation prevents auto-overwriting legitimate divergence; user allowlists via .coherence-ignore when intentional.",
       "files": []
     },
     {
       "id": 30,
-      "name": "derivation-no-input-skips-lens",
+      "name": "reconcile-flag-off-skips-derivation-sub-mode",
       "prompt": "/code-ultrareview (without --reconcile; no planning artifacts auto-detected)",
-      "expected_output": "The derivation lens does not run. Phase 2 dispatches the 5 always-on lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph). The report omits the `## 📐 Derivation coverage` section entirely — no row, no empty placeholder. Audit signals still report `planning_artifact_breadth: [0, -1]` in the header rationale.",
+      "expected_output": "The Intent axis runs in standard mode (no GAP/SCOPE-ADD/DECISION-OVERRIDE classification). The report omits the `## 📐 Derivation coverage` section entirely — no row, no empty placeholder. Phase 3 launches the 8 always-on axes (+Coherence when active), each at full strength.",
       "files": []
     },
     {
       "id": 31,
-      "name": "derivation-auto-detects-conventional-paths",
+      "name": "reconcile-auto-detects-conventional-paths",
       "prompt": "/code-ultrareview --reconcile @auto (with forge + apex plan + PR body available)",
-      "expected_output": "The derivation lens auto-detects artifacts at ~/.claude/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## 📐 Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
+      "expected_output": "The Intent axis derivation sub-mode activates. `scripts/derivation/auto_detect.py` finds artifacts at ~/.claude/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## 📐 Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
       "files": []
     },
     {
       "id": 32,
-      "name": "derivation-gap-detected",
+      "name": "reconcile-detects-gap",
       "prompt": "/code-ultrareview --reconcile <spec-with-AC-not-in-diff>",
-      "expected_output": "An acceptance criterion in the spec has no matching code change in the diff. The lens emits a finding with `classification: GAP`, severity Medium (or High when the AC is numbered), confidence ≥80 once the subagent verifies. The finding's `recommendation` field describes what's missing. The `## 📐 Derivation coverage` section counts the gap in its GAP column.",
+      "expected_output": "An acceptance criterion in the spec has no matching code change in the diff. The Intent axis emits a finding with `classification: GAP`, severity Medium (or High when the AC is numbered or load-bearing), confidence ≥80 once the subagent verifies. The finding's `recommendation` describes what's missing. The `## 📐 Derivation coverage` section increments the GAP column.",
       "files": []
     },
     {
       "id": 33,
-      "name": "derivation-scope-add-flagged",
+      "name": "reconcile-flags-scope-add",
       "prompt": "/code-ultrareview --reconcile <spec-silent-on-feature-in-diff>",
-      "expected_output": "The diff implements a feature the planning artifact does not mention. The lens emits a finding with `classification: SCOPE-ADD`, severity Low (default). Surfaced for reviewer attention; never blocks. Reviewer decides whether the addition is intentional discovery or scope creep — the lens does not judge.",
+      "expected_output": "The diff implements a feature the planning artifact does not mention. The Intent axis emits a finding with `classification: SCOPE-ADD`, severity Low (default). Surfaced for reviewer attention; never blocks. Reviewer decides whether the addition is intentional discovery or scope creep — the axis does not judge.",
       "files": []
     },
     {
       "id": 34,
-      "name": "derivation-decision-override-surfaced",
+      "name": "reconcile-surfaces-decision-override",
       "prompt": "/code-ultrareview --reconcile <forge-decided-X-code-does-Y>",
-      "expected_output": "The forge plan's 'Decision' block names decision X; the diff implements Y instead. The lens emits a finding with `classification: DECISION-OVERRIDE`, severity Medium-High depending on artifact authority (forge plan < explicit AC). The finding's `recommendation` cites the resolved decision verbatim and asks the reviewer to confirm or override-in-doc.",
+      "expected_output": "The forge plan's 'Decision' block names decision X; the diff implements Y instead. The Intent axis emits a finding with `classification: DECISION-OVERRIDE`, severity Medium-High depending on artifact authority (forge plan < explicit AC). The finding's `recommendation` cites the resolved decision verbatim and asks the reviewer to confirm or override-in-doc.",
       "files": []
     },
     {
       "id": 35,
-      "name": "derivation-stale-artifact-summary-only",
+      "name": "reconcile-caps-stale-artifact-severity",
       "prompt": "/code-ultrareview --reconcile <spec-from-100-days-ago>",
-      "expected_output": "Artifact freshness > 90 days. The lens emits no per-claim findings — only the artifact entry shows in the `## 📐 Derivation coverage` table (with freshness `100d` or similar). Severity caps for 31–90 day artifacts: classification semantics unchanged, but severity drops to Low regardless. `--strict` flag disables both caps.",
+      "expected_output": "Artifact freshness > 90 days. The Intent axis emits no per-claim findings — only the artifact entry shows in the `## 📐 Derivation coverage` table (with freshness `100d` or similar). Severity caps for 31–90 day artifacts: classification semantics unchanged, but severity drops to Low regardless. `--strict` flag disables both caps.",
       "files": []
     },
     {
       "id": 36,
-      "name": "derivation-allowlist-suppresses",
+      "name": "reconcile-allowlist-suppresses",
       "prompt": "/code-ultrareview --reconcile <spec> (with .derivation-ignore listing the matching path or claim text)",
-      "expected_output": "A `.derivation-ignore` entry under `paths.ignore_paths`, `paths.ignore_kinds`, or `claims.ignore_text` suppresses the matching artifact or claim. The lens emits no finding for the allowlisted item. Other artifacts/claims still produce findings normally. Parser grammar mirrors `.coherence-ignore`.",
+      "expected_output": "A `.derivation-ignore` entry under `paths.ignore_paths`, `paths.ignore_kinds`, or `claims.ignore_text` suppresses the matching artifact or claim. The Intent axis emits no finding for the allowlisted item. Other artifacts/claims still produce findings normally. Parser grammar mirrors `.coherence-ignore`.",
+      "files": []
+    },
+    {
+      "id": 37,
+      "name": "tool-battery-graceful-skip-missing-oasdiff",
+      "prompt": "/code-ultrareview (OpenAPI repo without `oasdiff` installed; diff touches openapi.yaml)",
+      "expected_output": "Phase 2 attempts `oasdiff` (no npx/uvx wrapper), finds no PATH binary, emits `WARN: oasdiff not found — install: brew install oasdiff` to stderr AND appends `oasdiff` to `scope.json[\"tools_skipped\"]`. The Design/API axis loses its oasdiff input but still runs LLM judgment. The report's `## 🧰 Tools skipped` table lists `oasdiff | design-api | brew install oasdiff`. The closing `## 🛡️ What I did NOT check` section references the skipped tool. Skill NEVER auto-installs — no `brew install`, `cargo install`, `go install`, `pip install`, or `npm install -g` runs.",
+      "files": []
+    },
+    {
+      "id": 38,
+      "name": "preflight-lists-detected-and-missing-tools",
+      "prompt": "/code-ultrareview --preflight",
+      "expected_output": "Runs `scripts/preflight_tools.sh`. Lists detected tools per `scope.json[\"repo_kind\"]` + languages, prints install commands for missing ones. Informational only — no review runs, no tool installs. Exit code reflects whether all expected tools are available.",
+      "files": []
+    },
+    {
+      "id": 39,
+      "name": "axis-subset-runs-only-named-axes",
+      "prompt": "/code-ultrareview --axes correctness,tests",
+      "expected_output": "Phase 3 launches only the named axes — 2 parallel subagents (Correctness, Tests). The Axis summary table shows only those two rows; the others are absent (not present as skipped — the user asked for a subset, not a degradation). Tool battery findings filter to those axes' routing only. Coherence does not run regardless of metadata in diff (subset overrides conditional activation).",
       "files": []
     }
   ]
