@@ -174,11 +174,9 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 
 The full upstream Suno v5.5 operator reference (1,200+ lines covering features, plans, API access, litigation, deprecation timeline) lives at the public sources cited in `metadata.sources` above. The skill bundles only the actionable subset — what the steps actually consult.
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
-
-These four facts are stable: production-observed validator and tracklist-sync footguns.
+## Gotchas
 
 1. **Artist citations in Lyrics bracket metatags evade `scripts/validate.py` (Style-scoped) and trigger Suno 403.** Never let artist names appear in any field.
 2. **`revise` without an existing `versions/` directory overwrites the prior TRACK.md.** Ensure `versions/` exists; verify the archive lands before mutating the working file.
-3. **Manual file renames outside `/suno-produce revise` break tracklist sync** — slug prefixes (`01-`, `02-`...) drive ALBUM.md ordering. Re-run `revise` after any manual rename.
-4. **BPM / key / time-signature in Lyrics confuses Suno** — the validator only scans Style. These belong in TRACK.md frontmatter or calibrated slider values.
+3. **Manual file renames outside `/suno-produce revise` break tracklist sync.** Slug prefixes (`01-`, `02-`) drive ALBUM.md ordering. Fix: run `/suno-produce revise <album-path>` to rebuild the tracklist from current `versions/` state.
+4. **BPM, key, or time-signature in Lyrics confuses Suno.** The validator only scans Style. These belong in TRACK.md frontmatter or calibrated slider values.

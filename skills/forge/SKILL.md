@@ -254,9 +254,7 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 - `scripts/validate_spec.py` — schema + dependency-graph validator (Forge; requires Python 3.7+)
 - `scripts/setup-labels.sh` — idempotent GitHub label creation (used by issue creation)
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
-
-These four facts are stable: production-observed validator and orchestration failure modes.
+## Gotchas
 
 1. **Workstream count outside 3-7 fails `scripts/validate_spec.py:158-161`.** Headings that don't match `### WS-N:` (`### WS1`, `### WS-1.5`) silently skip. Under 3 → use `/oneshot` or `/apex` directly; over 7 → re-group.
 2. **Dependency cycle halts save with exit 2** (`scripts/validate_spec.py:100-138`, DFS with path reconstruction). Run the validator manually before save; rewrite **Depends on** to break any cycle.

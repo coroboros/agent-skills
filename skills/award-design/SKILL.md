@@ -39,7 +39,7 @@ Build websites that score 8+ on Awwwards. AI-generated designs are immediately r
 
 ## Extension tokens dependency
 
-This skill references `/design-system`'s canonical extended-tokens convention for tokens beyond the Google DESIGN.md spec's base five (motion, shadows, aspect ratios, z-index, breakpoints, opacity ramps, etc.). The curated namespace list and component-binding rules live in `skills/design-system/references/extended-tokens.md` — read it before authoring a DESIGN.md `## Animation`, `## Effects`, or extension-namespace section. When `/design-system` is not installed, the patterns still apply; the YAML namespaces (`motion:`, `breakpoints:`, etc.) preserve through Google's CLI unchanged.
+For tokens beyond the Google DESIGN.md spec's base five (motion, shadows, aspect ratios, z-index, breakpoints, opacity ramps), the curated namespace list and component-binding rules live in `skills/design-system/references/extended-tokens.md`. Read it before authoring a DESIGN.md `## Animation`, `## Effects`, or extension-namespace section. Without `/design-system` installed, the patterns still apply: Google's CLI preserves the YAML namespaces (`motion:`, `breakpoints:`) unchanged.
 
 ## Workflow
 
@@ -149,11 +149,9 @@ DESIGN.md generation is long-form — eight prose sections plus YAML can run tho
 
 **Continuation marker for split outputs.** When approaching the response token ceiling, finish at a clean section boundary (never mid-section, never mid-token-group) and end with `[PAUSED — N of 8 sections complete. Send "continue" to resume from: <next section name>]`. On `continue`, pick up exactly there — no recap, no rewrite of prior sections, no compression. The marker is the resume contract.
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+## Gotchas
 
-These four facts are stable: production-observed failure modes around archetype, atmosphere, and continuation discipline. Cite file:line or a reproducible condition.
-
-1. **Archetype flip mid-project poisons the existing DESIGN.md.** Tokens and components calibrated for one archetype (e.g., editorial) carry forward when the archetype changes (e.g., to product); the result is a hybrid that fails the archetype-coherence judging criterion. Fix: on archetype change, emit a fresh DESIGN.md from scratch; mark the old one as superseded in its preamble before overwriting; never patch in place.
-2. **Atmosphere calibration written as YAML keys instead of Overview prose breaks `/design-system audit`.** Atmosphere scores (Density / Variance / Motion) belong in the **Signature moment intent** prose under Overview, not as top-level YAML keys — the audit lints YAML for the canonical token taxonomy and rejects unknown keys. Fix: treat atmosphere as metadata describing intent; never serialize it as a token group.
-3. **Missing continuation marker on truncated output reads as "complete" to the user.** Output discipline (above) requires `[PAUSED — N of 8 sections complete...]` at every clean break. The model sometimes omits it when truncation lands mid-paragraph; the user gets a half-finished file with no resume signal. Fix: always end at a clean `##` boundary; emit the marker even when it feels redundant — the next session needs it.
-4. **Premium patterns assume framework features that may not exist in the target stack.** Doppelrand cards assume nested-shadow CSS; Button-in-Button assumes nested interactive elements; some component libraries (notably stricter design systems) reject these. Fix: before recommending a premium pattern, verify framework capability; fall back to foundational tokens if the pattern won't render.
+1. **Archetype flip mid-project poisons the existing DESIGN.md.** Tokens and components calibrated for one archetype (editorial) carry forward when the archetype changes (product); the result is a hybrid that fails the archetype-coherence judging criterion. Fix: emit a fresh DESIGN.md and mark the old one superseded in its preamble. Never patch in place.
+2. **Atmosphere calibration written as YAML keys instead of Overview prose breaks `/design-system audit`.** Atmosphere scores (Density, Variance, Motion) belong in the **Signature moment intent** prose under Overview, not as top-level YAML keys. The audit lints YAML for the canonical token taxonomy and rejects unknown keys. Fix: treat atmosphere as metadata describing intent; never serialize it as a token group.
+3. **Missing continuation marker on truncated output reads as "complete" to the user.** Output discipline (above) requires `[PAUSED — N of 8 sections complete...]` at every clean break. The model sometimes omits it when truncation lands mid-paragraph; the user gets a half-finished file with no resume signal. Fix: always end at a clean `##` boundary; emit the marker even when it feels redundant.
+4. **Premium patterns assume framework features that may not exist in the target stack.** Doppelrand cards assume nested-shadow CSS; Button-in-Button assumes nested interactive elements. Stricter component libraries reject these. Fix: verify framework capability before recommending a premium pattern; fall back to foundational tokens if it won't render.

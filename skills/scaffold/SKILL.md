@@ -65,10 +65,8 @@ Writes opinionated configs (`biome.json`, `.gitignore`, `.worktreeinclude`, `CLA
 
 When scaffolding `astro-cloudflare` or later editing its `astro.config.mjs` / `wrangler.jsonc`, read `${CLAUDE_SKILL_DIR}/references/astro-cloudflare-notes.md` — covers `imageService`, `assets.directory`, the pre-build shim, and the Sharp pitfall.
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+## Gotchas
 
-These three facts are stable: production-observed preflight and overlay failure modes. Cite file:line or a reproducible condition.
-
-1. **Node version-string parsing rejects bare `22.x` and `-rc` suffixes.** `tests/scaffold/test_preflight.py:97-110` confirms: a version reported as `22.11.0` (no leading `v`) or `v22.0.0-rc.1` may be silently accepted-or-rejected depending on the regex path taken. Fix: normalize the string before parsing — strip a leading `v`, strip `-rc*` suffixes, accept any `22.x` variant.
-2. **`target=occupied` warns but does not block.** The skill proceeds and may overwrite `package.json` or `biome.json` without explicit confirmation when the target directory is non-empty. Fix: when target is occupied, ask for confirmation before proceeding — make it a blocking gate; do not rely on the warning being noticed.
+1. **Node version-string parsing rejects bare `22.x` and `-rc` suffixes.** `tests/scaffold/test_preflight.py:97-110` confirms: a version reported as `22.11.0` (no leading `v`) or `v22.0.0-rc.1` may be silently accepted-or-rejected depending on the regex path taken. Fix: normalize the string before parsing. Strip a leading `v` and any `-rc*` suffix; accept any `22.x` variant.
+2. **`target=occupied` warns but does not block.** The skill proceeds and may overwrite `package.json` or `biome.json` without explicit confirmation when the target directory is non-empty. Fix: when target is occupied, ask for confirmation before proceeding. Make it a blocking gate; do not rely on the warning being noticed.
 3. **`jq` missing from PATH silently skips the overlay step.** The scaffold uses `jq` to merge configuration; if `jq` is not installed, the overlay step is no-op and the user gets a partial scaffold without obvious indication. Fix: check `command -v jq` in preflight; fail hard if absent with the install instructions.

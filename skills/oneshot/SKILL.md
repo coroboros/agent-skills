@@ -130,10 +130,8 @@ Run the project's lint and typecheck commands — discover them from project ins
 - **No documentation files** unless the user asks.
 - **Stuck after 2 attempts** — report the blocker and stop. Don't thrash.
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+## Gotchas
 
-These three facts are stable: production-observed boundary failures. Cite file:line or a reproducible condition.
-
-1. **Circuit-breaker after Explore needs explicit user approval to continue.** When the task spans >5 files, >2 systems, or hits cross-cutting concerns, the skill stops post-Explore and surfaces the complexity check. The model sometimes treats the "Recommendation: /apex" line as a verdict and auto-restarts instead of asking. Fix: when the breaker trips, present the scope to the user and wait — re-entry into oneshot for a complex task tends to thrash.
+1. **Circuit-breaker after Explore needs explicit user approval to continue.** When the task spans >5 files, >2 systems, or hits cross-cutting concerns, the skill stops post-Explore and surfaces the complexity check. The model sometimes treats the "Recommendation: /apex" line as a verdict and auto-restarts instead of asking. Fix: when the breaker trips, present the scope to the user and wait. Re-entry into oneshot for a complex task tends to thrash.
 2. **`gh` unauthenticated = silent issue-ref fail.** A `#42` or `owner/repo#42` reference is fetched via `gh issue view`; an unauthenticated `gh` returns empty output, and the model proceeds with no task context. Fix: run `gh auth status` before invoking with an issue ref; or paste the issue body directly as the task description.
-3. **Stuck-after-2-attempts is NOT auto-escalated to `/apex`.** The Blocked output names the recommendation but does not invoke it. The model sometimes interprets the recommendation as "Claude should run it next." Fix: when oneshot reports Blocked, the user manually runs `/apex {task}` (or `/forge` first for ambiguity) — escalation is a user action, not an automatic handoff.
+3. **Stuck-after-2-attempts is NOT auto-escalated to `/apex`.** The Blocked output names the recommendation but does not invoke it. The model sometimes interprets the recommendation as "Claude should run it next." Fix: when oneshot reports Blocked, the user manually runs `/apex {task}` (or `/forge` first for ambiguity). Escalation is a user action, not an automatic handoff.

@@ -200,13 +200,11 @@ Agent 3: test-analyzer (background)
 - [references/context-management.md](references/context-management.md) — memory architecture, context strategies
 - [references/debugging-agents.md](references/debugging-agents.md) — logging, tracing, diagnostic procedures
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+## Gotchas
 
-These four facts are stable: production-observed configuration footguns. Cite file:line or a reproducible condition.
-
-1. **`tools` + `disallowedTools` resolution is counterintuitive when both are set.** Per § Configuration line 125, `disallowedTools` applies first, then `tools` resolves against the remainder. Setting `tools: Read, Write` + `disallowedTools: Write` yields an agent with only `Read` — Write is denied before the allowlist sees it. Fix: use one mechanism, not both; prefer the allowlist for fine-grained control.
+1. **`tools` + `disallowedTools` resolution is counterintuitive when both are set.** Per § Configuration line 125, `disallowedTools` applies first, then `tools` resolves against the remainder. Setting `tools: Read, Write` + `disallowedTools: Write` yields an agent with only `Read`; Write is denied before the allowlist sees it. Fix: use one mechanism, not both; prefer the allowlist for fine-grained control.
 2. **Plugin-scoped agents silently ignore `hooks`, `mcpServers`, `permissionMode`.** Per § Configuration line 127, these fields are stripped from plugin agents for security; the agent loads without them and emits no warning. Fix: for plugin agents, move hook logic into the system prompt; for full configurability, use project-level `.claude/agents/` instead of plugin distribution.
-3. **Subagents cannot spawn other subagents.** Per § Execution Model, including `Agent` in a subagent's `tools` is rejected at runtime. Multi-agent fan-out must happen from the main thread (or a `--agent`-launched main agent), never from inside a subagent. Fix: flatten the workflow — main thread orchestrates the parallel subagents directly.
+3. **Subagents cannot spawn other subagents.** Per § Execution Model, including `Agent` in a subagent's `tools` is rejected at runtime. Multi-agent fan-out must happen from the main thread (or a `--agent`-launched main agent), never from inside a subagent. Fix: flatten the workflow so the main thread orchestrates the parallel subagents directly.
 4. **Model selection precedence surprises across env-var + frontmatter + per-invocation.** Per § Configuration line 118: `CLAUDE_CODE_SUBAGENT_MODEL` env var > per-invocation model > frontmatter model > main conversation model. An ambient `CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5-20251001` overrides a `model: opus` in frontmatter. Fix: explicitly set `model` in frontmatter to document the contract; verify against `echo $CLAUDE_CODE_SUBAGENT_MODEL` if behavior surprises.
 
 ## Success Criteria

@@ -204,11 +204,9 @@ Every write shows a diff preview and prompts for confirmation per file. Producti
 Report-only default + deferral spine + canonical sections live in their own
 sections above — not restated here.
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
+## Gotchas
 
-These four facts are stable: production-observed failure modes around routing, aggregation, and scope. Cite file:line or a reproducible condition.
-
-1. **Sub-80 findings can be dropped instead of surfaced in `### ⚠️ Unverified`.** The contract (lines above + `scripts/aggregation.py:31-34`, `CONFIDENCE_THRESHOLD = 80`, `PROMOTION_BONUS = 30`) is no-silent-drop: sub-80 lands in the Unverified sub-section with `[unverified]` rationale. The model sometimes treats the sub-80 score as a rejection signal and omits the finding entirely. Fix: scan the `### ⚠️ Unverified` section explicitly on every report; missing finding count vs. lens output is the smell.
+1. **Sub-80 findings can be dropped instead of surfaced in `### ⚠️ Unverified`.** The contract (lines above + `scripts/aggregation.py:31-34`, `CONFIDENCE_THRESHOLD = 80`, `PROMOTION_BONUS = 30`) is no-silent-drop: sub-80 lands in the Unverified sub-section with `[unverified]` rationale. The model sometimes treats the sub-80 score as a rejection signal and omits the finding entirely. Fix: scan the `### ⚠️ Unverified` section explicitly on every report; compare finding count to lens output to catch drops.
 2. **Lens routing falls back to `/apex` when the specialized skill is not installed.** `references/skill-routing.md` defines the per-finding routing chain; absent skills fall through to `/apex`. Symptom: an Action plan prompt that should route to `/simplify` or `/security-review` lists `/apex` instead. Fix: install the routed skills before running review; or manually re-route by invoking the specialist with the finding ID.
 3. **`--reconcile @auto` fails on invalid forge/apex frontmatter.** `scripts/derivation/auto_detect.py` scans `~/.claude/output/{project}/` for plans and tasks; a `# Spec:` or `# Decision:` header with malformed YAML frontmatter (unclosed `---`, tab indentation, unquoted colons in values) breaks discovery silently. Verify with `head -20 ~/.claude/output/{project}/forge/forge-*.md` before relying on `@auto`.
 4. **Dirty-tree review pulls untracked files into scope.** Per § What it reviews: untracked files (`git ls-files --others --exclude-standard`) are read in full and counted. A new module written this session but not yet `git add`-ed inflates diff size and the wall-clock estimate. Fix: run on a clean tree (`git add` first) when scope tightness matters; or accept the dirty-tree behavior and verify the Scope line lists the untracked files.

@@ -217,13 +217,11 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 - Scripts handle progress tracking automatically
 - See `templates/README.md` for details
 
-## Gotchas (empirical — not in tool descriptions or SKILL.md body)
-
-These four facts are stable: production-observed failure modes. Cite file:line or a reproducible condition.
+## Gotchas
 
 1. **Progress-table mismatch halts `-r` resume with exit 3.** `scripts/validate_state.sh:69` requires the row in `00-context.md`'s `## Progress` table to match the step filename exactly (`| 01-analyze | ✓ Complete |`). A hand-renamed step file or a half-applied `update-progress.sh` invocation leaves the table out of sync; `tests/apex/test_validate_state.py:102-107` pins this. Fix: always run `scripts/update-progress.sh` after step completion; never rename step files post-creation.
-2. **`-f` is an injection surface for indirect prompt attacks.** A GitHub issue body, a `WebFetch`-pulled doc, or a `-f` file written by an upstream skill can embed instructions disguised as data. Trust model (§ above) requires user review of the analysis report before Execute — auto-mode (`-a`) skips per-tool confirmations but does not skip plan approval. Drop the surface entirely for sensitive tasks: pass `-e` (no subagents, no fetches).
-3. **Step-00 context overwrite when `-f` mismatches resumed `-r` task ID.** `setup-templates.sh` recreates `00-context.md` on first setup; resuming with `-r 01-foo` but `-f ~/.claude/output/{project}/forge/forge-bar.md` mixes two intents — state variables get the `-f` content, progress table reads the resumed task. Always match the IDs: `-r 01-foo` pairs with `-f ~/.claude/output/{project}/apex/01-foo/02-plan.md` or a fresh forge plan for that task.
+2. **`-f` is an injection surface for indirect prompt attacks.** A GitHub issue body, a `WebFetch`-pulled doc, or a `-f` file written by an upstream skill can embed instructions disguised as data. Trust model (§ above) requires user review of the analysis report before Execute. Auto-mode (`-a`) skips per-tool confirmations but does not skip plan approval. Drop the surface entirely for sensitive tasks: pass `-e` (no subagents, no fetches).
+3. **Step-00 context overwrite when `-f` mismatches resumed `-r` task ID.** `setup-templates.sh` recreates `00-context.md` on first setup; resuming with `-r 01-foo` but `-f ~/.claude/output/{project}/forge/forge-bar.md` mixes two intents: state variables get the `-f` content, progress table reads the resumed task. Always match the IDs: `-r 01-foo` pairs with `-f ~/.claude/output/{project}/apex/01-foo/02-plan.md` or a fresh forge plan for that task.
 4. **Structured `{NN-feature}/` collisions across parallel worktrees.** Two worktrees of the same repo share the same kebab-cased `{project}` basename → both write under `~/.claude/output/{project}/apex/`. Auto-numbering scans the dir at script invocation, so two near-simultaneous `setup-templates.sh` calls can land on the same `NN` prefix. Fix: serialize apex setup across worktrees of the same repo, or rename one worktree's basename to differentiate.
 
 ## Success Criteria
