@@ -99,7 +99,7 @@ The output path is `~/.claude/output/{project}/apex/{task-id}/`, where `{project
 
 **When `{save_mode}` = true:**
 
-All outputs saved under the global user dir, keyed by `{project}` per `.claude/rules/repo-conventions.md` § Output paths:
+All outputs saved under `~/.claude/output/{project}/apex/{task-id}/`, where `{project}` is the kebab-cased basename of the git toplevel (else the cwd outside a git repo):
 
 ```
 ~/.claude/output/{project}/apex/{task-id}/

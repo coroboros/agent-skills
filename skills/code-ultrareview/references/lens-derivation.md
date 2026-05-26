@@ -50,8 +50,8 @@ docs/proposals/*.md  docs/design/*.md  docs/rfcs/*.md  docs/adr/*.md
 gh pr view (current branch's PR body)
 ```
 
-`{project}` resolves to the kebab-case basename of `git rev-parse --show-toplevel`
-(see `.claude/rules/repo-conventions.md` § Output paths).
+`{project}` resolves to the kebab-cased basename of `git rev-parse --show-toplevel`
+(else the cwd when outside a git repo).
 
 The APEX glob is intentionally narrow: APEX writes an ordered task tree
 (`NN-feature-name/`), and only the latest task's `02-plan.md` matters for

@@ -56,7 +56,7 @@ The voice doc lives at `./BRAND-VOICE.md` by default — at the project root, ve
 
 `extract` refuses to overwrite an existing file. To refresh, use `update`. To replace, delete first.
 
-When `-s` is passed alongside `extract`, the skill also writes a copy to `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` for pipeline-history consumers (`{slug}` = kebab of `voice.name`; `{project}` = repo basename per `.claude/rules/repo-conventions.md` § Output paths) and reports its fully-expanded absolute path (no tilde, no magic). The canonical file at `./BRAND-VOICE.md` remains the single source of truth.
+When `-s` is passed alongside `extract`, the skill also writes a copy to `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` for pipeline-history consumers (`{slug}` = kebab of `voice.name`; `{project}` = kebab-cased basename of the git toplevel, else cwd) and reports its fully-expanded absolute path (no tilde, no magic). The canonical file at `./BRAND-VOICE.md` remains the single source of truth.
 
 ### Cross-repo distribution
 

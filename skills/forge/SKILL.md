@@ -49,7 +49,7 @@ The discriminator is the Decide phase. Forge resolves the judgment calls a senio
 | `-e` / `--economy` | `-E` / `--no-economy` | No subagents — direct tools only |
 | `-f <path>` / `--from <path>` | — | Prior context — file, GitHub issue (`#N`), or URL as foundational input. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
-Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. Output path per `.claude/rules/repo-conventions.md` § Output paths (`{slug}` = kebab of `{idea}`, ≤5 words).
+Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. Output saved to `~/.claude/output/{project}/forge/forge-{slug}.md`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd) and `{slug}` is a kebab of `{idea}` (≤5 words).
 
 ### Requirements
 
@@ -179,7 +179,7 @@ Frame the real problem, then research it wide.
 
 **Reframe.** The stated problem is rarely the real one. Restate the problem behind it, write 1-3 "How might we …" framings, and name the one you'll pursue. Generating solutions is Phase 2, not here.
 
-**Load prior context (if `{from_file}`).** A GitHub issue (`#N` / URL) → `gh issue view <n> --json title,body,labels,comments`; carry its acceptance criteria forward. A local file (a prior forge artifact, an RFC, a design doc) → `Read` the explicit path verbatim — no reconstruction, inference, or glob (per `.claude/rules/repo-conventions.md` § Pipeline chaining); if the path does not exist, fail loud and ask the user to correct or regenerate it. Extract its decisions, constraints, and open questions, and skip re-researching anything the prior context already covers.
+**Load prior context (if `{from_file}`).** A GitHub issue (`#N` / URL) → `gh issue view <n> --json title,body,labels,comments`; carry its acceptance criteria forward. A local file (a prior forge artifact, an RFC, a design doc) → `Read` the explicit path verbatim. No reconstruction, inference, or glob: the producer already printed the absolute path; the bridge carries it literally. If the path does not exist, fail loud and ask the user to correct or regenerate it. Extract its decisions, constraints, and open questions, and skip re-researching anything the prior context already covers.
 
 **Clarify (if vague and not `{auto_mode}`).** If scope, constraints, or success criteria are unclear and could flip the outcome, ask focused questions in a single message before researching. Under `{auto_mode}`, make the reasonable assumption and record it in the ledger.
 

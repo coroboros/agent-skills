@@ -124,7 +124,7 @@ The user must answer `yes` explicitly. No silent write.
 On `yes`:
 
 - `Write` to `-o <path>` (default `./BRAND-VOICE.md`).
-- If `-s` is set, also `Write` to `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` (`{slug}` = kebab of `voice.name`; `{project}` = repo basename per `.claude/rules/repo-conventions.md` § Output paths) and report its fully-expanded absolute path.
+- If `-s` is set, also `Write` to `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` (`{slug}` = kebab of `voice.name`; `{project}` = kebab-cased basename of the git toplevel, else cwd) and report its fully-expanded absolute path.
 
 ### 7. Post-write report
 

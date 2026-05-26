@@ -23,7 +23,7 @@ Smart defaults keep the common case (reviewing local changes before commit) a si
 | `--json` | Skip report composition; print raw CLI JSON |
 | `--base <ref>` | Git comparison base for the single-arg mode (default: `HEAD`) |
 
-`{project}` — same as `audit`: repo basename per `.claude/rules/repo-conventions.md` § Output paths. The script exits `0` on no regression, `1` on regression — CI-gate friendly (`bash scripts/diff.sh before.md after.md || exit 1`).
+`{project}` — same as `audit`: kebab-cased basename of the git toplevel (else cwd). The script exits `0` on no regression, `1` on regression — CI-gate friendly (`bash scripts/diff.sh before.md after.md || exit 1`).
 
 ## Workflow
 

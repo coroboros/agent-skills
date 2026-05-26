@@ -11,7 +11,7 @@ before applying its gap-detection heuristic.
 
 | `repo_kind` | Test-location convention |
 |-------------|--------------------------|
-| `skills` | Tests live at `tests/<skill-name>/` (repo-level), NEVER beside source — see `.claude/rules/repo-conventions.md` § Testing. The "missing test beside changed file" heuristic reframes to "missing `tests/<changed-skill-name>/` directory". `evals/evals.json` per skill is the LLM eval — orthogonal; do not double-flag a skill that has evals but no unit tests. |
+| `skills` | Tests live at `tests/<skill-name>/` (repo-level), NEVER beside source — the `skills/<name>/` tree gets copied verbatim to user installs, so in-tree tests become install bloat. The "missing test beside changed file" heuristic reframes to "missing `tests/<changed-skill-name>/` directory". `evals/evals.json` per skill is the LLM eval — orthogonal; do not double-flag a skill that has evals but no unit tests. |
 | `app`, `library` | Existing behavior — tests beside source, in `__tests__/`, `tests/`, or files matching `*.test.*` / `*.spec.*`. |
 | `python` | `tests/` directory at repo or `src/` root; `pytest` conventions. |
 | `rust` | `tests/` at crate root + inline `#[cfg(test)] mod tests` blocks. |

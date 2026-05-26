@@ -61,7 +61,7 @@ Operational detail follows in `## How it runs` and per-lens references.
 | `--no-prose-hygiene` | Skip the prose-hygiene lens (PR body, commits, user-facing `*.md` checks). Lens runs by default; the row reads `— skipped (--no-prose-hygiene)` in the lens summary when set |
 | `--remote` | Reserved for phase-2 remote-sandbox escalation; current MVP is in-session |
 
-Output path per `.claude/rules/repo-conventions.md` § Output paths (`{slug}` = kebab of the branch name or short description, ≤5 words). Lowercase enables, uppercase disables — repo-wide convention. No `-f`: this skill is a producer, not a consumer.
+Output saved to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd) and `{slug}` is a kebab of the branch name or short description (≤5 words). Lowercase enables, uppercase disables. No `-f`: this skill is a producer, not a consumer.
 
 ```bash
 /code-ultrareview                              # full review, print report
