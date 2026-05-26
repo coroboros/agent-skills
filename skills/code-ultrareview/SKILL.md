@@ -103,7 +103,27 @@ Per-tool axis routing lives in `scripts/battery_ingest.py` (WS-2).
 
 ### Phase 3 — Axis review
 
-Launches the 8 axes as 8 parallel `Explore` subagents in one message (9 with Coherence). Each receives `scope.json`, `tool-findings.jsonl` filtered to its own axis, the diff, and its axis brief. Each emits findings with 0-100 confidence per the verbatim rubric (`references/anthropic-verbatim.md`).
+The orchestrator (main thread) prepares 8 per-axis bundles + 1 conditional Coherence bundle via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` subagent in one message. Subagents cannot spawn other subagents — the main thread always launches both axis reviewers AND validators.
+
+```bash
+python3 scripts/axis_dispatch.py prepare \
+  --scope <scope.json> \
+  --findings <tool-findings.jsonl> \
+  --diff <diff.patch> \
+  --output-dir <run-dir>
+```
+
+The script emits a JSON map `{axis: {input_path, prompt_path, findings_count}}`. The orchestrator reads each axis's `prompt_path`, then fans out one `Task` call per axis in the same message.
+
+Each subagent receives via its bundle (`axis-input/{axis}.json`):
+
+- `scope` — repo kind, languages, CLAUDE.md chain, files touched.
+- `findings` — tool findings filtered to its own axis only (`scripts/battery_ingest.py` axis routing). Other axes' findings are excluded so the subagent's context stays lean.
+- `diff_text` — the diff itself.
+- `brief_path` — its axis brief at `references/axes/{axis}.md`.
+- `anthropic_verbatim_path` — `references/anthropic-verbatim.md` carrying the 0-100 rubric, HIGH SIGNAL criteria, false-positive taxonomy, and agent-assumption rule.
+
+Each subagent emits findings as JSONL on stdout, one finding per line, against the canonical schema (`axis`, `severity`, `location`, `finding`, `recommendation`, `confidence`).
 
 | # | Axis | Scope | Brief |
 |---|------|-------|-------|
@@ -116,7 +136,9 @@ Launches the 8 axes as 8 parallel `Explore` subagents in one message (9 with Coh
 | 7 | Design/API | Public API breaking, DB schema breaking, race conditions | `references/axes/design-api.md` |
 | 8 | Performance | N+1 patterns, sync I/O in async, bundle-size delta | `references/axes/performance.md` |
 
-**Conditional 9th — Coherence.** `references/axes/coherence.md`. Activates per `scope.json["activates_coherence"]`. Compares structured fields across manifest / GitHub About / topics / README structured fields. `--include-prose` extends it to README freeform.
+**Conditional 9th — Coherence.** `references/axes/coherence.md`. `axis_dispatch.prepare` adds it to the bundle list when `scope.json["activates_coherence"]` is true (still within the soft 10-parallel concurrency cap). When inactive, the report header surfaces `Coherence axis: inactive`.
+
+**No silent failure.** If any axis subagent returns no output (timeout, error, malformed JSON), the orchestrator emits a 🔴 High finding for that axis citing the failure mode — never a silent skip.
 
 Full axis map and inter-axis precedence: `references/axes-overview.md`.
 
