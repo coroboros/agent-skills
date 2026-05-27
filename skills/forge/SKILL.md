@@ -72,9 +72,10 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 ```
 /forge -s "<question or idea>"          → ~/.claude/output/{project}/forge/forge-{slug}.md  ← you are here
 /apex -f <abs forge path> implement WS-1 → code
+/clean-output                            → sweep accumulated artifacts when ready
 ```
 
-Forge is the bridge from intent to buildable plan. It reads context, decides, decomposes, and hands off to `/apex` — which implements one workstream at a time. With `-i`, the workstreams also become GitHub issues.
+Forge is the bridge from intent to buildable plan. It reads context, decides, decomposes, and hands off to `/apex` — which implements one workstream at a time. With `-i`, the workstreams also become GitHub issues. The terminal `/clean-output` is user-invoked; nothing auto-prunes.
 
 ## Output
 
@@ -235,10 +236,12 @@ Write the artifact using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR
 
 **Issues** (if `{issues_mode}`) — read `${CLAUDE_SKILL_DIR}/references/issue-creation.md` and follow it to create labels, an epic, and workstream issues in dependency order, then append the `## GitHub Issues` section.
 
-**Bridge.** Present the decision, the runner-up and what would flip it, and the top risk in plain language. Then inline the **fully-expanded absolute path** in the next command (placeholder shown here; emit the resolved path at runtime):
+**Bridge.** Present the decision, the runner-up and what would flip it, and the top risk in plain language. Emit a three-line bridge block — `saved →` with the fully-expanded absolute path, `next →` with the apex command (the same path inlined verbatim), `cleanup → /clean-output` — in that order (placeholders shown here; emit resolved paths at runtime):
 
 ```
-/apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
+saved → ~/.claude/output/{project}/forge/forge-{slug}.md
+next  → /apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
+cleanup → /clean-output
 ```
 
 For a pure-strategy outcome, conclude the discussion — no bridge.

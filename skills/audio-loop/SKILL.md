@@ -84,6 +84,14 @@ Stereo balance: L -19.70 dB / R -19.71 dB — centred (Δ 0.01 dB)
 Duration: 6.50 s · Sample rate: 48 kHz · Channels: 2
 ```
 
+When `-s` saved under `~/.claude/output/{project}/audio-loop/{slug}/`, end the report with the cleanup bridge as a single line below the table:
+
+```
+cleanup → /clean-output
+```
+
+Skip the bridge when `-s` was not used — the FLAC stayed beside the source file, outside `~/.claude/output/`, and the line would be misleading.
+
 **Web Audio snippet (paste-in-page):**
 
 ```html

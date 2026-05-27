@@ -506,7 +506,8 @@ def _render_footer() -> str:
         "`/apex -f ~/.claude/output/{project}/code-ultrareview/"
         "code-ultrareview-{slug}.md` or `/oneshot \"<finding>\"`. Opt-in "
         "`--apply-safe` writes manifest sync + failing tests with diff "
-        "preview + per-file confirmation._"
+        "preview + per-file confirmation._\n\n"
+        "cleanup → /clean-output"
     )
 
 

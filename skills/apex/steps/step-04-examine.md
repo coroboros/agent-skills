@@ -212,6 +212,14 @@ Re-run typecheck and lint commands. Both MUST pass.
 🎉 Implementation complete and examined!
 ```
 
+**If `{save_mode}` = true, end the report with the cleanup bridge** so the user has one keystroke to sweep accumulated `~/.claude/output/` artifacts:
+
+```
+cleanup → /clean-output
+```
+
+Skip the bridge when `{save_mode}` = false — without `-s`, the run emitted no artifact under `~/.claude/output/`, and the line would be misleading.
+
 ### 9. Complete Save Output (if save_mode)
 
 **If `{save_mode}` = true:**

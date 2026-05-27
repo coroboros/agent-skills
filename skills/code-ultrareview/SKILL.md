@@ -166,6 +166,7 @@ Bridge to the fix pass after the report ships:
 
 - `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix pass (requires `-s`; pass the absolute path the report prints).
 - `/oneshot "<finding>"` — single-finding quick fix (takes a description, not a file).
+- `/clean-output` — sweep accumulated `~/.claude/output/` artifacts across all emitting skills (rendered as `cleanup → /clean-output` in the report footer).
 
 ### Opt-in flag composition
 

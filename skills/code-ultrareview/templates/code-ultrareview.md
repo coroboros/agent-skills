@@ -136,3 +136,5 @@ _Present only when `--apply-safe` was used._
 ---
 
 _Report-only by default. To fix: `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` or `/oneshot "<finding>"`. Opt-in `--apply-safe` writes manifest sync + failing tests with diff preview + per-file confirmation._
+
+cleanup → /clean-output
