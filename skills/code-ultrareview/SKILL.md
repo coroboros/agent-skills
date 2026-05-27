@@ -116,8 +116,8 @@ Validator prepare CLI, bundle schema, ingest pass details: `references/orchestra
 
 Runs `scripts/synthesize.py` on top of `scripts/synthesis_core.py` primitives:
 
-1. **Dedup** by `(file, line_range, finding_hash)`.
-2. **Inter-axis precedence** — when 2+ axes flag the same `file:line`, highest severity wins; ties resolve via `Correctness > Design/API > Simplification > Tests > Documentation > Style > Intent > Performance > Coherence` (`scripts/synthesis_core.py:AXIS_PRIORITY`).
+1. **Dedup** by `(location, finding-text)`.
+2. **Inter-axis precedence** — when 2+ axes flag the same `file:line` with the same finding wording, highest severity wins; ties resolve via `Correctness > Design/API > Simplification > Tests > Documentation > Style > Intent > Performance > Coherence` (`scripts/synthesis_core.py:AXIS_PRIORITY`). Distinct findings at coincident lines (a Correctness null-deref and a Tests missing-assert on the same line) survive as separate entries.
 3. **A2 routing** — sub-80 stays in Unverified with the validator's reason.
 4. **Verdict** — `Ship` / `Fix-then-ship` / `Needs work` (`scripts/synthesis_core.py:compute_verdict`).
 5. **Report emission** — markdown to terminal + `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. JSONL alongside with Conventional Comments labels (`issue` / `suggestion` / `nitpick` / `question`).

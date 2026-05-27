@@ -27,11 +27,13 @@ The Coherence axis owns 6 sub-graphs by default: manifest, GitHub About, topics,
 
 ## Inter-axis precedence
 
-When 2+ axes flag the same `file:line`, highest severity wins; ties resolve via this precedence (encoded in `scripts/synthesis_core.py:AXIS_PRIORITY`):
+When 2+ axes flag the same `file:line` with the same finding wording, highest severity wins; ties resolve via this precedence (encoded in `scripts/synthesis_core.py:AXIS_PRIORITY`):
 
 ```
 correctness > design-api > simplification > tests > documentation > style > intent > performance > coherence
 ```
+
+Distinct findings at coincident lines stay separate. A Correctness null-deref and a Tests missing-assert at the same `file:line` describe different problems and both surface — the precedence rule applies only when the bucket key `(location, finding-text)` collides.
 
 Rationale for the order:
 

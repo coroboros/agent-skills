@@ -376,6 +376,9 @@ def dedup_by_precedence(findings: list[dict]) -> list[dict]:
     callers can re-`order(...)` to apply canonical sort.
 
     Findings with empty `location` are not deduped — they pass through.
+
+    Mirrors the SKILL.md § Phase 5 inter-axis precedence contract — both
+    files describe the same `(location, finding-text)` bucket semantics.
     """
     buckets: dict[tuple[str, str], dict] = {}
     survivors: list[dict] = []
