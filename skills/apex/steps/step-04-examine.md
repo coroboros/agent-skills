@@ -165,6 +165,8 @@ Verify each item:
 - [ ] No references to the plan, spec, postmortem, APEX phases, or scratch-file paths in shipped artifacts
 - [ ] Comments explain a why the code cannot — no comment that merely restates the next line
 
+See also: `.claude/rules/deliverable-hygiene.md` for the repo-scoped statement of this family and its CI-gate enforcement surfaces.
+
 ### 5. Format Code
 
 Run the project's format command if available.

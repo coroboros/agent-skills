@@ -16,6 +16,7 @@ Markdown + bash + Python 3 (stdlib only). No build step. No package manager.
 @.claude/rules/claude-code-skills.md
 @.claude/rules/skill-authoring.md
 @.claude/rules/repo-conventions.md
+@.claude/rules/deliverable-hygiene.md
 
 ## At a glance
 
