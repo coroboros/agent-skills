@@ -115,7 +115,7 @@ _T = TypeVar("_T")
 def batch(items: list[_T], size: int = MAX_BATCH_SIZE) -> list[list[_T]]:
     """Split an item list into contiguous batches of at most `size`.
 
-    Spec AC: 25 sub-80 findings → 3 batches (10 + 10 + 5). Generic so
+    Example: 25 sub-80 findings → 3 batches (10 + 10 + 5). Generic so
     `prepare` can batch indices while tests can batch finding dicts.
     """
     if size <= 0:

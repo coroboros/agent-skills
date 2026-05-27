@@ -85,9 +85,10 @@ _PATTERNS = (
         "Describe the architecture as it stands, not the path that got it here.",
     ),
     # `spec AC` standalone is a leak. `Spec AC closure` is a named apex
-    # feature — the negative lookahead permits it.
+    # feature — the negative lookahead permits it. IGNORECASE catches the
+    # capital-S variant (`Spec AC`) that the gate originally missed.
     (
-        re.compile(r"\bspec AC\b(?! closure)"),
+        re.compile(r"\bspec AC\b(?! closure)", re.IGNORECASE),
         "spec-process vocabulary (spec AC)",
         "Describe the check directly — what is verified, not the spec section that asks for it.",
     ),
@@ -207,6 +208,33 @@ class TestNoInternalLabelLeak(unittest.TestCase):
             if name.startswith("spec-process"):
                 matched = regex.search(line) is not None
         self.assertTrue(matched, "Bare `spec AC` must be caught")
+
+    def test_capital_s_spec_ac_is_a_leak(self):
+        """Capital-S `Spec AC` (no `closure` after) must flag.
+
+        The gate originally used a case-sensitive regex and missed
+        `Spec AC: 25 findings` in a docstring. IGNORECASE closes that gap.
+        """
+        line = "    Spec AC: 25 sub-80 findings → 3 batches"
+        matched = False
+        for regex, name, _ in _PATTERNS:
+            if name.startswith("spec-process"):
+                matched = regex.search(line) is not None
+        self.assertTrue(matched, "Capital-S `Spec AC` must be caught")
+
+    def test_capital_s_spec_ac_closure_is_not_a_leak(self):
+        """`Spec AC closure` (capital S, with `closure`) must NOT flag.
+
+        Apex's named feature stays exempt even with IGNORECASE — the
+        negative lookahead `(?! closure)` is also case-insensitive.
+        """
+        line = "Skip if § 0a Spec AC closure applied."
+        for regex, name, _ in _PATTERNS:
+            if name.startswith("spec-process"):
+                self.assertIsNone(
+                    regex.search(line),
+                    "Spec AC closure stays exempt with IGNORECASE",
+                )
 
 
 if __name__ == "__main__":
