@@ -71,11 +71,11 @@ Output saved under `~/.claude/output/{project}/markitdown/{slug}/`, where `{proj
 
 ```
 markitdown: <input> → <bytes> bytes of Markdown
-saved: <path>             # only when -s
+saved   → <path>          # only when -s
 cleanup → /clean-output   # only when -s — sweep accumulated artifacts
 ```
 
-When saving, report the two-line `saved:` + `cleanup →` block. When not saving, omit both and stream the converted Markdown back to the user; if it exceeds ~80 lines, show the first 80 and tell the user to re-run with `-s` to capture the full output.
+When saving, report the two-line `saved →` + `cleanup →` block. When not saving, omit both and stream the converted Markdown back to the user; if it exceeds ~80 lines, show the first 80 and tell the user to re-run with `-s` to capture the full output.
 
 ## Examples
 

@@ -239,8 +239,8 @@ Write the artifact using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR
 **Bridge.** Present the decision, the runner-up and what would flip it, and the top risk in plain language. Emit a three-line bridge block — `saved →` with the fully-expanded absolute path, `next →` with the apex command (the same path inlined verbatim), `cleanup → /clean-output` — in that order (placeholders shown here; emit resolved paths at runtime):
 
 ```
-saved → ~/.claude/output/{project}/forge/forge-{slug}.md
-next  → /apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
+saved   → ~/.claude/output/{project}/forge/forge-{slug}.md
+next    → /apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
 cleanup → /clean-output
 ```
 

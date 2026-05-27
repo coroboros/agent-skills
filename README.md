@@ -231,7 +231,7 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 #### clean-output
 
-Interactive cleanup for `~/.claude/output/` — the global scratch directory where emitting skills (forge, apex, code-ultrareview, markitdown, audio-loop, suno-produce, brand-voice, award-design) accumulate artifacts. Lists every artifact under the current project bucket plus the cross-project `_global` bucket, grouped by emitting skill, with size and mtime per row. Asks before deleting anything; never auto-prunes; no TTL.
+Interactive cleanup for `~/.claude/output/` — the global scratch directory where emitting skills (forge, apex, code-ultrareview, markitdown, audio-loop, brand-voice) accumulate artifacts. Lists every artifact under the current project bucket plus the cross-project `_global` bucket, grouped by emitting skill, with size and mtime per row. Asks before deleting anything; never auto-prunes; no TTL.
 
 **Usage**
 

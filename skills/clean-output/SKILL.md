@@ -1,6 +1,6 @@
 ---
 name: clean-output
-description: Interactive listing + prompted deletion of accumulated artifacts under `~/.claude/output/{project}/...` (per-project) and `~/.claude/output/_global/...` (cross-project). Never auto-deletes — every group or file gets an explicit confirmation. Default scope is the current project bucket plus `_global`. `-A` widens to every per-project bucket; `-p <name>` narrows to one named project; `-l` lists without deleting; `-d` deletes everything in scope after a single count+size confirmation. The single user-invoked sweep for global skill outputs (forge plans, apex task workspaces, markitdown conversions, code-ultrareview reports, audio loops, suno tracks, brand-voice extracts, award-design briefs).
+description: Interactive listing + prompted deletion of accumulated artifacts under `~/.claude/output/{project}/...` (per-project) and `~/.claude/output/_global/...` (cross-project). Never auto-deletes — every group or file gets an explicit confirmation. Default scope is the current project bucket plus `_global`. `-A` widens to every per-project bucket; `-p <name>` narrows to one named project; `-l` lists without deleting; `-d` deletes everything in scope after a single count+size confirmation. The single user-invoked sweep for global skill outputs (forge plans, apex task workspaces, markitdown conversions, code-ultrareview reports, audio loops, brand-voice extracts).
 when_to_use: When the user wants to clean up the global skill-output directory — review what's accumulated, delete a few directories, or empty a project's bucket. Triggers on "clean output", "clean up skill output", "purge artifacts", "free up `~/.claude/output`", "what's in my output dir", "delete old forge plans", "delete old apex tasks", "/clean-output", "cleanup". Skip when the target lives inside a working tree — `~/.claude/output/` is the global scratch directory, never in-repo content. Skip when the user wants to inspect a single artifact — they should `Read` it directly. Skip when the user wants a TTL or scheduled-prune policy — this skill is single-shot and user-invoked by design (see Rules).
 argument-hint: "[-A] [-l] [-d] [-D] [-p <project>]"
 model: sonnet
@@ -61,7 +61,7 @@ Lowercase enables, uppercase disables. `-A` uses capital A by convention — low
    - **Keep everything** → exit 0 with `listing preserved — 0 files deleted`.
    - **Delete everything in scope** (or `-d`) → second `AskUserQuestion`: `Confirm delete: <N> artifacts, <total_size>?`. On confirmation, iterate the listing and call `delete_artifact.py` per path. On decline, exit 0.
    - **Pick per bucket** → `AskUserQuestion` (multi-select) with bucket names; iterate selected and delete.
-   - **Pick at a finer grain** → second `AskUserQuestion` (single-select): **By skill group** (one row per `(bucket, skill)` pair) or **By individual file**. Then a third `AskUserQuestion` (multi-select) at the chosen granularity; delete the selected.
+   - **Pick at a finer grain** → second `AskUserQuestion` (single-select): **By skill group** (one row per `(bucket, skill)` pair) or **By individual file**. Then a third `AskUserQuestion` (multi-select) at the chosen granularity. If the candidate list exceeds 4 entries — the `AskUserQuestion` cap — page through it 4 at a time, accumulating selections across pages; delete the accumulated set once the listing is exhausted.
 
 7. **Per-path deletion.** For every artifact, run `python3 ${CLAUDE_SKILL_DIR}/scripts/delete_artifact.py <abs-path>`. Expected exit 0. Exit 2 means the path failed the resolution guard — surface the stderr and halt (this is a script bug, not user input). Exit 1 means the path was missing or unwritable — log and continue with the next.
 
@@ -76,7 +76,8 @@ Lowercase enables, uppercase disables. `-A` uses capital A by convention — low
 - **Never delete outside `~/.claude/output/`.** `delete_artifact.py` resolves every path with `Path(p).resolve().is_relative_to(<root>)` and exits 2 on violation. The script is the single chokepoint — the skill never invokes `rm` or `shutil.rmtree` directly.
 - **No TTL, no SessionEnd auto-prune.** Repo policy in `.claude/rules/repo-conventions.md` § Cleanup. The user owns retention; the skill is single-shot and user-invoked.
 - **Listing before prompts.** Step 4 always runs before step 5 — the user sees what they're about to act on.
-- **`-l` and `-d` conflict.** Passing both keeps `-l` (read-only wins, fail-safe). Surface a warning and proceed in listing mode.
+- **`-l` and `-d` conflict — `-l` always wins.** Passing both keeps the read-only listing as a fail-safe — never silently switch to destructive behavior on a malformed invocation. Surface a one-line warning naming the conflict, then proceed as if only `-l` had been passed. Pinned by `tests/clean-output/test_skill_md.py::test_l_d_conflict_resolution_documented`.
+- **`AskUserQuestion` 4-option cap — page multi-selects 4-at-a-time.** Any candidate list with more than 4 entries pages through 4 at a time, accumulating selections across pages before any deletion. Applies to step 6's finer-grain skill-group / per-file multi-select. Pinned by `tests/clean-output/test_skill_md.py::test_ask_user_question_cap_resolution_documented`.
 
 ## Bucket layout
 
@@ -91,7 +92,7 @@ The `~/.claude/output/` directory has two top-level layouts:
 
 1. **`-p NAME` takes the kebab-case basename, not a path.** A working tree at `~/Desktop/Dev/my-org/my-app` resolves to project `my-app` — pass `-p my-app`, not the full path. Mismatch → empty listing for that bucket.
 2. **Apex task directories count as one artifact.** A `~/.claude/output/<project>/apex/01-feature/` workspace bundles multiple step files; `list_artifacts.py` sums the file sizes and reports the most recent mtime. Deletion removes the whole tree atomically.
-3. **`AskUserQuestion` caps at 4 options.** Step 5 uses the 4-option collapse; per-skill / per-file granularity happens in a follow-up question. If the harness ever lifts the cap, step 5 can re-expand inline.
+3. **`AskUserQuestion` caps at 4 options (single or multi-select).** Step 5 collapses to a 4-option menu. Step 6's multi-select pages 4-at-a-time when the candidate list exceeds 4, accumulating selections across pages before deletion. If the harness ever lifts the cap, both steps can re-expand inline.
 4. **Stale `_global` listings after a skill is uninstalled.** If a skill that wrote to `_global` is removed but its artifacts remain, the listing reports `_global / <skill> / ...` with the orphan skill name. Treat as ordinary cleanup candidates — the path-resolution guard doesn't care which skill produced them.
 5. **`--root <path>` is a test-fixture override.** Both bundled scripts accept `--root` to retarget the entire enumeration / guard under a temp dir. Never pass `--root` in production — that disarms the home-directory anchor.
 
