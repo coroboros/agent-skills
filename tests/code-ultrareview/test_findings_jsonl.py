@@ -394,5 +394,60 @@ class TestMalformedInput(unittest.TestCase):
                 ftj.load_findings(bad)
 
 
+# ---------------------------------------------------------------------------
+# Threshold + dot-in-repo regression — single source of truth + permalink fixes
+# ---------------------------------------------------------------------------
+
+
+class TestThresholdSingleSource(unittest.TestCase):
+    """Pins that `findings_to_jsonl.CONFIDENCE_THRESHOLD` is the same object
+    as `synthesis_core.CONFIDENCE_THRESHOLD`. A future bump in synthesis_core
+    propagates to the JSONL label routing automatically.
+    """
+
+    def test_threshold_imported_from_synthesis_core(self):
+        synth_spec = importlib.util.spec_from_file_location(
+            "synthesis_core", SCRIPT_DIR / "synthesis_core.py"
+        )
+        assert synth_spec is not None and synth_spec.loader is not None
+        synth = importlib.util.module_from_spec(synth_spec)
+        synth_spec.loader.exec_module(synth)
+        self.assertEqual(ftj.CONFIDENCE_THRESHOLD, synth.CONFIDENCE_THRESHOLD)
+
+
+class TestRepoNameWithDot(unittest.TestCase):
+    """Owner/repo regex must accept `.` in the repo name (e.g. `react.dev`,
+    `next.js`, `lodash.fp`). Permalink was silently omitted before the fix.
+    """
+
+    def test_repo_name_with_dot_resolves_https(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            subprocess.run(
+                ["git", "init", "-q", str(repo)],
+                check=True, capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(repo), "remote", "add",
+                 "origin", "https://github.com/owner/react.dev"],
+                check=True, capture_output=True,
+            )
+            self.assertEqual(ftj.detect_owner_repo(repo), "owner/react.dev")
+
+    def test_repo_name_with_dot_resolves_ssh(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            subprocess.run(
+                ["git", "init", "-q", str(repo)],
+                check=True, capture_output=True,
+            )
+            subprocess.run(
+                ["git", "-C", str(repo), "remote", "add",
+                 "origin", "git@github.com:owner/react.dev.git"],
+                check=True, capture_output=True,
+            )
+            self.assertEqual(ftj.detect_owner_repo(repo), "owner/react.dev")
+
+
 if __name__ == "__main__":
     unittest.main()

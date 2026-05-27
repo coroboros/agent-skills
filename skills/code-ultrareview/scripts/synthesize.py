@@ -577,7 +577,7 @@ def main(argv: list[str] | None = None) -> int:
                         help="Pre-rendered `## 📐 Derivation coverage` block.")
     parser.add_argument("--apply-safe-summary", type=Path, default=None,
                         help="Pre-rendered `## 🪛 --apply-safe summary` block.")
-    parser.add_argument("--print/--no-print", dest="echo",
+    parser.add_argument("--print", dest="echo",
                         action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args(argv)
 

@@ -526,5 +526,95 @@ class TestToolFindingsConcat(unittest.TestCase):
         self.assertIn("Trailing whitespace", stdout[green_offset:next_section])
 
 
+# ---------------------------------------------------------------------------
+# Render-layer regression — header file count + tools-skipped axis column
+# ---------------------------------------------------------------------------
+
+
+class TestRenderLayerRegression(unittest.TestCase):
+    """Pins three render-layer bugs that slipped past the 1315-test suite.
+
+    Each test fails if the corresponding fix is reverted:
+    1. `synthesize.py:286` reading `changed_files` instead of `files_touched_list`.
+    2. `run_battery.sh:673` writing `axis_lost` instead of `axis`.
+    3. `synthesize.py:580` passing `--print/--no-print` as a single name to
+       `argparse.BooleanOptionalAction`.
+    """
+
+    def test_header_renders_changed_file_count(self):
+        """Header reads `**Reviewed:** N changed file(s)` where N matches
+        `scope['files_touched_list']` length — not the absent
+        `changed_files` legacy key."""
+        scope = _scope(
+            files_touched_list=[
+                "src/a.ts", "src/b.ts", "src/c.ts",
+                "src/d.ts", "src/e.ts", "src/f.ts",
+                "src/g.ts",
+            ],
+        )
+        # Make sure no `changed_files` shadow key is present — proves the
+        # renderer reads from `files_touched_list`.
+        scope.pop("changed_files", None)
+        with tempfile.TemporaryDirectory() as tmp:
+            stdout, stderr, rc = _run_synthesize(
+                scope,
+                [_finding()],
+                output_dir=Path(tmp),
+            )
+        self.assertEqual(rc, 0, stderr)
+        self.assertIn("**Reviewed:** 7 changed file(s)", stdout)
+
+    def test_tools_skipped_table_renders_axis_column(self):
+        """Tools-skipped row renders the entry's `axis` value — not `?`."""
+        scope = _scope(
+            tools_skipped=[{
+                "tool": "oasdiff",
+                "install": "brew install oasdiff",
+                "axis": "design-api",
+                "reason": "not found — install: brew install oasdiff",
+            }],
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            stdout, stderr, rc = _run_synthesize(
+                scope,
+                [_finding()],
+                output_dir=Path(tmp),
+            )
+        self.assertEqual(rc, 0, stderr)
+        # The Tools-skipped section carries the entry; axis column reads
+        # `design-api`, not `?`.
+        offset = stdout.index("## 🧰 Tools skipped")
+        next_section = stdout.index("##", offset + 5)
+        tools_section = stdout[offset:next_section]
+        self.assertIn("oasdiff", tools_section)
+        self.assertIn("design-api", tools_section)
+        # Row's Axis column must NOT render `?`.
+        self.assertNotRegex(tools_section, r"\|\s+oasdiff\s+\|\s+\?\s+\|")
+
+    def test_print_flag_help_is_clean(self):
+        """`synthesize.py --help` exits 0; corrupted slash-syntax does not
+        appear in the rendered help.
+
+        BooleanOptionalAction passed `--print/--no-print` as a single name
+        string registers a name with an embedded slash, which renders as
+        `--print/--no-print, --no-print/--no-print` in the options section.
+        The clean shape (single name → auto-paired) renders as
+        `--print | --no-print` in usage and `--print, --no-print` (or
+        separate option entries) in the options list.
+        """
+        result = subprocess.run(
+            [sys.executable, str(SYNTHESIZE), "--help"],
+            capture_output=True, text=True, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        help_text = result.stdout
+        # Corrupted shape signature — never appears with a clean argument name.
+        self.assertNotIn("--print/--no-print", help_text)
+        self.assertNotIn("--no-print/--no-print", help_text)
+        # Clean shape sanity check — `--print` and `--no-print` both surfaced.
+        self.assertIn("--print", help_text)
+        self.assertIn("--no-print", help_text)
+
+
 if __name__ == "__main__":
     unittest.main()

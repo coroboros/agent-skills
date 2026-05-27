@@ -508,5 +508,72 @@ class TestPreflight(unittest.TestCase):
             self.assertIn("Informational only", r.stdout)
 
 
+# ---------------------------------------------------------------------------
+# WS-2 regression — default-run safety (no `--config=auto`, diff-scoped tools)
+# ---------------------------------------------------------------------------
+
+
+class TestDefaultRunSafety(unittest.TestCase):
+    """Pins WS-2 contracts at the dispatch-script source level.
+
+    Parses `run_battery.sh` directly rather than running it — keeps the
+    test offline and fast, and asserts the bug signature (the literal
+    `--config=auto` string or a bare `"$REPO"` target) is absent from the
+    function body for the relevant tool.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.source = SCRIPT.read_text(encoding="utf-8")
+
+    def _function_body(self, name: str) -> str:
+        """Return the bash function body for `name()`."""
+        marker = f"\n{name}() {{"
+        start = self.source.find(marker)
+        self.assertNotEqual(start, -1, f"function `{name}` not found in run_battery.sh")
+        # Naive matching brace — bash functions in this file don't nest braces
+        # at the top level, so a single closing brace on its own line ends it.
+        end = self.source.find("\n}\n", start)
+        self.assertNotEqual(end, -1, f"close brace for `{name}` not found")
+        return self.source[start:end + 3]
+
+    def test_semgrep_does_not_call_config_auto(self):
+        """`run_semgrep` no longer invokes `--config=auto` — the implicit
+        registry network call is removed for the public-skill posture.
+
+        Allow the literal `--config=auto` token in comments (documenting
+        why it was removed); block it from any code line.
+        """
+        body = self._function_body("run_semgrep")
+        for lineno, line in enumerate(body.splitlines(), 1):
+            # Strip the bash comment portion (everything after #).
+            code = line.split("#", 1)[0]
+            self.assertNotIn(
+                "--config=auto", code,
+                f"--config=auto in code (not comment) at line {lineno}: {line}",
+            )
+
+    def test_jscpd_target_is_changed_files_not_whole_repo(self):
+        """`run_jscpd` passes a `code_files` array, not `"$REPO"`."""
+        body = self._function_body("run_jscpd")
+        # The fixed dispatch passes `"${code_files[@]}"`; the old shape
+        # passed `"$REPO"` as the bare target.
+        self.assertIn('"${code_files[@]}"', body)
+        # No bare-`"$REPO"` invocation of jscpd remains.
+        self.assertNotRegex(body, r'jscpd[^|]+"\$REPO"')
+
+    def test_vale_target_is_changed_files_not_whole_repo(self):
+        """`run_vale` passes a `prose_files` array, not `"$REPO"`."""
+        body = self._function_body("run_vale")
+        self.assertIn('"${prose_files[@]}"', body)
+        self.assertNotRegex(body, r'vale[^|]+"\$REPO"')
+
+    def test_semgrep_target_is_changed_files_not_whole_repo(self):
+        """`run_semgrep` passes a `code_files` array, not `"$REPO"`."""
+        body = self._function_body("run_semgrep")
+        self.assertIn('"${code_files[@]}"', body)
+        self.assertNotRegex(body, r'semgrep[^|]+"\$REPO"')
+
+
 if __name__ == "__main__":
     unittest.main()

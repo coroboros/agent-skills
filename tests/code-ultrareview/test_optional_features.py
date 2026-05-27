@@ -608,5 +608,64 @@ class TestPhaseConstants(unittest.TestCase):
         )
 
 
+# ---------------------------------------------------------------------------
+# Build-verify sub-80 filter — confidence-0 stays excluded
+# ---------------------------------------------------------------------------
+
+
+class TestBuildVerifyExcludesConfZero(unittest.TestCase):
+    """`apply_a2` drops confidence-0 findings as flagged false positives.
+    `run_build_verification` must NOT re-promote a conf-0 finding above
+    threshold even when the build fails — confidence-0 has carried explicit
+    intent to drop from the rubric.
+    """
+
+    def test_conf_zero_finding_is_not_iterated(self):
+        # A failing build that, if conf-0 leaked into the sub-80 list, would
+        # promote it to threshold via `make_verdict_fn(build_failed=True)`.
+        conf_zero = {
+            "axis": "correctness",
+            "severity": "Medium",
+            "location": "src/a.ts:10",
+            "finding": "Flagged FP",
+            "recommendation": "—",
+            "confidence": 0,
+        }
+        conf_sub80 = {
+            "axis": "correctness",
+            "severity": "Medium",
+            "location": "src/b.ts:5",
+            "finding": "Real sub-80",
+            "recommendation": "—",
+            "confidence": 60,
+        }
+
+        # Bypass the real subprocess — return a non-zero exit (failing build).
+        with mock.patch.object(run_build_verify, "_run_build",
+                               return_value=(1, "ran")):
+            out, meta = run_build_verify.run(
+                repo=Path("."),
+                findings=[conf_zero, conf_sub80],
+                test_command="true",
+                tool_available=True,
+                timeout=5,
+            )
+
+        # The conf-0 finding survives in the output with its original
+        # confidence — never promoted.
+        survivors_by_loc = {f["location"]: f for f in out}
+        self.assertIn("src/a.ts:10", survivors_by_loc)
+        self.assertEqual(survivors_by_loc["src/a.ts:10"]["confidence"], 0)
+        # The genuine sub-80 correctness finding WAS promoted to ≥ threshold
+        # (correctness ∈ BUILD_RELEVANT_AXES, build failed → "confirmed").
+        self.assertIn("src/b.ts:5", survivors_by_loc)
+        self.assertGreaterEqual(
+            survivors_by_loc["src/b.ts:5"]["confidence"],
+            synthesis_core.CONFIDENCE_THRESHOLD,
+        )
+        # Meta reports a single promotion (only the genuine sub-80).
+        self.assertEqual(meta["promoted_count"], 1)
+
+
 if __name__ == "__main__":
     unittest.main()
