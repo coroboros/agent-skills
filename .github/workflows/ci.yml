@@ -21,3 +21,24 @@ jobs:
 
       - name: Run tests
         run: python3 -m unittest discover tests/ -v
+
+  scan-pr-body:
+    name: scan-pr-body
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Scan PR title + body for internal labels
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh pr view ${{ github.event.pull_request.number }} --json title,body \
+            | python3 tests/_meta/scripts/scan_pr_for_internal_label.py

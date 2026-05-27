@@ -155,7 +155,7 @@ Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tes
 
 Two workflows trigger on every pull request and push to `main`:
 
-- `.github/workflows/ci.yml` runs the full `unittest` suite. Branch protection on `main` requires the `tests` status check — red tests block merge.
+- `.github/workflows/ci.yml` — two jobs. `tests` runs the full `unittest` suite. `scan-pr-body` (PR-only, `if: github.event_name == 'pull_request'`) scans the PR title and body for the same internal-label patterns `tests/_meta/test_no_internal_label_leak.py` enforces in shipped skill source; per-line opt-out `<!-- noqa: internal-label -->`. Branch protection on `main` requires the `tests` status check — red tests block merge.
 - `.github/workflows/scan-skills.yml` calls Cisco's `skill-scanner` reusable workflow (policy `balanced`, fail-on `critical`) against the `skills/` tree. SHA-pinned to a tagged release; Dependabot opens a PR weekly when a new version lands.
 
 ## Skill scope declaration

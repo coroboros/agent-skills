@@ -28,13 +28,13 @@ for repo-wide enforcement.
 
 from __future__ import annotations
 
-import re
 import sys
 import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _helpers import REPO_ROOT, SKILLS_DIR  # noqa: E402
+from _internal_label_patterns import INLINE_OPT_OUT, PATTERNS, scan_line  # noqa: E402
 
 # File extensions worth scanning. Markdown + Python + Shell + JSON cover
 # every shipped surface inside skills/. Other extensions (yml, toml,
@@ -56,49 +56,6 @@ _ALLOWLIST_PATHS = (
     # cells. Same precedent as the apex rule files.
     "skills/code-ultrareview/references/axes/documentation.md",
 )
-
-# Patterns that signal author-coordinate language. Each entry is
-# (compiled_regex, human-readable name, suggested rewrite hint).
-_PATTERNS = (
-    (
-        re.compile(r"\bWS-[1-9][0-9]?\b"),
-        "workstream label (WS-N)",
-        "Translate to a domain fact — what the change actually does.",
-    ),
-    # Scope the file extensions to scripts only — `the prior <thing>.md` is
-    # legitimately used by skills that version a user's `.md` file (e.g.,
-    # suno-produce archives `TRACK.md` to `versions/`). The original leak
-    # surface for this PR was `.py` references inside docstrings.
-    (
-        re.compile(r"the prior `?[A-Za-z_][A-Za-z0-9_/]*\.(?:py|sh|bash)`?"),
-        "rebuild-history breadcrumb (the prior <script>)",
-        "Describe the current state, not the file it replaced.",
-    ),
-    (
-        re.compile(r"carried verbatim from\b"),
-        "rebuild-history phrasing (carried verbatim from)",
-        "Describe what the code does now, not its lineage.",
-    ),
-    (
-        re.compile(r"\bthe rebuild\b", re.IGNORECASE),
-        "process language (the rebuild)",
-        "Describe the architecture as it stands, not the path that got it here.",
-    ),
-    # `spec AC` standalone is a leak. `Spec AC closure` is a named apex
-    # feature — the negative lookahead permits it. IGNORECASE catches the
-    # capital-S variant (`Spec AC`) that the gate originally missed.
-    (
-        re.compile(r"\bspec AC\b(?! closure)", re.IGNORECASE),
-        "spec-process vocabulary (spec AC)",
-        "Describe the check directly — what is verified, not the spec section that asks for it.",
-    ),
-)
-
-# Lines that match this pattern are exempt — explicit per-line opt-out
-# for the rare case where prose legitimately names the anti-pattern.
-# Both `#`-style (Python / shell / YAML) and `<!--`-style (Markdown)
-# comments are recognised.
-_INLINE_OPT_OUT = re.compile(r"(?:#|<!--)\s*noqa:\s*internal-label\b")
 
 
 def _is_allowlisted(rel_path: str) -> bool:
@@ -135,13 +92,8 @@ def _scan_file(path: Path) -> list[tuple[int, str, str, str]]:
         return []
     hits: list[tuple[int, str, str, str]] = []
     for lineno, line in enumerate(text.splitlines(), 1):
-        if _INLINE_OPT_OUT.search(line):
-            continue
-        for regex, name, hint in _PATTERNS:
-            match = regex.search(line)
-            if match:
-                hits.append((lineno, name, match.group(0), hint))
-                break
+        for name, matched, hint in scan_line(line):
+            hits.append((lineno, name, matched, hint))
     return hits
 
 
@@ -183,17 +135,17 @@ class TestNoInternalLabelLeak(unittest.TestCase):
 
     def test_inline_opt_out_marker_is_recognised(self):
         """Both `#` and `<!--` opt-out markers are recognised."""
-        self.assertTrue(_INLINE_OPT_OUT.search(
+        self.assertTrue(INLINE_OPT_OUT.search(
             "Refers to WS-3 as the anti-pattern.  # noqa: internal-label"
         ))
-        self.assertTrue(_INLINE_OPT_OUT.search(
+        self.assertTrue(INLINE_OPT_OUT.search(
             "Refers to WS-3 in prose.  <!-- noqa: internal-label -->"
         ))
 
     def test_spec_ac_closure_is_not_a_leak(self):
         """`Spec AC closure` is a named apex feature — must not flag."""
         line = "Skip if § 0a Spec AC closure applied."
-        for regex, name, _ in _PATTERNS:
+        for regex, name, _ in PATTERNS:
             if name.startswith("spec-process"):
                 self.assertIsNone(
                     regex.search(line),
@@ -204,7 +156,7 @@ class TestNoInternalLabelLeak(unittest.TestCase):
         """`spec AC` without `closure` after must flag."""
         line = "verified per the spec AC contract"
         matched = False
-        for regex, name, _ in _PATTERNS:
+        for regex, name, _ in PATTERNS:
             if name.startswith("spec-process"):
                 matched = regex.search(line) is not None
         self.assertTrue(matched, "Bare `spec AC` must be caught")
@@ -217,7 +169,7 @@ class TestNoInternalLabelLeak(unittest.TestCase):
         """
         line = "    Spec AC: 25 sub-80 findings → 3 batches"
         matched = False
-        for regex, name, _ in _PATTERNS:
+        for regex, name, _ in PATTERNS:
             if name.startswith("spec-process"):
                 matched = regex.search(line) is not None
         self.assertTrue(matched, "Capital-S `Spec AC` must be caught")
@@ -229,7 +181,7 @@ class TestNoInternalLabelLeak(unittest.TestCase):
         negative lookahead `(?! closure)` is also case-insensitive.
         """
         line = "Skip if § 0a Spec AC closure applied."
-        for regex, name, _ in _PATTERNS:
+        for regex, name, _ in PATTERNS:
             if name.startswith("spec-process"):
                 self.assertIsNone(
                     regex.search(line),
