@@ -37,6 +37,7 @@ Each output line is:
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 import subprocess
@@ -44,6 +45,16 @@ import sys
 from pathlib import Path
 from typing import Iterable
 
+# Reuse synthesis_core primitives — single source of truth for the 80
+# threshold. A divergence here flips JSONL Conventional Comments label
+# routing relative to the rest of the pipeline.
+_SYNTH_PATH = Path(__file__).resolve().parent / "synthesis_core.py"
+_spec = importlib.util.spec_from_file_location("synthesis_core", _SYNTH_PATH)
+assert _spec is not None and _spec.loader is not None
+synthesis_core = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(synthesis_core)
+
+CONFIDENCE_THRESHOLD = synthesis_core.CONFIDENCE_THRESHOLD
 GIT_TIMEOUT_S = 10
 
 # Conventional Comments label vocabulary.
@@ -58,10 +69,12 @@ _LABEL_ROUTING: dict[tuple[str, str], str] = {
     ("Low", "style"): "nitpick",
 }
 
-# Match `git remote get-url origin` outputs to extract `owner/repo`.
+# Match `git remote get-url origin` outputs to extract `owner/repo`. Repo
+# names may contain `.` (e.g. `react.dev`); the optional `.git` suffix is
+# stripped via the trailing group.
 _GITHUB_URL_PATTERNS = (
-    re.compile(r"^git@github\.com:(?P<owner>[^/]+)/(?P<repo>[^/.]+?)(\.git)?$"),
-    re.compile(r"^https?://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/.]+?)(\.git)?/?$"),
+    re.compile(r"^git@github\.com:(?P<owner>[^/]+)/(?P<repo>[^/]+?)(\.git)?$"),
+    re.compile(r"^https?://github\.com/(?P<owner>[^/]+)/(?P<repo>[^/]+?)(\.git)?/?$"),
 )
 
 # `location` shapes the parser accepts:
@@ -87,7 +100,7 @@ def label_for(finding: dict) -> str:
     user-visible report shows the downgraded form.
     """
     confidence = int(finding.get("confidence", 0))
-    if confidence < 80:
+    if confidence < CONFIDENCE_THRESHOLD:
         return "question"
     severity = str(finding.get("severity", ""))
     axis = str(finding.get("axis", ""))

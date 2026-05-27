@@ -125,8 +125,15 @@ def run(
     for orchestration tests that don't want a subprocess to fire.
     """
     threshold = synthesis_core.CONFIDENCE_THRESHOLD
-    sub80 = [f for f in findings if int(f.get("confidence", 0)) < threshold]
-    rest = [f for f in findings if int(f.get("confidence", 0)) >= threshold]
+    # Confidence-0 findings are flagged false positives per the verbatim
+    # rubric; apply_a2 drops them upstream. Excluding them here keeps
+    # build-verify from re-promoting one to ≥ threshold on a failing build.
+    sub80 = [f for f in findings if 0 < int(f.get("confidence", 0)) < threshold]
+    rest = [
+        f for f in findings
+        if int(f.get("confidence", 0)) >= threshold
+        or int(f.get("confidence", 0)) == 0
+    ]
 
     if not test_command or not tool_available:
         return findings, {
