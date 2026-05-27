@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Phase 3 axis-dispatch orchestrator for code-ultrareview.
 
-The main thread launches the axis subagents (subagents cannot spawn other
-subagents — repo convention, see `skills/agent-creator/SKILL.md:137`). This
-module is the deterministic half:
+The main thread launches the axis subagents — subagents cannot spawn other
+subagents (Anthropic's documented contract: `Agent` tool is reserved for
+the main thread). This module is the deterministic half:
 
 1. Decide which axes to launch (8 always-on + Coherence when active).
 2. Filter `tool-findings.jsonl` per axis using the canonical axis keys.
@@ -178,10 +178,11 @@ def build_axis_prompt(
 ) -> str:
     """Build the subagent prompt for a given axis.
 
-    `skill_dir` is the absolute path to `skills/code-ultrareview/` so the
-    prompt's reference paths are unambiguous to the subagent.
-    `input_path` is the absolute path to the per-axis JSON bundle the
-    subagent will `Read`.
+    `skill_dir` is the absolute path to the code-ultrareview skill root
+    (e.g. `~/.claude/skills/code-ultrareview/` on install, or the repo
+    path during development) so the prompt's reference paths are
+    unambiguous to the subagent. `input_path` is the absolute path to
+    the per-axis JSON bundle the subagent will `Read`.
     """
     if axis not in AXIS_BRIEFS:
         raise ValueError(f"Unknown axis: {axis}")

@@ -58,9 +58,21 @@ Tokens that require the reader to share the author's mental model — useful at 
 | `\bthe rebuild\b` | `every WS-6 acceptance criterion` of `the rebuild` | Describe the architecture as it stands, not the path that got it here. |
 | `\bspec AC\b` (NOT `Spec AC closure`) | `validators never see them (spec AC)` | Describe the check directly — what is verified, not the spec section that asks for it. |
 
-The repo's `tests/_meta/test_no_internal_label_leak.py` CI gate blocks these patterns at merge. The Documentation axis is the in-PR review feedback signal — surface the same family as 🔴 High findings on the offending `file:line` so the author can fix before the CI red. Per-line opt-out `# noqa: internal-label` (or `<!-- noqa: internal-label -->` in Markdown) suppresses both layers when the prose legitimately names the anti-pattern.
+The repo's `tests/_meta/test_no_internal_label_leak.py` CI gate blocks these patterns at merge. The Documentation axis is the in-PR review feedback signal — surface the same family as 🔴 High findings on the offending `file:line` so the author can fix before the CI red. Per-line opt-out `# noqa: internal-label` (or `<!-- noqa: internal-label -->` in Markdown) suppresses the finding when the prose legitimately names the anti-pattern — for example, a doc that teaches the rule with the literal `WS-3` token, or a script whose data tuple happens to contain `"workstreams"` as a real string value. Files that legitimately produce the format these tokens live in (a `### WS-N:` spec template, a rule doc with the canonical example) surface as informational rather than as findings.
 
-Allowlist files that legitimately document the format (forge produces `### WS-N:` spec headings; apex teaches the rule with the literal `WS-3` example) — surface as informational rather than as findings.
+#### Install-context paths (High)
+
+Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill <name>`. A reference inside the skill source to `skills/<other>/...` is a dead link on partial install (sibling skill absent) and a wrong path on full install — the install location is `~/.claude/skills/<other>/`, not `skills/<other>/`. The bulletproof three-layer pattern replaces every bare path.
+
+| Layer | Anti-pattern | Bulletproof pattern |
+|-------|--------------|---------------------|
+| Documentation citation | `skills/<other>/references/<file>.md` | `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` + sibling skill by name (`/<other>`) |
+| Runtime dispatch | `skills/<other>/scripts/<file>` | Slash command `/<other>`; triple-fallback for direct script — `${CLAUDE_SKILL_DIR}/../<other>/...` → `~/.claude/skills/<other>/...` → `~/.agents/skills/<other>/...` → fail-loud with install-command hint |
+| Parity contract | `Mirrors skills/<other>/scripts/X.py` | GitHub URL + the phrase "parity counterpart" + "both files must change together" |
+
+Same-skill self-references drop the `skills/<self>/` prefix — use relative sibling paths (`../references/<file>.md`) or rephrase ("the skill's references"). Anthropic's canonical write-up of Composing Skills documents the by-name pattern only; GitHub URLs and triple-fallback fill the gaps for the documented partial-install case.
+
+The repo's `tests/_meta/test_no_cross_skill_install_path_leak.py` CI gate blocks the pattern at merge. Surface the same family as 🔴 High findings on the offending `file:line` so the author can fix before the CI red. Per-line opt-out `# noqa: cross-skill-path` (or `<!-- noqa: cross-skill-path -->` in Markdown) suppresses the finding when the prose legitimately documents the pattern with literal examples.
 
 ## Out of scope (false positives — silence at source)
 

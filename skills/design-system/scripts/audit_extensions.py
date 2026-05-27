@@ -6,8 +6,8 @@ Self-contained: no third-party dependencies. Parses only what it needs from YAML
 (top-level extension namespaces with map-of-strings shape per the Google spec
 extension convention) and CSS (@theme block custom properties).
 
-Reference: skills/design-system/references/extended-tokens.md
-           skills/design-system/references/subcommand-audit-extensions.md
+Reference: ../references/extended-tokens.md (sibling)
+           ../references/subcommand-audit-extensions.md (sibling)
 """
 
 from __future__ import annotations

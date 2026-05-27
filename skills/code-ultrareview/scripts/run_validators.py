@@ -2,9 +2,9 @@
 """Phase 4 Haiku-validator orchestrator for code-ultrareview.
 
 The main thread launches one Haiku validator per still-sub-80 finding
-from Phase 3, batched at ten parallel (subagents cannot spawn other
-subagents — repo convention, `skills/agent-creator/SKILL.md:137`). This
-module is the deterministic half:
+from Phase 3, batched at ten parallel — subagents cannot spawn other
+subagents (Anthropic's documented contract: `Agent` tool is reserved
+for the main thread). This module is the deterministic half:
 
 1. Filter the sub-80 finding set from Phase 3 — confidence-100 tool
    findings skip validation entirely.

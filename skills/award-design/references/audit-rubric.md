@@ -123,7 +123,7 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 - **No hedge scores**: 6/10 and 7/10 are different. Pick one. If you can't decide, look harder.
 - **Fixes, not observations**: every P0/P1 must include a concrete CSS snippet or content rewrite. "Improve contrast" is not a fix; `color: #595959` is.
 - **Don't recommend what you can't verify**: if you haven't checked it, say so rather than guess.
-- **Tokenized values trace**: every motion duration, shadow, aspect ratio, viewport height, container width, z-index, opacity, and scroll trigger in code must resolve to a DESIGN.md namespace (canonical or extension). Raw values authored ad-hoc in CSS/JS are anti-patterns — flag them. `/design-system audit-extensions` automates the check; see `skills/design-system/references/extended-tokens.md`.
+- **Tokenized values trace**: every motion duration, shadow, aspect ratio, viewport height, container width, z-index, opacity, and scroll trigger in code must resolve to a DESIGN.md namespace (canonical or extension). Raw values authored ad-hoc in CSS/JS are anti-patterns — flag them. `/design-system audit-extensions` automates the check; full namespace list at [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
 
 ## Relation to `anti-patterns.md`
 

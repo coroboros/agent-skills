@@ -2,7 +2,9 @@
 """
 utils.py — shared I/O and helpers for brand-voice scripts.
 
-Mirrors skills/humanize-en/scripts/utils.py — same I/O contract.
+Parity counterpart in the humanize-en skill — same I/O contract.
+See https://github.com/coroboros/agent-skills/blob/main/skills/humanize-en/scripts/brand_prescan.py
+for the mirrored YAML parser. Both files must change together.
 Requires Python 3.7+. No third-party dependencies.
 """
 
