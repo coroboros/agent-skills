@@ -1,158 +1,213 @@
-# Execution layer — build, fuzz, `--apply-safe`
+# Opt-in flag execution — `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`
 
-Always-on execution includes build verification, property-fuzz harness
-synthesis, spec-conformance fetching with a local cache, and the
-`--apply-safe` writers. Every run gets the full pass; there is no tier
-gating. Read this before dispatching.
+Reference for the four opt-in flags. Defaults are off — these layer on top of the always-on 5-phase pipeline (scope → tool battery → 8 axis reviewers → Haiku validators → synthesis). Each flag has a single load-bearing entry point script; the SKILL.md prose calls these scripts from the orchestrator (main thread).
 
-## Build detection
+## `--verify-build` (Phase 3.5 — build verification)
 
-`scripts/build_detect.py` probes the repo for a known build/test tool and
-returns the canonical test command. Probe order is fixed — first hit wins:
+Promotes sub-80 axis findings via the repo's own test command BEFORE the Phase 4 Haiku validators. Confirmed promotions skip Phase 4 entirely.
+
+| Field | Value |
+|-------|-------|
+| Entry point | `scripts/run_build_verify.py` |
+| Detector | `scripts/build_detect.py` — first-hit-wins probe |
+| Composer | `scripts/synthesis_core.py:iterate_unverified` — `+30` confidence, capped at `95`, floor at `80` |
+| Runs in phase | 3.5 (between axis review and validators) |
+| Default timeout | 120 s (override via `--timeout`) |
+
+### Detection table
+
+`build_detect.detect()` probes in fixed order; first hit wins:
 
 | Probe file | Tool | Test command |
 |------------|------|--------------|
 | `pnpm-lock.yaml` | `pnpm` | `pnpm test` |
 | `yarn.lock` | `yarn` | `yarn test` |
-| `package-lock.json` | `npm` | `npm test --no-coverage` |
-| `package.json` (no lockfile) | `npm` | `npm test --no-coverage` |
-| `pyproject.toml` or `requirements.txt` | `pytest` if listed; else `unittest` | `pytest -x` / `python3 -m unittest discover` |
+| `package-lock.json` or `package.json` | `npm` | `npm test --no-coverage` |
+| `pyproject.toml` / `requirements.txt` mentioning `pytest` | `pytest` | `pytest -x` |
+| `pyproject.toml` / `requirements.txt` without `pytest` | `unittest` | `python3 -m unittest discover` |
 | `Cargo.toml` | `cargo` | `cargo test` |
 | `go.mod` | `go` | `go test ./...` |
 | `Makefile` with a `test:` target | `make` | `make test` |
 
-Output JSON: `{"tool": "<name>", "test_command": "<cmd>", "available": <bool>}`.
-`available` is `false` when the underlying binary (`pnpm`, `pytest`, …) is
-not on PATH — the dispatcher reports the gap and skips the build/execute step
-rather than failing.
+Output is `{"tool": "<name>", "test_command": "<cmd>", "available": <bool>}`. `available: false` (binary not on PATH) → graceful skip; the run continues without build-verification.
 
-## Sandbox protocol
+### Per-finding verdict
 
-Build commands run in the **repo's own working tree** via `subprocess.run`
-with a 120s timeout. There is no Docker / VM isolation at MVP — the user
-is expected to invoke `code-ultrareview` on a clean tree (warning emitted
-otherwise). Future phase-2 work (`--remote`) escalates to Anthropic's Code
-Sandbox for true isolation.
+`run_build_verify.py` runs the test command **once** with `subprocess.run(shell=True, cwd=repo, timeout=…)`, then assigns a verdict per sub-80 finding:
 
-The subagent runs the command, captures stdout + stderr + exit code, and
-feeds the result into the sub-80 iteration verdict (`confirmed` /
-`disproved` / `inconclusive`). Output longer than 10 KB is truncated to
-the last 100 lines — keeps the orchestrator context bounded.
+- **`confirmed`** — exit code ≠ 0 AND `finding.axis ∈ {correctness, tests, design-api, performance}`. `iterate_unverified` applies the promotion (severity restored from `meta.original_severity` when set; `[unverified]` prefix stripped; marker re-attached).
+- **`inconclusive`** — every other case. Finding passes through unchanged into Phase 4.
+- **`disproved`** — intentionally unused at MVP. A passing build does not actively disprove an LLM finding, and a drop verdict would silently lose Unverified candidates the validator phase can still confirm. A2 stays load-bearing.
 
-## Spec-conformance lens (full implementation)
+Style / Documentation / Intent / Simplification / Coherence findings are always `inconclusive` — the test command does not exercise them.
 
-`scripts/spec_conformance.py` extends the entrypoint stub with cache management:
+### Output
 
-- Cache directory: `~/.claude/cache/code-ultrareview/specs/`
-- File name: `{spec-slug}-{date}.txt`, where `spec-slug` is
-  `spec_claim.slugify_spec(name)` and `date` is `YYYY-MM-DD` (cached
-  fetch's date).
-- Cache-hit policy: serve cached body when `now - mtime ≤ 7 days`.
-  Otherwise mark stale and let the subagent refresh.
-- ETag support: the subagent passes the ETag header on refresh; a 304
-  Not Modified extends the mtime.
+`<output-dir>/build-verified.jsonl` carries every input finding (with promotions applied to confirmed ones). A `build-verified.jsonl.meta.json` sidecar records: `build_status` (`ran` / `timeout` / `error` / `skipped`), `tool`, `test_command`, `exit_code`, `build_failed`, `promoted_count`, `remaining_sub80_count`.
 
-API:
+### Sandbox
 
-```python
-spec_conformance.is_cache_fresh(path, now=time.time()) -> bool
-spec_conformance.cache_path_for(spec_name, date=None) -> Path
-spec_conformance.read_cached(spec_name) -> Optional[str]
-spec_conformance.write_cache(spec_name, body, date=None) -> Path
-spec_conformance.format_unverified_finding(spec_name, location, reason) -> dict
+The test command runs in the **repo's own working tree** — no Docker / VM isolation at MVP. Invoke `code-ultrareview` on a clean tree; the scope phase already warns when `git status --porcelain` is non-empty. Output beyond 10 KB is truncated to the last 100 lines by callers to keep orchestrator context bounded.
+
+---
+
+## `--mutation-test` (Phase 2 extension)
+
+Routes mutation-tool findings into the Phase 2 tool-findings stream so the Tests axis subagent sees surviving mutants alongside the other deterministic CLI outputs.
+
+| Field | Value |
+|-------|-------|
+| Entry point | `scripts/run_mutation.sh` |
+| Per-language tools | `npx stryker run` (JS/TS) · `uvx mutmut run` (Python) · `mvn org.pitest:pitest-maven:mutationCoverage` (JVM) |
+| Output axis | `tests` |
+| Severity | `Medium` (🟠) |
+| Confidence | `100` (deterministic — skips Phase 4) |
+| Default timeout | 600 s (override via `--timeout` or `MUTATION_TIMEOUT`) |
+
+### Dispatch
+
+`run_mutation.sh` reads `scope.json["languages"]` and `scope.json["files_touched_list"]`:
+
+- **JS/TS** — runs only when a stryker config file (`stryker.{conf,config}.{js,mjs,json}`) exists OR `@stryker-mutator/core` appears in `package.json`. `npx` invocation. Mutate scope = changed `.ts/.tsx/.js/.jsx/.mjs/.cjs` files from the diff.
+- **Python** — runs when `mutmut` is on PATH or `uvx` is available. Mutate scope = changed `.py` files from the diff. Skips when no changed Python files are in scope.
+- **JVM** — runs when `pom.xml` exists AND `mvn` is on PATH. Gradle / standalone pitest are deferred; the script logs an install hint.
+
+### Tool-output parsing
+
+Each tool writes its native report:
+
+- **Stryker** — `reports/mutation/mutation.json` — Mutation Report Schema. Surviving mutants (`status: "Survived"`) become Tests-axis findings with `location: "<file>:<line>:<col>"`.
+- **mutmut** — parses `mutmut results` output for the *Survived* block, then calls `mutmut show <id>` for each ID to recover the file/line.
+- **pitest** — parses `target/pit-reports/<latest>/mutations.xml`; `<mutation status="SURVIVED">` rows become findings.
+
+All parsed findings emit to `<output-dir>/mutation-findings.jsonl` with the canonical schema:
+
+```json
+{
+  "axis": "tests",
+  "severity": "Medium",
+  "location": "<file>:<line>[:<col>]",
+  "finding": "Surviving mutant (<mutatorName>): <description>",
+  "recommendation": "Tests did not catch this mutation — add an assertion that fails when the mutated code path executes.",
+  "confidence": 100,
+  "source_tool": "stryker" | "mutmut" | "pitest"
+}
 ```
 
-The script never makes network calls. `WebFetch` is the subagent's
-responsibility — Python owns cache + finding formatting.
+### Graceful skip
 
-## Property-fuzz harness synthesis
+Missing config, missing tool, no changed files in the relevant language, timeout, or `MUTATION_DRY_RUN=1` all emit `WARN: <reason>` to stderr and produce an empty (or no-newer-rows-appended) `mutation-findings.jsonl`. The script never auto-installs — install commands surface in the WARN line. `MUTATION_DRY_RUN=1` exists as a test hook so the script can be exercised without invoking actual mutation tooling.
 
-`scripts/harness_synth.py` emits a property-test skeleton for the host
-repo. Detection from manifests:
+---
 
-- `package.json` has `fast-check` in `dependencies` or `devDependencies` → emit `tests/<name>.fast-check.ts`
-- `pyproject.toml`/`requirements.txt` mentions `hypothesis` → emit `tests/test_<name>_property.py`
-- Neither → return `{"skipped": true, "reason": "install fast-check or hypothesis"}`
+## `--reconcile <input>` (Intent axis derivation sub-mode)
 
-The emitted harness is a **skeleton** — it imports the property library,
-declares one `@given` / `fc.assert` block per detected invariant from the
-spec grammar, and adds TODO comments where the user fills in the
-property assertion. Subagents are not asked to write production property
-tests — MVP target is "harness runs, raises informative TODO" so users
-have a starting point.
+Activates the planning-artifact reconciliation branch of the Intent axis. The orchestrator already runs the Intent axis in standard mode (PR description vs diff, lockfile drift, generator drift); `--reconcile` adds a deterministic claim-extraction pass that produces `UNCLASSIFIED` placeholders for the Intent subagent to classify.
 
-Spec-grammar inference is best-effort: an EBNF-like clause
-`ZoneID = 1*( unreserved / pct-encoded )` produces an arbitrary returning
-strings matching `[A-Za-z0-9._~-]+` or `%[0-9A-Fa-f]{2}` sequences. The
-generator coverage is documented in the harness skeleton, never silently.
+| Field | Value |
+|-------|-------|
+| Entry point | `scripts/derivation/run.py` |
+| Classifications | `GAP` / `SCOPE-ADD` / `DECISION-OVERRIDE` / `CONSISTENT` (LLM-assigned) |
+| Default severity | `GAP: Medium` · `SCOPE-ADD: Low` · `DECISION-OVERRIDE: Medium` · `CONSISTENT: —` |
+| Stale-artifact handling | `> 30 days` caps severity at `Low`; `> 90 days` summary-only (no findings) — disable both with `--strict` |
+| Allowlist file | `.derivation-ignore` (parsed by `derivation/_common.py:load_ignore`) |
 
-## `--apply-safe` writers
+### Input forms
 
-The opt-in `--apply-safe` flag enables three writers under
-`scripts/apply_safe/`. Each writer:
+| Token | Meaning |
+|-------|---------|
+| `@auto` | `~/.claude/output/{project}/forge/forge-*.md`, latest `apex/{task-id}/` plan, `docs/{proposals,design,rfcs,adr}/*.md`, current branch's PR body |
+| `@pr` | Current branch's PR body via `gh pr view` |
+| `<path>` | Explicit file or directory |
+| `gh:pr:<N>` | PR by number via `gh api` |
+| `gh:issue:<owner>/<repo>#<N>` | Issue by reference |
+| GitHub issue URL | Parsed → `gh api` |
 
-- Reads inputs from a JSON spec (passed via stdin or `--input`).
-- Computes the proposed change.
-- Shows the diff to the user via a `print()` block.
-- Prompts `Apply this change? (y/N) `.
-- Writes the file only on `y` / `yes`.
+Multiple inputs via comma: `--reconcile @auto,gh:pr:42`. `gh` failures degrade silently — only available sources reach the subagent.
 
-`-y` (yes-to-all) bypasses the prompt. The `confirm_write()` helper in
-`scripts/apply_safe/_common.py` centralizes the gate so all three writers
-share the same UX.
+### Output
 
-### `version_sync.py`
+`derivation/run.py --json` emits:
 
-Aligns version artifacts (package.json, marketplace.json, CHANGELOG, git
-tag) to a single canonical value. Selection rule: the version associated
-with the **most-recently-touched** source per `git log -1 --format=%H --
-<file>`. Idempotent (running twice is a no-op when sources already
-agree). Never touches the git tag — the user creates tags explicitly.
+```json
+{
+  "lens": "derivation",
+  "artifacts": [{"path": …, "kind": …, "freshness_days": …, "claim_count": …}],
+  "findings": [
+    {"lens": "derivation", "classification": "UNCLASSIFIED", "severity": …,
+     "location": "<artifact>:<line>", "finding": "<claim text>",
+     "recommendation": "Compare this <kind> against the diff. Classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT.",
+     "confidence": 0,
+     "artifact_path": …, "artifact_freshness_days": …}
+  ]
+}
+```
 
-### `description_sync.py`
+The Intent axis subagent reads this alongside its standard inputs, replaces each `UNCLASSIFIED` with the correct tag, and assigns final severity per the spec. `GAP` escalates to `High` when the artifact is a forge plan AND the claim is a numbered acceptance criterion.
 
-Aligns structured description fields under a strict **full-agreement
-guard**: write the new value only when every present source already
-agrees on the new value. Partial agreement (e.g., 2 of 3 sources match) →
-refuses with `refusing: partial-agreement` and exits 1. The guard is the
-Risk #3 mitigation — auto-fixing descriptions when sources disagree could
-overwrite a deliberate divergence.
+---
 
-### `failing_test_writer.py`
+## `--apply-safe` (opt-in writers)
 
-Given a confirmed bug + repro vector, writes one focused failing test
-under the host repo's test layout. Python: `tests/<area>/test_<bug-id>.py`.
-TypeScript: `tests/<bug-id>.test.ts`. Never modifies existing tests —
-additive only. The test is a single `assert` (or `expect`) that fails on
-the unfixed code and passes after the user fixes it.
+Reading-only is the default. `--apply-safe` enables three surgical writers under `scripts/apply_safe/`, each gated by a diff preview + per-file `y/N` confirmation (or `-y` to bypass).
 
-## Execution flow
+| Writer | Module | Scope |
+|--------|--------|-------|
+| `version_sync` | `apply_safe/version_sync.py` | `package.json` ↔ `.claude-plugin/marketplace.json` (`version` or `metadata.version`) |
+| `description_sync` | `apply_safe/description_sync.py` | `package.json` ↔ `marketplace.json` (`description` or `metadata.description`) |
+| `failing_test_writer` | `apply_safe/failing_test_writer.py` | Single failing test per confirmed bug — additive only |
 
-Detail of the orchestrator pass:
+### `version_sync`
 
-1. Run audit (`audit_signals.py` → `audit_summary.py`) → report-header context.
-2. Build detection (`build_detect.py`). Report tool + availability.
-3. Lens fan-out (6 lenses in parallel; see `references/lenses.md`).
-4. Spec-conformance fetch + iteration on flagged specs.
-5. Property-fuzz harness synthesis when a property lib is present.
-6. Run the canonical test command (`build_detect`'s `test_command`); pipe verdict into the sub-80 iteration phase.
-7. If `--apply-safe`: invoke the three writers with per-file confirmation.
-8. Emit the canonical report from `templates/code-ultrareview.md` with the `## 🪛 --apply-safe summary` section listing writes applied + skipped.
+Most-recently-touched source wins (`git log -1 --format=%ct -- <file>`). Idempotent — running twice when sources agree is a `no-op`. Never touches the git tag. CHANGELOG-only edits are out of scope.
+
+### `description_sync`
+
+Strict full-agreement guard: writes the new value only when every present source already shares one value. Partial agreement (e.g. 2 of 3 match) → `refusing: partial-agreement` and exit 1. The guard prevents overwriting a deliberate divergence. Legitimate divergences belong in `.coherence-ignore`.
+
+### `failing_test_writer`
+
+Given a confirmed bug + repro vector + expected failure message, writes one focused failing test under the host repo's test layout (Python `tests/test_<slug>.py` or TypeScript `tests/<slug>.test.ts`). Refuses to overwrite an existing test (`refusing: existing-test`). The body is a single `assert` (or `expect`) that fails on the unfixed code and passes after the user's fix.
+
+### Confirmation gate
+
+`apply_safe/_common.py:confirm_write` is the single source of truth:
+
+```python
+def confirm_write(path, diff_text, yes=False) -> bool:
+    print(f"\n--- {path} ---")
+    print(diff_text.rstrip())
+    print("--- end diff ---")
+    if yes:
+        return True
+    answer = input(f"Apply this change to {path}? (y/N) ").strip().lower()
+    return answer in ("y", "yes")
+```
+
+No writer modifies a file outside of `confirm_write` returning `True`. Reviewing the diff, declining (`n` / blank), and re-running is the expected loop.
+
+### Report integration
+
+When `--apply-safe` is set, the report's `## 🪛 --apply-safe summary` section lists each writer's status (`applied` / `skipped` / `no-op` / `refusing: …`) with target files. The section is omitted when the flag is absent — keeps clean reports free of unused sections.
+
+---
+
+## Flag composition
+
+The four flags compose orthogonally — the orchestrator runs each independently in its assigned phase:
+
+| Combination | Behavior |
+|-------------|----------|
+| `--verify-build --mutation-test` | Mutation tests join Phase 2 tool-findings (Tests axis); build verification runs Phase 3.5. Different phases, no interaction. |
+| `--verify-build --reconcile @auto` | Build verification runs Phase 3.5 on sub-80 findings; Intent axis runs the derivation sub-mode in Phase 3. Build-verification does not act on Intent findings (axis filter). |
+| `--mutation-test --apply-safe` | Mutation findings surface in the report's Tests-axis section; `--apply-safe` writers run after synthesis. The writers do not modify code-under-test in response to mutation findings — that belongs to a follow-up fix pass via `/apex` or `/oneshot`. |
+| `--verify-build --mutation-test --reconcile @auto --apply-safe` | Full opt-in stack. Phase 2 extended (mutation), Phase 3 enriched (reconcile derivation), Phase 3.5 active (build verification), post-synthesis writers gated by confirmation. |
+
+**Without a flag, its feature is off** — load-bearing default. The orchestrator never calls `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, or the `apply_safe/` writers unless its flag is set.
 
 ## Caveats
 
-- The execution phase runs the repo's own test suite. Unit tests with side
-  effects (filesystem writes, network calls) will execute. The user is
-  expected to invoke the skill on a clean working tree; a warning fires
-  when `git status --porcelain` is non-empty.
-- The full-agreement guard for description sync is conservative on
-  purpose. When a repo legitimately wants divergent descriptions, the
-  user allowlists the pair in `.coherence-ignore` and the lens stops
-  flagging — `description_sync` is then never invoked.
-- Property-fuzz harness synthesis is a starting point, not a finished
-  test. Users still write the property — the skeleton just removes the
-  setup friction.
-- `--apply-safe` never modifies production logic. Three classes only:
-  manifest version sync, structured-field description sync (full-agreement
-  guard), failing test write. Logic changes belong to `/simplify` and the
-  future `/modernize` skill.
+- Build verification runs the repo's own test suite. Side-effecting tests (filesystem writes, network calls) will execute — invoke `code-ultrareview` on a clean tree.
+- Mutation testing runtime can exceed 10 minutes per language. The default 600 s timeout is permissive; long suites may need `MUTATION_TIMEOUT=1800` or longer.
+- `--apply-safe` never modifies production logic. Logic changes belong to a fix-pass skill, not a review skill.
+- `--reconcile @auto` silently drops planning artifacts with malformed frontmatter (unclosed `---`, tab indentation, unquoted colons). Verify with `head -20 ~/.claude/output/{project}/forge/forge-*.md` before relying on `@auto`.

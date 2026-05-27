@@ -1,0 +1,15 @@
+[
+  {
+    "fileName": "README.md",
+    "lineNumber": 5,
+    "ruleNames": ["MD013", "line-length"],
+    "ruleDescription": "Line length",
+    "errorContext": "this line is too long ..."
+  },
+  {
+    "fileName": "docs/guide.md",
+    "lineNumber": 42,
+    "ruleNames": ["MD034", "no-bare-urls"],
+    "ruleDescription": "Bare URL used"
+  }
+]

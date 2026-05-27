@@ -65,19 +65,24 @@ DEFAULT_COMPOUND_IDIOM_WHITELIST = frozenset({
 })
 
 # --- Minimal YAML parser ----------------------------------------------------
-# Mirrors skills/brand-voice/scripts/utils.py:parse_yaml_minimal — kept here so
-# humanize-en remains self-sufficient when brand-voice is not installed (the
-# `-f` fallback path in SKILL.md). Only the BRAND-VOICE.md frontmatter shape
-# is supported: nested dicts (2-space indent), scalar lists, strings, booleans,
-# integers. No anchors, no multi-line strings, no flow sequences across lines.
+# Parity counterpart of brand-voice's parse_yaml_minimal — kept here so
+# humanize-en remains self-sufficient when brand-voice is not installed
+# (the `-f` fallback path in SKILL.md). See
+# https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/scripts/utils.py
+# for the mirrored implementation. Only the BRAND-VOICE.md frontmatter
+# shape is supported: nested dicts (2-space indent), scalar lists, strings,
+# booleans, integers. No anchors, no multi-line strings, no flow sequences
+# across lines.
 
 
 def parse_yaml_minimal(yaml_text):
     """Parse the BRAND-VOICE.md frontmatter subset of YAML. Returns a dict.
 
-    Mirrors `skills/brand-voice/scripts/utils.py:parse_yaml_minimal` — when one
-    changes the other must too. ValueError raised on parse error carries a
-    `.line` attribute (1-indexed) for callers that surface the offending line.
+    Parity counterpart of `parse_yaml_minimal` in the brand-voice skill
+    (https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/scripts/utils.py)
+    — when one changes the other must too. ValueError raised on parse error
+    carries a `.line` attribute (1-indexed) for callers that surface the
+    offending line.
     """
     lines = yaml_text.splitlines()
     pos = [0]

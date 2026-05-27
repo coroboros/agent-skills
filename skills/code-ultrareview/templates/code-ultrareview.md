@@ -1,13 +1,11 @@
 # Code ultrareview — {slug}
 
-**Base:** {base} · **Target:** {target} · **Rule:** {rung}
-**Scope:** {feature summary from audit_summary.py — e.g., "skills repo · 12 files · public API · normative spec (RFC 6874) · manifest"} · **Estimated wall-clock:** {Nm Ss}
-**Rules baseline:** {CLAUDE.md chain + N rule files | skipped — no rules baseline found}
-**Reviewed:** {N} changed files{, or: unresolvable — <hint>}
-**{repo_kind_header}**
-**Findings:** {severity_counts.🔴} 🔴 · {severity_counts.🟠} 🟠 · {severity_counts.🟢} 🟢 (verified) · {unverified count} unverified
-
-_Omit the **Findings** line on a fully clean review. The **Repo:** line always renders — `Repo: unknown — heuristics not specialized` when the classifier returns `unknown` so readers see the lens fan-out's repo-kind context._
+**Base:** `{base}` · **Target:** `{target}` · **Rule:** {rung}
+**Repo:** {repo_kind} · **Languages:** {languages}
+**Rules baseline:** {CLAUDE.md chain + N files | skipped — no rules baseline found}
+**Reviewed:** {N} changed file(s)
+**Coherence axis:** {active | inactive}
+**Findings:** {n_red} 🔴 · {n_orange} 🟠 · {n_green} 🟢 (verified) · {n_unverified} unverified
 
 > **Section discipline (mandatory).** Every `##` heading below is canonical — render it verbatim, including the emoji prefix and the `---` separator above it. Do not rename, merge, reorder, or invent sections. Every severity sub-section inside `## 🔎 Findings` renders even when its count is `0` (body: `_None._`). The model is a formatter here, not an editor.
 >
@@ -15,68 +13,55 @@ _Omit the **Findings** line on a fully clean review. The **Repo:** line always r
 
 ---
 
-## 📋 Lens summary
+## 📋 Axis summary
 
-Per-lens status snapshot — all seven canonical lenses appear, including clean ones. The derivation lens row reads `— skipped (no --reconcile)` when the conditional lens is not run; the prose-hygiene lens row reads `— skipped (--no-prose-hygiene)` when opted out. Status reflects the highest verified severity within the lens: 🔴 if any verified High, else 🟠 if any verified Medium, else 🟢.
+Per-axis status snapshot — all 8 canonical axes appear, including clean ones. The Coherence row reads `— inactive (no metadata in diff)` when the conditional axis did not launch. Status reflects the highest verified severity in the axis (🔴 → 🟠 → 🟢).
 
-When the prose-hygiene lens runs, the report header (above this section) carries a one-line `Prose rules: <discovered list, or "baseline only">` after the existing **Rules baseline** line — so readers see which user/project rules layered onto the portable baseline.
-
-| Lens | Status | Verified | Unverified | Top finding |
+| Axis | Status | Verified | Unverified | Top finding |
 |------|--------|----------|------------|-------------|
-| rules | {lens_summary[0].status} | {N} | {N} | {top_finding or —} |
-| bugs-drift | {lens_summary[1].status} | {N} | {N} | {top_finding or —} |
-| docs-version | {lens_summary[2].status} | {N} | {N} | {top_finding or —} |
-| tests-blindspots | {lens_summary[3].status} | {N} | {N} | {top_finding or —} |
-| coherence-graph | {lens_summary[4].status} | {N} | {N} | {top_finding or —} |
-| derivation | {lens_summary[5].status} | {N} | {N} | {top_finding or — skipped (no --reconcile)} |
-| prose-hygiene | {lens_summary[6].status} | {N} | {N} | {top_finding or — skipped (--no-prose-hygiene)} |
+| correctness | {🔴\|🟠\|🟢} | {N} | {N} | {top_finding_or_dash} |
+| simplification | {…} | {N} | {N} | {…} |
+| tests | {…} | {N} | {N} | {…} |
+| documentation | {…} | {N} | {N} | {…} |
+| style | {…} | {N} | {N} | {…} |
+| intent | {…} | {N} | {N} | {…} |
+| design-api | {…} | {N} | {N} | {…} |
+| performance | {…} | {N} | {N} | {…} |
+| coherence | {🔴\|🟠\|🟢\|— inactive (no metadata in diff)} | {N} | {N} | {…} |
 
 ---
 
 ## 🔎 Findings
 
-Verified findings split by severity into three sub-sections, each prefixed by its canonical emoji. Row IDs carry a per-section prefix (`H1`, `H2`, …, `M1`, …, `L1`, …) so individual findings stay addressable across the report and downstream prompts. Unverified findings (confidence < 80, A2-routed) render as a fourth sub-section, prefixed `⚠️` and ID-prefixed `U1`, `U2`, …
+Verified findings split by severity into three sub-sections, each prefixed by its canonical emoji. Row IDs carry a per-section prefix (`H1`, `H2`, …, `M1`, …, `L1`, …). Unverified findings (confidence < 80, A2-routed) render as a fourth sub-section, prefixed `⚠️` and ID-prefixed `U1`, `U2`, …
 
-Render every sub-section in this exact order, including when the count is zero (body: `_None._`). The Severity column is dropped from the row tables — severity lives in the sub-section heading, not in a redundant cell.
+Render every sub-section in this exact order, including when the count is zero (body: `_None._`). The Severity column is dropped from the row tables — severity lives in the sub-section heading.
 
 ### 🔴 High ({count} findings)
 
-| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+| # | Axis | Tier | Location | Conf | Finding | Recommendation |
 |---|------|------|----------|------|---------|----------------|
-| H1 | rules | Important | `path:line` | 95 | What is wrong | What to do — rule: "{verbatim rule line}" |
+| H1 | correctness | Important | `path:line` | 95 | What is wrong | What to do — rule: "{verbatim rule line}" |
 
 ### 🟠 Medium ({count} findings)
 
-| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+| # | Axis | Tier | Location | Conf | Finding | Recommendation |
 |---|------|------|----------|------|---------|----------------|
-| M1 | bugs-drift | Important | `path:line` | 85 | … | … |
+| M1 | design-api | Important | `path:line` | 85 | … | … |
 
 ### 🟢 Low ({count} findings)
 
-| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+| # | Axis | Tier | Location | Conf | Finding | Recommendation |
 |---|------|------|----------|------|---------|----------------|
-| L1 | docs-version | Nit | `path:line` | 85 | … | … |
+| L1 | documentation | Nit | `path:line` | 85 | … | … |
 
 ### ⚠️ Unverified ({count} findings)
 
 Findings with confidence < 80 surfaced per A2 (no silent drop). Severity is downgraded to Low at routing time. Each row's recommendation states the score so the reader can decide whether to verify locally, strengthen the test, or drop.
 
-| # | Lens | Location | Conf | Finding | Recommendation |
+| # | Axis | Location | Conf | Finding | Recommendation |
 |---|------|----------|------|---------|----------------|
-| U1 | tests-blindspots | `path:line` | 65 | `[unverified]` … | Sub-80 confidence (65) — verify locally before action. … |
-
----
-
-## 🧭 Deferred to sibling skills
-
-Out-of-lane observations — pointers only, not reviewed here.
-
-- **Security:** {one line} → `/security-review`
-- **Performance / simplification:** {one line} → `/simplify`
-- **Depth / regression risk:** {one line} → `/ultrareview`
-- **Possibly-stale API knowledge:** {one line} → `/find-docs`
-
-_Omit any bullet with nothing to point at._
+| U1 | tests | `path:line` | 65 | `[unverified]` … | Sub-80 confidence (65) — verify locally before action. … |
 
 ---
 
@@ -84,26 +69,46 @@ _Omit any bullet with nothing to point at._
 
 - {Specific positive — a correct edge-case handled, a test that encodes intent}
 
+_Body reads `_None surfaced this run._` when the positives feed is empty._
+
 ---
 
-## 🕸️ Coherence-graph status
+## ⚖️ Verdict
 
-Per-sub-graph pass/fail summary when the coherence-graph lens ran. Each row reports `pass`, `fail (N findings)`, or `skipped — <reason>` (e.g. `gh unavailable`, `WebFetch unavailable`).
+**{verdict.label}** — {verdict.rationale}
 
-| Sub-graph | Status |
-|-----------|--------|
-| description | pass · fail (N) · skipped — <reason> |
-| version | pass · fail (N) · skipped — <reason> |
-| capability | pass · fail (N) · skipped — <reason> |
-| cross-reference | pass · fail (N) · skipped — <reason> |
-| example | pass · fail (N) · skipped — <reason> |
-| spec-conformance | pass · fail (N) · skipped — <reason> |
+Drivers:
+- {driver 1}
+- {driver 2}
+
+Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fix-then-ship; else Ship. Unverified findings are excluded.
+
+---
+
+## 🧰 Tools skipped
+
+Tools the battery would have run but couldn't. Install commands surface verbatim from `scope.json["tools_skipped"]`. Body reads `_None — every detected tool ran._` when empty.
+
+| Tool | Axis | Install |
+|------|------|---------|
+| `oasdiff` | design-api | `brew install oasdiff` |
+
+---
+
+## 🛡️ What I did NOT check
+
+Coverage boundaries — explicit by design.
+
+- **Security** — Defers to `/security-review` or `https://github.com/anthropics/claude-code-security-review`. Distinct concern with its own deeper review pattern.
+- **Runtime performance** — Static patterns only (N+1, sync I/O). No benchmarks, no flamegraphs, no memory traces.
+- **Flaky test detection** — Structural smells only. Flake requires repeated runs the skill does not perform.
+- **Tools listed in `## 🧰 Tools skipped` above** — install them to recover the coverage. Body switches to `none this run.` when zero tools were skipped.
 
 ---
 
 ## 📐 Derivation coverage
 
-_Present only when the derivation lens ran (`--reconcile` resolved to non-empty input). Reports artifact coverage + classification counts._
+_Present only when `--reconcile` resolved to non-empty input. Reports artifact coverage + classification counts._
 
 | Field | Value |
 |-------|-------|
@@ -115,50 +120,6 @@ _Present only when the derivation lens ran (`--reconcile` resolved to non-empty 
 | CONSISTENT | {N} |
 
 **Notable callouts:** {top 1–3 highest-severity findings, one line each}
-
-_When freshness > 90 days for an artifact, only the row above shows it — no per-claim findings emit. Per-repo `.derivation-ignore` overrides supply finer control._
-
----
-
-## ⚖️ Verdict
-
-**{verdict.label}** — {verdict.rationale}
-
-_When `verdict.drivers` has ≥ 2 entries, render as a bullet list below the line above:_
-
-Drivers:
-- {driver 1}
-- {driver 2}
-
-Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fix-then-ship; else Ship. Unverified findings are excluded. Full spec: `references/verdict-logic.md`.
-
----
-
-## 🛠️ Action plan
-
-_When `action_plan.zero_findings` is true, render a single line in place of this section:_
-
-🟢 All clear — no action plan needed.
-
-_Otherwise render one block per cluster in `action_plan.clusters`, in the order returned (🔴 → 🟠 → 🟢 cross-lens). When `cluster.fallback_used` is true, prepend the blockquote note shown below._
-
-### {cluster.severity_label}
-
-> No specialized skill installed for {cluster.lens} — routed to {cluster.command}.
-
-```
-{cluster.prompt_text}
-```
-
-_When `action_plan.unverified_block` is non-null, render a separate sub-section after all clusters:_
-
-### Unverified follow-up
-
-```
-{action_plan.unverified_block.prompt_text}
-```
-
-Routing chain (preferred → fallback) lives in `references/skill-routing.md`. Final fallback is always `/apex`.
 
 ---
 

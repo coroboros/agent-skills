@@ -88,10 +88,10 @@ CLUSTERS = {
         # confidence_threshold (80) is the routing boundary, NOT a silent
         # drop — sub-80 findings surface as "[unverified]" with the
         # rationale "Sub-80 confidence ({score}) — verify locally before
-        # action." (the A2 no-silent-drop contract). See references/aggregation.md
-        # for the full no-silent-drop semantics. The old (pre-rewrite)
-        # behavior dropped sub-80 findings entirely; consumers reading
-        # post-rewrite reports MUST expect per-severity sub-sections
+        # action." (the A2 no-silent-drop contract). See
+        # `scripts/synthesis_core.py::apply_a2` for the routing primitives
+        # and `scripts/synthesize.py` for the Phase 5 composer. Consumers
+        # reading reports MUST expect per-severity sub-sections
         # (### 🔴 High / ### 🟠 Medium / ### 🟢 Low / ### ⚠️ Unverified) under
         # ## 🔎 Findings — every ## section is emoji-prefixed and HR-separated.
         "producer": "code-ultrareview",
@@ -100,21 +100,19 @@ CLUSTERS = {
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.
         # Sections every rendered report must carry, each with its canonical
-        # emoji prefix. `--apply-safe summary` is opt-in (only emitted when
-        # --apply-safe was used) — required in the TEMPLATE but not in the
-        # contract; see
+        # emoji prefix. `📐 Derivation coverage` and `🪛 --apply-safe summary`
+        # are opt-in (only emitted under their respective flags) — required
+        # in the TEMPLATE but not in the contract; see
         # `tests/code-ultrareview/test_report_template.py::CANONICAL_SECTIONS`
         # for the broader template-level list. The emoji prefix is part of the
         # section identity — `## Findings` (without emoji) is non-conformant.
         "report_required_sections": (
-            "📋 Lens summary",
+            "📋 Axis summary",
             "🔎 Findings",
-            "🧭 Deferred to sibling skills",
             "✅ What looks good",
-            "🕸️ Coherence-graph status",
-            "📐 Derivation coverage",
             "⚖️ Verdict",
-            "🛠️ Action plan",
+            "🧰 Tools skipped",
+            "🛡️ What I did NOT check",
         ),
         # The four mandatory sub-sections inside `## 🔎 Findings`. Render in
         # this order, every time, even when count is 0 (body `_None._`).
@@ -129,28 +127,36 @@ CLUSTERS = {
             "🟢 Low",
             "⚠️ Unverified",
         ),
-        "report_lens_keys": (
-            "rules", "bugs-drift", "docs-version", "tests-blindspots",
-            "coherence-graph", "derivation", "prose-hygiene",
+        # The 8 canonical axes (always-on) plus the conditional 9th
+        # (`coherence`, activated when metadata files appear in the diff).
+        # Mirror `scripts/synthesis_core.py::CANONICAL_AXES` + `CONDITIONAL_AXES`.
+        "report_axis_keys": (
+            "correctness", "simplification", "tests", "documentation",
+            "style", "intent", "design-api", "performance", "coherence",
         ),
         # High/Medium/Low retained for compatibility; Important/Nit/
         # Pre-existing added per Anthropic Managed Code Review and emitted
-        # by `scripts/aggregation.py::assign_anthropic_tier`. Both schemes
-        # coexist on the same finding row — readers can parse either.
+        # by `scripts/synthesis_core.py::assign_anthropic_tier`. Both
+        # schemes coexist on the same finding row — readers can parse either.
         "report_severities": (
             "High", "Medium", "Low",
             "Important", "Nit", "Pre-existing",
         ),
         "confidence_threshold": 80,
+        # Mandatory entries in `## 🛡️ What I did NOT check`. The skill
+        # surfaces them in every report — `/security-review` is the
+        # explicit command pointer for the security deferral; the other
+        # entries describe out-of-scope categories rather than commands.
         "deferral_targets": (
-            "/security-review", "/simplify", "/ultrareview", "/find-docs",
+            "/security-review",
+            "Runtime performance",
+            "Flaky test detection",
         ),
-        # The six canonical coherence sub-graphs surfaced in the
-        # `## Coherence-graph status` table. Drift in this tuple breaks
-        # the structural test in test_report_template.py.
-        "coherence_sub_graphs": (
-            "description", "version", "capability",
-            "cross-reference", "example", "spec-conformance",
+        # Conventional Comments labels emitted in the JSONL alongside the
+        # markdown. Drift here breaks `tests/code-ultrareview/test_findings_jsonl.py`
+        # and any downstream consumer piping through `gh pr comment`.
+        "jsonl_labels": (
+            "issue", "suggestion", "nitpick", "question",
         ),
     },
 }

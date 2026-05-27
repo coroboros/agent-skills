@@ -17,7 +17,7 @@ Battle-tested patterns for shipping immersive web design to real devices, distil
 
 ## Tokenization
 
-Code samples in this file use literal values (durations, opacities, viewport units, scroll offsets) for clarity. In production, these MUST bind to DESIGN.md token namespaces — `motion.duration-*` for durations, `motion.ease-*` for easings, `opacity.*` for overlays, `heights.*` for viewport heights, `scrollTriggers.*` for fold offsets. Consume them as CSS custom properties (`var(--duration-reveal-slow)`) or Tailwind v4 utilities (`duration-reveal-slow`). Magic numbers in JS (`SPACER_MULTIPLIER`, scroll thresholds) read the corresponding `var(--scroll-*)` at startup, never hardcode. Full convention: `skills/design-system/references/extended-tokens.md`. Validate with `/design-system audit-extensions DESIGN.md`.
+Code samples in this file use literal values (durations, opacities, viewport units, scroll offsets) for clarity. In production, these MUST bind to DESIGN.md token namespaces — `motion.duration-*` for durations, `motion.ease-*` for easings, `opacity.*` for overlays, `heights.*` for viewport heights, `scrollTriggers.*` for fold offsets. Consume them as CSS custom properties (`var(--duration-reveal-slow)`) or Tailwind v4 utilities (`duration-reveal-slow`). Magic numbers in JS (`SPACER_MULTIPLIER`, scroll thresholds) read the corresponding `var(--scroll-*)` at startup, never hardcode. Full convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Validate with `/design-system audit-extensions DESIGN.md`.
 
 ## Viewport units
 

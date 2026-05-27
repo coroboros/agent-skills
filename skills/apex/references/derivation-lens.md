@@ -2,7 +2,7 @@
 
 Apex's step-04 examine compares the actual diff against the saved plan (`02-plan.md`) and classifies each divergence. Catches the failure class typecheck/lint/tests cannot: "implemented the wrong thing" or "added scope creep".
 
-**Canonical taxonomy** lives at `skills/code-ultrareview/references/lens-derivation.md`. This file is apex's standalone profile of that taxonomy plus the detection + inline-fallback protocol so apex's examine stays runnable when code-ultrareview is not installed.
+**Canonical taxonomy** lives in code-ultrareview's Intent axis brief — see [github.com/coroboros/agent-skills/blob/main/skills/code-ultrareview/references/axes/intent.md](https://github.com/coroboros/agent-skills/blob/main/skills/code-ultrareview/references/axes/intent.md). When code-ultrareview is installed alongside apex, the brief lives at `~/.claude/skills/code-ultrareview/references/axes/intent.md` (or `~/.agents/skills/code-ultrareview/...`); when it is not, apex carries the standalone profile + inline-fallback protocol below so apex's examine stays runnable.
 
 ## Classifications
 
@@ -75,5 +75,6 @@ After the lens runs:
 
 ## See also
 
-- `skills/code-ultrareview/references/lens-derivation.md` — canonical taxonomy, freshness rules, allowlist (`.derivation-ignore`), full finding schema. Apex inherits the four classifications and default severities verbatim.
-- `skills/code-ultrareview/scripts/derivation/run.py` — Python orchestrator apex invokes when available.
+- [code-ultrareview Intent axis brief](https://github.com/coroboros/agent-skills/blob/main/skills/code-ultrareview/references/axes/intent.md) — canonical taxonomy: the four classifications, default severities, freshness rules, allowlist (`.derivation-ignore`). Apex inherits verbatim.
+- [code-ultrareview ultra-execution reference](https://github.com/coroboros/agent-skills/blob/main/skills/code-ultrareview/references/ultra-execution.md) — operational details for `--reconcile`: orchestrator entry point, `@auto` / `@pr` / `gh:pr:` input modes, freshness caps, full finding schema.
+- [code-ultrareview derivation orchestrator](https://github.com/coroboros/agent-skills/blob/main/skills/code-ultrareview/scripts/derivation/run.py) — Python script apex invokes when available; the Detection protocol section above shows the dual-path resolution (`~/.claude/skills/...` install OR repo fallback).

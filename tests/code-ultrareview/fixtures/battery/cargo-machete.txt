@@ -1,0 +1,3 @@
+cargo-machete found the following unused dependencies in /project/Cargo.toml:
+serde_json
+regex

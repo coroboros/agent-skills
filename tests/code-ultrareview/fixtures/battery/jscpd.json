@@ -1,0 +1,11 @@
+{
+  "statistics": {"total": {"lines": 200}},
+  "duplicates": [
+    {
+      "firstFile": {"name": "src/a.js", "start": 10, "end": 20},
+      "secondFile": {"name": "src/b.js", "start": 30, "end": 40},
+      "lines": 11,
+      "tokens": 75
+    }
+  ]
+}

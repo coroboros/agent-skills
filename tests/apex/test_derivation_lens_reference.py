@@ -22,7 +22,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 REF = REPO_ROOT / "skills" / "apex" / "references" / "derivation-lens.md"
 STEP_04 = REPO_ROOT / "skills" / "apex" / "steps" / "step-04-examine.md"
 TEMPLATE_04 = REPO_ROOT / "skills" / "apex" / "templates" / "04-examine.md"
-UPSTREAM_REF = REPO_ROOT / "skills" / "code-ultrareview" / "references" / "lens-derivation.md"
+UPSTREAM_REF = REPO_ROOT / "skills" / "code-ultrareview" / "references" / "axes" / "intent.md"
 
 
 class TestDerivationLensReference(unittest.TestCase):
@@ -52,9 +52,9 @@ class TestDerivationLensReference(unittest.TestCase):
         )
 
     def test_reference_cites_upstream_canonical(self):
-        """Reference cites code-ultrareview's lens-derivation.md as canonical taxonomy."""
+        """Reference cites code-ultrareview's Intent axis brief as canonical taxonomy."""
         self.assertIn(
-            "code-ultrareview/references/lens-derivation.md",
+            "code-ultrareview/references/axes/intent.md",
             self.ref,
             "Reference must cite the upstream canonical taxonomy",
         )

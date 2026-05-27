@@ -66,8 +66,8 @@ class TestReportSchema(unittest.TestCase):
         for token in ("Base:", "Target:", "Rule:"):
             self.assertIn(token, text)
         self.assertTrue(
-            any(k in text for k in REVIEW["report_lens_keys"]),
-            "no canonical lens key in realistic fixture",
+            any(k in text for k in REVIEW["report_axis_keys"]),
+            "no canonical axis key in realistic fixture",
         )
         self.assertTrue(
             any(s in text for s in REVIEW["report_severities"]),
@@ -82,34 +82,41 @@ class TestReportSchema(unittest.TestCase):
             _missing_sections(text, REVIEW["report_required_sections"]), []
         )
 
-    def test_coherence_graph_status_in_required_sections(self):
-        self.assertIn("🕸️ Coherence-graph status", REVIEW["report_required_sections"])
+    def test_axis_summary_in_required_sections(self):
+        self.assertIn("📋 Axis summary", REVIEW["report_required_sections"])
 
-    def test_derivation_coverage_in_required_sections(self):
-        self.assertIn("📐 Derivation coverage", REVIEW["report_required_sections"])
+    def test_tools_skipped_in_required_sections(self):
+        self.assertIn("🧰 Tools skipped", REVIEW["report_required_sections"])
 
-    def test_derivation_lens_key_present(self):
-        self.assertIn("derivation", REVIEW["report_lens_keys"])
+    def test_did_not_check_in_required_sections(self):
+        self.assertIn("🛡️ What I did NOT check", REVIEW["report_required_sections"])
 
-    def test_prose_hygiene_lens_key_present(self):
-        self.assertIn("prose-hygiene", REVIEW["report_lens_keys"])
-        # The five legacy keys + derivation + prose-hygiene = seven total.
-        self.assertEqual(len(REVIEW["report_lens_keys"]), 7)
+    def test_correctness_axis_key_present(self):
+        self.assertIn("correctness", REVIEW["report_axis_keys"])
 
-    def test_realistic_fixture_carries_scope_header(self):
+    def test_design_api_axis_key_present(self):
+        # design-api is the kebab key — `Design/API` is the display name.
+        self.assertIn("design-api", REVIEW["report_axis_keys"])
+
+    def test_coherence_axis_key_present(self):
+        # Coherence is the conditional 9th axis; lives in the key list.
+        self.assertIn("coherence", REVIEW["report_axis_keys"])
+
+    def test_axis_keys_count_is_nine(self):
+        # 8 canonical + 1 conditional (coherence) = 9 total keys.
+        self.assertEqual(len(REVIEW["report_axis_keys"]), 9)
+
+    def test_realistic_fixture_carries_header_tokens(self):
         text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
-        # Scope + Estimated wall-clock replace the legacy Tier / Tier
-        # rationale / Token estimate header fields after the always-Ultra
-        # refactor.
-        self.assertIn("Scope:", text)
-        self.assertIn("Estimated wall-clock:", text)
+        # New 8-axis header surfaces Repo + Languages + Reviewed + the
+        # Coherence axis state. The legacy `Tier rationale` / `Token estimate`
+        # fields are gone.
+        self.assertIn("**Repo:**", text)
+        self.assertIn("**Languages:**", text)
+        self.assertIn("**Reviewed:**", text)
+        self.assertIn("**Coherence axis:**", text)
         self.assertNotIn("Tier rationale:", text)
         self.assertNotIn("Token estimate:", text)
-
-    def test_realistic_fixture_lists_all_six_sub_graphs(self):
-        text = (FIX / "realistic_code_ultrareview.md").read_text(encoding="utf-8")
-        for sub_graph in REVIEW["coherence_sub_graphs"]:
-            self.assertIn(sub_graph, text, f"sub-graph {sub_graph!r} missing")
 
     def test_realistic_fixture_carries_all_findings_subsections(self):
         """The four mandatory `### <emoji> <severity>` sub-sections inside
@@ -162,14 +169,21 @@ class TestConfidenceThresholdSemantics(unittest.TestCase):
         self.assertIn("### ⚠️ Unverified", text)
         self.assertIn("[unverified]", text)
         self.assertIn("verify locally before action", text)
-        # Always-Ultra refactor: no dead tier flag in the fixture.
-        self.assertNotIn("-t deep", text)
-        self.assertNotIn("recommend Deep pass", text)
-        # The legacy pre-fix layout had `### Verified` / `### Unverified`
-        # plain headings; the new layout splits Verified by severity and the
+        # The pre-rebuild layout used `### Verified` / `### Unverified` plain
+        # headings; the new layout splits Verified by severity and the
         # Unverified heading carries the ⚠️ prefix.
         self.assertNotIn("### Verified\n", text)
         self.assertNotIn("### Unverified\n", text)
+
+
+class TestJsonlLabelContract(unittest.TestCase):
+    """WS-5 JSONL surface — Conventional Comments labels emitted alongside
+    the markdown. Drift here breaks any consumer piping the JSONL through
+    `gh pr comment`."""
+
+    def test_jsonl_labels_present(self):
+        for label in ("issue", "suggestion", "nitpick", "question"):
+            self.assertIn(label, REVIEW["jsonl_labels"])
 
 
 if __name__ == "__main__":

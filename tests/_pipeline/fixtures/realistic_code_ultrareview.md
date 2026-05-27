@@ -1,42 +1,54 @@
 # Code ultrareview — add-rate-limiter
 
-**Base:** 49d9a32 · **Target:** HEAD · **Rule:** feature-merge-base
-**Scope:** 6 files · public API · manifest · 2 planning artifacts (1d fresh) · **Estimated wall-clock:** 4m 30s
-**Rules baseline:** CLAUDE.md chain + 3 rule files
-**Reviewed:** 6 changed files
+**Base:** `49d9a32` · **Target:** `HEAD` · **Rule:** feature-merge-base
+**Repo:** app · **Languages:** typescript, json
+**Rules baseline:** CLAUDE.md chain + 3 files
+**Reviewed:** 6 changed file(s)
+**Coherence axis:** active
 **Findings:** 3 🔴 · 2 🟠 · 0 🟢 (verified) · 1 unverified
+
+> **Section discipline (mandatory).** Every `##` heading below is canonical — render it verbatim, including the emoji prefix and the `---` separator above it. Do not rename, merge, reorder, or invent sections. Every severity sub-section inside `## 🔎 Findings` renders even when its count is `0` (body: `_None._`). The model is a formatter here, not an editor.
+>
+> **Terminal echo is mandatory.** The full report below prints to the chat-terminal on every invocation. The `-s` flag is purely additive — it writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. It does not gate, truncate, or summarise what the user sees in chat. Terminal output and saved file are byte-for-byte identical.
 
 ---
 
-## 📋 Lens summary
+## 📋 Axis summary
 
-| Lens | Status | Verified | Unverified | Top finding |
+Per-axis status snapshot — all 8 canonical axes appear, including clean ones. The Coherence row reads `— inactive (no metadata in diff)` when the conditional axis did not launch.
+
+| Axis | Status | Verified | Unverified | Top finding |
 |------|--------|----------|------------|-------------|
-| rules | 🔴 | 1 | 0 | console.log for request logging in src/api |
-| bugs-drift | 🔴 | 1 | 0 | Window resets on every request — boundary off-by-one |
-| docs-version | 🟠 | 1 | 0 | RATE_LIMIT_RPM env var undocumented |
-| tests-blindspots | 🟠 | 1 | 0 | No test for concurrent-burst path |
-| coherence-graph | 🟢 | 0 | 1 | — |
-| derivation | 🔴 | 1 | 0 | AC4 (per-IP allowlist override) GAP |
+| correctness | 🔴 | 1 | 0 | Window resets on every request — off-by-one on the boundary check |
+| simplification | 🟢 | 0 | 0 | — |
+| tests | 🟠 | 1 | 0 | No test for the concurrent-burst path; empty-IP input unhandled |
+| documentation | 🟠 | 1 | 0 | New `RATE_LIMIT_RPM` env var is undocumented in the Configuration table |
+| style | 🔴 | 1 | 0 | New module uses `console.log` for request logging in src/api |
+| intent | 🔴 | 1 | 0 | Per-IP allowlist override absent from diff — spec mandated it |
+| design-api | 🟢 | 0 | 0 | — |
+| performance | 🟢 | 0 | 0 | — |
+| coherence | 🟢 | 0 | 1 | — |
 
 ---
 
 ## 🔎 Findings
 
+Verified findings split by severity into three sub-sections, each prefixed by its canonical emoji. Row IDs carry a per-section prefix (`H1`, `H2`, …, `M1`, …, `L1`, …). Unverified findings (confidence < 80, A2-routed) render as a fourth sub-section, prefixed `⚠️` and ID-prefixed `U1`, `U2`, …
+
 ### 🔴 High (3 findings)
 
-| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+| # | Axis | Tier | Location | Conf | Finding | Recommendation |
 |---|------|------|----------|------|---------|----------------|
-| H1 | rules | Important | `src/api/limiter.ts:24` | 95 | New module uses `console.log` for request logging | Use the project logger — rule: "NEVER use console.* in src/api (.claude/rules/logging.md)" |
-| H2 | bugs-drift | Important | `src/api/limiter.ts:41` | 90 | Window resets on every request — off-by-one on the boundary check `>=` vs `>` | Use `>` so the Nth request in the window is allowed |
-| H3 | derivation | Important | `src/api/limiter.ts` (GAP) | 90 | AC4 (per-IP allowlist override) — spec mandates the flag; diff omits it | Implement the allowlist override behind the documented env var |
+| H1 | correctness | Important | `src/api/limiter.ts:41` | 90 | Window resets on every request — off-by-one on the boundary check `>=` vs `>` | Use `>` so the Nth request in the window is allowed |
+| H2 | style | Important | `src/api/limiter.ts:24` | 95 | New module uses `console.log` for request logging | Use the project logger — rule: "NEVER use console.* in src/api (.claude/rules/logging.md)" |
+| H3 | intent | Important | `src/api/limiter.ts` | 90 | Per-IP allowlist override absent from diff — spec mandates the flag | Implement the allowlist override behind the documented env var |
 
 ### 🟠 Medium (2 findings)
 
-| # | Lens | Tier | Location | Conf | Finding | Recommendation |
+| # | Axis | Tier | Location | Conf | Finding | Recommendation |
 |---|------|------|----------|------|---------|----------------|
-| M1 | tests-blindspots | Important | `src/api/limiter.ts:55` | 88 | No test for the concurrent-burst path; empty-IP input unhandled | Add a burst test and guard `ip === ""` |
-| M2 | docs-version | Important | `README.md:1` | 85 | New `RATE_LIMIT_RPM` env var is undocumented | Add it to the Configuration table |
+| M1 | tests | Important | `src/api/limiter.ts:55` | 88 | No test for the concurrent-burst path; empty-IP input unhandled | Add a burst test and guard `ip === ""` |
+| M2 | documentation | Important | `README.md:1` | 85 | New `RATE_LIMIT_RPM` env var is undocumented in the Configuration table | Add it to the Configuration table |
 
 ### 🟢 Low (0 findings)
 
@@ -44,18 +56,11 @@ _None._
 
 ### ⚠️ Unverified (1 finding)
 
-| # | Lens | Location | Conf | Finding | Recommendation |
+Findings with confidence < 80 surfaced per A2 (no silent drop). Severity is downgraded to Low at routing time. Each row's recommendation states the score so the reader can decide whether to verify locally, strengthen the test, or drop.
+
+| # | Axis | Location | Conf | Finding | Recommendation |
 |---|------|----------|------|---------|----------------|
-| U1 | coherence-graph | `package.json ↔ marketplace.json` | 70 | `[unverified]` Description divergence | Sub-80 confidence (70) — verify locally before action. |
-
----
-
-## 🧭 Deferred to sibling skills
-
-Out-of-lane observations — pointers only, not reviewed here.
-
-- **Security:** the limiter keys on a client-supplied `X-Forwarded-For` header → `/security-review`
-- **Performance / simplification:** the in-memory map grows unbounded → `/simplify`
+| U1 | coherence | `package.json:5` | 70 | `[unverified]` Description divergence between `package.json` and `marketplace.json` | Sub-80 confidence (70) — verify locally before action. |
 
 ---
 
@@ -66,90 +71,38 @@ Out-of-lane observations — pointers only, not reviewed here.
 
 ---
 
-## 🕸️ Coherence-graph status
-
-| Sub-graph | Status |
-|-----------|--------|
-| description | fail (1) |
-| version | pass |
-| capability | pass |
-| cross-reference | pass |
-| example | pass |
-| spec-conformance | skipped — no normative-spec mentions |
-
----
-
-## 📐 Derivation coverage
-
-| Field | Value |
-|-------|-------|
-| Artifacts compared | 1 (`forge-rate-limiter.md` (0d)) |
-| AC coverage | 3/4 acceptance criteria |
-| GAP | 1 (1 high-confidence) |
-| SCOPE-ADD | 0 |
-| DECISION-OVERRIDE | 0 |
-| CONSISTENT | 3 |
-
-**Notable callouts:** AC4 (per-IP allowlist override) — spec mandates the flag; diff omits it. GAP / High.
-
----
-
 ## ⚖️ Verdict
 
-**Needs work** — 3 🔴 Important (1 in rules, 1 in bugs-drift, 1 in derivation) — fix red before ship.
+**Needs work** — 3 🔴 Important (1 in correctness, 1 in style, 1 in intent) — fix red before ship.
 
 Drivers:
-- 1 in rules
-- 1 in bugs-drift
-- 1 in derivation
+- 1 in correctness
+- 1 in style
+- 1 in intent
+
+Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fix-then-ship; else Ship. Unverified findings are excluded.
 
 ---
 
-## 🛠️ Action plan
+## 🧰 Tools skipped
 
-### 🔴 Fix now (3 findings)
+Tools the battery would have run but couldn't. Install commands surface verbatim from `scope.json["tools_skipped"]`.
 
-```
-/apex apply rules fixes (1 finding):
-  - src/api/limiter.ts:24 — console.log used for request logging in src/api
-      → Use the project logger; rule: "NEVER use console.* in src/api"
-```
-
-```
-/apex apply bugs-drift fixes (1 finding):
-  - src/api/limiter.ts:41 — Window resets on every request (boundary off-by-one on `>=`)
-      → Use `>` so the Nth request in the window is allowed
-```
-
-```
-/apex apply derivation fixes (1 finding):
-  - src/api/limiter.ts (GAP) — AC4 (per-IP allowlist override) missing; spec mandates the flag
-      → Implement the allowlist override behind the documented env var
-```
-
-### 🟠 Fix soon (2 findings)
-
-> No specialized skill installed for docs-version 🟠 — routed to /apex.
-
-```
-/apex apply docs-version fixes (1 finding):
-  - README.md:1 — RATE_LIMIT_RPM env var undocumented
-      → Add it to the Configuration table
-```
-
-```
-/apex apply tests-blindspots fixes (1 finding):
-  - src/api/limiter.ts:55 — No test for concurrent-burst path; empty-IP input unhandled
-      → Add a burst test and guard `ip === ""`
-```
-
-### Unverified follow-up
-
-```
-/apex investigate and decide on the following unverified findings:
-  - package.json ↔ marketplace.json — Description divergence [coherence-graph]
-```
+| Tool | Axis | Install |
+|------|------|---------|
+| `oasdiff` | design-api | `brew install oasdiff` |
 
 ---
 
-_Report-only. To fix: `/apex -f code-ultrareview.md` or `/oneshot "<finding>"`._
+## 🛡️ What I did NOT check
+
+Coverage boundaries — explicit by design.
+
+- **Security** — Defers to `/security-review` or `https://github.com/anthropics/claude-code-security-review`. Distinct concern with its own deeper review pattern. The limiter keys on a client-supplied `X-Forwarded-For` header — worth a security pass.
+- **Runtime performance** — Static patterns only (N+1, sync I/O). No benchmarks, no flamegraphs, no memory traces. The in-memory map grows unbounded; profile under load.
+- **Flaky test detection** — Structural smells only. Flake requires repeated runs the skill does not perform.
+- **Tools listed in `## 🧰 Tools skipped` above** — install them to recover the coverage.
+
+---
+
+_Report-only by default. To fix: `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` or `/oneshot "<finding>"`. Opt-in `--apply-safe` writes manifest sync + failing tests with diff preview + per-file confirmation._

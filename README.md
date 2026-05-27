@@ -71,7 +71,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
-| Coding | [code-ultrareview](#code-ultrareview) | opus | Fresh-eyes review — seven parallel lenses (rules, bugs-drift, docs-version, tests-blindspots, coherence-graph, derivation via `--reconcile`, prose-hygiene over PR body + commits + user-facing docs with `--no-prose-hygiene` opt-out), repo-kind-aware heuristics (skills/app/library/docs/monorepo/python/rust/go; override via `--repo-kind` / `.code-ultrareview.yaml`), iteration on sub-80 findings, gated `--apply-safe`. Closes with 🔴/🟠/🟢 markers + verdict + delegation prompts. Distinct from Anthropic's remote `/ultrareview` | Claude |
+| Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review — Correctness · Simplification · Tests · Documentation · Style · Intent · Design/API · Performance (+ Coherence on metadata changes). 5-phase pipeline: scope → npx/uvx tool battery → 8 parallel axis reviewers → Haiku validators on sub-80 → synthesis with A2 no-silent-drop + Conventional Comments JSONL. Closes with "What I did NOT check" — defers security to `/security-review`, runtime perf, flaky detection. Zero auto-install, graceful skip on missing native tools. Opt-in `--verify-build` / `--mutation-test` / `--reconcile` / `--apply-safe`. Distinct from Anthropic's remote `/ultrareview` | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
 | Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
@@ -281,53 +281,83 @@ Optionally chains to `award-design` and `design-system`.
 
 #### code-ultrareview
 
-Fresh-eyes code review at full strength, in-session. Pinned to `model: opus` and `effort: max` so every invocation gets the deepest reasoning budget regardless of session defaults. Seven parallel lens subagents — rules, bugs-drift with spec-claim triggering, docs-version, tests-blindspots, coherence-graph for cross-artifact drift, derivation for code↔planning-artifact reconciliation, prose-hygiene for PR body + commits + user-facing docs — run on every invocation. The audit phase classifies the repo into one of nine `repo_kind` values (`skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`) and propagates it to every lens, so a skills repo is reviewed as a skills repo (drift = bundled scripts vs SKILL.md, tests at `tests/<name>/`, version in `marketplace.json`) — not as code-with-docstrings. Override via `--repo-kind <kind>` or `.code-ultrareview.yaml` at repo root. Sub-80 findings re-pass with build verification. Spec-conformance fetches and quotes named normative specs (RFC, WHATWG, ISO/IEC, OpenAPI). Property-fuzz harness synthesis when `fast-check` or `hypothesis` is present. Opt-in `--apply-safe` writes manifest version sync, structured-field description sync (full-agreement guard), and one failing test per confirmed bug. Distinct from Anthropic's remote `/ultrareview` — same lens family, in-session on the user's subscription.
+Eight-axis judgment code review at full strength, in-session. Pinned to `model: opus` and `effort: max` — every invocation gets the deepest reasoning budget regardless of session defaults. The 8 always-on axes — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance — run as 8 parallel `Explore` subagents fed by a deterministic tool battery. Coherence joins as a 9th axis when manifest / `SKILL.md` / `tsconfig.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` / root `README.md` appears in the diff. Sub-80 findings re-pass through Haiku validators against the verbatim Anthropic rubric — promoted to ≥80 or demoted with explicit reason; A2 no-silent-drop preserves every finding in `### ⚠️ Unverified` when neither path lands. Tool battery prefers `npx` / `uvx` wrappers (zero-install for the JS + Python majority) with PATH-binary fallback for native tools (`oasdiff`, `atlas`, Go tools, `cargo-machete`, `vale`); missing tools surface install commands in the report. Every report closes with `What I did NOT check` (security → `/security-review`; runtime perf; flaky detection; any skipped tools). Distinct from Anthropic's remote `/ultrareview` — same goal, in-session on the user's subscription.
 
 **Usage**
 
 ```bash
-/code-ultrareview                                # full review, print report
-/code-ultrareview -s                             # save the report for /apex -f
-/code-ultrareview -b origin/main                 # review HEAD against an explicit base
-/code-ultrareview --reconcile @auto              # add derivation lens with auto-detected planning artifacts
-/code-ultrareview --repo-kind skills             # override the audit-phase classifier (one-off)
-/code-ultrareview --apply-safe                   # full review + gated low-risk fixes
-/code-ultrareview --include-prose                # also compare README freeform prose
-/code-ultrareview --no-prose-hygiene             # skip the PR body + commits prose-hygiene lens
+/code-ultrareview                              # full 8-axis review, print report
+/code-ultrareview -s                           # save the report + JSONL for /apex -f
+/code-ultrareview -b origin/main               # review HEAD against an explicit base
+/code-ultrareview --verify-build               # promote sub-80 findings via real build verification
+/code-ultrareview --mutation-test              # add Stryker / Pitest / mutmut on changed files
+/code-ultrareview --reconcile @auto            # add Intent-axis derivation sub-mode
+/code-ultrareview --apply-safe                 # full review + gated low-risk fixes
+/code-ultrareview --preflight                  # list tools the battery would run, no review
+/code-ultrareview --axes correctness,tests     # subset of axes
 ```
 
 **Flags**
 
 | Flag | Description |
 |------|-------------|
-| `-s` / `-S` | Save the report to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` / force no-save |
+| `-s` / `-S` | Save the report + JSONL to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.{md,jsonl}` / force no-save |
 | `-b <ref>` | Override the review base (skip auto-detection) |
-| `--reconcile <input>` | Activate the derivation lens. `<input>` accepts `@auto`, `@pr`, a file path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL. Comma-separate multiple inputs. Findings classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT with severity capped by artifact freshness |
-| `--repo-kind <kind>` | Override the audit-phase classifier. `<kind>` is one of `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo override lives at `.code-ultrareview.yaml` (`repo_kind: <kind>`); the flag wins on conflict. Invalid value exits 2 |
-| `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), failing-test author. Diff preview + per-file confirmation. Never modifies production logic |
-| `--include-prose` | Coherence-graph lens compares README freeform paragraphs (default: structured fields only) |
-| `--no-prose-hygiene` | Skip the prose-hygiene lens — the PR body + title (when a PR is open), commits between base and HEAD, and user-facing `*.md` files in the diff. Lens is always-on by default; the lens-summary row reads `— skipped (--no-prose-hygiene)` when set |
-| `--remote` | Reserved for phase-2 remote-sandbox escalation |
+| `--repo-kind <kind>` | Override the scope classifier. `<kind>` ∈ `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo at `.code-ultrareview.yaml`; the flag wins on conflict. Invalid value exits 2 |
+| `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
+| `--verify-build` | Phase 3.5 — run build verification on sub-80 axis findings BEFORE Haiku validators. Confirmed findings promote +30 confidence and skip the validator pass |
+| `--mutation-test` | Stryker (JS/TS), Pitest (JVM), or mutmut (Python) on changed files only. Surviving mutants route to the Tests axis as 🟠 Medium |
+| `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), one failing test per confirmed bug. Diff preview + per-file confirmation |
+| `--include-prose` | Coherence axis compares README freeform paragraphs (default: structured fields only) |
+| `--axes <list>` | Comma-separated axes subset (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
+| `--preflight` | List detected tools per repo_kind + install commands for missing ones. Informational, no install |
 
-**What it does**
+**The five phases**
 
-- **Audit phase** — extracts deterministic signals (LOC, public-API touch, normative-spec claims, manifest delta, planning-artifact breadth, security surface) plus a repo-kind classifier resolving the repo into one of nine values (`skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`); surfaces both Scope + Estimated wall-clock and a `Repo: <kind>` header line. No tier routing — every lens runs at full strength and reads the resolved kind from its `## Repo-kind branches` section.
-- **Resolve target** — dirty tree → `git diff HEAD` + untracked files; clean tree → branch-vs-base via a deterministic ladder (a rules-declared base wins), always resolved to a diffable ancestor.
-- **Seven lenses** — parallel read-only subagents on every invocation; derivation joins when `--reconcile` resolves to non-empty input, prose-hygiene runs by default and skips on `--no-prose-hygiene`. A1 spec-claim triggering, iteration on sub-80 findings, spec-conformance fetch, property-fuzz harness synthesis are always-on. Review runs against the project's own `CLAUDE.md` + local/global rule hierarchy.
-- **Prose hygiene auto-ingest** — when a PR is open for the current branch and `gh` is on PATH, the lens reads the PR title and body via `gh pr view`; it always reads commit subjects and bodies between the resolved base and HEAD; it scans user-facing `*.md` in the diff (README, CHANGELOG, RELEASE-NOTES, `docs/`). Out-of-scope: `SKILL.md`, `CLAUDE.md`, `evals.json`, `.claude/rules/`, `skills/<name>/` — model-instruction files. Ships a portable baseline (length budgets, internal-leak regex, authoring-process traces, defensive negations, AI signature footers, AI vocabulary, em-dash density, rule-restatement bullets, conventional-commit shape with auto-detect adoption); layers any rules it finds at `~/.claude/rules/{writing,git-conventions,privacy}.md`, repo `CLAUDE.md`, and `.claude/rules/*.md` on top, with project rules winning on conflict.
-- **Score + route** — each finding scored 0–100; sub-80 surfaces as `[unverified — recommend Deep pass]` (never silent-dropped). Out-of-lane findings → pointer to `/security-review` / `/simplify` / `/ultrareview` / `/find-docs`, never a finding.
-- **Actionable closing block** — every report ends with a seven-lens summary table (every canonical lens, including clean ones, with 🔴/🟠/🟢 status), a deterministic verdict (`Ship` / `Fix-then-ship` / `Needs work` computed from severity markers + Anthropic tier, never a placeholder), and per-cluster paste-ready delegation prompts. The action plan routes each cluster to the most-specialized installed skill (`/humanize-en` for prose tone drift, `/oneshot` for low-severity polish), falling back to `/apex` when absent. Never advertises a skill the user doesn't have installed.
-- **Scannable section layout** — every `##` section is emoji-prefixed and separated by a `---` horizontal rule (📋 Lens summary · 🔎 Findings · 🧭 Deferred · ✅ What looks good · 🕸️ Coherence-graph · 📐 Derivation · ⚖️ Verdict · 🛠️ Action plan · 🪛 --apply-safe). Findings split into four mandatory sub-sections — `### 🔴 High`, `### 🟠 Medium`, `### 🟢 Low`, `### ⚠️ Unverified` — each rendered even when its count is zero. Same layout in the terminal and in the `-s` saved report.
-- **Report-only by default** — bridge to `/apex -f` or `/oneshot` for fixes. Opt-in `--apply-safe` writes manifest sync, description sync, and failing tests only (never production logic).
+1. **Scope** — `scripts/scope.py`. Deterministic, no LLM. Resolves diff (clean → `resolve_base.sh` ladder; dirty → `git diff HEAD` + untracked files inlined), classifies repo into one of 9 kinds, reads the CLAUDE.md chain, detects languages, decides whether the conditional Coherence axis activates. Emits `scope.json`.
+2. **Tool battery** — `scripts/run_battery.sh`. Per-language dispatch over the 14-tool matrix below. `npx`/`uvx` preferred; PATH binary fallback; missing tools emit `WARN: <tool> not found — install: <cmd>` + land in `scope.json["tools_skipped"]`. The battery NEVER auto-installs. Every finding carries `confidence: 100` and skips the validator phase.
+3. **Axis review** — 8 parallel `Explore` subagents (9 with Coherence). Each receives `scope.json`, `tool-findings.jsonl` filtered to its own axis, the diff, and its axis brief (`references/axes/<axis>.md`). Each emits findings with 0–100 confidence per `references/anthropic-verbatim.md`.
+4. **Validation** — One Haiku validator per sub-80 finding, batched ≤10 parallel. Re-scores against the rubric + re-checks that the cited CLAUDE.md rule actually exists in `claude_md_chain`. A2 no-silent-drop: promoted (≥80), demoted-with-reason, or `### ⚠️ Unverified` — never omitted. `--verify-build` runs at Phase 3.5 BEFORE this step.
+5. **Synthesis** — Dedup by `(file, line_range, finding_hash)`. Inter-axis precedence `correctness > design-api > simplification > tests > documentation > style > intent > performance > coherence`. Verdict ∈ `Ship` / `Fix-then-ship` / `Needs work`. Markdown report to terminal + `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`; JSONL alongside with Conventional Comments labels (`issue` / `suggestion` / `nitpick` / `question`). Mandatory `What I did NOT check` closing section.
+
+**Tool battery — Tool → Axis → Install command**
+
+The skill prefers `npx` / `uvx` (zero-install, cached after first run at `~/.npm/_npx` / `~/.cache/uv`). Native binaries are PATH-only. The skill skips missing tools gracefully — install only if you want the axis coverage they provide.
+
+| Tool | Axis | Wrapper | Install (if no wrapper, or to avoid first-run cold start) |
+|------|------|---------|-----------------------------------------------------------|
+| `knip` | Simplification (JS/TS dead code) | `npx` | `npm i -D knip` |
+| `jscpd` | Simplification (cross-language duplication) | `npx` | `npm i -D jscpd` |
+| `markdownlint-cli2` | Documentation (Markdown lint) | `npx` | `npm i -D markdownlint-cli2` |
+| `api-extractor` | Design/API (TS public surface) | `npx` | `npm i -D @microsoft/api-extractor` |
+| `lizard` | Simplification (cyclomatic complexity) | `uvx` | `pipx install lizard` |
+| `vulture` | Simplification (dead Python code) | `uvx` | `pipx install vulture` |
+| `semgrep` | Correctness (generic) + Performance (bundled perf-rules) | `uvx` | `pipx install semgrep` |
+| `vale` | Documentation (prose lint) | — (Go binary) | `brew install vale` |
+| `oasdiff` | Design/API (OpenAPI breaking changes) | — | `brew install oasdiff` |
+| `atlas` | Design/API (DB migration lint) | — | `brew install ariga/tap/atlas` |
+| `deadcode` | Simplification (Go unreachable) | — | `go install golang.org/x/tools/cmd/deadcode@latest` |
+| `gocyclo` | Simplification (Go complexity) | — | `go install github.com/fzipp/gocyclo/cmd/gocyclo@latest` |
+| `dupl` | Simplification (Go duplication) | — | `go install github.com/mibk/dupl@latest` |
+| `cargo-machete` | Simplification (Rust unused deps) | — | `cargo install cargo-machete` |
+
+Bundled Semgrep rules at `skills/code-ultrareview/references/perf-rules/`: `n-plus-one-sqlalchemy.yml`, `n-plus-one-sequelize.yml`, `sync-io-async-py.yml` — route to the Performance axis when triggered.
+
+Run `/code-ultrareview --preflight` to see exactly what would run on the current repo + install commands for the missing ones.
+
+**Rules**
+
+- **Zero auto-install** — the battery never runs `brew install`, `cargo install`, `go install`, `pip install`, `npm install -g`. Users install natives explicitly.
+- **A2 no-silent-drop** — every sub-80 finding either gets promoted (≥80), demoted with explicit reason, or surfaces in `### ⚠️ Unverified`.
+- **`What I did NOT check`** — every report closes with this section listing security (defers to `/security-review`), runtime perf (non-goal), flaky detection (non-goal), and any tools from `scope.json["tools_skipped"]`.
+- **Cite precisely** — every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>`.
 
 **Sources**
 
-- [anthropics/knowledge-work-plugins — code-review](https://github.com/anthropics/knowledge-work-plugins/tree/main/engineering/skills/code-review) — review-dimension framing, report shape
-- [anthropics/claude-plugins-official — code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) — parallel independent agents + 0–100 confidence scoring
+- [anthropics/claude-plugins-official — code-review](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-review) — verbatim 0/25/50/75/100 rubric, HIGH SIGNAL criteria, false-positive taxonomy, agent-assumption rule, parallel-reviewer + Haiku-validator pattern
+- [anthropics/claude-plugins-official — code-simplifier](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) — Simplification axis precedent (nested ternaries forbidden, "fewer lines over readability" forbidden)
+- [Anthropic — Code Review docs](https://code.claude.com/docs/en/code-review) — Managed Code Review severity tiers (Important / Nit / Pre-existing) adopted in synthesis
 - [Anthropic — `/ultrareview` docs](https://code.claude.com/docs/en/ultrareview) — remote sandbox + multi-agent fleet + per-finding independent verification (the upstream this skill distinguishes itself from — in-session vs remote, distinct namespace)
-- [Anthropic — Code Review docs](https://code.claude.com/docs/en/code-review) — Managed Code Review severity tiers (Important / Nit / Pre-existing) adopted in this skill's report
-- [Anthropic — `/simplify` (commands reference)](https://code.claude.com/docs/en/commands) — three-agent parallel fan-out pattern (bundled skill, cited as in-session-fan-out precedent)
-- [Anthropic — Lessons from Building Claude Code: How We Use Skills](https://x.com/trq212/status/2033949937936085378) — `adversarial-review` skill (fresh-eyes subagent critique + iterate until findings degrade to nitpicks) as the closest pattern blueprint
 
 </details>
 

@@ -99,7 +99,7 @@ From step-00-init:
 
 If `{from_file}` is a **spec** — H1 starts with `# Spec:` AND the file contains a `## Workstreams` H2 subheader — accept the spec's workstream acceptance criteria **verbatim** instead of re-inferring in § 5.
 
-- Log: `Spec AC accepted verbatim from {from_file}` in the analysis output.
+- Log: `Spec AC accepted verbatim from {from_file}` in the analysis output. <!-- noqa: internal-label -->
 - Skip the AC inference step (§ 5 below) — the spec's AC are the contract.
 - Negative scope: copy each workstream's `## Not Included` block when present; copy the spec-level `## Non-goals` section when no per-workstream negative scope exists.
 

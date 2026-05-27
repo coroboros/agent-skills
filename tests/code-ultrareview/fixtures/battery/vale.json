@@ -1,0 +1,26 @@
+{
+  "README.md": [
+    {
+      "Action": {"Name": "replace", "Params": ["alternatives"]},
+      "Check": "MyStyle.WordList",
+      "Description": "",
+      "Line": 10,
+      "Match": "options",
+      "Message": "Use 'alternatives' instead of 'options'.",
+      "Severity": "warning",
+      "Span": [1, 5]
+    }
+  ],
+  "docs/guide.md": [
+    {
+      "Action": {},
+      "Check": "Vale.Spelling",
+      "Description": "",
+      "Line": 30,
+      "Match": "teh",
+      "Message": "Did you mean 'the'?",
+      "Severity": "error",
+      "Span": [10, 12]
+    }
+  ]
+}

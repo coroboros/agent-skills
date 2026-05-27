@@ -1,0 +1,23 @@
+[
+  {
+    "file": "src/foo.ts",
+    "owners": ["src/index.ts"],
+    "files": false,
+    "exports": [
+      {"name": "unusedExport", "line": 10, "col": 14}
+    ],
+    "types": [
+      {"name": "UnusedType", "line": 20, "col": 1}
+    ]
+  },
+  {
+    "file": "src/dead-file.ts",
+    "files": true
+  },
+  {
+    "file": "package.json",
+    "devDependencies": [
+      {"name": "stale-dep"}
+    ]
+  }
+]

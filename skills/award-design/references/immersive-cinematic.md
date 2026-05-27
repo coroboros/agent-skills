@@ -93,7 +93,7 @@ gsap.to(video, {
 
 Sound is rare and differentiating. Howler.js for management. A splash gate or persistent mute toggle is mandatory; browser autoplay policies block unmuted audio. Micro-interaction sounds stay under 0.3s; ambient at 0.05–0.15 volume. WebM/Opus first, MP3 fallback. Bruno Simon and Messenger demonstrate sound as a sensory layer rather than gimmick.
 
-Time durations and easings consume `motion.duration-*` and `motion.ease-*` extension tokens from `DESIGN.md`. Pinned-section thresholds and fold offsets bind to `scrollTriggers.*`. See `skills/design-system/references/extended-tokens.md`.
+Time durations and easings consume `motion.duration-*` and `motion.ease-*` extension tokens from `DESIGN.md`. Pinned-section thresholds and fold offsets bind to `scrollTriggers.*`. See [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
 
 ## Production hardening
 
