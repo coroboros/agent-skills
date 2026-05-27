@@ -1,10 +1,8 @@
 """Tests for skills/code-ultrareview/scripts/synthesis_core.py.
 
-Carries the A2 no-silent-drop contract, build-verification iteration,
-verdict algorithm, severity-tier classification, and canonical ordering
-from the prior `test_aggregation.py` + `test_verdict.py`. Findings use
-the new `axis` field (vs the prior `lens` field) since this module is
-axis-aware.
+Pins the A2 no-silent-drop contract, build-verification iteration,
+verdict algorithm, severity-tier classification, and canonical ordering.
+Findings carry the `axis` field — the module is axis-aware.
 
 Pinned contracts:
   - A2: sub-80 findings surface with the unverified prefix, severity

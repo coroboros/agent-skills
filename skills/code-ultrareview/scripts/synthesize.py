@@ -199,11 +199,7 @@ def build_axis_summary(
     the axis (🔴 → 🟠 → 🟢 → `—` when zero verified)."""
     rows: list[dict] = []
     coherence_active = bool(scope.get("activates_coherence"))
-    axes = list(CANONICAL_AXES)
-    if coherence_active:
-        axes.append("coherence")
-    else:
-        axes.append("coherence")
+    axes = [*CANONICAL_AXES, "coherence"]
     for axis in axes:
         verified_in_axis = [f for f in verified if f.get("axis") == axis]
         unverified_in_axis = [f for f in unverified if f.get("axis") == axis]

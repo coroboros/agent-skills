@@ -93,7 +93,7 @@ def filter_sub_threshold(findings: list[dict]) -> list[dict]:
     Excludes:
     - confidence-0 findings — A2 already drops these (false positives).
     - confidence-100 findings — deterministic tool battery output;
-      validators never see them (spec AC).
+      validators never see them.
     - confidence ≥ threshold — already verified; no validator pass.
     """
     out: list[dict] = []

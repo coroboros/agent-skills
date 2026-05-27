@@ -3,8 +3,8 @@
 
 Reads raw outputs from the deterministic tool battery (`run_battery.sh`) and
 emits canonical findings as JSONL. One parser per tool. Every finding carries
-`confidence: 100` — tool findings are deterministic and skip the validator
-phase (WS-4).
+`confidence: 100` — tool findings are deterministic and skip the Phase 4
+validator phase.
 
 Routing matrix (TOOL_TO_AXIS) maps each tool to one of the 8 axes:
 

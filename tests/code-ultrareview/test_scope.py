@@ -9,8 +9,11 @@ end-to-end via temp-repo init.
 from __future__ import annotations
 
 import importlib.util
+import json
 import os
+import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -102,6 +105,146 @@ class TestRepoKindClassification(unittest.TestCase):
     def test_invalid_override_raises(self):
         with self.assertRaises(ValueError):
             scope.classify_repo(FIXTURES / "app", override="not-a-kind")
+
+
+class TestRepoKindCompoundCases(unittest.TestCase):
+    """Compound + edge cases beyond the single-kind fixtures."""
+
+    def test_mixed_skills_npm_resolves_to_skills(self):
+        kind, sigs = scope.classify_repo(FIXTURES / "mixed-skills-npm")
+        self.assertEqual(kind, "skills")
+        self.assertIn("npm tooling", sigs["competing_signals"])
+
+    def test_dual_language_resolves_via_precedence(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "Cargo.toml").write_text(
+                "[package]\nname=\"x\"\nversion=\"0.1.0\"\n", encoding="utf-8"
+            )
+            (repo / "go.mod").write_text(
+                "module example.com/x\ngo 1.21\n", encoding="utf-8"
+            )
+            kind, sigs = scope.classify_repo(repo)
+        self.assertEqual(kind, "rust")
+        self.assertIn("Go tooling", sigs["competing_signals"])
+
+    def test_docusaurus_with_package_json_resolves_to_docs(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "docusaurus.config.ts").write_text(
+                "export default { title: \"x\" };\n", encoding="utf-8"
+            )
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "name": "x",
+                    "scripts": {"start": "docusaurus start",
+                                "build": "docusaurus build"},
+                }),
+                encoding="utf-8",
+            )
+            kind, sigs = scope.classify_repo(repo)
+        self.assertEqual(kind, "docs")
+        self.assertIn("npm tooling", sigs["competing_signals"])
+
+    def test_bare_package_json_resolves_to_app_via_permissive_default(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text(
+                json.dumps({"name": "x"}), encoding="utf-8"
+            )
+            kind, sigs = scope.classify_repo(repo)
+        self.assertEqual(kind, "app")
+        self.assertEqual(sigs["package_json_role"], "app")
+        self.assertEqual(sigs["framework_configs"], [])
+
+    def test_monorepo_with_skills_remains_skills(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / ".claude-plugin").mkdir()
+            (repo / ".claude-plugin" / "marketplace.json").write_text(
+                json.dumps({"name": "x"}), encoding="utf-8"
+            )
+            (repo / "skills" / "foo").mkdir(parents=True)
+            (repo / "skills" / "foo" / "SKILL.md").write_text(
+                "---\nname: foo\ndescription: x\n---\n", encoding="utf-8"
+            )
+            (repo / "pnpm-workspace.yaml").write_text("packages:\n  - x\n", encoding="utf-8")
+            kind, sigs = scope.classify_repo(repo)
+        self.assertEqual(kind, "skills")
+        self.assertIn("workspaces", sigs["competing_signals"])
+
+
+class TestRepoKindOverrideMechanism(unittest.TestCase):
+    """Override precedence — flag > config > detection."""
+
+    def test_flag_override_surfaces_detected_signals(self):
+        kind, sigs = scope.classify_repo(FIXTURES / "app", override="skills")
+        self.assertEqual(kind, "skills")
+        self.assertEqual(sigs["override_source"], "--repo-kind flag")
+        self.assertEqual(sigs["package_json_role"], "app")
+
+    def test_config_override_wins_over_detection(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text(
+                json.dumps({"name": "x", "scripts": {"dev": "x"}}), encoding="utf-8"
+            )
+            (repo / ".code-ultrareview.yaml").write_text(
+                "repo_kind: library\n", encoding="utf-8"
+            )
+            kind, sigs = scope.classify_repo(repo)
+        self.assertEqual(kind, "library")
+        self.assertEqual(sigs["override_source"], "config:.code-ultrareview.yaml")
+
+    def test_flag_wins_over_config(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / ".code-ultrareview.yaml").write_text(
+                "repo_kind: library\n", encoding="utf-8"
+            )
+            kind, sigs = scope.classify_repo(repo, override="skills")
+        self.assertEqual(kind, "skills")
+        self.assertEqual(sigs["override_source"], "--repo-kind flag")
+
+    def test_invalid_config_value_falls_through_to_detection(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "Cargo.toml").write_text(
+                "[package]\nname=\"x\"\nversion=\"0.1.0\"\n", encoding="utf-8"
+            )
+            (repo / ".code-ultrareview.yaml").write_text(
+                "repo_kind: not-a-real-kind\n", encoding="utf-8"
+            )
+            kind, sigs = scope.classify_repo(repo)
+        self.assertEqual(kind, "rust")
+        self.assertIsNone(sigs["override_source"])
+
+    def test_quoted_config_value_parses(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / ".code-ultrareview.yaml").write_text(
+                'repo_kind: "skills"  # quoted form\n', encoding="utf-8"
+            )
+            kind, _ = scope.classify_repo(repo)
+        self.assertEqual(kind, "skills")
+
+
+class TestRepoKindCLI(unittest.TestCase):
+    """`--repo-kind` argparse choice constraint — exit 2 on invalid input."""
+
+    @unittest.skipUnless(shutil.which("git"), "git required")
+    def test_invalid_repo_kind_exits_2(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True)
+            r = subprocess.run(
+                [sys.executable, str(SCRIPT), "--repo", str(repo),
+                 "--dirty-tree", "--repo-kind", "not-a-kind"],
+                capture_output=True, text=True, timeout=10,
+            )
+        self.assertEqual(r.returncode, 2)
+        self.assertEqual(r.stdout, "")
+        self.assertIn("invalid choice", r.stderr.lower())
 
 
 # ---------------------------------------------------------------------------

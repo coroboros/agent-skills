@@ -3,7 +3,7 @@
 
 Maps canonical findings to Conventional Comments JSONL — one record per
 line, ready to pipe through `gh pr comment` or any other line-oriented
-consumer. Label routing follows the WS-5 spec:
+consumer. Label routing:
 
     🔴 High  + correctness | design-api          → "issue"
     🟠 Medium + (most axes)                       → "suggestion"

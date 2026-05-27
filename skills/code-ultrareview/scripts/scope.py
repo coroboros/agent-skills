@@ -7,9 +7,8 @@ languages from the diff, and decides whether the conditional Coherence
 axis activates. Emits one JSON object on stdout — `scope.json` — read by
 every downstream phase.
 
-Repo-kind classification is carried verbatim from the prior `audit_signals.py`
-implementation. Precedence: explicit override (CLI flag) > config
-(`.code-ultrareview.yaml`) > filesystem signature detection.
+Repo-kind classification precedence: explicit override (CLI flag) >
+config (`.code-ultrareview.yaml`) > filesystem signature detection.
 
 Coherence activation rule: any of these in the diff →
 `scope.json["activates_coherence"] = true`:
@@ -229,7 +228,7 @@ def resolve_base(repo: Path, override: str | None = None,
 
 
 # ---------------------------------------------------------------------------
-# Repo-kind classification (carried verbatim from audit_signals.py)
+# Repo-kind classification
 # ---------------------------------------------------------------------------
 
 

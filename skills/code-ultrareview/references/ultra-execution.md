@@ -1,6 +1,6 @@
 # Opt-in flag execution — `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`
 
-Reference for the four WS-6 opt-in flags. Defaults are off — these layer on top of the always-on 5-phase pipeline (scope → tool battery → 8 axis reviewers → Haiku validators → synthesis). Each flag has a single load-bearing entry point script; the SKILL.md prose calls these scripts from the orchestrator (main thread).
+Reference for the four opt-in flags. Defaults are off — these layer on top of the always-on 5-phase pipeline (scope → tool battery → 8 axis reviewers → Haiku validators → synthesis). Each flag has a single load-bearing entry point script; the SKILL.md prose calls these scripts from the orchestrator (main thread).
 
 ## `--verify-build` (Phase 3.5 — build verification)
 
@@ -203,7 +203,7 @@ The four flags compose orthogonally — the orchestrator runs each independently
 | `--mutation-test --apply-safe` | Mutation findings surface in the report's Tests-axis section; `--apply-safe` writers run after synthesis. The writers do not modify code-under-test in response to mutation findings — that belongs to a follow-up fix pass via `/apex` or `/oneshot`. |
 | `--verify-build --mutation-test --reconcile @auto --apply-safe` | Full opt-in stack. Phase 2 extended (mutation), Phase 3 enriched (reconcile derivation), Phase 3.5 active (build verification), post-synthesis writers gated by confirmation. |
 
-**Without a flag, its feature is off** — every WS-6 acceptance criterion. The orchestrator never calls `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, or the `apply_safe/` writers unless its flag is set.
+**Without a flag, its feature is off** — load-bearing default. The orchestrator never calls `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, or the `apply_safe/` writers unless its flag is set.
 
 ## Caveats
 

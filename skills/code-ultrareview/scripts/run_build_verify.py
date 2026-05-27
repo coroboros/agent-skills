@@ -2,10 +2,9 @@
 """Phase 3.5 build-verification orchestrator (gated by `--verify-build`).
 
 Composes `build_detect.detect()` (canonical test command per repo type)
-with `synthesis_core.iterate_unverified()` (the +30 / cap-95 / floor-80
-promotion engine carried from the prior aggregation module). Runs BEFORE
-Phase 4 validators — confirmed promotions skip the Haiku phase entirely
-per the WS-6 acceptance criteria.
+with `synthesis_core.iterate_unverified()` (+30 confidence, cap 95,
+floor 80). Runs BEFORE Phase 4 validators — confirmed promotions skip
+the Haiku phase entirely.
 
 Verdict rule:
     - Build exits non-zero AND finding axis ∈ {correctness, tests,

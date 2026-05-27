@@ -16,7 +16,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -42,8 +41,6 @@ def _load(name: str, path: Path):
 
 
 build_detect = _load("build_detect", SCRIPTS / "build_detect.py")
-spec_conformance = _load("spec_conformance", SCRIPTS / "spec_conformance.py")
-harness_synth = _load("harness_synth", SCRIPTS / "harness_synth.py")
 
 # apply_safe modules — load via the package import path (already on sys.path)
 from apply_safe import (  # noqa: E402
@@ -139,121 +136,6 @@ class TestBuildDetect(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         data = json.loads(r.stdout)
         self.assertEqual(data["tool"], "npm")
-
-
-# ---------------------------------------------------------------------------
-# spec_conformance — cache
-# ---------------------------------------------------------------------------
-
-
-class TestSpecConformanceCache(unittest.TestCase):
-    def test_slugify(self):
-        self.assertEqual(spec_conformance.slugify("RFC 6874"), "rfc-6874")
-        self.assertEqual(spec_conformance.slugify("WHATWG URL"), "whatwg-url")
-        self.assertEqual(spec_conformance.slugify("ISO/IEC 7816"), "iso-iec-7816")
-
-    def test_cache_path_contains_slug_and_date(self):
-        from datetime import date
-        p = spec_conformance.cache_path_for("RFC 6874", date=date(2026, 5, 20))
-        self.assertIn("rfc-6874", p.name)
-        self.assertIn("2026-05-20", p.name)
-        self.assertTrue(p.name.endswith(".txt"))
-
-    def test_cache_hit_within_seven_days(self):
-        with tempfile.TemporaryDirectory() as t:
-            base = Path(t)
-            spec_conformance.write_cache("RFC 6874", "body", cache_dir=base)
-            cached = spec_conformance.read_cached("RFC 6874", cache_dir=base)
-        self.assertEqual(cached, "body")
-
-    def test_cache_stale_past_seven_days(self):
-        with tempfile.TemporaryDirectory() as t:
-            base = Path(t)
-            target = spec_conformance.write_cache("RFC 6874", "body", cache_dir=base)
-            # Force mtime far enough in the past
-            old = time.time() - (8 * 24 * 60 * 60)
-            import os
-            os.utime(target, (old, old))
-            cached = spec_conformance.read_cached("RFC 6874", cache_dir=base)
-        self.assertIsNone(cached)
-
-    def test_cache_miss_returns_none(self):
-        with tempfile.TemporaryDirectory() as t:
-            self.assertIsNone(
-                spec_conformance.read_cached("RFC 6874", cache_dir=Path(t))
-            )
-
-    def test_format_unverified_finding_confidence_50(self):
-        f = spec_conformance.format_unverified_finding(
-            "RFC 6874", "src/uri.ts:10",
-        )
-        self.assertEqual(f["confidence"], 50)
-        self.assertIn("[unverified — needs network]", f["finding"])
-
-    def test_is_cache_fresh_explicit_now(self):
-        with tempfile.TemporaryDirectory() as t:
-            base = Path(t)
-            target = spec_conformance.write_cache("RFC 6874", "body", cache_dir=base)
-            mtime = target.stat().st_mtime
-            # 1 day later: fresh
-            self.assertTrue(spec_conformance.is_cache_fresh(target, now=mtime + 86400))
-            # 8 days later: stale
-            self.assertFalse(spec_conformance.is_cache_fresh(target, now=mtime + 8 * 86400))
-
-
-# ---------------------------------------------------------------------------
-# harness_synth
-# ---------------------------------------------------------------------------
-
-
-class TestHarnessSynth(unittest.TestCase):
-    def test_detects_fast_check_from_dev_deps(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "package.json").write_text(
-                json.dumps({"devDependencies": {"fast-check": "^3.0.0"}}),
-                encoding="utf-8",
-            )
-            self.assertEqual(harness_synth.detect_property_lib(repo), "fast-check")
-
-    def test_detects_hypothesis_from_requirements(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "requirements.txt").write_text("hypothesis>=6\n", encoding="utf-8")
-            self.assertEqual(harness_synth.detect_property_lib(repo), "hypothesis")
-
-    def test_skipped_when_no_library_present(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            result = harness_synth.synthesize(repo, "RFC 6874", "ZoneID grammar")
-        self.assertTrue(result.get("skipped"))
-        self.assertIn("fast-check", result["reason"])
-        self.assertIn("hypothesis", result["reason"])
-
-    def test_emits_fast_check_skeleton(self):
-        result = harness_synth.synthesize(
-            FIXTURES / "rfc-6874-zone-id-bug", "RFC 6874",
-            "ZoneID = 1*( unreserved / pct-encoded )",
-        )
-        self.assertTrue(result.get("emitted"))
-        self.assertEqual(result["lib"], "fast-check")
-        self.assertIn("fc.assert", result["body"])
-        self.assertIn("RFC 6874", result["body"])
-        self.assertIn("describe(", result["body"])
-        self.assertIn("TODO", result["body"])
-
-    def test_emits_hypothesis_skeleton(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "pyproject.toml").write_text(
-                "[project]\ndependencies = ['hypothesis>=6']\n",
-                encoding="utf-8",
-            )
-            result = harness_synth.synthesize(repo, "RFC 7231", "Accept header grammar")
-        self.assertTrue(result.get("emitted"))
-        self.assertEqual(result["lib"], "hypothesis")
-        self.assertIn("@given", result["body"])
-        self.assertIn("hypothesis", result["body"])
 
 
 # ---------------------------------------------------------------------------

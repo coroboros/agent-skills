@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Synthesis primitives for code-ultrareview.
 
-Carries the A2 no-silent-drop routing, emoji severity markers, build-
+Owns the A2 no-silent-drop routing, emoji severity markers, build-
 verification iteration, anthropic tier classification, deterministic
-ordering, and verdict algorithm from the prior `aggregation.py`. Reframes
-the 7-lens taxonomy as the 8-axis taxonomy:
+ordering, verdict algorithm, and inter-axis precedence dedup. Single
+source of truth for the 8-axis taxonomy:
 
     Correctness > Design/API > Simplification > Tests > Documentation >
     Style > Intent > Performance > Coherence (conditional)
@@ -12,10 +12,10 @@ the 7-lens taxonomy as the 8-axis taxonomy:
 The order above is the inter-axis precedence: when two or more axes flag
 the same `file:line`, highest severity wins; ties resolve via this order.
 
-Phase 5 (`scripts/synthesize.py` from WS-5) composes these primitives with
-dedup + report emission + JSONL writing. This module owns only the core
-contracts so that WS-3 axis lenses and WS-4 validators can reuse them
-without pulling in synthesis-layer concerns.
+Phase 5 (`scripts/synthesize.py`) composes these primitives with dedup +
+report emission + JSONL writing. This module owns only the core contracts
+so that axis lenses (Phase 3) and Haiku validators (Phase 4) can reuse
+them without pulling in synthesis-layer concerns.
 
 Findings are plain dicts to match the JSON shape axis subagents emit:
 
@@ -58,7 +58,7 @@ CANONICAL_AXES = (
 )
 
 # Inter-axis precedence — highest severity wins; ties resolve via this order.
-# Read by Phase 5 dedup logic in `scripts/synthesize.py` (WS-5).
+# Read by Phase 5 dedup logic in `scripts/synthesize.py`.
 AXIS_PRIORITY = (
     "correctness",
     "design-api",
@@ -336,7 +336,7 @@ def compute_severity_counts(verified: list[dict]) -> dict[str, int]:
 
 
 # ---------------------------------------------------------------------------
-# Inter-axis precedence — WS-5 Phase 5 synthesis dedup
+# Inter-axis precedence — Phase 5 synthesis dedup
 # ---------------------------------------------------------------------------
 
 

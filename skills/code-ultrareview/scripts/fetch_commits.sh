@@ -11,9 +11,8 @@
 # NUL separators keep commit messages with embedded newlines or shell
 # metacharacters intact; the trailing `---\n` lets line-oriented parsers
 # find record boundaries without re-counting NULs. Consumed by the
-# prose-hygiene lens (subject/body length, AI signature footers,
-# conventional-commit shape) and by `scripts/check_prose_hygiene.py
-# --commits-file <path>`.
+# Documentation axis subagent (Phase 3) as input for the prose-hygiene
+# sub-judgment over commit subjects and bodies.
 #
 # Output also includes a header line so consumers know what they're reading:
 #

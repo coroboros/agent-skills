@@ -46,6 +46,22 @@ Apply to four input channels with a tier model:
 
 Allowlist on the same line suppresses the match: uppercase `\bNEVER\b`, `never fail silently`, `never break the public API`, `never aborts`, `never advertises`, `never silent-drop`.
 
+#### Author-coordinate language (High)
+
+Tokens that require the reader to share the author's mental model — useful at authoring time, noise to anyone consuming the shipped artifact.
+
+| Pattern | Example | Fix |
+|---------|---------|-----|
+| `\bWS-[1-9][0-9]?\b` | `Runs scripts/run_battery.sh (WS-2)` | Translate to a domain fact: `Runs scripts/run_battery.sh — deterministic CLI dispatch`. |
+| `the prior <file>\.(py\|sh\|bash)` | `from the prior aggregation.py` | Describe the current state, not the file it replaced. |
+| `carried verbatim from` | `carried verbatim from audit_signals.py` | Same — describe what the code does now, not its lineage. |
+| `\bthe rebuild\b` | `every WS-6 acceptance criterion` of `the rebuild` | Describe the architecture as it stands, not the path that got it here. |
+| `\bspec AC\b` (NOT `Spec AC closure`) | `validators never see them (spec AC)` | Describe the check directly — what is verified, not the spec section that asks for it. |
+
+The repo's `tests/_meta/test_no_internal_label_leak.py` CI gate blocks these patterns at merge. The Documentation axis is the in-PR review feedback signal — surface the same family as 🔴 High findings on the offending `file:line` so the author can fix before the CI red. Per-line opt-out `# noqa: internal-label` (or `<!-- noqa: internal-label -->` in Markdown) suppresses both layers when the prose legitimately names the anti-pattern.
+
+Allowlist files that legitimately document the format (forge produces `### WS-N:` spec headings; apex teaches the rule with the literal `WS-3` example) — surface as informational rather than as findings.
+
 ## Out of scope (false positives — silence at source)
 
 Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.

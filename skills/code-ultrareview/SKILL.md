@@ -39,7 +39,7 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 
 ## Objective
 
-Run the 8 axes — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance — as 8 parallel LLM subagents fed by deterministic tool findings (`scripts/run_battery.sh` from WS-2). Coherence joins as a 9th axis when metadata files change. Sub-80 axis findings get re-scored by Haiku validators against the verbatim rubric in `references/anthropic-verbatim.md`. Findings synthesize into one report with deterministic dedup, inter-axis precedence, A2 no-silent-drop, and a verdict (Ship / Fix-then-ship / Needs work). The report ends with "What I did NOT check" so the coverage limits are explicit.
+Run the 8 axes — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance — as 8 parallel LLM subagents fed by deterministic tool findings from `scripts/run_battery.sh`. Coherence joins as a 9th axis when metadata files change. Sub-80 axis findings get re-scored by Haiku validators against the verbatim rubric in `references/anthropic-verbatim.md`. Findings synthesize into one report with deterministic dedup, inter-axis precedence, A2 no-silent-drop, and a verdict (Ship / Fix-then-ship / Needs work). The report ends with "What I did NOT check" so the coverage limits are explicit.
 
 ## Parameters
 
@@ -86,7 +86,7 @@ The output also feeds the report header lines `Repo: <kind>`, `Base: <ref>`, `Fi
 
 ### Phase 2 — Tool battery
 
-Runs `scripts/run_battery.sh` (WS-2). Deterministic CLIs feed `tool-findings.jsonl` tagged by axis with `confidence: 100`. Tools dispatch per `scope.json["languages"]`: npx-wrapped (`knip` / `jscpd` / `markdownlint-cli2` / `@microsoft/api-extractor`) and uvx-wrapped (`lizard` / `vulture` / `semgrep` / `vale`) tools wrap zero-install; native binaries (`oasdiff` / `atlas` / Go `deadcode` `gocyclo` `dupl` / `cargo-machete`) fall back to PATH. Bundled `references/perf-rules/` carries the universal N+1 and sync-I/O semgrep rules. Per-tool axis routing lives in `scripts/battery_ingest.py`. Full Tool → Axis → Install table in `README.md`.
+Runs `scripts/run_battery.sh`. Deterministic CLIs feed `tool-findings.jsonl` tagged by axis with `confidence: 100`. Tools dispatch per `scope.json["languages"]`: npx-wrapped (`knip` / `jscpd` / `markdownlint-cli2` / `@microsoft/api-extractor`) and uvx-wrapped (`lizard` / `vulture` / `semgrep` / `vale`) tools wrap zero-install; native binaries (`oasdiff` / `atlas` / Go `deadcode` `gocyclo` `dupl` / `cargo-machete`) fall back to PATH. Bundled `references/perf-rules/` carries the universal N+1 and sync-I/O semgrep rules. Per-tool axis routing lives in `scripts/battery_ingest.py`. Full Tool → Axis → Install table in `README.md`.
 
 **Graceful skip.** Missing tools emit `WARN: <tool> not found — install: <command>` to stderr and append to `scope.json["tools_skipped"]`; the skill continues. The battery NEVER auto-installs — no `brew`, `cargo`, `go`, `pip`, or `npm` install runs.
 
@@ -114,7 +114,7 @@ Validator prepare CLI, bundle schema, ingest pass details: `references/orchestra
 
 ### Phase 5 — Synthesis
 
-Runs `scripts/synthesize.py` (WS-5) on top of `scripts/synthesis_core.py` primitives:
+Runs `scripts/synthesize.py` on top of `scripts/synthesis_core.py` primitives:
 
 1. **Dedup** by `(file, line_range, finding_hash)`.
 2. **Inter-axis precedence** — when 2+ axes flag the same `file:line`, highest severity wins; ties resolve via `Correctness > Design/API > Simplification > Tests > Documentation > Style > Intent > Performance > Coherence` (`scripts/synthesis_core.py:AXIS_PRIORITY`).

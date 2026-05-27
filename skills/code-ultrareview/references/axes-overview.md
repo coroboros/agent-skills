@@ -1,6 +1,6 @@
 # Axes overview
 
-Eight always-on axes + one conditional axis (`coherence`) comprise the code-ultrareview lens taxonomy. Each axis maps 1:1 to an LLM subagent during Phase 3. Per-axis briefs live at `references/axes/<axis-name>.md` (created in WS-3).
+Eight always-on axes + one conditional axis (`coherence`) comprise the code-ultrareview lens taxonomy. Each axis maps 1:1 to an LLM subagent during Phase 3. Per-axis briefs live at `references/axes/<axis-name>.md`.
 
 ## The 8 always-on axes
 
@@ -52,24 +52,10 @@ An axis is one category of code-review concern, mapped 1:1 to an LLM subagent th
 
 It emits findings with 0-100 confidence per the verbatim rubric in `references/anthropic-verbatim.md`.
 
-## Distinction from the prior 7-lens taxonomy
-
-The previous code-ultrareview shipped 7 lenses (`rules`, `bugs-drift`, `docs-version`, `tests-blindspots`, `coherence-graph`, `derivation`, `prose-hygiene`). The 8-axis rebuild splits and recombines those concerns:
-
-- `rules` + parts of `bugs-drift` → `correctness` + `style` (CLAUDE.md violations now sit in Style; logic bugs sit in Correctness).
-- `bugs-drift` spec-claim logic → folded into `correctness`.
-- `docs-version` + `prose-hygiene` → `documentation` (single axis for all doc concerns).
-- `tests-blindspots` → `tests` (renamed for parity with axis naming).
-- `coherence-graph` → conditional `coherence` axis.
-- `derivation` → `intent` axis with `--reconcile` activation.
-- New: `simplification` (split from generic bug review; per the `code-simplifier` plugin precedent).
-- New: `design-api` (carved out from various lenses; covers oasdiff/atlas/api-extractor surface).
-- New: `performance` (semgrep N+1 + sync-I/O; previously deferred to `/simplify`).
-
 ## Cross-references
 
 - 5-phase pipeline: `../SKILL.md` § The five phases.
 - Verbatim rubric, HIGH SIGNAL criteria, false-positive taxonomy: `references/anthropic-verbatim.md`.
 - A2 routing + verdict algorithm: `../scripts/synthesis_core.py`.
 - Scope detection (where `activates_coherence` is decided): `../scripts/scope.py`.
-- Per-axis briefs (WS-3): `references/axes/<axis-name>.md`.
+- Per-axis briefs: `references/axes/<axis-name>.md`.
