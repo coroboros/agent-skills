@@ -180,6 +180,7 @@ DISPATCHED=()
 SKIPPED_NAMES=()
 SKIPPED_INSTALLS=()
 SKIPPED_AXES=()
+SKIPPED_REASONS=()
 
 want_tool() {
   # Args: <tool>. Returns 0 if dispatch matrix says yes for this scope.
@@ -268,11 +269,14 @@ axis_hint() {
 }
 
 mark_skipped() {
+  # Args: <tool> [<reason>]. Reason defaults to "not found — install: <cmd>".
   local tool="$1"
+  local reason="${2:-not found — install: $(install_cmd "$tool")}"
   SKIPPED_NAMES+=("$tool")
   SKIPPED_INSTALLS+=("$(install_cmd "$tool")")
   SKIPPED_AXES+=("$(axis_hint "$tool")")
-  echo "WARN: $tool not found — install: $(install_cmd "$tool")" >&2
+  SKIPPED_REASONS+=("$reason")
+  echo "WARN: $tool skipped — $reason" >&2
 }
 
 mark_dispatched() {
@@ -314,8 +318,21 @@ run_knip() {
 run_jscpd() {
   local out="$OUTPUT_DIR/raw/jscpd.json"
   local err="$OUTPUT_DIR/raw/jscpd.stderr"
+  # Scope to changed code files only — pre-existing-tier findings on
+  # unchanged paths surface from LLM axis review, not the deterministic battery.
+  local code_files=()
+  local f
+  if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
+    for f in "${FILES_TOUCHED[@]}"; do
+      [[ "$f" =~ \.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$ ]] && code_files+=("$f")
+    done
+  fi
+  if [[ ${#code_files[@]} -eq 0 ]]; then
+    mark_skipped jscpd "no relevant files in diff"
+    return 0
+  fi
   if have_cmd npx; then
-    _capture "$out" "$err" -- npx -y jscpd --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "$REPO"
+    _capture "$out" "$err" -- npx -y jscpd --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "${code_files[@]}"
     # jscpd writes to <output>/jscpd-report.json — copy if found.
     if [[ -f "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" ]]; then
       cp "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" "$out"
@@ -324,7 +341,7 @@ run_jscpd() {
     return 0
   fi
   if have_cmd jscpd; then
-    _capture "$out" "$err" -- jscpd --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "$REPO"
+    _capture "$out" "$err" -- jscpd --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "${code_files[@]}"
     if [[ -f "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" ]]; then
       cp "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" "$out"
     fi
@@ -416,18 +433,36 @@ run_vulture() {
 run_semgrep() {
   local out="$OUTPUT_DIR/raw/semgrep.json"
   local err="$OUTPUT_DIR/raw/semgrep.stderr"
-  # Run with `--config=auto` (generic patterns) AND bundled perf-rules.
-  local configs=("--config=auto")
+  # Bundled perf-rules only — `--config=auto` fetches from the semgrep
+  # registry at runtime, which violates the public-skill posture (zero
+  # implicit network calls beyond git/gh/explicit user-set tools).
+  local configs=()
   if [[ -d "$PERF_RULES_DIR" ]]; then
     configs+=("--config=$PERF_RULES_DIR")
   fi
+  if [[ ${#configs[@]} -eq 0 ]]; then
+    mark_skipped semgrep "perf-rules dir missing — no rules to apply"
+    return 0
+  fi
+  # Scope to changed code files only.
+  local code_files=()
+  local f
+  if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
+    for f in "${FILES_TOUCHED[@]}"; do
+      [[ "$f" =~ \.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$ ]] && code_files+=("$f")
+    done
+  fi
+  if [[ ${#code_files[@]} -eq 0 ]]; then
+    mark_skipped semgrep "no relevant files in diff"
+    return 0
+  fi
   if have_cmd uvx; then
-    _capture "$out" "$err" -- uvx semgrep --json --quiet "${configs[@]}" "$REPO"
+    _capture "$out" "$err" -- uvx semgrep --json --quiet "${configs[@]}" "${code_files[@]}"
     mark_dispatched semgrep
     return 0
   fi
   if have_cmd semgrep; then
-    _capture "$out" "$err" -- semgrep --json --quiet "${configs[@]}" "$REPO"
+    _capture "$out" "$err" -- semgrep --json --quiet "${configs[@]}" "${code_files[@]}"
     mark_dispatched semgrep
     return 0
   fi
@@ -437,9 +472,20 @@ run_semgrep() {
 run_vale() {
   local out="$OUTPUT_DIR/raw/vale.json"
   local err="$OUTPUT_DIR/raw/vale.stderr"
-  # Vale is a Go binary — PATH only.
+  # Vale is a Go binary — PATH only. Pass changed prose files only.
+  local prose_files=()
+  local f
+  if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
+    for f in "${FILES_TOUCHED[@]}"; do
+      [[ "$f" =~ \.(md|txt|rst|adoc)$ ]] && prose_files+=("$f")
+    done
+  fi
+  if [[ ${#prose_files[@]} -eq 0 ]]; then
+    mark_skipped vale "no relevant files in diff"
+    return 0
+  fi
   if have_cmd vale; then
-    _capture "$out" "$err" -- vale --output JSON "$REPO"
+    _capture "$out" "$err" -- vale --output JSON "${prose_files[@]}"
     mark_dispatched vale
     return 0
   fi
@@ -660,7 +706,7 @@ python3 "$INGEST" batch --raw-dir "$OUTPUT_DIR/raw" --output "$OUTPUT_DIR/tool-f
 # so downstream phases (synthesis, "What I did NOT check") can read either file.
 # ---------------------------------------------------------------------------
 
-python3 - "$OUTPUT_DIR/tools-skipped.json" "$SCOPE" "${#SKIPPED_NAMES[@]}" "${SKIPPED_NAMES[@]:-}" "${SKIPPED_INSTALLS[@]:-}" "${SKIPPED_AXES[@]:-}" <<'PY'
+python3 - "$OUTPUT_DIR/tools-skipped.json" "$SCOPE" "${#SKIPPED_NAMES[@]}" "${SKIPPED_NAMES[@]:-}" "${SKIPPED_INSTALLS[@]:-}" "${SKIPPED_AXES[@]:-}" "${SKIPPED_REASONS[@]:-}" <<'PY'
 import json, sys
 out_path = sys.argv[1]
 scope_path = sys.argv[2]
@@ -668,9 +714,10 @@ n = int(sys.argv[3])
 names = sys.argv[4:4+n]
 installs = sys.argv[4+n:4+2*n]
 axes = sys.argv[4+2*n:4+3*n]
+reasons = sys.argv[4+3*n:4+4*n]
 
 entries = [
-    {"tool": names[i], "install": installs[i], "axis": axes[i]}
+    {"tool": names[i], "install": installs[i], "axis": axes[i], "reason": reasons[i]}
     for i in range(n)
 ]
 

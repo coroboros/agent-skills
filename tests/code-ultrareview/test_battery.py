@@ -298,7 +298,7 @@ class TestWrapperPreference(unittest.TestCase):
 
 class TestGracefulSkip(unittest.TestCase):
     """AC: OpenAPI repo without oasdiff installed →
-    `WARN: oasdiff not found — install: brew install oasdiff` on stderr,
+    `WARN: oasdiff skipped — not found — install: brew install oasdiff` on stderr,
     scope.json["tools_skipped"] contains oasdiff, skill continues without error.
     """
 
@@ -320,7 +320,7 @@ class TestGracefulSkip(unittest.TestCase):
                 capture_output=True, text=True, env=env, check=False,
             )
             self.assertEqual(r.returncode, 0, msg=r.stderr)
-            self.assertIn("WARN: oasdiff not found", r.stderr)
+            self.assertIn("WARN: oasdiff skipped — not found", r.stderr)
             self.assertIn("brew install oasdiff", r.stderr)
             skipped_path = out_dir / "tools-skipped.json"
             self.assertTrue(skipped_path.is_file())
