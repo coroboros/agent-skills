@@ -550,7 +550,7 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         "languages": languages,
         "claude_md_chain": chain,
         "loc_changed": loc,
-        "files_touched": len(files),
+        "files_touched": len(files),  # derived count; canonical key is files_touched_list
         "files_touched_list": files,
         "activates_coherence": coherence,
         "tools_skipped": [],

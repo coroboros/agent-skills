@@ -670,7 +670,7 @@ installs = sys.argv[4+n:4+2*n]
 axes = sys.argv[4+2*n:4+3*n]
 
 entries = [
-    {"tool": names[i], "install": installs[i], "axis_lost": axes[i]}
+    {"tool": names[i], "install": installs[i], "axis": axes[i]}
     for i in range(n)
 ]
 

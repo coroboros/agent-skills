@@ -283,8 +283,8 @@ def _render_header(
     rule = scope.get("rule") or scope.get("rung") or "—"
     repo_kind = scope.get("repo_kind") or "unknown"
     languages = ", ".join(scope.get("languages") or []) or "—"
-    changed_files = scope.get("changed_files") or []
-    files_count = len(changed_files) if isinstance(changed_files, list) else int(changed_files or 0)
+    changed_files = scope.get("files_touched_list") or []
+    files_count = len(changed_files)
     chain = scope.get("claude_md_chain") or []
     rules_baseline = (
         f"CLAUDE.md chain + {len(chain)} files" if chain
