@@ -35,6 +35,14 @@ Skill scratch output is **global** — never inside a working tree, so it cannot
 
 Future skills MUST adopt this scheme — it is a conformance gate in the skill-authoring loop. A skill that writes inside a working tree is a review failure.
 
+### Cleanup
+
+Global outputs persist by design — no TTL, no SessionEnd auto-prune, no automatic deletion of any kind. The user owns retention. The single sweep is `/clean-output` — a user-invoked skill that lists artifacts grouped by emitting skill and prompts before any deletion.
+
+**Two buckets.** Per-project (`~/.claude/output/{project}/<skill>/...`) is the default for every emitting skill — any output tied to a working tree lives here. Cross-project (`~/.claude/output/_global/<skill>/...`) is opt-in for skills whose output is intentionally repo-agnostic; no current caller — explicit reservation slot.
+
+**Bridge-line contract.** Every emitting skill ends its global-artifact report with a `cleanup → /clean-output` line so the option is one keystroke from the producer's output. The cleanup itself never auto-runs.
+
 ## Pipeline chaining
 
 Skills compose via the `-f` flag. A producer saves its file, then reports the **fully-expanded absolute path** and the exact next command with that path inlined:

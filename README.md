@@ -70,6 +70,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [forge](#forge) | opus | Pre-implementation thinking — research, decide, and emit one apex-ready plan | Claude |
 | Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
+| Workflow | [clean-output](#clean-output) | sonnet | Interactive cleanup for `~/.claude/output/` — list per-project and `_global` artifacts grouped by emitting skill, prompt before deletion, never auto-delete | Claude |
 | Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review — Correctness · Simplification · Tests · Documentation · Style · Intent · Design/API · Performance (+ Coherence on metadata changes). 5-phase pipeline: scope → npx/uvx tool battery → 8 parallel axis reviewers → Haiku validators on sub-80 → synthesis with A2 no-silent-drop + Conventional Comments JSONL. Closes with "What I did NOT check" — defers security to `/security-review`, runtime perf, flaky detection. Zero auto-install, graceful skip on missing native tools. Opt-in `--verify-build` / `--mutation-test` / `--reconcile` / `--apply-safe`. Distinct from Anthropic's remote `/ultrareview` | Claude |
 | Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
@@ -93,10 +94,10 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 
 ### Workflow Skills
 
-Strategic thinking, planning, and implementation — `forge`, `apex`, `oneshot`.
+Strategic thinking, planning, implementation, and cleanup — `forge`, `apex`, `oneshot`, `clean-output`.
 
 <details>
-<summary><em>forge · apex · oneshot</em></summary>
+<summary><em>forge · apex · oneshot · clean-output</em></summary>
 
 <br>
 
@@ -225,6 +226,44 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 **Sources**
 
 - [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint) — Explore/Code/Test loop with complexity escalation to `apex` or `forge`
+
+---
+
+#### clean-output
+
+Interactive cleanup for `~/.claude/output/` — the global scratch directory where emitting skills (forge, apex, code-ultrareview, markitdown, audio-loop, suno-produce, brand-voice, award-design) accumulate artifacts. Lists every artifact under the current project bucket plus the cross-project `_global` bucket, grouped by emitting skill, with size and mtime per row. Asks before deleting anything; never auto-prunes; no TTL.
+
+**Usage**
+
+```bash
+/clean-output                          # interactive — current project + _global
+/clean-output -l                       # list only — never deletes
+/clean-output -A                       # every project bucket + _global
+/clean-output -p my-app                # one specific project + _global
+/clean-output -d                       # delete-all flow — single count+size confirmation
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-A` / `--all-projects` | List every `~/.claude/output/<project>/` bucket plus `_global`. Mutually exclusive with `-p` |
+| `-p <name>` / `--project` | Restrict to one named project (always includes `_global`) |
+| `-l` / `--list` | Read-only listing — never invokes `delete_artifact.py`; exits 0 after reporting |
+| `-d` / `--delete-all` | Skip the action menu; prompt once with total count + size; on confirmation, delete everything in scope |
+| `-D` / `--no-delete-all` | Explicit override — disable an ambient `delete-all` mode |
+
+`-A` uses capital A because lowercase `-a` is reserved for `auto` across the skill family (forge, apex, oneshot). All flags default OFF.
+
+**What it does**
+
+1. **Resolve scope** — current `{project}` + `_global` (default), every project (`-A`), or one named project (`-p NAME`)
+2. **List** via `scripts/list_artifacts.py` — JSON array of `{bucket, project, skill, path, size_bytes, mtime_iso}`; apex task directories report cumulative size and most-recent mtime
+3. **Action menu** via `AskUserQuestion` (skipped under `-l` or `-d`) — Keep everything · Delete everything · Pick per bucket · Pick at a finer grain
+4. **Delete** via `scripts/delete_artifact.py` per selected path — guard via `Path(p).resolve().is_relative_to(<root>)`; anything outside `~/.claude/output/` exits 2 and the file is unchanged
+5. **Report** — total artifacts deleted, total bytes freed, any failures
+
+The path-resolution guard is the script's single chokepoint — `delete_artifact.py` never invokes shell `rm` and refuses every path that escapes the sandbox, including via `..` traversal or symlinks pointing outside the root.
 
 </details>
 
