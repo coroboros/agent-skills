@@ -105,7 +105,7 @@ Make changes specified in the plan:
 - Follow patterns from step-01 analysis
 - Use exact names from plan
 - Handle error cases as specified
-- Keep comments and names free of internal scaffolding (see **Deliverable hygiene** below)
+- Keep comments and names free of author-coordinate language (see **Deliverable hygiene** below)
 ```
 
 **3.4 Mark Complete Immediately**
@@ -203,7 +203,7 @@ Append to `{output_dir}/03-execute.md`:
 
 Everything you write — code, comments, commit subjects, PR and issue bodies, docs — ships to people who never saw this workflow. The scaffolding that got you here is noise to them. Strip it:
 
-- **Translate internal labels into domain facts.** A spec's `WS-3`, an issue's task ID, a plan's phase name are *your* coordinates, not the reader's. Write `add token refresh on 401`, never `WS-3` or `the plan's step 2` — in commit subjects, code comments, and prose alike.
+- **Translate author-coordinate language into domain facts.** A spec's `WS-3`, an issue's task ID, a plan's phase name are *your* coordinates, not the reader's. Write `add token refresh on 401`, never `WS-3` or `the plan's step 2` — in commit subjects, code comments, and prose alike.
 - **Don't cite the machinery.** No references to the plan, spec, postmortem, the APEX phases, or scratch-file paths (`~/.claude/output/...`) in anything that ships — the reader can't open them, so the pointer is a dead end.
 - **Comment the why, never the what.** Keep a comment only when it carries what the code cannot: a non-obvious constraint, the cause of a workaround, a governing spec clause. Delete any comment that just restates the line below it.
 
@@ -219,7 +219,7 @@ Test each line: would it still make sense to someone reading only the final diff
 ✅ Files read before modification
 ✅ Typecheck and lint pass
 ✅ Progress logged (if save_mode)
-✅ Deliverables free of internal scaffolding (workstream labels, machinery references, useless comments)
+✅ Deliverables free of author-coordinate language (workstream labels, machinery references, useless comments)
 
 ## FAILURE MODES:
 
@@ -228,7 +228,7 @@ Test each line: would it still make sense to someone reading only the final diff
 ❌ Not updating todos as you work
 ❌ Multiple todos in_progress simultaneously
 ❌ Ignoring type or lint errors
-❌ Leaking internal labels (WS-N, task IDs) or machinery references into shipped code, comments, or commit text
+❌ Leaking author-coordinate language (WS-N, task IDs) or machinery references into shipped code, comments, or commit text
 ❌ **CRITICAL**: Not using AskUserQuestion for blockers
 
 ## EXECUTION PROTOCOLS:

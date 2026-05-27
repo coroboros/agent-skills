@@ -231,7 +231,7 @@ One task only. No tangential improvements, no refactoring outside scope. Stops a
 
 #### clean-output
 
-Interactive cleanup for `~/.claude/output/` — the global scratch directory where emitting skills (forge, apex, code-ultrareview, markitdown, audio-loop, brand-voice) accumulate artifacts. Lists every artifact under the current project bucket plus the cross-project `_global` bucket, grouped by emitting skill, with size and mtime per row. Asks before deleting anything; never auto-prunes; no TTL.
+Cleans `~/.claude/output/`. Lists artifacts under the current project bucket and the cross-project `_global` bucket, grouped by emitting skill, with size and mtime per row. The six skills that accumulate output there are `forge`, `apex`, `code-ultrareview`, `markitdown`, `audio-loop`, and `brand-voice`. Every deletion is prompted. Auto-pruning and TTL are not features.
 
 **Usage**
 
@@ -247,23 +247,23 @@ Interactive cleanup for `~/.claude/output/` — the global scratch directory whe
 
 | Flag | Description |
 |------|-------------|
-| `-A` / `--all-projects` | List every `~/.claude/output/<project>/` bucket plus `_global`. Mutually exclusive with `-p` |
-| `-p <name>` / `--project` | Restrict to one named project (always includes `_global`) |
-| `-l` / `--list` | Read-only listing — never invokes `delete_artifact.py`; exits 0 after reporting |
-| `-d` / `--delete-all` | Skip the action menu; prompt once with total count + size; on confirmation, delete everything in scope |
-| `-D` / `--no-delete-all` | Explicit override — disable an ambient `delete-all` mode |
+| `-A` / `--all-projects` | Lists every `~/.claude/output/<project>/` bucket plus `_global`. Mutually exclusive with `-p` |
+| `-p <name>` / `--project` | Restricts to one named project. Always includes `_global` |
+| `-l` / `--list` | Read-only listing. Never invokes `delete_artifact.py`. Exits 0 after reporting |
+| `-d` / `--delete-all` | Skips the action menu. Prompts once with total count and size. On confirmation, deletes everything in scope |
+| `-D` / `--no-delete-all` | Explicit override. Disables an ambient `delete-all` mode |
 
-`-A` uses capital A because lowercase `-a` is reserved for `auto` across the skill family (forge, apex, oneshot). All flags default OFF.
+`-A` is capital because `-a` is reserved for `auto` across the skill family (`forge`, `apex`, `oneshot`). Flags default OFF.
 
-**What it does**
+**Workflow**
 
-1. **Resolve scope** — current `{project}` + `_global` (default), every project (`-A`), or one named project (`-p NAME`)
-2. **List** via `scripts/list_artifacts.py` — JSON array of `{bucket, project, skill, path, size_bytes, mtime_iso}`; apex task directories report cumulative size and most-recent mtime
-3. **Action menu** via `AskUserQuestion` (skipped under `-l` or `-d`) — Keep everything · Delete everything · Pick per bucket · Pick at a finer grain
-4. **Delete** via `scripts/delete_artifact.py` per selected path — guard via `Path(p).resolve().is_relative_to(<root>)`; anything outside `~/.claude/output/` exits 2 and the file is unchanged
-5. **Report** — total artifacts deleted, total bytes freed, any failures
+1. Resolve scope — current `{project}` + `_global` by default, every project under `-A`, one named project under `-p NAME`.
+2. List via `scripts/list_artifacts.py`. Emits a JSON array of `{bucket, project, skill, path, size_bytes, mtime_iso}`. Apex task directories report cumulative size and most-recent mtime.
+3. Action menu via `AskUserQuestion`, skipped under `-l` or `-d`. Four options — Keep everything, Delete everything, Pick per bucket, Pick at a finer grain.
+4. Delete via `scripts/delete_artifact.py` per selected path. The guard resolves the path with `Path(p).resolve().is_relative_to(<root>)`. Anything outside `~/.claude/output/` exits 2 with the target untouched.
+5. Report total artifacts deleted, total bytes freed, and any failures.
 
-The path-resolution guard is the script's single chokepoint — `delete_artifact.py` never invokes shell `rm` and refuses every path that escapes the sandbox, including via `..` traversal or symlinks pointing outside the root.
+`delete_artifact.py` is the single chokepoint. It never invokes shell `rm` and refuses every path that escapes the sandbox — `..` traversal, symlinks, anything resolving outside the root.
 
 </details>
 

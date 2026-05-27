@@ -161,7 +161,7 @@ Verify each item:
 - [ ] Naming conventions match
 
 **Deliverable Hygiene:**
-- [ ] No internal labels (workstream `WS-N`, task IDs, plan phase names) in code, comments, commit/PR text, or docs the change ships
+- [ ] No author-coordinate language (workstream `WS-N`, task IDs, plan phase names) in code, comments, commit/PR text, or docs the change ships
 - [ ] No references to the plan, spec, postmortem, APEX phases, or scratch-file paths in shipped artifacts
 - [ ] Comments explain a why the code cannot — no comment that merely restates the next line
 
