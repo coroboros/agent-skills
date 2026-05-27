@@ -1,9 +1,10 @@
 """Tests for the deliverable-hygiene enforcement in apex step-03 + step-04.
 
 apex implements specs whose workstreams are labeled WS-N; without a guard it
-carries those labels (and other internal scaffolding) into the code, comments,
-and commits it produces. step-03 states the rule, step-04 gates on it before
-completion. These tests pin both so the enforcement can't silently regress.
+carries those labels (and other author-coordinate vocabulary) into the code,
+comments, and commits it produces. step-03 states the rule, step-04 gates on
+it before completion. These tests pin both so the enforcement can't silently
+regress, and pin the family name to the canonical one in the rule file.
 """
 
 from __future__ import annotations
@@ -25,8 +26,9 @@ class TestStep03StatesTheRule(unittest.TestCase):
         self.assertIn("## Deliverable hygiene", self.text)
 
     def test_covers_label_translation(self):
-        # The canonical leak: carrying a spec's task labels into deliverables.
-        self.assertIn("Translate internal labels", self.text)
+        # The canonical issue: carrying a spec's task labels into deliverables.
+        # Family name aligned with `.claude/rules/deliverable-hygiene.md`.
+        self.assertIn("Translate author-coordinate language", self.text)
 
     def test_covers_machinery_references(self):
         for token in ("plan", "spec", "postmortem"):
