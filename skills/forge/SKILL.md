@@ -251,9 +251,13 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 3. **Spec shape only (promoted)** — H1 `# Spec: {title}`, 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`.
 4. **Decision shape (default)** — H1 `# Decision: {title}`. Omit workstreams, dependencies, and execution order. After Save, present and pause for the decompose question described above.
 
+**Pre-save audit.** Before save, walk the audit checklist in `${CLAUDE_SKILL_DIR}/references/spec-craft.md` § Pre-save audit. The Decision-shape items apply always; the Spec-shape items apply when promoted. Rewrite anything flagged and re-walk the list. This is the layer the schema validator does not catch — vague AC, goals stated as outputs, greedy P0, untagged non-goals, XL workstreams that need splitting, surfaced forks left empty when load-bearing calls exist.
+
 **Save** (if `{save_mode}`) to the `$HOME`-expanded `{output_file}`; report the fully-expanded absolute path.
 
 **Validate** (when workstreams exist) — `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}`, exit 0 required. Rewrite until it clears.
+
+**Revision pause** (Spec shape AND `{auto_mode}` = false). After Save + Validate, present a one-paragraph summary of the spec and ask the user: *"Spec is ready. Want to revise anything before /apex implements WS-1?"* Wait. Apply revisions inline, re-save, re-run the audit, re-validate. Skip under `{auto_mode}` = true — the user opted into commit-and-emit.
 
 **Issues** (if `{issues_mode}`) — read `${CLAUDE_SKILL_DIR}/references/issue-creation.md` and follow it to create labels, an epic, and workstream issues in dependency order, then append the `## GitHub Issues` section.
 
@@ -294,8 +298,11 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 - A decision with a clear rationale, the runner-up, and what would flip it.
 - Adversarial-critique findings folded into the artifact (or refuted in writing) — never silently dropped.
 - Shape routing respected: Decision by default; Spec only when `{auto_mode}`, a build verb, an explicit decomposition signal, or `{issues_mode}` fires.
+- Surfaced forks named for any load-bearing call (or "none" when there genuinely are none) — three-tier Decide upheld.
+- Pre-save audit cleared (Decision items always; Spec items when promoted) — the validator passes only after the audit does.
 - When Spec shape is emitted: 3-7 workstreams with priority, complexity, dependencies, and testable acceptance criteria; dependency graph resolves with no cycles; validator exits 0.
-- Escalated forks held to a handful — everything else decided and recorded.
+- Escalated forks held to a handful — everything else decided or surfaced.
 - Artifact saved if `{save_mode}`; GitHub issues created if `{issues_mode}`.
+- Revision pause shown for Spec shape under non-auto; decompose question shown for Decision shape under non-auto. Neither under `{auto_mode}`.
 - Spec → `/apex` bridge shown. Decision → decompose question asked and waited on.
 - No code implemented.

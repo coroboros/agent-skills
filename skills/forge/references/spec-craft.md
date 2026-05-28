@@ -43,3 +43,28 @@ If everything is P0, nothing is. For each P0 workstream, ask one question: would
 - P2 is architectural insurance: not built now, but the design must not foreclose it.
 
 Reach for this when more than half the workstreams are marked P0.
+
+## Pre-save audit
+
+Walk this checklist before save. The validator catches schema violations (count, Priority/Complexity set, deps resolve, no cycles); the audit catches the softer defects the validator cannot see. Rewrite anything flagged and re-walk the list. Both shapes (Decision and Spec) get the items that apply.
+
+**Decision shape (always):**
+
+- [ ] Decision header complete — chosen approach with rationale, runner-up with what would flip it.
+- [ ] Surfaced forks named with the pick, the runner-up, and what would flip it (or "none" if no load-bearing call).
+- [ ] Adversarial-critique findings folded — every finding either flipped the leader, was refuted in writing, or filed in Risks / Open questions. No silent drops.
+- [ ] Assumption ledger tags each load-bearing claim verified fact / assumption / inherited convention. The shakiest is surfaced as a risk or open question, not buried.
+
+**Spec shape (additionally):**
+
+- [ ] Every workstream has Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, Acceptance criteria.
+- [ ] Acceptance criteria use Given/When/Then inside each `- [ ]` item, cover happy + error + edge, include ≥1 negative. No vague words (fast, intuitive, user-friendly, robust, seamless).
+- [ ] Goals are outcomes (measurable change in the world), not outputs (artifacts built). A goal markable done by merging a PR is a task — move it into a workstream.
+- [ ] P0 set is ruthless. Would the feature still solve its core problem without each P0? If yes, the workstream is P1.
+- [ ] Non-goals are tagged with the rationale (not enough impact / too complex for now / separate initiative / premature). An apology-shaped non-goal is a defect.
+- [ ] No XL workstream. If one feels XL, split it. XL means the workstream cannot be implemented by a single `/apex` run.
+- [ ] Dependencies are explicit and consistent across "Depends on" rows and the dependency graph. Execution order respects the graph.
+- [ ] Tasks are concrete enough to implement without guessing. "Implement feature" and "Add functionality" are not tasks.
+- [ ] Blocking open questions are flagged and linked to the workstream they block. Non-blocking ones live in the non-blocking split.
+
+Reach for this checklist at the end of writing, before save, every time. The validator runs after — both must pass.
