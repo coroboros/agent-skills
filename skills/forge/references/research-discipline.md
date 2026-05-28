@@ -18,6 +18,10 @@ A single source is anecdote. Three converging sources is signal. One source cont
 - Where sources diverge, record the divergence in the Assumption ledger. The divergence is more informative than the convergence.
 - Newer trumps older when methodology is comparable. Methodology trumps recency when not.
 
+## Source quality, not just count
+
+Three converging sources only count when at least one is `primary` or `secondary`. Each cited source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per `subagent-prompts.md` § *general-purpose — external research*. Weight convergence by tag — three `primary` sources outweigh a chain of `blog` reposts of the same claim. A consensus across `blog` and `vendor-marketing` tags alone is not a consensus; it is a single source amplified.
+
 ## What to leave to the model
 
 Premortem framing, generic best practices, common gotchas for well-known libraries — the model already carries these. Use research to ground the *specific* call: this codebase, this version, this constraint.

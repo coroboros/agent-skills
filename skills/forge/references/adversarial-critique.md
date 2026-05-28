@@ -44,6 +44,22 @@ For each finding, do one of three things:
 
 Unaddressed findings are a defect. Either the critique was wrong (record the refutation) or the artifact is wrong (revise the leader).
 
+## Concession Threshold Protocol
+
+Refuting a critic finding has a quality bar. The protocol applies on the **consumer side** — the forge orchestrator scoring its own rebuttal — not inside the critic prompt (the critic is one-shot in current forge architecture and does not score rebuttals; the orchestrator does).
+
+For each finding, score your rebuttal against it on this 1–5 rubric:
+
+- **1** — does not address the finding (changes the subject, restates the leader's case).
+- **2** — tangential (addresses an adjacent concern, not the cited one).
+- **3** — partial (addresses the finding but leaves the core objection live).
+- **4** — substantive refutation with evidence (the finding is materially wrong, and the evidence is in the artifact in writing).
+- **5** — full refutation that nullifies the finding (the premise is false; a cited fact contradicts the finding directly).
+
+Concession — treating the finding as refuted, dropping it without filing — is allowed only at score ≥ 4. Below 4: fold the finding into the Decision (revise the leader) or file in Risks / Open questions (preserve the concern). Silently dropping a finding scored ≤ 3 is a defect.
+
+**Frame-lock detection.** If three consecutive findings are rebutted at score ≤ 2, flag for re-examination. The leader may be in motivated rationalization, or the critic context may be wrong. Re-examine = re-read the findings cold, re-score, and decide whether the artifact needs revision or whether the critic was off-target. Record either outcome — never let the rebuttal chain stand without scrutiny.
+
 ## Anti-patterns
 
 - Letting the critic decide. Critics surface findings; the main context decides.
