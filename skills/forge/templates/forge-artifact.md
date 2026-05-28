@@ -1,9 +1,15 @@
-# Spec: {title}
+# Decision: {title}
 
-<!-- Code-bearing artifact. For a pure-strategy outcome (a choice with no immediate code),
-     retitle this `# Decision: {title}`, keep Decision + Assumption ledger + Overview
-     (plus Risks / Open questions as needed), and omit Workstreams, Dependencies, and
-     Execution order. -->
+<!-- DEFAULT shape: # Decision — keep this H1, Decision header, Assumption ledger,
+     Overview, and (when relevant) Risks + Open questions. Omit Workstreams,
+     Dependencies, and Execution order. Present and pause for the decompose
+     question after Save.
+
+     PROMOTED shape: # Spec — retitle the H1 to `# Spec: {title}` and include the
+     full structure below (Workstreams, Dependencies, Execution order). Promote
+     only when the routing rule in SKILL.md Phase 4 fires (the six promotion
+     conditions are enumerated there — never enumerate a subset here, the two
+     lists drift). -->
 
 **Date:** {YYYY-MM-DD}
 **Status:** Draft
@@ -12,6 +18,7 @@
 
 - **Chosen:** {approach} — {1-2 sentence rationale}
 - **Runner-up:** {alternative} — {the condition under which it would win}
+- **Surfaced forks:** {load-bearing calls — name each, the pick, the runner-up, what would flip it. The user came for thinking, not plumbing; do not bury these in the ledger. Or "none" when the artifact has no structurally load-bearing forks}
 - **Escalated forks:** {the few user-owned questions, or "none"}
 
 ## Assumption ledger

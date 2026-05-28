@@ -107,14 +107,16 @@ class TestParametersTable(unittest.TestCase):
 
 
 class TestRulesSection(unittest.TestCase):
-    """The Rules section is forge's contract: never implement, decide-don't-
-    defer, validate before finalizing. Each is a guardrail — dropping one
-    degrades the skill (e.g. losing 'never implement' lets forge write code)."""
+    """The Rules section is forge's contract: never implement, three-tier
+    Decide (Decide / Surface / Escalate), audit + validate before finalizing.
+    Each is a guardrail — dropping one degrades the skill (e.g. losing 'never
+    implement' lets forge write code; losing 'Surface' drops the load-bearing
+    fork the user came to think about)."""
 
     REQUIRED_RULES = [
         ("Never implement", ("Never implement", "not code changes", "no code")),
-        ("Decide vs escalate", ("Decide, don't defer", "Escalate only", "escalate")),
-        ("Validate before finalizing", ("Validate before finalizing", "validate_spec")),
+        ("Three tiers in Decide", ("Three tiers in Decide", "Surface", "surface")),
+        ("Audit and validate", ("Audit and validate", "pre-save audit", "validate_spec")),
     ]
 
     def test_rules_section_exists(self):
@@ -148,11 +150,12 @@ class TestModelOpus(unittest.TestCase):
 
 
 class TestBridge(unittest.TestCase):
-    """Phase 4 commits forge to the `/apex -f` hand-off, inlining the artifact's
-    explicit path `~/.claude/output/{project}/forge/forge-{slug}.md` (no
-    reconstruction) per repo-conventions.md § Pipeline chaining. The pure-
-    strategy path must explicitly conclude without a bridge so users don't
-    think one is mandatory."""
+    """Phase 4 commits forge to the `/apex -f` hand-off for the Spec shape,
+    inlining the artifact's explicit path `~/.claude/output/{project}/forge/
+    forge-{slug}.md` (no reconstruction) per repo-conventions.md § Pipeline
+    chaining. The Decision shape (default) explicitly has no apex bridge —
+    it asks the decompose question and waits, so users don't think a bridge
+    is mandatory before the decompose."""
 
     def test_bridge_to_apex_documented(self):
         body = _body()
@@ -167,12 +170,240 @@ class TestBridge(unittest.TestCase):
         # forge commits to the {skill}-{slug}.md filename convention.
         self.assertIn("forge-{slug}.md", _body())
 
-    def test_pure_strategy_no_bridge_path(self):
+    def test_decision_shape_has_no_apex_bridge(self):
+        """Routing flipped: Decision is the default. SKILL.md must document
+        that the Decision shape skips the apex bridge and waits for the
+        decompose answer — the restored brainstorm Discuss posture."""
         body = _body().lower()
+        # "no apex bridge" is the canonical phrase used in Present-and-route;
+        # accept the equivalent "no bridge" wording too in case it gets
+        # tightened to the shorter form later.
         self.assertRegex(
-            body, r"no bridge|conclude the discussion|pure-strategy",
-            "SKILL.md must document the no-bridge path for pure-strategy outcomes",
+            body, r"no apex bridge|no bridge",
+            "Decision shape must document the no-apex-bridge default path",
         )
+        self.assertRegex(
+            body, r"decompose.*workstreams?|workstreams?.*decompose",
+            "Decision shape must document the decompose question",
+        )
+
+
+class TestDecisionDefaultRouting(unittest.TestCase):
+    """Decision-default routing is the new posture (commit 889cb3f). Spec
+    shape promotion fires only on enumerated conditions: auto_mode,
+    issues_mode, prior-Spec from_file, build verb in idea, decomposition
+    signal in idea, or Decision-IS-build-plan. Drift in this list silently
+    re-introduces the overcommitment bias the rebuild exists to fix."""
+
+    PHASE_4_PATTERN = re.compile(
+        r"### Phase 4 — Forge\s*\n(.*?)(?=^### |\Z)",
+        re.DOTALL | re.MULTILINE,
+    )
+
+    def _phase_4(self):
+        m = self.PHASE_4_PATTERN.search(_body())
+        self.assertIsNotNone(m, "Phase 4 — Forge section missing")
+        assert m is not None
+        return m.group(1)
+
+    def test_decision_is_default(self):
+        section = self._phase_4()
+        self.assertRegex(
+            section, r"[Dd]efault\s*=\s*`?#\s*Decision",
+            "Phase 4 must state Decision is the default shape",
+        )
+
+    def test_promotion_conditions_complete(self):
+        """The promotion list must include all 6 conditions — anything
+        missing here silently downgrades a user request (e.g. -i on an
+        exploratory idea emits a Decision and skips issue creation)."""
+        section = self._phase_4()
+        required_signals = [
+            "auto_mode",          # commit-and-emit opt-in
+            "issues_mode",        # -i forces workstreams
+            "from_file",          # iteration on prior Spec preserves shape
+            "build",              # build verb (build/add/implement/...)
+            "decompose",          # explicit decomposition signal
+        ]
+        for signal in required_signals:
+            with self.subTest(signal=signal):
+                self.assertIn(
+                    signal, section,
+                    f"Phase 4 promotion conditions missing '{signal}' — "
+                    "see SKILL.md routing list",
+                )
+
+    def test_decompose_question_pause(self):
+        """When Decision is emitted, SKILL.md must say to ask the decompose
+        question and WAIT — the discuss-then-build seam."""
+        section = self._phase_4()
+        self.assertRegex(
+            section.lower(),
+            r"(ask.+decompose|decompose.+workstreams?).+(wait|pause)",
+            "Decision shape must pause for the user's decompose answer",
+        )
+
+
+class TestThreeTierDecide(unittest.TestCase):
+    """Phase 3 runs three tiers: decide reversible/conventional, surface
+    load-bearing forks, escalate user-owned. The Surface tier is the new
+    one (commit 14019d9) — auto-deciding a load-bearing call is the
+    overengineering tell the rebuild fixes."""
+
+    def _phase_3(self):
+        m = re.search(
+            r"### Phase 3 — Decide\s*\n(.*?)(?=^### |\Z)",
+            _body(), re.DOTALL | re.MULTILINE,
+        )
+        self.assertIsNotNone(m, "Phase 3 — Decide section missing")
+        assert m is not None
+        return m.group(1)
+
+    def test_three_tiers_named(self):
+        section = self._phase_3()
+        # All three tier verbs must appear as bolded/header anchors.
+        for tier in ("Decide", "Surface", "Escalate"):
+            with self.subTest(tier=tier):
+                self.assertRegex(
+                    section, rf"\*\*{tier}\*\*",
+                    f"Phase 3 missing **{tier}** tier anchor",
+                )
+
+    def test_surface_tier_explains_visibility(self):
+        """Surface tier's whole point is that the load-bearing call is the
+        thinking the user asked for, named visibly rather than buried in
+        the Assumption ledger. The 'pick + runner-up + flip' triad is the
+        canonical surfacing format."""
+        section = self._phase_3()
+        self.assertRegex(
+            section.lower(),
+            r"runner-up.+flip|flip.+runner-up",
+            "Surface tier must require runner-up + what-would-flip-it",
+        )
+
+
+class TestAdversarialFreshEyes(unittest.TestCase):
+    """Judge runs one adversarial fresh-eyes critic after Stress-test
+    (commit 273f6ff). The critic gets a clean context (leader + runner-up
+    + premortem only) — the same conversation cannot reliably argue
+    against the plan it just shipped. Pattern from Anthropic's
+    adversarial-review."""
+
+    # **Header.** trailing period sits inside the bold markers, so regexes
+    # must accept an optional period before the closing `**`.
+    ADVERSARIAL_HEADER = r"\*\*Adversarial fresh-eyes\.?\*\*"
+
+    def test_adversarial_step_in_phase_2(self):
+        m = re.search(
+            r"### Phase 2 — Judge\s*\n(.*?)(?=^### |\Z)",
+            _body(), re.DOTALL | re.MULTILINE,
+        )
+        self.assertIsNotNone(m, "Phase 2 — Judge section missing")
+        assert m is not None
+        section = m.group(1)
+        self.assertRegex(
+            section, self.ADVERSARIAL_HEADER,
+            "Phase 2 must include the **Adversarial fresh-eyes** step",
+        )
+        self.assertRegex(
+            section.lower(), r"general-purpose.+(clean|fresh) context",
+            "Adversarial step must spawn general-purpose with a clean context",
+        )
+
+    def test_adversarial_default_on_with_economy_skip(self):
+        """ON by default; skipped under economy_mode. The economy flag
+        is the user's opt-out for token/latency reasons."""
+        body = _body()
+        # The phrase "ON by default" is the canonical declaration.
+        m = re.search(
+            self.ADVERSARIAL_HEADER + r".*?(?=\*\*[A-Z]|\Z)",
+            body, re.DOTALL,
+        )
+        self.assertIsNotNone(m, "Adversarial step section missing")
+        assert m is not None
+        text = m.group(0)
+        self.assertIn("ON by default", text,
+                      "Adversarial step must declare 'ON by default'")
+        self.assertIn("economy_mode", text,
+                      "Adversarial step must document the economy_mode skip")
+
+
+class TestPreSaveAuditAndRevisionPause(unittest.TestCase):
+    """Pre-save audit walks references/spec-craft.md § Pre-save audit
+    before save (commit a5d0116); the schema validator runs after. The
+    revision pause asks 'want to revise anything?' after Save + Validate
+    when the shape is Spec and auto_mode is false — restores the soft-
+    quality gate the validator alone does not catch."""
+
+    # Trailing period sits inside the bold markers in the canonical body.
+    AUDIT_HEADER = r"\*\*Pre-save audit\.?\*\*"
+    PAUSE_HEADER = r"\*\*Revision pause\.?\*\*"
+
+    def test_pre_save_audit_step_present(self):
+        body = _body()
+        self.assertRegex(
+            body, self.AUDIT_HEADER,
+            "Phase 4 must include the **Pre-save audit** step",
+        )
+        self.assertIn(
+            "Pre-save audit", body,
+            "Audit must reference the spec-craft.md § Pre-save audit section",
+        )
+
+    def test_revision_pause_step_present(self):
+        body = _body()
+        self.assertRegex(
+            body, self.PAUSE_HEADER,
+            "Phase 4 must include the **Revision pause** step",
+        )
+
+    def test_revision_pause_only_when_not_auto(self):
+        """The pause is for non-auto mode; auto_mode skips it (user opted
+        into commit-and-emit). Drift here re-introduces friction under -a."""
+        body = _body()
+        m = re.search(
+            self.PAUSE_HEADER + r".*?(?=\*\*[A-Z]|\Z)",
+            body, re.DOTALL,
+        )
+        self.assertIsNotNone(m, "Revision pause section missing")
+        assert m is not None
+        text = m.group(0).lower()
+        self.assertRegex(
+            text, r"auto_mode.+false|not.+auto_mode",
+            "Revision pause must gate on auto_mode = false",
+        )
+
+
+class TestNewReferencesRouted(unittest.TestCase):
+    """The rebuild added four references — research-discipline (Hunt),
+    clarify-playbook (Hunt), subagent-prompts (Hunt + Judge), and
+    adversarial-critique (Judge). SKILL.md must route to each on demand.
+    Drift here turns load-bearing depth into orphan files."""
+
+    REFERENCES = [
+        "research-discipline.md",
+        "clarify-playbook.md",
+        "subagent-prompts.md",
+        "adversarial-critique.md",
+    ]
+
+    def test_each_new_reference_routed(self):
+        body = _body()
+        for ref in self.REFERENCES:
+            with self.subTest(reference=ref):
+                self.assertIn(
+                    f"references/{ref}", body,
+                    f"SKILL.md must route to references/{ref} on demand",
+                )
+
+    def test_each_new_reference_file_exists(self):
+        ref_dir = REPO_ROOT / "skills" / "forge" / "references"
+        for ref in self.REFERENCES:
+            with self.subTest(reference=ref):
+                self.assertTrue(
+                    (ref_dir / ref).is_file(),
+                    f"references/{ref} missing on disk",
+                )
 
 
 if __name__ == "__main__":
