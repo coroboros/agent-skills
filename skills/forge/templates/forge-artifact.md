@@ -18,6 +18,7 @@
 
 - **Chosen:** {approach} — {1-2 sentence rationale}
 - **Runner-up:** {alternative} — {the condition under which it would win}
+- **Surfaced forks:** {load-bearing calls — name each, the pick, the runner-up, what would flip it. The user came for thinking, not plumbing; do not bury these in the ledger. Or "none" when the artifact has no structurally load-bearing forks}
 - **Escalated forks:** {the few user-owned questions, or "none"}
 
 ## Assumption ledger

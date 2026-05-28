@@ -163,7 +163,7 @@ Keep it minimal — no verbose parsing logs, no separators.
 ## Rules
 
 - **Never implement.** Forge produces a document (and optionally issues), not code changes. No edits or writes beyond the artifact.
-- **Decide, don't defer.** Resolve every engineering judgment call (see Phase 3). Escalate only the few forks the user genuinely owns.
+- **Three tiers in Decide.** Reversible and conventional → decide and record the rationale. Load-bearing → surface the call with the pick, the runner-up, and what would flip it. User-owned → escalate. Auto-deciding a load-bearing call is the overengineering tell — see Phase 3.
 - **Cross-reference, don't cherry-pick.** Triangulate sources for convergence and contradiction; never adopt the first plausible answer.
 - **Think hardest at Judge and Decide.** Don't overthink Hunt-phase triage — gathering is cheap.
 - **Load references on demand.** Read `references/*.md` only when the phase needs them — keep the main context lean.
@@ -205,22 +205,31 @@ Be rigorous, not contrarian. For a sharper angle — first-principles, inversion
 
 ### Phase 3 — Decide
 
-The heart of forge. Convert the judged options into resolved calls.
+Convert the judged options into resolved calls — but read the user's intent first. The discriminator between a clean call and an overengineered artifact is whether the user came for plumbing or for thinking. Three tiers: decide, surface, escalate.
 
-**Decide everything that is an engineering judgment call** — and record a one-line rationale for each:
+**Decide** what's reversible and conventional — and record a one-line rationale for each:
 
-- architecture and structure, library/framework/tool selection, design pattern;
-- how to decompose the work into workstreams, their order and dependencies;
 - naming, file layout, test strategy;
-- any trade-off where one option is clearly better, and anything reversible and cheap to change later.
+- library, framework, or tool picks where one option is clearly better;
+- decomposition order, dependency edges;
+- any call that is reversible and cheap to change later.
 
-**Escalate only** — and keep these to a handful:
+**Surface** what's structurally load-bearing — even if a competent senior engineer would just pick one. When the user came to think through a problem, the load-bearing call IS the thinking; burying it in the Assumption ledger as a fait accompli is the move that returns as "this got overengineered":
 
-- **Irreversible and costly** — data-migration shape, a public API contract, a dependency with a real exit cost.
-- **Genuinely the user's to own** — product, business, brand, pricing, scope-cut, or deadline trade-offs; matters of taste with no engineering-correct answer.
+- a data-shape decision that constrains every future feature;
+- an architecture pattern that shapes the next twelve months of work;
+- a vendor pick with real exit cost;
+- a convention choice that the team will live with for a long time.
+
+Name the option you would pick, the runner-up, and what would flip it. Then let the user agree or redirect. This is not escalation — it is the thinking the user asked for, made visible.
+
+**Escalate** the few forks the user genuinely owns — keep these to a handful:
+
+- **Irreversible and costly** — data-migration shape, a public API contract, a dependency with a real exit cost. (Often both surfaced AND escalated.)
+- **Product, business, or taste** — pricing, brand, scope-cut, deadline trade-offs; matters of taste with no engineering-correct answer.
 - **A balanced fork where being wrong is expensive** — two options that are truly even *and* costly to reverse.
 
-**Rule of thumb:** a competent senior engineer would just pick one and move on → **DECIDE**. It needs the product owner, or it would be expensive to reverse → **ESCALATE**. When in doubt, decide and record the assumption — a recorded assumption the user can veto beats an open question that stalls the build.
+**Rule of thumb.** Reversible and conventional → DECIDE. Load-bearing → SURFACE the call with rationale. User-owned → ESCALATE. When in doubt, prefer surfacing over auto-deciding — the user came for thinking, and a load-bearing decision recorded as an assumption the user can theoretically veto, but which they will never see because it lives 200 lines down the ledger, is a defect.
 
 ### Phase 4 — Forge
 
