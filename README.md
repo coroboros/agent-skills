@@ -1108,7 +1108,7 @@ Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial 
 
 ### Deep external research → Plan
 
-For research deeper than `forge`'s Hunt phase — hundreds of queries with source-reliability heuristics, the kind of work [Claude Desktop's Research feature](https://claude.com/blog/research) is built for — run the research there, save the cited Markdown to a path of your choice, then pipe it into `forge` as foundational context:
+[Claude Desktop's Research feature](https://claude.com/blog/research) runs hundreds of queries with source-reliability heuristics — depth beyond what `forge`'s Hunt phase reaches. Run the research there, save the cited Markdown to an absolute path, then pipe it into `forge` as foundational context:
 
 ```
 Claude Desktop Research                       hundreds of queries, cited Markdown
@@ -1120,7 +1120,7 @@ save the report to e.g. ~/.claude/output/{project}/external-research/{slug}.md
 /apex -f <abs forge path> "<task>"                           apex builds
 ```
 
-A supported pattern of the `-f` contract — `forge` and `apex` accept any absolute Markdown path verbatim. `forge`'s Hunt phase complements (does not replace) Claude Desktop Research: Hunt is research-as-input for engineering decisions, sized for tens of queries; Claude Desktop is research-as-deliverable for cited briefs, sized for hundreds.
+A supported pattern of the `-f` contract: `forge` and `apex` accept any absolute Markdown path verbatim. Hunt is research-as-input for engineering decisions, sized for tens of queries. Claude Desktop is research-as-deliverable for cited briefs, sized for hundreds.
 
 ### Design → Develop
 
