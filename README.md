@@ -1218,12 +1218,19 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 - [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
 - [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
 - [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
+- [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that emit code, commits, PR bodies, and review prose
 
 ### Canonical writing rules
 
 Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brand-voice`, `claude-md`, `code-ultrareview`, `forge`, `oneshot`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
 
 The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md). Run `scripts/sync_writing_rules.py` after editing it to propagate changes. The parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity and blocks merge if any declared skill drifts.
+
+### Canonical label-hygiene rules
+
+A second canonical block — *Label hygiene* — sits alongside the writing-rules block in `apex`, `code-ultrareview`, and `oneshot` (the three skills whose primary outputs are shipped artifacts: code, comments, commits, PR bodies, review prose). The block names the leak vectors that author-coordinate language produces — workstream labels like `WS-N`, process language like *the rebuild* or *carried verbatim from*, plan-internal references like *as the brief says* — and the carve-outs for skills that own the format (forge templates, apex rule documentation).
+
+The canonical source is [`.claude/rules/skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md), propagated by the same `scripts/sync_writing_rules.py` and verified by the same parity test. The repo backstop is [`tests/_meta/test_no_internal_label_leak.py`](./tests/_meta/test_no_internal_label_leak.py), which scans shipped skill source and fails CI red on any unallowlisted match. Per-line opt-out: `# noqa: internal-label` (Python / shell), `<!-- noqa: internal-label -->` (Markdown).
 
 ---
 

@@ -1,10 +1,19 @@
 #!/usr/bin/env python3
-"""Propagate the canonical writing-rules block from .claude/rules/skill-prose-rules.md into each declared SKILL.md.
+"""Propagate canonical blocks from `.claude/rules/skill-{prose,label-hygiene}-rules.md` into each declared SKILL.md.
+
+Two rule families share this script:
+
+- `writing-rules` — style block (front-load verbs, no marketing words, no AI tells).
+- `label-hygiene` — author-coordinate vocabulary block (`WS-N`, "the rebuild", "spec AC", etc.).
+
+Each rule has its own canonical file, marker pair, and declared-skill list. Iteration is in
+declared order: `writing-rules` first (markers in-place-replaced if present), `label-hygiene`
+second (inserted after H1 if absent — pushing writing-rules down on first-ever sync).
 
 Idempotent — second run produces zero diff. Exit 0 on success, 1 on parse error
-(canonical file malformed), 2 if any declared skill is missing or malformed.
+(any canonical file malformed), 2 if any declared skill is missing or malformed.
 
-Output: one line per skill (UPDATED | UNCHANGED | INSERTED skills/<name>/SKILL.md).
+Output: one line per (rule, skill) — `{UPDATED|UNCHANGED|INSERTED} skills/<name>/SKILL.md (<rule_id>)`.
 """
 
 from __future__ import annotations
@@ -12,47 +21,71 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
+from typing import NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-CANONICAL_FILE = REPO_ROOT / ".claude" / "rules" / "skill-prose-rules.md"
+RULES_DIR = REPO_ROOT / ".claude" / "rules"
 SKILLS_DIR = REPO_ROOT / "skills"
 
-START_MARKER = "<!-- canonical:writing-rules:start -->"
-END_MARKER = "<!-- canonical:writing-rules:end -->"
+
+class Rule(NamedTuple):
+    id: str
+    canonical_file: Path
+    start_marker: str
+    end_marker: str
+    declared_header: str
 
 
-def parse_canonical_file(text: str) -> tuple[str, list[str]]:
-    """Extract the canonical block (between markers) and the declared skill list.
+RULES: tuple[Rule, ...] = (
+    Rule(
+        id="writing-rules",
+        canonical_file=RULES_DIR / "skill-prose-rules.md",
+        start_marker="<!-- canonical:writing-rules:start -->",
+        end_marker="<!-- canonical:writing-rules:end -->",
+        declared_header="## Declared prose-emitting skills",
+    ),
+    Rule(
+        id="label-hygiene",
+        canonical_file=RULES_DIR / "skill-label-hygiene-rules.md",
+        start_marker="<!-- canonical:label-hygiene:start -->",
+        end_marker="<!-- canonical:label-hygiene:end -->",
+        declared_header="## Declared label-hygiene skills",
+    ),
+)
 
-    The block sits inside a fenced ```markdown code block in skill-prose-rules.md.
-    The declared list is rendered as `- name` bullets under "## Declared prose-emitting skills".
-    """
-    # Locate the canonical block — between the two markers, INSIDE the fenced code block.
-    start = text.find(START_MARKER)
-    end = text.find(END_MARKER)
+
+def parse_canonical_file(
+    text: str, start_marker: str, end_marker: str, declared_header: str
+) -> tuple[str, list[str]]:
+    """Extract the canonical block (between markers) and the declared skill list."""
+    start = text.find(start_marker)
+    end = text.find(end_marker)
     if start == -1 or end == -1 or end <= start:
-        raise ValueError("canonical markers not found or malformed in canonical file")
-    block = text[start : end + len(END_MARKER)]
+        raise ValueError(
+            f"canonical markers not found or malformed (looking for {start_marker!r} and {end_marker!r})"
+        )
+    block = text[start : end + len(end_marker)]
 
-    # Locate the declared skills section.
     m = re.search(
-        r"^## Declared prose-emitting skills\s*$(.*?)^## ",
+        rf"^{re.escape(declared_header)}\s*$(.*?)^## ",
         text,
         re.MULTILINE | re.DOTALL,
     )
     if not m:
-        raise ValueError("'## Declared prose-emitting skills' section not found")
+        raise ValueError(f"section {declared_header!r} not found")
     declared = []
     for line in m.group(1).splitlines():
         bm = re.match(r"^- ([a-z][a-z0-9-]*)\s*$", line.strip())
         if bm:
             declared.append(bm.group(1))
     if not declared:
-        raise ValueError("declared skill list is empty")
+        raise ValueError(f"declared skill list under {declared_header!r} is empty")
     return block, declared
 
 
-def patch_skill(skill_md: Path, canonical_block: str) -> str:
+def patch_skill(
+    skill_md: Path, canonical_block: str, start_marker: str, end_marker: str
+) -> str:
     """Insert or replace the canonical block in a SKILL.md.
 
     Returns one of: "UPDATED", "UNCHANGED", "INSERTED".
@@ -60,17 +93,15 @@ def patch_skill(skill_md: Path, canonical_block: str) -> str:
     text = skill_md.read_text(encoding="utf-8")
     lines = text.splitlines(keepends=True)
 
-    # If markers already present, replace from start marker to end marker (inclusive).
-    if START_MARKER in text and END_MARKER in text:
-        start_idx = text.index(START_MARKER)
-        end_idx = text.index(END_MARKER) + len(END_MARKER)
+    if start_marker in text and end_marker in text:
+        start_idx = text.index(start_marker)
+        end_idx = text.index(end_marker) + len(end_marker)
         new_text = text[:start_idx] + canonical_block + text[end_idx:]
         if new_text == text:
             return "UNCHANGED"
         skill_md.write_text(new_text, encoding="utf-8")
         return "UPDATED"
 
-    # Markers absent — insert immediately after the H1 line.
     h1_pos = None
     for i, line in enumerate(lines):
         if line.startswith("# ") and not line.startswith("## "):
@@ -79,12 +110,8 @@ def patch_skill(skill_md: Path, canonical_block: str) -> str:
     if h1_pos is None:
         raise ValueError(f"{skill_md}: no H1 heading found")
 
-    # Build the insertion: blank line + canonical block + blank line, after the H1.
-    # We want H1 followed by exactly one blank line, then the canonical block, then exactly
-    # one blank line, then the original content that came after H1.
     head = lines[: h1_pos + 1]
     tail = lines[h1_pos + 1 :]
-    # Strip leading blank lines from tail so we control spacing.
     while tail and tail[0].strip() == "":
         tail.pop(0)
 
@@ -94,35 +121,49 @@ def patch_skill(skill_md: Path, canonical_block: str) -> str:
     return "INSERTED"
 
 
-def main() -> int:
+def process_rule(rule: Rule) -> list[str]:
+    """Process one rule: parse its canonical file, patch every declared skill.
+
+    Returns the list of failing skill names (empty on success).
+    """
     try:
-        canonical_text = CANONICAL_FILE.read_text(encoding="utf-8")
+        canonical_text = rule.canonical_file.read_text(encoding="utf-8")
     except OSError as exc:
-        print(f"ERROR: cannot read canonical file: {exc}", file=sys.stderr)
-        return 1
+        print(f"ERROR ({rule.id}): cannot read canonical file: {exc}", file=sys.stderr)
+        raise
 
-    try:
-        block, declared = parse_canonical_file(canonical_text)
-    except ValueError as exc:
-        print(f"ERROR: {exc}", file=sys.stderr)
-        return 1
+    block, declared = parse_canonical_file(
+        canonical_text, rule.start_marker, rule.end_marker, rule.declared_header
+    )
 
-    failures = []
+    failures: list[str] = []
     for name in declared:
         skill_md = SKILLS_DIR / name / "SKILL.md"
         if not skill_md.is_file():
-            print(f"MISSING skills/{name}/SKILL.md", file=sys.stderr)
+            print(f"MISSING skills/{name}/SKILL.md ({rule.id})", file=sys.stderr)
             failures.append(name)
             continue
         try:
-            status = patch_skill(skill_md, block)
+            status = patch_skill(skill_md, block, rule.start_marker, rule.end_marker)
         except ValueError as exc:
-            print(f"ERROR skills/{name}/SKILL.md: {exc}", file=sys.stderr)
+            print(f"ERROR skills/{name}/SKILL.md ({rule.id}): {exc}", file=sys.stderr)
             failures.append(name)
             continue
-        print(f"{status} skills/{name}/SKILL.md")
+        print(f"{status} skills/{name}/SKILL.md ({rule.id})")
+    return failures
 
-    return 2 if failures else 0
+
+def main() -> int:
+    aggregate_failures: list[tuple[str, str]] = []
+    for rule in RULES:
+        try:
+            failures = process_rule(rule)
+        except (OSError, ValueError) as exc:
+            print(f"ERROR ({rule.id}): {exc}", file=sys.stderr)
+            return 1
+        for name in failures:
+            aggregate_failures.append((rule.id, name))
+    return 2 if aggregate_failures else 0
 
 
 if __name__ == "__main__":

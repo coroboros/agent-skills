@@ -69,7 +69,7 @@ Once the loop returns GREEN, align the skill with this repo before committing:
    - Plain Markdown headings only. No XML sections (`<objective>`, `<workflow>`, etc.).
    - Reference supporting files (`steps/`, `references/`, `scripts/`) from SKILL.md with clear guidance on when to read them.
    - Under 500 lines, under 5,000 tokens.
-   - For prose-emitting skills, embed the canonical writing-rules block per [`skill-prose-rules.md`](./skill-prose-rules.md). Use `scripts/sync_writing_rules.py` to propagate changes; the parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity.
+   - For prose-emitting skills, embed the canonical writing-rules block per [`skill-prose-rules.md`](./skill-prose-rules.md). For skills whose primary outputs are shipped artifacts (code, commits, PR bodies, review prose), also embed the label-hygiene block per [`skill-label-hygiene-rules.md`](./skill-label-hygiene-rules.md). The same `scripts/sync_writing_rules.py` propagates both; the parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity for each rule independently.
 
 3. **File layout**
    - No `README.md` inside the skill folder. User-facing docs live in the root `README.md` only.
