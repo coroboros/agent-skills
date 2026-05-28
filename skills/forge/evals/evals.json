@@ -1,6 +1,6 @@
 {
   "skill_name": "forge",
-  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase flow (Hunt/Judge/Decide/Forge), the three-tier Decide discipline (decide reversible/conventional, surface load-bearing forks, escalate user-owned), the Decision-default routing with the six promotion conditions (auto_mode, issues_mode, from_file is Spec, build verb, decomposition signal, decision-IS-build-plan), the adversarial fresh-eyes critic after Stress-test, the canonical artifact shape (Decision header + Surfaced forks + Assumption ledger; 3-7 workstreams with priority/complexity/tasks/AC when Spec-promoted), the pre-save audit + schema validator gate pair, the revision pause for Spec under non-auto, GitHub-issue creation, and the bridge to /apex.",
+  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase Hunt/Judge/Decide/Forge flow, the Decision-default routing with the six Spec-promotion conditions, the three-tier Decide model, the adversarial fresh-eyes critic, the pre-save audit + validator gate pair, the revision pause, and the /apex bridge.",
   "evals": [
     {
       "id": 1,
