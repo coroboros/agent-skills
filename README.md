@@ -1218,12 +1218,19 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 - [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
 - [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
 - [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
+- [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
 
 ### Canonical writing rules
 
 Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brand-voice`, `claude-md`, `code-ultrareview`, `forge`, `oneshot`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
 
 The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md). Run `scripts/sync_writing_rules.py` after editing it to propagate changes. The parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity and blocks merge if any declared skill drifts.
+
+### Canonical label-hygiene rules
+
+Skills that ship external artifacts carry a second canonical block — *Label hygiene* — alongside the writing-rules block. Three skills qualify today: `apex`, `code-ultrareview`, `oneshot`. The block forbids author-coordinate language in any artifact the skill emits, and names the carve-outs for skills that own the format (forge templates, apex rule documentation).
+
+The canonical source lives in [`.claude/rules/skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md). `scripts/sync_writing_rules.py` propagates it; the parity test enforces byte equality. The repo backstop [`tests/_meta/test_no_internal_label_leak.py`](./tests/_meta/test_no_internal_label_leak.py) scans shipped skill source and fails CI red on any unallowlisted match. Per-line opt-out: `# noqa: internal-label` (Python / shell), `<!-- noqa: internal-label -->` (Markdown).
 
 ---
 
