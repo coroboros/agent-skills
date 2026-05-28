@@ -1106,6 +1106,22 @@ Skills chain together by design. Each works standalone; chaining covers longer w
 
 Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for an adaptive fresh-eyes pass before committing.
 
+### Deep external research → Plan
+
+For research deeper than `forge`'s Hunt phase — hundreds of queries with source-reliability heuristics, the kind of work [Claude Desktop's Research feature](https://claude.com/blog/research) is built for — run the research there, save the cited Markdown to a path of your choice, then pipe it into `forge` as foundational context:
+
+```
+Claude Desktop Research                       hundreds of queries, cited Markdown
+      |
+save the report to e.g. ~/.claude/output/{project}/external-research/{slug}.md
+      |
+/forge -f <abs path> "<question informed by the research>"   forge reads verbatim per the -f contract
+      |
+/apex -f <abs forge path> "<task>"                           apex builds
+```
+
+A supported pattern of the `-f` contract — `forge` and `apex` accept any absolute Markdown path verbatim. `forge`'s Hunt phase complements (does not replace) Claude Desktop Research: Hunt is research-as-input for engineering decisions, sized for tens of queries; Claude Desktop is research-as-deliverable for cited briefs, sized for hundreds.
+
 ### Design → Develop
 
 Happy path, new project:

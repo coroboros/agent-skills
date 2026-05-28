@@ -76,6 +76,14 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 
 Forge is the bridge from intent to buildable plan. It reads context, decides, decomposes, and hands off to `/apex` — which implements one workstream at a time. With `-i`, the workstreams also become GitHub issues.
 
+For deep external research beyond Hunt's reach (hundreds of queries with source-reliability heuristics — the scale [Claude Desktop's Research](https://claude.com/blog/research) feature is built for), run the research there, save the cited Markdown to a path of your choice, then pipe it into forge:
+
+```
+Claude Desktop Research → save .md → /forge -f <abs path> → /apex
+```
+
+A supported feature of the `-f` contract — both `forge` and `apex` read any absolute Markdown path verbatim. The repo README has the expanded chain under *Deep external research → Plan*.
+
 ## Output
 
 When `{save_mode}` = true:
@@ -185,7 +193,7 @@ Frame the real problem, then research it wide.
 
 **Clarify (if vague and not `{auto_mode}`).** If scope, constraints, success criteria, or a load-bearing dependency is unclear and could flip the outcome, ask the 1-3 most relevant decision-forcing questions in a single message before researching — never five when one matters, never a second round. For the question set, the when-to-ask gate, and the prior-context attenuation rule, read `${CLAUDE_SKILL_DIR}/references/clarify-playbook.md` on demand. Under `{auto_mode}`, never ask — decide, tag the call `assumption` in the ledger, surface the shakiest as an open question.
 
-**Research.** Investigate from multiple angles via parallel subagents scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
+**Research.** Investigate from multiple angles via parallel subagents scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. Every cited external source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per the prompt contract in `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` § *general-purpose — external research* — downstream readers discount lower-quality sources before fusion. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
 
 ### Phase 2 — Judge
 
@@ -201,7 +209,7 @@ Diverge before converging, then stress-test.
 
 Be rigorous, not contrarian. For a sharper angle — first-principles, inversion, reverse-brainstorm, elimination — read `references/thinking-tools.md` on demand.
 
-**Adversarial fresh-eyes.** ON by default. Launch one `general-purpose` subagent with a clean context — leader summary, runner-up summary, and the premortem failures only. The point is that the critique comes from a context that did NOT produce the leader: the same conversation cannot reliably argue against the plan it just shipped. For the prompt skeleton, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for the full skip conditions (`{economy_mode}`, wide-gap Judge convergence with no shaky assumption, pure-strategy with a dominant option) and the integration rule (fold into Decision, refute in writing, or file in Risks / Open questions — never silently drop), read `${CLAUDE_SKILL_DIR}/references/adversarial-critique.md`.
+**Adversarial fresh-eyes.** ON by default. Launch one `general-purpose` subagent with a clean context — leader summary, runner-up summary, and the premortem failures only. The point is that the critique comes from a context that did NOT produce the leader: the same conversation cannot reliably argue against the plan it just shipped. For the prompt skeleton, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for the full skip conditions (`{economy_mode}`, wide-gap Judge convergence with no shaky assumption, pure-strategy with a dominant option) and the integration rule (fold into Decision, refute in writing, or file in Risks / Open questions — never silently drop), read `${CLAUDE_SKILL_DIR}/references/adversarial-critique.md`. When refuting a finding, score the rebuttal 1–5 per the Concession Threshold Protocol — concede only at ≥ 4, otherwise fold or file.
 
 ### Phase 3 — Decide
 
@@ -249,7 +257,7 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 **Write the artifact** using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR}/templates/forge-artifact.md` before writing):
 
 1. **Decision header** — chosen approach + rationale, runner-up + what would flip it, escalated forks (or "none").
-2. **Assumption ledger** — every load-bearing assumption tagged verified fact / assumption / inherited convention. Fold the adversarial-critique findings here — each finding either flipped the leader, was refuted in writing, or filed in Risks / Open questions; never silently dropped.
+2. **Assumption ledger** — every load-bearing assumption tagged verified fact / assumption / inherited convention. Fold the adversarial-critique findings here — each finding either flipped the leader, was refuted in writing at score ≥ 4 per the Concession Threshold Protocol, or filed in Risks / Open questions. Silent drops are a defect.
 3. **Spec shape only (promoted)** — H1 `# Spec: {title}`, 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`.
 4. **Decision shape (default)** — H1 `# Decision: {title}`. Omit workstreams, dependencies, and execution order. After Save, present and pause for the decompose question described above.
 

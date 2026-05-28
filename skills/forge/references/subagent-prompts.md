@@ -25,6 +25,8 @@ Report:
 Do not suggest implementations. Do not propose a design. Findings only.
 ```
 
+Explore reads the codebase, not the web — the source-quality tagging contract in the next section does not apply here.
+
 ## general-purpose — external research (Hunt)
 
 Use for "how do best-in-class solutions approach this", "what are the pitfalls of vendor X", "is this pattern still alive in {ecosystem}".
@@ -38,6 +40,13 @@ Find:
 - comparative analyses or real-world experience reports where two or more sources can be triangulated.
 
 Report at most 5 findings, ranked by load-bearingness. Mark each finding with its source and the date if available. Where sources diverge, surface the divergence — it is more informative than the convergence.
+
+Source quality. Tag every cited source with exactly one of:
+- `primary` — original source (research paper, official docs, vendor spec, government report);
+- `secondary` — analysis of primary (review article, news citing a primary source);
+- `blog` — independent post or opinion piece;
+- `anecdote` — single-person experience report (forum reply, single tweet);
+- `vendor-marketing` — content pitched by the company selling the thing.
 
 Skip: generic best practices the question did not ask about, training-data recall without a current source, single-source claims dressed up as consensus.
 ```
