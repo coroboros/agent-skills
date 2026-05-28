@@ -1,0 +1,37 @@
+# Research discipline
+
+On-demand depth for the Hunt phase. Read this when launching subagents or pulling external evidence — not on every run. The point is breadth across angles + triangulation, not the first plausible source.
+
+## Three angles to cover
+
+Most non-trivial questions need at least two of these. Skip an angle only when it cannot apply (no codebase yet, no external precedent worth fetching).
+
+- **Codebase context** — patterns, architecture, conventions, prior decisions. `git log` for *why* something is shaped the way it is. Read the immediate callers of anything you are about to extend, not just the symbol itself.
+- **Technical best practices** — how best-in-class solutions approach the problem; common pitfalls; security, performance, data-integrity considerations. Pull from current docs (Context7, official sources), not training-data recall.
+- **External evidence** — comparative analyses, real-world experience reports (post-mortems, RFC comment threads), and docs for unfamiliar technologies. Most useful when the call is "vendor X vs Y" or "is this pattern still alive".
+
+## Triangulate, don't cherry-pick
+
+A single source is anecdote. Three converging sources is signal. One source contradicting two is a flag worth surfacing in the artifact.
+
+- For each load-bearing claim, name at least two sources that agree, or note "single source — assumption".
+- Where sources diverge, record the divergence in the Assumption ledger. The divergence is more informative than the convergence.
+- Newer trumps older when methodology is comparable. Methodology trumps recency when not.
+
+## What to leave to the model
+
+Premortem framing, generic best practices, common gotchas for well-known libraries — the model already carries these. Use research to ground the *specific* call: this codebase, this version, this constraint.
+
+Skip research entirely when the answer is already clear from framing — exploration is cheap, but launching subagents on a settled question burns context for no gain.
+
+## When to widen the net
+
+- Two angles converged but the answer feels too clean → add the third angle.
+- The premortem in Phase 2 surfaces a failure mode no source mentioned → research it directly.
+- A load-bearing assumption is tagged `inherited convention` and you cannot find its origin → that is a research question worth one more subagent.
+
+## When to stop
+
+- Marginal new search returns marginal new information.
+- The remaining uncertainty is product or business, not technical — that belongs in the escalated forks, not in more research.
+- You have enough to decide *and* to record what would flip the decision.

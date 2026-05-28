@@ -183,7 +183,7 @@ Frame the real problem, then research it wide.
 
 **Clarify (if vague and not `{auto_mode}`).** If scope, constraints, or success criteria are unclear and could flip the outcome, ask focused questions in a single message before researching. Under `{auto_mode}`, make the reasonable assumption and record it in the ledger.
 
-**Research.** Investigate from multiple angles via parallel subagents scaled to complexity (see Subagent strategy). Cover what's relevant — codebase patterns and prior decisions, technical best practices and pitfalls, external evidence for unfamiliar technologies. **Cross-reference, don't select** the single "best" source: triangulate where they converge and where they contradict.
+**Research.** Investigate from multiple angles via parallel subagents scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
 
 ### Phase 2 — Judge
 
@@ -248,6 +248,7 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 ## Supporting files
 
 - `templates/forge-artifact.md` — the canonical artifact format used by Phase 4
+- `references/research-discipline.md` — three-angle breadth + triangulation discipline; read on demand by Hunt
 - `references/thinking-tools.md` — first-principles, inversion, reverse-brainstorm, elimination; read on demand by Judge
 - `references/spec-craft.md` — acceptance-criteria, priority, and goal-hardening technique; read on demand by Forge
 - `references/issue-creation.md` — GitHub issue orchestration; read only when `-i` is set
