@@ -1218,7 +1218,7 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 - [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
 - [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
 - [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
-- [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that emit code, commits, PR bodies, and review prose
+- [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
 
 ### Canonical writing rules
 
@@ -1228,9 +1228,9 @@ The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/s
 
 ### Canonical label-hygiene rules
 
-A second canonical block — *Label hygiene* — sits alongside the writing-rules block in `apex`, `code-ultrareview`, and `oneshot` (the three skills whose primary outputs are shipped artifacts: code, comments, commits, PR bodies, review prose). The block names the leak vectors that author-coordinate language produces — workstream labels like `WS-N`, process language like *the rebuild* or *carried verbatim from*, plan-internal references like *as the brief says* — and the carve-outs for skills that own the format (forge templates, apex rule documentation).
+Skills that ship external artifacts carry a second canonical block — *Label hygiene* — alongside the writing-rules block. Three skills qualify today: `apex`, `code-ultrareview`, `oneshot`. The block forbids author-coordinate language in any artifact the skill emits, and names the carve-outs for skills that own the format (forge templates, apex rule documentation).
 
-The canonical source is [`.claude/rules/skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md), propagated by the same `scripts/sync_writing_rules.py` and verified by the same parity test. The repo backstop is [`tests/_meta/test_no_internal_label_leak.py`](./tests/_meta/test_no_internal_label_leak.py), which scans shipped skill source and fails CI red on any unallowlisted match. Per-line opt-out: `# noqa: internal-label` (Python / shell), `<!-- noqa: internal-label -->` (Markdown).
+The canonical source lives in [`.claude/rules/skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md). `scripts/sync_writing_rules.py` propagates it; the parity test enforces byte equality. The repo backstop [`tests/_meta/test_no_internal_label_leak.py`](./tests/_meta/test_no_internal_label_leak.py) scans shipped skill source and fails CI red on any unallowlisted match. Per-line opt-out: `# noqa: internal-label` (Python / shell), `<!-- noqa: internal-label -->` (Markdown).
 
 ---
 
