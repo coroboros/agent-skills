@@ -113,6 +113,8 @@ The Hunt phase uses **adaptive agent launching** unless `{economy_mode}` = true.
 
 Exploration output is large and noisy; subagents keep that noise out of the main context — only the distilled findings return. Launch all chosen agents in one message so they run in parallel. Don't over-launch: if the idea is simple or the codebase is small, skip subagents and use direct tools.
 
+**Prompt skeletons.** Pin the report shape and the constraint in every prompt — a vague subagent prompt returns a vague summary. For Explore (codebase reconnaissance), general-purpose (external research), and the adversarial critic used by Judge, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` on demand. Adapt the skeleton to the question; do not paste verbatim.
+
 ## State variables
 
 Persist throughout:
@@ -250,6 +252,7 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 - `templates/forge-artifact.md` — the canonical artifact format used by Phase 4
 - `references/research-discipline.md` — three-angle breadth + triangulation discipline; read on demand by Hunt
 - `references/clarify-playbook.md` — five decision-forcing question lenses + when-to-ask gate; read on demand by Hunt
+- `references/subagent-prompts.md` — prompt skeletons for Explore, general-purpose, and the adversarial critic; read on demand whenever launching a subagent
 - `references/thinking-tools.md` — first-principles, inversion, reverse-brainstorm, elimination; read on demand by Judge
 - `references/spec-craft.md` — acceptance-criteria, priority, and goal-hardening technique; read on demand by Forge
 - `references/issue-creation.md` — GitHub issue orchestration; read only when `-i` is set
