@@ -55,7 +55,7 @@ Walk this checklist before save. The validator catches schema violations (count,
 - [ ] Adversarial-critique findings folded — every finding either flipped the leader, was refuted in writing, or filed in Risks / Open questions. No silent drops.
 - [ ] Assumption ledger tags each load-bearing claim verified fact / assumption / inherited convention. The shakiest is surfaced as a risk or open question, not buried.
 
-**Spec shape (additionally):**
+**Spec shape (also):**
 
 - [ ] Every workstream has Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, Acceptance criteria.
 - [ ] Acceptance criteria use Given/When/Then inside each `- [ ]` item, cover happy + error + edge, include ≥1 negative. No vague words (fast, intuitive, user-friendly, robust, seamless).

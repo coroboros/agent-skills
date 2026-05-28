@@ -50,4 +50,13 @@ Unaddressed findings are a defect. Either the critique was wrong (record the ref
 - Asking the critic for a recommendation. The recommendation is the leader; the critic's job is the case against it.
 - Running the critic with the full deliberation history. That recreates the auto-justification bias the fresh-eyes step exists to avoid.
 - Silently dropping findings that don't fit the artifact. Every finding either flips the plan, is refuted in writing, or is filed in Risks / Open questions.
-- Running the critic on every invocation when Judge has already converged. Burning tokens to confirm a settled call is the kind of waste that turned the brainstorm-spec seam into ceremony.
+- Running the critic on every invocation when Judge has already converged. Burning tokens to confirm a settled call is the kind of waste a thinking skill should not introduce.
+
+## Why runtime invocation, not a wired agent file
+
+Claude Code supports filesystem-based subagents under `.claude/agents/` (project), `~/.claude/agents/` (user), and the plugin `agents/` directory. The critic could live as one of those — a static system prompt with `tools: Read, Grep, Glob` and `model: opus`, invocable as `@fresh-eyes-critic`. Forge does not take that path. Two reasons:
+
+- **Install-path portability.** The repo ships skills two ways: the `npx skills add` installer (skills-only, no agents) and the Claude Code plugin marketplace (skills + plugin agents). Wiring the critic as a plugin agent file would silently make the critic absent for `npx skills add` users and present for plugin users — a feature drift the user cannot see until invocation.
+- **Runtime data has nowhere to live in a static system prompt.** The critic needs the leader summary, the runner-up summary, and the premortem failures *for this specific invocation*. Those have to pass through the Agent tool's prompt parameter regardless of whether the agent is wired or built-in. A wired file would only carry boilerplate ("you are an adversarial reviewer"); the load-bearing content still travels at runtime through the skeleton in `subagent-prompts.md`. The wired file would add discovery and tool restriction without adding specialization.
+
+Future authors who want tool restriction on the critic can add an `agents/fresh-eyes-critic.md` at the plugin root and have Phase 2 invoke it by name, falling back to `general-purpose` + skeleton when unavailable. That hybrid is a deliberate enhancement, not the default — and it carries the install-path-drift cost that this note exists to make visible.

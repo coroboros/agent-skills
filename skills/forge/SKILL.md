@@ -85,12 +85,12 @@ When `{save_mode}` = true:
 └── forge-{slug}.md    # one file per intent — multiple artifacts coexist in a repo
 ```
 
-Two artifact shapes — Decision is the default; Spec is the promotion. The routing rule lives in Phase 4 (Forge):
+Two artifact shapes — Decision is the default; Spec is the promotion. The full routing rule (six promotion conditions) lives in Phase 4 (Forge); this section only shows the shape contract.
 
-- **Decision (default)** — H1 `# Decision: {title}`, no workstreams. Emit by default whenever the outcome is a choice, an exploration, or a "should we" question. Terminal — present the decision, ask the user whether to decompose into workstreams, and wait. No apex bridge unless the user opts into the decompose.
-- **Spec (promoted)** — H1 `# Spec: {title}`, with `## Workstreams`. Emit when `{auto_mode}` = true, OR when the idea carries an unambiguous build verb (`build`, `add`, `implement`, `migrate`, `refactor`, `create`, `port`, `replace`, …), OR when the idea carries an explicit decomposition signal (`plan`, `break down`, `spec out`, `decompose`, `workstreams`, `issues`, `roadmap`). This shape triggers `/apex`'s spec-closure: apex accepts the acceptance criteria verbatim.
+- **Decision (default)** — H1 `# Decision: {title}`, no workstreams. Emit whenever the outcome is a choice, an exploration, or a "should we" question. Terminal — present the decision, ask the user whether to decompose into workstreams, and wait. No apex bridge unless the user opts into the decompose.
+- **Spec (promoted)** — H1 `# Spec: {title}`, with `## Workstreams`. Emit when Phase 4 routing fires (the six conditions are enumerated there). This shape triggers `/apex`'s spec-closure: apex accepts the acceptance criteria verbatim.
 
-If `{issues_mode}` = true, a `## GitHub Issues` section is appended after creation, mapping each workstream to its issue number. `{issues_mode}` implies the Spec shape — if the routing did not promote, force-promote with a one-line note in the Assumption ledger.
+If `{issues_mode}` = true, a `## GitHub Issues` section is appended after creation, mapping each workstream to its issue number.
 
 ## Subagent strategy
 
