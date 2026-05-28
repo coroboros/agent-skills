@@ -94,7 +94,7 @@ If `{issues_mode}` = true, a `## GitHub Issues` section is appended after creati
 
 ## Subagent strategy
 
-The Hunt phase uses **adaptive agent launching** unless `{economy_mode}` = true.
+The Hunt phase uses **adaptive agent launching** and the Judge phase runs one **adversarial fresh-eyes critic** after Stress-test, unless `{economy_mode}` = true.
 
 **Available subagent types:**
 
@@ -201,6 +201,8 @@ Diverge before converging, then stress-test.
 
 Be rigorous, not contrarian. For a sharper angle — first-principles, inversion, reverse-brainstorm, elimination — read `references/thinking-tools.md` on demand.
 
+**Adversarial fresh-eyes.** ON by default; skipped under `{economy_mode}` = true, or when Judge has already converged with a wide leader/runner-up gap and no load-bearing assumption is tagged `assumption` or `inherited convention`. Launch one `general-purpose` subagent with a clean context — leader summary, runner-up summary, and the premortem failures only. The point is that the critique comes from a context that did NOT produce the leader: the same conversation cannot reliably argue against the plan it just shipped. For the prompt skeleton, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for when to skip and how to integrate findings (fold into Decision, refute in writing, or file in Risks / Open questions — never silently drop), read `${CLAUDE_SKILL_DIR}/references/adversarial-critique.md`.
+
 ### Phase 3 — Decide
 
 The heart of forge. Convert the judged options into resolved calls.
@@ -254,6 +256,7 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 - `references/clarify-playbook.md` — five decision-forcing question lenses + when-to-ask gate; read on demand by Hunt
 - `references/subagent-prompts.md` — prompt skeletons for Explore, general-purpose, and the adversarial critic; read on demand whenever launching a subagent
 - `references/thinking-tools.md` — first-principles, inversion, reverse-brainstorm, elimination; read on demand by Judge
+- `references/adversarial-critique.md` — fresh-eyes methodology: when to run, when to skip, how to integrate findings; read on demand by Judge
 - `references/spec-craft.md` — acceptance-criteria, priority, and goal-hardening technique; read on demand by Forge
 - `references/issue-creation.md` — GitHub issue orchestration; read only when `-i` is set
 - `scripts/validate_spec.py` — schema + dependency-graph validator (Forge; requires Python 3.7+)
