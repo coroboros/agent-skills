@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Pre-implementation thinking — research the problem space, weigh approaches with devil's-advocate rigor, decide every engineering call within scope, and emit one apex-ready plan. Use whenever a non-trivial task needs thinking, comparison, or decomposition before code — even when the user doesn't say "forge" (e.g. "should we", "what's the best way", "compare", "evaluate", "pros and cons", "think through", "plan this", "break this down", "spec out", "create issues for", "map out the steps"). Produces a decision and, when there's code to build, prioritized workstreams with dependencies and acceptance criteria. NOT implementation (→ /apex or /oneshot).
+description: Pre-implementation thinking — research the problem space, weigh approaches with devil's-advocate rigor, decide what's reversible and conventional while surfacing the load-bearing forks for the user, and emit one apex-ready plan. Use whenever a non-trivial task needs thinking, comparison, or decomposition before code — even when the user doesn't say "forge" (e.g. "should we", "what's the best way", "compare", "evaluate", "pros and cons", "think through", "plan this", "break this down", "spec out", "create issues for", "map out the steps"). Produces a Decision by default (terminal — discuss-then-build); promotes to a Spec with prioritized workstreams when the build path is clear. NOT implementation (→ /apex or /oneshot).
 when_to_use: When a non-trivial task needs research, option-weighing, or decomposition before building. After a rough idea when the direction or the work's shape is still open. When the user asks to explore, compare, evaluate, plan, break down, or create issues for a feature. Skip for clearly self-contained work where the approach is settled — go straight to /apex; skip for tiny one-file changes — use /oneshot. Never for implementation.
 argument-hint: "[-s] [-f <path>] [-i] [-a] [-e] <question or idea>"
 model: opus
@@ -37,7 +37,7 @@ Pre-implementation thinking for: $ARGUMENTS
 
 Take any starting point — a question, a rough idea, a brainstorm, a GitHub issue — research it wide, stress-test the options, decide every call inside the engineering mandate, and emit one artifact `/apex` can build from. Forge is the "think" half; `apex` is the "build" half. The seam between them carries the one human checkpoint that matters: review the plan before any code.
 
-The discriminator is the Decide phase. Forge resolves the judgment calls a senior engineer would just make, and escalates only the few forks the user genuinely owns — turning "too many open questions" into "a few sharp ones."
+The discriminator is the Decide phase, in three tiers: forge **decides** the reversible and conventional calls, **surfaces** the structurally load-bearing forks for the user (named with the pick, the runner-up, and what would flip it), and **escalates** the few forks the user genuinely owns. Surfacing is the new tier — it is the thinking the user asked for, made visible rather than buried in the Assumption ledger.
 
 ## Parameters
 
@@ -169,7 +169,7 @@ Keep it minimal — no verbose parsing logs, no separators.
 - **Load references on demand.** Read `references/*.md` only when the phase needs them — keep the main context lean.
 - **Always include concrete acceptance criteria** — every workstream, Given/When/Then + ≥1 negative; see `references/spec-craft.md`.
 - **3-7 workstreams.** Code-bearing artifacts have between 3 and 7 workstreams. Fewer means one task — go straight to `/oneshot` or `/apex`. More means re-decompose. Enforced by `scripts/validate_spec.py`.
-- **Validate before finalizing.** When the artifact has workstreams, run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` — exit 0 required (Priority/Complexity set; deps resolve; no cycles). Rewrite flagged workstreams until it clears.
+- **Audit and validate before finalizing.** Walk the pre-save audit in `references/spec-craft.md` § Pre-save audit (Decision items always; Spec items when promoted) — rewrite anything flagged. When the artifact has workstreams, also run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` — exit 0 required (Priority/Complexity set; deps resolve; no cycles). The audit catches soft defects the validator cannot see; both gates must pass.
 
 ## Workflow — four phases
 
@@ -201,7 +201,7 @@ Diverge before converging, then stress-test.
 
 Be rigorous, not contrarian. For a sharper angle — first-principles, inversion, reverse-brainstorm, elimination — read `references/thinking-tools.md` on demand.
 
-**Adversarial fresh-eyes.** ON by default; skipped under `{economy_mode}` = true, or when Judge has already converged with a wide leader/runner-up gap and no load-bearing assumption is tagged `assumption` or `inherited convention`. Launch one `general-purpose` subagent with a clean context — leader summary, runner-up summary, and the premortem failures only. The point is that the critique comes from a context that did NOT produce the leader: the same conversation cannot reliably argue against the plan it just shipped. For the prompt skeleton, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for when to skip and how to integrate findings (fold into Decision, refute in writing, or file in Risks / Open questions — never silently drop), read `${CLAUDE_SKILL_DIR}/references/adversarial-critique.md`.
+**Adversarial fresh-eyes.** ON by default. Launch one `general-purpose` subagent with a clean context — leader summary, runner-up summary, and the premortem failures only. The point is that the critique comes from a context that did NOT produce the leader: the same conversation cannot reliably argue against the plan it just shipped. For the prompt skeleton, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for the full skip conditions (`{economy_mode}`, wide-gap Judge convergence with no shaky assumption, pure-strategy with a dominant option) and the integration rule (fold into Decision, refute in writing, or file in Risks / Open questions — never silently drop), read `${CLAUDE_SKILL_DIR}/references/adversarial-critique.md`.
 
 ### Phase 3 — Decide
 
@@ -238,6 +238,8 @@ Emit ONE artifact. Research and adversarial findings stay in the subagents — o
 **Choose the shape first.** Default = `# Decision:` (no workstreams, terminal — present the decision and pause for the user). Promote to `# Spec:` (with 3-7 workstreams) **only** when at least one of these holds:
 
 - `{auto_mode}` = true — the user opted into commit-and-emit.
+- `{issues_mode}` = true — `-i` forces issue creation, which needs workstreams; record the forced promotion as a one-line note in the Assumption ledger.
+- `{from_file}` is a prior Spec artifact (H1 `# Spec:` and `## Workstreams`) — iteration preserves the shape; "tighten the plan" without a Spec body produces a near-empty Decision.
 - `{idea}` contains an unambiguous build verb in active sense: `build`, `add`, `implement`, `create`, `migrate`, `refactor`, `port`, `replace`, `wire up`, `set up` (or an obvious synonym).
 - `{idea}` contains an explicit decomposition signal: `plan`, `break down`, `spec out`, `decompose`, `workstreams`, `issues`, `roadmap`.
 - The Decision is "build {X}" and the implementation plan IS the decision — splitting them would emit two near-identical artifacts.
