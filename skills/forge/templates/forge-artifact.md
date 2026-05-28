@@ -1,9 +1,15 @@
-# Spec: {title}
+# Decision: {title}
 
-<!-- Code-bearing artifact. For a pure-strategy outcome (a choice with no immediate code),
-     retitle this `# Decision: {title}`, keep Decision + Assumption ledger + Overview
-     (plus Risks / Open questions as needed), and omit Workstreams, Dependencies, and
-     Execution order. -->
+<!-- DEFAULT shape: # Decision — keep this H1, Decision header, Assumption ledger,
+     Overview, and (when relevant) Risks + Open questions. Omit Workstreams,
+     Dependencies, and Execution order. Present and pause for the decompose
+     question after Save.
+
+     PROMOTED shape: # Spec — retitle the H1 to `# Spec: {title}` and include the
+     full structure below (Workstreams, Dependencies, Execution order). Promote
+     only when the routing rule in SKILL.md Phase 4 fires (auto_mode, build verb,
+     explicit decomposition signal, or Decision == "build X" with no further
+     engineering uncertainty). -->
 
 **Date:** {YYYY-MM-DD}
 **Status:** Draft

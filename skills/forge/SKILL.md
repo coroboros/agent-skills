@@ -85,12 +85,12 @@ When `{save_mode}` = true:
 └── forge-{slug}.md    # one file per intent — multiple artifacts coexist in a repo
 ```
 
-Two artifact shapes:
+Two artifact shapes — Decision is the default; Spec is the promotion. The routing rule lives in Phase 4 (Forge):
 
-- **Code-bearing** — H1 `# Spec: {title}`, with `## Workstreams`. This shape triggers `/apex`'s spec-closure: apex accepts the acceptance criteria verbatim. Emit it whenever the outcome is work to build.
-- **Pure-strategy** — H1 `# Decision: {title}`, no workstreams. Emit it when the outcome is a choice with no immediate code (a tech pick, an architecture call, a process change). Terminal — no apex bridge.
+- **Decision (default)** — H1 `# Decision: {title}`, no workstreams. Emit by default whenever the outcome is a choice, an exploration, or a "should we" question. Terminal — present the decision, ask the user whether to decompose into workstreams, and wait. No apex bridge unless the user opts into the decompose.
+- **Spec (promoted)** — H1 `# Spec: {title}`, with `## Workstreams`. Emit when `{auto_mode}` = true, OR when the idea carries an unambiguous build verb (`build`, `add`, `implement`, `migrate`, `refactor`, `create`, `port`, `replace`, …), OR when the idea carries an explicit decomposition signal (`plan`, `break down`, `spec out`, `decompose`, `workstreams`, `issues`, `roadmap`). This shape triggers `/apex`'s spec-closure: apex accepts the acceptance criteria verbatim.
 
-If `{issues_mode}` = true, a `## GitHub Issues` section is appended after creation, mapping each workstream to its issue number.
+If `{issues_mode}` = true, a `## GitHub Issues` section is appended after creation, mapping each workstream to its issue number. `{issues_mode}` implies the Spec shape — if the routing did not promote, force-promote with a one-line note in the Assumption ledger.
 
 ## Subagent strategy
 
@@ -224,14 +224,23 @@ The heart of forge. Convert the judged options into resolved calls.
 
 ### Phase 4 — Forge
 
-Emit ONE artifact — never a brainstorm brief and a spec concatenated. Research stays in the subagents; only the conclusion lands.
+Emit ONE artifact. Research and adversarial findings stay in the subagents — only the conclusion lands.
 
-Write the artifact using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR}/templates/forge-artifact.md` before writing):
+**Choose the shape first.** Default = `# Decision:` (no workstreams, terminal — present the decision and pause for the user). Promote to `# Spec:` (with 3-7 workstreams) **only** when at least one of these holds:
 
-1. **Decision header** — the chosen approach with its rationale, the runner-up and what would flip it, and the few escalated forks (or "none").
-2. **Assumption ledger** — every load-bearing assumption, tagged verified fact / assumption / inherited convention.
-3. **When there is code to build** — 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`. Use H1 `# Spec: {title}`.
-4. **When the outcome is pure strategy** — stop at the decision. Use H1 `# Decision: {title}`, omit workstreams, dependencies, and execution order.
+- `{auto_mode}` = true — the user opted into commit-and-emit.
+- `{idea}` contains an unambiguous build verb in active sense: `build`, `add`, `implement`, `create`, `migrate`, `refactor`, `port`, `replace`, `wire up`, `set up` (or an obvious synonym).
+- `{idea}` contains an explicit decomposition signal: `plan`, `break down`, `spec out`, `decompose`, `workstreams`, `issues`, `roadmap`.
+- The Decision is "build {X}" and the implementation plan IS the decision — splitting them would emit two near-identical artifacts.
+
+Otherwise: write the Decision, present it, then ask the user whether to decompose into workstreams and wait. This restores the discuss-then-build seam for exploratory questions where the user came for thinking, not for plumbing — the same posture the pre-merge brainstorm carried in its Discuss phase.
+
+**Write the artifact** using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR}/templates/forge-artifact.md` before writing):
+
+1. **Decision header** — chosen approach + rationale, runner-up + what would flip it, escalated forks (or "none").
+2. **Assumption ledger** — every load-bearing assumption tagged verified fact / assumption / inherited convention. Fold the adversarial-critique findings here — each finding either flipped the leader, was refuted in writing, or filed in Risks / Open questions; never silently dropped.
+3. **Spec shape only (promoted)** — H1 `# Spec: {title}`, 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`.
+4. **Decision shape (default)** — H1 `# Decision: {title}`. Omit workstreams, dependencies, and execution order. After Save, present and pause for the decompose question described above.
 
 **Save** (if `{save_mode}`) to the `$HOME`-expanded `{output_file}`; report the fully-expanded absolute path.
 
@@ -239,13 +248,15 @@ Write the artifact using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR
 
 **Issues** (if `{issues_mode}`) — read `${CLAUDE_SKILL_DIR}/references/issue-creation.md` and follow it to create labels, an epic, and workstream issues in dependency order, then append the `## GitHub Issues` section.
 
-**Bridge.** Present the decision, the runner-up and what would flip it, and the top risk in plain language. Then inline the **fully-expanded absolute path** in the next command (placeholder shown here; emit the resolved path at runtime):
+**Present and route.** Present the decision in plain language — chosen approach, runner-up + what would flip it, top risk.
 
-```
-/apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
-```
+- **Spec shape** — inline the **fully-expanded absolute path** in the apex bridge (placeholder shown here; emit the resolved path at runtime):
 
-For a pure-strategy outcome, conclude the discussion — no bridge.
+  ```
+  /apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
+  ```
+
+- **Decision shape (default)** — no apex bridge. Ask the user whether to decompose the decision into workstreams and wait. If they opt in, re-enter Phase 4 with the Spec shape (the existing artifact path is reused; the file is overwritten with the promoted version). If they opt out, the discussion concludes here.
 
 > **Dependency:** the bridge requires the `apex` skill. If unavailable, tell the user and suggest installing it, or proceed manually from the artifact.
 
@@ -272,8 +283,10 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 ## Success criteria
 
 - A decision with a clear rationale, the runner-up, and what would flip it.
-- When there's code: 3-7 workstreams with priority, complexity, dependencies, and testable acceptance criteria; dependency graph resolves with no cycles; validator exits 0.
+- Adversarial-critique findings folded into the artifact (or refuted in writing) — never silently dropped.
+- Shape routing respected: Decision by default; Spec only when `{auto_mode}`, a build verb, an explicit decomposition signal, or `{issues_mode}` fires.
+- When Spec shape is emitted: 3-7 workstreams with priority, complexity, dependencies, and testable acceptance criteria; dependency graph resolves with no cycles; validator exits 0.
 - Escalated forks held to a handful — everything else decided and recorded.
 - Artifact saved if `{save_mode}`; GitHub issues created if `{issues_mode}`.
-- Bridge command to `/apex` shown (code-bearing) or discussion concluded (pure strategy).
+- Spec → `/apex` bridge shown. Decision → decompose question asked and waited on.
 - No code implemented.
