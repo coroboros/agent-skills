@@ -67,18 +67,20 @@ class TestArtifactTemplate(unittest.TestCase):
         self.assertEqual(sorted_by_pos, REQUIRED_SECTIONS,
                          f"sections out of order: {sorted_by_pos}")
 
-    def test_code_bearing_h1_is_spec(self):
-        """The code-bearing artifact's H1 is `# Spec:` so apex's § 0a closure
-        (H1 `# Spec:` + `## Workstreams`) triggers and accepts the AC verbatim.
-        A pure-strategy variant retitles to `# Decision:` — documented inline."""
+    def test_default_h1_is_decision_spec_documented(self):
+        """Routing flipped: Decision is the default H1; Spec is the promotion.
+        The template H1 must start `# Decision:` so the default emission is
+        terminal (no workstreams, present-and-pause). The Spec variant must
+        be documented inline so the promotion path keeps the apex § 0a
+        closure (`# Spec:` + `## Workstreams`)."""
         text = TEMPLATE.read_text(encoding="utf-8")
         self.assertTrue(
-            text.lstrip().startswith("# Spec:"),
-            "forge-artifact template H1 must be `# Spec:` for apex closure",
+            text.lstrip().startswith("# Decision:"),
+            "forge-artifact template H1 must default to `# Decision:` per routing rule",
         )
         self.assertIn(
-            "# Decision:", text,
-            "template must document the pure-strategy `# Decision:` variant",
+            "# Spec:", text,
+            "template must document the promoted `# Spec:` variant for apex closure",
         )
 
 

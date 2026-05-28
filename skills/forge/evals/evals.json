@@ -1,19 +1,19 @@
 {
   "skill_name": "forge",
-  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase flow (Hunt/Judge/Decide/Forge), the decide-vs-escalate discipline that is forge's discriminator, the canonical artifact shape (Decision header + Assumption ledger + 3-7 workstreams with priority/complexity/tasks/AC when there is code), the Diverge and Challenge rigor, acceptance-criteria craft, schema validation, GitHub-issue creation, the pure-strategy variant, and the bridge to /apex.",
+  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase flow (Hunt/Judge/Decide/Forge), the three-tier Decide discipline (decide reversible/conventional, surface load-bearing forks, escalate user-owned), the Decision-default routing with the six promotion conditions (auto_mode, issues_mode, from_file is Spec, build verb, decomposition signal, decision-IS-build-plan), the adversarial fresh-eyes critic after Stress-test, the canonical artifact shape (Decision header + Surfaced forks + Assumption ledger; 3-7 workstreams with priority/complexity/tasks/AC when Spec-promoted), the pre-save audit + schema validator gate pair, the revision pause for Spec under non-auto, GitHub-issue creation, and the bridge to /apex.",
   "evals": [
     {
       "id": 1,
-      "name": "produces-canonical-artifact-shape",
+      "name": "build-verb-promotes-to-spec-shape",
       "prompt": "/forge add user authentication with OAuth and email/password",
-      "expected_output": "Output is a `# Spec:` artifact with a Decision header (chosen approach + rationale, runner-up + what flips it, escalated forks), an Assumption ledger tagging each assumption verified fact / assumption / inherited convention, then Overview, Goals, Non-goals, Background, 3-7 ### WS-N workstreams each with Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, and Acceptance criteria, plus Execution order.",
+      "expected_output": "The `add` verb in the idea fires the Spec promotion rule. Output is a `# Spec:` artifact with a Decision header (chosen approach + rationale, runner-up + what would flip it, Surfaced forks for any load-bearing call, Escalated forks for user-owned ones), an Assumption ledger tagging each load-bearing assumption verified fact / assumption / inherited convention, then Overview, Goals, Non-goals, Background, 3-7 ### WS-N workstreams each with Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, Acceptance criteria, plus Execution order.",
       "files": []
     },
     {
       "id": 2,
-      "name": "decides-engineering-calls-escalates-only-user-forks",
+      "name": "three-tier-decide-surfaces-load-bearing-forks",
       "prompt": "/forge -s build a notifications service for our app",
-      "expected_output": "Forge DECIDES the engineering judgment calls (queue vs cron, table shape, retry strategy, library choice) and records a one-line rationale for each in the Decision and Assumption ledger; it ESCALATES only the few forks the user genuinely owns (which channels to launch with, any budget ceiling). The artifact surfaces a handful of sharp open questions, not a long list of unresolved engineering decisions.",
+      "expected_output": "Phase 3 runs three tiers. Forge DECIDES the reversible and conventional calls (naming, file layout, test strategy, library picks where one is clearly better) with a one-line rationale each. It SURFACES the structurally load-bearing forks in the Decision header's Surfaced forks line — for example the event-shape (push events vs polling), the storage choice if it constrains future features, the delivery-channel architecture — each named with the pick, the runner-up, and what would flip it. It ESCALATES only the few user-owned forks (which channels to launch with, any budget ceiling). The Surfaced forks line is not 'none' when load-bearing calls genuinely exist — that would be the overengineering tell.",
       "files": []
     },
     {
@@ -32,16 +32,16 @@
     },
     {
       "id": 5,
-      "name": "challenge-runs-premortem-and-steelman",
+      "name": "stress-test-runs-premortem-and-steelman-and-fresh-eyes",
       "prompt": "/forge should we adopt a Turborepo monorepo for our 4 services",
-      "expected_output": "The stress-test runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. These feed the Decision's runner-up line and the Assumption ledger.",
+      "expected_output": "The stress-test runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. Then the Adversarial fresh-eyes step launches one `general-purpose` subagent with a clean context (leader summary + runner-up summary + premortem failures only — no deliberation history). The subagent returns 3-7 critique findings; each is folded into the Decision, refuted in writing, or filed in Risks / Open questions. Never silently dropped.",
       "files": []
     },
     {
       "id": 6,
       "name": "saves-to-canonical-path",
       "prompt": "/forge -s redesign the billing system",
-      "expected_output": "With -s, the artifact is written to `~/.claude/output/{project}/forge/forge-{slug}.md` ({slug} = kebab of the idea; {project} = repo basename), and the fully-expanded absolute path is reported back with the `/apex -f <that path>` bridge command.",
+      "expected_output": "With -s and the `redesign` verb triggering Spec promotion, the artifact is written to `~/.claude/output/{project}/forge/forge-{slug}.md` ({slug} = kebab of the idea; {project} = repo basename), and the fully-expanded absolute path is reported back with the `/apex -f <that path>` bridge command.",
       "files": []
     },
     {
@@ -53,37 +53,37 @@
     },
     {
       "id": 8,
-      "name": "validates-before-finalizing",
+      "name": "pre-save-audit-then-validate",
       "prompt": "/forge -s add a real-time collaboration layer to the document editor",
-      "expected_output": "After writing the artifact, the skill runs `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py <output_file>` and requires exit 0. On a schema violation (workstream count out of 3-7, missing Priority/Complexity/AC, unknown dependency, or a cycle) it rewrites the flagged workstreams and re-validates rather than finalizing a broken plan.",
+      "expected_output": "Before save, the skill walks the pre-save audit in references/spec-craft.md § Pre-save audit — checking AC vagueness, P0 ruthlessness, goals as outcomes vs outputs, non-goal rationale tags, no XL workstreams, dependency consistency, blocking-vs-non-blocking split, and surfaced-forks-not-empty when load-bearing calls exist. Rewrites anything flagged and re-walks the list. Then runs `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py <output_file>`, exit 0 required. Both gates pass; the audit catches what the schema validator cannot.",
       "files": []
     },
     {
       "id": 9,
-      "name": "pure-strategy-stops-at-decision",
+      "name": "exploratory-question-defaults-to-decision-and-pauses",
       "prompt": "/forge should we use Neon or Supabase for our serverless Postgres",
-      "expected_output": "When the outcome is a choice with no immediate code, forge emits a pure-strategy artifact: H1 `# Decision:`, the chosen option with rationale and the runner-up with what would flip it, no workstreams, and no `/apex` bridge. The skill concludes the discussion rather than handing off to implementation.",
+      "expected_output": "No build verb, no decomposition signal, no -a, no -i — the routing emits the default Decision shape. Output is H1 `# Decision:`, the chosen option with rationale, the runner-up with what would flip it, Surfaced forks for any load-bearing calls, Assumption ledger. No workstreams, no `/apex` bridge. After presenting the decision, the skill asks the user whether to decompose into workstreams and WAITS — restoring the discuss-then-build seam. It does not silently promote to Spec and ship workstreams the user did not ask for.",
       "files": []
     },
     {
       "id": 10,
-      "name": "bridges-to-apex-without-implementing",
+      "name": "revision-pause-after-spec-save",
       "prompt": "/forge -s add search functionality to the docs site",
-      "expected_output": "After presenting the decision and the plan, the skill shows the exact `/apex -f <output_file> implement WS-N` bridge command and stops — it implements no code and waits for the user. Forge produces a document, not code changes.",
+      "expected_output": "After writing the Spec, walking the pre-save audit, saving to disk, and running the schema validator, the skill presents a one-paragraph summary and asks: 'Spec is ready. Want to revise anything before /apex implements WS-1?' Then it WAITS. Revisions are applied inline, re-saved, re-audited, re-validated. Only after the user approves (or stays silent) does the `/apex -f <output_file> implement WS-1` bridge appear. The skill implements no code. The pause is skipped only under -a.",
       "files": []
     },
     {
       "id": 11,
-      "name": "creates-github-issues-with-flag",
+      "name": "issues-mode-forces-spec-promotion-with-ledger-note",
       "prompt": "/forge -a -i migrate from REST to GraphQL",
-      "expected_output": "With -i (which forces -s), the skill reads references/issue-creation.md, verifies gh auth, creates labels idempotently, then creates a parent epic plus one child issue per workstream with priority/complexity/forge labels and parent-child cross-references, and appends a ## GitHub Issues mapping to the artifact. A single-workstream plan gets one issue and no parent epic.",
+      "expected_output": "With -i (which forces -s) AND -a, the routing promotes to Spec on multiple conditions (auto_mode AND issues_mode AND the `migrate` build verb). The skill reads references/issue-creation.md, verifies gh auth, creates labels idempotently, then creates a parent epic plus one child issue per workstream with priority/complexity/forge labels and parent-child cross-references, and appends a ## GitHub Issues mapping. If issues_mode had been the only promotion condition (e.g. `/forge -i should we use Neon or Supabase`), the Assumption ledger would carry a one-line note recording the forced promotion.",
       "files": []
     },
     {
       "id": 12,
-      "name": "auto-decides-reasonable-forks",
+      "name": "auto-mode-decides-and-emits-without-pausing",
       "prompt": "/forge -a -s build an internal documentation site for the engineering team",
-      "expected_output": "Under -a, the skill skips Q&A, makes the reasonable assumption on each open fork, records it in the Assumption ledger, and proceeds to a complete artifact — escalating nothing it can reasonably decide on its own.",
+      "expected_output": "Under -a, the skill skips Q&A in Hunt (no clarify questions) and skips the Revision pause in Phase 4 (the user opted into commit-and-emit). It makes reasonable assumptions on open forks and records them in the Assumption ledger, surfaces load-bearing calls in the Decision header, escalates only what is genuinely user-owned, and proceeds to a complete Spec artifact with the apex bridge. No human-in-the-loop pause is shown.",
       "files": []
     },
     {
@@ -105,6 +105,27 @@
       "name": "non-markdown-from-file-aborts",
       "prompt": "/forge -f requirements.pdf \"plan the requirements\"",
       "expected_output": "A non-Markdown -f source (.pdf, .docx, audio, video, YouTube) is not read as binary. The skill stops and instructs the user to pre-process with `/markitdown -s <path>` and pass the saved Markdown path, rather than guessing at the contents.",
+      "files": []
+    },
+    {
+      "id": 16,
+      "name": "from-file-prior-spec-preserves-spec-shape",
+      "prompt": "/forge -s -f ~/.claude/output/example-project/forge/forge-oauth-auth.md tighten the OAuth plan",
+      "expected_output": "The `-f` argument points at a prior Spec artifact (H1 `# Spec:` and `## Workstreams`). The routing detects the prior Spec shape and preserves it — `tighten the plan` is not a build verb, but iterating on an existing Spec without preserving its workstreams would emit a near-empty Decision and lose the WS-N structure. The skill reads the path verbatim per repo-conventions.md § Pipeline chaining (no glob, no inference), carries forward the Assumption ledger, and emits the refined Spec with updated workstreams.",
+      "files": []
+    },
+    {
+      "id": 17,
+      "name": "adversarial-fresh-eyes-catches-overengineering",
+      "prompt": "/forge -s build a job queue with priorities, dead-letter queues, exponential backoff, idempotency tokens, distributed tracing, and circuit breakers for our weekly cron",
+      "expected_output": "Phase 2's Adversarial fresh-eyes step launches a general-purpose subagent with a clean context (leader summary + runner-up summary + premortem only — no deliberation history) and asks where the overengineering is, what load-bearing assumption is unquestioned, and whether the simplest answer is to NOT build this. For a weekly cron with no scale yet, the critic surfaces 'this is a setTimeout problem masquerading as Kafka' or equivalent. The leader either flips toward a simpler approach, the finding is refuted in writing in the Decision section, or it is filed as a Risk / Open question. The critic's finding is not silently dropped.",
+      "files": []
+    },
+    {
+      "id": 18,
+      "name": "economy-mode-skips-subagents-including-fresh-eyes",
+      "prompt": "/forge -e -s add search functionality",
+      "expected_output": "Under -e (economy mode), the skill skips Hunt-phase subagents (Explore + general-purpose) AND skips the Phase 2 Adversarial fresh-eyes critic — the user opted out of token / latency cost. Hunt uses direct tools (Read, Glob, Grep) instead. The artifact still emits the full Spec with Decision header, Assumption ledger (tagged with the fresh-eyes skip as an `[assumption]` line), and workstreams. The downgrade is acknowledged, not silent.",
       "files": []
     }
   ]
