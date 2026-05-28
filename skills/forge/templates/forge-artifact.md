@@ -7,9 +7,9 @@
 
      PROMOTED shape: # Spec — retitle the H1 to `# Spec: {title}` and include the
      full structure below (Workstreams, Dependencies, Execution order). Promote
-     only when the routing rule in SKILL.md Phase 4 fires (auto_mode, build verb,
-     explicit decomposition signal, or Decision == "build X" with no further
-     engineering uncertainty). -->
+     only when the routing rule in SKILL.md Phase 4 fires (the six promotion
+     conditions are enumerated there — never enumerate a subset here, the two
+     lists drift). -->
 
 **Date:** {YYYY-MM-DD}
 **Status:** Draft

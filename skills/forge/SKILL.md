@@ -37,7 +37,7 @@ Pre-implementation thinking for: $ARGUMENTS
 
 Take any starting point — a question, a rough idea, a brainstorm, a GitHub issue — research it wide, stress-test the options, decide every call inside the engineering mandate, and emit one artifact `/apex` can build from. Forge is the "think" half; `apex` is the "build" half. The seam between them carries the one human checkpoint that matters: review the plan before any code.
 
-The discriminator is the Decide phase, in three tiers: forge **decides** the reversible and conventional calls, **surfaces** the structurally load-bearing forks for the user (named with the pick, the runner-up, and what would flip it), and **escalates** the few forks the user genuinely owns. Surfacing is the new tier — it is the thinking the user asked for, made visible rather than buried in the Assumption ledger.
+The discriminator is the Decide phase, in three tiers: forge **decides** the reversible and conventional calls, **surfaces** the structurally load-bearing forks for the user (named with the pick, the runner-up, and what would flip it), and **escalates** the few forks the user genuinely owns. Surfacing is the thinking the user asked for, made visible rather than buried in the Assumption ledger.
 
 ## Parameters
 
@@ -244,7 +244,7 @@ Emit ONE artifact. Research and adversarial findings stay in the subagents — o
 - `{idea}` contains an explicit decomposition signal: `plan`, `break down`, `spec out`, `decompose`, `workstreams`, `issues`, `roadmap`.
 - The Decision is "build {X}" and the implementation plan IS the decision — splitting them would emit two near-identical artifacts.
 
-Otherwise: write the Decision, present it, then ask the user whether to decompose into workstreams and wait. This restores the discuss-then-build seam for exploratory questions where the user came for thinking, not for plumbing — the same posture the pre-merge brainstorm carried in its Discuss phase.
+Otherwise: write the Decision, present it, then ask the user whether to decompose into workstreams and wait. This keeps the discuss-then-build seam intact for exploratory questions where the user came for thinking, not for plumbing.
 
 **Write the artifact** using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR}/templates/forge-artifact.md` before writing):
 
