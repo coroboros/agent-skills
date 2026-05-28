@@ -102,15 +102,15 @@ Strategic thinking, planning, and implementation — `forge`, `apex`, `oneshot`.
 
 #### forge
 
-Pre-implementation thinking — research the problem space, weigh approaches with devil's-advocate rigor, decide every engineering call within scope, and emit one apex-ready plan. The "think" half; `apex` is the "build" half.
+Pre-implementation thinking — research the problem space, weigh approaches with devil's-advocate rigor, decide what's reversible while surfacing the load-bearing forks for the user, and emit one apex-ready plan. The "think" half; `apex` is the "build" half.
 
 **Usage**
 
 ```bash
-# Pure-strategy decision (no code)
+# Exploratory question — default emits a Decision and pauses for decompose
 /forge should we use Neon or Supabase for our serverless Postgres?
 
-# Plan a feature, save the artifact
+# Build verb in the idea — promotes to a Spec with workstreams
 /forge -s add user authentication with OAuth and email/password
 
 # Auto mode + create GitHub issues
@@ -123,20 +123,20 @@ Pre-implementation thinking — research the problem space, weigh approaches wit
 |------|-------------|
 | `-s` / `-S` | Save artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` / force no-save |
 | `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
-| `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks / disable |
-| `-e` / `-E` | Economy mode — no subagents / disable |
+| `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks, no revision pause / disable |
+| `-e` / `-E` | Economy mode — no subagents (Hunt research and Judge's fresh-eyes critic) / disable |
 | `-f` | Load prior context (forge plan, RFC, GitHub issue `#N` or URL) |
 
 Uppercase forms disable the ambient default when the skill runs with a pre-set mode. Requires `gh` authenticated when using `-i` or passing a GitHub URL/`#N` to `-f`.
 
 **What it does**
 
-1. **Hunt** — frames and reframes the real problem, then researches wide via parallel subagents; cross-references sources rather than picking one
-2. **Judge** — diverges ≥3 structurally distinct approaches, then stress-tests with premortem + steelman of the runner-up
-3. **Decide** — resolves every engineering judgment call (architecture, library, decomposition, trade-offs); escalates only the few irreversible/costly or genuinely user-owned forks
-4. **Forge** — emits one artifact: the decision + assumption ledger, and when there's code to build, 3-7 workstreams (priority, complexity, dependencies, Given/When/Then AC), validated by `scripts/validate_spec.py`
+1. **Hunt** — frames and reframes the real problem, then researches wide via parallel subagents; triangulates sources rather than picking one. On-demand references for breadth (`research-discipline.md`), the 5-question clarify playbook (`clarify-playbook.md`), and subagent prompt skeletons (`subagent-prompts.md`).
+2. **Judge** — diverges ≥3 structurally distinct approaches, stress-tests with premortem + steelman, then runs an **adversarial fresh-eyes critic** in a clean-context subagent — the same conversation cannot reliably argue against the plan it just shipped.
+3. **Decide** — three tiers: **decide** the reversible and conventional calls, **surface** the structurally load-bearing forks for the user (named with the pick, the runner-up, and what would flip it), **escalate** the few forks the user genuinely owns.
+4. **Forge** — chooses the artifact shape, walks a pre-save audit, saves, validates (when there are workstreams), pauses for revision under non-auto, then routes.
 
-Code-bearing artifacts (H1 `# Spec:` + `## Workstreams`) bridge to `/apex -f <abs forge path> implement WS-1`; with `-i`, workstreams also become GitHub issues. Pure-strategy artifacts (H1 `# Decision:`) conclude the discussion — no apex handoff.
+**Routing.** Default = `# Decision:` (terminal — present and ask the user whether to decompose into workstreams, then wait). Promotes to `# Spec:` (with 3-7 workstreams + `/apex` bridge) when `-a` is set, when `-i` forces issue creation, when `-f` points at a prior Spec, when the idea carries an unambiguous build verb (`build`, `add`, `implement`, `migrate`, `refactor`, `create`, …), when it carries an explicit decomposition signal (`plan`, `break down`, `spec out`, `workstreams`, `issues`, `roadmap`), or when the Decision IS the build plan.
 
 **Sources**
 
