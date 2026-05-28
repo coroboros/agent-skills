@@ -181,7 +181,7 @@ Frame the real problem, then research it wide.
 
 **Load prior context (if `{from_file}`).** A GitHub issue (`#N` / URL) → `gh issue view <n> --json title,body,labels,comments`; carry its acceptance criteria forward. A local file (a prior forge artifact, an RFC, a design doc) → `Read` the explicit path verbatim. No reconstruction, inference, or glob: the producer already printed the absolute path; the bridge carries it literally. If the path does not exist, fail loud and ask the user to correct or regenerate it. Extract its decisions, constraints, and open questions, and skip re-researching anything the prior context already covers.
 
-**Clarify (if vague and not `{auto_mode}`).** If scope, constraints, or success criteria are unclear and could flip the outcome, ask focused questions in a single message before researching. Under `{auto_mode}`, make the reasonable assumption and record it in the ledger.
+**Clarify (if vague and not `{auto_mode}`).** If scope, constraints, success criteria, or a load-bearing dependency is unclear and could flip the outcome, ask the 1-3 most relevant decision-forcing questions in a single message before researching — never five when one matters, never a second round. For the question set, the when-to-ask gate, and the prior-context attenuation rule, read `${CLAUDE_SKILL_DIR}/references/clarify-playbook.md` on demand. Under `{auto_mode}`, never ask — decide, tag the call `assumption` in the ledger, surface the shakiest as an open question.
 
 **Research.** Investigate from multiple angles via parallel subagents scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
 
@@ -249,6 +249,7 @@ For a pure-strategy outcome, conclude the discussion — no bridge.
 
 - `templates/forge-artifact.md` — the canonical artifact format used by Phase 4
 - `references/research-discipline.md` — three-angle breadth + triangulation discipline; read on demand by Hunt
+- `references/clarify-playbook.md` — five decision-forcing question lenses + when-to-ask gate; read on demand by Hunt
 - `references/thinking-tools.md` — first-principles, inversion, reverse-brainstorm, elimination; read on demand by Judge
 - `references/spec-craft.md` — acceptance-criteria, priority, and goal-hardening technique; read on demand by Forge
 - `references/issue-creation.md` — GitHub issue orchestration; read only when `-i` is set
