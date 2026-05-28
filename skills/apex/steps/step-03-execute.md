@@ -201,6 +201,8 @@ Append to `{output_dir}/03-execute.md`:
 
 ## Deliverable hygiene
 
+Expanded form of the `## Critical — Label hygiene` canonical block in SKILL.md — both must stay in sync. The SKILL.md block is the always-loaded summary; this section is the prose with rationale and the test reading the diff applies.
+
 Everything you write — code, comments, commit subjects, PR and issue bodies, docs — ships to people who never saw this workflow. The scaffolding that got you here is noise to them. Strip it:
 
 - **Translate internal labels into domain facts.** A spec's `WS-3`, an issue's task ID, a plan's phase name are *your* coordinates, not the reader's. Write `add token refresh on 401`, never `WS-3` or `the plan's step 2` — in commit subjects, code comments, and prose alike.

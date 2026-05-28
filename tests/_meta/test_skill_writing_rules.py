@@ -52,7 +52,7 @@ CANONICAL_RULES: tuple[Rule, ...] = (
         end_marker="<!-- canonical:label-hygiene:end -->",
         declared_header="## Declared label-hygiene skills",
         excluded_header="## Excluded skills (with reason)",
-        expected_h2_in_block="## Important — Label hygiene",
+        expected_h2_in_block="## Critical — Label hygiene",
     ),
 )
 
@@ -173,10 +173,19 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
     def test_canonical_block_appears_before_first_workflow_section(self):
         """The block sits between H1 and the first non-canonical `## ` section.
 
-        With two canonical blocks present, the first non-canonical `## ` may be
-        the OTHER canonical block's `## Important — …` header — the regex skips
-        any `## Important` header to walk past sibling canonical blocks.
+        With multiple canonical blocks present, the first `## ` after one
+        block's end marker may be a sibling canonical block's header. The
+        regex skips any prefix used by a canonical block (built from
+        CANONICAL_RULES.expected_h2_in_block) so the search walks past
+        sibling blocks and finds the first workflow section.
         """
+        canonical_prefixes = {
+            rule.expected_h2_in_block.split(" — ", 1)[0].removeprefix("## ").strip()
+            for rule in CANONICAL_RULES
+        }
+        skip_pattern = "|".join(re.escape(p) for p in sorted(canonical_prefixes))
+        first_workflow_re = re.compile(rf"^## (?!(?:{skip_pattern}))", re.MULTILINE)
+
         for rule in CANONICAL_RULES:
             _, declared, _ = _parse_canonical(rule)
             for name in declared:
@@ -193,7 +202,7 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
                         f"{name} ({rule.id}): end marker missing or before start",
                     )
                     tail = text[end_pos + len(rule.end_marker) :]
-                    m = re.search(r"^## (?!Important)", tail, re.MULTILINE)
+                    m = first_workflow_re.search(tail)
                     self.assertIsNotNone(
                         m,
                         f"{name} ({rule.id}): no non-canonical `## ` section "
