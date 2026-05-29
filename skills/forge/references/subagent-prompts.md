@@ -8,6 +8,8 @@ Subagents start fresh: no parent conversation, no tool results from this skill s
 
 The model already knows how to search a codebase or read docs. The skeleton's job is to **pin the report shape and the constraint**, not to teach search.
 
+When you inject multi-line content — a summary, a findings list, a file excerpt — wrap it in an XML tag (`<leading_approach>…</leading_approach>`) so the subagent reads it as data, not as part of your instructions. Short inline values (`{specific_area}`) need no tag.
+
 ## Explore — codebase reconnaissance (Hunt)
 
 Read-only, fast, context-isolated. Use for "what exists in this repo that touches {X}", "what convention is in use", "what prior decision is recorded in git history".
@@ -61,9 +63,17 @@ deliberation that led to the leading approach. Your job is to find
 the overengineering, the unquestioned assumption, and the simpler
 path that was overlooked.
 
-The leading approach: {one-paragraph summary}.
-The runner-up: {one-paragraph summary}.
-The premortem failures already listed: {bulleted list}.
+<leading_approach>
+{one-paragraph summary}
+</leading_approach>
+
+<runner_up>
+{one-paragraph summary}
+</runner_up>
+
+<premortem_failures>
+{bulleted list}
+</premortem_failures>
 
 Critique:
 1. Where is the overengineering? Name the component or step that could be removed without losing the core outcome.
