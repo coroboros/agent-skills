@@ -189,6 +189,17 @@ class TestBuildPrompt(unittest.TestCase):
         self.assertIn("build signal", prompt)
         self.assertIn("CI does that", prompt)
 
+    def test_prompt_instructs_coverage_not_filtering(self):
+        # Two-stage harness: finders maximize coverage, validators filter.
+        # Without this, current models self-filter at the finding stage and recall drops.
+        prompt = axis_dispatch.build_axis_prompt(
+            axis="correctness", findings_count=0,
+            skill_dir=SKILL_DIR, input_path=self.input_path,
+        )
+        self.assertIn("Coverage, not filtering", prompt)
+        self.assertIn("coverage, not ranking", prompt)
+        self.assertIn("Phase 4 validators", prompt)
+
     def test_prompt_cites_axis_brief(self):
         prompt = axis_dispatch.build_axis_prompt(
             axis="tests", findings_count=0,

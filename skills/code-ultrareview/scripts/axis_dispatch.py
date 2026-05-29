@@ -134,6 +134,18 @@ stdout.
 - Do NOT flag pre-existing issues on lines the diff did not touch.
 - Do NOT flag concerns from other axes — stay in your lane.
 
+## Coverage, not filtering
+
+Your job at this stage is coverage, not ranking. Report every issue you find —
+including low-severity ones and ones you are not sure about — each with its
+severity and an honest 0-100 confidence. Do not suppress a finding because it
+looks minor or because you are uncertain: Phase 4 validators and the
+80-confidence threshold rank and filter downstream, and a finding that later
+gets filtered out is cheaper than a real bug silently dropped. This is not a
+license for false positives — the documented taxonomy (pre-existing,
+linter-territory, intentional changes) still applies; when a concern is genuine
+but weak, report it at low confidence rather than dropping it.
+
 ## Inputs
 
 - Axis brief: `{brief}`
@@ -155,8 +167,8 @@ Emit one JSON object per finding to stdout, one per line. Schema:
     }}
 
 Sub-80 confidence findings are NOT dropped — synthesis routes them to the
-"Unverified" section per the A2 contract. Emit every finding you judge
-worth surfacing, with an honest confidence score.
+"Unverified" section per the A2 contract. Emit every finding, scored honestly;
+the downstream filter decides what surfaces.
 
 When you have zero findings, emit a single line:
 

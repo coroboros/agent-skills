@@ -26,6 +26,8 @@ Each subagent receives via its bundle (`axis-input/{axis}.json`):
 
 Each subagent emits findings as JSONL on stdout, one finding per line, against the canonical schema (`axis`, `severity`, `location`, `finding`, `recommendation`, `confidence`).
 
+**Coverage, not filtering.** Axis reviewers maximize coverage at the finding stage — they report low-severity and uncertain findings with an honest confidence rather than self-filtering on importance. Phase 4 validators plus the 80-confidence threshold do the ranking; the A2 contract surfaces sub-80 findings in `### ⚠️ Unverified`. The split is deliberate: a finder told to be conservative suppresses real bugs, so confidence filtering lives downstream of finding, never inside it.
+
 **Conditional Coherence.** `axis_dispatch prepare` adds Coherence to the bundle list when `scope.json["activates_coherence"]` is true (still within the 10-parallel concurrency cap). When inactive, the report header surfaces `Coherence axis: inactive`.
 
 **No silent failure.** If any axis subagent returns no output (timeout, error, malformed JSON), the orchestrator emits a 🔴 High finding for that axis citing the failure mode — never a silent skip.

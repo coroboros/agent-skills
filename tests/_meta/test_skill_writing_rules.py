@@ -54,9 +54,21 @@ CANONICAL_RULES: tuple[Rule, ...] = (
         excluded_header="## Excluded skills (with reason)",
         expected_h2_in_block="## Critical — Label hygiene",
     ),
+    Rule(
+        id="execution-discipline",
+        canonical_file=REPO_ROOT
+        / ".claude"
+        / "rules"
+        / "skill-execution-discipline-rules.md",
+        start_marker="<!-- canonical:execution-discipline:start -->",
+        end_marker="<!-- canonical:execution-discipline:end -->",
+        declared_header="## Declared execution-discipline skills",
+        excluded_header="## Excluded skills (with reason)",
+        expected_h2_in_block="## Important — Engineering discipline",
+    ),
 )
 
-PLACEMENT_LINE_CAP = 50
+PLACEMENT_LINE_CAP = 70
 
 WORKFLOW_HEADERS = (
     "## Workflow",
@@ -149,9 +161,9 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
 
     def test_canonical_block_placed_near_top(self):
         """Auto-compaction protects the first 5000 tokens of each invoked skill.
-        Placing each canonical block within the first 50 lines keeps it inside that
-        window. The cap accommodates two stacked canonical blocks (writing-rules +
-        label-hygiene) which together span ~30-35 lines after H1."""
+        Placing each canonical block within the first 70 lines keeps it inside that
+        window. The cap accommodates three stacked canonical blocks (execution-discipline
+        + label-hygiene + writing-rules) which together span ~45-55 lines after H1."""
         for rule in CANONICAL_RULES:
             _, declared, _ = _parse_canonical(rule)
             for name in declared:

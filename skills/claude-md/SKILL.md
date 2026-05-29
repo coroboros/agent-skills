@@ -123,7 +123,7 @@ The 6 sections every CLAUDE.md should have and the 6 bloat categories to avoid (
 
 ## CLAUDE.md-specific writing rules
 
-The canonical *Writing rules* block above carries the universal prose rules. The rules below add what is specific to authoring CLAUDE.md and `.claude/rules/` files — emphasis hierarchy, prohibitions over positive guidance, HTML-comment behavior under context injection.
+The canonical *Writing rules* block above carries the universal prose rules. The rules below add what is specific to authoring CLAUDE.md and `.claude/rules/` files — directive phrasing, emphasis discipline, HTML-comment behavior under context injection.
 
 **Golden rule:** If someone with zero project context reads your CLAUDE.md and gets confused, Claude will too.
 
@@ -134,21 +134,23 @@ The canonical *Writing rules* block above carries the universal prose rules. The
 ✅ "Run `pnpm lint` before committing" / "Tests in `__tests__/` using Vitest"
 ```
 
-**Prohibitions > positive guidance:**
+**Be directive; reserve prohibitions for real constraints:**
 
 ```
 ❌ "Try to use TanStack Form for forms"
-✅ "NEVER use native form/useState for forms — ALWAYS use TanStack Form"
+✅ "Use TanStack Form for all forms (not native form/useState)"
 ```
+
+Lead with the action. Keep `NEVER` for genuine constraints — secrets, data loss, breaking changes — not ordinary preferences.
 
 **Show, don't tell:** When format matters, show a concrete example (3–5 lines max).
 
 **HTML comments:** Block-level `<!-- comments -->` are stripped from CLAUDE.md before injection into context. Use them for human-only maintainer notes without spending tokens. Comments inside code blocks are preserved.
 
-**Emphasis hierarchy:** CRITICAL > NEVER > ALWAYS > IMPORTANT > YOU MUST
+**Emphasis, sparingly:** Reserve **bold + a single keyword** for non-negotiable rules (`**Never commit secrets**`).
 
-- Put critical rules **first** in each section
-- Use **bold + keyword** for non-negotiable rules: `**CRITICAL**: Never commit secrets`
+- Put critical rules **first** in each section — placement beats emphasis.
+- Don't stack `CRITICAL`/`MUST`/`ALWAYS` on ordinary guidance. Current models follow instructions literally, so over-emphasis dilutes the rules that matter and can overtrigger.
 
 See [references/prompting-techniques.md](references/prompting-techniques.md) for advanced techniques.
 
@@ -202,7 +204,7 @@ Before creating or updating memory files, use AskUserQuestion:
 
 | Problem | Solution |
 |---------|----------|
-| Claude ignores instructions | Reduce file size, add emphasis (CRITICAL, NEVER) |
+| Claude ignores instructions | Check specificity and placement first — move the rule to the top of its section; add one emphatic marker only for a genuine constraint |
 | Context overflow | Use `/clear`, split into `.claude/rules/` |
 | Instructions conflict | Consolidate, use hierarchy (root vs subtree) |
 | Path rules not applying | Verify glob pattern matches target files |

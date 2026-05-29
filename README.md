@@ -573,7 +573,7 @@ Create and optimize CLAUDE.md memory files and `.claude/rules/` modular rules fo
 - File hierarchy (enterprise > project > user > local)
 - Modular `.claude/rules/` with path-scoped YAML frontmatter
 - Size limits guidance (< 100 ideal, < 150 max, > 200 = directives get lost)
-- Writing rules — prohibitions over positive guidance, emphasis hierarchy, show don't tell
+- Writing rules — directive phrasing, emphasis reserved for genuine constraints, show don't tell
 
 **Sources**
 

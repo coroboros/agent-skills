@@ -1,5 +1,15 @@
 # Writing Subagent Prompts
 
+## Contents
+
+- [Key insight](#key-insight)
+- [Core principles](#core-principles)
+- [Structure with XML](#structure-with-xml)
+- [Anti-patterns](#anti-patterns)
+- [Best practices](#best-practices)
+- [Testing subagents](#testing-subagents)
+- [Quick reference](#quick-reference)
+
 ## Key insight
 
 Agent prompts should be task-specific, not generic. They define a specialized role with clear focus areas, workflows, and constraints.
@@ -36,7 +46,7 @@ Example:
 </constraints>
 ```
 
-**Why strong modals matter**: Reinforces critical boundaries, reduces ambiguity, improves constraint adherence.
+**Why strong modals matter**: for genuine boundaries (don't touch production, don't skip verification) they reduce ambiguity and improve adherence. Reserve them for real constraints, one per line — current models follow instructions literally, so stacking modals on ordinary guidance dilutes the boundaries that matter.
 
 ## Structure with XML
 
@@ -405,6 +415,18 @@ Expected action: [what the subagent should do]
 Output: [what the subagent should produce]
 </example>
 ```
+
+### Delimit injected content
+
+Distinct from the structural tags above (`<role>`, `<workflow>`): those organize your instructions; this wraps untrusted runtime data. When the main thread passes data into the prompt — a summary, a diff, file contents, prior findings — wrap it in its own XML tag so the subagent reads it as data, not instructions:
+
+```markdown
+<prior_findings>
+{the findings passed in at launch}
+</prior_findings>
+```
+
+This keeps the instruction/data boundary clean and blunts prompt injection: instructions hidden inside untrusted injected content are far less likely to be obeyed when the content sits inside a labeled tag. Short inline values (a filename, a single keyword) need no tag.
 
 ### Extended thinking
 
