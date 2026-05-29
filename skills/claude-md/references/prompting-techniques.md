@@ -6,40 +6,23 @@ Show your CLAUDE.md to someone with minimal project context. If they're confused
 </core_principle>
 
 <emphasis_strategies>
-Claude follows emphasized instructions more reliably. Use these techniques strategically for critical rules.
+Reserve emphasis for genuine constraints. Current models follow instructions literally — stacking CRITICAL/NEVER/ALWAYS on ordinary guidance dilutes the rules that matter and can cause overtriggering. Lead with clear, specific directives; add a single emphatic marker only where a rule is truly non-negotiable (secrets, data loss, breaking changes).
 
 <keyword_emphasis>
-**CRITICAL** - For non-negotiable rules that must never be broken:
+**CRITICAL / NEVER** — reserve for genuine stakes where a breach is costly (secrets, data loss, breaking changes):
 ```markdown
-**CRITICAL**: Always run tests before pushing code
-**CRITICAL**: Never commit .env files
+**CRITICAL**: Never commit secrets or `.env` files
+NEVER commit API keys or credentials
+NEVER push directly to `main`
 ```
 
-**NEVER** - For absolute prohibitions:
+**ALWAYS / IMPORTANT / YOU MUST** — available for mandatory behaviors, but most "always do X" guidance lands better as a plain, specific directive than as a stacked keyword:
 ```markdown
-NEVER: Include API keys in code
-NEVER: Push directly to main branch
-NEVER: Use React Hook Form (use TanStack Form instead)
+❌ ALWAYS: Run linter before committing
+✅ Run `pnpm lint` before committing
 ```
 
-**ALWAYS** - For mandatory behaviors:
-```markdown
-ALWAYS: Use TypeScript strict mode
-ALWAYS: Run linter before committing
-ALWAYS: Add tests for new features
-```
-
-**IMPORTANT** - For significant but not critical rules:
-```markdown
-IMPORTANT: Keep components under 300 lines
-IMPORTANT: Use Server Components where possible
-```
-
-**YOU MUST** - For explicit requirements:
-```markdown
-YOU MUST: Follow the git workflow outlined below
-YOU MUST: Read related files before editing
-```
+One keyword per rule, and only where the rule is genuinely non-negotiable — most guidance needs none. Pick the keyword that fits and stop there; stacking three on one line trains the model to discount all of them.
 </keyword_emphasis>
 
 <visual_markers>
@@ -82,7 +65,7 @@ Order matters. Claude pays more attention to:
 
 1. **First items** in each section
 2. **Repeated items** across sections
-3. **Emphasized items** with CRITICAL/NEVER/ALWAYS
+3. **Emphasized items** — but sparingly; placement and specificity carry more weight than keywords on current models
 
 Structure your CLAUDE.md with critical rules first:
 
@@ -90,11 +73,11 @@ Structure your CLAUDE.md with critical rules first:
 ## Code Conventions
 
 ### Critical Rules (Follow These First)
-- **NEVER** commit .env files
-- **ALWAYS** run tests before pushing
-- **CRITICAL**: Use TanStack Form for ALL forms
+- **Never commit `.env` files** — leaks secrets
+- Run `pnpm test:ci` before pushing
 
 ### General Guidelines
+- Use TanStack Form for all forms (not native form/useState)
 - Prefer Server Components
 - Keep components under 300 lines
 - Use TypeScript strict mode
@@ -102,20 +85,19 @@ Structure your CLAUDE.md with critical rules first:
 </placement_strategy>
 
 <repetition_technique>
-For extremely important rules, repeat in multiple contexts:
+For a genuinely load-bearing rule, restate it where it actually applies (the Forms section AND the review checklist). Repeat the rule, not the emphasis — re-stacking CRITICAL in every mention trains the model to discount it:
 
 ```markdown
 ## Forms
-**CRITICAL**: Use TanStack Form for ALL forms
-Import from `@/features/form/tanstack-form`
+Use TanStack Form for all forms — import from `@/features/form/tanstack-form`.
 
 ## Before Editing Files
 - Read similar files for patterns
-- **CRITICAL**: Use TanStack Form for forms (see Forms section)
+- Forms use TanStack Form (see Forms section)
 
 ## Code Review Checklist
 - [ ] Tests passing
-- [ ] Forms use TanStack Form (**CRITICAL**)
+- [ ] Forms use TanStack Form
 ```
 </repetition_technique>
 </emphasis_strategies>
@@ -388,7 +370,7 @@ Iterate based on observed behavior, not assumptions.
 <common_issues>
 | Problem | Solution |
 |---------|----------|
-| Claude ignores instruction | Add emphasis (CRITICAL, NEVER), move to top |
+| Claude ignores instruction | Check specificity and placement first; move it to the top of its section. Add one emphatic marker only if it's a genuine constraint — over-emphasis backfires on current models |
 | Claude does wrong thing | Be more specific, add examples |
 | Claude asks for clarification | Anticipate question, add answer |
 | Inconsistent behavior | Add edge case handling, remove ambiguity |
@@ -399,7 +381,7 @@ Iterate based on observed behavior, not assumptions.
 <writing_checklist>
 Before finalizing your CLAUDE.md:
 
-- [ ] Critical rules use CRITICAL/NEVER/ALWAYS emphasis
+- [ ] Genuine constraints (secrets, data loss) marked once; emphasis not stacked on ordinary guidance
 - [ ] Most important items appear first in each section
 - [ ] Vague phrases replaced with specific instructions
 - [ ] Edge cases addressed
