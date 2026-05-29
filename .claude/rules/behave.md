@@ -40,6 +40,7 @@ Weak criteria ("make it work") require clarification — ask for it.
 - Never rely on training data for library, API, or CLI specifics — fetch current docs (Context7, `/find-docs` skill, or official sources via WebFetch).
 - Uncertain about a fact, date, quote, version? Say so. "I'm not certain" beats a confident guess.
 - Never fill knowledge gaps with plausible-sounding info.
+- Never speculate about code you haven't opened. If the user names a file, read it before answering — a claim about unread code is invention too.
 
 ## 7. Surface conflicts, don't average
 Two contradictory patterns? Pick one (more recent / more tested). Explain why. Flag the other for cleanup. Never blend.
@@ -49,6 +50,8 @@ Before adding code: read exports, immediate callers, shared utilities. "Looks or
 
 ## 9. Tests verify intent
 Tests encode WHY behavior matters, not just WHAT it does. A test that can't fail when business logic changes is broken.
+- Solve the general problem, not the test cases — never hard-code to inputs or bolt on workaround scripts to make a test pass. Tests verify the solution; they don't define it.
+- A test is wrong? Say so and fix the test. Never bend correct code to satisfy a broken one.
 
 ## 10. Checkpoint loud
 After every significant step: summarize done, verified, remaining. Don't continue from a state you can't describe back. Lose track → stop, restate.

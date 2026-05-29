@@ -20,6 +20,16 @@ metadata:
 
 # Code ultrareview
 
+<!-- canonical:execution-discipline:start -->
+## Important — Engineering discipline
+
+These rules govern how this skill changes code — apply them whenever it writes, edits, or proposes a fix.
+
+- Minimal scope. Only what's directly requested or clearly necessary — no extra files, no abstraction for one use, no configurability nobody asked for, no error handling for states that can't happen. Validate at system boundaries; trust internal code.
+- General solution, not the test cases. Implement the real logic for all valid inputs; never hard-code to inputs or bolt on workaround scripts to make a test pass. Tests verify the solution; they don't define it. A test is wrong? Say so — don't bend correct code to a broken test.
+- Investigate before claiming. Never speculate about code you haven't opened; read the referenced file before answering. Ground every claim in what you actually read, not a plausible guess.
+<!-- canonical:execution-discipline:end -->
+
 <!-- canonical:label-hygiene:start -->
 ## Critical — Label hygiene
 

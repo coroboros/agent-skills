@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
-"""Propagate canonical blocks from `.claude/rules/skill-{prose,label-hygiene}-rules.md` into each declared SKILL.md.
+"""Propagate canonical blocks from `.claude/rules/skill-{prose,label-hygiene,execution-discipline}-rules.md` into each declared SKILL.md.
 
-Two rule families share this script:
+Three rule families share this script:
 
 - `writing-rules` — style block (front-load verbs, no marketing words, no AI tells).
 - `label-hygiene` — author-coordinate vocabulary block (`WS-N`, "the rebuild", "spec AC", etc.).
+- `execution-discipline` — engineering block (minimal scope, general solutions over test-gaming, investigate before claiming).
 
-Each rule has its own canonical file, marker pair, and declared-skill list. Iteration is in
-declared order: `writing-rules` first (markers in-place-replaced if present), `label-hygiene`
-second (inserted after H1 if absent — pushing writing-rules down on first-ever sync).
+Each rule has its own canonical file, marker pair, and declared-skill list. A present block is
+replaced in-place; an absent one is inserted right after H1. Inserts prepend, so the rule iterated
+LAST lands closest to H1. Tuple order is therefore (writing-rules, label-hygiene, execution-discipline),
+producing top-to-bottom: execution-discipline, label-hygiene, writing-rules.
 
 Idempotent — second run produces zero diff. Exit 0 on success, 1 on parse error
 (any canonical file malformed), 2 if any declared skill is missing or malformed.
@@ -50,6 +52,13 @@ RULES: tuple[Rule, ...] = (
         start_marker="<!-- canonical:label-hygiene:start -->",
         end_marker="<!-- canonical:label-hygiene:end -->",
         declared_header="## Declared label-hygiene skills",
+    ),
+    Rule(
+        id="execution-discipline",
+        canonical_file=RULES_DIR / "skill-execution-discipline-rules.md",
+        start_marker="<!-- canonical:execution-discipline:start -->",
+        end_marker="<!-- canonical:execution-discipline:end -->",
+        declared_header="## Declared execution-discipline skills",
     ),
 )
 
