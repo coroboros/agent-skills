@@ -38,6 +38,15 @@ Run this list first when validating. Anything it catches is stop-and-fix, not ni
 
 ## AI Tells (patterns that betray AI generation)
 
+### Model default house style
+
+Current models carry a persistent default aesthetic that judges now read as its own tell: warm cream backgrounds (~`#F4F1EA`), serif display type (Georgia, Fraunces, Playfair), italic word-accents, terracotta / amber accent. It suits editorial, hospitality, and portfolio briefs — and feels off for dashboards, dev tools, fintech, healthcare, or enterprise. It surfaces unprompted, in slide decks as well as web UIs. (The warm-cream cluster is the tell; the neutral off-whites endorsed below are not.)
+
+Generic negation does not fix it. "Don't use cream", "make it clean and minimal" shift the model to a *different* fixed palette, not to variety. Two counters work:
+
+- **Specify a concrete alternative** — exact palette hexes, typeface, corner radius, motion timing. The model follows explicit specs precisely.
+- **Propose directions first** — surface 2-4 distinct directions (bg hex / accent hex / typeface + one-line rationale) and let the user pick, instead of committing to the default silently. Phase 1 already works this way — it recommends an archetype and asks the user to validate before proceeding; lean on that gate rather than trusting the default.
+
 ### Visual
 
 - Purple/blue gradients on white — the "AI purple" aesthetic.
