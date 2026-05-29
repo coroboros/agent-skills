@@ -1,5 +1,15 @@
 # Writing Subagent Prompts
 
+## Contents
+
+- [Key insight](#key-insight)
+- [Core principles](#core-principles)
+- [Structure with XML](#structure-with-xml)
+- [Anti-patterns](#anti-patterns)
+- [Best practices](#best-practices)
+- [Testing subagents](#testing-subagents)
+- [Quick reference](#quick-reference)
+
 ## Key insight
 
 Agent prompts should be task-specific, not generic. They define a specialized role with clear focus areas, workflows, and constraints.

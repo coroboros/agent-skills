@@ -5,6 +5,15 @@ Master guide for writing effective instructions in CLAUDE.md files. These techni
 Show your CLAUDE.md to someone with minimal project context. If they're confused about what to do, Claude will be too.
 </core_principle>
 
+<contents>
+- Emphasis strategies — keyword, visual, formatting, placement, repetition
+- Clarity techniques — be specific, show don't tell, edge cases, ambiguity, sequential steps
+- Instruction structure — obligation levels, decision criteria, success criteria
+- Context provision — purpose, examples, file links
+- Constraint techniques — hard, conditional, escape hatches
+- Testing your instructions — clarity test, effectiveness test, common issues
+</contents>
+
 <emphasis_strategies>
 Reserve emphasis for genuine constraints. Current models follow instructions literally — stacking CRITICAL/NEVER/ALWAYS on ordinary guidance dilutes the rules that matter and can cause overtriggering. Lead with clear, specific directives; add a single emphatic marker only where a rule is truly non-negotiable (secrets, data loss, breaking changes).
 
@@ -308,7 +317,7 @@ For absolute limits, use explicit language:
 - Maximum component size: 300 lines
 - Maximum function size: 50 lines
 - Maximum file size: 500 lines
-- **NEVER** exceed these limits
+- Refactor before exceeding these limits — they keep modules reviewable
 ```
 </hard_constraints>
 
@@ -354,7 +363,7 @@ Ask yourself:
 1. Could a developer unfamiliar with this project follow these instructions?
 2. Are there any ambiguous terms?
 3. Is anything left to interpretation that shouldn't be?
-4. Are the most critical rules emphasized?
+4. Are the most critical rules placed first and stated specifically?
 </clarity_test>
 
 <effectiveness_test>
