@@ -11,7 +11,7 @@ Public API breakage, DB schema breaking changes, type-strictness regressions, er
 - **Race conditions** — unprotected shared mutable state, missing await, double-fetch, missing lock around critical section.
 - **Concurrency-sensitive code** — `Promise.all` with N+1 underneath, sync I/O inside async, missing back-pressure on a stream.
 - **Public-surface declared in CLAUDE.md** — a rule like "Never break the public API" is High severity when violated.
-- **Shallow module** — a new or widened public interface fronting little behavior: many parameters, a thin pass-through, a wrapper that only forwards. Detect with the deletion test — if the module were inlined at its call sites, does the codebase get simpler? If yes, the interface adds surface without leverage. Deep modules (a small interface over substantial hidden complexity) are the goal; shallow ones are the smell.
+- **Shallow module** — a public interface that costs more than the behavior behind it: a thin pass-through, a wrapper that only forwards, an abstraction whose signature carries as much as its body. Detect with the deletion test — if the module were inlined at its call sites, does the codebase get simpler? If yes, the interface adds surface without leverage. Deep modules (a narrow interface over substantial hidden complexity) are the goal; shallow ones are the smell. Judge the interface-to-behavior ratio; raw parameter count belongs to the Simplification axis.
 
 ## Out of scope (false positives — silence at source)
 
