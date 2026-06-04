@@ -1,6 +1,6 @@
 # Axis: Design/API (key `design-api`)
 
-Public API breakage, DB schema breaking changes, type-strictness regressions, error-handling boundary changes, race conditions in concurrency-sensitive code. The axis catches changes that propagate to downstream consumers — the cost of getting it wrong is high.
+Public API breakage, DB schema breaking changes, type-strictness regressions, error-handling boundary changes, race conditions in concurrency-sensitive code, and shallow-module / wide-interface smells. The axis catches changes that propagate to downstream consumers — the cost of getting it wrong is high — and interfaces that cost a caller more than the behavior behind them.
 
 ## In scope (HIGH SIGNAL)
 
@@ -11,6 +11,7 @@ Public API breakage, DB schema breaking changes, type-strictness regressions, er
 - **Race conditions** — unprotected shared mutable state, missing await, double-fetch, missing lock around critical section.
 - **Concurrency-sensitive code** — `Promise.all` with N+1 underneath, sync I/O inside async, missing back-pressure on a stream.
 - **Public-surface declared in CLAUDE.md** — a rule like "Never break the public API" is High severity when violated.
+- **Shallow module** — a new or widened public interface fronting little behavior: many parameters, a thin pass-through, a wrapper that only forwards. Detect with the deletion test — if the module were inlined at its call sites, does the codebase get simpler? If yes, the interface adds surface without leverage. Deep modules (a small interface over substantial hidden complexity) are the goal; shallow ones are the smell.
 
 ## Out of scope (false positives — silence at source)
 
@@ -21,6 +22,8 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 - **Schema additions** (new column with default) — additive, not breaking.
 - **Type-strictness regressions in test files** — tests sometimes need looser typing; not a finding unless CLAUDE.md says otherwise.
 - **Error-handling style preferences** (try/catch vs `.catch()`) without a CLAUDE.md rule.
+- **Deep single-use internals** — a module called once but hiding real complexity behind a narrow interface is deep, not shallow. Not a finding.
+- **Small focused modules** — depth is the interface-to-behavior ratio, not line count; a short module with a narrow interface is fine.
 
 ## Tool inputs (Phase 2)
 
@@ -37,6 +40,7 @@ All tool findings carry `confidence: 100` and skip validators.
 - 🔴 High — public API breaking (oasdiff ERR, api-extractor Error), DB schema breaking (atlas any-level), unhandled error on a hot path, race condition on shared state.
 - 🟠 Medium — type-strictness regression on a new file in a strict codebase, error-handling boundary that may swallow silently, oasdiff WARN.
 - 🟢 Low — additive type narrowing that may surprise consumers, defensive `?` introduced where it was not before.
+- Shallow-module smell — 🟢 Low on a cold or rarely-imported path; 🟠 Medium on a hot or widely-imported path, where the wide interface taxes every caller. Never High — a design smell, not a breakage.
 
 ## Repo-kind branches
 
