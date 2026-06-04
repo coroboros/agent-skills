@@ -16,6 +16,7 @@ metadata:
     - github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier
     - code.claude.com/docs/en/code-review
     - code.claude.com/docs/en/ultrareview
+    - github.com/mattpocock/skills/tree/main/skills/engineering/improve-codebase-architecture
 ---
 
 # Code ultrareview

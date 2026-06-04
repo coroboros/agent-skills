@@ -143,6 +143,8 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 - [anthropics/knowledge-work-plugins — product-brainstorming](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming) — divergent/convergent ideation modes and frameworks
 - [anthropics/knowledge-work-plugins — write-spec](https://github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/write-spec) — PRD structure, acceptance-criteria craft, ruthless prioritization
 - [Melvynx/aiblueprint — ultrathink](https://github.com/Melvynx/aiblueprint) — craftsman simplification discipline
+- [mattpocock/skills — grill-me](https://github.com/mattpocock/skills/tree/main/skills/productivity/grill-me) — decision-tree interview behind the opt-in deep grill
+- [mattpocock/skills — to-issues](https://github.com/mattpocock/skills/tree/main/skills/engineering/to-issues) — vertical-slice decomposition and HITL/AFK tagging
 
 ---
 
@@ -358,6 +360,7 @@ Run `/code-ultrareview --preflight` to see exactly what would run on the current
 - [anthropics/claude-plugins-official — code-simplifier](https://github.com/anthropics/claude-plugins-official/tree/main/plugins/code-simplifier) — Simplification axis precedent (nested ternaries forbidden, "fewer lines over readability" forbidden)
 - [Anthropic — Code Review docs](https://code.claude.com/docs/en/code-review) — Managed Code Review severity tiers (Important / Nit / Pre-existing) adopted in synthesis
 - [Anthropic — `/ultrareview` docs](https://code.claude.com/docs/en/ultrareview) — remote sandbox + multi-agent fleet + per-finding independent verification (the upstream this skill distinguishes itself from — in-session vs remote, distinct namespace)
+- [mattpocock/skills — improve-codebase-architecture](https://github.com/mattpocock/skills/tree/main/skills/engineering/improve-codebase-architecture) — deletion test for shallow-module / wide-interface smells (Ousterhout deep modules) in the Design/API axis
 
 </details>
 

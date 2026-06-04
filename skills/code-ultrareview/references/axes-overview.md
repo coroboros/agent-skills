@@ -12,7 +12,7 @@ Eight always-on axes + one conditional axis (`coherence`) comprise the code-ultr
 | 4 | `documentation` | Public API doc completeness, README drift on public-surface changes, ADR drift, prose hygiene over PR body + commits + user-facing `*.md` | `references/axes/documentation.md` |
 | 5 | `style` | CLAUDE.md violations, linter-deferred concerns, formatter delegation | `references/axes/style.md` |
 | 6 | `intent` | PR description vs diff, code vs comment drift, code vs spec drift, lockfile drift, generator drift; optional planning-artifact reconciliation via `--reconcile` | `references/axes/intent.md` |
-| 7 | `design-api` | Public API breaking (oasdiff / api-extractor input), DB schema breaking (atlas input), type-strictness regression, error-handling boundaries, race conditions | `references/axes/design-api.md` |
+| 7 | `design-api` | Public API breaking (oasdiff / api-extractor input), DB schema breaking (atlas input), type-strictness regression, error-handling boundaries, race conditions, shallow-module smells (deletion test) | `references/axes/design-api.md` |
 | 8 | `performance` | N+1 patterns (semgrep input), sync I/O in async, bundle-size delta, allocation hot paths; explicit non-goals — no benchmarks, no flamegraphs, no memory profiling | `references/axes/performance.md` |
 
 ## The conditional 9th axis

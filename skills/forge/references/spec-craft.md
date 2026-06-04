@@ -44,6 +44,18 @@ If everything is P0, nothing is. For each P0 workstream, ask one question: would
 
 Reach for this when more than half the workstreams are marked P0.
 
+## Vertical slices
+
+Decompose by thin end-to-end cuts, not horizontal layers. Each workstream delivers observable behavior on its own.
+
+- A vertical slice spans the stack for one capability — schema, logic, and surface for that one thing. A horizontal layer (all models, then all endpoints, then all UI) delivers nothing until the last layer lands and hides integration risk until the end.
+- The anti-pattern: "data layer, then service layer, then UI" as three workstreams. No slice ships value; each blocks on the next.
+- The test: could this workstream be demoed alone? If not, it is a layer — re-cut it.
+
+Optional execution tag — mark each workstream **HITL** (human-in-the-loop: needs a review, a decision, or a credential mid-flight) or **AFK** (autonomous: an agent finishes it unattended). The tag plans the run, not the schema — it never becomes a `validate_spec.py` field.
+
+Reach for this when a workstream reads as an architectural layer rather than a demoable capability.
+
 ## Pre-save audit
 
 Walk this checklist before save. The validator catches schema violations (count, Priority/Complexity set, deps resolve, no cycles); the audit catches the softer defects the validator cannot see. Rewrite anything flagged and re-walk the list. Both shapes (Decision and Spec) get the items that apply.
