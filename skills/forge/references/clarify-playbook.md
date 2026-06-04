@@ -29,10 +29,23 @@ Pick the **1-3 most relevant** — not all five. Ask them in a **single message*
 
 If `{from_file}` carried a brainstorm, an RFC, a GitHub issue, or a prior forge artifact, ask only about **gaps** — what the prior doc does not answer. One or two questions, not five. The carry-forward Assumption ledger usually settles Scope and Constraints already.
 
+## Deep grill (opt-in)
+
+The default above is deliberately light — 1-3 questions, one message, no second round. Escalate to a relentless grill **only** when the user signals it ("grill me", "interview me", "I want to think this through") or an irreversible, high-cost decision warrants resolving every branch before committing.
+
+The deep grill inverts the default rhythm:
+
+- **One question at a time.** Ask, read the answer, ask the next — walk the decision tree branch by branch instead of batching.
+- **Carry a recommended answer with each question.** State the call you would make and why, so the user confirms fast or redirects. A grill that only asks is slower than one that proposes.
+- **Follow each fork before backtracking.** When an answer opens a new branch, resolve it in order. Stop when every branch is closed, not at a fixed count.
+- **Read the code, not the user, when the answer is discoverable.** A question the codebase already answers gets explored, not asked.
+
+The deep grill is the exception, never the default. Without an explicit signal, stay light.
+
 ## Anti-patterns
 
 - Asking five questions when one matters.
 - Asking before reading prior context.
-- Multiple Q&A rounds — the user spent the budget for thinking on answering procedural questions.
+- Multiple Q&A rounds — the user spent the budget for thinking on answering procedural questions. The opt-in deep grill above is the deliberate exception, gated by an explicit user signal.
 - Asking yes/no questions disguised as open-ended — "should we use OAuth?" should be a decided call surfaced as an assumption, not a question.
 - Asking what the model can decide — taste calls, library picks, file layout, naming. Those are the engineering judgment calls Phase 3 owns.
