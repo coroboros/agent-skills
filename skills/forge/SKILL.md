@@ -12,6 +12,8 @@ metadata:
     - github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/product-brainstorming
     - github.com/anthropics/knowledge-work-plugins/tree/main/product-management/skills/write-spec
     - github.com/Melvynx/aiblueprint
+    - github.com/mattpocock/skills/tree/main/skills/productivity/grill-me
+    - github.com/mattpocock/skills/tree/main/skills/engineering/to-issues
 ---
 
 # Forge
