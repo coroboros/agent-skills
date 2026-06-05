@@ -1,6 +1,6 @@
 # Skill Adversarial-Verification Rules
 
-Canonical block embedded verbatim in every skill whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action. Each skill carries its own copy so the rule travels on independent install (plugins cannot reference files outside their own directory). The `tests/_meta/test_skill_writing_rules.py` test enforces byte-level parity across declared skills; the `scripts/sync_writing_rules.py` script propagates canonical changes.
+Canonical block embedded verbatim in every skill that must verify its own findings before acting on them. Each skill carries its own copy so the rule travels on independent install (plugins cannot reference files outside their own directory). The `tests/_meta/test_skill_writing_rules.py` test enforces byte-level parity across declared skills; the `scripts/sync_writing_rules.py` script propagates canonical changes.
 
 ## Canonical block
 
