@@ -1111,10 +1111,10 @@ Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial 
 
 ### Deep external research → Plan
 
-[Claude's Research feature](https://claude.com/blog/research) runs hundreds of queries and votes on claims — depth beyond what `forge`'s Hunt phase reaches. It does not score source reliability or detect bias, so treat its output as untrusted by default. Run the research there, save the cited Markdown to an absolute path, then pipe it into `forge` as foundational context:
+The native `/deep-research` workflow and [Claude's Research](https://claude.com/blog/research) feature run hundreds of queries — depth beyond what `forge`'s Hunt phase reaches. `/deep-research` votes on claims and filters non-survivors; neither scores source reliability nor detects bias, so treat the output as untrusted by default. Run one of them, save the cited Markdown to an absolute path, then pipe it into `forge` as foundational context:
 
 ```
-Claude Desktop Research                       hundreds of queries, cited Markdown
+/deep-research or Claude Desktop Research     hundreds of queries, cited Markdown
       |
 save the report to e.g. ~/.claude/output/{project}/external-research/{slug}.md
       |
@@ -1123,7 +1123,7 @@ save the report to e.g. ~/.claude/output/{project}/external-research/{slug}.md
 /apex -f <abs forge path> "<task>"                           apex builds
 ```
 
-A supported pattern of the `-f` contract: `forge` and `apex` accept any absolute Markdown path verbatim. Hunt is research-as-input for engineering decisions, sized for tens of queries. Claude Desktop is research-as-deliverable for cited briefs, sized for hundreds.
+A supported pattern of the `-f` contract: `forge` and `apex` accept any absolute Markdown path verbatim. Hunt is research-as-input for engineering decisions, sized for tens of queries. Deep research is research-as-deliverable for cited briefs, sized for hundreds.
 
 ### Design → Develop
 

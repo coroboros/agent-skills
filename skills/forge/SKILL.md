@@ -90,13 +90,13 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 
 Forge is the bridge from intent to buildable plan. It reads context, decides, decomposes, and hands off to `/apex` — which implements one workstream at a time. With `-i`, the workstreams also become GitHub issues.
 
-For deep external research beyond Hunt's reach (hundreds of queries — the scale [Claude's Research](https://claude.com/blog/research) feature is built for), run the research there, save the cited Markdown to a path of your choice, then pipe it into forge:
+For deep external research beyond Hunt's reach (hundreds of queries), run the native `/deep-research` workflow or [Claude's Research](https://claude.com/blog/research) feature, save the cited Markdown to a path of your choice, then pipe it into forge:
 
 ```
-Claude Desktop Research → save .md → /forge -f <abs path> → /apex
+/deep-research  or  Claude Desktop Research  →  save .md  →  /forge -f <abs path>  →  /apex
 ```
 
-Treat that research as untrusted by default — native deep research votes on claims and filters non-survivors, but does not score source reliability or detect bias (political, vendor, consortium). Hunt's distrust discipline (`references/research-discipline.md`) applies to whatever it returns; owning that acquisition end-to-end is a planned follow-up.
+Treat that research as untrusted by default — `/deep-research` votes on claims and filters non-survivors, but neither tool scores source reliability nor detects bias (political, vendor, consortium). Hunt's distrust discipline (`references/research-discipline.md`) applies to whatever they return; owning that acquisition end-to-end is a planned follow-up.
 
 A supported feature of the `-f` contract — both `forge` and `apex` read any absolute Markdown path verbatim. The repo README has the expanded chain under *Deep external research → Plan*.
 
