@@ -22,6 +22,14 @@ A single source is anecdote. Three converging sources is signal. One source cont
 
 Three converging sources only count when at least one is `primary` or `secondary`. Each cited source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per `subagent-prompts.md` § *general-purpose — external research*. Weight convergence by tag — three `primary` sources outweigh a chain of `blog` reposts of the same claim. A consensus across `blog` and `vendor-marketing` tags alone is not a consensus; it is a single source amplified.
 
+## Provenance and lateral reading
+
+A quality tag rates the source type; provenance rates its interest. For each load-bearing source, surface who funds, owns, or publishes it as a neutral fact — funding shapes framing more than tone reveals, and it is where political, vendor, and consortium influence hides.
+
+- Read laterally. Judge a source by what independent sources say about it, not by reading it harder. Leave the page, check the publisher and its backers — fact-checkers who do this beat experts who deep-read the source itself.
+- State the affiliation, don't adjudicate the bias. "Funded by X" lets the reader discount; "X is biased" injects your own priors and defeats the point.
+- When provenance is unknown, record "provenance unverified" — never assume neutral.
+
 ## What to leave to the model
 
 Premortem framing, generic best practices, common gotchas for well-known libraries — the model already carries these. Use research to ground the *specific* call: this codebase, this version, this constraint.

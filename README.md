@@ -1111,7 +1111,7 @@ Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial 
 
 ### Deep external research → Plan
 
-[Claude Desktop's Research feature](https://claude.com/blog/research) runs hundreds of queries with source-reliability heuristics — depth beyond what `forge`'s Hunt phase reaches. Run the research there, save the cited Markdown to an absolute path, then pipe it into `forge` as foundational context:
+[Claude's Research feature](https://claude.com/blog/research) runs hundreds of queries and votes on claims — depth beyond what `forge`'s Hunt phase reaches. It does not score source reliability or detect bias, so treat its output as untrusted by default. Run the research there, save the cited Markdown to an absolute path, then pipe it into `forge` as foundational context:
 
 ```
 Claude Desktop Research                       hundreds of queries, cited Markdown

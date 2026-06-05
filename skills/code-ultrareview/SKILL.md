@@ -21,6 +21,18 @@ metadata:
 
 # Code ultrareview
 
+<!-- canonical:adversarial-verification:start -->
+## Critical — Adversarial verification
+
+These rules govern how this skill trusts its own output — apply them whenever it verifies a claim, a defect, a source, or a decision before acting on it.
+
+- Refute by default. Treat each non-trivial finding as unproven until a fresh-context check fails to refute it — the context that produced a claim cannot reliably clear it.
+- No silent drop. Every finding flips the conclusion, is refuted in writing, or is filed as a risk or open question. A finding that vanishes without a verdict is a defect.
+- Don't re-litigate settled facts. Spend adversarial effort on load-bearing or contested claims; let established facts pass. Over-refutation manufactures false doubt — it does not add rigor.
+- Stay selective and cost-aware. Scale verification to the stakes; reversible, low-impact work gets a light touch, not a full adversarial sweep.
+- Concede only to a strong rebuttal. A weak counter folds into the finding or gets filed; it does not overturn it.
+<!-- canonical:adversarial-verification:end -->
+
 <!-- canonical:execution-discipline:start -->
 ## Important — Engineering discipline
 

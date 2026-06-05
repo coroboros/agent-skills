@@ -1,11 +1,12 @@
-"""Parity tests for the canonical blocks embedded in prose-emitting and label-hygiene skills.
+"""Parity tests for the canonical blocks embedded in declared skills.
 
-Two canonical rules share this suite — `writing-rules` (style) and `label-hygiene`
-(internal-label vocabulary leakage). Each lives in its own `.claude/rules/skill-*.md`
-file with its own marker pair and declared-skill list, and propagates via
-`scripts/sync_writing_rules.py`. These tests enforce byte-level parity, placement
-near the top, exclusion of non-declared skills, and absence of personal/brand-voice
-path leaks — once per rule.
+Four canonical rules share this suite — `writing-rules` (style), `label-hygiene`
+(internal-label vocabulary leakage), `execution-discipline` (how the skill changes
+code), and `adversarial-verification` (how the skill trusts its own findings). Each
+lives in its own `.claude/rules/skill-*.md` file with its own marker pair and
+declared-skill list, and propagates via `scripts/sync_writing_rules.py`. These tests
+enforce byte-level parity, placement near the top, exclusion of non-declared skills,
+and absence of personal/brand-voice path leaks — once per rule.
 """
 
 from __future__ import annotations
@@ -65,6 +66,18 @@ CANONICAL_RULES: tuple[Rule, ...] = (
         declared_header="## Declared execution-discipline skills",
         excluded_header="## Excluded skills (with reason)",
         expected_h2_in_block="## Important — Engineering discipline",
+    ),
+    Rule(
+        id="adversarial-verification",
+        canonical_file=REPO_ROOT
+        / ".claude"
+        / "rules"
+        / "skill-adversarial-verification-rules.md",
+        start_marker="<!-- canonical:adversarial-verification:start -->",
+        end_marker="<!-- canonical:adversarial-verification:end -->",
+        declared_header="## Declared adversarial-verification skills",
+        excluded_header="## Excluded skills (with reason)",
+        expected_h2_in_block="## Critical — Adversarial verification",
     ),
 )
 
@@ -162,8 +175,9 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
     def test_canonical_block_placed_near_top(self):
         """Auto-compaction protects the first 5000 tokens of each invoked skill.
         Placing each canonical block within the first 70 lines keeps it inside that
-        window. The cap accommodates three stacked canonical blocks (execution-discipline
-        + label-hygiene + writing-rules) which together span ~45-55 lines after H1."""
+        window. The cap accommodates four stacked canonical blocks (adversarial-verification
+        + execution-discipline + label-hygiene + writing-rules) which together span
+        ~55-65 lines after H1."""
         for rule in CANONICAL_RULES:
             _, declared, _ = _parse_canonical(rule)
             for name in declared:

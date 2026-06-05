@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 """Propagate canonical blocks from `.claude/rules/skill-{prose,label-hygiene,execution-discipline}-rules.md` into each declared SKILL.md.
 
-Three rule families share this script:
+Four rule families share this script:
 
 - `writing-rules` — style block (front-load verbs, no marketing words, no AI tells).
 - `label-hygiene` — author-coordinate vocabulary block (`WS-N`, "the rebuild", "spec AC", etc.).
 - `execution-discipline` — engineering block (minimal scope, general solutions over test-gaming, investigate before claiming).
+- `adversarial-verification` — verification block (refute-by-default, no-silent-drop, don't re-litigate settled facts).
 
 Each rule has its own canonical file, marker pair, and declared-skill list. A present block is
 replaced in-place; an absent one is inserted right after H1. Inserts prepend, so the rule iterated
-LAST lands closest to H1. Tuple order is therefore (writing-rules, label-hygiene, execution-discipline),
-producing top-to-bottom: execution-discipline, label-hygiene, writing-rules.
+LAST lands closest to H1. Tuple order is therefore (writing-rules, label-hygiene, execution-discipline,
+adversarial-verification), producing top-to-bottom: adversarial-verification, execution-discipline,
+label-hygiene, writing-rules.
 
 Idempotent — second run produces zero diff. Exit 0 on success, 1 on parse error
 (any canonical file malformed), 2 if any declared skill is missing or malformed.
@@ -59,6 +61,13 @@ RULES: tuple[Rule, ...] = (
         start_marker="<!-- canonical:execution-discipline:start -->",
         end_marker="<!-- canonical:execution-discipline:end -->",
         declared_header="## Declared execution-discipline skills",
+    ),
+    Rule(
+        id="adversarial-verification",
+        canonical_file=RULES_DIR / "skill-adversarial-verification-rules.md",
+        start_marker="<!-- canonical:adversarial-verification:start -->",
+        end_marker="<!-- canonical:adversarial-verification:end -->",
+        declared_header="## Declared adversarial-verification skills",
     ),
 )
 
