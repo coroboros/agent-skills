@@ -1,0 +1,61 @@
+# Skill Adversarial-Verification Rules
+
+Canonical block embedded verbatim in every skill that must verify its own findings before acting on them. Each skill carries its own copy so the rule travels on independent install (plugins cannot reference files outside their own directory). The `tests/_meta/test_skill_writing_rules.py` test enforces byte-level parity across declared skills; the `scripts/sync_writing_rules.py` script propagates canonical changes.
+
+## Canonical block
+
+The block below — including the two HTML-comment markers — is inserted verbatim into each declared SKILL.md, placed immediately after the H1 title and before any other `##` section. The `## Critical` header follows the canonical guidance on placement of critical instructions for maximum adherence.
+
+```markdown
+<!-- canonical:adversarial-verification:start -->
+## Critical — Adversarial verification
+
+These rules govern how this skill trusts its own output — apply them whenever it verifies a claim, a defect, a source, or a decision before acting on it.
+
+- Refute by default. Treat each non-trivial finding as unproven until a fresh-context check fails to refute it — the context that produced a claim cannot reliably clear it.
+- No silent drop. Every finding flips the conclusion, is refuted in writing, or is filed as a risk or open question. A finding that vanishes without a verdict is a defect.
+- Don't re-litigate settled facts. Spend adversarial effort on load-bearing or contested claims; let established facts pass. Over-refutation manufactures false doubt — it does not add rigor.
+- Stay selective and cost-aware. Scale verification to the stakes; reversible, low-impact work gets a light touch, not a full adversarial sweep.
+- Concede only to a strong rebuttal. A weak counter folds into the finding or gets filed; it does not overturn it.
+<!-- canonical:adversarial-verification:end -->
+```
+
+## Why this is a separate canonical block
+
+Writing rules (`skill-prose-rules.md`) govern *style* of the prose a skill emits. Label hygiene (`skill-label-hygiene-rules.md`) governs *vocabulary leakage* into shipped artifacts. Execution discipline (`skill-execution-discipline-rules.md`) governs *how the skill changes code*. Adversarial verification governs *how the skill trusts its own findings* — refute-by-default, no-silent-drop, and the discipline to not manufacture doubt on settled facts. Different concern, different declared scope (claim/finding/decision emitters), different failure modes. Co-located in adjacent canonical blocks; never merged.
+
+The block carries philosophy only — no scoring scale. Each declared skill keeps its own mechanics: forge scores rebuttals on its Concession Threshold, code-ultrareview re-scores findings through confidence validators, apex gates its eXamine self-check by stakes. The shared spine is the same; the numbers are local.
+
+## Declared adversarial-verification skills
+
+The sync script and the parity test read this list:
+
+- forge
+- apex
+- code-ultrareview
+
+Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine.
+
+## Excluded skills (with reason)
+
+- oneshot — deliberately single-pass with a complexity circuit breaker; a refute-by-default loop contradicts its fast-path design. Correctness is governed by its execution-discipline and label-hygiene blocks.
+- agent-creator — emits agent config (`.claude/agents/`), not findings or decisions to verify.
+- award-design — emits DESIGN.md (per-project content artifact), not verified findings.
+- design-system — governs DESIGN.md tokens; tooling/status output, not findings.
+- claude-md — emits CLAUDE.md (per-project content artifact), not findings.
+- brand-voice — emits BRAND-VOICE.md (per-project content artifact), not findings.
+- write-clear-readme — emits README.md (per-project content artifact), not findings.
+- suno-produce — emits TRACK.md / ALBUM.md (per-project content artifact), not findings.
+- scaffold — runs a fixed bootstrap and emits a short status report, not findings.
+- markitdown — wraps a converter CLI and emits a short status report, not findings.
+- notion — routes to MCP/CLI and emits a short status report, not findings.
+- audio-loop — media tooling emitting short status reports, not findings.
+- video-loop — media tooling emitting short status reports, not findings.
+- humanize-en — text scrubber; different scope entirely.
+
+## Rules for skill authors
+
+- Insert the Canonical block (markers included) immediately after the SKILL.md H1 title. The sync script inserts a new block right after H1, so adversarial-verification lands closest to H1; the other canonical blocks (execution-discipline, label-hygiene, writing-rules) sit below it in that order.
+- The HTML-comment markers must remain unchanged — they are the extraction contract for `scripts/sync_writing_rules.py` and `tests/_meta/test_skill_writing_rules.py`.
+- Never inject personal paths or brand-voice paths into the canonical block — `tests/_meta/test_skill_writing_rules.py` privacy assertions block it.
+- Run `scripts/sync_writing_rules.py` after editing this file to propagate changes.

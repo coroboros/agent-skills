@@ -141,6 +141,18 @@ Run the project's test command (scoped to affected area if possible).
 
 **If `{save_mode}` = true:** Log each result
 
+**3.4 Adversarial self-check (non-trivial changes only)**
+
+Per the `## Critical — Adversarial verification` block in SKILL.md, the context that wrote the change cannot reliably clear it. After the suite passes, spawn one fresh-context skeptic — a `general-purpose` subagent — on the diff, tasked to refute: find the bug, the missed edge case, the spec deviation. Keep it bounded; this is an in-loop self-check, not code-ultrareview's full multi-axis gate.
+
+**Stakes gate:**
+
+- Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough.
+- Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
+- `{economy_mode}` = true → skip the subagent; self-refute inline instead.
+
+**No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
+
 ### 4. Self-Audit Checklist
 
 Verify each item:
@@ -182,6 +194,7 @@ Re-run typecheck and lint commands. Both MUST pass.
 **Lint:** ✓ Passed
 **Tests:** ✓ {X}/{X} passing
 **Format:** ✓ Applied
+**Adversarial self-check:** ✓ {N findings resolved | skipped — trivial change}
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (advisory) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 

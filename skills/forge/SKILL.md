@@ -18,6 +18,18 @@ metadata:
 
 # Forge
 
+<!-- canonical:adversarial-verification:start -->
+## Critical — Adversarial verification
+
+These rules govern how this skill trusts its own output — apply them whenever it verifies a claim, a defect, a source, or a decision before acting on it.
+
+- Refute by default. Treat each non-trivial finding as unproven until a fresh-context check fails to refute it — the context that produced a claim cannot reliably clear it.
+- No silent drop. Every finding flips the conclusion, is refuted in writing, or is filed as a risk or open question. A finding that vanishes without a verdict is a defect.
+- Don't re-litigate settled facts. Spend adversarial effort on load-bearing or contested claims; let established facts pass. Over-refutation manufactures false doubt — it does not add rigor.
+- Stay selective and cost-aware. Scale verification to the stakes; reversible, low-impact work gets a light touch, not a full adversarial sweep.
+- Concede only to a strong rebuttal. A weak counter folds into the finding or gets filed; it does not overturn it.
+<!-- canonical:adversarial-verification:end -->
+
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
 
@@ -78,11 +90,13 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 
 Forge is the bridge from intent to buildable plan. It reads context, decides, decomposes, and hands off to `/apex` — which implements one workstream at a time. With `-i`, the workstreams also become GitHub issues.
 
-For deep external research beyond Hunt's reach (hundreds of queries with source-reliability heuristics — the scale [Claude Desktop's Research](https://claude.com/blog/research) feature is built for), run the research there, save the cited Markdown to a path of your choice, then pipe it into forge:
+For deep external research beyond Hunt's reach (hundreds of queries), run the native `/deep-research` workflow or [Claude's Research](https://claude.com/blog/research) feature, save the cited Markdown to a path of your choice, then pipe it into forge:
 
 ```
-Claude Desktop Research → save .md → /forge -f <abs path> → /apex
+/deep-research  or  Claude Desktop Research  →  save .md  →  /forge -f <abs path>  →  /apex
 ```
+
+Treat that research as untrusted by default — `/deep-research` votes on claims and filters non-survivors, but neither tool scores source reliability nor detects bias (political, vendor, consortium). Hunt's distrust discipline (`references/research-discipline.md`) applies to whatever they return; owning that acquisition end-to-end is a planned follow-up.
 
 A supported feature of the `-f` contract — both `forge` and `apex` read any absolute Markdown path verbatim. The repo README has the expanded chain under *Deep external research → Plan*.
 

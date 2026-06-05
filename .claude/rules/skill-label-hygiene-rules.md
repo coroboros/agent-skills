@@ -53,7 +53,7 @@ Scope rule — skills whose primary output is shared external surface (code, com
 
 ## Rules for skill authors
 
-- Insert the Canonical block (markers included) immediately after the SKILL.md H1 title. With both the writing-rules and label-hygiene blocks present, the natural order — produced by `scripts/sync_writing_rules.py` — places label-hygiene first (closer to H1) and writing-rules second.
+- Insert the Canonical block (markers included) immediately after the SKILL.md H1 title. With the adversarial-verification, execution-discipline, and writing-rules blocks also present, the natural order — produced by `scripts/sync_writing_rules.py` — places adversarial-verification closest to H1, then execution-discipline, label-hygiene, writing-rules.
 - The HTML-comment markers must remain unchanged — they are the extraction contract for `scripts/sync_writing_rules.py` and `tests/_meta/test_skill_writing_rules.py`.
 - Never inject personal paths or brand-voice paths into the canonical block — `tests/_meta/test_skill_writing_rules.py` privacy assertions block it.
 - Run `scripts/sync_writing_rules.py` after editing this file to propagate changes.
