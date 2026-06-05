@@ -1238,6 +1238,8 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 - [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
 - [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
 - [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
+- [`skill-execution-discipline-rules.md`](./.claude/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
+- [`skill-adversarial-verification-rules.md`](./.claude/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a claim, finding, or decision
 
 ### Canonical writing rules
 
@@ -1247,9 +1249,15 @@ The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/s
 
 ### Canonical label-hygiene rules
 
-Skills that ship external artifacts carry a second canonical block — *Label hygiene* — alongside the writing-rules block. Three skills qualify today: `apex`, `code-ultrareview`, `oneshot`. The block forbids author-coordinate language in any artifact the skill emits, and names the carve-outs for skills that own the format (forge templates, apex rule documentation).
+Skills that ship external artifacts carry the *Label hygiene* canonical block alongside the writing-rules block. Three skills qualify today: `apex`, `code-ultrareview`, `oneshot`. The block forbids author-coordinate language in any artifact the skill emits, and names the carve-outs for skills that own the format (forge templates, apex rule documentation).
 
 The canonical source lives in [`.claude/rules/skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md). `scripts/sync_writing_rules.py` propagates it; the parity test enforces byte equality. The repo backstop [`tests/_meta/test_no_internal_label_leak.py`](./tests/_meta/test_no_internal_label_leak.py) scans shipped skill source and fails CI red on any unallowlisted match. Per-line opt-out: `# noqa: internal-label` (Python / shell), `<!-- noqa: internal-label -->` (Markdown).
+
+### Canonical execution-discipline and adversarial-verification rules
+
+Two further canonical blocks share the same machinery. *Engineering discipline* (`apex`, `code-ultrareview`, `oneshot`) governs how a skill changes code — minimal scope, general solutions over test-gaming, investigate before claiming. *Adversarial verification* (`forge`, `apex`, `code-ultrareview`) governs how a skill trusts its own findings — refute-by-default, no silent drop, no re-litigating settled facts. Both carry philosophy only; each skill keeps its own scoring mechanics.
+
+Canonical sources: [`.claude/rules/skill-execution-discipline-rules.md`](./.claude/rules/skill-execution-discipline-rules.md) and [`.claude/rules/skill-adversarial-verification-rules.md`](./.claude/rules/skill-adversarial-verification-rules.md). The same `scripts/sync_writing_rules.py` propagates all four blocks; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and per-rule classification.
 
 ---
 
