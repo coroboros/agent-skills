@@ -70,7 +70,6 @@ def split_frontmatter(text):
         after += 1
     fm = text[4:end]
     body = text[after:]
-    # Count newlines in everything before the body to compute the file-line offset
     body_line_offset = text[:after].count("\n") + 1
     return fm, body, body_line_offset
 

@@ -53,7 +53,6 @@ if ! bash "$BATTERY" --scope "$SCOPE" --output-dir "$(dirname "$PLAN_FILE")" \
   exit 2
 fi
 
-# Render the JSON plan as a human-readable report.
 python3 - "$PLAN_FILE" "$SCRIPT_DIR" <<'PY'
 import json
 import re

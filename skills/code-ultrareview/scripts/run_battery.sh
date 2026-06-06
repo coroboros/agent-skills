@@ -26,14 +26,9 @@ OUTPUT_DIR=""
 REPO="."
 DRY_RUN=0
 
-# ---------------------------------------------------------------------------
-# Dispatch matrix — single source of truth.
-#
-# Format: "<tool>|<install-command>|<axis-coverage-hint>"
-# Used by both the runtime dispatcher and `preflight_tools.sh`.
-# Mirrored by the README "Tool → Axis → Install command" table — drift
-# fails `tests/code-ultrareview/test_battery.py::test_readme_parity`.
-# ---------------------------------------------------------------------------
+# Dispatch matrix — single source of truth, format "<tool>|<install>|<axis>".
+# Used by the runtime dispatcher and `preflight_tools.sh`; mirrored by the
+# README table — drift fails `test_battery.py::test_readme_parity`.
 
 # shellcheck disable=SC2034
 BATTERY_TABLE=(
@@ -69,10 +64,6 @@ Exit 0 always when args are valid. Exit 2 on argument or scope.json error.
 EOF
 }
 
-# ---------------------------------------------------------------------------
-# Arg parsing
-# ---------------------------------------------------------------------------
-
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --scope) SCOPE="${2:-}"; shift 2 ;;
@@ -97,10 +88,7 @@ fi
 REPO="$(cd "$REPO" && pwd)"
 mkdir -p "$OUTPUT_DIR/raw"
 
-# ---------------------------------------------------------------------------
-# scope.json field extraction (via python3 — already a hard dependency).
-# ---------------------------------------------------------------------------
-
+# scope.json field extraction via python3 — already a hard dependency.
 _scope_field() {
   # Args: <jq-style dot path>. Returns one value per line.
   python3 - "$SCOPE" "$1" <<'PY'
@@ -171,11 +159,7 @@ has_repo_file() {
   [[ -f "$REPO/$1" ]]
 }
 
-# ---------------------------------------------------------------------------
-# Dispatch decision — encoded inline. Mirrors SKILL.md Phase 2 description.
-# ---------------------------------------------------------------------------
-
-# Result accumulators.
+# Dispatch decision — mirrors SKILL.md Phase 2 description.
 DISPATCHED=()
 SKIPPED_NAMES=()
 SKIPPED_INSTALLS=()
@@ -283,15 +267,12 @@ mark_dispatched() {
   DISPATCHED+=("$1")
 }
 
-# ---------------------------------------------------------------------------
 # Tool runners. Each writes raw output to $OUTPUT_DIR/raw/<tool>.<ext>.
 # Try order: npx → uvx → PATH binary → mark_skipped.
-# ---------------------------------------------------------------------------
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
 # npx invocations use `-y` to skip interactive install prompts.
-# Stderr is captured per tool to <tool>.stderr for debug.
 _capture() {
   # Args: <out-file> <stderr-file> -- <cmd...>
   local out="$1" err="$2"; shift 2
@@ -354,7 +335,6 @@ run_jscpd() {
 run_markdownlint() {
   local out="$OUTPUT_DIR/raw/markdownlint-cli2.json"
   local err="$OUTPUT_DIR/raw/markdownlint-cli2.stderr"
-  # Build the md file list from scope.json's files_touched_list.
   local md_files=()
   local f
   if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
@@ -516,7 +496,6 @@ run_oasdiff() {
     mark_skipped oasdiff
     return 0
   fi
-  # Stash HEAD~1 version to a temp file.
   local previous
   previous="$(mktemp -t oasdiff_prev_XXXX)"
   if ( cd "$REPO" && git show "HEAD~1:${current#$REPO/}" ) >"$previous" 2>/dev/null; then
@@ -611,10 +590,6 @@ for row in "${BATTERY_TABLE[@]}"; do
   ALL_TOOLS+=("${row%%|*}")
 done
 
-# ---------------------------------------------------------------------------
-# Dry-run path — print the dispatch plan and exit.
-# ---------------------------------------------------------------------------
-
 if [[ "$DRY_RUN" -eq 1 ]]; then
   python3 - "$SCOPE" "$REPO" "${ALL_TOOLS[@]}" <<'PY'
 import json, os, re, shutil, sys
@@ -650,7 +625,6 @@ for tool in tools:
     elif tool == "cargo-machete": want = has_lang("rust")
     decisions[tool] = want
 
-# Availability — check npx/uvx/path for each tool.
 def avail(tool):
     if tool in ("knip","jscpd","markdownlint-cli2","api-extractor"):
         if shutil.which("npx"): return "npx"
@@ -683,29 +657,16 @@ PY
   exit 0
 fi
 
-# ---------------------------------------------------------------------------
-# Real execution path — invoke each wanted tool.
-# ---------------------------------------------------------------------------
-
 for tool in "${ALL_TOOLS[@]}"; do
   if want_tool "$tool"; then
     run_for_tool "$tool"
   fi
 done
 
-# ---------------------------------------------------------------------------
-# Aggregate raw outputs → tool-findings.jsonl
-# ---------------------------------------------------------------------------
-
-# Normalize raw filenames so battery_ingest's stem dispatch picks every tool.
-# (Most runners already write <tool>.<ext>; nothing extra needed here.)
 python3 "$INGEST" batch --raw-dir "$OUTPUT_DIR/raw" --output "$OUTPUT_DIR/tool-findings.jsonl"
 
-# ---------------------------------------------------------------------------
-# Write tools-skipped.json AND merge the same list into scope.json["tools_skipped"]
-# so downstream phases (synthesis, "What I did NOT check") can read either file.
-# ---------------------------------------------------------------------------
-
+# Mirror the skip list into scope.json["tools_skipped"] so downstream phases
+# (synthesis, "What I did NOT check") can read either file.
 python3 - "$OUTPUT_DIR/tools-skipped.json" "$SCOPE" "${#SKIPPED_NAMES[@]}" "${SKIPPED_NAMES[@]:-}" "${SKIPPED_INSTALLS[@]:-}" "${SKIPPED_AXES[@]:-}" "${SKIPPED_REASONS[@]:-}" <<'PY'
 import json, sys
 out_path = sys.argv[1]
@@ -724,8 +685,6 @@ entries = [
 with open(out_path, "w", encoding="utf-8") as f:
     json.dump({"skipped": entries}, f, indent=2)
 
-# Mutate scope.json in place — Phase 5 synthesis reads `scope.json["tools_skipped"]`
-# for the "What I did NOT check" closing section.
 try:
     with open(scope_path, encoding="utf-8") as f:
         scope = json.load(f)

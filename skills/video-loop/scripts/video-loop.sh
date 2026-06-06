@@ -62,13 +62,9 @@ while getopts ":d:q:w:o:pn" opt; do
   esac
 done
 
-# --- Validate ---------------------------------------------------------------
-
 [[ -f "$INPUT" ]] || { echo "error: input not found: $INPUT" >&2; exit 1; }
 command -v ffmpeg  >/dev/null || { echo "error: ffmpeg not installed" >&2;  exit 1; }
 command -v ffprobe >/dev/null || { echo "error: ffprobe not installed" >&2; exit 1; }
-
-# --- Resolve paths ----------------------------------------------------------
 
 INPUT_ABS=$(cd "$(dirname "$INPUT")" && pwd)/$(basename "$INPUT")
 BASENAME=$(basename "$INPUT")
@@ -81,23 +77,18 @@ WEBM="$OUT_DIR/${STEM}.webm"
 POSTER_JPG="$OUT_DIR/${STEM}-poster.jpg"
 LOOP_TMP="/tmp/vl-loop-$$.mkv"
 
-# --- Probe ------------------------------------------------------------------
-
 DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$INPUT_ABS")
 # stat has different flags on macOS (-f%z) vs GNU/Linux (-c%s); try both.
 INPUT_BYTES=$(stat -f%z "$INPUT_ABS" 2>/dev/null || stat -c%s "$INPUT_ABS")
 
 trap 'rm -f "$LOOP_TMP"' EXIT
 
-# --- Crossfade (optional) ---------------------------------------------------
-
 if [[ $NO_FADE -eq 1 ]]; then
   LOOP_SOURCE="$INPUT_ABS"
 else
-  # The fade splits the video into three pieces: end_part ($FADE s from the
-  # tail), start_part ($FADE s from the head), middle (the remainder). We
-  # xfade end_part → start_part and prepend it to middle, producing an output
-  # that loops back to the same frame it ends on.
+  # Split into three pieces — end_part ($FADE s tail), start_part ($FADE s head),
+  # middle (remainder) — then xfade end_part→start_part and prepend to middle, so
+  # the output loops back to the same frame it ends on.
   TRIM_END=$(awk -v d="$DURATION" -v f="$FADE" 'BEGIN { printf "%.6f", d - f }')
   HALF=$(awk -v d="$DURATION" 'BEGIN { printf "%.6f", d / 2 }')
   if awk -v f="$FADE" -v h="$HALF" 'BEGIN { exit !(f >= h) }'; then
@@ -115,30 +106,22 @@ else
   LOOP_SOURCE="$LOOP_TMP"
 fi
 
-# --- Encode MP4 -------------------------------------------------------------
-
 ffmpeg -y -loglevel warning -i "$LOOP_SOURCE" \
   -c:v libx264 -crf "$H264_CRF" -preset slow \
   -an -movflags +faststart \
   "$MP4"
-
-# --- Encode WebM ------------------------------------------------------------
 
 ffmpeg -y -loglevel warning -i "$LOOP_SOURCE" \
   -c:v libvpx-vp9 -crf "$VP9_CRF" -b:v 0 \
   -an \
   "$WEBM"
 
-# --- Poster (optional) ------------------------------------------------------
-
 if [[ $POSTER -eq 1 ]]; then
   ffmpeg -y -loglevel warning -ss 0 -i "$MP4" -frames:v 1 -q:v 3 -update 1 "$POSTER_JPG"
 fi
 
-# --- Post-condition checks --------------------------------------------------
-
-# Expected output duration = input − FADE when a crossfade was applied,
-# or = input when -n was passed. Tolerance 0.2s for codec rounding.
+# Expected duration = input − FADE with a crossfade, else input. 0.2s tolerance
+# absorbs codec rounding.
 MP4_DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$MP4")
 if [[ $NO_FADE -eq 1 ]]; then
   EXPECTED_DURATION=$DURATION
@@ -158,8 +141,6 @@ fi
 if [[ "$MP4_CODEC" != "h264" ]] || [[ "$WEBM_CODEC" != "vp9" ]]; then
   CODEC_OK=0
 fi
-
-# --- Summary ----------------------------------------------------------------
 
 MP4_BYTES=$(stat -f%z "$MP4" 2>/dev/null || stat -c%s "$MP4")
 WEBM_BYTES=$(stat -f%z "$WEBM" 2>/dev/null || stat -c%s "$WEBM")

@@ -115,11 +115,6 @@ _EXT_TO_LANG = {
 }
 
 
-# ---------------------------------------------------------------------------
-# git helpers
-# ---------------------------------------------------------------------------
-
-
 def run_git(repo: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         ["git", "-C", str(repo), *args],
@@ -185,11 +180,6 @@ def diff_files(repo: Path, base: str, target: str,
     return loc, files
 
 
-# ---------------------------------------------------------------------------
-# Base resolution
-# ---------------------------------------------------------------------------
-
-
 def resolve_base(repo: Path, override: str | None = None,
                  *, dirty_tree: bool = False) -> tuple[str, str, str]:
     """Run `scripts/resolve_base.sh` and parse its RESULT line.
@@ -225,11 +215,6 @@ def resolve_base(repo: Path, override: str | None = None,
         raise RuntimeError(f"unresolvable base: {hint}")
     return (parts.get("base", ""), parts.get("target", "HEAD"),
             parts.get("rule", ""))
-
-
-# ---------------------------------------------------------------------------
-# Repo-kind classification
-# ---------------------------------------------------------------------------
 
 
 def _read_json_safe(path: Path):
@@ -424,11 +409,6 @@ def classify_repo(repo: Path, override: str | None = None) -> tuple[str, dict]:
     }
 
 
-# ---------------------------------------------------------------------------
-# CLAUDE.md chain
-# ---------------------------------------------------------------------------
-
-
 def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
     """Return ordered list of CLAUDE.md and `.claude/rules/*.md` files.
 
@@ -449,9 +429,6 @@ def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
     if root_claude.is_file():
         chain.append("CLAUDE.md")
 
-    # Nested CLAUDE.md in changed directories. Walk each touched file's
-    # parent chain; collect every CLAUDE.md found between repo root and the
-    # parent inclusive, deduped, ordered shallow-to-deep.
     seen: set[str] = {"CLAUDE.md"} if root_claude.is_file() else set()
     nested: list[tuple[int, str]] = []  # (depth, rel_path)
     for path in files_touched:
@@ -469,13 +446,11 @@ def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
     nested.sort(key=lambda x: (x[0], x[1]))
     chain.extend(rel for _, rel in nested)
 
-    # Project rules.
     rules_dir = repo / ".claude" / "rules"
     if rules_dir.is_dir():
         for rule in sorted(rules_dir.glob("*.md")):
             chain.append(str(rule.relative_to(repo)))
 
-    # Global rules.
     home = os.environ.get("HOME", "")
     if home:
         global_rules = Path(home) / ".claude" / "rules"
@@ -486,26 +461,15 @@ def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
     return chain
 
 
-# ---------------------------------------------------------------------------
-# Coherence activation
-# ---------------------------------------------------------------------------
-
-
 def activates_coherence(files_touched: list[str]) -> bool:
     """Decide whether the conditional Coherence axis activates."""
     for path in files_touched:
-        # Exact-path triggers (root README.md, marketplace.json paths).
+        # Exact-path match so a nested README.md doesn't over-trigger.
         if path in _COHERENCE_TRIGGERS_EXACT:
             return True
-        # Anywhere triggers — match by basename.
         if Path(path).name in _COHERENCE_TRIGGERS_ANYWHERE:
             return True
     return False
-
-
-# ---------------------------------------------------------------------------
-# Languages detection
-# ---------------------------------------------------------------------------
 
 
 def detect_languages(files_touched: list[str]) -> list[str]:
@@ -517,11 +481,6 @@ def detect_languages(files_touched: list[str]) -> list[str]:
         if lang:
             found.add(lang)
     return sorted(found)
-
-
-# ---------------------------------------------------------------------------
-# Top-level scope assembly
-# ---------------------------------------------------------------------------
 
 
 def build_scope(repo: Path, *, base_override: str | None = None,
@@ -555,11 +514,6 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         "activates_coherence": coherence,
         "tools_skipped": [],
     }
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 
 def main() -> int:

@@ -1,27 +1,16 @@
 #!/usr/bin/env python3
-"""Measure stylometric statistics from a prose corpus.
+"""Measure stylometric stats from a prose corpus to ground `sentence_norms`.
 
-Grounds `brand-voice` `sentence_norms` in the brand's actual writing instead of
-LLM estimation. Reads a corpus (file argument or stdin), emits measured stats as
-JSON. With ``--as-sentence-norms`` it emits a ``sentence_norms`` dict ready for
-``BRAND-VOICE.md`` — or ``null`` when the corpus is too thin to measure,
-signalling the caller to keep LLM/interview defaults.
+Reads a corpus (file or stdin); ``--as-sentence-norms`` emits a ``sentence_norms``
+dict, or ``null`` below the threshold so the caller keeps its LLM/interview default.
+Stdlib only, deterministic (sorted keys, no RNG).
 
-Stdlib only. Deterministic: no RNG, sorted JSON keys, integer outputs.
+Segmentation is a heuristic, not a parser — the p10/p90 bounds are used precisely
+because percentiles absorb the occasional mis-split.
 
-Sentence segmentation is a stdlib heuristic, not a parser: it strips markdown
-structure, protects abbreviation periods, decimals, and ellipses from splitting,
-and treats a capitalized word after a sentence-final-prone abbreviation as a real
-break. It will mis-handle the genuinely ambiguous cases that need POS tagging; the
-p10/p90 bounds are taken precisely because percentiles absorb the occasional
-mis-split.
-
-Detector asymmetry (the *why*): ``em_dash_spacing`` and ``oxford_comma`` are
-omitted when the corpus shows no signal — absence of an em-dash is not proof the
-brand forbids it. ``contractions`` and ``exclamation_marks`` only carry
-allow/forbid, so a corpus past the sentence threshold that never contracts or
-exclaims is read as forbidding it — a description of the voice as observed,
-which the user can override.
+Detector asymmetry: em_dash/oxford are omitted when the corpus shows no signal
+(absence is not prohibition); contractions/exclamation carry only allow|forbid, so a
+corpus past the threshold that never uses them reads as forbidding — overridable.
 """
 import argparse
 import json
@@ -36,15 +25,12 @@ _FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
 _INLINE_CODE = re.compile(r"`[^`]*`")
 _URL = re.compile(r"https?://\S+")
 _HEADING_LINE = re.compile(r"^[ \t]*#{1,6}[ \t].*$", re.MULTILINE)
-# Leading list / blockquote / ordered-list markers — the trailing space requirement
-# keeps "1. item" (a marker) distinct from "1.5 million" (a decimal at line start).
+# trailing space keeps "1. item" (marker) distinct from "1.5 million" (decimal)
 _LEADING_MARKER = re.compile(r"^[ \t]*(?:[>*+\-|]+|\d+\.)[ \t]+", re.MULTILINE)
 _ABBREV = ("e.g.", "i.e.", "etc.", "vs.", "Mr.", "Mrs.", "Ms.", "Dr.", "St.",
            "Inc.", "Ltd.", "No.")
-# Abbreviations that commonly end a sentence: their period — and the split — is
-# kept when a capitalized word follows ("…etc. Then" → two sentences). The
-# connective/title abbreviations above are mid-sentence, so their period is always
-# protected ("e.g. React" stays one sentence).
+# Can end a sentence: keep the split when a capital follows ("etc. Then"). The
+# connectives/titles above are mid-sentence, so their period is always protected.
 _FINAL_PRONE = ("etc.", "Inc.", "Ltd.", "No.")
 _CAP_FOLLOWS = r"(?!\s+[A-Z])"
 _ELLIPSIS = re.compile(r"\.{2,}")
@@ -60,11 +46,7 @@ _PROTECT = "\x01"  # control-char sentinel for periods that must not end a sente
 
 
 def _strip_noise(text):
-    """Drop code, URLs, and markdown structure so only prose is measured.
-
-    Headings are removed whole (they are not prose sentences); list, blockquote,
-    and ordered-list markers are stripped but their item text is kept.
-    """
+    """Drop code, URLs, and markdown structure so only prose is measured."""
     text = _FENCED_CODE.sub(" ", text)
     text = _INLINE_CODE.sub(" ", text)
     text = _URL.sub(" ", text)
@@ -78,8 +60,7 @@ def _sentences(text):
     protected = text.replace(_PROTECT, "")
     # Protect ellipses ("Wait... what" is one sentence, not two).
     protected = _ELLIPSIS.sub(lambda m: _PROTECT * len(m.group()), protected)
-    # Protect abbreviation periods. A sentence-final-prone abbreviation keeps its
-    # period when a capitalized word follows it (a real sentence break).
+    # Protect abbreviation periods (see _FINAL_PRONE for the capital-follows split).
     for ab in _ABBREV:
         repl = ab.replace(".", _PROTECT)
         if ab in _FINAL_PRONE:

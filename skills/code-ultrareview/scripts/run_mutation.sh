@@ -75,10 +75,7 @@ mkdir -p "$OUTPUT_DIR/raw"
 FINDINGS_OUT="$OUTPUT_DIR/mutation-findings.jsonl"
 : >"$FINDINGS_OUT"
 
-# ---------------------------------------------------------------------------
-# scope.json extraction (mirror of run_battery.sh)
-# ---------------------------------------------------------------------------
-
+# scope.json extraction (mirror of run_battery.sh).
 _scope_field() {
   python3 - "$SCOPE" "$1" <<'PY'
 import json, sys
@@ -138,10 +135,6 @@ if [[ "${MUTATION_DRY_RUN:-}" == "1" ]]; then
   exit 0
 fi
 
-# ---------------------------------------------------------------------------
-# JS/TS — Stryker
-# ---------------------------------------------------------------------------
-
 run_stryker() {
   local has_config=0
   for cfg in stryker.conf.js stryker.conf.mjs stryker.conf.json stryker.config.js stryker.config.mjs stryker.config.json; do
@@ -167,7 +160,6 @@ run_stryker() {
     return 0
   fi
 
-  # Build the mutate-glob from changed .ts/.js files; fall back to default.
   local mutate_args=()
   local f
   for f in "${FILES_TOUCHED[@]:-}"; do
@@ -237,17 +229,12 @@ with open(out_path, "a", encoding="utf-8") as fh:
 PY
 }
 
-# ---------------------------------------------------------------------------
-# Python — mutmut
-# ---------------------------------------------------------------------------
-
 run_mutmut() {
   if ! have_cmd uvx && ! have_cmd mutmut; then
     emit_warn "mutmut: not on PATH — install: pipx install mutmut (or use uvx — zero-install)"
     return 0
   fi
 
-  # Build paths-to-mutate from changed .py files; if none, skip.
   local py_args=()
   local f
   for f in "${FILES_TOUCHED[@]:-}"; do
@@ -334,10 +321,6 @@ with open(out_path, "a", encoding="utf-8") as fh:
 PY
 }
 
-# ---------------------------------------------------------------------------
-# JVM — pitest (Maven plugin)
-# ---------------------------------------------------------------------------
-
 run_pitest() {
   if [[ ! -f "$REPO/pom.xml" ]]; then
     emit_warn "pitest: no pom.xml (Gradle/standalone pitest not supported yet) — install: configure org.pitest:pitest-maven in pom.xml"
@@ -403,10 +386,6 @@ with open(out_path, "a", encoding="utf-8") as fh:
         fh.write(json.dumps(f) + "\n")
 PY
 }
-
-# ---------------------------------------------------------------------------
-# Dispatch
-# ---------------------------------------------------------------------------
 
 DISPATCHED=0
 if has_lang typescript || has_lang javascript; then

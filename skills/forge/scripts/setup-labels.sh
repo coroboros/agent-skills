@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Idempotent label setup for /forge -i
-# Creates priority, complexity, and type labels. --force updates color/description if label exists.
+# Idempotent label setup for /forge -i — `--force` updates color/description when
+# the label already exists.
 
 set -euo pipefail
 

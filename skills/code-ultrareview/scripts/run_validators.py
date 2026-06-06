@@ -82,11 +82,6 @@ _SCORE_RE = re.compile(r"^\s*score\s*:\s*(\d+)\s*$", re.IGNORECASE | re.MULTILIN
 _REASON_RE = re.compile(r"^\s*reason\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE)
 
 
-# ---------------------------------------------------------------------------
-# Filtering — only sub-80 axis findings reach validators
-# ---------------------------------------------------------------------------
-
-
 def filter_sub_threshold(findings: list[dict]) -> list[dict]:
     """Return only findings with confidence in `(0, CONFIDENCE_THRESHOLD)`.
 
@@ -104,11 +99,6 @@ def filter_sub_threshold(findings: list[dict]) -> list[dict]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Batching — never launch more than MAX_BATCH_SIZE validators in parallel
-# ---------------------------------------------------------------------------
-
-
 _T = TypeVar("_T")
 
 
@@ -121,11 +111,6 @@ def batch(items: list[_T], size: int = MAX_BATCH_SIZE) -> list[list[_T]]:
     if size <= 0:
         raise ValueError(f"batch size must be positive, got {size}")
     return [items[i:i + size] for i in range(0, len(items), size)]
-
-
-# ---------------------------------------------------------------------------
-# CLAUDE.md snippet lookup — feeds the validator's re-check
-# ---------------------------------------------------------------------------
 
 
 def find_claude_md_snippet(
@@ -171,11 +156,6 @@ def find_claude_md_snippet(
     return best
 
 
-# ---------------------------------------------------------------------------
-# Diff-context extraction — give the validator the surrounding hunk
-# ---------------------------------------------------------------------------
-
-
 def extract_diff_context(diff_text: str, location: str) -> str:
     """Return up to `DIFF_CONTEXT_LINES` of diff text near `location`.
 
@@ -202,11 +182,6 @@ def extract_diff_context(diff_text: str, location: str) -> str:
     start = max(0, anchor - half)
     end = min(len(lines), start + DIFF_CONTEXT_LINES)
     return "\n".join(lines[start:end])
-
-
-# ---------------------------------------------------------------------------
-# Prompt template — uniform across findings
-# ---------------------------------------------------------------------------
 
 
 PROMPT_TEMPLATE = """\
@@ -286,11 +261,6 @@ def build_validator_prompt(
         claude_md_snippet=snippet,
         claude_md_path=path,
     )
-
-
-# ---------------------------------------------------------------------------
-# Per-finding bundle preparation
-# ---------------------------------------------------------------------------
 
 
 def prepare_validator_bundle(
@@ -392,11 +362,6 @@ def prepare(
     }
 
 
-# ---------------------------------------------------------------------------
-# Validator stdout parsing
-# ---------------------------------------------------------------------------
-
-
 def parse_validator_output(stdout: str) -> tuple[int, str]:
     """Parse `score: <int>` + `reason: <text>` from validator stdout.
 
@@ -417,11 +382,6 @@ def parse_validator_output(stdout: str) -> tuple[int, str]:
         raise ValueError("validator stdout missing `reason:` line")
     reason = reason_match.group(1).strip()
     return score, reason
-
-
-# ---------------------------------------------------------------------------
-# Ingest — apply validator scores while preserving A2
-# ---------------------------------------------------------------------------
 
 
 def _promote_finding(finding: dict, score: int, reason: str) -> dict:
@@ -474,9 +434,8 @@ def ingest(
     for i, finding in enumerate(sub_threshold_findings):
         result = by_index.get(i)
         if result is None:
-            # No validator output reached us — keep the finding at its
-            # original sub-80 confidence with an explicit reason. A2
-            # forbids silent drop.
+            # A2 forbids silent drop: a missing validator result keeps the
+            # finding at its original sub-80 confidence with an explicit reason.
             out.append(_demote_finding(
                 finding, int(finding.get("confidence", 0)),
                 "Validator produced no output — treat as unverified",
@@ -489,11 +448,6 @@ def ingest(
         else:
             out.append(_demote_finding(finding, score, reason))
     return out
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 
 def _read_jsonl(path: Path) -> list[dict]:
