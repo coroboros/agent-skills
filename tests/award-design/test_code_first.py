@@ -52,6 +52,19 @@ class TestModeDetect(unittest.TestCase):
             "Instant must be marked the default (no-DESIGN.md) path",
         )
 
+    def test_adapt_handles_legacy_stitch(self):
+        """A present-but-legacy Stitch file (no YAML) must route to migrate within the Adapt
+        branch. Phase 3 carries the Stitch handling for the Instant path, which Adapt skips,
+        so the Adapt bullet must carry its own routing — otherwise Adapt loads tokens that
+        do not exist."""
+        adapt_row = next((ln for ln in _body().splitlines() if "→ Adapt" in ln), "")
+        self.assertTrue(adapt_row, "mode-detect Adapt bullet not found")
+        self.assertIn("Stitch", adapt_row, "Adapt branch must handle a legacy Stitch file")
+        self.assertIn(
+            "migrate", adapt_row,
+            "Adapt branch must route a legacy Stitch file to /design-system migrate",
+        )
+
 
 class TestNoMandatoryDesignFile(unittest.TestCase):
     """Code-first: pixels do not wait on a DESIGN.md, and the two old mandatory
@@ -77,6 +90,14 @@ class TestNoMandatoryDesignFile(unittest.TestCase):
         self.assertRegex(
             _body(), r"[Oo]ne optional confirm|optional .*confirm|never blocks the build",
             "the single archetype confirm must be optional and non-blocking",
+        )
+
+    def test_no_build_time_design_md_authoring(self):
+        """No instruction may tell the agent to author a DESIGN.md section during the build.
+        The full file is Adapt/Persist only; the build commits an inline token block."""
+        self.assertNotIn(
+            "before authoring a DESIGN.md", _body(),
+            "the extension-tokens note must not imply authoring a DESIGN.md during the build",
         )
 
 
@@ -151,11 +172,15 @@ class TestCountableChecks(unittest.TestCase):
 
     def test_em_dash_check_is_archetype_gated(self):
         anti = self._anti()
-        self.assertIn("Em-dash density", anti, "em-dash countable check missing")
-        # The check must declare a scope and suppress for the two editorial archetypes.
-        self.assertRegex(
-            anti, r"suppressed for `editorial` and `corporate-luxury`",
-            "em-dash check must be archetype-conditional, not a global ban",
+        # Pin the gating to the em-dash row itself, keying off each token independently so a
+        # reorder ("corporate-luxury and editorial") or rewrite doesn't cause a false failure.
+        em_row = next((ln for ln in anti.splitlines() if "Em-dash density" in ln), "")
+        self.assertTrue(em_row, "em-dash countable check missing")
+        self.assertIn("suppressed", em_row.lower(), "em-dash check must declare a suppression scope")
+        self.assertIn("editorial", em_row, "em-dash suppression must name the editorial archetype")
+        self.assertIn(
+            "corporate-luxury", em_row,
+            "em-dash suppression must name the corporate-luxury archetype",
         )
 
     def test_scope_is_declared(self):

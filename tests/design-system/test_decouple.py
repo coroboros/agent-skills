@@ -86,8 +86,9 @@ class TestOwnershipRule(unittest.TestCase):
 
 
 class TestNoExtractSubcommand(unittest.TestCase):
-    """The cut `extract` (code→DESIGN.md) must not appear as a subcommand —
-    `migrate` already covers extraction, and crystallization is award-design's."""
+    """Guard against an `extract` (code→DESIGN.md) verb. It never shipped — `migrate`
+    already covers extraction and crystallization is award-design's — so this is a
+    forward guard against a future addition, not a removal check."""
 
     def test_extract_not_in_routing_table(self):
         self.assertNotRegex(
@@ -98,14 +99,14 @@ class TestNoExtractSubcommand(unittest.TestCase):
     def test_extract_not_invoked_anywhere(self):
         self.assertNotIn(
             "/design-system extract", _body(),
-            "the cut `extract` subcommand must not be referenced",
+            "no `extract` subcommand may be referenced",
         )
 
     def test_subcommand_count_pinned_at_seven(self):
-        """Description pins seven subcommands — an eighth (e.g. extract) breaks it."""
+        """The description pins seven subcommands — an eighth (e.g. extract) breaks this guard."""
         self.assertIn(
-            "seven CLI-backed subcommands", _body(),
-            "description must pin the subcommand count at seven",
+            "seven CLI-backed subcommands", _frontmatter(),
+            "the description must pin the subcommand count at seven",
         )
 
 

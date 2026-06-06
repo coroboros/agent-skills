@@ -1,6 +1,6 @@
 # DESIGN.md anatomy — token namespaces + prose mapping
 
-The DESIGN.md produced by `/award-design` Phase 3 carries award-grade content across two layers — YAML frontmatter for tokens, eight ordered prose sections for narrative and intent. Both layers are required; an empty layer makes the file useless to its consumer.
+The DESIGN.md — adapted from an existing file, or crystallized by `/award-design`'s Persist step — carries award-grade content across two layers: YAML frontmatter for tokens, eight ordered prose sections for narrative and intent. Both layers are required; an empty layer makes the file useless to its consumer.
 
 ## YAML namespaces
 

@@ -60,7 +60,7 @@ Current models carry a persistent default aesthetic that judges now read as its 
 Generic negation does not fix it. "Don't use cream", "make it clean and minimal" shift the model to a *different* fixed palette, not to variety. Two counters work:
 
 - **Specify a concrete alternative** — exact palette hexes, typeface, corner radius, motion timing. The model follows explicit specs precisely.
-- **Propose directions first** — surface 2-4 distinct directions (bg hex / accent hex / typeface + one-line rationale) and let the user pick, instead of committing to the default silently. Phase 1 already works this way — it recommends an archetype and asks the user to validate before proceeding; lean on that gate rather than trusting the default.
+- **Propose directions first** — surface 2-4 distinct directions (bg hex / accent hex / typeface + one-line rationale) and let the user pick, instead of committing to the default silently. Phase 1 already works this way — it recommends an archetype and offers one optional confirm; surface that choice rather than committing to the default silently.
 
 ### Visual
 
