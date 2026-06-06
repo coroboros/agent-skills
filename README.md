@@ -997,6 +997,7 @@ Globs every `BRAND-VOICE*.md` under the root and lints each. Exit 1 on any RED. 
 
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — the architectural pattern this skill mirrors (canonical project-root file, lifecycle subcommands)
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) — overlap with universal AI-tells; `humanize-en` consumes the brand voice rules in addition
+- [Stylometry (Wikipedia)](https://en.wikipedia.org/wiki/Stylometry) — the measurement approach behind corpus-grounded `sentence_norms` (sentence-length distribution and punctuation conventions via `measure_corpus.py`)
 
 ---
 

@@ -9,6 +9,13 @@ signalling the caller to keep LLM/interview defaults.
 
 Stdlib only. Deterministic: no RNG, sorted JSON keys, integer outputs.
 
+Sentence segmentation is a stdlib heuristic, not a parser: it strips markdown
+structure, protects abbreviation periods, decimals, and ellipses from splitting,
+and treats a capitalized word after a sentence-final-prone abbreviation as a real
+break. It will mis-handle the genuinely ambiguous cases that need POS tagging; the
+p10/p90 bounds are taken precisely because percentiles absorb the occasional
+mis-split.
+
 Detector asymmetry (the *why*): ``em_dash_spacing`` and ``oxford_comma`` are
 omitted when the corpus shows no signal — absence of an em-dash is not proof the
 brand forbids it. ``contractions`` and ``exclamation_marks`` only carry
@@ -28,8 +35,19 @@ DEFAULT_THRESHOLD = 30  # sentences below this → not enough signal to measure
 _FENCED_CODE = re.compile(r"```.*?```", re.DOTALL)
 _INLINE_CODE = re.compile(r"`[^`]*`")
 _URL = re.compile(r"https?://\S+")
+_HEADING_LINE = re.compile(r"^[ \t]*#{1,6}[ \t].*$", re.MULTILINE)
+# Leading list / blockquote / ordered-list markers — the trailing space requirement
+# keeps "1. item" (a marker) distinct from "1.5 million" (a decimal at line start).
+_LEADING_MARKER = re.compile(r"^[ \t]*(?:[>*+\-|]+|\d+\.)[ \t]+", re.MULTILINE)
 _ABBREV = ("e.g.", "i.e.", "etc.", "vs.", "Mr.", "Mrs.", "Ms.", "Dr.", "St.",
            "Inc.", "Ltd.", "No.")
+# Abbreviations that commonly end a sentence: their period — and the split — is
+# kept when a capitalized word follows ("…etc. Then" → two sentences). The
+# connective/title abbreviations above are mid-sentence, so their period is always
+# protected ("e.g. React" stays one sentence).
+_FINAL_PRONE = ("etc.", "Inc.", "Ltd.", "No.")
+_CAP_FOLLOWS = r"(?!\s+[A-Z])"
+_ELLIPSIS = re.compile(r"\.{2,}")
 _WORD = re.compile(r"[A-Za-z0-9]+(?:'[A-Za-z]+)?")
 _SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
 # 's is excluded: possessive ("reader's") is indistinguishable from the "it's"
@@ -37,24 +55,38 @@ _SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
 # them would make "forbid" almost never fire. The other suffixes are unambiguous.
 _CONTRACTION = re.compile(r"\b[A-Za-z]+'(?:t|re|ve|ll|d|m)\b", re.IGNORECASE)
 _LIST_CONJ = re.compile(r"\b(?:and|or|nor)\b", re.IGNORECASE)
-_OXFORD = re.compile(r",\s+(?:and|or|nor)\b", re.IGNORECASE)
 _EM_DASH = "—"
-_PROTECT = "\x01"  # control-char sentinel; absent from normal prose, so periods stay protected
+_PROTECT = "\x01"  # control-char sentinel for periods that must not end a sentence
 
 
 def _strip_noise(text):
-    """Drop code, URLs, and markdown structural punctuation before measuring."""
+    """Drop code, URLs, and markdown structure so only prose is measured.
+
+    Headings are removed whole (they are not prose sentences); list, blockquote,
+    and ordered-list markers are stripped but their item text is kept.
+    """
     text = _FENCED_CODE.sub(" ", text)
     text = _INLINE_CODE.sub(" ", text)
     text = _URL.sub(" ", text)
-    text = re.sub(r"^[ \t]*[#>\-\*\+\|]+", " ", text, flags=re.MULTILINE)
+    text = _HEADING_LINE.sub(" ", text)
+    text = _LEADING_MARKER.sub(" ", text)
     return text
 
 
 def _sentences(text):
-    protected = text
+    # Drop any pre-existing sentinel so the restore step can't corrupt real input.
+    protected = text.replace(_PROTECT, "")
+    # Protect ellipses ("Wait... what" is one sentence, not two).
+    protected = _ELLIPSIS.sub(lambda m: _PROTECT * len(m.group()), protected)
+    # Protect abbreviation periods. A sentence-final-prone abbreviation keeps its
+    # period when a capitalized word follows it (a real sentence break).
     for ab in _ABBREV:
-        protected = protected.replace(ab, ab.replace(".", _PROTECT))
+        repl = ab.replace(".", _PROTECT)
+        if ab in _FINAL_PRONE:
+            protected = re.sub(re.escape(ab) + _CAP_FOLLOWS, repl, protected)
+        else:
+            protected = protected.replace(ab, repl)
+    # Protect decimals (3.14) from splitting.
     protected = re.sub(r"(\d)\.(\d)", r"\1" + _PROTECT + r"\2", protected)
     out = []
     for part in _SENT_SPLIT.split(protected):
@@ -92,21 +124,23 @@ def _em_dash_spacing(text):
     return "spaced" if spaced >= tight else "tight"
 
 
-def _oxford_comma(text):
+def _oxford_comma(sents):
     """True when the corpus prefers a serial comma, None when no list signal.
 
-    Serial comma = a comma immediately before a list conjunction (``A, B, and C``).
-    Counter-signal = a list conjunction inside a multi-comma clause but with no
-    comma right before it (``A, B and C``).
+    A serial ("Oxford") comma sits immediately before the conjunction closing a
+    list of three or more items: ``A, B, and C`` (≥ 2 commas in the run). The
+    counter-signal is the same list without it: ``A, B and C``. A lone comma before
+    a conjunction joining two clauses (``home, and we slept``) is not a list — one
+    comma, conjunction comma-attached — and is ignored.
     """
-    oxford = len(_OXFORD.findall(text))
-    plain = 0
-    for sent in _SENT_SPLIT.split(text):
-        if "," not in sent:
-            continue
+    oxford = plain = 0
+    for sent in sents:
         for m in _LIST_CONJ.finditer(sent):
-            pre = sent[:m.start()].rstrip()
-            if pre and not pre.endswith(",") and "," in pre:
+            commas_before = sent[:m.start()].count(",")
+            if sent[:m.start()].rstrip().endswith(","):
+                if commas_before >= 2:        # "A, B, and …" — serial comma, 3+ items
+                    oxford += 1
+            elif commas_before >= 1:          # "A, B and …" — list without the serial comma
                 plain += 1
     if oxford + plain == 0:
         return None
@@ -129,7 +163,7 @@ def measure(text):
         "word_counts": word_counts,
         "conventions": {
             "em_dash_spacing": _em_dash_spacing(clean),
-            "oxford_comma": _oxford_comma(clean),
+            "oxford_comma": _oxford_comma(sents),
             "contractions": "allow" if _CONTRACTION.search(clean) else "forbid",
             "exclamation_marks": "allow" if "!" in clean else "forbid",
         },
@@ -142,7 +176,8 @@ def to_sentence_norms(stats, threshold=DEFAULT_THRESHOLD):
     None tells the caller to keep LLM/interview defaults — never fabricate
     bounds from an under-threshold corpus. The clamp guarantees
     ``word_count_min >= 1`` and ``word_count_min <= word_count_max <= sentence_max_hard``,
-    the ordering voice_lint requires.
+    the ordering voice_lint requires (it accepts ``min == max``, so the clamp need
+    only preserve the ``<=`` chain, not strict inequality).
     """
     if stats["sentence_count"] < threshold:
         return None
