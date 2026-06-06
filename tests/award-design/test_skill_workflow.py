@@ -1,6 +1,9 @@
 """award-design SKILL.md — 4-phase workflow, judging criteria, atmosphere
 calibration ranges. The archetype tests pin the 9-archetype matrix; this
-module pins the rest of the skill contract."""
+module pins the rest of the skill contract. Under code-first, the four phases
+are the Instant build procedure (run when no DESIGN.md exists); the code-first
+contract itself — mode detect, Persist, two-gate close — is pinned in
+test_code_first.py."""
 
 import re
 import unittest

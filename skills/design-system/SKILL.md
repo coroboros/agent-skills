@@ -1,7 +1,7 @@
 ---
 name: design-system
-description: Govern the DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius. Also exposes seven CLI-backed subcommands — audit (lint + fix proposals), diff (regression check), export (Tailwind / DTCG), spec (canonical spec emission), migrate (port from legacy Stitch format), init (minimal scaffold), audit-extensions (drift check between extension namespaces and globals.css @theme). When a UI/UX change is requested, DESIGN.md is updated first, audited, then code propagates.
-when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, aspectRatios, heights, containers, breakpoints, zIndex, borderWidths, opacity, scrollTriggers) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
+description: Govern an existing DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius when a DESIGN.md is present; steps aside when none exists — it never forces or authors one (`/award-design` creates and crystallizes it). Exposes seven CLI-backed subcommands — audit (lint + fix), diff (regression check), export (Tailwind / DTCG), spec (canonical spec), migrate (port legacy Stitch), init (minimal scaffold fallback), audit-extensions (drift check vs globals.css @theme). Token-affecting UI changes update DESIGN.md first, audit, then propagate to code.
+when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
 argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
 paths:
   - src/components/**
@@ -27,7 +27,7 @@ metadata:
 
 Two modes for governing a project's visual identity:
 
-1. **Auto-activate** — when editing UI files (components, pages, layouts, styles, `DESIGN.md`, `tailwind.config.*`), the skill reads `DESIGN.md` first and enforces token-only sourcing for colors, typography, spacing, and corner radius.
+1. **Auto-activate** — when editing UI files (components, pages, layouts, styles, `DESIGN.md`, `tailwind.config.*`) **and a `DESIGN.md` is present**, the skill reads it first and enforces token-only sourcing for colors, typography, spacing, and corner radius. No `DESIGN.md`? It stays out of the way — a one-line pointer to `/award-design`, no enforcement, no block on the edit.
 2. **Subcommands** — `/design-system <verb> [path]` exposes the full DESIGN.md lifecycle, built on the canonical `@google/design.md` CLI.
 
 ## Subcommand routing
@@ -47,11 +47,12 @@ Parse the first positional token of `$ARGUMENTS`. If it matches a verb below, lo
 
 ## Source of truth
 
-Read `DESIGN.md` at the project root **before** writing any UI code. Every color, font, spacing value, corner radius, and component style must come from this file — either the YAML frontmatter tokens (the normative values) or the prose sections that explain when and why to apply them.
+When a `DESIGN.md` exists at the project root, read it **before** writing any UI code: every color, font, spacing value, corner radius, and component style comes from this file — the YAML frontmatter tokens (normative values) or the prose explaining when and why to apply them.
 
-If no `DESIGN.md` exists:
-- `/award-design` available → delegate (preferred — archetype + atmosphere + complete DESIGN.md)
-- `/award-design` unavailable → `/design-system init [archetype]` for a minimal scaffold
+**No `DESIGN.md`? Step aside.** design-system governs a file; it does not require or create one. It never blocks an edit for lack of a DESIGN.md and never authors a design from scratch — that is `/award-design`'s job (it builds code-first, then crystallizes a DESIGN.md on request). So:
+
+- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which can crystallize a DESIGN.md afterward (its *Persist* step) when cross-session consistency is wanted.
+- A bare token scaffold is needed now and `/award-design` is unavailable → `/design-system init [archetype]` is a minimal fallback, not the primary path.
 
 If a legacy Stitch-format `DESIGN.md` is detected (9 numbered sections, `## Agent Prompt Guide` heading, no YAML frontmatter): suggest `/design-system migrate <path>` to port it before proceeding.
 
@@ -139,14 +140,16 @@ Detect framework from config files (`astro.config.*`, `next.config.*`, etc.), th
 
 When no subcommand is matched — either auto-activated via `paths:` during a UI edit, or invoked directly to discuss enforcement — follow this workflow.
 
-### Creating a new DESIGN.md
+### When there is no DESIGN.md
 
-1. **Check for an existing file.** If present → use the change flow below. If absent:
-   - `/award-design` available → delegate (preferred)
-   - `/award-design` unavailable → `/design-system init [archetype]`
-2. **Establish foundations** from `/award-design` output if used. Atmosphere scores (Density, Variance, Motion) go into Overview prose, not YAML.
+design-system does not author a design file from scratch. A DESIGN.md is born one of two ways:
 
-**How award-design feeds into DESIGN.md:**
+1. **`/award-design` crystallizes it** (preferred) — it builds the site code-first, then on request writes the full DESIGN.md from the build's own decisions (its *Persist* step). design-system governs the result from there.
+2. **`/design-system init [archetype]`** — a minimal token scaffold, only when `/award-design` is unavailable and a bare file is needed now.
+
+Either way, once the file exists, the change flow below applies. Atmosphere scores (Density, Variance, Motion) live in Overview prose, not YAML.
+
+**How award-design crystallizes into DESIGN.md:**
 
 | award-design output | DESIGN.md section | YAML tokens |
 |---------------------|-------------------|-------------|
@@ -161,9 +164,11 @@ When no subcommand is matched — either auto-activated via `paths:` during a UI
 
 Extension namespaces (`ext:` rows above) live as top-level YAML per `references/extended-tokens.md`. Components bind only to the eight canonical property tokens — extension tokens are referenced in prose, never as `components:` keys.
 
-3. **Audit** — run `/design-system audit <path>` (post-edit invariant). Fix errors before proceeding.
-4. **Wire into the framework**: `/design-system export tailwind` → merge the result into `tailwind.config.ts theme.extend` (v3) or `globals.css` `@theme` block (v4); set up CSS custom properties in the global stylesheet.
-5. **Validate the mirror** — `/design-system audit-extensions <path>` confirms every extension token in the YAML has its CSS custom property and every prose reference resolves. Run after every export.
+Once the file exists (crystallized or scaffolded), wire it into the project:
+
+1. **Audit** — run `/design-system audit <path>` (post-edit invariant). Fix errors before proceeding.
+2. **Wire into the framework**: `/design-system export tailwind` → merge the result into `tailwind.config.ts theme.extend` (v3) or `globals.css` `@theme` block (v4); set up CSS custom properties in the global stylesheet.
+3. **Validate the mirror** — `/design-system audit-extensions <path>` confirms every extension token in the YAML has its CSS custom property and every prose reference resolves. Run after every export.
 
 ### When UI/UX changes are requested
 

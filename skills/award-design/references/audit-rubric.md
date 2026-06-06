@@ -1,8 +1,10 @@
 # Audit Rubric
 
-Quantitative scoring rubric applied at the Validate step. Use alongside `anti-patterns.md` — that file gives you the catalog of failures, this one gives you a score you can act on.
+Quantitative scoring rubric run at the close of the build. Use alongside `anti-patterns.md` — that file gives you the catalog of failures, this one gives you a score you can act on.
 
 Anti-patterns alone is a checklist: "did I do X?" The rubric forces calibration: "how well did I do X — 3/10 or 8/10?" A 6/10 on Typography with a 9/10 on Motion ships differently than the reverse. Scoring surfaces what to fix first.
+
+**This rubric is the SOFT (advisory) gate** in award-design's two-gate close. It is commentary that points at the next pass — never a pass/fail verdict, and never a self-graded number presented as "shipped at 9/10". The pass/fail decision belongs to the HARD gate (the countable checks in `anti-patterns.md` plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
 
 ## When to run this
 
@@ -30,7 +32,7 @@ Rhythm discipline. Does the page have a scale or ad-hoc values?
 
 - **0** — More than 8 unique spacing values detected (8, 10, 12, 14, 20, 24, 28, 32, 40, 48…). No discernible base unit.
 - **5** — A scale exists (4/8/12/16/24/32) but edges violate it occasionally.
-- **10** — Single scale, strictly enforced — sourced from DESIGN.md `spacing:` (canonical) with `containers:` / `heights:` extensions where layout demands. Vertical rhythm is visible even when you squint.
+- **10** — Single scale, strictly enforced (e.g., 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64). Vertical rhythm is visible even when you squint. *Bonus when a DESIGN.md exists:* values trace to its `spacing:` namespace, with `containers:` / `heights:` extensions where layout demands — but a no-file build reaches 10 on a self-consistent stylesheet scale alone.
 
 ### 3. Typography
 
@@ -54,7 +56,7 @@ Purpose, reduced-motion handling, timing precision.
 
 - **0** — Motion everywhere (every element fades in on scroll). Or none at all. `prefers-reduced-motion` not respected. Easing is default `ease`.
 - **5** — Motion is restrained but generic — opacity reveals, default easings. Reduced-motion respected.
-- **10** — One signature motion moment carries the page. Timing is tuned — durations sourced from DESIGN.md `motion.duration-*` extension tokens, never 0.3s everywhere. Easing is chosen and named (`motion.ease-standard` etc.), not `ease-in-out`. Scroll choreography paces against `scrollTriggers.*` tokens.
+- **10** — One signature motion moment carries the page. Timing is tuned — deliberate durations, never 0.3s everywhere; easing is chosen and named, not `ease-in-out`; scroll choreography is paced, not uniform. *Bonus when a DESIGN.md exists:* durations trace to `motion.duration-*`, easings to `motion.ease-*`, scroll pacing to `scrollTriggers.*` — a no-file build reaches 10 on consistent, named CSS values alone.
 
 ### 6. Accessibility
 
@@ -123,7 +125,7 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 - **No hedge scores**: 6/10 and 7/10 are different. Pick one. If you can't decide, look harder.
 - **Fixes, not observations**: every P0/P1 must include a concrete CSS snippet or content rewrite. "Improve contrast" is not a fix; `color: #595959` is.
 - **Don't recommend what you can't verify**: if you haven't checked it, say so rather than guess.
-- **Tokenized values trace**: every motion duration, shadow, aspect ratio, viewport height, container width, z-index, opacity, and scroll trigger in code must resolve to a DESIGN.md namespace (canonical or extension). Raw values authored ad-hoc in CSS/JS are anti-patterns — flag them. `/design-system audit-extensions` automates the check; full namespace list at [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
+- **Value consistency** (token trace is a bonus, not a prerequisite): every motion duration, shadow, aspect ratio, viewport height, container width, z-index, opacity, and scroll trigger should come from a coherent, reused scale — not ad-hoc one-offs scattered across files. *When a DESIGN.md exists*, each must resolve to one of its namespaces (canonical or extension), and `/design-system audit-extensions` automates that check (full namespace list at [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md)). *Without a DESIGN.md*, the bar is internal consistency: a named scale in the stylesheet, no stray magic numbers. Either way, ad-hoc values are the anti-pattern — flag them.
 
 ## Relation to `anti-patterns.md`
 

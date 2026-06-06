@@ -33,9 +33,9 @@ def _anatomy():
 
 
 class TestTokensPhaseReferences(unittest.TestCase):
-    """Phase 3 (Tokens) is where the agent decides what goes in DESIGN.md.
-    The extension contract must be explicit there — leaving it to inference
-    reproduces the field-tested failure mode. (Was: step 6 anchor, pre-refactor.)"""
+    """Phase 3 (Tokens) is where the agent commits the inline token block (and,
+    on Persist, the DESIGN.md). The extension contract must be explicit there —
+    leaving it to inference reproduces the field-tested failure mode."""
 
     def setUp(self):
         body = _body()

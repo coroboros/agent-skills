@@ -4,8 +4,8 @@ A library of concrete component techniques that lift a design from "template wit
 
 ## When to load this
 
-- During step 6 of the workflow (Produce DESIGN.md) — these patterns inform component definitions
-- During step 7 (Design with intent) — when components feel generic and a concrete technique is needed
+- During Phase 3 (Tokens) — these patterns inform the component definitions in the inline token block (and the DESIGN.md on Persist)
+- During Phase 4 (Production), as you build — when components feel generic and a concrete technique is needed
 - When auditing existing UI through `audit-rubric.md` and a Hierarchy / Spacing / Color score sits below 8
 - When the brief calls for archetypes that benefit most: Corporate Luxury, Spatial Organic, Bento (motion-engine variant), Bold/Maximal
 

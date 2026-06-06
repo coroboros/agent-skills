@@ -86,8 +86,8 @@ Present these scores with the archetype proposal. The user validates both before
 Once you have the observed archetype + atmosphere + palette + typography:
 
 1. Present archetype + atmosphere recommendation to the user — they validate or adjust.
-2. Continue with step 3 of the main workflow (`Read archetype reference`), step 4 (`Calibrate atmosphere`) — the user can refine what you extracted, add what's specific to their brief.
-3. Step 6 produces the final DESIGN.md — the *target* design, informed by the observation but not constrained to it.
+2. Continue with Phase 2 (Decision) of the main workflow — read the archetype reference, calibrate atmosphere — the user can refine what you extracted, add what's specific to their brief.
+3. Phase 3 (Tokens) and Phase 4 (Production) build the *target* site — informed by the observation but not constrained to it; the DESIGN.md follows only on opt-in Persist.
 
 The extracted observation is the *seed*. The brief is the *destination*.
 

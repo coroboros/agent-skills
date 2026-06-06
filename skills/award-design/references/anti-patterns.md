@@ -1,6 +1,6 @@
 # Anti-Patterns
 
-Validation checklist for the Validate step. Read before submitting or requesting review. Grouped by the kind of failure mode they create.
+Validation catalog for the HARD gate (Phase 4 — the two-gate close). Read before submitting or requesting review. Grouped by the kind of failure mode they create.
 
 ## Axiomatic rejections
 
@@ -20,6 +20,21 @@ Non-negotiable. If the design contains any of these, stop and fix — don't argu
 12. **Never use startup-slop names.** "Acme", "Nexus", "SmartFlow", "FlowKit", "ProSync" are the AI-generated brand-naming default. Invent contextual, plausible brand names tied to the project's domain. The placeholder honesty rule applies — `[client name]` beats a fake brand.
 
 Run this list first when validating. Anything it catches is stop-and-fix, not nice-to-have.
+
+## Countable checks
+
+The deterministic core of award-design's HARD gate. Unlike the axiomatic rejections (binary present/absent) and the rubric (subjective 0-10), these are *mechanically countable* — a number computed from the rendered page, compared against a threshold. Each declares its scope: **global** (every build) or **archetype-conditional** (suppressed for the named archetypes where the pattern is a legitimate choice). A failed check is stop-and-fix, cited with the count.
+
+| Check | Rule | Scope |
+|---|---|---|
+| **Eyebrow density** | Eyebrow tags ≤ `ceil(sectionCount / 3)` — eyebrows punctuate, they don't label every section | Global |
+| **Bento fill** | N list items render as exactly N cells — zero empty or filler cells (`grid-auto-flow: dense`, verified `col-span`/`row-span` interlock) | Global |
+| **Banned palette** | No hex in the AI-purple set (`#a855f7`, `#8b5cf6`, `#ec4899`, `#6366f1`, and the `135deg` purple→pink/blue gradients); no pure `#000` / `#fff` | Global |
+| **Heading lines** | Hero H1 wraps in ≤ 3 lines (2-Line Iron Rule, 3 the hard ceiling) | Global |
+| **Meta-labels** | Zero `SECTION 01` / `QUESTION 05` index labels | Global |
+| **Em-dash density** | Body-copy em-dash density ≤ ~1 per 100 words — high density reads as AI-generated prose | Archetype-conditional — **suppressed for `editorial` and `corporate-luxury`**, where the em-dash is a deliberate typographic choice |
+
+Scope note: the em-dash check targets **generated site copy**, not the codebase or this skill's own prose. Count it in the rendered body text; suppress entirely for the two archetypes above. The global checks run on every archetype, no exception. Countability is the upgrade over a context-blind blocklist — award-design scores *from* an archetype, it does not subtract *toward* a generic ban.
 
 ## Design failures
 

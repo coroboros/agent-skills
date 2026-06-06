@@ -1,0 +1,41 @@
+{
+  "skill_name": "design-system",
+  "description": "Behavioural evaluation set for the design-system skill. Cases pin token-only governance of an existing DESIGN.md, the step-aside behaviour when no file exists, and the CLI-backed subcommand routing (audit, migrate, audit-extensions).",
+  "evals": [
+    {
+      "id": 1,
+      "name": "governs-existing-design-md",
+      "prompt": "Change the primary CTA colour to a warmer terracotta. There's a DESIGN.md at the project root.",
+      "expected_output": "Reads DESIGN.md first, updates the `colors:` token and Colors prose, cascades every `components:` entry that referenced the old colour, then runs `/design-system audit` (post-edit invariant) before propagating to code. Tokens come only from DESIGN.md — no arbitrary hex in components.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "steps-aside-without-design-md",
+      "prompt": "Restyle the hero section to feel more premium. The project has no DESIGN.md.",
+      "expected_output": "Does not block the edit or author a DESIGN.md from scratch. Recommends /award-design for a designed build — which can crystallize a DESIGN.md afterward via its Persist step — and proceeds with a one-line pointer rather than forcing a file. init is named only as a minimal fallback when /award-design is unavailable.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "audits-existing-design-md",
+      "prompt": "Lint our DESIGN.md and tell me what's broken.",
+      "expected_output": "Routes to the audit subcommand and follows `references/subcommand-audit.md`: runs the Google CLI lint (or the manual fallback when the CLI is unavailable), then reports broken-ref, contrast, and missing-section findings with concrete fix proposals. Surfaces results as a human-readable report.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "migrates-legacy-stitch",
+      "prompt": "Our DESIGN.md is the old Stitch format with 9 numbered sections and no YAML. Port it.",
+      "expected_output": "Detects the legacy Stitch shape and routes to the migrate subcommand per `references/subcommand-migrate.md`, porting the 9 numbered sections into the Google standard (YAML frontmatter + 8 ordered prose sections), then audits the result before handing it back.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "audit-extensions-drift",
+      "prompt": "Check that our motion and shadow tokens match the globals.css @theme block.",
+      "expected_output": "Routes to the audit-extensions subcommand per `references/subcommand-audit-extensions.md`: checks bidirectional drift between the DESIGN.md extension namespaces, their prose references, and the globals.css `@theme` mirror — firing extension-missing-css, extension-orphan-css, and extension-broken-ref findings as appropriate.",
+      "files": []
+    }
+  ]
+}
