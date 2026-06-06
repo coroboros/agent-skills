@@ -12,7 +12,7 @@ metadata:
   sources:
     - github.com/google-labs-code/design.md
     - en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
-    - en.wikipedia.org/wiki/Stylometry
+    - every.to/on-every/introducing-spiral-v3-an-ai-writing-partner-with-taste
 ---
 
 # Brand Voice
