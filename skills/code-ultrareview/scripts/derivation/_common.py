@@ -27,7 +27,6 @@ UNCLASSIFIED = "UNCLASSIFIED"  # Python-stage placeholder; subagent fills in.
 
 CLASSIFICATIONS = (GAP, SCOPE_ADD, DECISION_OVERRIDE, CONSISTENT, UNCLASSIFIED)
 
-# Default severity per classification.
 DEFAULT_SEVERITY = {
     GAP: "Medium",
     SCOPE_ADD: "Low",

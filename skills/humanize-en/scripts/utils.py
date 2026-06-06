@@ -12,8 +12,7 @@ import random
 import sys
 from pathlib import Path
 
-# Canonical seed for any sampling the eval infrastructure does.
-# Reproducibility mirrors the skill-creator pattern (seed=42).
+# Mirrors the skill-creator seed for reproducible sampling.
 SEED = 42
 
 
@@ -48,7 +47,6 @@ def mask_protected_regions(text, strict_code_only=False):
     """Replace protected regions with whitespace so eval scoring stays consistent
     with prescan.py. Mirrors prescan.py:mask_protected_regions exactly — when
     one changes, both must change."""
-    # Defer to prescan.py's implementation to keep behaviour byte-identical.
     from prescan import mask_protected_regions as _mask  # local import avoids cycle
     return _mask(text, strict_code_only=strict_code_only)
 

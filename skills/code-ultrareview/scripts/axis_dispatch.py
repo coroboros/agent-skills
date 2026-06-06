@@ -56,7 +56,6 @@ CANONICAL_AXES = (
 
 CONDITIONAL_AXES = ("coherence",)
 
-# Per-axis brief file under `references/axes/`.
 AXIS_BRIEFS = {
     axis: f"references/axes/{axis}.md"
     for axis in CANONICAL_AXES + CONDITIONAL_AXES
@@ -67,11 +66,6 @@ ANTHROPIC_VERBATIM = "references/anthropic-verbatim.md"
 
 # Soft concurrency cap per the deep research (community-observed).
 MAX_PARALLEL_AXES = 10
-
-
-# ---------------------------------------------------------------------------
-# Axis selection
-# ---------------------------------------------------------------------------
 
 
 def decide_axes(scope: dict) -> list[str]:
@@ -92,11 +86,6 @@ def decide_axes(scope: dict) -> list[str]:
     return axes
 
 
-# ---------------------------------------------------------------------------
-# Tool-finding filter
-# ---------------------------------------------------------------------------
-
-
 def filter_findings_by_axis(findings: list[dict], axis: str) -> list[dict]:
     """Return findings whose `axis` field equals the target axis.
 
@@ -105,11 +94,6 @@ def filter_findings_by_axis(findings: list[dict], axis: str) -> list[dict]:
     so an unset field signals an upstream bug worth ignoring here.
     """
     return [f for f in findings if f.get("axis") == axis]
-
-
-# ---------------------------------------------------------------------------
-# Prompt template
-# ---------------------------------------------------------------------------
 
 
 PROMPT_TEMPLATE = """\
@@ -207,11 +191,6 @@ def build_axis_prompt(
     )
 
 
-# ---------------------------------------------------------------------------
-# Per-axis bundle preparation
-# ---------------------------------------------------------------------------
-
-
 def prepare_axis_bundle(
     axis: str,
     scope: dict,
@@ -301,11 +280,6 @@ def prepare(
         "coherence_active": "coherence" in axes,
         "bundles": bundles,
     }
-
-
-# ---------------------------------------------------------------------------
-# IO helpers
-# ---------------------------------------------------------------------------
 
 
 def _read_jsonl(path: Path) -> list[dict]:

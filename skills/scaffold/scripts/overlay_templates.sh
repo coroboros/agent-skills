@@ -89,14 +89,10 @@ write_file() {
   WRITTEN=$((WRITTEN + 1))
 }
 
-# --- shared templates ------------------------------------------------------
-
 write_file "$TEMPLATES_DIR/shared/biome.json.template" "$TARGET_DIR/biome.json"
 write_file "$TEMPLATES_DIR/shared/gitignore"            "$TARGET_DIR/.gitignore"
 write_file "$TEMPLATES_DIR/shared/worktreeinclude"      "$TARGET_DIR/.worktreeinclude"
 write_file "$TEMPLATES_DIR/shared/cloudflare-tooling.md" "$TARGET_DIR/.claude/rules/cloudflare-tooling.md"
-
-# --- scaffold-specific templates -------------------------------------------
 
 case "$SCAFFOLD" in
   next-cloudflare)
@@ -111,8 +107,6 @@ case "$SCAFFOLD" in
     write_file "$TEMPLATES_DIR/astro-cloudflare/wrangler.jsonc.template"  "$TARGET_DIR/wrangler.jsonc"
     ;;
 esac
-
-# --- package.json scripts merge --------------------------------------------
 
 SCRIPTS_TEMPLATE="$TEMPLATES_DIR/$SCAFFOLD/scripts.json"
 PKG_JSON="$TARGET_DIR/package.json"
@@ -134,8 +128,6 @@ if [[ -f "$SCRIPTS_TEMPLATE" ]] && [[ -f "$PKG_JSON" ]]; then
 else
   echo "RESULT: merged=none reason=template-or-pkg-missing"
 fi
-
-# --- verdict ---------------------------------------------------------------
 
 echo "RESULT: written=$WRITTEN skipped=$SKIPPED scaffold=$SCAFFOLD"
 

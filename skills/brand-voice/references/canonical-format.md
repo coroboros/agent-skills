@@ -96,6 +96,7 @@ lexical_exceptions_replace: object       # full replacement of parent's whitelis
 - **`core_attributes[].attribute_id`** — kebab-case (`[a-z0-9-]+`). **Required** on every entry. Stable merge key for inheritance and a stable ID for tooling. Lint emits `core-attribute-missing-id` (RED) when absent. The merge engine falls back to a normalised `name` only as a defensive measure for malformed input; do not rely on it.
 - **`sentence_norms.word_count_min`** — must be ≥ 1 and ≤ `word_count_max`.
 - **`sentence_norms.word_count_max`** — must be ≤ `sentence_max_hard`.
+- **`sentence_norms` provenance** — `extract` measures these from the source corpus via `scripts/measure_corpus.py` when it holds ≥ 30 sentences of prose (bounds from the p10/p90/max of sentence word counts; punctuation conventions from frequency). Below the threshold, or in interview mode, the values are LLM/interview estimates. The field shape is identical either way — measurement only changes how the numbers are derived.
 - **`sentence_norms.em_dash_spacing`** — `spaced` (` — `, the British/French convention), `tight` (`—` no spaces, the US convention), or `forbid` (no em-dashes at all).
 - **`forbidden_patterns`** — recognised values, with detector availability in `humanize-en`'s deterministic prescan:
 

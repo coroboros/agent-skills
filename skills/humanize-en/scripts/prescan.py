@@ -57,8 +57,6 @@ import re
 import sys
 from pathlib import Path
 
-# --- Patterns ---------------------------------------------------------------
-
 # (pattern_id, label, compiled_regex)
 PATTERNS = [
     (
@@ -162,8 +160,6 @@ PATTERNS = [
 EM_DASH_RE = re.compile(r"—")  # U+2014
 
 
-# --- Masking ----------------------------------------------------------------
-
 # Info-strings that mark a fenced block as a *pseudo-block* — its content is
 # prose-shaped (label-prefixed lines, ASCII tables, terminal transcripts) and
 # must still be scanned for AI tells. Anything else is real code: blanked.
@@ -205,9 +201,7 @@ def mask_protected_regions(text, strict_code_only=False):
     def _blank_fence(m):
         info = (m.group("info") or "").strip().lower()
         if strict_code_only or info not in PSEUDO_BLOCK_INFO_STRINGS:
-            # Real code block — blank entirely.
             return _blank(m)
-        # Pseudo-block — blank only the fence markers, leave body for scan.
         full = m.group(0)
         first_nl = full.index("\n")
         opener = full[:first_nl]
@@ -223,8 +217,6 @@ def mask_protected_regions(text, strict_code_only=False):
     text = re.sub(r"https?://\S+", _blank, text)
     return text
 
-
-# --- Main -------------------------------------------------------------------
 
 def scan(text, strict_code_only=False, attach_source=False):
     """Run the universal prescan. When `attach_source=True`, every hit gains a

@@ -43,8 +43,6 @@ import re
 import sys
 from pathlib import Path
 
-# --- Regexes ---------------------------------------------------------------
-
 HEADING_RE = re.compile(r"^(#{1,6})\s+(.+?)\s*$", re.MULTILINE)
 ANCHOR_LINK_RE = re.compile(r"\[(?P<text>[^\]]+)\]\(#(?P<anchor>[^)\s]+)\)")
 DETAILS_OPEN_RE = re.compile(r"<details\b", re.IGNORECASE)
@@ -95,7 +93,6 @@ STABILITY_PREFIX_RE = re.compile(
 # bound of a descriptive range, not a stable count of internal content.
 RANGE_PREFIX_RE = re.compile(r"\d\s*[–—-]\s*$")
 
-# GitHub callouts: `> [!NOTE|TIP|WARNING|IMPORTANT|CAUTION] ...`
 CALLOUT_RE = re.compile(
     r"^>\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]",
     re.IGNORECASE | re.MULTILINE,
@@ -107,24 +104,19 @@ HTML_IMG_RE = re.compile(r"<img\s[^>]*>", re.IGNORECASE)
 VISUAL_RHYTHM_LINE_THRESHOLD = 200
 
 
-# --- GitHub-style anchor slugging -----------------------------------------
-
 def slugify(heading):
     """Approximate GitHub's heading-to-anchor conversion.
     Lowercase, spaces → hyphens, strip non-word-except-hyphens."""
     s = heading.strip().lower()
-    # Strip inline markdown: `code`, **bold**, *italic*, [text](url) → text
+    # Strip inline markdown to its text: `code`, **bold**, *italic*, [text](url).
     s = re.sub(r"`([^`]*)`", r"\1", s)
     s = re.sub(r"\*\*([^*]+)\*\*", r"\1", s)
     s = re.sub(r"\*([^*]+)\*", r"\1", s)
     s = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", s)
-    # Replace spaces with hyphens; drop characters that aren't word chars or hyphens.
     s = re.sub(r"\s+", "-", s)
     s = re.sub(r"[^\w\-]", "", s, flags=re.UNICODE)
     return s
 
-
-# --- Masking ---------------------------------------------------------------
 
 def _blank(m):
     # Preserve newlines so line counting survives multi-line code fences.
@@ -149,8 +141,6 @@ def mask_for_bloat(text):
     return text
 
 
-# --- Helpers ---------------------------------------------------------------
-
 def _normalize_label(s):
     """Lowercase + collapse whitespace + strip surrounding punctuation/symbols.
     Used to compare heading text to <summary> text for redundancy detection."""
@@ -167,7 +157,6 @@ def find_summary_blocks(structural_text):
         open_m = SUMMARY_OPEN_RE.search(structural_text, pos)
         if not open_m:
             break
-        # Find the > that closes the opening tag.
         open_end = structural_text.find(">", open_m.end())
         if open_end < 0:
             break
@@ -181,8 +170,6 @@ def find_summary_blocks(structural_text):
         pos = close_m.end()
 
 
-# --- Audit -----------------------------------------------------------------
-
 def audit(text):
     # For structural HTML detection, strip only code fences/spans —
     # `<details>` literals inside fenced examples are documentation, not
@@ -190,8 +177,7 @@ def audit(text):
     structural = mask_code_only(text)
     line_count = text.count("\n") + 1
 
-    # Collect all headings → (line, text, slug) from the RAW text (headings
-    # can sit anywhere, including inside details).
+    # Scan RAW text, not masked: headings can sit anywhere, including inside details.
     headings = []
     for m in HEADING_RE.finditer(text):
         line_num = text.count("\n", 0, m.start()) + 1
@@ -200,7 +186,6 @@ def audit(text):
 
     known_slugs = {slug for _, _, slug in headings}
 
-    # Detail block ranges from the code-stripped view.
     details_opens = [m.start() for m in DETAILS_OPEN_RE.finditer(structural)]
     details_closes = [m.start() for m in DETAILS_CLOSE_RE.finditer(structural)]
 

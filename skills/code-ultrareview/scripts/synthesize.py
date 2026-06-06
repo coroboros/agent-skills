@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 """Phase 5 synthesis orchestrator for code-ultrareview.
 
-Composes `synthesis_core` primitives — dedup by inter-axis precedence,
-A2 no-silent-drop routing, Anthropic tier classification, canonical
-ordering, verdict computation — then renders the 8-axis markdown report
-to stdout (terminal-echo contract) plus a side-by-side Conventional
-Comments JSONL through `findings_to_jsonl`. When `--save` is set, the
-same bytes land at the canonical output path.
+Composes `synthesis_core` primitives, then renders the 8-axis markdown
+report to stdout (terminal-echo contract) plus a side-by-side
+Conventional Comments JSONL. When `--save` is set, the same bytes land at
+the canonical output path.
 
-The markdown layout is built programmatically here; `templates/code-
-ultrareview.md` documents the canonical wire format. Section order is
-fixed:
+Section order is fixed (`templates/code-ultrareview.md` documents the
+canonical wire format):
 
     📋 Axis summary
     🔎 Findings (🔴 High / 🟠 Medium / 🟢 Low / ⚠️ Unverified)
@@ -20,32 +17,6 @@ fixed:
     🛡️ What I did NOT check
     📐 Derivation coverage   (only when --reconcile resolved input)
     🪛 --apply-safe summary  (only when --apply-safe ran)
-
-CLI:
-    python3 synthesize.py \\
-        --scope scope.json \\
-        --findings validated-findings.jsonl \\
-        [--tool-findings tool-findings.jsonl] \\
-        [--positives positives.jsonl] \\
-        [--output-dir <dir>] \\
-        [--slug <slug>] \\
-        [--save | --no-save] \\
-        [--reconcile-summary path] \\
-        [--apply-safe-summary path]
-
-Inputs:
-    `scope.json` — Phase 1 output (repo_kind, languages, tools_skipped, …).
-    `validated-findings.jsonl` — Phase 4 output: axis findings after
-        Haiku validator scoring, with `validator_score` / `meta
-        .validator_reason` fields filled in where applicable.
-    `tool-findings.jsonl` — Phase 2 output: confidence-100 deterministic
-        tool findings. Skipped by validators; concatenated here.
-    `positives.jsonl` — optional list of `{"text": "…"}` records that
-        feed the `✅ What looks good` section verbatim.
-
-Outputs (when `--save`):
-    `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`
-    `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.jsonl`
 """
 
 from __future__ import annotations
@@ -78,7 +49,6 @@ CONFIDENCE_THRESHOLD = synthesis_core.CONFIDENCE_THRESHOLD
 SEVERITY_MARKERS = synthesis_core.SEVERITY_MARKERS
 CANONICAL_AXES = synthesis_core.CANONICAL_AXES
 
-# The four severity sub-sections under `🔎 Findings`, in render order.
 _SEVERITY_SECTIONS = (
     ("🔴 High", "High", "H"),
     ("🟠 Medium", "Medium", "M"),
@@ -86,9 +56,8 @@ _SEVERITY_SECTIONS = (
 )
 _UNVERIFIED_SECTION = ("⚠️ Unverified", "Unverified", "U")
 
-# Mandatory deferral entries. Always present in `🛡️ What I did NOT check`,
-# even when zero tools were skipped — explicit user-facing calibration of
-# coverage boundaries.
+# Always rendered in `🛡️ What I did NOT check`, even at zero skipped tools —
+# coverage boundaries are explicit user-facing calibration.
 _DEFERRALS = (
     (
         "Security",
@@ -107,11 +76,6 @@ _DEFERRALS = (
         "not perform.",
     ),
 )
-
-
-# ---------------------------------------------------------------------------
-# Loading
-# ---------------------------------------------------------------------------
 
 
 def load_findings(path: Path | None) -> list[dict]:
@@ -146,31 +110,16 @@ def load_positives(path: Path | None) -> list[str]:
     return out
 
 
-# ---------------------------------------------------------------------------
-# Pipeline
-# ---------------------------------------------------------------------------
-
-
 def synthesize(
     scope: dict,
     findings: list[dict],
 ) -> dict:
-    """Apply Phase-5 synthesis to a finding stream.
+    """Apply Phase-5 synthesis to a finding stream, returning a renderer dict.
 
-    Order: A2 routing first (post-validator findings may already carry
-    correct severity, but apply_a2 is idempotent and re-attaches markers
-    on rerun) → dedup by inter-axis precedence on the verified set →
-    Anthropic tier classification → canonical ordering → verdict.
-
-    Returns a dict ready for the renderer:
-
-        {
-            "verified": list[dict],         # surviving verified findings
-            "unverified": list[dict],       # A2-routed sub-80 (no drop)
-            "verdict": dict,                # label + rationale + drivers
-            "counts": dict[str, int],       # 🔴/🟠/🟢 per marker
-            "axis_summary": list[dict],     # rows for the summary table
-        }
+    A2 runs first because it is idempotent and re-attaches markers on
+    rerun, even when post-validator findings already carry correct
+    severity: A2 routing → dedup by inter-axis precedence on the verified
+    set → Anthropic tier classification → canonical ordering → verdict.
     """
     verified, unverified = synthesis_core.apply_a2(findings)
     verified = synthesis_core.dedup_by_precedence(verified)
@@ -239,11 +188,6 @@ def _truncate(text: str, limit: int) -> str:
     if len(text) <= limit:
         return text
     return text[: limit - 1].rstrip() + "…"
-
-
-# ---------------------------------------------------------------------------
-# Markdown rendering
-# ---------------------------------------------------------------------------
 
 
 def render_markdown(
@@ -510,11 +454,6 @@ def _render_footer() -> str:
     )
 
 
-# ---------------------------------------------------------------------------
-# Output paths
-# ---------------------------------------------------------------------------
-
-
 def project_slug(repo_root: Path) -> str:
     """Mirror the apex/repo convention: kebab basename of the git toplevel,
     else the cwd basename. All-non-alnum → `unnamed`."""
@@ -544,11 +483,6 @@ def output_paths(repo_root: Path, slug: str) -> tuple[Path, Path]:
         base / f"code-ultrareview-{slug}.md",
         base / f"code-ultrareview-{slug}.jsonl",
     )
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -27,17 +27,9 @@ import re
 import sys
 from pathlib import Path
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Common constants
-# ─────────────────────────────────────────────────────────────────────────────
-
 RUNNING_SUNO_VERSION = "v5.5"
 
 ISO_DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TRACK-specific constants (Suno v5.5 prompt rules)
-# ─────────────────────────────────────────────────────────────────────────────
 
 TIER1_TAGS = {
     "intro", "verse", "pre-chorus", "chorus", "post-chorus",
@@ -123,7 +115,6 @@ ARTIST_CITATION_PATTERNS = (
 # textures, and production-pipeline terms that real Suno prompts use. New entries
 # go here when a real prompt produces a false positive.
 NON_ARTIST_PHRASES = {
-    # Existing baseline
     "Drum Bass", "Hip Hop", "Lo Fi", "Boom Bap", "Pedal Steel",
     "Dance Pop", "Synth Pop", "Drum And", "Drill And", "Wood Block",
     "Half Time", "Half-Time", "Stereo Wide", "Wide Stereo",
@@ -131,27 +122,20 @@ NON_ARTIST_PHRASES = {
     "Sub Bass", "808 Sub", "Acoustic Guitar", "Electric Guitar",
     "Upright Bass", "Brushed Drums", "Female Vocal", "Male Vocal",
     "Close Mic", "Room Mic",
-    # Drums and percussion
     "Snare Drum", "Bass Drum", "Hi Hat", "Hi-Hat", "Floor Tom", "Tom Fill",
     "Crash Cymbal", "Ride Cymbal", "Drum Kit", "Drum Machine", "Drum Loop",
     "Drum Pad", "Brush Drums", "Brushed Snare",
-    # Bass
     "Slap Bass", "Walking Bass", "Fretless Bass", "Synth Bass",
-    # Synth and lead
     "Lead Synth", "Synth Lead", "Synth Pad", "Pad Wash", "Analog Synth",
     "Sub Drop", "Bass Drop",
-    # Vocal forms
     "Lead Vocal", "Backing Vocal", "Vocal Chop", "Vocal Loop", "Vocal Stack",
     "Harmony Stack", "Choral Stack",
-    # Guitar
     "Lead Guitar", "Rhythm Guitar", "Slide Guitar", "Steel Guitar",
     "Bass Guitar", "Twelve String", "Twelve-String", "Nylon String",
     "Classical Guitar",
-    # Effects and processing
     "Tape Echo", "Tape Saturation", "Tape Wobble", "Slap Back", "Slap-Back",
     "Reverb Tail", "Delay Tail", "Spring Echo", "Plate Echo", "Stereo Field",
     "Wide Pan", "Side Chain", "Side-Chain", "Sidechain Pump",
-    # Two-word genres in title case (rare but legitimate when users capitalize)
     "French House", "Trip Hop", "Indie Pop", "Indie Rock", "Pop Rock",
     "Pop Punk", "Folk Pop", "Folk Rock", "Power Pop", "Soft Rock",
     "Hard Rock", "Glam Rock", "Prog Rock", "Post Rock", "Math Rock",
@@ -181,17 +165,9 @@ INLINE_CUE_KEYWORDS = (
     "drop", "evolving", "granular", "swell", "drone", "arp", "arpeggio",
 )
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ALBUM-specific constants
-# ─────────────────────────────────────────────────────────────────────────────
-
 ALBUM_VALID_FORMATS = {"EP", "Album", "Mixtape", "Single"}
 ALBUM_REQUIRED_SECTIONS = ["Concept", "Arc", "Tracklist", "Transitions"]
 ALBUM_ARC_REQUIRED_LABELS = ["Opening", "Development", "Climax", "Closing"]
-
-# ─────────────────────────────────────────────────────────────────────────────
-# ARTIST-specific constants
-# ─────────────────────────────────────────────────────────────────────────────
 
 ARTIST_VALID_RIGHTS_POSTURES = {"license-only", "licensed", "public-domain", "unknown"}
 ARTIST_REQUIRED_SECTIONS = [
@@ -201,10 +177,6 @@ ARTIST_REQUIRED_SECTIONS = [
     "Rights posture",
 ]
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Frontmatter parser — supports inline lists, block-form nested mappings
-# ─────────────────────────────────────────────────────────────────────────────
 
 def parse_value(val):
     """Parse a YAML scalar / inline list value."""
@@ -278,10 +250,6 @@ def parse_frontmatter(text):
     return fm, body, fm_line_count
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Body section helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
 def find_fenced_section(body, heading_regex):
     """Find the first fenced text block under a Markdown heading matching `heading_regex`.
 
@@ -313,10 +281,6 @@ def find_section(body, heading_regex):
             return section_lines, i + 1
     return None, None
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TRACK.md helpers
-# ─────────────────────────────────────────────────────────────────────────────
 
 def count_descriptors(style_text):
     if not style_text:
@@ -392,10 +356,6 @@ def parse_sliders(body):
     return out
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Verdict helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
 def make_report(file_path, errors, warnings, info):
     if errors:
         verdict = "RED"
@@ -426,10 +386,6 @@ def missing_frontmatter_report(file_path):
         info=[],
     )
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# TRACK.md validator
-# ─────────────────────────────────────────────────────────────────────────────
 
 def check_track(path):
     text = Path(path).read_text(encoding="utf-8")
@@ -535,10 +491,8 @@ def check_track(path):
                         "fix": f"Remove `{vd}` from Style — it conflicts with the cloned Voice and produces blended timbre",
                     })
                     break
-        # Citation patterns ("in the style of X", "voice of X", "à la X",
-        # "X's sound") are high-confidence intent — RED. Suno filters these
-        # phrasings; using them creates rights exposure for zero functional
-        # benefit. Article §5.1.5 anti-pattern; Rules § "Describe the sound,
+        # RED: Suno filters artist citations, so they carry rights exposure for
+        # zero benefit. Article §5.1.5 anti-pattern; Rules § "Describe the sound,
         # never an artist".
         for phrase, _name, off in find_citation_matches(style):
             errors.append({
@@ -553,9 +507,6 @@ def check_track(path):
                     "raspy male belt, dry close-mic\")."
                 ),
             })
-        # Title-case proper-noun pairs in Style — generic flag. Whitelisted
-        # phrases skip; everything else gets YELLOW (false positives are common
-        # so we warn rather than block).
         artist_candidates = re.findall(r"\b[A-Z][a-z]+ [A-Z][a-z]+\b", style)
         flagged = [c for c in artist_candidates if c not in NON_ARTIST_PHRASES]
         if flagged:
@@ -592,9 +543,7 @@ def check_track(path):
                 "expected": "BPM in Style of Music field, never in Lyrics",
                 "fix": "Move BPM specification to the Style of Music field",
             })
-        # Citation patterns also apply to Lyrics — Suno's filter scrubs
-        # artist citations from either field, and a citation written as a
-        # lyric still creates rights exposure.
+        # Same RED in Lyrics: Suno's filter scrubs citations from either field.
         for phrase, _name, off in find_citation_matches(lyrics):
             errors.append({
                 "check": "artist_citation_in_lyrics",
@@ -672,10 +621,6 @@ def check_track(path):
     return make_report(path, errors, warnings, info)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# ALBUM.md validator
-# ─────────────────────────────────────────────────────────────────────────────
-
 TRACKLIST_LINE_RE = re.compile(
     r"^\s*\d+\.\s+.+?\s+—\s+\d+\s*BPM\s+—\s+.+?\s+—\s+.+$",
     re.IGNORECASE,
@@ -730,7 +675,6 @@ def check_album(path):
             "fix": "Use ISO date format in `created:`",
         })
 
-    # Required sections
     for section_name in ALBUM_REQUIRED_SECTIONS:
         section_lines, _ = find_section(body, rf"^##\s+{re.escape(section_name)}\s*$")
         if section_lines is None:
@@ -742,7 +686,6 @@ def check_album(path):
                 "fix": f"Add a `## {section_name}` section",
             })
 
-    # Arc section sanity — should mention all four arc labels
     arc_lines, arc_start = find_section(body, r"^##\s+Arc\s*$")
     if arc_lines is not None:
         arc_text = "\n".join(arc_lines).lower()
@@ -756,7 +699,6 @@ def check_album(path):
                     "fix": f"Add a `- {label}: ...` line to the Arc section",
                 })
 
-    # Tracklist consistency
     tracklist_lines, tracklist_start = find_section(body, r"^##\s+Tracklist\s*$")
     tracklist_count = 0
     if tracklist_lines is not None:
@@ -786,10 +728,6 @@ def check_album(path):
 
     return make_report(path, errors, warnings, info)
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# ARTIST.md validator
-# ─────────────────────────────────────────────────────────────────────────────
 
 def check_artist(path):
     text = Path(path).read_text(encoding="utf-8")
@@ -918,10 +856,6 @@ def check_artist(path):
     return make_report(path, errors, warnings, info)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Dispatch
-# ─────────────────────────────────────────────────────────────────────────────
-
 def detect_artifact_type(path):
     """Pick a validator by filename. Returns 'track' | 'album' | 'artist' | None."""
     name = Path(path).name.upper()
@@ -956,10 +890,6 @@ def check_file(path):
         "info": [],
     }
 
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CLI
-# ─────────────────────────────────────────────────────────────────────────────
 
 def collect_files(target):
     if target.is_file():

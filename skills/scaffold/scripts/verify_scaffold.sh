@@ -27,8 +27,6 @@ cd "$PROJECT_DIR"
 
 OK=true
 
-# --- biome -----------------------------------------------------------------
-
 if pnpm biome check --write . >/dev/null 2>&1; then
   echo "RESULT: biome=pass"
 else
@@ -41,8 +39,6 @@ else
   OK=false
 fi
 
-# --- typecheck -------------------------------------------------------------
-
 if pnpm typecheck >/dev/null 2>&1; then
   echo "RESULT: typecheck=pass"
 else
@@ -52,8 +48,6 @@ else
   echo "--- end typecheck diagnostics ---" >&2
   OK=false
 fi
-
-# --- verdict ---------------------------------------------------------------
 
 if [[ "$OK" = true ]]; then
   echo "RESULT: ok=true"

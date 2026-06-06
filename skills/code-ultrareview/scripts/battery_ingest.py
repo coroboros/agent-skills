@@ -77,7 +77,7 @@ TOOL_TO_AXIS = {
 def _emit(*, file: str, line_start: int, line_end: int | None,
           severity: str, axis: str, source_tool: str, message: str,
           fix_hint: str | None = None) -> dict:
-    """Build a canonical finding dict. Confidence is always 100."""
+    """Build a canonical finding dict. Confidence is always 100 — tool findings are deterministic."""
     out = {
         "file": file,
         "line_start": int(line_start),
@@ -92,10 +92,6 @@ def _emit(*, file: str, line_start: int, line_end: int | None,
         out["fix_hint"] = fix_hint
     return out
 
-
-# ---------------------------------------------------------------------------
-# knip — unused exports / files / deps
-# ---------------------------------------------------------------------------
 
 def parse_knip(raw: str) -> list[dict]:
     try:
@@ -115,13 +111,12 @@ def parse_knip(raw: str) -> list[dict]:
         if not file:
             continue
 
-        # Unused exports / types — each is a {symbol, line, col} object.
         for category in ("exports", "types", "enumMembers", "classMembers",
                          "duplicates", "unresolved"):
             entries = item.get(category)
             if not entries:
                 continue
-            # entries can be a list of objects, a dict, or a list of names
+            # knip varies the shape: list of objects, a dict, or a list of names.
             if isinstance(entries, dict):
                 iter_entries = entries.values()
             elif isinstance(entries, list):
@@ -145,7 +140,7 @@ def parse_knip(raw: str) -> list[dict]:
                     fix_hint="Remove if truly unused, or wire it up.",
                 ))
 
-        # Whole-file unused (item.files == true means the file itself is unused).
+        # knip flags a whole-file-unused entry with `files: true`.
         if item.get("files") is True:
             findings.append(_emit(
                 file=file, line_start=1, line_end=1,
@@ -155,7 +150,7 @@ def parse_knip(raw: str) -> list[dict]:
                 fix_hint="Delete the file or wire it into an entry point.",
             ))
 
-        # Unlisted / unused dependencies — usually at package.json.
+        # Dependency findings carry no file; default to package.json.
         for category in ("dependencies", "devDependencies", "unlisted",
                          "binaries", "optionalPeerDependencies"):
             entries = item.get(category)
@@ -175,7 +170,7 @@ def parse_knip(raw: str) -> list[dict]:
                     fix_hint="Remove from package.json.",
                 ))
 
-    # Some knip versions also emit a top-level "files" list (whole-file unused).
+    # Some knip versions also emit whole-file-unused as a top-level "files" list.
     if isinstance(data, dict):
         for path in data.get("files") or []:
             if not isinstance(path, str):
@@ -190,10 +185,6 @@ def parse_knip(raw: str) -> list[dict]:
 
     return findings
 
-
-# ---------------------------------------------------------------------------
-# jscpd — code duplication
-# ---------------------------------------------------------------------------
 
 def parse_jscpd(raw: str) -> list[dict]:
     try:
@@ -230,10 +221,6 @@ def parse_jscpd(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# markdownlint-cli2 — Markdown lint
-# ---------------------------------------------------------------------------
-
 def parse_markdownlint(raw: str) -> list[dict]:
     try:
         data = json.loads(raw)
@@ -264,10 +251,6 @@ def parse_markdownlint(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# api-extractor — public TS API surface
-# ---------------------------------------------------------------------------
-
 _API_EXTRACTOR_LINE = re.compile(
     r"(?P<level>Warning|Error):\s+(?P<file>[^:]+):(?P<line>\d+):(?P<col>\d+)\s*-\s*\((?P<rule>[^)]+)\)\s*(?P<msg>.+)"
 )
@@ -291,13 +274,8 @@ def parse_api_extractor(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# lizard — cyclomatic complexity
-# ---------------------------------------------------------------------------
-
-# CSV header from `lizard --csv`:
-#   NLOC,CCN,token,PARAM,length,location
-# location format: name@start-end@file
+# `lizard --csv` columns: NLOC,CCN,token,PARAM,length,location
+# where location is `name@start-end@file`.
 _LIZARD_LOCATION = re.compile(r"^(?P<name>.+)@(?P<start>\d+)-(?P<end>\d+)@(?P<file>.+)$")
 LIZARD_CCN_THRESHOLD = 10
 LIZARD_PARAM_THRESHOLD = 5
@@ -309,7 +287,7 @@ def parse_lizard(raw: str) -> list[dict]:
         line = raw_line.strip()
         if not line or line.startswith("NLOC"):
             continue
-        # Robust CSV split — only first 5 commas separate cols (location may contain commas, rare).
+        # Split on the first 5 commas only — location can itself contain commas.
         parts = line.split(",", 5)
         if len(parts) < 6:
             continue
@@ -342,10 +320,6 @@ def parse_lizard(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# vulture — dead Python code
-# ---------------------------------------------------------------------------
-
 _VULTURE_LINE = re.compile(
     r"^(?P<file>[^:]+):(?P<line>\d+):\s*(?:unused\s+)?(?P<kind>\w+)\s+'(?P<name>[^']+)'\s+\((?P<conf>\d+)%\s+confidence\)"
 )
@@ -370,16 +344,12 @@ def parse_vulture(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# semgrep — patterns. Routes generic → correctness, perf-rules → performance.
-# ---------------------------------------------------------------------------
-
+# semgrep routes per-finding: perf-rules → performance, everything else → correctness.
 def _semgrep_axis(check_id: str, metadata: dict) -> str:
     if metadata.get("axis") == "performance":
         return "performance"
     if isinstance(check_id, str) and check_id.startswith(PERF_RULE_PREFIX):
         return "performance"
-    # All other semgrep rules default to correctness.
     return "correctness"
 
 
@@ -418,10 +388,6 @@ def parse_semgrep(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# oasdiff — OpenAPI breaking-change detector
-# ---------------------------------------------------------------------------
-
 def parse_oasdiff(raw: str) -> list[dict]:
     try:
         data = json.loads(raw)
@@ -455,10 +421,6 @@ def parse_oasdiff(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# atlas — DB migration lint
-# ---------------------------------------------------------------------------
-
 def parse_atlas(raw: str) -> list[dict]:
     try:
         data = json.loads(raw)
@@ -466,7 +428,7 @@ def parse_atlas(raw: str) -> list[dict]:
         return []
 
     findings: list[dict] = []
-    # Atlas json shape: { "Files": [ { "Name": "...", "Reports": [ { "Diagnostics": [...] } ] } ] }
+    # Atlas JSON: { "Files": [ { "Name", "Reports": [ { "Diagnostics": [...] } ] } ] }
     files = (data.get("Files") if isinstance(data, dict) else None) or []
     for file_entry in files:
         if not isinstance(file_entry, dict):
@@ -487,10 +449,6 @@ def parse_atlas(raw: str) -> list[dict]:
                 ))
     return findings
 
-
-# ---------------------------------------------------------------------------
-# vale — prose lint
-# ---------------------------------------------------------------------------
 
 def parse_vale(raw: str) -> list[dict]:
     try:
@@ -522,10 +480,6 @@ def parse_vale(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# deadcode (Go) — `deadcode ./...`
-# ---------------------------------------------------------------------------
-
 _DEADCODE_LINE = re.compile(r"^(?P<file>[^:]+\.go):(?P<line>\d+):(?P<col>\d+):\s*(?P<msg>.+)")
 
 
@@ -547,11 +501,7 @@ def parse_deadcode(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# gocyclo — Go cyclomatic complexity
-# ---------------------------------------------------------------------------
-
-# Format: "<ccn> <package> <func> <file>:<line>:<col>"
+# gocyclo line format: "<ccn> <package> <func> <file>:<line>:<col>"
 _GOCYCLO_LINE = re.compile(
     r"^(?P<ccn>\d+)\s+(?P<pkg>\S+)\s+(?P<func>\S+)\s+(?P<file>[^:]+\.go):(?P<line>\d+)"
 )
@@ -577,12 +527,8 @@ def parse_gocyclo(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# dupl — Go duplication
-# ---------------------------------------------------------------------------
-
-# Format (default): blocks separated by blank lines, each block lists locations
-# as "<file>:<start>-<end>". We pair consecutive locations within a block.
+# dupl output: blocks separated by blank lines, each listing locations as
+# "<file>:<start>-<end>". Pair every location in a block against the others.
 def parse_dupl(raw: str) -> list[dict]:
     findings: list[dict] = []
     block: list[tuple[str, int, int]] = []
@@ -617,10 +563,6 @@ def parse_dupl(raw: str) -> list[dict]:
     return findings
 
 
-# ---------------------------------------------------------------------------
-# cargo-machete — unused Rust dependencies
-# ---------------------------------------------------------------------------
-
 _MACHETE_HEADER = re.compile(
     r"cargo-machete found the following unused dependencies in (?P<file>.+):"
 )
@@ -639,7 +581,6 @@ def parse_cargo_machete(raw: str) -> list[dict]:
         name = line.strip()
         if not name or name.startswith("cargo-machete"):
             continue
-        # name is like "  serde_json" (indented) — strip leading spaces.
         if name.startswith("-"):
             name = name.lstrip("- ").strip()
         findings.append(_emit(
@@ -651,10 +592,6 @@ def parse_cargo_machete(raw: str) -> list[dict]:
         ))
     return findings
 
-
-# ---------------------------------------------------------------------------
-# Dispatch
-# ---------------------------------------------------------------------------
 
 PARSERS: dict[str, Callable[[str], list[dict]]] = {
     "knip": parse_knip,

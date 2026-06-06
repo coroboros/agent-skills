@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 # APEX Template Setup Script
-# Creates output directory structure and initializes template files
 #
 # Usage: setup-templates.sh "feature-name" [other args...]
 # The script auto-generates the task ID with the next available number.
 
 set -euo pipefail
 
-# Arguments - first arg is now just the feature name (kebab-case)
+# First arg is the feature name (kebab-case).
 FEATURE_NAME="${1:-}"
 TASK_DESCRIPTION="${2:-}"
 AUTO_MODE="${3:-false}"
@@ -18,7 +17,6 @@ INTERACTIVE_MODE="${7:-false}"
 BRANCH_NAME="${8:-}"
 ORIGINAL_INPUT="${9:-}"
 
-# Validate required arguments
 if [[ -z "$FEATURE_NAME" ]]; then
     echo "Error: FEATURE_NAME is required"
     exit 1
@@ -29,7 +27,6 @@ if [[ -z "$TASK_DESCRIPTION" ]]; then
     exit 1
 fi
 
-# Get current timestamp
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
 # Must match resume_lookup.sh / update-progress.sh / validate_state.sh —
@@ -40,10 +37,8 @@ PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9
 : "${PROJECT:=unnamed}"  # all-non-alphanumeric basename kebabs empty — keep the path well-formed
 APEX_OUTPUT_DIR="${HOME}/.claude/output/${PROJECT}/apex"
 
-# Create apex output directory if it doesn't exist
 mkdir -p "$APEX_OUTPUT_DIR"
 
-# Find the next available number
 NEXT_NUM=1
 if [[ -d "$APEX_OUTPUT_DIR" ]]; then
     # Find highest existing number prefix (tolerate empty dir: grep returns 1 on no match).
@@ -57,27 +52,22 @@ if [[ -d "$APEX_OUTPUT_DIR" ]]; then
     fi
 fi
 
-# Format with leading zeros (2 digits)
 TASK_NUM=$(printf "%02d" "$NEXT_NUM")
-
-# Build full task ID
 TASK_ID="${TASK_NUM}-${FEATURE_NAME}"
 
 OUTPUT_DIR="${APEX_OUTPUT_DIR}/${TASK_ID}"
 
-# Get skill directory
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEMPLATE_DIR="${SKILL_DIR}/templates"
 
-# Create output directory
 mkdir -p "$OUTPUT_DIR"
 
-# Function to replace template variables. Values pass through awk's ENVIRON[]
-# array (literal strings, no escape processing) — eliminates both the sed s///
-# regex-metachar surface and the awk -v backslash-escape interpretation. The
-# inner loop uses index/substr (literal substring substitution, never regex),
-# so user-controlled TASK_DESCRIPTION can carry any byte without breaking
-# templating. This is the W011 hardening surface flagged by external scanners.
+# Values pass through awk's ENVIRON[] array (literal strings, no escape
+# processing), eliminating both the sed s/// regex-metachar surface and the
+# awk -v backslash-escape interpretation. The inner loop uses index/substr
+# (literal substitution, never regex), so user-controlled TASK_DESCRIPTION can
+# carry any byte without breaking templating. W011 hardening surface flagged by
+# external scanners.
 render_template() {
     local template_file="$1"
     local output_file="$2"
@@ -116,16 +106,15 @@ render_template() {
         ' "$template_file" > "$output_file"
 }
 
-# Initialize 00-context.md
 render_template "${TEMPLATE_DIR}/00-context.md" "${OUTPUT_DIR}/00-context.md"
 
-# Initialize other step files (only headers, content appended during execution)
+# Step files start as headers only; content is appended during execution.
 render_template "${TEMPLATE_DIR}/01-analyze.md" "${OUTPUT_DIR}/01-analyze.md"
 render_template "${TEMPLATE_DIR}/02-plan.md" "${OUTPUT_DIR}/02-plan.md"
 render_template "${TEMPLATE_DIR}/03-execute.md" "${OUTPUT_DIR}/03-execute.md"
 render_template "${TEMPLATE_DIR}/04-examine.md" "${OUTPUT_DIR}/04-examine.md"
 
-# Output the generated task_id for capture by caller
+# Caller parses these to capture the generated task ID and output path.
 echo "TASK_ID=${TASK_ID}"
 echo "OUTPUT_DIR=${OUTPUT_DIR}"
 echo "✓ APEX templates initialized: ${OUTPUT_DIR}"

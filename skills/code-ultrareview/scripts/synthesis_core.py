@@ -1,33 +1,23 @@
 #!/usr/bin/env python3
 """Synthesis primitives for code-ultrareview.
 
-Owns the A2 no-silent-drop routing, emoji severity markers, build-
-verification iteration, anthropic tier classification, deterministic
-ordering, verdict algorithm, and inter-axis precedence dedup. Single
-source of truth for the 8-axis taxonomy:
+Single source of truth for the 8-axis taxonomy and its inter-axis
+precedence — when two or more axes flag the same `file:line`, highest
+severity wins; ties resolve via this order:
 
     Correctness > Design/API > Simplification > Tests > Documentation >
     Style > Intent > Performance > Coherence (conditional)
 
-The order above is the inter-axis precedence: when two or more axes flag
-the same `file:line`, highest severity wins; ties resolve via this order.
+Owns A2 no-silent-drop routing, severity markers, build-verification
+iteration, tier classification, ordering, verdict, and precedence dedup.
+Kept separate from Phase 5 (`scripts/synthesize.py`) so axis lenses
+(Phase 3) and Haiku validators (Phase 4) reuse the core contracts without
+pulling in synthesis-layer concerns.
 
-Phase 5 (`scripts/synthesize.py`) composes these primitives with dedup +
-report emission + JSONL writing. This module owns only the core contracts
-so that axis lenses (Phase 3) and Haiku validators (Phase 4) can reuse
-them without pulling in synthesis-layer concerns.
-
-Findings are plain dicts to match the JSON shape axis subagents emit:
-
-    {
-        "axis": str,            # e.g. "correctness"
-        "severity": "High" | "Medium" | "Low",
-        "location": str,        # "<file>:<line>" or "<file>:<start>-<end>"
-        "finding": str,
-        "recommendation": str,
-        "confidence": int,      # 0-100
-        # optional: "rule", "pre_existing", "meta"
-    }
+Findings are plain dicts matching the JSON shape axis subagents emit:
+`axis`, `severity` (High|Medium|Low), `location`, `finding`,
+`recommendation`, `confidence` (0-100), optional `rule` / `pre_existing` /
+`meta`.
 """
 
 from __future__ import annotations
@@ -41,11 +31,10 @@ UNVERIFIED_PREFIX = "[unverified]"
 
 SEVERITY_ORDER = {"High": 0, "Medium": 1, "Low": 2}
 
-# 3-tier visual markers surfaced in every report.
 # 🔴 High — blocks ship. 🟠 Medium — fix soon. 🟢 Low — nit / informational.
 SEVERITY_MARKERS = {"High": "🔴", "Medium": "🟠", "Low": "🟢"}
 
-# Canonical 8 axes — always-on. Order here is reporting order, not precedence.
+# Always-on. Order here is reporting order, not precedence.
 CANONICAL_AXES = (
     "correctness",
     "simplification",
@@ -58,7 +47,6 @@ CANONICAL_AXES = (
 )
 
 # Inter-axis precedence — highest severity wins; ties resolve via this order.
-# Read by Phase 5 dedup logic in `scripts/synthesize.py`.
 AXIS_PRIORITY = (
     "correctness",
     "design-api",
@@ -71,17 +59,10 @@ AXIS_PRIORITY = (
     "coherence",
 )
 
-# The conditional 9th axis. Activates when `scope.json["activates_coherence"]`
-# is true (metadata files in diff).
+# Activates when `scope.json["activates_coherence"]` is true (metadata in diff).
 CONDITIONAL_AXES = ("coherence",)
 
-# All axes a finding may carry — used to validate finding payloads.
 ALL_AXES = CANONICAL_AXES + CONDITIONAL_AXES
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
 
 
 def _attach_marker(finding: dict) -> dict:
@@ -103,11 +84,6 @@ def _restore_severity(finding: dict) -> str:
     downgraded it to Low; otherwise keep the current value."""
     meta = finding.get("meta") or {}
     return meta.get("original_severity") or finding.get("severity", "Medium")
-
-
-# ---------------------------------------------------------------------------
-# A2 — no silent drop
-# ---------------------------------------------------------------------------
 
 
 def apply_a2(findings: list[dict]) -> tuple[list[dict], list[dict]]:
@@ -153,11 +129,7 @@ def apply_a2(findings: list[dict]) -> tuple[list[dict], list[dict]]:
     return verified, unverified
 
 
-# ---------------------------------------------------------------------------
-# Build verification iteration (Phase 3.5 — gated by --verify-build)
-# ---------------------------------------------------------------------------
-
-
+# Build verification iteration — Phase 3.5, gated by --verify-build.
 def iterate_unverified(
     unverified: list[dict],
     builder_fn: Callable[[dict], str],
@@ -201,11 +173,6 @@ def iterate_unverified(
     return promoted, remaining, dropped
 
 
-# ---------------------------------------------------------------------------
-# Anthropic tier classification
-# ---------------------------------------------------------------------------
-
-
 def assign_anthropic_tier(finding: dict) -> dict:
     """Add `meta.anthropic_tier` per the documented mapping.
 
@@ -233,11 +200,6 @@ def assign_anthropic_tier(finding: dict) -> dict:
     return f
 
 
-# ---------------------------------------------------------------------------
-# Ordering — canonical sort order for findings inside a report section
-# ---------------------------------------------------------------------------
-
-
 def order(findings: list[dict]) -> list[dict]:
     """Canonical ordering: severity → confidence (desc) → location."""
     def key(f: dict):
@@ -246,11 +208,6 @@ def order(findings: list[dict]) -> list[dict]:
         loc = f.get("location", "")
         return (sev, conf, loc)
     return sorted(findings, key=key)
-
-
-# ---------------------------------------------------------------------------
-# Verdict — Ship / Fix-then-ship / Needs work
-# ---------------------------------------------------------------------------
 
 
 def _is_important(f: dict, marker: str) -> bool:
@@ -319,11 +276,6 @@ def compute_verdict(verified: list[dict]) -> dict:
     }
 
 
-# ---------------------------------------------------------------------------
-# Severity counts — convenience for the report header
-# ---------------------------------------------------------------------------
-
-
 def compute_severity_counts(verified: list[dict]) -> dict[str, int]:
     """Count verified findings by visual marker. Keys 🔴 / 🟠 / 🟢 always present."""
     counts: dict[str, int] = {marker: 0 for marker in SEVERITY_MARKERS.values()}
@@ -333,11 +285,6 @@ def compute_severity_counts(verified: list[dict]) -> dict[str, int]:
         if marker in counts:
             counts[marker] += 1
     return counts
-
-
-# ---------------------------------------------------------------------------
-# Inter-axis precedence — Phase 5 synthesis dedup
-# ---------------------------------------------------------------------------
 
 
 _AXIS_RANK = {axis: idx for idx, axis in enumerate(AXIS_PRIORITY)}

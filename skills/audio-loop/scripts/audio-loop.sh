@@ -57,13 +57,9 @@ while getopts ":t:o:B" opt; do
   esac
 done
 
-# --- Validate ---------------------------------------------------------------
-
 [[ -f "$INPUT" ]] || { echo "error: input not found: $INPUT" >&2; exit 1; }
 command -v ffmpeg  >/dev/null || { echo "error: ffmpeg not installed" >&2;  exit 1; }
 command -v ffprobe >/dev/null || { echo "error: ffprobe not installed" >&2; exit 1; }
-
-# --- Resolve paths ----------------------------------------------------------
 
 INPUT_ABS=$(cd "$(dirname "$INPUT")" && pwd)/$(basename "$INPUT")
 BASENAME=$(basename "$INPUT")
@@ -73,22 +69,17 @@ mkdir -p "$OUT_DIR"
 
 OUTPUT="$OUT_DIR/${STEM}.flac"
 
-# Self-overwrite guard — only hits when reprocessing a FLAC in its own directory.
-# The FLAC encode would clobber the source; catch it upfront with a clear message.
+# Reprocessing a FLAC in its own directory would clobber the source — catch upfront.
 if [[ "$INPUT_ABS" == "$OUTPUT" ]]; then
   echo "error: output would overwrite input ($OUTPUT). Pass -o <dir> to write elsewhere." >&2
   exit 1
 fi
-
-# --- Probe ------------------------------------------------------------------
 
 DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$INPUT_ABS")
 CHANNELS=$(ffprobe -v error -select_streams a:0 -show_entries stream=channels -of csv=p=0 "$INPUT_ABS")
 SAMPLE_RATE=$(ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate -of csv=p=0 "$INPUT_ABS")
 # stat flags differ between macOS (-f%z) and GNU/Linux (-c%s); try both.
 INPUT_BYTES=$(stat -f%z "$INPUT_ABS" 2>/dev/null || stat -c%s "$INPUT_ABS")
-
-# --- Stereo balance (stereo sources only) ----------------------------------
 
 PAN_FILTER=""
 L_RMS=""
@@ -112,11 +103,9 @@ if [[ "$CHANNELS" -eq 2 ]]; then
   # ambient content shows the imbalance isn't reliably perceptible.
   if [[ $NO_BALANCE -eq 0 ]] && awk -v a="$ABS_DELTA" 'BEGIN { exit !(a > 1.0) }'; then
     if awk -v d="$DELTA_DB" 'BEGIN { exit !(d > 0) }'; then
-      # R is louder — attenuate R.
       GAIN=$(awk -v d="$DELTA_DB" 'BEGIN { printf "%.6f", 10 ^ (-d / 20) }')
       PAN_FILTER="pan=stereo|c0=FL|c1=${GAIN}*FR,"
     else
-      # L is louder — attenuate L.
       GAIN=$(awk -v d="$DELTA_DB" 'BEGIN { printf "%.6f", 10 ^ (d / 20) }')
       PAN_FILTER="pan=stereo|c0=${GAIN}*FL|c1=FR,"
     fi
@@ -124,22 +113,16 @@ if [[ "$CHANNELS" -eq 2 ]]; then
   fi
 fi
 
-# --- Encode FLAC ------------------------------------------------------------
-
 ffmpeg -y -hide_banner -loglevel warning -i "$INPUT_ABS" \
   -af "${PAN_FILTER}loudnorm=I=${LUFS_TARGET}:TP=-2:LRA=7,aresample=${SAMPLE_RATE}" \
   -c:a flac -compression_level 8 \
   "$OUTPUT"
 
-# --- Verify output ----------------------------------------------------------
-
-# Integrated loudness + true peak from ebur128 summary.
 EBUR_OUT=$(ffmpeg -hide_banner -nostats -i "$OUTPUT" \
            -filter:a ebur128=peak=true -f null - 2>&1)
 OUT_LUFS=$(echo "$EBUR_OUT" | awk '/^ *I: / && /LUFS/ { val=$2 } END { print val }')
 OUT_PEAK=$(echo "$EBUR_OUT" | awk '/True peak:/,/^$/' | awk '/Peak:/ { val=$2 } END { print val }')
 
-# Per-channel RMS of the output (confirms the correction landed).
 if [[ "$CHANNELS" -eq 2 ]]; then
   OUT_STATS=$(ffmpeg -hide_banner -nostats -i "$OUTPUT" \
               -af astats=metadata=1:reset=0:measure_perchannel=RMS_level \
@@ -150,11 +133,8 @@ fi
 
 OUTPUT_BYTES=$(stat -f%z "$OUTPUT" 2>/dev/null || stat -c%s "$OUTPUT")
 
-# --- Post-condition checks --------------------------------------------------
-
-# Integrated loudness within ±1 LUFS of the target. Outside this window
-# suggests loudnorm failed to converge — surface loud and fail the call so
-# the caller doesn't ship a mis-leveled loop.
+# Loudness outside ±1 LUFS of target means loudnorm didn't converge — fail the
+# call so the caller doesn't ship a mis-leveled loop.
 LUFS_OK=1
 LUFS_DELTA=""
 if [[ -n "${OUT_LUFS:-}" ]]; then
@@ -163,8 +143,6 @@ if [[ -n "${OUT_LUFS:-}" ]]; then
     LUFS_OK=0
   fi
 fi
-
-# --- Summary ----------------------------------------------------------------
 
 echo "RESULT: input_path=$INPUT_ABS"
 echo "RESULT: input_bytes=$INPUT_BYTES"

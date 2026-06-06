@@ -121,7 +121,6 @@ def check_imports(text, source_dir):
     broken = []
     for m in IMPORT_RE.finditer(text):
         path = m.group(1)
-        # Resolve relative to the file's directory; ~ and absolute paths too.
         expanded = Path(path).expanduser()
         if not expanded.is_absolute():
             expanded = source_dir / expanded

@@ -23,16 +23,12 @@ TARGET_DIR="${1:-.}"
 
 ENV_OK=true
 
-# --- pnpm ------------------------------------------------------------------
-
 if command -v pnpm >/dev/null 2>&1; then
   echo "RESULT: pnpm=yes version=$(pnpm --version)"
 else
   echo "RESULT: pnpm=no"
   ENV_OK=false
 fi
-
-# --- node ≥ 22 -------------------------------------------------------------
 
 if command -v node >/dev/null 2>&1; then
   NODE_VERSION=$(node --version | sed 's/^v//')
@@ -48,8 +44,7 @@ else
   ENV_OK=false
 fi
 
-# --- target dir state (informational) --------------------------------------
-
+# Target dir state is informational — it never fails the preflight.
 if [[ ! -d "$TARGET_DIR" ]]; then
   echo "RESULT: target=missing path=$TARGET_DIR"
 elif [[ -f "$TARGET_DIR/package.json" ]] \
@@ -62,8 +57,6 @@ else
   FILE_COUNT=$(find "$TARGET_DIR" -maxdepth 1 -type f \! -name '.*' 2>/dev/null | wc -l | tr -d ' ')
   echo "RESULT: target=clean path=$TARGET_DIR files=$FILE_COUNT"
 fi
-
-# --- verdict ---------------------------------------------------------------
 
 if [[ "$ENV_OK" = true ]]; then
   echo "RESULT: ok=true"

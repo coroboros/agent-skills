@@ -2,8 +2,7 @@
 """Phase 5 JSONL emitter for code-ultrareview.
 
 Maps canonical findings to Conventional Comments JSONL — one record per
-line, ready to pipe through `gh pr comment` or any other line-oriented
-consumer. Label routing:
+line, ready to pipe through `gh pr comment`. Label routing:
 
     🔴 High  + correctness | design-api          → "issue"
     🟠 Medium + (most axes)                       → "suggestion"
@@ -15,23 +14,9 @@ Permalink format is verbatim from Anthropic's `code-review` plugin:
 
     https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>
 
-The full SHA is resolved via `git rev-parse HEAD` against the repo root
-the caller passes in. When owner/repo cannot be derived (no `origin`
-remote, or a non-GitHub URL), the permalink field is omitted from the
-record — never guessed.
-
-CLI:
-    python3 findings_to_jsonl.py \\
-        --findings <validated-findings.jsonl> \\
-        --output <report.jsonl> \\
-        [--repo-root <path>] [--owner-repo <owner/repo>] [--sha <full-sha>]
-
-Each output line is:
-
-    {"label": str, "axis": str, "severity": str, "confidence": int,
-     "location": "<file>:<line>" | "<file>:<start>-<end>", "permalink": str?,
-     "finding": str, "recommendation": str,
-     "validator_score": int?, "validator_reason": str?}
+The full SHA comes from `git rev-parse HEAD` against the caller's repo
+root. When owner/repo cannot be derived (no `origin` remote, or a
+non-GitHub URL), the permalink field is omitted — never guessed.
 """
 
 from __future__ import annotations
@@ -57,11 +42,10 @@ _spec.loader.exec_module(synthesis_core)
 CONFIDENCE_THRESHOLD = synthesis_core.CONFIDENCE_THRESHOLD
 GIT_TIMEOUT_S = 10
 
-# Conventional Comments label vocabulary.
 LABELS = ("issue", "suggestion", "nitpick", "question")
 
-# Severity-aware routing — keys are (severity, axis) for the unverified
-# branch we hard-code separately. Non-listed pairs fall back to "suggestion".
+# (severity, axis) keys; the unverified branch is hard-coded separately in
+# `label_for`. Non-listed pairs fall back to "suggestion".
 _LABEL_ROUTING: dict[tuple[str, str], str] = {
     ("High", "correctness"): "issue",
     ("High", "design-api"): "issue",
@@ -85,11 +69,6 @@ _LOCATION_RANGE = re.compile(r"^(?P<path>.+?):(?P<start>\d+)-(?P<end>\d+)$")
 _LOCATION_LINE = re.compile(r"^(?P<path>.+?):(?P<start>\d+)$")
 
 
-# ---------------------------------------------------------------------------
-# Label routing
-# ---------------------------------------------------------------------------
-
-
 def label_for(finding: dict) -> str:
     """Pick the Conventional Comments label for one finding.
 
@@ -105,11 +84,6 @@ def label_for(finding: dict) -> str:
     severity = str(finding.get("severity", ""))
     axis = str(finding.get("axis", ""))
     return _LABEL_ROUTING.get((severity, axis), "suggestion")
-
-
-# ---------------------------------------------------------------------------
-# Permalink construction
-# ---------------------------------------------------------------------------
 
 
 def parse_location(location: str) -> tuple[str, int | None, int | None]:
@@ -192,11 +166,6 @@ def detect_sha(repo_root: Path) -> str | None:
     return sha
 
 
-# ---------------------------------------------------------------------------
-# Record assembly
-# ---------------------------------------------------------------------------
-
-
 def to_record(
     finding: dict,
     owner_repo: str | None = None,
@@ -243,11 +212,6 @@ def emit(
         yield json.dumps(record, ensure_ascii=False, sort_keys=True)
 
 
-# ---------------------------------------------------------------------------
-# Loading
-# ---------------------------------------------------------------------------
-
-
 def load_findings(path: Path) -> list[dict]:
     """Read line-delimited JSON. Blank lines and `#`-comment lines skipped.
     A malformed line raises — fail loud, no silent drop."""
@@ -264,11 +228,6 @@ def load_findings(path: Path) -> list[dict]:
                     f"{path}:{lineno} — invalid JSON: {exc.msg}"
                 ) from exc
     return findings
-
-
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
 
 
 def main(argv: list[str] | None = None) -> int:

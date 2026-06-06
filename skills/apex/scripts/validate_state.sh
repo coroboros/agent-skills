@@ -54,7 +54,6 @@ fi
 # `seq 1 0` counts down on BSD instead of producing an empty range.
 for ((prior=1; prior<STEP_NUM; prior++)); do
   prior_num=$(printf "%02d" "$prior")
-  # Find the step file (e.g., 01-analyze.md)
   prior_file=$(find "$TASK_DIR" -maxdepth 1 -name "${prior_num}-*.md" | head -1)
 
   if [[ -z "$prior_file" ]] || [[ ! -f "$prior_file" ]]; then
@@ -62,10 +61,8 @@ for ((prior=1; prior<STEP_NUM; prior++)); do
     exit 2
   fi
 
-  # Extract step name from filename: 01-analyze.md → analyze
   step_name=$(basename "$prior_file" .md | sed "s/^${prior_num}-//")
 
-  # Grep the progress table for "| NN-name | ✓ Complete |"
   if ! grep -qE "\|\s*${prior_num}-${step_name}\s*\|\s*✓ Complete" "$CONTEXT"; then
     echo "RESULT: error=step-incomplete step=$prior_num name=$step_name" >&2
     exit 3

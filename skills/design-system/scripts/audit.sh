@@ -27,8 +27,8 @@ fi
 json_tmp="$(mktemp -t design-audit-XXXXXX).json"
 stderr_tmp="$(mktemp -t design-audit-stderr-XXXXXX).log"
 
-# `lint` exits 1 when errors are found but still writes valid JSON to stdout.
-# Treat both exit 0 and exit 1 as "CLI ran successfully"; higher exits are real failures.
+# `lint` exits 1 on findings but still writes valid JSON; only exits >1 are real
+# failures.
 set +e
 npx -y @google/design.md@latest lint "$path" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
@@ -41,7 +41,6 @@ if [[ $rc -gt 1 ]]; then
   exit 1
 fi
 
-# CLI succeeded. The JSON contains .summary.errors, .summary.warnings, .summary.infos, .findings[]
 # Propagate rc so the script is CI-gate friendly: exit 0 if no errors, 1 if errors found.
 echo "RESULT: status=ok"
 echo "RESULT: path=$path"

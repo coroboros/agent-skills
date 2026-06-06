@@ -329,10 +329,6 @@ def normalise_section_heading(heading):
     return text.strip()
 
 
-# ---------------------------------------------------------------------------
-# Inheritance support — `voice.extends` chain resolution and merge
-# ---------------------------------------------------------------------------
-
 MAX_EXTENDS_DEPTH = 5
 
 REPLACE_ALLOWED_FIELDS = frozenset({

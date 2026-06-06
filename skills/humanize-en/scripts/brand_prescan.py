@@ -42,8 +42,6 @@ sys.path.insert(0, str(Path(__file__).parent))
 # cross-skill test runs.
 from prescan import mask_protected_regions  # noqa: E402
 
-# --- Hardcoded whitelist defaults -------------------------------------------
-
 # Common technical acronyms ≥ 3 chars that legitimately appear in body prose.
 # Voice docs may extend via `lexical_exceptions.acronyms`.
 DEFAULT_ACRONYM_WHITELIST = frozenset({
@@ -64,7 +62,6 @@ DEFAULT_COMPOUND_IDIOM_WHITELIST = frozenset({
     "side-by-side", "state-of-the-art",
 })
 
-# --- Minimal YAML parser ----------------------------------------------------
 # Parity counterpart of brand-voice's parse_yaml_minimal — kept here so
 # humanize-en remains self-sufficient when brand-voice is not installed
 # (the `-f` fallback path in SKILL.md). See
@@ -78,11 +75,8 @@ DEFAULT_COMPOUND_IDIOM_WHITELIST = frozenset({
 def parse_yaml_minimal(yaml_text):
     """Parse the BRAND-VOICE.md frontmatter subset of YAML. Returns a dict.
 
-    Parity counterpart of `parse_yaml_minimal` in the brand-voice skill
-    (https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/scripts/utils.py)
-    — when one changes the other must too. ValueError raised on parse error
-    carries a `.line` attribute (1-indexed) for callers that surface the
-    offending line.
+    ValueError on parse error carries a `.line` attribute (1-indexed) for
+    callers that surface the offending line.
     """
     lines = yaml_text.splitlines()
     pos = [0]
@@ -283,9 +277,6 @@ def _split_flow(s):
     return [x.strip() for x in out if x.strip()]
 
 
-# --- Brand rule loading -----------------------------------------------------
-
-
 def load_brand_rules(path):
     """Read a BRAND-VOICE.md file and return its frontmatter dict.
 
@@ -333,8 +324,6 @@ def merge_lexical_exceptions(rules):
 
     return frozenset(acronyms), frozenset(idioms)
 
-
-# --- Brand pattern detectors ------------------------------------------------
 
 _ALL_CAPS_RE = re.compile(r"\b[A-Z]{3,}\b")
 # Boundaries include curly apostrophe (U+2019) so contracted forms `I’m`/`I’ve`
@@ -622,9 +611,6 @@ def detect_emoji(masked_text, source="brand"):
                 "rule_id": "emoji",
             })
     return hits
-
-
-# --- Top-level scan ---------------------------------------------------------
 
 
 def scan_brand(text, rules, strict_code_only=False):

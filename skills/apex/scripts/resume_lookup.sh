@@ -30,7 +30,6 @@ if [[ ! -d "$APEX_DIR" ]]; then
   exit 2
 fi
 
-# Collect matches — prefix-matches first, then substring-matches.
 declare -a PREFIX_MATCHES=()
 declare -a SUBSTRING_MATCHES=()
 
@@ -44,7 +43,6 @@ for dir in "$APEX_DIR"/*/; do
   fi
 done
 
-# Prefer prefix matches when any exist.
 if [[ ${#PREFIX_MATCHES[@]} -gt 0 ]]; then
   MATCHES=("${PREFIX_MATCHES[@]}")
 elif [[ ${#SUBSTRING_MATCHES[@]} -gt 0 ]]; then
@@ -59,7 +57,6 @@ case "${#MATCHES[@]}" in
     exit 2
     ;;
   1)
-    # Strip trailing slash.
     path="${MATCHES[0]%/}"
     echo "$path"
     echo "RESULT: ok=true path=$path"

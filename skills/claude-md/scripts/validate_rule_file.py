@@ -53,7 +53,7 @@ def parse_paths(frontmatter):
         return False, []
 
     inline = m.group(1).strip()
-    # Inline list `paths: [a, b]` — parse it.
+    # Inline list form: `paths: [a, b]`.
     if inline.startswith("[") and inline.endswith("]"):
         inside = inline[1:-1]
         raw_items = [s.strip() for s in inside.split(",") if s.strip()]

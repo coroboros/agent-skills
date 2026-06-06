@@ -109,7 +109,6 @@ def sync(
             "requested": new_value,
         }
 
-    # All sources already match `new_value` — write nothing, surface no-op.
     return {"status": "no-op", "reason": "all sources already match", "canonical": new_value}
 
 

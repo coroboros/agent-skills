@@ -970,7 +970,7 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 **What it does**
 
 1. **Ingests** sources from URL, Notion, MD file, MD directory, or interactive interview
-2. **Synthesises** the canonical format — YAML normative rules (forbidden lexicon, rewrite rules with stable `rule_id`s, sentence norms, forbidden patterns, contexts, pronouns) plus eleven prose sections explaining each rule
+2. **Synthesises** the canonical format — YAML normative rules (forbidden lexicon, rewrite rules with stable `rule_id`s, sentence norms, forbidden patterns, contexts, pronouns) plus eleven prose sections explaining each rule. `sentence_norms` are **measured** from the source corpus via `measure_corpus.py` when it holds ≥ 30 sentences of prose, else estimated
 3. **Lints** every write through `voice_lint.py` — RED never reaches disk
 4. **Diffs** semantically — shows added/removed lexicon, modified rules, prose changes, manual-section preservation
 5. **Surfaces** the rules — `show --rules` emits a flat rule block consumed by `humanize-en -f` and pipeable to other tooling
@@ -997,6 +997,7 @@ Globs every `BRAND-VOICE*.md` under the root and lints each. Exit 1 on any RED. 
 
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — the architectural pattern this skill mirrors (canonical project-root file, lifecycle subcommands)
 - [Wikipedia: Signs of AI writing](https://en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing) — overlap with universal AI-tells; `humanize-en` consumes the brand voice rules in addition
+- [Spiral by Every](https://every.to/on-every/introducing-spiral-v3-an-ai-writing-partner-with-taste) — the stylometry-from-corpus approach that inspired corpus-grounded `sentence_norms` (sentence-length distribution and punctuation conventions via `measure_corpus.py`)
 
 ---
 

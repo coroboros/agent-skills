@@ -119,7 +119,6 @@ def resolve_inputs(repo: Path, inputs: list) -> list:
                 freshness_days=-1,
             ))
             continue
-        # Otherwise treat as a path.
         path = Path(token).expanduser()
         if not path.is_absolute():
             path = (repo / path).resolve()
