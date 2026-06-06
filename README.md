@@ -970,7 +970,7 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 **What it does**
 
 1. **Ingests** sources from URL, Notion, MD file, MD directory, or interactive interview
-2. **Synthesises** the canonical format — YAML normative rules (forbidden lexicon, rewrite rules with stable `rule_id`s, sentence norms, forbidden patterns, contexts, pronouns) plus eleven prose sections explaining each rule
+2. **Synthesises** the canonical format — YAML normative rules (forbidden lexicon, rewrite rules with stable `rule_id`s, sentence norms, forbidden patterns, contexts, pronouns) plus eleven prose sections explaining each rule. `sentence_norms` are **measured** from the source corpus via `measure_corpus.py` when it holds ≥ 30 sentences of prose, else estimated
 3. **Lints** every write through `voice_lint.py` — RED never reaches disk
 4. **Diffs** semantically — shows added/removed lexicon, modified rules, prose changes, manual-section preservation
 5. **Surfaces** the rules — `show --rules` emits a flat rule block consumed by `humanize-en -f` and pipeable to other tooling

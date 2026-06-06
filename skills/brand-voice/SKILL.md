@@ -202,6 +202,7 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 - [`references/schemas.md`](./references/schemas.md) — JSON shape for `voice_lint.py`, plain-text shape for `extract_rules.py`. Stable contract for downstream consumers.
 - [`scripts/voice_lint.py`](./scripts/voice_lint.py) — validates a `BRAND-VOICE.md`, walks `voice.extends` chain, emits `chain` and `merged_stats` when inheritance applies. Python 3.7+, no third-party deps.
 - [`scripts/extract_rules.py`](./scripts/extract_rules.py) — emits flat testable rules. Resolves `voice.extends` chain by default. `--full` (default) includes `core_attributes`/`contexts`/`source_urls`; `--legacy` emits the v1 minimal output. Consumed by `humanize-en -f`.
+- [`scripts/measure_corpus.py`](./scripts/measure_corpus.py) — measures stylometric stats from a prose corpus; `--as-sentence-norms` emits a `sentence_norms` dict (or `null` below the 30-sentence threshold) for `extract` to use in place of estimated bounds. Python 3.7+, stdlib only.
 - [`scripts/lint_all.py`](./scripts/lint_all.py) — globs every `BRAND-VOICE*.md` under a root and lints each. Single-command audit for the parent-change blast-radius problem: a parent edit that breaks N children surfaces as N RED verdicts. CI-friendly; recommended in pre-merge hooks.
 - [`scripts/utils.py`](./scripts/utils.py) — shared I/O helpers, chain resolution (`resolve_extends_chain`), merge engine (`merge_voice_dicts`, `apply_replace_overrides`, `apply_remove_overrides`). Not invoked directly.
 

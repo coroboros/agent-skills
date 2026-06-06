@@ -83,8 +83,19 @@ Read `references/canonical-format.md` for the schema, `references/example-chanel
 
 Synthesise the working draft into the canonical format:
 
-- **YAML frontmatter** — fill `voice.name`, `voice.source_urls`, `voice.last_updated` (today's date in ISO), `voice.source` (`extract` or `interview`). Populate `forbidden_lexicon`, `rewrite_rules` (with kebab-case `rule_id`s), `sentence_norms` (numeric where possible, fall back to defaults from interview if absent), `forbidden_patterns`, `contexts`, `pronouns`.
+- **YAML frontmatter** — fill `voice.name`, `voice.source_urls`, `voice.last_updated` (today's date in ISO), `voice.source` (`extract` or `interview`). Populate `forbidden_lexicon`, `rewrite_rules` (with kebab-case `rule_id`s), `sentence_norms` (measured from the corpus when possible — see below), `forbidden_patterns`, `contexts`, `pronouns`.
 - **Eleven prose sections** — write each section drawing from the working draft. For `## 10. Counter-examples`, generate 3-5 real bad rewrites showing what the rules prevent (do not skip — this section makes the doc actionable for downstream skills).
+
+**Ground `sentence_norms` in the corpus.** Before the LLM fills `sentence_norms`, measure the aggregated source prose. Write it to a temp file and run:
+
+```bash
+python3 ${CLAUDE_SKILL_DIR}/scripts/measure_corpus.py --as-sentence-norms /tmp/<corpus>.md
+```
+
+- A JSON object → use those `sentence_norms` verbatim. They are measured, reproducible across runs, and ordered so `voice_lint` accepts them by construction.
+- `null` (corpus under the 30-sentence threshold) or a non-zero exit → keep the LLM/interview estimate. A measurement failure never aborts extraction.
+
+Interview mode and thin single-URL extractions fall through to the estimate — there is no corpus to measure.
 
 Apply the synthesised voice to the prose itself: the doc must pass its own filter (no marketing voice if the brand forbids it, no rule-of-three if `forbidden_patterns` lists it, etc.). The brand voice doc is its own first reader.
 
@@ -111,6 +122,7 @@ URL  https://example.com/about           → 12 rules, 24 lexicon terms, 5 attri
 File ~/notes/style.md                    → 4 rules, 8 lexicon terms, 1 context
                                             (skipped: 2 entries that conflicted with primary URL)
 
+sentence_norms: measured (34 sentences)     # or: estimated (corpus under 30-sentence threshold)
 Lint: GREEN (0 errors, 0 warnings)
 File: ./BRAND-VOICE.md (231 lines, 11 sections, 11 rules, 26 forbidden lexicon)
 
