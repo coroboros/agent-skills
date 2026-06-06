@@ -738,6 +738,8 @@ Three artifact tiers, scaffolded progressively:
 - **ALBUM.md** — emitted only when album mode is detected from the brief. Holds concept, arc, tracklist with BPM/key flow, transitions.
 - **ARTIST.md** — optional artist-identity layer, **artist-scoped** (one file referenced from many album folders via `-f`). Declares Voice profile, Custom Model, recurring instrumentation, rights/compliance posture. The filename is `ARTIST.md` rather than the alternative `MUSIC.md` because the contents describe an artist persona, not music — a deliberate evolution of the open standard.
 
+On request, `create` also draws on a songwriting-craft reference (song structure, rhyme, meter, hook, prosody) to help write singable lyrics — supplied lyrics stay verbatim.
+
 **Usage**
 
 ```bash

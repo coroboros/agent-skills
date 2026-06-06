@@ -16,6 +16,7 @@ The reference for composing the two prompt-bearing fields in Suno v5.5: the **St
 - [Inline performance cues](#inline-performance-cues)
 - [Lyric flow and pacing](#lyric-flow-and-pacing)
 - [Languages and code-switching](#languages-and-code-switching)
+- [Phonetic and delivery control](#phonetic-and-delivery-control)
 - [SFX bracket tags — do not deploy](#sfx-bracket-tags--do-not-deploy)
 - [Section length — bar counts belong in Studio](#section-length--bar-counts-belong-in-studio)
 - [Consolidated pitfalls](#consolidated-pitfalls)
@@ -370,6 +371,16 @@ For proper nouns and unusual phonemes, write phonetic spelling:
 ```
 
 Best supported languages: English, Spanish, Portuguese, French, Japanese, Korean, Mandarin. Other languages produce accented or imprecise pronunciation.
+
+## Phonetic and delivery control
+
+AI vocalists don't read — they pronounce. The punctuation table and vowel elongation (`Loooove`) under *Lyric flow and pacing* shape pacing and sustain; the phonetic respelling under *Languages and code-switching* fixes unusual proper nouns. Three more delivery controls:
+
+- **ALL CAPS = louder, more intense.** Capitalise a word or line to push the delivery harder at that spot.
+- **Spell out numbers; read symbols as words.** `24/7` → `twenty four seven`. Digits and symbols get read inconsistently.
+- **Space or hyphenate acronyms.** `AI` → `A I` or `A-I`, so the model says the letters instead of guessing a word.
+
+**Test risky pronunciations early.** Proper nouns and coined words are the highest failure rate. Audition them in a short clip before a full generation — once a take renders, pronunciation is baked into that audio. Fix it in the Lyrics field and regenerate; you cannot correct it after the take exists.
 
 ## SFX bracket tags — do not deploy
 
