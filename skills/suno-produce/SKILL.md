@@ -17,6 +17,7 @@ metadata:
     - blakecrosley.com/guides/suno
     - stokemctoke.com/the-complete-suno-ai-meta-tags-guide/
     - www.suno.wiki/faq/metatags/
+    - github.com/NousResearch/hermes-agent/blob/main/skills/creative/songwriting-and-ai-music/SKILL.md
 ---
 
 # Suno Produce
@@ -155,7 +156,7 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 
 ## When to defer to another skill
 
-- **Pure lyric writing without Suno target** → a generic writing skill. The lyric format here includes bracket metatags and cues that read awkwardly elsewhere.
+- **Lyric craft for a Suno track** (structure, rhyme, meter, hook, prosody) → lives here; see [`references/songwriting-craft.md`](./references/songwriting-craft.md). **Non-musical prose with no Suno target** (essays, marketing copy) → a generic writing skill. The lyric format here includes bracket metatags and cues that read awkwardly elsewhere.
 - **Broad music research** ("what's working in 2026 indie folk") → `/forge`, then `-f` the brief back into this skill.
 - **Audio post-production** → `/audio-loop` for web loops; Suno Studio 1.2 (Remove FX, Warp Markers) for everything else.
 - **Voice profile registration** — out of scope. Register Voices and train Custom Models in Suno's UI; this skill only consumes them via ARTIST.md.
@@ -165,7 +166,8 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 ## Reference
 
 - [`steps/create.md`](./steps/create.md), [`revise.md`](./steps/revise.md), [`validate.md`](./steps/validate.md) — per-subcommand workflows.
-- [`references/style-and-lyrics.md`](./references/style-and-lyrics.md) — descriptor stack, genre fusion, vocal/production direction, BPM/key, bracket metatag canon, lyric flow, languages, SFX warning, translated stacks for artist requests.
+- [`references/style-and-lyrics.md`](./references/style-and-lyrics.md) — descriptor stack, genre fusion, vocal/production direction, BPM/key, bracket metatag canon, lyric flow, languages, phonetic/delivery control, SFX warning, translated stacks for artist requests.
+- [`references/songwriting-craft.md`](./references/songwriting-craft.md) — lyric craft for singability: song structure, rhyme types, meter/stress, emotional arc, hook, prosody. Consulted during `create` when the user wants help writing lyrics.
 - [`references/sliders-and-personalization.md`](./references/sliders-and-personalization.md) — Creative Sliders, voice/model-aware prompting, voice+model stacking, My Taste.
 - [`references/genre-templates.md`](./references/genre-templates.md) — 8 copy-paste-ready v5.5 recipes (cinematic, melodic techno, melodic trap, alt rock, ambient drone, indie pop, ritual industrial, lo-fi hip-hop).
 - [`references/track-schema.md`](./references/track-schema.md) — TRACK / ALBUM / ARTIST schemas + project folder layout + worked example.
