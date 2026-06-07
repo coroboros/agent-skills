@@ -72,8 +72,8 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
 | Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
 | Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review — Correctness · Simplification · Tests · Documentation · Style · Intent · Design/API · Performance (+ Coherence on metadata changes). 5-phase pipeline: scope → npx/uvx tool battery → 8 parallel axis reviewers → Haiku validators on sub-80 → synthesis with A2 no-silent-drop + Conventional Comments JSONL. Closes with "What I did NOT check" — defers security to `/security-review`, runtime perf, flaky detection. Zero auto-install, graceful skip on missing native tools. Opt-in `--verify-build` / `--mutation-test` / `--reconcile` / `--apply-safe`. Distinct from Anthropic's remote `/ultrareview` | Claude |
-| Design | [award-design](#award-design) | opus | Build award-winning websites — archetype, atmosphere, DESIGN.md | Claude |
-| Design | [design-system](#design-system) | opus | Govern DESIGN.md — token enforcement + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
+| Design | [award-design](#award-design) | opus | Code-first award-winning sites — archetype, atmosphere, build first, optional DESIGN.md | Claude |
+| Design | [design-system](#design-system) | opus | Govern an existing DESIGN.md — token enforcement (steps aside when none) + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
 | Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
 | Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
 | Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points | Claude |
@@ -377,7 +377,7 @@ Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-de
 
 #### award-design
 
-Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. Recommends a design archetype, calibrates atmosphere, and produces a complete DESIGN.md following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) — YAML frontmatter design tokens plus eight prose sections, validated by the `@google/design.md` CLI.
+Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. **Code-first:** builds the site first — no upfront DESIGN.md required (the file ritual is dropped, never the craft). It recommends a design archetype, calibrates atmosphere, commits a compact inline token block, then builds against real judging criteria at maximum effort. Three modes: **Direct** (default, no file), **Adapt** (an existing DESIGN.md is the source of truth), **Persist** (opt-in — after the build, crystallize a full DESIGN.md following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md), validated by the `@google/design.md` CLI). The build closes on a two-gate check: a HARD gate that can fail (countable anti-slop checks, tooling thresholds) and a SOFT advisory rubric.
 
 **Usage**
 
@@ -409,11 +409,11 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 - **DNA + common expressions** — each archetype reference splits non-negotiable identity from 2–4 named expressions (e.g., Immersive: cinematic-dark / editorial-portrait / daylight-automotive). Prevents force-fitting a single style lock onto an archetype that admits multiple valid expressions.
 - **Brief signal → first-pass routing** — vocabulary lookup table for the recommendation step (`luxury` → Corporate Luxury, `bento`/`feature grid` → Bento, `bespoke nav` → Experimental, etc.) with the user validating before commit
 - **Atmosphere Calibration** — Density, Variance, Motion scores (1–10) make design measurable, with concrete CSS heuristics per band (`Density 2-3` → `py-32` to `py-48`; `Motion 7-10` → GSAP ScrollTrigger pin/scrub on hero)
-- **Pre-DESIGN.md plan block** — five-bullet pre-plan (brief, archetype + expression, atmosphere, signature moment, photography/copy register) is the contract for the file; if it doesn't ring true, restart from step 1
+- **Inline token block** — the five-bullet pre-plan (brief, archetype + expression, atmosphere, signature moment, photography/copy register) is committed to a compact YAML token block before any JSX — the value-coherence forcing function that keeps color, type, and spacing consistent without authoring a full file; if it doesn't ring true, restart from Phase 1
 - **Anti-AI tells** — 12 axiomatic rejections (any hit is stop-and-fix) + full catalog of patterns that betray AI generation (visual, typography, layout, content, technical)
 - **Output discipline** — banned-phrase list (`// TODO`, `// ...`, "for brevity", "let me know if you want me to continue", `[remaining sections similar]`) plus continuation marker (`[PAUSED — N of 8 sections complete]`) for clean token-ceiling splits
 - **Premium patterns** — Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule + Hero Scale taxonomy, mobile-collapse mandates, performance locks, **Liquid Glass Refraction** (Apple WWDC 2025 register), **Inline Typography Images** (image-as-glyph signature pattern), **Perpetual Micro-Interactions** (Motion ≥ 5 mandate)
-- **Audit rubric** — quantitative 0–10 scoring across 7 dimensions (Hierarchy, Spacing, Typography, Color, Motion, Accessibility, Anti-slop) with P0/P1 punch list and CSS fixes
+- **Two-gate quality close** — a HARD gate that can fail (countable, archetype-scoped anti-slop checks + `/design-system audit` when a DESIGN.md exists + Lighthouse/dev-browser thresholds) and a SOFT advisory rubric: 0–10 scoring across 7 dimensions (Hierarchy, Spacing, Typography, Color, Motion, Accessibility, Anti-slop) with a P0/P1 punch list and CSS fixes, reported as commentary — never a self-graded pass. A no-DESIGN.md build stays fully scorable
 - **Exemplars** — canonical-from-article reference + 4–5 substitutable peers per archetype (Terminal, Lando, Siena, Bruno Simon, Cartier WAW, Anime.js, Ponpon, FlowFest…) shared during recommendation
 - **Composition variety mandates** — across multi-section pages, ≥3 different composition anchors, varied background mode per section, CTA shape varied at least once, mixed section ambition (large/mini/medium)
 - **Creativity escalation** — push at least three axes beyond the generic SaaS template (composition, typography, hero scale, image treatment, section rhythm, framing); if the design could pass for default Tailwind output, escalate
@@ -433,19 +433,19 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 
 - [Award-winning websites 2025-2030 (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/award-winning-websites-2025-2030/award-winning-websites-2025-2030.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
-- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
+- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md this skill crystallizes; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
 - [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
 
-Produces `DESIGN.md` consumed by `design-system` for ongoing governance. Token-level changes go through `/design-system` — this skill is for initial creation and complete re-architecting only.
+Builds the site first; a DESIGN.md is optional. When one exists — adapted at the start or crystallized by the opt-in Persist step after the build — `design-system` governs it. Ownership is clean: award-design creates and crystallizes the file; `design-system` governs it and never authors one from scratch. Token-level changes go through `/design-system`; this skill covers the build, a complete re-architect, and crystallization.
 
 ---
 
 #### design-system
 
-Govern `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing, and exposes seven CLI-backed subcommands for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
+Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit and never authors a design file from scratch (that is `/award-design`'s job; it builds code-first, then crystallizes a DESIGN.md on request). Exposes seven CLI-backed subcommands for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
 
 **Requirements**
 
@@ -533,7 +533,7 @@ Section order:
 
 **CLI-backed lint rules** — eight rules run by `audit` (and `diff` for regression detection): `broken-ref` (error), `missing-primary`, `contrast-ratio` (WCAG AA 4.5:1), `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. **Project-side rules** added by `audit-extensions`: `extension-missing-css` (error), `extension-orphan-css` (warning, error under `--strict`), `extension-broken-ref` (error). See `references/cli-reference.md` for severities and fix strategies; `references/subcommand-audit.md` and `references/subcommand-audit-extensions.md` for the per-rule fix-proposal logic.
 
-Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference (`references/cli-reference.md`), seven subcommand reference files (`references/subcommand-*.md`), the extended-tokens convention (`references/extended-tokens.md`), four deterministic scripts (`scripts/{audit,diff,export,audit-extensions}.sh` plus `audit_extensions.py`), and two complete example DESIGN.md files (`references/example-claude.md` — warm editorial with extension showcase, `references/example-stripe.md` — minimalist gradient). Delegates to `/award-design` when a DESIGN.md needs to be created from a brief.
+Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference (`references/cli-reference.md`), seven subcommand reference files (`references/subcommand-*.md`), the extended-tokens convention (`references/extended-tokens.md`), four deterministic scripts (`scripts/{audit,diff,export,audit-extensions}.sh` plus `audit_extensions.py`), and two complete example DESIGN.md files (`references/example-claude.md` — warm editorial with extension showcase, `references/example-stripe.md` — minimalist gradient). Never authors a design file from scratch — `/award-design` creates and crystallizes the DESIGN.md (it holds the archetype rationale); design-system governs it from there.
 
 **Sources**
 
@@ -1135,15 +1135,17 @@ Happy path, new project:
 ```
 /scaffold next-cloudflare              bootstrap project
       |
-/award-design "brief"                  create DESIGN.md with archetype + extension namespaces
+/award-design "brief"                  build the site (code-first) — no DESIGN.md required
       |
-/design-system audit                   lint canonical tokens, fix findings
+/award-design  (Persist, opt-in)       crystallize a DESIGN.md from the build, when you want consistency
+      |
+/design-system audit                   lint the crystallized tokens, fix findings
       |
 /design-system export tailwind         generate tailwind.theme.json (canonical)
       |
 /design-system audit-extensions        verify YAML extensions ↔ globals.css @theme are in sync
       |
-/design-system                         enforce tokens going forward (auto-activate on UI edits)
+/design-system                         enforce tokens going forward (auto-activate; steps aside if no DESIGN.md)
 ```
 
 Legacy project with a Stitch 9-section DESIGN.md:

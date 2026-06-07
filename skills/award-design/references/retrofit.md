@@ -71,7 +71,7 @@ Some interventions cost more than they return. Skip these unless the brief expli
 
 ## After the retrofit
 
-Run the same validation flow as a new project (SKILL.md step 9):
+Run the same validation flow as a new project (SKILL.md Phase 4 — the two-gate close):
 
 1. `references/anti-patterns.md` — axiomatic rejections first; if any present, the retrofit isn't done.
 2. `references/audit-rubric.md` — score the seven categories. The retrofit target is +2 points per category from the pre-fix baseline.
