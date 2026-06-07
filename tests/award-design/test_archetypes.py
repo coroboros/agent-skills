@@ -47,6 +47,7 @@ CROSS_CUTTING = [
     "production-hardening.md",
     "remixing.md",
     "retrofit.md",
+    "ship-ready-floor.md",
 ]
 
 

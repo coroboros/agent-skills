@@ -77,13 +77,15 @@ Apply premium components (`references/premium-patterns.md`) — Doppelrand neste
 
 When implementation touches video, scroll-driven cinematic reveals, or full-screen heroes on mobile, read `references/production-hardening.md` (viewport units, autoplay belt-and-suspenders, fail-safe reveal logic, proportional layout, iOS Safari quirks). Skip if desktop-only with no video or scroll choreography.
 
+Offer the production tier as one opt-in question gated on brief and archetype — force-static/prerender, blur-up placeholders, web manifest, sitemap/robots, and a JSON-LD template (`references/ship-ready-floor.md` Offer + Template tiers). Build only what the user accepts; a single-fold build needs none of it, so never auto-build these.
+
 Build mobile-first, then close with the **two-gate quality check** — one gate that can fail, one that only advises. A model grading its own JSX "9/10" is theater, so the pass/fail rests on externally-checkable signals; the subjective rubric stays commentary.
 
 **HARD gate — must pass to ship.** Deterministic, pass/fail:
 
 - The countable checks in `references/anti-patterns.md` § *Countable checks* (eyebrow ≤ ceil(sections/3), N items → N bento cells, archetype-scoped em-dash density, per-hex banned palette, hero-stack / CTA-intent / zigzag / marquee / layout-family caps) plus every axiomatic rejection — any violation is stop-and-fix, cited with the count.
 - Imagery floor (`references/imagery.md`): the hero carries a real visual and no UI is faked out of divs — axiomatic, cited on failure.
-- `references/foundations.md` UX Quality + Accessibility (touch targets, focus-visible, safe areas) — met.
+- Ship-ready floor (`references/ship-ready-floor.md`) Impose tier — interactive cycles, control contrast, cursor/focus affordance, skip-link, semantic landmarks, canonical/hreflang, favicon/OG, theme-color, reduced-motion (detail in `references/foundations.md` UX Quality + Accessibility) — present.
 - **Only when a DESIGN.md exists:** `/design-system audit <path>` and `audit-extensions <path>` clean. Skipped with no penalty otherwise — a Direct build is judged on its own output, never failed for lacking a token file.
 - Where tooling exists: Lighthouse Performance + Accessibility ≥ 90; LCP < 1.5s, CLS < 0.05, INP < 100ms. With `dev-browser` installed, screenshot key states (hero, mobile, signature interaction, dark mode); install from `https://github.com/SawyerHood/dev-browser` if absent.
 
