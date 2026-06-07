@@ -257,5 +257,54 @@ class TestShipReadyFloor(unittest.TestCase):
                         "the signature moment must precede (outrank) the ship-ready floor")
 
 
+class TestMotionVocabulary(unittest.TestCase):
+    """The harvest consolidated the missing scroll skeletons and the signature
+    easing lexicon into foundations.md Animation Toolkit, plus a GSAP
+    reduced-motion gate, and added a brief signal → dial inference table to
+    atmosphere-calibration.md. Posture stays CSS-native-first with no mandated
+    runtime dependency or npx author-time step."""
+
+    def setUp(self):
+        self.foundations = _read(REFS / "foundations.md")
+        self.calibration = _read(REFS / "atmosphere-calibration.md")
+
+    def test_sticky_stack_skeleton_present(self):
+        self.assertIn("Sticky-stack", self.foundations, "sticky-stack skeleton missing")
+        # pinSpacing:false is the defining detail — and is new to this file.
+        self.assertIn("pinSpacing: false", self.foundations,
+                      "sticky-stack must set pinSpacing: false")
+
+    def test_horizontal_pan_skeleton_present(self):
+        self.assertIn("Horizontal-pan", self.foundations, "horizontal-pan skeleton missing")
+        self.assertRegex(self.foundations, r"ease:\s*'none'",
+                         "horizontal-pan must use ease: 'none' (1:1 with scroll)")
+
+    def test_signature_easing_lexicon_present(self):
+        for ease in ("back.out(1.7)", "elastic.out(1, 0.3)", "CustomEase"):
+            with self.subTest(ease=ease):
+                self.assertIn(ease, self.foundations, f"easing lexicon missing: {ease}")
+        # CSS linear() physics-easing strings (distinct from linear-gradient).
+        self.assertIn("--ease-spring:", self.foundations,
+                      "CSS linear() physics-easing strings must be present")
+
+    def test_gsap_reduced_motion_gate_present(self):
+        self.assertIn("gsap.matchMedia()", self.foundations,
+                      "GSAP reduced-motion gate (matchMedia) must be present")
+        self.assertIn("prefers-reduced-motion: reduce", self.foundations)
+
+    def test_no_npx_author_time_dependency(self):
+        self.assertNotIn("npx ", self.foundations,
+                         "motion vocabulary must not introduce an npx author-time step")
+
+    def test_signal_to_dial_inference_table(self):
+        self.assertIn("Signal → dial inference", self.calibration,
+                      "atmosphere-calibration.md must carry the signal → dial inference table")
+        cal = self.calibration.lower()
+        self.assertIn("dashboard-like", cal, "inference table must map a representative signal")
+        # Contradictions surface, never average — the behavior rule the table must honor.
+        self.assertIn("never average", cal,
+                      "conflicting signals must surface as a contradiction, not be averaged")
+
+
 if __name__ == "__main__":
     unittest.main()

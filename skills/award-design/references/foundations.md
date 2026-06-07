@@ -223,6 +223,80 @@ Scoped transitions (Chrome 140+), React `<ViewTransition />` integration.
 
 `animation-trigger` (Chrome 145) enables scroll-triggered time-based animations.
 
+### Signature scroll skeletons
+
+Two scroll choreographies cover most signature moments. Both are GSAP — reach for it only when the signature needs it; default to CSS Scroll-Driven Animations (above) for routine reveals. No library is mandated and no build-time `npx` step is introduced; GSAP loads at runtime only when a signature moment calls for it.
+
+**Sticky-stack** (panels pin and stack as you scroll):
+
+```javascript
+ScrollTrigger.create({
+  trigger: '.panel',
+  start: 'top top',          // pin the moment its top hits the viewport top
+  end: '+=100%',
+  pin: true,
+  pinSpacing: false,         // stacked panels share scroll space — no taller page
+});
+```
+
+`pinSpacing: false` is what makes panels stack instead of pushing the page taller — the defining detail of the pattern.
+
+**Horizontal-pan** (vertical scroll drives horizontal travel):
+
+```javascript
+gsap.to('.track', {
+  x: () => -(track.scrollWidth - innerWidth),
+  ease: 'none',              // 1:1 with scroll, never an eased curve
+  scrollTrigger: {
+    trigger: '.track',
+    pin: true,
+    scrub: 1,
+    end: () => '+=' + (track.scrollWidth - innerWidth),  // distance == travel
+  },
+});
+```
+
+`ease: 'none'` with an `end` equal to the travel distance keeps the pan locked to the scrollbar.
+
+### Signature easing lexicon
+
+The easing IS the personality. Generic `ease` / `ease-in-out` is the motion equivalent of Inter on an H1.
+
+- `back.out(1.7)` — overshoot-and-settle; entrances with character.
+- `elastic.out(1, 0.3)` — springy bounce; playful, Bold / Maximal.
+- `expo.out` / `power4.out` — fast-then-glide; cinematic reveals.
+- `CustomEase.create('signature', 'M0,0 C0.2,1 0.3,1 1,1')` — a bespoke curve when the brand owns its motion.
+
+CSS-native equivalent, no library — `linear()` interpolates a spring or curve as a CSS string:
+
+```css
+:root {
+  --ease-spring:   linear(0, 0.13 3%, 0.5 9%, 0.9 18%, 1.04 26%, 0.99 42%, 1);
+  --ease-out-expo: linear(0, 0.6 8%, 0.86 16%, 0.96 24%, 1 40%);
+}
+.card { transition: transform 0.6s var(--ease-spring); }
+```
+
+Pin durations and eases to `motion.*` extension tokens; never author easings ad-hoc per component. Linear (constant-velocity) easing stays banned for UI transitions — see anti-patterns; `ease: 'none'` above is the deliberate exception for scrubbed scroll.
+
+### Reduced-motion gate (GSAP)
+
+Wrap every GSAP timeline in `gsap.matchMedia()` so reduced-motion users get the reduced branch and everyone else the full one — set up and torn down automatically on the media-query flip.
+
+```javascript
+const mm = gsap.matchMedia();
+mm.add('(prefers-reduced-motion: no-preference)', () => {
+  const tl = gsap.timeline({ scrollTrigger: { trigger: '.hero', start: 'top top', scrub: 1, pin: true } });
+  tl.from('.headline', { yPercent: 20, autoAlpha: 0 });
+  return () => tl.kill();   // cleanup runs on flip
+});
+mm.add('(prefers-reduced-motion: reduce)', () => {
+  gsap.set('.headline', { autoAlpha: 1, clearProps: 'all' });
+});
+```
+
+This is the JS counterpart to the CSS `@media (prefers-reduced-motion)` block in *Accessibility* — both must be present when GSAP drives the signature moment.
+
 ## Premium component patterns
 
 Concrete component techniques (Doppelrand nested architecture, Button-in-Button trailing icon, eyebrow tags, hero 2-line iron rule, mobile-collapse mandates, perpetual-animation isolation, magnetic-physics performance lock, backdrop-filter scope, grain-overlay isolation) live in `premium-patterns.md`. Load that reference when component architecture matters — particularly for Corporate Luxury, Spatial Organic, Bento (motion-engine variant), and Bold/Maximal projects. The patterns lift Hierarchy and Spacing audit scores by 1–2 points each and apply across archetypes.

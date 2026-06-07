@@ -28,6 +28,24 @@ Adjust ±2 based on the brief.
 
 Use these to resolve design ambiguity: "More whitespace here?" → check Density. "Break the grid?" → check Variance. "Need scroll animation?" → check Motion. Record final calibrated scores in `DESIGN.md`.
 
+## Signal → dial inference
+
+Read the brief's vocabulary to set the starting dials, then apply the ±2 archetype adjustment. When a signal fires, nudge the named axis; multiple signals compound. This makes calibration deterministic instead of intuitive.
+
+| Brief signal | Density | Variance | Motion |
+|---|---|---|---|
+| "data-rich", "dashboard-like", "dense", "information" | +2 | — | — |
+| "airy", "spacious", "gallery", "breathing room" | −2 | — | — |
+| "playful", "Gen Z", "bold", "energetic", "fun" | — | +2 | +2 |
+| "restrained", "quiet", "refined", "understated", "luxury" | −1 | −2 | −1 |
+| "editorial", "magazine", "long-form", "reading-first" | — | +1 | −1 |
+| "experimental", "bespoke", "rule-breaking", "art-directed" | — | +3 | +1 |
+| "cinematic", "immersive", "scrolltelling", "video-first" | — | +1 | +3 |
+| "corporate", "enterprise", "trustworthy", "B2B" | +1 | −1 | −1 |
+| "calm", "wellness", "organic", "natural" | −1 | — | −1 |
+
+Apply to the archetype's default scores, then clamp to 1–10. Conflicting signals (a brief that is both "dense" and "airy") are a brief contradiction — surface it, never average the two. The table sets a starting point; the archetype reference and the brief's specifics refine it.
+
 ## Dial → CSS heuristics
 
 Concrete starting points per band; the archetype reference refines them.
