@@ -126,5 +126,70 @@ class TestSerifOverexposureReconciled(unittest.TestCase):
         )
 
 
+class TestImageryProtocol(unittest.TestCase):
+    """Imagery is the largest single missing imposition. references/imagery.md
+    carries the protocol; two axiomatic rejections wire it into the HARD gate;
+    SKILL.md loads it during the build and names it at the gate. The protocol
+    reaches for generated / seeded / honest-placeholder assets — never stock."""
+
+    def setUp(self):
+        self.imagery = _read(REFS / "imagery.md")
+        self.anti = _read(REFS / "anti-patterns.md")
+        self.skill = _read(SKILL_MD)
+
+    def test_imagery_reference_covers_protocol(self):
+        for marker in ("Zero images is a bug", "No fake-div screenshots",
+                       "Real brand logos", "Acquisition priority order"):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, self.imagery, f"imagery.md missing section: {marker}")
+
+    def test_acquisition_order_is_generate_seed_placeholder(self):
+        order = self.imagery.lower()
+        gen = order.find("generate it")
+        seed = order.find("seed a real source")
+        placeholder = order.find("labeled placeholder + tell the user")
+        self.assertTrue(
+            0 <= gen < seed < placeholder,
+            "acquisition order must be generate → seed → labeled placeholder",
+        )
+
+    def test_real_logo_sources_and_variants(self):
+        self.assertIn("Simple Icons", self.imagery, "logo protocol must name Simple Icons")
+        self.assertIn("devicon", self.imagery, "logo protocol must name devicon")
+        self.assertIn("light and dark variants", self.imagery.lower(),
+                      "logos must ship light + dark variants")
+
+    def test_protocol_never_forces_stock(self):
+        self.assertIn("stock photography is not on this list", self.imagery.lower(),
+                      "the imagery protocol must explicitly exclude stock photography")
+
+    def test_two_imagery_axioms_route_to_protocol(self):
+        m = re.search(r"## Axiomatic rejections(.*?)(?=^## )", self.anti,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "Axiomatic rejections section missing")
+        axioms = m.group(1)
+        self.assertRegex(axioms, r"13\.\s+\*\*Never ship a hero with no real visual",
+                         "axiom 13 (hero needs a real visual) missing")
+        self.assertRegex(axioms, r"14\.\s+\*\*Never hand-roll fake product screenshots",
+                         "axiom 14 (no fake-div screenshots) missing")
+        self.assertGreaterEqual(axioms.count("imagery.md"), 2,
+                                "both imagery axioms must cite the protocol file")
+
+    def test_hero_visual_axiom_has_typographic_override(self):
+        line = next((ln for ln in self.anti.splitlines()
+                     if "Never ship a hero with no real visual" in ln), "")
+        self.assertTrue(line, "hero-visual axiom missing")
+        self.assertIn("typographic", line.lower(),
+                      "hero-visual axiom must carry the deliberate-typographic-hero override")
+
+    def test_skill_md_wires_imagery_into_gate(self):
+        self.assertIn("references/imagery.md", self.skill,
+                      "SKILL.md must reference references/imagery.md")
+        m = re.search(r"\*\*HARD gate.*?(?=\*\*SOFT gate)", self.skill, re.DOTALL)
+        self.assertIsNotNone(m, "HARD gate block missing from Phase 4")
+        self.assertIn("Imagery floor", m.group(0),
+                      "the HARD gate must name the imagery floor")
+
+
 if __name__ == "__main__":
     unittest.main()
