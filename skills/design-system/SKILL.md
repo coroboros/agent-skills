@@ -196,7 +196,7 @@ Examples of token-affecting changes:
 
 ### Re-architecting
 
-A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Use `/award-design` to restart the archetype selection and produce a new DESIGN.md. The old file is replaced entirely; do not patch it.
+A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Use `/award-design` to rebuild from a fresh archetype — it builds the new design code-first. Any existing DESIGN.md is replaced whole on Persist, never patched in place.
 
 ## Gotchas
 

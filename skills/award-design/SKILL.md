@@ -1,9 +1,10 @@
 ---
 name: award-design
-description: Build award-winning websites (Awwwards SOTD 7.5+, FWA, CSSDA). Code-first — ships a built site fast, no DESIGN.md required. Recommends the best archetype for the brief, calibrates atmosphere, commits an inline token block, then builds against real judging criteria with anti-AI-slop rules. Adapts to an existing DESIGN.md when one is present; offers to crystallize one after the build. Use for landing pages, portfolios, product sites, or any web interface that must look exceptional — not for dashboards or internal tools.
+description: Build award-winning websites (Awwwards SOTD 7.5+, FWA, CSSDA). Code-first — builds the site first, no upfront DESIGN.md required (the file ritual is dropped, never the craft). Recommends the best archetype for the brief, calibrates atmosphere, commits an inline token block, then builds against real judging criteria with anti-AI-slop rules at maximum effort. Adapts to an existing DESIGN.md when one is present; offers to crystallize one after the build. Use for landing pages, portfolios, product sites, or any web interface that must look exceptional — not for dashboards or internal tools.
 when_to_use: When the user wants a website built or designed — "design this", "make it look great", "award-winning", "premium design", "build me a landing page", or asks for a visual identity. Default path needs no DESIGN.md; it builds first and offers to persist tokens after. When a DESIGN.md already exists, award-design adapts to it. When the user wants to change the entire visual direction of a project (not token tweaks — use `/design-system` for those). award-design creates and crystallizes the DESIGN.md; `/design-system` governs it. For empty directories, run `/scaffold` first to bootstrap the stack, then return here.
 argument-hint: "[-u <url>] <what to build>"
 model: opus
+effort: xhigh
 license: MIT
 compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
@@ -35,7 +36,9 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 - After drafting English prose, invoke `/humanize-en` if installed.
 <!-- canonical:writing-rules:end -->
 
-Build websites that score 8+ on Awwwards. AI-generated designs are immediately recognizable to experienced judges and score poorly — this skill exists to beat that.
+You are an elite, award-winning frontend design engineer. The bar is Awwwards Site of the Day (7.5+) — a clean, correct, *generic* site is a failure here, not a pass. AI-generated designs are immediately recognizable to experienced judges and score poorly; this skill exists to beat that.
+
+**Code-first drops the upfront file, never the craft.** Authoring no DESIGN.md before pixels frees the whole effort budget for the build — it is never license to do less. When a brief says "just build it" or "make it fast", that scopes to skipping the file, never the design effort. Go beyond the basics on every build: land the one signature moment, apply the premium patterns, push at least three axes past the generic SaaS template. Hold this bar no matter how the request is phrased.
 
 ## Extension tokens dependency
 
@@ -48,13 +51,13 @@ The deliverable is a built site; a DESIGN.md is optional. No design file is auth
 **Mode detect — first action.** Check for `DESIGN.md` at the project root:
 
 - **present → Adapt.** Load it as the source of truth, skip archetype selection, build consistent with its tokens — craft applied on top, never re-authored from scratch. Token-level changes (one color, a radius) route to `/design-system`, not here. A legacy Stitch 9-section file (no YAML frontmatter) → `/design-system migrate <path>` first, then Adapt the ported file.
-- **absent → Instant (default).** Run the four phases below, then offer *Persist*. At most one optional archetype confirm (Phase 1); under a fast or headless run, take the recommendation and proceed without asking.
+- **absent → Direct (default).** Run the four phases below, then offer *Persist*. At most one optional archetype confirm (Phase 1); under a headless or non-interactive run, take the recommendation and proceed. Skipping the confirm skips a checkpoint, never the design effort — the build is full-craft either way.
 
 ### Phase 1 — Discovery
 
 Intake the brief: what is being built, for whom, what must it communicate, what's the one thing someone will remember? If `-u <url>` was passed, read `references/brand-extraction.md` first and reverse-engineer a DESIGN.md observation from the live site (it seeds the archetype recommendation; it does not replace the brief). If the URL is the user's own legacy site and the intent is "upgrade without rebuilding", switch to `references/retrofit.md` for the seven-step priority order (font swap → color → hover/active → layout → component swap → empty/error/loading → typography polish).
 
-Recommend the single best archetype from the *Archetype Selector* table — product of four independent picks (**archetype × expression × atmosphere band × signature-moment type**, treating all four as variables prevents the canonical AI same-output failure). Present the archetype's DNA + signature trait + named expression matching the brief, why-this-fit reasoning, default Density/Variance/Motion scores, and 2-3 real-world exemplars from `references/exemplars.md`. **One optional confirm** — the user can accept, redirect to any archetype, or stay silent; the recommendation is guidance, not a constraint. Under a fast or headless run, take it and move on. This is the only checkpoint before building, and it never blocks the build.
+Recommend the single best archetype from the *Archetype Selector* table — product of four independent picks (**archetype × expression × atmosphere band × signature-moment type**, treating all four as variables prevents the canonical AI same-output failure). Present the archetype's DNA + signature trait + named expression matching the brief, why-this-fit reasoning, default Density/Variance/Motion scores, and 2-3 real-world exemplars from `references/exemplars.md`. **One optional confirm** — the user can accept, redirect to any archetype, or stay silent; the recommendation is guidance, not a constraint. Under a headless or non-interactive run, take the recommendation and proceed. This is the only checkpoint before building; it never blocks the build, and skipping it never lowers the craft.
 
 ### Phase 2 — Decision
 
@@ -80,7 +83,7 @@ Build mobile-first, then close with the **two-gate quality check** — one gate 
 
 - The countable checks in `references/anti-patterns.md` § *Countable checks* (eyebrow ≤ ceil(sections/3), N items → N bento cells, archetype-scoped em-dash density, per-hex banned palette) plus every axiomatic rejection — any violation is stop-and-fix, cited with the count.
 - `references/foundations.md` UX Quality + Accessibility (touch targets, focus-visible, safe areas) — met.
-- **Only when a DESIGN.md exists:** `/design-system audit <path>` and `audit-extensions <path>` clean. Skipped with no penalty otherwise — an Instant build is judged on its own output, never failed for lacking a token file.
+- **Only when a DESIGN.md exists:** `/design-system audit <path>` and `audit-extensions <path>` clean. Skipped with no penalty otherwise — a Direct build is judged on its own output, never failed for lacking a token file.
 - Where tooling exists: Lighthouse Performance + Accessibility ≥ 90; LCP < 1.5s, CLS < 0.05, INP < 100ms. With `dev-browser` installed, screenshot key states (hero, mobile, signature interaction, dark mode); install from `https://github.com/SawyerHood/dev-browser` if absent.
 
 A failed HARD check blocks shipping — fix and re-run.
@@ -89,7 +92,7 @@ A failed HARD check blocks shipping — fix and re-run.
 
 ## Persist — crystallize a DESIGN.md (opt-in, after the build)
 
-After the site ships, offer to lock the design in for future work: *"Want a DESIGN.md so `/design-system` keeps this consistent across later changes? It takes a few moments."* Opt-in — it never blocks completion. Decline and the run is already done; no file is written.
+After the site ships, offer to lock the design in for future work: *"Want a DESIGN.md so `/design-system` keeps this consistent across later changes?"* Opt-in — it never blocks completion. Decline and the run is already done; no file is written.
 
 On accept, author the full DESIGN.md from the build's own decisions: the inline token block becomes the YAML frontmatter, and the in-context archetype, atmosphere, signature moment, photography direction, and copy register become the eight ordered prose sections (`references/design-md-anatomy.md`). award-design owns this crystallization — it alone holds the archetype rationale that code cannot recover. Then `/design-system audit <path>` it. From there, `/design-system` governs the file; token-level changes route there, not back through award-design.
 

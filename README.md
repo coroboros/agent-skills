@@ -377,7 +377,7 @@ Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-de
 
 #### award-design
 
-Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. **Code-first:** ships a built site fast — no DESIGN.md required. It recommends a design archetype, calibrates atmosphere, commits a compact inline token block, then builds against real judging criteria. Three modes: **Instant** (default, no file), **Adapt** (an existing DESIGN.md is the source of truth), **Persist** (opt-in — after the build, crystallize a full DESIGN.md following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md), validated by the `@google/design.md` CLI). The build closes on a two-gate check: a HARD gate that can fail (countable anti-slop checks, tooling thresholds) and a SOFT advisory rubric.
+Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. **Code-first:** builds the site first — no upfront DESIGN.md required (the file ritual is dropped, never the craft). It recommends a design archetype, calibrates atmosphere, commits a compact inline token block, then builds against real judging criteria at maximum effort. Three modes: **Direct** (default, no file), **Adapt** (an existing DESIGN.md is the source of truth), **Persist** (opt-in — after the build, crystallize a full DESIGN.md following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md), validated by the `@google/design.md` CLI). The build closes on a two-gate check: a HARD gate that can fail (countable anti-slop checks, tooling thresholds) and a SOFT advisory rubric.
 
 **Usage**
 
@@ -433,7 +433,7 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 
 - [Award-winning websites 2025-2030 (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/award-winning-websites-2025-2030/award-winning-websites-2025-2030.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
-- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md produced by this skill; `@google/design.md` CLI lints the output
+- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md this skill crystallizes; `@google/design.md` CLI lints the output
 - [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
 - [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
 - [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt

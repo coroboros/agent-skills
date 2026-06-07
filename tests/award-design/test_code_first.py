@@ -7,6 +7,7 @@ SKILL.md (which authored a full DESIGN.md in Phase 3 and gated the build on two
 mandatory validation stops) — that is what makes them verify the change rather
 than merely describe it."""
 
+import json
 import re
 import unittest
 from pathlib import Path
@@ -40,21 +41,21 @@ class TestModeDetect(unittest.TestCase):
             "Workflow must open with a mode-detect step",
         )
 
-    def test_names_adapt_and_instant_modes(self):
+    def test_names_adapt_and_direct_modes(self):
         body = _body()
-        for mode in ("Adapt", "Instant"):
+        for mode in ("Adapt", "Direct"):
             with self.subTest(mode=mode):
                 self.assertIn(mode, body, f"mode-detect must name the {mode} mode")
 
-    def test_instant_is_the_default(self):
+    def test_direct_is_the_default(self):
         self.assertRegex(
-            _body(), r"Instant\b.*\(default\)|\(default\).*Instant",
-            "Instant must be marked the default (no-DESIGN.md) path",
+            _body(), r"Direct\b.*\(default\)|\(default\).*Direct",
+            "Direct must be marked the default (no-DESIGN.md) path",
         )
 
     def test_adapt_handles_legacy_stitch(self):
         """A present-but-legacy Stitch file (no YAML) must route to migrate within the Adapt
-        branch. Phase 3 carries the Stitch handling for the Instant path, which Adapt skips,
+        branch. Phase 3 carries the Stitch handling for the Direct path, which Adapt skips,
         so the Adapt bullet must carry its own routing — otherwise Adapt loads tokens that
         do not exist."""
         adapt_row = next((ln for ln in _body().splitlines() if "→ Adapt" in ln), "")
@@ -216,6 +217,96 @@ class TestRubricDecoupledFromDesignMd(unittest.TestCase):
             self._rubric().lower(),
             r"no-file build reaches 10|reaches 10 on .*alone",
             "a top anchor must state a no-DESIGN.md build can score 10",
+        )
+
+
+class TestMaxEffortFraming(unittest.TestCase):
+    """Code-first drops the upfront file, never the craft. The skill must prime
+    maximum effort explicitly — Opus 4.8 reads instructions literally and will
+    not infer an unstated quality bar — and must carry no speed-as-virtue
+    wording. These would FAIL on the first code-first draft, which shipped
+    'ships a built site fast' / 'Instant' / 'move on' and zero effort anchor."""
+
+    def test_effort_pinned_xhigh(self):
+        frontmatter = _body().split("---", 2)[1]
+        self.assertRegex(
+            frontmatter, r"(?m)^effort:\s*xhigh\s*$",
+            "frontmatter must pin effort: xhigh so the build runs at maximum effort",
+        )
+
+    def test_elite_role_primed(self):
+        self.assertIn(
+            "award-winning frontend design engineer", _body(),
+            "the skill must prime the elite-designer role (stakes framing)",
+        )
+
+    def test_generic_site_framed_as_failure(self):
+        self.assertRegex(
+            _body().lower(), r"generic.{0,30}is a failure",
+            "the bar must state a generic site is a failure, not a pass",
+        )
+
+    def test_speed_decoupled_from_craft(self):
+        body = _body().lower()
+        self.assertTrue(
+            "never the craft" in body or "never the design effort" in body,
+            "the skill must scope no-file/'fast' to skipping the file, never the craft",
+        )
+
+    def test_go_beyond_the_basics_present(self):
+        self.assertIn(
+            "go beyond the basics", _body().lower(),
+            "the skill must carry the explicit above-and-beyond modifier",
+        )
+
+    def test_no_speed_as_virtue_phrasing(self):
+        body = _body()
+        for banned in (
+            "ships a built site fast",
+            "take it and move on",
+            "fast or headless",
+            "It takes a few moments",
+        ):
+            with self.subTest(phrase=banned):
+                self.assertNotIn(
+                    banned, body,
+                    f"purged speed-as-virtue phrasing must not return: {banned!r}",
+                )
+
+    def test_instant_label_purged(self):
+        self.assertNotRegex(
+            _body(), r"\bInstant\b",
+            "the default mode must be renamed away from the speed-connoting 'Instant'",
+        )
+
+
+class TestDirectEvalRequiresCraft(unittest.TestCase):
+    """The flagship no-file eval prompts 'make it fast'. Its success bar must
+    require full craft, not just the correct no-file path — otherwise a
+    fast-but-generic build passes the case that should be the hardest craft
+    test."""
+
+    def _evals(self):
+        path = REPO_ROOT / "skills" / "award-design" / "evals" / "evals.json"
+        return json.loads(path.read_text(encoding="utf-8"))["evals"]
+
+    def test_fast_prompt_case_demands_craft(self):
+        cases = [
+            c for c in self._evals()
+            if "fast" in c["prompt"].lower() and "design.md" not in c["prompt"].lower()
+        ]
+        self.assertEqual(
+            len(cases), 1,
+            "expected exactly one no-file eval whose prompt primes speed",
+        )
+        out = cases[0]["expected_output"].lower()
+        self.assertTrue(
+            "full-effort" in out or "full effort" in out,
+            "the 'make it fast' eval must assert the build is full-effort, not just path-correct",
+        )
+        self.assertTrue(
+            "signature moment" in out and "generic" in out,
+            "the 'make it fast' eval must require the signature moment and reject a generic page",
         )
 
 

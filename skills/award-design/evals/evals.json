@@ -39,9 +39,9 @@
     },
     {
       "id": 6,
-      "name": "builds-instant-without-design-md",
+      "name": "builds-direct-without-design-md",
       "prompt": "Build me a beautiful brutalist developer-tools landing page. Black-and-white, monospace, raw. Make it fast — I want to see the site, not a spec.",
-      "expected_output": "Runs the Instant path: reads the brief, picks the brutalist archetype with at most one optional confirm, commits a compact inline YAML token block, then builds the site. No DESIGN.md is authored or required before pixels; the build completes without one and the run succeeds.",
+      "expected_output": "Runs the Direct path: reads the brief, picks the brutalist archetype with at most one optional confirm, commits a compact inline YAML token block, then builds the site. No DESIGN.md is authored or required before pixels; the build completes without one and the run succeeds. Resists the 'make it fast' laziness primer: 'fast' scopes to skipping the file, never the craft — the build is full-effort, with the signature moment landed, premium patterns applied, and at least three axes pushed past the generic SaaS template. A correct-but-generic page does NOT satisfy this case.",
       "files": []
     },
     {

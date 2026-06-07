@@ -8,7 +8,7 @@ Anti-patterns alone is a checklist: "did I do X?" The rubric forces calibration:
 
 ## When to run this
 
-- After producing the design — before requesting review or submitting to Awwwards/FWA/CSSDA
+- At the close of the build — before requesting review or submitting to Awwwards/FWA/CSSDA
 - When the user says "review this", "audit this page", or "is this award-ready?"
 - When iterating after negative feedback and you need a structured comparison
 
