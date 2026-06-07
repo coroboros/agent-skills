@@ -43,6 +43,7 @@ CROSS_CUTTING = [
     "exemplars.md",
     "foundations.md",
     "imagery.md",
+    "inspiration.md",
     "premium-patterns.md",
     "production-hardening.md",
     "remixing.md",

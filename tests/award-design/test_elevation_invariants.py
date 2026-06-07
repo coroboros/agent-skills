@@ -306,5 +306,50 @@ class TestMotionVocabulary(unittest.TestCase):
                       "conflicting signals must surface as a contradiction, not be averaged")
 
 
+class TestInspirationSet(unittest.TestCase):
+    """references/inspiration.md curates cross-archetype galleries and the motion
+    canon as URLs (never a vendored corpus), and frames component kits as
+    scaffold-only. anti-patterns.md carries the component-kit-sameness tell with
+    a restyle override; SKILL.md references the set during the build."""
+
+    def setUp(self):
+        self.insp = _read(REFS / "inspiration.md")
+        self.anti = _read(REFS / "anti-patterns.md")
+        self.skill = _read(SKILL_MD)
+
+    def test_galleries_and_motion_canon_present(self):
+        for src in ("Awwwards", "Godly", "SiteInspire", "Codrops"):
+            with self.subTest(src=src):
+                self.assertIn(src, self.insp, f"gallery missing: {src}")
+        for lib in ("GSAP", "Lenis", "Motion"):
+            with self.subTest(lib=lib):
+                self.assertIn(lib, self.insp, f"motion-canon entry missing: {lib}")
+
+    def test_component_kits_marked_scaffold_only(self):
+        for kit in ("Aceternity", "Magic UI"):
+            with self.subTest(kit=kit):
+                self.assertIn(kit, self.insp, f"component kit missing: {kit}")
+        self.assertIn("scaffold", self.insp.lower(),
+                      "component kits must be framed as scaffold-only")
+        self.assertIn("restyle", self.insp.lower(),
+                      "the override must be to restyle past kit defaults")
+
+    def test_no_vendored_corpus_only_urls(self):
+        # No snapshotted corpus: a code fence would signal vendored source.
+        self.assertNotIn("```", self.insp,
+                         "inspiration.md must cite URLs, not vendor code / corpus")
+
+    def test_component_kit_sameness_tell_with_override(self):
+        line = next((ln for ln in self.anti.splitlines()
+                     if "component-kit sameness" in ln.lower()
+                     or "component-kit-sameness" in ln.lower()), "")
+        self.assertTrue(line, "component-kit-sameness tell missing from anti-patterns.md")
+        self.assertIn("Override", line, "the component-kit-sameness tell must carry an override")
+
+    def test_skill_md_references_inspiration(self):
+        self.assertIn("references/inspiration.md", self.skill,
+                      "SKILL.md must reference references/inspiration.md")
+
+
 if __name__ == "__main__":
     unittest.main()

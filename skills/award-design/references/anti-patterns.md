@@ -140,6 +140,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - **Avatar circles exclusively** — try squircles or rounded squares.
 - **Light/dark toggle as sun/moon switch** — try a dropdown, system preference detection, or settings integration.
 - **Footer link farm with 4 columns** — focus on main paths and legally required links.
+- **Trendy-component-kit sameness** — beams, sparkles, spotlight cards, animated-gradient heroes, 3D-tilt cards dropped in from Aceternity / Magic UI / Cult unmodified. The 2026 AI-landing-page monoculture; judges flag it on sight. Override: scaffold from the kit, then restyle past its defaults — font, gradient, motion timing, color (see `inspiration.md`).
 
 ## Output discipline
 
