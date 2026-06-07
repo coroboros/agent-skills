@@ -83,8 +83,7 @@ Build mobile-first, then close with the **two-gate quality check** — one gate 
 
 **HARD gate — must pass to ship.** Deterministic, pass/fail:
 
-- The countable checks in `references/anti-patterns.md` § *Countable checks* (eyebrow ≤ ceil(sections/3), N items → N bento cells, archetype-scoped em-dash density, per-hex banned palette, hero-stack / CTA-intent / zigzag / marquee / layout-family caps) plus every axiomatic rejection — any violation is stop-and-fix, cited with the count.
-- Imagery floor (`references/imagery.md`): the hero carries a real visual and no UI is faked out of divs — axiomatic, cited on failure.
+- The countable checks in `references/anti-patterns.md` § *Countable checks* (eyebrow ≤ ceil(sections/3), N items → N bento cells, archetype-scoped em-dash density, per-hex banned palette, hero-stack / CTA-intent / zigzag / marquee / layout-family caps) plus every axiomatic rejection — including the Imagery floor (`references/imagery.md`): hero carries a real visual, no UI faked out of divs. Any violation is stop-and-fix, cited with the count.
 - Ship-ready floor (`references/ship-ready-floor.md`) Impose tier — interactive cycles, control contrast, cursor/focus affordance, skip-link, semantic landmarks, canonical/hreflang, favicon/OG, theme-color, reduced-motion (detail in `references/foundations.md` UX Quality + Accessibility) — present.
 - **Only when a DESIGN.md exists:** `/design-system audit <path>` and `audit-extensions <path>` clean. Skipped with no penalty otherwise — a Direct build is judged on its own output, never failed for lacking a token file.
 - Where tooling exists: Lighthouse Performance + Accessibility ≥ 90; LCP < 1.5s, CLS < 0.05, INP < 100ms. With `dev-browser` installed, screenshot key states (hero, mobile, signature interaction, dark mode); install from `https://github.com/SawyerHood/dev-browser` if absent.
