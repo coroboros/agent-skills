@@ -7,7 +7,7 @@ Validation catalog for the HARD gate (Phase 4 — the two-gate close). Read befo
 Non-negotiable. If the design contains any of these, stop and fix — don't argue the edge case. These are the fingerprints of AI-generated work that every experienced judge recognizes in under three seconds. A single axiomatic violation is enough to score below Honorable Mention, no matter how strong the rest is.
 
 1. **Never use the AI-purple gradient.** `linear-gradient(135deg, #a855f7|#8b5cf6, #ec4899|#6366f1)` — any variant pairing purple with pink or purple with blue. The moment judges see it, they stop looking.
-2. **Never use Inter, Roboto, Arial, or system fonts as the display face.** They work as fallbacks and body. At the hero, they signal "no type decision was made". Pick deliberately — a custom face, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Instrument Serif, Geist, PP Editorial New). Don't ship `font-family: 'Inter'` on an H1.
+2. **Never use Inter, Roboto, Arial, or system fonts as the display face.** They work as fallbacks and body. At the hero, they signal "no type decision was made". Pick deliberately — a custom face, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Geist, PP Editorial New). Instrument Serif and Fraunces are the two overexposed LLM-favorite display serifs — reach past them or justify (see *AI Tells → Typography*). Don't ship `font-family: 'Inter'` on an H1.
 3. **Never use pure black (`#000`) or pure white (`#FFF`).** Off-black (`#0a0a0a`, `#141413`, `#1a1a1a`) and off-white (`#fafafa`, `#f5f4ed`, `#faf9f5`). The shift is 1% on a color picker and 100% of the atmosphere.
 4. **Never use placeholder names or fake statistics.** "John Doe", "Sarah Chen", "Acme Corp", "99.99% uptime", "10,000+ happy customers", "50% faster". If content isn't real, write something specific and plausible — or keep the placeholder honest (`[client name]`, `[metric]`). The realistic-data rule: prefer `47.2%` to `99.99%`, `+1 (312) 847-1928` to `1234567`, `$99.00` to `$100.00`. Real data has texture; round numbers betray placeholder fill.
 5. **Never ship the centered-hero-over-dark-image-with-generic-headline template.** The canonical AI landing page. Break one of those three: off-center the layout, use flat color or typographic hero, or write a headline that couldn't apply to another product.
@@ -33,6 +33,11 @@ The deterministic core of award-design's HARD gate. Unlike the axiomatic rejecti
 | **Heading lines** | Hero H1 wraps in ≤ 3 lines (2-Line Iron Rule, 3 the hard ceiling) | Global |
 | **Meta-labels** | Zero `SECTION 01` / `QUESTION 05` index labels | Global |
 | **Em-dash density** | Body-copy em-dash density ≤ ~1 per 100 words — high density reads as AI-generated prose | Archetype-conditional — **suppressed for `editorial` and `corporate-luxury`**, where the em-dash is a deliberate typographic choice |
+| **Hero-stack cap** | Hero carries ≤ 4 stacked elements (eyebrow + H1 + subtext + one CTA cluster); subtext ≤ 20 words; no trust-strip or logo-wall inside the hero. Override: a long editorial standfirst counts as one element — cap the stack, not the sentence | Global |
+| **CTA-intent consistency** | One label per intent across the page — `Get Started` + `Start Free` + `Try Now` for the same signup is the tell. Repeating the *same* label for the same intent is fine | Global |
+| **Zigzag cap** | ≤ 2 consecutive image-text split rows before the layout breaks pattern. Override: a third is admissible only if it inverts composition, never a fourth left/right repeat | Global |
+| **Marquee cap** | ≤ 1 marquee / infinite-scroll ticker per page — a single signature ticker is fine; a logo wall *and* a testimonial ribbon is the tell | Global |
+| **Layout-family variety** | ≥ 4 distinct section layout families per 8 sections (hero, feature-split, bento, full-bleed media, editorial column, stat band, CTA band…) | Archetype-conditional — **suppressed for single-fold portfolios and pure docs** (see `foundations.md` Composition variety mandates) |
 
 Scope note: the em-dash check targets **generated site copy**, not the codebase or this skill's own prose. Count it in the rendered body text; suppress entirely for the two archetypes above. The global checks run on every archetype, no exception. Countability is the upgrade over a context-blind blocklist — award-design scores *from* an archetype, it does not subtract *toward* a generic ban.
 
@@ -57,6 +62,8 @@ Scope note: the em-dash check targets **generated site copy**, not the codebase 
 
 Current models carry a persistent default aesthetic that judges now read as its own tell: warm cream backgrounds (~`#F4F1EA`), serif display type (Georgia, Fraunces, Playfair), italic word-accents, terracotta / amber accent. It suits editorial, hospitality, and portfolio briefs — and feels off for dashboards, dev tools, fintech, healthcare, or enterprise. It surfaces unprompted, in slide decks as well as web UIs. (The warm-cream cluster is the tell; the neutral off-whites endorsed below are not.)
 
+A sibling overexposed cluster is the **premium-consumer palette** — sand/beige base (`#E7DFD3`, `#D8C7B0`), brass or gold accent (`#B08D57`, `#C9A227`), espresso text (`#3B2F2A`). The DTC-luxury monoculture, the Aesop-clone look. The hexes name the *family*, not a blocklist. Rotate at least one of the three roles — swap brass for oxblood, espresso for ink, sand for bone — or justify the palette against the brief.
+
 Generic negation does not fix it. "Don't use cream", "make it clean and minimal" shift the model to a *different* fixed palette, not to variety. Two counters work:
 
 - **Specify a concrete alternative** — exact palette hexes, typeface, corner radius, motion timing. The model follows explicit specs precisely.
@@ -74,12 +81,14 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 
 - Inter, Roboto, Arial, system fonts as primary choices.
 - Space Grotesk (converging AI default) — vary between generations.
+- Instrument Serif and Fraunces — the two LLM-favorite display serifs, now overexposed. Rotate to a less-defaulted face or justify. Editorial and Corporate Luxury may run a serif display, but pick past these two or state why.
 - Oversized H1 that screams — control hierarchy with weight and color, not just scale.
 - Serif on dashboards/software UI (serif is for editorial/luxury only).
 
 ### Layout
 
 - Centered hero with generic headline over dark image.
+- Split-screen 50/50 hero — solid text panel beside a photo panel with a hard vertical seam. A recognized template. Override: an editorial diptych where both panels are in compositional dialogue, not just text | image.
 - 3 equal cards in a row (the "feature row" cliché).
 - Predictable symmetric layouts at every section.
 - `h-screen` instead of `min-h-[100dvh]` (breaks on mobile — iOS Safari URL-bar toggle).
