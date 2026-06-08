@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: Govern an existing DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius when a DESIGN.md is present; steps aside when none exists — it never forces or authors one (`/award-design` creates and crystallizes it). Exposes seven CLI-backed subcommands — audit (lint + fix), diff (regression check), export (Tailwind / DTCG), spec (canonical spec), migrate (port legacy Stitch), init (minimal scaffold fallback), audit-extensions (drift check vs globals.css @theme). Token-affecting UI changes update DESIGN.md first, audit, then propagate to code.
+description: Govern an existing DESIGN.md — Google's open standard for design tokens (YAML frontmatter + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing for colors, typography, spacing, and corner radius when a DESIGN.md is present; steps aside when none exists — it never forces or authors one (`/award-design` authors it up front, then builds under it). Exposes seven CLI-backed subcommands — audit (lint + fix), diff (regression check), export (Tailwind / DTCG), spec (canonical spec), migrate (port legacy Stitch), init (minimal scaffold fallback), audit-extensions (drift check vs globals.css @theme). Token-affecting UI changes update DESIGN.md first, audit, then propagate to code.
 when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user says "redesign", "restyle", "update the look", "change the theme", or references visual tokens. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
 argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
 paths:
@@ -49,9 +49,9 @@ Parse the first positional token of `$ARGUMENTS`. If it matches a verb below, lo
 
 When a `DESIGN.md` exists at the project root, read it **before** writing any UI code: every color, font, spacing value, corner radius, and component style comes from this file — the YAML frontmatter tokens (normative values) or the prose explaining when and why to apply them.
 
-**No `DESIGN.md`? Step aside.** design-system governs a file; it does not require or create one. It never blocks an edit for lack of a DESIGN.md and never authors a design from scratch — that is `/award-design`'s job (it builds code-first, then crystallizes a DESIGN.md on request). So:
+**No `DESIGN.md`? Step aside.** design-system governs a file; it does not require or create one. It never blocks an edit for lack of a DESIGN.md and never authors a design from scratch — that is `/award-design`'s job (it forces a universe, writes the DESIGN.md up front, then builds the frontend under it). So:
 
-- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which can crystallize a DESIGN.md afterward (its *Persist* step) when cross-session consistency is wanted.
+- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which authors the DESIGN.md up front and builds the frontend under it.
 - A bare token scaffold is needed now and `/award-design` is unavailable → `/design-system init [archetype]` is a minimal fallback, not the primary path.
 
 If a legacy Stitch-format `DESIGN.md` is detected (9 numbered sections, `## Agent Prompt Guide` heading, no YAML frontmatter): suggest `/design-system migrate <path>` to port it before proceeding.
@@ -144,12 +144,12 @@ When no subcommand is matched — either auto-activated via `paths:` during a UI
 
 design-system does not author a design file from scratch. A DESIGN.md is born one of two ways:
 
-1. **`/award-design` crystallizes it** (preferred) — it builds the site code-first, then on request writes the full DESIGN.md from the build's own decisions (its *Persist* step). design-system governs the result from there.
+1. **`/award-design` authors it** (preferred) — it forces a universe and writes the full DESIGN.md up front, then builds the frontend under it. design-system governs the result from there.
 2. **`/design-system init [archetype]`** — a minimal token scaffold, only when `/award-design` is unavailable and a bare file is needed now.
 
 Either way, once the file exists, the change flow below applies. Atmosphere scores (Density, Variance, Motion) live in Overview prose, not YAML.
 
-**How award-design crystallizes into DESIGN.md:**
+**How award-design's universe maps to DESIGN.md:**
 
 | award-design output | DESIGN.md section | YAML tokens |
 |---------------------|-------------------|-------------|
@@ -164,7 +164,7 @@ Either way, once the file exists, the change flow below applies. Atmosphere scor
 
 Extension namespaces (`ext:` rows above) live as top-level YAML per `references/extended-tokens.md`. Components bind only to the eight canonical property tokens — extension tokens are referenced in prose, never as `components:` keys.
 
-Once the file exists (crystallized or scaffolded), wire it into the project:
+Once the file exists (authored or scaffolded), wire it into the project:
 
 1. **Audit** — run `/design-system audit <path>` (post-edit invariant). Fix errors before proceeding.
 2. **Wire into the framework**: `/design-system export tailwind` → merge the result into `tailwind.config.ts theme.extend` (v3) or `globals.css` `@theme` block (v4); set up CSS custom properties in the global stylesheet.
@@ -196,7 +196,7 @@ Examples of token-affecting changes:
 
 ### Re-architecting
 
-A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Use `/award-design` to rebuild from a fresh archetype — it builds the new design code-first. Any existing DESIGN.md is replaced whole on Persist, never patched in place.
+A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Use `/award-design` to rebuild from a fresh archetype — it writes a fresh DESIGN.md and builds under it. Any existing DESIGN.md is replaced whole, never patched in place.
 
 ## Gotchas
 
