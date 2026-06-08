@@ -33,7 +33,7 @@ Every vital narrative element from `/award-design` maps to one of the eight orde
 | Motion philosophy | 7. Components + cross-reference 1. Overview |
 | Award-grade rules + AI-tells anti-patterns + production-hardening guardrails | 8. Do's and Don'ts |
 
-Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `production-hardening.md`. Full extension convention: `../../design-system/references/extended-tokens.md`.
+Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `production-hardening.md`. Full extension convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
 
 ## Motion & 3D depth (motion/3D archetypes)
 

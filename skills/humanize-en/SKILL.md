@@ -28,7 +28,7 @@ Under `-f <voice-doc>`: the skill raises the bar. The brand voice becomes the pr
 
 ## Brand voice integration (optional)
 
-When `$ARGUMENTS` starts with `-f <voice-doc>`, load a `BRAND-VOICE.md` (typically produced by [`/brand-voice`](../brand-voice/SKILL.md)) and treat its rules as the primary contract on top of the universal 32 patterns.
+When `$ARGUMENTS` starts with `-f <voice-doc>`, load a `BRAND-VOICE.md` (typically produced by [`/brand-voice`](https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/SKILL.md)) and treat its rules as the primary contract on top of the universal 32 patterns.
 
 Workflow:
 
@@ -140,7 +140,7 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 - `references/output-formats.md` — canonical templates for the Rewrite, Coverage report, Diff preview, and Validation report blocks. Load before emitting the final response when the shape needs to be reproduced exactly.
 - `references/schemas.md` — JSON shapes for prescan hits (universal + brand), eval samples, eval results, and validate.py output. Consult when editing any script that produces structured output.
 - `scripts/prescan.py` — regex-based pre-scan emitting a JSON hit-list. Without flags: 8 universal patterns. With `--brand <voice-doc>`: also emits brand hits with `source: "brand"` and per-rule `rule_id`s. With `--strict-code-only`: blanks every fenced block (legacy behaviour). Python 3.7+, no third-party deps.
-- `scripts/brand_prescan.py` — brand-aware detectors loaded by `prescan.py --brand`. Self-contained YAML parser so `humanize-en` works when `brand-voice` is not installed. Reads `lexical_exceptions.{acronyms,compound_idioms}` (top-level frontmatter key, see `../brand-voice/references/canonical-format.md`) to extend the hardcoded whitelists.
+- `scripts/brand_prescan.py` — brand-aware detectors loaded by `prescan.py --brand`. Self-contained YAML parser so `humanize-en` works when `brand-voice` is not installed. Reads `lexical_exceptions.{acronyms,compound_idioms}` (top-level frontmatter key, see [brand-voice's canonical-format reference](https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/references/canonical-format.md)) to extend the hardcoded whitelists.
 - `scripts/validate.py` — post-rewrite gate. Re-runs prescan + brand checks on the rewritten file, classifies the outcome (`clean` / `residuals` / `regression`), and writes a JSON report. Exit 0 on clean+residuals, 1 on regression, 2 on argument or I/O errors. Required step under `-f` (Process step 7).
 - `scripts/utils.py` — shared I/O helpers (`read_text`, `read_json`, `write_json`, `mask_protected_regions`, `seeded_rng`). `mask_protected_regions` delegates to `prescan.py` so the two stay byte-identical.
 - `scripts/eval_patterns.py` — runs prescan over the eval corpus (`eval-corpus/samples/*.json` for universal, `eval-corpus/brand-voice/*.json` with `--brand` for brand). Scores per-sample pass/fail, emits a JSON report per `references/schemas.md` § *eval result*. Exit 0 on full pass, 1 on any failure. Run before editing detection patterns to baseline current coverage, then re-run to confirm no regression.

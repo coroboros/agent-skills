@@ -99,12 +99,16 @@ class TestExtensionContract(unittest.TestCase):
                 )
 
     def test_both_skills_cross_reference_extended_tokens_md(self):
-        for skill in ("award-design", "design-system"):
-            with self.subTest(skill=skill):
-                self.assertIn(
-                    "extended-tokens.md", read_skill_md(skill),
-                    f"{skill} must cross-reference extended-tokens.md",
-                )
+        # award-design's reference lives in its format refs (design-md-anatomy.md /
+        # foundations.md), design-system's in its SKILL.md — check each where it lives.
+        self.assertIn(
+            "extended-tokens.md", _award_design_contract_text(),
+            "award-design must cross-reference extended-tokens.md",
+        )
+        self.assertIn(
+            "extended-tokens.md", read_skill_md("design-system"),
+            "design-system must cross-reference extended-tokens.md",
+        )
 
     def test_both_skills_register_audit_extensions(self):
         self.assertIn(
