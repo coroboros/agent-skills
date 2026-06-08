@@ -1,7 +1,7 @@
 ---
 name: write-clear-readme
-description: Author, audit, or polish a project README — clarity, structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first, proposes diffs, applies on approval.
-when_to_use: When the user wants to create, restructure, audit, or polish a README for clarity, conciseness, or scannable structure. Keywords — write readme, author readme, audit readme, polish readme, clarify readme, optimize readme, restructure readme, README clarity, README wording, scannable readme. Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
+description: Author, audit, or polish a project README — clarity, structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first, proposes diffs, applies on approval. Use when creating, restructuring, auditing, optimizing, or polishing a README for clarity, concision, or scannable structure — "write readme", "audit readme", "polish readme", "clarify readme", "optimize readme", "restructure readme", README clarity/wording — for long human-facing docs, skill libraries, npm SDK references, or CLI manuals.
+when_to_use: Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
 model: opus
 disable-model-invocation: true
