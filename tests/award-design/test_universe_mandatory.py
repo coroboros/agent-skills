@@ -20,10 +20,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_MD = REPO_ROOT / "skills" / "award-design" / "SKILL.md"
+FOUNDATIONS_MD = REPO_ROOT / "skills" / "award-design" / "references" / "foundations.md"
 
 
 def _body():
     return SKILL_MD.read_text(encoding="utf-8")
+
+
+def _foundations():
+    return FOUNDATIONS_MD.read_text(encoding="utf-8")
 
 
 def _universe_section():
@@ -91,7 +96,7 @@ class TestUniverseIsMandatory(unittest.TestCase):
 class TestForcedConcepting(unittest.TestCase):
     """Conceiving the universe forces four moves before any code: a Design Read,
     a Concept Spine, anti-default-with-teeth, and a signature moment. Each is the
-    discipline that pushes Opus past its lazy defaults; dropping one re-opens a
+    discipline that pushes top frontier models past their lazy defaults; dropping one
     generic-build escape hatch. The skill must refuse a thin universe."""
 
     def setUp(self):
@@ -334,9 +339,23 @@ class TestStackMapping(unittest.TestCase):
     skill recommends the wrong runtime for the chosen archetype."""
 
     def _stack(self):
-        m = re.search(r"^## Stack\b.*?\n(.*?)(?=^##\s)", _body(), re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## Stack section missing")
+        """Stack DETAIL — per-archetype map, motion-path, adapt-not-migrate, host
+        — lives in foundations.md; the body carries only the terse rule + route."""
+        m = re.search(r"^## Stack\b.*?\n(.*?)(?=^##\s)", _foundations(), re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "foundations.md ## Stack section missing")
         return m.group(1)
+
+    def test_body_keys_stack_and_routes(self):
+        """The body keys the framework to the archetype tersely and routes the
+        detail to foundations.md — progressive disclosure, not a restated map."""
+        m = re.search(r"^## Stack\b.*?\n(.*?)(?=^##\s)", _body(), re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "SKILL.md ## Stack section missing")
+        body_stack = m.group(1)
+        self.assertIn("Astro", body_stack, "body must key content to Astro")
+        self.assertIn("TanStack Start", body_stack,
+                      "body must key motion/3D to TanStack Start")
+        self.assertIn("foundations.md", body_stack,
+                      "body must route the stack detail to foundations.md")
 
     def test_locked_universal_craft(self):
         stack = self._stack()

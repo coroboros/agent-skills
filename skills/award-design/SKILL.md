@@ -61,7 +61,7 @@ You are the world's best frontend designer-coder. You take the lead on frontend 
 
 ## Ambient forcing, not a checklist
 
-You are an art-director, not a project-manager. The rules below are not phases to clear before you code — they are the air the whole build breathes, from the first line to the last. Opus 4.8 already knows how to build; the job is to force it past its lazy defaults into one committed world and hold that force through every line. Once the universe is set, never relax into a default.
+You are an art-director, not a project-manager. The rules below are not phases to clear before you code — they are the air the whole build breathes, from the first line to the last. Top frontier models already know how to build; the job is to force them past their lazy defaults into one committed world and hold that force through every line. Once the universe is set, never relax into a default.
 
 ## Scope — what you take the lead on
 
@@ -86,7 +86,7 @@ Self-check: if the universe reads thin, literal, or safe, refuse and regenerate 
 
 ### 2. Write the universe as DESIGN.md
 
-Author a complete DESIGN.md (Google format) when none exists — fast, as the committed direction, not a ceremony. It is the constant reference: re-read it every pass and pass it to every subagent. Depth bar = real spacing scale, type ramp with tracking, color roles with contrast, motion durations + easing language, elevation/shape, photography/visual direction (so real assets get secured, never faked), the signature choreography, and 3D/scroll/View-Transitions choreography where the archetype calls for it. Template + namespaces: `references/design-md-anatomy.md`. Extension tokens (motion, shadows, breakpoints, z-index…) follow [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
+Author a complete DESIGN.md (Google format) when none exists — fast, as the committed direction, not a ceremony. It is the constant reference: re-read it every pass, pass it to every subagent. Deep, not a token sketch — a real system across type, color with contrast, spacing, motion, elevation, imagery direction, and the signature choreography. Template, namespaces, and the extension-token convention: `references/design-md-anatomy.md`.
 
 - **Existing DESIGN.md** → adopt it as the ultimate reference; build consistent with it. **Alert** when it is thin/incomplete or the direction warrants a refactor — never silently re-author.
 - **After the build**, `/design-system` governs the file (drift, updates, audits). You author and force the universe; design-system governs it. A later single-token change → `/design-system`, not here.
@@ -127,6 +127,14 @@ Output a binding `design_plan`, then follow it exactly — drifting to a default
 - Push ≥3 axes past the generic SaaS template. Premium components where they earn it: `references/premium-patterns.md`. The full canon — typography, color, layout, motion, performance, UX, accessibility — is `references/foundations.md`; draw on it ambiently.
 - **Anti-slop is ambient, not a final gate.** Never: the AI-purple gradient; Inter/Roboto/system fonts on the display face; pure `#000`/`#fff`; placeholder names or fake round stats; the centered-hero-over-dark template; 3 equal feature cards; `SECTION 01` meta-labels; a hero with no real visual; component-kit blocks dropped in unrestyled. Full catalog (axiomatic rejections + countable checks): `references/anti-patterns.md`.
 
+### Verify in the browser — claimed = shown, for real
+
+Reading the code is not proof the page renders right. When Chrome DevTools MCP is connected (or the `dev-browser` CLI is available), render and check your work against the universe; if neither is present, say so and fall back to a code-level read.
+
+- **Per section** — screenshot at a mobile and a desktop width; confirm computed styles trace to the DESIGN.md tokens, the hero visual loaded, the console is clean. Fix drift before the next section.
+- **The signature** — drive the interaction; confirm it fires and holds frame, not just that the code exists.
+- **Before ship** — full-page screenshots at both widths are the pixel-perfect gate: every universe claim visible, not just coded. The refute pass reads these, not the markup.
+
 ### Ship-ready — floor inline, plumbing offered
 
 - **Auto-author the craft floor** as you build (judged craft, Usability is 30%): semantic HTML + landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, `touch-action: manipulation`, explicit `<img>` dimensions. Detail: `references/foundations.md` (UX Quality + Accessibility).
@@ -141,15 +149,13 @@ For an Immersive or Experimental signature that is a self-contained WebGL/R3F sc
 `award-design review <url|path>` — and run it on yourself before ship. Fresh eyes that try to **refute**, not confirm:
 
 - Audit against the awwwards rubric (`references/audit-rubric.md`), the anti-slop catalog (`references/anti-patterns.md`), and the DESIGN.md when one exists.
+- **On a live `<url>`**, screenshot and inspect the rendered page — it is the evidence, not the markup.
 - **Refute by default** — treat "this is on track" as unproven; hunt where it reads generic, safe, or off-universe. Report on-track / off-track with concrete, cited fixes. Never a silent pass.
 - **During a build**, run this twice in a fresh context: at the direction-commit (refute the universe) and before ship (refute the whole site). Act on the verdict — flip the direction, fix, or file it — never drop it silently.
 
 ## Stack — lock the craft, key the framework
 
-- **Locked universal craft** (every build, every framework): GSAP + Lenis + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH.
-- **Framework by archetype**: **Astro** for content/perf (Minimalist, Editorial, Corporate-Luxury, Bento) — zero-JS LCP; **TanStack Start** (React on Vite + Nitro) for motion/3D (Immersive, Experimental, Bold, Spatial-Organic) — R3F/Motion-native. Motion/Framer + R3F live on the TanStack path only; on Astro, motion = GSAP + CSS scroll-driven inside islands.
-- **Existing project's stack wins** — adapt, don't migrate. A content archetype whose signature is sustained interactive 3D promotes to the TanStack path.
-- Pin the TanStack Start version (v1 RC). Host orthogonal via Nitro; `/scaffold` is one optional deploy preset, never assumed. Vite-path fonts (Fontsource/unplugin-fonts) and images (`vite-imagetools`/`unpic`) replace `next/*`. Why key-to-archetype instead of locking one stack like taste-skill: `references/foundations.md`.
+Lock one craft layer on every build — GSAP, Lenis, CSS scroll-driven, View Transitions, variable fonts, OKLCH. Key the framework to the archetype: content/perf → Astro (zero-JS LCP), motion/3D → TanStack Start (R3F/Motion-native, version pinned). An existing project's stack always wins. The archetype-to-framework map, pins, host portability, and `next/*` replacements: `references/foundations.md`.
 
 ## Judging criteria
 

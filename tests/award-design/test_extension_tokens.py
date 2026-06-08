@@ -189,10 +189,10 @@ class TestSkillBodyStaysLean(unittest.TestCase):
     test — the body keeps only the pointer."""
 
     def test_body_routes_to_extended_tokens(self):
-        """The body still names the shared convention — as a route, via the
-        extended-tokens reference link, not an inline restatement."""
-        self.assertIn("extended-tokens", _body(),
-                      "SKILL.md must route to the extended-tokens convention")
+        """The body names the extension-token convention as a route, not an inline
+        link — the anatomy reference holds the actual extended-tokens.md link."""
+        self.assertIn("extension-token", _body(),
+                      "SKILL.md must name the extension-token convention as a route")
 
     def test_body_points_at_token_authority(self):
         self.assertIn("design-md-anatomy.md", _body(),

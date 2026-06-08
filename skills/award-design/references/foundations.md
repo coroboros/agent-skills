@@ -16,8 +16,6 @@ Lock the craft layer; derive the framework from the archetype; adapt to existing
 - **Pin** the TanStack Start version (v1 RC as of mid-2026 — feature-complete, API-stable, production-capable). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
 - **Host orthogonal** via Nitro (40+ deploy presets). `/scaffold` is one optional Cloudflare deploy preset, never assumed.
 
-**Why key-to-archetype, not one locked stack (the taste-skill divergence).** taste-skill locks React/Next + Tailwind + Motion because it is a menu of single-shot generators with no perf-as-scored model — reducing the decision space is right there. This skill already commits an archetype, so the framework is a free derivation, not added decision-fatigue; and it treats Core Web Vitals as a judged criterion (Usability is 30%, judges test mobile first), so Astro's zero-JS for content and TanStack's R3F-native path for 3D each buy a scored criterion. TanStack Start over Next on the React path: explicit over convention — loaders, caching, and server functions are visible code that maps to runtime, with no RSC boundary, `use client`, or hidden-cache ceremony, which removes Next App Router's biggest AI-generation footguns; Vite + Nitro add faster builds and host portability. The trade is a smaller training corpus than Next, mitigated by pinning the version and leaning on the framework-agnostic craft layer above.
-
 ## Typography Systems
 
 ### Fluid scales
