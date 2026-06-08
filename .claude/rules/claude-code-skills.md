@@ -8,7 +8,7 @@ Reference: `coroboros/archivist/docs/code/code-skills.md`.
 
 | Field | Purpose |
 |-------|---------|
-| `when_to_use` | Additional trigger context. Appended to `description` in the skill listing. Counts toward the 1,536-char cap. |
+| `when_to_use` | Additional trigger context, appended to `description` in the per-turn skill listing. The combined `description` + `when_to_use` text is capped by the `maxSkillDescriptionChars` setting (default 1536; requires Claude Code v2.1.105+ — see `code-settings.md`). Keep `description` self-sufficient for triggering: `when_to_use` does not travel to other agents. |
 | `argument-hint` | Autocomplete hint for arguments. Example: `"[-s] <topic>"`. |
 | `disable-model-invocation` | `true` = only the user can invoke via `/name`. Use for commit/deploy/PR skills. |
 | `user-invocable` | `false` = hide from `/` menu, only Claude auto-invokes. Use for background knowledge skills. |
