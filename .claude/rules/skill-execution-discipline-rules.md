@@ -27,16 +27,16 @@ Writing rules (`skill-prose-rules.md`) govern *style* of the prose a skill emits
 The sync script and the parity test read this list:
 
 - apex
+- award-design
 - code-ultrareview
 - oneshot
 
-Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (DESIGN.md, BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded.
+Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design authors a DESIGN.md but its primary output is the built frontend (code), so it is declared, not excluded.
 
 ## Excluded skills (with reason)
 
 - forge — thinking-only; never implements. Overengineering is already governed by its three-tier Decide, source grounding by its triangulation discipline.
 - agent-creator — emits agent config (`.claude/agents/`), not code; the general-solution and investigate-before-claiming lines do not apply.
-- award-design — emits DESIGN.md (per-project content artifact), not code.
 - design-system — governs DESIGN.md tokens; tooling/status output, not code.
 - claude-md — emits CLAUDE.md (per-project content artifact), not code.
 - brand-voice — emits BRAND-VOICE.md (per-project content artifact), not code.

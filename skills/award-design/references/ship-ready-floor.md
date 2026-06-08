@@ -2,13 +2,13 @@
 
 The completeness floor under every build. It sits *below* the signature moment, never above it — the floor is what keeps a built page from reading as a prototype; the signature moment is what makes it memorable. Three tiers, sorted by cost and risk:
 
-- **Impose** — cheap, pure upside, no design cost. Wired into the Phase 4 HARD gate.
+- **Impose** — cheap, pure upside, no design cost. Auto-authored during the build and enforced by the review filter.
 - **Offer** — real production weight that can smother a small build. Surfaced as one opt-in question, gated on brief / archetype. Never auto-built.
 - **Template** — structured data the designer fills in. Provided as an archetype template, opted into.
 
-Most of the Impose tier already lives in `foundations.md` UX Quality + Accessibility; this file names and tiers it so the gate can cite one floor. It organizes those rules, it does not re-derive them.
+Most of the Impose tier already lives in `foundations.md` UX Quality + Accessibility; this file names and tiers it so the filter can cite one floor. It organizes those rules, it does not re-derive them.
 
-## Impose — the HARD-gate floor (cheap, pure upside)
+## Impose — the craft floor (cheap, pure upside)
 
 Present on every build, gated. None competes with the design; all is floor.
 
@@ -23,7 +23,7 @@ Present on every build, gated. None competes with the design; all is floor.
 - **`theme-color`** — light and dark `theme-color` meta so mobile chrome matches the surface.
 - **`prefers-reduced-motion`** — motion replaced with opacity, never removed.
 
-Detail and code for each: `foundations.md` UX Quality + Accessibility. This list is the gate's checklist; that file is the implementation.
+Detail and code for each: `foundations.md` UX Quality + Accessibility. This list is the filter's checklist; that file is the implementation.
 
 ## Offer — opt-in, gated on brief / archetype (never auto-built)
 

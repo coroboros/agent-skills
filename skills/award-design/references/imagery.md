@@ -2,7 +2,7 @@
 
 The largest single imposition most AI builds miss. Judges read empty visual zones as "unfinished" before they read anything else, so a page with no real images is a placeholder, not a design. This protocol is asset discipline: what to use, in what priority, and what never to fake.
 
-Load during the build (Phase 3) and at the close (Phase 4 gate).
+Load while building under the universe, and at the review pass before ship.
 
 ## Zero images is a bug
 
@@ -29,6 +29,16 @@ An honest labeled placeholder beats a hand-rolled CSS illustration of a UI: the 
 - Ship **light and dark variants** — a single-tone mark disappears against half the surfaces it lands on.
 - A logo wall is **logos only** — no mixed text labels, no "and 200+ more" filler. Size by visual weight, not bounding box.
 
+## Branded builds — acquire and verify real assets
+
+When the brief names a real brand, product, or place, the design is built around real assets — search before you invent:
+
+1. **Search official sources** — the brand's own site or press kit, the product's real screenshots, the place's real photography. Real assets read as "made"; CSS silhouettes read as filler.
+2. **Verify before use** — resolution sufficient for the slot, usage rights clear, the version current (last season's packaging or an old UI dates the build on sight).
+3. **Record source and slot** — note each asset's origin and where it lands, so the build is reproducible and the user can swap in finals.
+
+For a generic or unnamed brand, skip to the order below (generate / seed / placeholder). Never fake a named brand's assets out of divs.
+
 ## Acquisition priority order
 
 When the build needs an asset and none was supplied, walk the order — never skip ahead to inventing one:
@@ -39,9 +49,9 @@ When the build needs an asset and none was supplied, walk the order — never sk
 
 Stock photography is not on this list — it tanks scores (see `anti-patterns.md` *Design failures*). The protocol reaches for generated, seeded, or honest-placeholder assets, never a stock library.
 
-## Gate wiring
+## Filter wiring
 
-Two checks feed the Phase 4 HARD gate, carried as axiomatic rejections in `anti-patterns.md`:
+Two checks feed the stop-and-fix filter, carried as axiomatic rejections in `anti-patterns.md`:
 
 - **Hero carries a real visual** — fails on a text-over-gradient hero with no visual decision; the deliberate-typographic-hero path is the override.
 - **No fake-div screenshots** — fails on any div-built simulated UI; an honest labeled placeholder passes.

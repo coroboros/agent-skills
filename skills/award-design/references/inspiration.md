@@ -34,6 +34,7 @@ These ship fast but carry a recognizable default look — the exact source of th
 | **shadcn/ui** (raw) | ui.shadcn.com | Neutral primitives — usable, but the un-themed default reads as template |
 | **Cult UI** | cult-ui.com | Trendy motion components, heavy default flourish |
 | **Motion-Primitives** | motion-primitives.com | Motion building blocks — restyle the canned timings |
+| **21st.dev** | 21st.dev/community/components | Community shadcn-style registry + Magic MCP — same kit-default risk; mine for structure, restyle past the registry look |
 
 The **Satoshi / Clash / General Sans** trio (Fontshare) is the type-side equivalent — free, good, and so defaulted-to that they read as AI-picked. Use them, but know they signal "kit build" the way Inter does; rotate or justify.
 

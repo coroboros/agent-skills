@@ -4,9 +4,9 @@ Real-world sites that exemplify each archetype. Use them as visual anchors durin
 
 ## When to use this
 
-- During Phase 1 (Discovery), at the archetype recommendation: share 2–3 exemplars alongside it so the user can visually confirm the fit.
+- When conceiving the universe, at the archetype recommendation: share 2–3 exemplars alongside it so the user can visually confirm the fit.
 - When the user is undecided between archetypes: contrast exemplars side by side ("this vs this — which direction?") before calibrating.
-- When building (or crystallizing the DESIGN.md on Persist): these sites are fair game as visual references for the Overview section ("atmosphere in the spirit of [brand]").
+- When building (and writing the DESIGN.md): these sites are fair game as visual references for the Overview section ("atmosphere in the spirit of [brand]").
 
 Do not copy tokens from these sites directly — copy the *character*. Token copying produces generic clones. Atmosphere capture produces fresh systems that feel like the reference without imitating it.
 

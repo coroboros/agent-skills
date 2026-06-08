@@ -4,7 +4,19 @@ Cross-cutting technical reference for award-winning web design. Read alongside t
 
 ## Tokenization boundary
 
-Code samples in this file (CSS custom properties, animation values, scroll patterns) are illustrative — the *concrete numeric values* belong in tokens (the inline token block, or a DESIGN.md when one exists), not authored ad-hoc in component CSS. Canonical 5 namespaces (`colors`, `typography`, `rounded`, `spacing`, `components`) cover most surface; for motion durations, shadow scales, aspect ratios, viewport heights, container widths, breakpoints, z-index layers, border weights, opacity ramps, and scroll triggers, use the spec-blessed extension namespaces documented in [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Components bind only to the 8 canonical property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — in the inline block or a DESIGN.md; extension tokens are referenced from prose only. The CSS-side mirror is generated and validated by `/design-system audit-extensions`.
+Code samples in this file (CSS custom properties, animation values, scroll patterns) are illustrative — the *concrete numeric values* belong in the DESIGN.md tokens, not authored ad-hoc in component CSS. Canonical 5 namespaces (`colors`, `typography`, `rounded`, `spacing`, `components`) cover most surface; for motion durations, shadow scales, aspect ratios, viewport heights, container widths, breakpoints, z-index layers, border weights, opacity ramps, and scroll triggers, use the spec-blessed extension namespaces documented in [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Components bind only to the 8 canonical property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — in the DESIGN.md; extension tokens are referenced from prose only. The CSS-side mirror is generated and validated by `/design-system audit-extensions`.
+
+## Stack — lock the craft, key the framework
+
+Lock the craft layer; derive the framework from the archetype; adapt to existing projects; keep hosting orthogonal.
+
+- **Locked universal craft** (every build, every framework): GSAP + Lenis + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere.
+- **Framework by archetype**: Astro for content/perf archetypes (Minimalist, Editorial, Corporate-Luxury, Bento) — zero-JS by default is the LCP win; TanStack Start (React on Vite + Nitro) for motion/3D archetypes (Immersive, Experimental, Bold, Spatial-Organic) — React Three Fiber and Motion are native there. Motion (Framer) and R3F belong to the TanStack path only; on Astro, motion is GSAP + CSS scroll-driven inside islands.
+- **Existing project's stack wins** — adapt, never migrate. A content archetype whose signature is sustained interactive 3D promotes to the TanStack path (the signature outranks the perf default).
+- **Pin** the TanStack Start version (v1 RC as of mid-2026 — feature-complete, API-stable, production-capable). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
+- **Host orthogonal** via Nitro (40+ deploy presets). `/scaffold` is one optional Cloudflare deploy preset, never assumed.
+
+**Why key-to-archetype, not one locked stack (the taste-skill divergence).** taste-skill locks React/Next + Tailwind + Motion because it is a menu of single-shot generators with no perf-as-scored model — reducing the decision space is right there. This skill already commits an archetype, so the framework is a free derivation, not added decision-fatigue; and it treats Core Web Vitals as a judged criterion (Usability is 30%, judges test mobile first), so Astro's zero-JS for content and TanStack's R3F-native path for 3D each buy a scored criterion. TanStack Start over Next on the React path: explicit over convention — loaders, caching, and server functions are visible code that maps to runtime, with no RSC boundary, `use client`, or hidden-cache ceremony, which removes Next App Router's biggest AI-generation footguns; Vite + Nitro add faster builds and host portability. The trade is a smaller training corpus than Next, mitigated by pinning the version and leaning on the framework-agnostic craft layer above.
 
 ## Typography Systems
 
@@ -392,6 +404,8 @@ function animate() {
 | Lenis | ~2KB | Smooth scrolling |
 | Locomotive v5 | 9.4KB | Parallax + detection |
 | Motion One | 3.8KB | Lightweight vanilla |
+
+Locked universal layer (every framework): GSAP + Lenis + CSS scroll-driven + View Transitions + variable fonts + OKLCH. Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
 
 ### Spring physics — canonical values
 

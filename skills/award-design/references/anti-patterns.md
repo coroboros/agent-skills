@@ -1,6 +1,6 @@
 # Anti-Patterns
 
-Validation catalog for the HARD gate (Phase 4 — the two-gate close). Read before submitting or requesting review. Grouped by the kind of failure mode they create.
+Validation catalog the build holds itself to and the review mode enforces. Read before submitting or requesting review. Grouped by the kind of failure mode they create.
 
 ## Axiomatic rejections
 
@@ -25,7 +25,7 @@ Run this list first when validating. Anything it catches is stop-and-fix, not ni
 
 ## Countable checks
 
-The deterministic core of award-design's HARD gate. Unlike the axiomatic rejections (binary present/absent) and the rubric (subjective 0-10), these are *mechanically countable* — a number computed from the rendered page, compared against a threshold. Each declares its scope: **global** (every build) or **archetype-conditional** (suppressed for the named archetypes where the pattern is a legitimate choice). A failed check is stop-and-fix, cited with the count.
+The deterministic core of award-design's stop-and-fix filter. Unlike the axiomatic rejections (binary present/absent) and the rubric (subjective 0-10), these are *mechanically countable* — a number computed from the rendered page, compared against a threshold. Each declares its scope: **global** (every build) or **archetype-conditional** (suppressed for the named archetypes where the pattern is a legitimate choice). A failed check is stop-and-fix, cited with the count.
 
 | Check | Rule | Scope |
 |---|---|---|
@@ -42,6 +42,14 @@ The deterministic core of award-design's HARD gate. Unlike the axiomatic rejecti
 | **Layout-family variety** | ≥ 4 distinct section layout families per 8 sections (hero, feature-split, bento, full-bleed media, editorial column, stat band, CTA band…) | Archetype-conditional — **suppressed for single-fold portfolios and pure docs** (see `foundations.md` Composition variety mandates) |
 
 Scope note: the em-dash check targets **generated site copy**, not the codebase or this skill's own prose. Count it in the rendered body text; suppress entirely for the two archetypes above. The global checks run on every archetype, no exception. Countability is the upgrade over a context-blind blocklist — award-design scores *from* an archetype, it does not subtract *toward* a generic ban.
+
+## Cross-build anti-default
+
+Anti-default is not only within a build (reject the lazy first option) — it holds across builds. The same brief type must never converge on one house look.
+
+- **Rotation memory** — do not reuse the previous build's palette family, type pairing, or hero layout. If the last premium-consumer build ran sand+brass, this one runs a different family. Track the last build's palette / type / hero in-session and rotate off it.
+- **Per-build invention** — every build introduces ≥1 mechanic it has not used before: a novel layout anchor, an unseen motion, a fresh type treatment, a new interaction. A build that reuses only known moves is a default in disguise.
+- **Deterministic non-default selection** — seed the choice off the brief (page kind, audience, brand-name length), never the first option the model reaches for.
 
 ## Design failures
 
@@ -69,7 +77,7 @@ A sibling overexposed cluster is the **premium-consumer palette** — sand/beige
 Generic negation does not fix it. "Don't use cream", "make it clean and minimal" shift the model to a *different* fixed palette, not to variety. Two counters work:
 
 - **Specify a concrete alternative** — exact palette hexes, typeface, corner radius, motion timing. The model follows explicit specs precisely.
-- **Propose directions first** — surface 2-4 distinct directions (bg hex / accent hex / typeface + one-line rationale) and let the user pick, instead of committing to the default silently. Phase 1 already works this way — it recommends an archetype and offers one optional confirm; surface that choice rather than committing to the default silently.
+- **Propose directions first** — surface 2-4 distinct directions (bg hex / accent hex / typeface + one-line rationale) and let the user pick, instead of committing to the default silently. Conceiving the universe already works this way — it recommends an archetype and offers one optional confirm; surface that choice rather than committing to the default silently.
 
 ### Visual
 

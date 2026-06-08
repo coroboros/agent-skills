@@ -1,12 +1,16 @@
-"""award-design uplift invariants — pin the contracts introduced by the
-taste-skill comparative audit. These tests catch silent drift on the
-new sub-features added in the uplift PR: output discipline, brief signal
-routing, premium-patterns numbering, retrofit playbook, pre-DESIGN.md
-plan, spring physics canonical values, composition variety mandates.
+"""award-design uplift invariants — pin the reference-file contracts harvested
+from the taste-skill comparative audit: the output-discipline ban catalog,
+premium-patterns numbering, the retrofit playbook, spring physics canonical
+values, and composition variety mandates. These live in the reference files
+(unchanged by the rebuild); the SKILL.md body only points to them.
 
-Each invariant exists because the previous review surfaced a real
-failure mode that would re-emerge if the section drifted. Test names
-describe the contract being pinned, not the implementation."""
+(Brief-signal routing moved to inline prose — pinned in test_archetypes.py; the
+pre-DESIGN.md plan was replaced by commit-and-prove — pinned in
+test_universe_mandatory.py.)
+
+Each invariant exists because the previous review surfaced a real failure mode
+that would re-emerge if the section drifted. Test names describe the contract
+being pinned, not the implementation."""
 
 import re
 import unittest
@@ -20,21 +24,6 @@ REFS = SKILL_DIR / "references"
 
 def _read(path):
     return path.read_text(encoding="utf-8")
-
-
-# Mirrors the archetype list in test_archetypes.py — kept duplicated rather
-# than imported to keep this test file self-contained and readable.
-ARCHETYPES_DISPLAY = [
-    "Minimalist",
-    "Brutalist",
-    "Editorial",
-    "Bold / Maximal",
-    "Immersive / Cinematic",
-    "Experimental",
-    "Corporate Luxury",
-    "Bento / Card",
-    "Spatial Organic",
-]
 
 
 class TestOutputDisciplineSection(unittest.TestCase):
@@ -51,12 +40,27 @@ class TestOutputDisciplineSection(unittest.TestCase):
         self.assertIsNotNone(m, "## Output discipline section missing from SKILL.md")
         self.section = m.group(1)
 
-    def test_no_placeholder_shortcuts_rule_present(self):
-        # Any of these phrases proves the rule is stated, not just hinted.
-        for marker in ("[remaining sections similar]", "// TODO", "for brevity"):
+    def test_section_names_representative_tells(self):
+        """The lean rebuild trimmed the SKILL.md section to a few representative
+        truncation tells and routes the full catalog to anti-patterns.md. The
+        section must still name the canonical examples so the rule is stated, not
+        just hinted — but the exhaustive marker list (e.g. `// TODO`) lives in
+        the reference now, asserted by TestAntiPatternsOutputDiscipline."""
+        for marker in ("[remaining sections similar]", "for brevity",
+                       "the rest follows the same pattern"):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.section,
-                              f"output discipline must name banned phrase: {marker}")
+                              f"output discipline must name representative tell: {marker}")
+
+    def test_full_marker_catalog_lives_in_anti_patterns(self):
+        """The code-block markers the SKILL.md section no longer enumerates (the
+        lean body points to the catalog) must be present in anti-patterns.md, or
+        the routing dead-ends."""
+        anti = _read(REFS / "anti-patterns.md")
+        for marker in ("// TODO", "// rest of code", "[remaining tokens similar]"):
+            with self.subTest(marker=marker):
+                self.assertIn(marker, anti,
+                              f"anti-patterns.md output discipline must carry marker: {marker}")
 
     def test_continuation_marker_documented(self):
         self.assertIn("PAUSED", self.section,
@@ -101,55 +105,6 @@ class TestAntiPatternsOutputDiscipline(unittest.TestCase):
             r"\[PAUSED\s*[—\-]\s*N\s+of\s+8\s+sections\s+complete",
             "anti-patterns.md must pin the [PAUSED — N of 8 sections complete] marker",
         )
-
-
-class TestBriefSignalRouting(unittest.TestCase):
-    """The Brief signal → first-pass routing table must list all 9 archetypes,
-    one row each. Drift here means a brief-vocabulary lookup silently routes
-    the user to a missing/renamed archetype."""
-
-    def setUp(self):
-        body = _read(SKILL_MD)
-        # Grab from the routing intro to the next bold heading or section break.
-        m = re.search(
-            r"\*\*Brief signal → first-pass routing\.\*\*(.*?)(?=^\*\*Handoff|^##|\Z)",
-            body, re.DOTALL | re.MULTILINE,
-        )
-        self.assertIsNotNone(m, "Brief signal routing section missing")
-        self.section = m.group(1)
-
-    def test_each_archetype_appears_in_routing(self):
-        for archetype in ARCHETYPES_DISPLAY:
-            with self.subTest(archetype=archetype):
-                self.assertIn(
-                    f"**{archetype}**", self.section,
-                    f"routing table must include archetype row for: {archetype}",
-                )
-
-
-class TestPreDesignMdPlan(unittest.TestCase):
-    """Phase 3 (Tokens) requires a five-bullet pre-plan as the contract for
-    what follows. The pre-plan is the gate that catches a misaligned brief
-    before tokens get committed; losing it returns the skill to the
-    silent-drift failure mode. (Was anchored to step 6 pre-refactor.)"""
-
-    def test_phase_3_carries_pre_plan_contract(self):
-        body = _read(SKILL_MD)
-        m = re.search(
-            r"^### Phase 3 — Tokens(.*?)(?=^### Phase|\Z|^##\s)",
-            body, re.DOTALL | re.MULTILINE,
-        )
-        self.assertIsNotNone(m, "Phase 3 (Tokens) missing")
-        section = m.group(1)
-        # The "five-bullet" / "pre-plan" terminology is the contract.
-        self.assertRegex(
-            section, r"(five[- ]bullet|5[- ]bullet|pre[- ]plan)",
-            "Phase 3 must mandate a five-bullet pre-plan",
-        )
-        # And the five contract elements must be named — at minimum
-        # signature moment + atmosphere scores, the two that anchor the rest.
-        self.assertIn("signature moment", section.lower())
-        self.assertIn("atmosphere", section.lower())
 
 
 class TestPremiumPatternsNumbering(unittest.TestCase):

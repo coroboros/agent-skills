@@ -128,9 +128,10 @@ class TestSerifOverexposureReconciled(unittest.TestCase):
 
 class TestImageryProtocol(unittest.TestCase):
     """Imagery is the largest single missing imposition. references/imagery.md
-    carries the protocol; two axiomatic rejections wire it into the HARD gate;
-    SKILL.md loads it during the build and names it at the gate. The protocol
-    reaches for generated / seeded / honest-placeholder assets — never stock."""
+    carries the protocol; two axiomatic rejections wire it into the anti-slop
+    catalog the review mode runs; the build loads the protocol and imposes a real
+    visual ambiently. The protocol reaches for generated / seeded /
+    honest-placeholder assets — never stock."""
 
     def setUp(self):
         self.imagery = _read(REFS / "imagery.md")
@@ -182,20 +183,30 @@ class TestImageryProtocol(unittest.TestCase):
         self.assertIn("typographic", line.lower(),
                       "hero-visual axiom must carry the deliberate-typographic-hero override")
 
-    def test_skill_md_wires_imagery_into_gate(self):
-        self.assertIn("references/imagery.md", self.skill,
-                      "SKILL.md must reference references/imagery.md")
-        m = re.search(r"\*\*HARD gate.*?(?=\*\*SOFT gate)", self.skill, re.DOTALL)
-        self.assertIsNotNone(m, "HARD gate block missing from Phase 4")
-        self.assertIn("Imagery floor", m.group(0),
-                      "the HARD gate must name the imagery floor")
+    def test_skill_md_wires_imagery_into_build(self):
+        """The rebuild folded the imagery floor into the build's ambient forcing
+        (no separate HARD-gate block). The build section must reference the
+        protocol and impose a real visual; the anti-slop floor must name the
+        no-real-visual hero — both inside `## Build the frontend yourself`."""
+        m = re.search(
+            r"^## Build the frontend yourself, under the forcing\b(.*?)(?=^##\s)",
+            self.skill, re.DOTALL | re.MULTILINE,
+        )
+        self.assertIsNotNone(m, "## Build the frontend yourself section missing")
+        build = m.group(1)
+        self.assertIn("references/imagery.md", build,
+                      "the build must reference the imagery acquisition protocol")
+        self.assertIn("real visual", build.lower(),
+                      "the build must impose a real visual on the hero")
+        self.assertIn("a hero with no real visual", build.lower(),
+                      "the anti-slop floor must name the no-real-visual hero as a banned tell")
 
 
 class TestShipReadyFloor(unittest.TestCase):
     """The tiered ship-ready floor (impose / offer / template) consolidates the
-    scattered UX-Quality + Accessibility rules into a named floor the gate cites,
-    keeps production weight opt-in so it never smothers a small build, and stays
-    below the signature moment in prominence."""
+    scattered UX-Quality + Accessibility rules into a named floor the build's
+    Ship-ready block cites, keeps production weight opt-in so it never smothers a
+    small build, and stays below the signature moment in prominence."""
 
     def setUp(self):
         self.floor = _read(REFS / "ship-ready-floor.md")
@@ -232,21 +243,31 @@ class TestShipReadyFloor(unittest.TestCase):
         self.assertIn("never auto-generated", tmpl,
                       "JSON-LD must be a template, never auto-generated with placeholder data")
 
-    def test_floor_wired_into_hard_gate(self):
-        m = re.search(r"\*\*HARD gate.*?(?=\*\*SOFT gate)", self.skill, re.DOTALL)
-        self.assertIsNotNone(m, "HARD gate block missing")
-        self.assertIn("ship-ready-floor.md", m.group(0),
-                      "HARD gate must cite the ship-ready floor impose tier")
+    def _ship_ready_subsection(self):
+        """The rebuild folded the floor into the build's `### Ship-ready` block
+        (no separate Phase 4 / HARD-gate). Scope assertions to it."""
+        m = re.search(
+            r"^### Ship-ready(.*?)(?=^###\s|^##\s)",
+            self.skill, re.DOTALL | re.MULTILINE,
+        )
+        self.assertIsNotNone(m, "### Ship-ready subsection missing from the build")
+        return m.group(1)
 
-    def test_offer_tier_surfaced_as_optin_question(self):
-        m = re.search(r"^### Phase 4 — Production(.*?)(?=^### Phase|\Z|^##\s)",
-                      self.skill, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "Phase 4 missing")
-        p4 = m.group(1)
-        self.assertIn("ship-ready-floor.md", p4,
-                      "Phase 4 must reference the ship-ready floor")
-        self.assertTrue("opt-in" in p4.lower() and "never auto-build" in p4.lower(),
-                        "Phase 4 must surface the production tier as opt-in, never auto-built")
+    def test_impose_tier_auto_authored_in_build(self):
+        ship = self._ship_ready_subsection()
+        self.assertIn("ship-ready-floor.md", ship,
+                      "the Ship-ready block must cite the ship-ready floor tiers")
+        self.assertIn("auto-author the craft floor", ship.lower(),
+                      "the Impose tier must be auto-authored during the build")
+
+    def test_offer_tier_is_per_brief_never_auto_built(self):
+        ship = self._ship_ready_subsection().lower()
+        self.assertIn("offer production plumbing", ship,
+                      "the Offer tier must be surfaced as production plumbing")
+        self.assertIn("never auto-built", ship,
+                      "the Offer tier must never be auto-built")
+        self.assertIn("single-fold build needs none", ship,
+                      "the Offer tier must exempt a single-fold build")
 
     def test_signature_moment_outranks_floor_in_prominence(self):
         sig = self.skill.lower().find("signature moment")
@@ -310,12 +331,12 @@ class TestInspirationSet(unittest.TestCase):
     """references/inspiration.md curates cross-archetype galleries and the motion
     canon as URLs (never a vendored corpus), and frames component kits as
     scaffold-only. anti-patterns.md carries the component-kit-sameness tell with
-    a restyle override; SKILL.md references the set during the build."""
+    a restyle override that routes to it — the inspiration set's reachable path
+    after the lean rebuild dropped the SKILL.md body pointer."""
 
     def setUp(self):
         self.insp = _read(REFS / "inspiration.md")
         self.anti = _read(REFS / "anti-patterns.md")
-        self.skill = _read(SKILL_MD)
 
     def test_galleries_and_motion_canon_present(self):
         for src in ("Awwwards", "Godly", "SiteInspire", "Codrops"):
@@ -346,9 +367,15 @@ class TestInspirationSet(unittest.TestCase):
         self.assertTrue(line, "component-kit-sameness tell missing from anti-patterns.md")
         self.assertIn("Override", line, "the component-kit-sameness tell must carry an override")
 
-    def test_skill_md_references_inspiration(self):
-        self.assertIn("references/inspiration.md", self.skill,
-                      "SKILL.md must reference references/inspiration.md")
+    def test_inspiration_reachable_from_kit_override(self):
+        """The lean rebuild dropped the SKILL.md body pointer; the inspiration set
+        must stay reachable from the component-kit-sameness override, or its
+        curation orphans."""
+        line = next((ln for ln in self.anti.splitlines()
+                     if "component-kit sameness" in ln.lower()
+                     or "component-kit-sameness" in ln.lower()), "")
+        self.assertIn("inspiration.md", line,
+                      "the component-kit override must route to inspiration.md so the set stays reachable")
 
 
 if __name__ == "__main__":

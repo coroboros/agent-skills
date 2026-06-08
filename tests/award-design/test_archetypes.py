@@ -77,9 +77,18 @@ class TestCrossCuttingReferences(unittest.TestCase):
                                 f"references/{ref} missing")
 
 
-class TestArchetypeSelectorTable(unittest.TestCase):
-    """The 'Archetype Selector' table in SKILL.md must list all 9 archetypes
-    and reference each archetype's `references/<name>.md` file."""
+class TestArchetypeTable(unittest.TestCase):
+    """The archetype table in SKILL.md (`## Archetypes — the direction layer`)
+    must list all 9 archetypes and reference each archetype's
+    `references/<name>.md` file. This is the direction layer the Concept Spine
+    draws its line from — a missing row silently strands a brief."""
+
+    def _table_section(self):
+        text = SKILL_MD.read_text(encoding="utf-8")
+        m = re.search(r"^## Archetypes\b.*?\n(.*?)(?=^##\s)",
+                      text, re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "## Archetypes section missing")
+        return m.group(1)
 
     def test_table_lists_every_archetype(self):
         text = SKILL_MD.read_text(encoding="utf-8")
@@ -90,24 +99,39 @@ class TestArchetypeSelectorTable(unittest.TestCase):
                               f"{archetype}: not referenced in SKILL.md")
 
     def test_table_row_count_matches(self):
-        """Count rows in the Archetype Selector table — should be 9 (one per archetype)."""
-        text = SKILL_MD.read_text(encoding="utf-8")
-        m = re.search(r"## Archetype Selector\s*\n(.*?)(?=^##|\Z)",
-                      text, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "Archetype Selector section missing")
-        section = m.group(1)
-        # Body rows: lines starting with `|` and ending with `|`, excluding header and separator
+        """Count rows in the archetype table — should be 9 (one per archetype)."""
+        section = self._table_section()
+        # Body rows: lines whose first cell is a bold archetype name, excluding
+        # header and separator.
         rows = re.findall(r"^\|\s*\*\*[\w/ -]+\*\*\s*\|", section, re.MULTILINE)
         self.assertEqual(len(rows), 9, f"expected 9 archetype rows, found {len(rows)}")
+
+    def test_brief_signal_routing_is_inline_prose(self):
+        """Brief-signal → archetype routing is now inline prose under the table,
+        not its own section. Every archetype must still be reachable by a brief
+        signal — otherwise a vocabulary lookup routes nowhere."""
+        section = self._table_section()
+        m = re.search(r"Brief signal → first-pass archetype(.*?)(?=^##\s|\Z)",
+                      section, re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "inline brief-signal routing prose missing under the table")
+        routing = m.group(1)
+        for display in (
+            "Corporate Luxury", "Minimalist", "Editorial", "Brutalist",
+            "Bold/Maximal", "Immersive", "Experimental", "Bento", "Spatial Organic",
+        ):
+            with self.subTest(target=display):
+                self.assertRegex(
+                    routing, rf"→\s*{re.escape(display)}\b",
+                    f"brief-signal routing must reach the {display} archetype",
+                )
 
 
 class TestAtmosphereCalibration(unittest.TestCase):
     """Atmosphere Calibration has two tables that drive design decisions:
     (1) the axis-range table (3 axes × 3 ranges) and (2) the default-scores table
     (9 archetypes × 3 axes). Both must stay aligned with the archetype list — drift
-    here corrupts the calibration step of the workflow silently. (Both tables live
-    in references/atmosphere-calibration.md after the refactor; SKILL.md carries
-    only the pointer.)"""
+    here corrupts atmosphere calibration silently. Both tables live in
+    references/atmosphere-calibration.md; SKILL.md carries only the pointer."""
 
     AXES = ["Density", "Variance", "Motion"]
     CALIBRATION_MD = REFS / "atmosphere-calibration.md"

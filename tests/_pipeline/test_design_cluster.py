@@ -12,9 +12,23 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-from _contracts import CLUSTERS, read_skill_md  # noqa: E402
+from _contracts import CLUSTERS, SKILLS_DIR, read_skill_md  # noqa: E402
 
 DESIGN = CLUSTERS["design"]
+
+# award-design's DESIGN.md contract spans the lean SKILL.md plus its format
+# references — the rebuild moved the token / section / namespace detail out of
+# the forcing body into design-md-anatomy.md and foundations.md. Read the
+# producer's full contract surface so producer↔consumer drift still breaks here.
+AWARD_REFS = ("design-md-anatomy.md", "foundations.md")
+
+
+def _award_design_contract_text() -> str:
+    text = read_skill_md("award-design")
+    refs_dir = SKILLS_DIR / "award-design" / "references"
+    for ref in AWARD_REFS:
+        text += "\n" + (refs_dir / ref).read_text(encoding="utf-8")
+    return text
 
 
 class TestProducerCommitsToGoogleStandard(unittest.TestCase):
@@ -29,7 +43,7 @@ class TestProducerCommitsToGoogleStandard(unittest.TestCase):
         """The 8 prose sections in the Google standard (Overview, Colors,
         Typography, Layout, Elevation & Depth, Shapes, Components, Do's and
         Don'ts) must be enumerated so the consumer's audit has a fixed target."""
-        text = read_skill_md("award-design")
+        text = _award_design_contract_text()
         for section in (
             "Overview",
             "Colors",
@@ -71,7 +85,7 @@ class TestExtensionContract(unittest.TestCase):
     cross-reference to the spec doc."""
 
     def test_both_skills_name_each_extension_namespace(self):
-        producer = read_skill_md("award-design")
+        producer = _award_design_contract_text()
         consumer = read_skill_md("design-system")
         for namespace in DESIGN["design_md_extension_namespaces"]:
             with self.subTest(namespace=namespace):
@@ -93,18 +107,20 @@ class TestExtensionContract(unittest.TestCase):
                 )
 
     def test_both_skills_register_audit_extensions(self):
-        for skill in ("award-design", "design-system"):
-            with self.subTest(skill=skill):
-                self.assertIn(
-                    "audit-extensions", read_skill_md(skill),
-                    f"{skill} must register the audit-extensions subcommand",
-                )
+        self.assertIn(
+            "audit-extensions", _award_design_contract_text(),
+            "award-design must register the audit-extensions subcommand",
+        )
+        self.assertIn(
+            "audit-extensions", read_skill_md("design-system"),
+            "design-system must register the audit-extensions subcommand",
+        )
 
     def test_components_canonical_property_tokens_documented(self):
         """The closed set of 8 component property tokens must appear in
         award-design (so the agent producing DESIGN.md respects it). The
         list is the failure-mode contract."""
-        producer = read_skill_md("award-design")
+        producer = _award_design_contract_text()
         for token in DESIGN["design_md_canonical_property_tokens"]:
             with self.subTest(token=token):
                 self.assertIn(
