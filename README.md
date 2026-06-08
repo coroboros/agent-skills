@@ -7,7 +7,7 @@
 
 **AI agent skills for Claude Code and compatible agents**
 
-Seven plugins — workflow, coding, design, Claude Code meta, media, productivity, writing. Tested across every skill, scanned by Cisco's `skill-scanner`.
+Tested per skill, scanned by Cisco's `skill-scanner`.
 
 [![latest](https://img.shields.io/github/v/release/coroboros/agent-skills?style=flat-square&label=latest&color=000000)](https://github.com/coroboros/agent-skills/releases)
 [![ci](https://img.shields.io/github/actions/workflow/status/coroboros/agent-skills/ci.yml?branch=main&style=flat-square&label=ci&color=000000)](https://github.com/coroboros/agent-skills/actions/workflows/ci.yml)
@@ -65,29 +65,27 @@ Some skills wrap external CLIs — each is declared in its SKILL.md.
 
 Skills are grouped by plugin. Each plugin collects related skills — expand any section below to see usage, flags, and behavior.
 
-| Plugin | Skill | Model | Description | Scope |
-|--------|-------|-------|-------------|-------|
-| Workflow | [forge](#forge) | opus | Pre-implementation thinking — research, decide, and emit one apex-ready plan | Claude |
-| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine | Claude |
-| Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test workflow | Claude |
-| Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers | Claude |
-| Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review — Correctness · Simplification · Tests · Documentation · Style · Intent · Design/API · Performance (+ Coherence on metadata changes). 5-phase pipeline: scope → npx/uvx tool battery → 8 parallel axis reviewers → Haiku validators on sub-80 → synthesis with A2 no-silent-drop + Conventional Comments JSONL. Closes with "What I did NOT check" — defers security to `/security-review`, runtime perf, flaky detection. Zero auto-install, graceful skip on missing native tools. Opt-in `--verify-build` / `--mutation-test` / `--reconcile` / `--apply-safe`. Distinct from Anthropic's remote `/ultrareview` | Claude |
-| Design | [award-design](#award-design) | opus | Code-first award-winning sites — archetype, atmosphere, build first, optional DESIGN.md | Claude |
-| Design | [design-system](#design-system) | opus | Govern an existing DESIGN.md — token enforcement (steps aside when none) + 7 CLI subcommands (audit/diff/export/spec/migrate/init/audit-extensions) | Claude |
-| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ | Claude |
-| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents | Claude |
-| Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points | Claude |
-| Media | [audio-loop](#audio-loop) | sonnet | Produce gapless web-ready ambient audio loops (FLAC + Web Audio) | Claude |
-| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts — TRACK.md / optional ALBUM.md / optional ARTIST.md, multi-type validator with copyright contract | Claude |
-| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI | Claude |
-| Productivity | [notion](#notion) | opus | Notion access via the official MCP connector (default) or `ntn` CLI (uploads, Workers, headless/CI, raw API, shell piping) | Claude |
-| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract from URL/Notion/MD/interview, update, diff, validate, show; multi-voice via `voice.extends`; consumed by `humanize-en -f` | Claude |
-| Writing | [write-clear-readme](#write-clear-readme) | opus | Author / audit / polish READMEs — clarity, structure, wording concision | Claude |
-| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — em-dashes, rule of three, AI vocabulary, hedging; brand-aware via `-f BRAND-VOICE.md` (deterministic prescan + post-rewrite validation gate + auto-iteration) | Claude |
+| Plugin | Skill | Model | Description |
+|--------|-------|-------|-------------|
+| Workflow | [forge](#forge) | opus | Research, weigh approaches, decide — emit one apex-ready plan |
+| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine |
+| Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test for small, well-scoped tasks |
+| Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers |
+| Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
+| Design | [award-design](#award-design) | opus | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
+| Design | [design-system](#design-system) | opus | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
+| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ |
+| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents |
+| Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points |
+| Media | [audio-loop](#audio-loop) | sonnet | Gapless web-ready ambient audio loops (FLAC + Web Audio) |
+| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts |
+| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI |
+| Productivity | [notion](#notion) | opus | Notion via the official MCP connector, or the `ntn` CLI for uploads and CI |
+| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
+| Writing | [write-clear-readme](#write-clear-readme) | opus | Author, audit, or polish READMEs — clarity, structure, concision |
+| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
 
-**About the Model column.** Each skill declares its own `model:` in frontmatter — `opus` for deep-judgment work (strategy, design, complex implementation), `sonnet` for bounded reasoning, `haiku` for deterministic scripted flows. The tier is forced per skill, regardless of session default — predictable results across runs. Opus-tier skills consume more tokens; override with the Claude Code `--model` flag, or skip those skills on a tight plan.
-
-**About the Scope column.** Skills labeled `Claude` are optimized for Claude Code CLI per the [Agent Skills spec](https://agentskills.io) — they use Claude Code-specific frontmatter extensions (`$ARGUMENTS`, `argument-hint`, `when_to_use`, `paths`, `hooks`, inline shell) and degrade gracefully in Claude.ai, Claude desktop, and other agents supporting the open standard. `All agents` means the skill uses only open-standard fields (`name`, `description`, `license`, `compatibility`, `metadata`) and is fully portable. Each SKILL.md declares its intended environment via the spec-canonical top-level `compatibility:` field.
+Every skill is `Claude` scope — Claude Code-optimized per the [Agent Skills spec](https://agentskills.io), degrading gracefully in Claude.ai, desktop, and other open-standard agents (see [Standards](#standards)). Each `model:` is forced per skill (opus = deep judgment, sonnet = bounded reasoning, haiku = scripted flows) regardless of session default; opus costs more tokens — override with `--model` or skip on a tight plan.
 
 ---
 
@@ -264,26 +262,20 @@ Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
 | Scaffold | Framework | Infra | Key stack |
 |----------|-----------|-------|-----------|
-| `next-cloudflare` | Next.js 16 (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
-| `astro-cloudflare` | Astro 6 (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
+| `next-cloudflare` | Next.js (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
+| `astro-cloudflare` | Astro (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
 
-Shared: TypeScript strict, pnpm, Biome, Tailwind CSS, Node.js 22.
+Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-1. Runs the official framework CLI (`create-next-app` / `create astro`)
-2. Overlays opinionated config — Biome, Cloudflare Workers, CLAUDE.md, `.worktreeinclude` (copies dev-critical gitignored files into Claude Code worktrees)
-3. Adds pnpm scripts (dev, build, deploy, check, typecheck, db, test)
-4. Installs the full dependency stack
-5. Suggests `/award-design` for visual design tokens
-
-Optionally chains to `award-design` and `design-system`.
+Runs the official framework CLI, overlays the opinionated config (Biome, Cloudflare Workers, CLAUDE.md, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. Chains to `/award-design` then `/design-system` for design tokens.
 
 ---
 
 #### code-ultrareview
 
-Eight-axis judgment code review at full strength, in-session. Pinned to `model: opus` and `effort: max` — every invocation gets the deepest reasoning budget regardless of session defaults. The 8 always-on axes — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance — run as 8 parallel `Explore` subagents fed by a deterministic tool battery. Coherence joins as a 9th axis when manifest / `SKILL.md` / `tsconfig.json` / `pyproject.toml` / `Cargo.toml` / `go.mod` / root `README.md` appears in the diff. Sub-80 findings re-pass through Haiku validators against the verbatim Anthropic rubric — promoted to ≥80 or demoted with explicit reason; A2 no-silent-drop preserves every finding in `### ⚠️ Unverified` when neither path lands. Tool battery prefers `npx` / `uvx` wrappers (zero-install for the JS + Python majority) with PATH-binary fallback for native tools (`oasdiff`, `atlas`, Go tools, `cargo-machete`, `vale`); missing tools surface install commands in the report. Every report closes with `What I did NOT check` (security → `/security-review`; runtime perf; flaky detection; any skipped tools). Distinct from Anthropic's remote `/ultrareview` — same goal, in-session on the user's subscription.
+Eight-axis judgment code review at full strength, in-session — the deepest reasoning budget regardless of session defaults. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
 
 **Usage**
 
@@ -307,8 +299,8 @@ Eight-axis judgment code review at full strength, in-session. Pinned to `model: 
 | `-b <ref>` | Override the review base (skip auto-detection) |
 | `--repo-kind <kind>` | Override the scope classifier. `<kind>` ∈ `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo at `.code-ultrareview.yaml`; the flag wins on conflict. Invalid value exits 2 |
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
-| `--verify-build` | Phase 3.5 — run build verification on sub-80 axis findings BEFORE Haiku validators. Confirmed findings promote +30 confidence and skip the validator pass |
-| `--mutation-test` | Stryker (JS/TS), Pitest (JVM), or mutmut (Python) on changed files only. Surviving mutants route to the Tests axis as 🟠 Medium |
+| `--verify-build` | Confirm sub-80 findings against a real build before validation |
+| `--mutation-test` | Stryker (JS/TS), Pitest (JVM), or mutmut (Python) on changed files only. Surviving mutants route to the Tests axis as Medium severity |
 | `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), one failing test per confirmed bug. Diff preview + per-file confirmation |
 | `--include-prose` | Coherence axis compares README freeform paragraphs (default: structured fields only) |
 | `--axes <list>` | Comma-separated axes subset (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
@@ -316,43 +308,39 @@ Eight-axis judgment code review at full strength, in-session. Pinned to `model: 
 
 **The five phases**
 
-1. **Scope** — `scripts/scope.py`. Deterministic, no LLM. Resolves diff (clean → `resolve_base.sh` ladder; dirty → `git diff HEAD` + untracked files inlined), classifies repo into one of 9 kinds, reads the CLAUDE.md chain, detects languages, decides whether the conditional Coherence axis activates. Emits `scope.json`.
-2. **Tool battery** — `scripts/run_battery.sh`. Per-language dispatch over the 14-tool matrix below. `npx`/`uvx` preferred; PATH binary fallback; missing tools emit `WARN: <tool> not found — install: <cmd>` + land in `scope.json["tools_skipped"]`. The battery NEVER auto-installs. Every finding carries `confidence: 100` and skips the validator phase.
-3. **Axis review** — 8 parallel `Explore` subagents (9 with Coherence). Each receives `scope.json`, `tool-findings.jsonl` filtered to its own axis, the diff, and its axis brief (`references/axes/<axis>.md`). Each emits findings with 0–100 confidence per `references/anthropic-verbatim.md`.
-4. **Validation** — One Haiku validator per sub-80 finding, batched ≤10 parallel. Re-scores against the rubric + re-checks that the cited CLAUDE.md rule actually exists in `claude_md_chain`. A2 no-silent-drop: promoted (≥80), demoted-with-reason, or `### ⚠️ Unverified` — never omitted. `--verify-build` runs at Phase 3.5 BEFORE this step.
-5. **Synthesis** — Dedup by `(file, line_range, finding_hash)`. Inter-axis precedence `correctness > design-api > simplification > tests > documentation > style > intent > performance > coherence`. Verdict ∈ `Ship` / `Fix-then-ship` / `Needs work`. Markdown report to terminal + `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`; JSONL alongside with Conventional Comments labels (`issue` / `suggestion` / `nitpick` / `question`). Mandatory `What I did NOT check` closing section.
+1. **Scope** — deterministic, no LLM: resolves the diff, classifies the repo (one of 9 kinds), reads the CLAUDE.md chain, decides whether Coherence activates.
+2. **Tool battery** — per-language static analysis (table below); findings carry `confidence: 100` and skip validation. Never auto-installs.
+3. **Axis review** — 8–9 parallel `Explore` subagents, each scoped to its axis with the diff + filtered tool findings, scoring 0–100 against the verbatim Anthropic rubric.
+4. **Validation** — a Haiku validator re-scores every sub-80 finding. A2 no-silent-drop: promoted (≥80), demoted with reason, or surfaced in `### ⚠️ Unverified` — never omitted. `--verify-build` runs before this.
+5. **Synthesis** — dedup, inter-axis precedence, a `Ship` / `Fix-then-ship` / `Needs work` verdict, Conventional Comments JSONL, and a mandatory `What I did NOT check` closing section (defers security to `/security-review`, runtime perf, flaky detection, skipped tools).
 
-**Tool battery — Tool → Axis → Install command**
+**Tool battery — tool → axis**
 
-The skill prefers `npx` / `uvx` (zero-install, cached after first run at `~/.npm/_npx` / `~/.cache/uv`). Native binaries are PATH-only. The skill skips missing tools gracefully — install only if you want the axis coverage they provide.
+`npx` / `uvx` wrappers are zero-install (cached after first run); native binaries are PATH-only, skipped gracefully when absent. Run `/code-ultrareview --preflight` for the exact list on the repo plus install commands for the missing ones.
 
-| Tool | Axis | Wrapper | Install (if no wrapper, or to avoid first-run cold start) |
-|------|------|---------|-----------------------------------------------------------|
-| `knip` | Simplification (JS/TS dead code) | `npx` | `npm i -D knip` |
-| `jscpd` | Simplification (cross-language duplication) | `npx` | `npm i -D jscpd` |
-| `markdownlint-cli2` | Documentation (Markdown lint) | `npx` | `npm i -D markdownlint-cli2` |
-| `api-extractor` | Design/API (TS public surface) | `npx` | `npm i -D @microsoft/api-extractor` |
-| `lizard` | Simplification (cyclomatic complexity) | `uvx` | `pipx install lizard` |
-| `vulture` | Simplification (dead Python code) | `uvx` | `pipx install vulture` |
-| `semgrep` | Correctness (generic) + Performance (bundled perf-rules) | `uvx` | `pipx install semgrep` |
-| `vale` | Documentation (prose lint) | — (Go binary) | `brew install vale` |
-| `oasdiff` | Design/API (OpenAPI breaking changes) | — | `brew install oasdiff` |
-| `atlas` | Design/API (DB migration lint) | — | `brew install ariga/tap/atlas` |
-| `deadcode` | Simplification (Go unreachable) | — | `go install golang.org/x/tools/cmd/deadcode@latest` |
-| `gocyclo` | Simplification (Go complexity) | — | `go install github.com/fzipp/gocyclo/cmd/gocyclo@latest` |
-| `dupl` | Simplification (Go duplication) | — | `go install github.com/mibk/dupl@latest` |
-| `cargo-machete` | Simplification (Rust unused deps) | — | `cargo install cargo-machete` |
+| Tool | Axis | Wrapper |
+|------|------|---------|
+| `knip` | Simplification (JS/TS dead code) | `npx` |
+| `jscpd` | Simplification (cross-language duplication) | `npx` |
+| `markdownlint-cli2` | Documentation (Markdown lint) | `npx` |
+| `api-extractor` | Design/API (TS public surface) | `npx` |
+| `lizard` | Simplification (cyclomatic complexity) | `uvx` |
+| `vulture` | Simplification (dead Python code) | `uvx` |
+| `semgrep` | Correctness + Performance (perf-rules) | `uvx` |
+| `vale` | Documentation (prose lint) | native |
+| `oasdiff` | Design/API (OpenAPI breaking changes) | native |
+| `atlas` | Design/API (DB migration lint) | native |
+| `deadcode` | Simplification (Go unreachable) | native |
+| `gocyclo` | Simplification (Go complexity) | native |
+| `dupl` | Simplification (Go duplication) | native |
+| `cargo-machete` | Simplification (Rust unused deps) | native |
 
-Bundled Semgrep rules at `skills/code-ultrareview/references/perf-rules/`: `n-plus-one-sqlalchemy.yml`, `n-plus-one-sequelize.yml`, `sync-io-async-py.yml` — route to the Performance axis when triggered.
-
-Run `/code-ultrareview --preflight` to see exactly what would run on the current repo + install commands for the missing ones.
+Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO findings to the Performance axis.
 
 **Rules**
 
-- **Zero auto-install** — the battery never runs `brew install`, `cargo install`, `go install`, `pip install`, `npm install -g`. Users install natives explicitly.
-- **A2 no-silent-drop** — every sub-80 finding either gets promoted (≥80), demoted with explicit reason, or surfaces in `### ⚠️ Unverified`.
-- **`What I did NOT check`** — every report closes with this section listing security (defers to `/security-review`), runtime perf (non-goal), flaky detection (non-goal), and any tools from `scope.json["tools_skipped"]`.
-- **Cite precisely** — every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>`.
+- **Zero auto-install** — never runs `brew` / `cargo` / `go` / `pip` / `npm -g`; natives are installed explicitly.
+- **Cite precisely** — every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim.
 
 **Sources**
 
@@ -377,20 +365,21 @@ Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-de
 
 #### award-design
 
-Build award-winning websites that target Awwwards SOTD 7.5+, FWA, CSSDA. **Code-first:** builds the site first — no upfront DESIGN.md required (the file ritual is dropped, never the craft). It recommends a design archetype, calibrates atmosphere, commits a compact inline token block, then builds against real judging criteria at maximum effort. Three modes: **Direct** (default, no file), **Adapt** (an existing DESIGN.md is the source of truth), **Persist** (opt-in — after the build, crystallize a full DESIGN.md following the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md), validated by the `@google/design.md` CLI). The build closes on a two-gate check: a HARD gate that can fail (countable anti-slop checks, tooling thresholds) and a SOFT advisory rubric.
+Takes the lead on any frontend design, build, or redesign — an **art-director** (ambient forcing, not a phased checklist) targeting Awwwards SOTD 7.5+, FWA, CSSDA. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) when none exists, adapts to an existing one and alerts when it is thin, then **builds the frontend itself** under that direction. Frontend only — single-token tweaks route to `/design-system`, never backend. A **review mode** audits any site at any time.
 
 **Usage**
 
 ```bash
 /award-design landing page for a sustainable coffee brand
 /award-design -u https://linear.app portfolio for a motion designer
+/award-design review https://example.com         # audit an existing site
 ```
 
-`-u <url>` reverse-engineers a DESIGN.md from a live site as the archetype seed. The extracted observation informs the recommendation but doesn't constrain it — the brief is still the destination.
+`-u <url>` reverse-engineers the brand from a live site as the archetype seed; the observation informs the direction but doesn't constrain it — the brief is still the destination. `review <url|path>` runs the adversarial critic against any site at any time, no build required.
 
 **Archetypes**
 
-Each archetype is anchored to an article-credentialed canonical reference. The reference file splits DNA (non-negotiable identity, mood-agnostic) from common expressions (2–4 named stacks per archetype) so the same DNA admits multiple valid styles — Immersive can be cinematic-dark *or* editorial-portrait *or* daylight-automotive without losing identity.
+Each archetype anchors to a canonical reference (article-credentialed; Spatial Organic is the emerging exception). The reference file splits DNA (non-negotiable identity, mood-agnostic) from common expressions (2–4 named stacks per archetype), so one DNA admits multiple valid styles — Immersive runs cinematic-dark, editorial-portrait, or daylight-automotive without losing identity.
 
 | Archetype | Canonical reference | Ideal for |
 |-----------|---------|-----------|
@@ -406,46 +395,35 @@ Each archetype is anchored to an article-credentialed canonical reference. The r
 
 **Key features**
 
-- **DNA + common expressions** — each archetype reference splits non-negotiable identity from 2–4 named expressions (e.g., Immersive: cinematic-dark / editorial-portrait / daylight-automotive). Prevents force-fitting a single style lock onto an archetype that admits multiple valid expressions.
-- **Brief signal → first-pass routing** — vocabulary lookup table for the recommendation step (`luxury` → Corporate Luxury, `bento`/`feature grid` → Bento, `bespoke nav` → Experimental, etc.) with the user validating before commit
-- **Atmosphere Calibration** — Density, Variance, Motion scores (1–10) make design measurable, with concrete CSS heuristics per band (`Density 2-3` → `py-32` to `py-48`; `Motion 7-10` → GSAP ScrollTrigger pin/scrub on hero)
-- **Inline token block** — the five-bullet pre-plan (brief, archetype + expression, atmosphere, signature moment, photography/copy register) is committed to a compact YAML token block before any JSX — the value-coherence forcing function that keeps color, type, and spacing consistent without authoring a full file; if it doesn't ring true, restart from Phase 1
-- **Anti-AI tells** — 12 axiomatic rejections (any hit is stop-and-fix) + full catalog of patterns that betray AI generation (visual, typography, layout, content, technical)
-- **Output discipline** — banned-phrase list (`// TODO`, `// ...`, "for brevity", "let me know if you want me to continue", `[remaining sections similar]`) plus continuation marker (`[PAUSED — N of 8 sections complete]`) for clean token-ceiling splits
-- **Premium patterns** — Doppelrand nested architecture, Button-in-Button trailing icons, eyebrow tags, hero 2-line iron rule + Hero Scale taxonomy, mobile-collapse mandates, performance locks, **Liquid Glass Refraction** (Apple WWDC 2025 register), **Inline Typography Images** (image-as-glyph signature pattern), **Perpetual Micro-Interactions** (Motion ≥ 5 mandate)
-- **Two-gate quality close** — a HARD gate that can fail (countable, archetype-scoped anti-slop checks + `/design-system audit` when a DESIGN.md exists + Lighthouse/dev-browser thresholds) and a SOFT advisory rubric: 0–10 scoring across 7 dimensions (Hierarchy, Spacing, Typography, Color, Motion, Accessibility, Anti-slop) with a P0/P1 punch list and CSS fixes, reported as commentary — never a self-graded pass. A no-DESIGN.md build stays fully scorable
-- **Exemplars** — canonical-from-article reference + 4–5 substitutable peers per archetype (Terminal, Lando, Siena, Bruno Simon, Cartier WAW, Anime.js, Ponpon, FlowFest…) shared during recommendation
-- **Composition variety mandates** — across multi-section pages, ≥3 different composition anchors, varied background mode per section, CTA shape varied at least once, mixed section ambition (large/mini/medium)
-- **Creativity escalation** — push at least three axes beyond the generic SaaS template (composition, typography, hero scale, image treatment, section rhythm, framing); if the design could pass for default Tailwind output, escalate
-- **Spring physics canonical values** — `stiffness: 100, damping: 20` pinned in `motion.*` tokens; ad-hoc spring values per component betray the system
-- **Archetype remixing** — arbitration framework for briefs that refuse a single archetype (parent DNA percentage, arbitration rules, worked example)
-- **Brand extraction from URL** — `-u <url>` reverse-engineers a DESIGN.md observation from a live site as the archetype seed
-- **Retrofit playbook** — when `-u <url>` is the user's own legacy site and the intent is "upgrade without rebuilding", a seven-step priority order (font swap → color cleanup → hover/active → layout → component replacement → empty/error/loading → typography polish) lifts targeted scores without re-architecting
-- **Brutalist syntax decoration** — Grid Determinism (`gap: 1px` reveal-through), ASCII brackets, registration symbols, process strings, faux machine-readable as structural geometry, plus Bimodal Density Oscillation as DNA bullet
-- **Production hardening** — iOS Safari + cross-browser shipping for video, scroll-driven cinematic, full-screen heroes (viewport units, autoplay belt-and-suspenders, scroll-restoration, fail-safe reveal logic)
-- **UX quality rules** — touch targets, safe areas, form behavior, animation precision
-- **Judging criteria** — Design 40%, Usability 30%, Creativity 20%, Content 10%
-- **Performance targets** — LCP < 1.5s, CLS < 0.05, INP < 100ms
-- **Modern stack** — OKLCH, Scroll-Driven Animations, View Transitions API, GSAP + Lenis, WebGPU (Three.js r171+)
-- **Visual review** — optional `dev-browser` CLI integration for screenshot-based iteration
+- **Ambient forcing, not a checklist** — an art-director, not a project-manager. The direction rules are the air the whole build breathes, from the first line to the last, never phases to clear before coding; once the universe is set, it never relaxes into a default
+- **Universe mandatory** — no frontend ships without a committed world: Design Read (one line — page kind, audience, vibe, archetype line), Concept Spine (one named world that layout, type, color, motion, and copy each express), anti-default-with-teeth (name the lazy default, reject it; rotate the palette / type pairing / hero layout across builds; invent ≥1 new mechanic per build), signature moment (one loud climax + a quiet second-read detail). A thin, literal, or safe universe is refused and regenerated
+- **Commit-and-prove** — a binding `design_plan` before any JSX commits explicit per-element choices (hero architecture, type stack, color roles, the real visual per section, motion paradigms, the signature beat, spacing rhythm) and proves each load-bearing one (the `clamp()`/`max-w` that lands the H1 in ≤2 lines, the named hero asset, the easing + trigger for the signature, the grid spans with zero empty cells). Drifting to a default mid-build is forbidden
+- **Builds the frontend itself** — conceives AND builds in one coherent context, no handoff; **claimed = shown** (every universe claim present in the code, not just promised), section by section, no section ships generic
+- **Verify in the browser** — when Chrome DevTools MCP or the `dev-browser` CLI is available, renders and screenshots its work (mobile + desktop) to trace computed styles to the DESIGN.md tokens and reach pixel-perfect; the pre-ship pass reads the rendered page, not the markup
+- **Review mode** — `award-design review <url|path>` is the always-on adversarial fresh-eyes: refute by default against the awwwards rubric (Nielsen usability heuristics included) + the anti-slop catalog + the DESIGN.md, with cited fixes and an on-track / off-track verdict, never a silent pass. Runs internally twice — at the direction-commit and before ship
+- **Brief-signal routing** — picks a first-pass archetype from the brief (`luxury` → Corporate Luxury, `bento` → Bento, `bespoke nav` → Experimental); a hybrid brief mixes via the remixing arbitration framework. Match the brand's personality, not what is trending
+- **Anti-AI-slop ambient** — axiomatic rejections (the AI-purple gradient, Inter/Roboto on the display face, pure `#000`/`#fff`, placeholder names and fake stats, the centered-hero-over-dark template, 3 equal feature cards, `SECTION 01` labels, a hero with no real visual) plus countable archetype-scoped checks, applied through the build — not held back as a final gate
+- **Imagery** — real assets, an acquire-and-verify protocol for branded builds (secure real logos and photography, verify resolution and rights), never faked out of divs, never a CSS-pastiche product shot
+- **Stack** — locked universal craft every build (GSAP + Lenis + CSS scroll-driven + View Transitions API + variable fonts + OKLCH) with the framework keyed to the archetype: Astro for content/perf archetypes (zero-JS LCP), TanStack Start (React on Vite + Nitro) for motion/3D. The existing project's stack wins; host orthogonal via Nitro
+- **WebGL/3D delegation** — a self-contained WebGL/R3F signature delegates to ONE specialist subagent briefed with the DESIGN.md and pointed at the embedded ingredient cheats (web3d-for-sites, web-audio, ogl-shaders) or the official GSAP/R3F skill by name; the returned module is integrated in-context. Never co-writes a shared file, never more than one parallel writer
+- **Ship-ready** — the judged craft floor (semantic HTML + landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, explicit `<img>` dimensions) auto-authored inline; production plumbing (canonical/OG, sitemap/robots, JSON-LD, PWA manifest, prerender, blur-up) offered per-brief, never auto-built
+- **Judging criteria** — Design 40%, Usability 30%, Creativity 20%, Content 10%. Performance targets LCP < 1.5s, CLS < 0.05, INP < 100ms
+- **DESIGN.md handoff** — authors the DESIGN.md up front and builds under it; `/design-system` governs it afterward (drift, updates, audits). Clean author-vs-govern boundary
 
 **Sources**
 
 - [Award-winning websites 2025-2030 (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/award-winning-websites-2025-2030/award-winning-websites-2025-2030.md) — judging criteria, SOTD/SOTY patterns, studio analysis (Locomotive, Active Theory, Resn, Immersive Garden, Cuberto)
+- [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) — the ambient-forcing / art-director reference
+- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — the open standard for the DESIGN.md this skill writes; `@google/design.md` CLI lints the output
+- [greensock/gsap-skills](https://github.com/greensock/gsap-skills) — motion canon, deferred to by name when installed
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
-- [Google DESIGN.md](https://github.com/google-labs-code/design.md) — canonical format for the DESIGN.md this skill crystallizes; `@google/design.md` CLI lints the output
-- [Google Stitch Skills](https://github.com/google-labs-code/stitch-skills) (`taste-design`) — Atmosphere Calibration (Density / Variance / Motion)
-- [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill) — taste-driven design heuristics complementing the atmosphere axes
-- [rohitg00/awesome-claude-design](https://github.com/rohitg00/awesome-claude-design) (MIT) — exemplars taxonomy, audit rubric format, remix arbitration framework, brand-extraction prompt
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
-
-Builds the site first; a DESIGN.md is optional. When one exists — adapted at the start or crystallized by the opt-in Persist step after the build — `design-system` governs it. Ownership is clean: award-design creates and crystallizes the file; `design-system` governs it and never authors one from scratch. Token-level changes go through `/design-system`; this skill covers the build, a complete re-architect, and crystallization.
 
 ---
 
 #### design-system
 
-Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit and never authors a design file from scratch (that is `/award-design`'s job; it builds code-first, then crystallizes a DESIGN.md on request). Exposes seven CLI-backed subcommands for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
+Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit and never authors a design file from scratch (that is `/award-design`'s job; it forces a universe, writes the DESIGN.md, and builds the frontend). Exposes seven CLI-backed subcommands for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
 
 **Requirements**
 
@@ -504,13 +482,8 @@ When `dev-browser` is installed globally (`pnpm add -g dev-browser` / `npm i -g 
 
 **What it does**
 
-- Reads `DESIGN.md` before writing any UI code
-- Enforces colors, fonts, spacing, and corner radius come exclusively from DESIGN.md YAML tokens
-- Maps tokens to CSS custom properties and `tailwind.config.ts theme.extend` — or generates via `/design-system export tailwind`
-- Prevents arbitrary Tailwind values (`text-[13px]`) when a token exists
-- Handles dark mode, framework detection, shared brand across projects
-- Maps award-design archetype output to each of the eight DESIGN.md sections
-- **Post-edit invariant**: after any DESIGN.md mutation (token update, `migrate`, `init`), runs `audit` and surfaces findings — a mutation that leaves errors behind is never done
+- **Source of truth** — reads `DESIGN.md` before any UI code; colors, fonts, spacing, and radius come only from its YAML tokens, never arbitrary values (`text-[13px]`) when a token exists. Maps to CSS custom properties and `tailwind.config.ts` (or `export tailwind`).
+- **Post-edit invariant** — after any DESIGN.md mutation (token update, `migrate`, `init`), runs `audit` and surfaces findings; a mutation that leaves errors behind is not done.
 
 **DESIGN.md structure**
 
@@ -520,20 +493,11 @@ Canonical YAML token groups (validated by the Google CLI): `colors`, `typography
 
 Extension YAML namespaces (preserved-but-unvalidated per the Google spec, validated by `audit-extensions` against the `globals.css` `@theme` mirror): `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers`. Extension tokens are referenced from prose only — never as `components:` keys (the empirical lint-failure mode). See `references/extended-tokens.md` for the full convention and the 1:1 CSS-mirror mapping table.
 
-Section order:
+Eight ordered prose sections: Overview, Colors, Typography, Layout, Elevation & Depth, Shapes, Components, Do's and Don'ts. Per-section token and extension mapping: `references/design-md-spec.md`.
 
-1. **Overview** (alias: *Brand & Style*)
-2. **Colors** — `colors:` tokens
-3. **Typography** — `typography:` tokens
-4. **Layout** (alias: *Layout & Spacing*) — `spacing:` tokens + responsive strategy + extension `breakpoints`, `containers`, `heights`, `aspectRatios`, `motion`, `scrollTriggers`
-5. **Elevation & Depth** — shadow system + extension `shadows`, `borderWidths`, `opacity`
-6. **Shapes** — `rounded:` tokens
-7. **Components** — `components:` tokens, variants as related keys (`button-primary`, `button-primary-hover`) + extension `zIndex`
-8. **Do's and Don'ts** — testable guardrails
+**Lint rules** — `audit` runs the Google CLI rules (`broken-ref`, `contrast-ratio` at WCAG AA, `section-order`, …); `audit-extensions` adds project-side extension rules. Severities, fix strategies, and per-rule logic: `references/cli-reference.md`.
 
-**CLI-backed lint rules** — eight rules run by `audit` (and `diff` for regression detection): `broken-ref` (error), `missing-primary`, `contrast-ratio` (WCAG AA 4.5:1), `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. **Project-side rules** added by `audit-extensions`: `extension-missing-css` (error), `extension-orphan-css` (warning, error under `--strict`), `extension-broken-ref` (error). See `references/cli-reference.md` for severities and fix strategies; `references/subcommand-audit.md` and `references/subcommand-audit-extensions.md` for the per-rule fix-proposal logic.
-
-Ships with a condensed spec (`references/design-md-spec.md`), the CLI reference (`references/cli-reference.md`), seven subcommand reference files (`references/subcommand-*.md`), the extended-tokens convention (`references/extended-tokens.md`), four deterministic scripts (`scripts/{audit,diff,export,audit-extensions}.sh` plus `audit_extensions.py`), and two complete example DESIGN.md files (`references/example-claude.md` — warm editorial with extension showcase, `references/example-stripe.md` — minimalist gradient). Never authors a design file from scratch — `/award-design` creates and crystallizes the DESIGN.md (it holds the archetype rationale); design-system governs it from there.
+Ships a condensed spec, CLI + subcommand references, deterministic scripts, and two example DESIGN.md files. Never authors a design file — that is `/award-design`'s job; design-system governs from there.
 
 **Sources**
 
@@ -659,15 +623,9 @@ Loop background videos for the web — crossfade the cut point, optimize, multi-
 
 **What it does**
 
-1. Validates ffmpeg and reads source metadata
-2. Extracts first/last frames to assess loop visibility (VLM decides whether crossfade is warranted)
-3. Invokes `scripts/video-loop.sh`, which builds a lossless intermediate with `xfade` crossfade at the **start** — the loop point (`end → start`) lands on identical frames, making the transition invisible
-4. Encodes optimized H.264 MP4 (`-movflags +faststart`, audio stripped)
-5. Encodes VP9 WebM as an alternative format
-6. Optionally extracts a poster frame
-7. Parses `RESULT: key=value` lines from the script and reports a size table + suggested HTML `<video>` markup
+Builds a lossless intermediate with an `xfade` crossfade at the **start** — so the loop point (`end → start`) lands on identical frames and the transition is invisible. Then encodes optimized H.264 MP4 (faststart, audio stripped) + VP9 WebM, optionally a poster frame, and reports a size table + suggested `<video>` markup.
 
-Output duration = original − crossfade duration (e.g. 8s video with 2s fade → 6s loop). Rejects `-d >= duration/2` with a hard error.
+Output duration = original − crossfade (8s video, 2s fade → 6s loop). Rejects `-d >= duration/2` with a hard error.
 
 **Sources**
 
@@ -677,7 +635,7 @@ Output duration = original − crossfade duration (e.g. 8s video with 2s fade �
 
 #### audio-loop
 
-Produce a gapless web-ready ambient audio loop from a source clip — auto-balance stereo, normalize loudness, encode lossless FLAC, emit the Web Audio JS pattern that unlocks playback on the first user gesture. The ffmpeg pipeline runs via a bundled `scripts/audio-loop.sh` for deterministic, typo-proof execution.
+Produce a gapless web-ready ambient audio loop from a source clip — auto-balance stereo, normalize loudness, encode lossless FLAC, emit the Web Audio JS pattern that starts playback on the first user gesture. The ffmpeg pipeline runs via a bundled `scripts/audio-loop.sh` for deterministic, typo-proof execution.
 
 **Requirements**
 
@@ -709,11 +667,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 
 **What it does**
 
-1. Validates ffmpeg and probes the source (duration, sample rate, channels, per-channel RMS)
-2. Measures stereo imbalance — if the L/R delta exceeds 1 dB, wires a `pan` filter that attenuates the louder channel (skipped below 0.3 dB as jitter, or with `-B`)
-3. Invokes `scripts/audio-loop.sh` which chains `pan` (if needed) → `loudnorm=I=<target>:TP=-2:LRA=7` → `aresample=<source_rate>` → FLAC encode
-4. Parses `RESULT: key=value` lines from the script and reports size, final loudness, per-channel balance
-5. Emits a drop-in `<script>` snippet implementing the Web Audio unlock-on-first-gesture pattern with fade-in, tuned to the `-v` target
+Auto-corrects stereo imbalance (attenuates the louder channel when the L/R delta exceeds 1 dB; skipped below 0.3 dB or with `-B`), normalizes loudness, resamples, and encodes lossless FLAC. Emits a drop-in `<script>` implementing the Web Audio play-on-first-gesture pattern with fade-in, tuned to `-v`.
 
 **Why FLAC and not AAC.** Web Audio's `AudioBufferSourceNode{loop:true}` loops sample-accurate by spec, but it loops the buffer that `decodeAudioData` returned — AAC's priming samples are baked into that buffer on most browser decoders, producing an audible gap at the loop boundary. FLAC is lossless with no priming, so the decoded buffer is byte-identical to the source WAV. Trade: FLAC is ~6–8× larger than AAC 128 kbps on noise-heavy content, but still modest for typical ambient loops (a few hundred KB to low MB).
 
@@ -783,15 +737,7 @@ On request, `create` also draws on a songwriting-craft reference (song structure
 | ALBUM.md | invalid release_format, missing Concept/Arc/Tracklist/Transitions, track_count mismatch | arc-label missing, malformed tracklist line, bad ISO date |
 | ARTIST.md | voice_profile without voice_consent, slider_bias out of range, missing required sections, empty artist | bad consent format, custom_model without training-set posture, bad rights_posture |
 
-**Bundled references**
-
-- `references/style-and-lyrics.md` — descriptor stack, **never name artists or copyrighted entities** (the legal + functional rationale, with a translation table), bracket metatag canon, lyric flow, languages, SFX warning, **section length / bar counts belong in Studio**, consolidated pitfalls
-- `references/sliders-and-personalization.md` — three sliders, voice-aware prompting, custom-model-aware prompting, **My Taste — the silent fourth slider**
-- `references/genre-templates.md` — 8 copy-paste recipes (cinematic, melodic techno, melodic trap, alt rock, ambient drone, indie pop, ritual industrial, lo-fi hip-hop)
-- `references/track-schema.md` — TRACK / ALBUM / ARTIST schemas with worked example, plus a migrating-from-MUSIC.md note
-- `references/rights-and-deprecation.md` — **plan tiers + v5.5 access**, **output specs**, **post-generation pipeline (Suno Sounds + Studio 1.2)**, WMG settlement, copyright vesting (license, not vested rights), voice-cloning consent, v6 deprecation cliff
-
-Loaded on-demand per Pattern 2 (domain-specific organisation) from Anthropic's [skill authoring best practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices).
+**Bundled references** (loaded on demand): `style-and-lyrics.md` (descriptor stack, the never-name-artists rule, bracket metatags), `sliders-and-personalization.md` (three sliders + voice / custom-model prompting), `genre-templates.md` (8 copy-paste recipes), `track-schema.md` (TRACK / ALBUM / ARTIST schemas), `rights-and-deprecation.md` (plan tiers, v5.5 access, copyright + voice-cloning consent, v6 deprecation cliff).
 
 **Sources**
 
@@ -838,13 +784,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 
 **What it does**
 
-1. Validates that `markitdown` is installed; if not, prints the install command and stops (never auto-installs)
-2. Detects whether the input is a local file or an `http(s)://` URL (YouTube etc.) and validates the file exists
-3. Composes the right `markitdown` invocation based on the flags above
-4. Streams the converted Markdown to the terminal, or — when `-s` — writes it under `~/.claude/output/{project}/markitdown/{slug}/{stem}.md` for downstream skills to consume via `-f`
-5. Reports a one-line summary: `markitdown: <input> → <bytes> bytes of Markdown`
-
-The deterministic work (install check, validation, slug, save path, command composition) runs in `scripts/markitdown.sh`, which emits `RESULT: key=value` lines parsed by the skill — same pattern as `video-loop`.
+Composes the right `markitdown` invocation from the flags and streams Markdown to the terminal — or, with `-s`, writes it under `~/.claude/output/{project}/markitdown/{slug}/{stem}.md` for downstream skills to consume via `-f`. Never auto-installs: a missing CLI prints the install command and stops.
 
 **Sources**
 
@@ -1114,7 +1054,7 @@ Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial 
 
 ### Deep external research → Plan
 
-The native `/deep-research` workflow and [Claude's Research](https://claude.com/blog/research) feature run hundreds of queries — depth beyond what `forge`'s Hunt phase reaches. `/deep-research` votes on claims and filters non-survivors; neither scores source reliability nor detects bias, so treat the output as untrusted by default. Run one of them, save the cited Markdown to an absolute path, then pipe it into `forge` as foundational context:
+The native `/deep-research` and [Claude's Research](https://claude.com/blog/research) run hundreds of queries — deeper than `forge`'s Hunt. Neither scores source reliability nor detects bias, so treat the output as untrusted. Save the cited Markdown to an absolute path and pipe it into `forge`:
 
 ```
 /deep-research or Claude Desktop Research     hundreds of queries, cited Markdown
@@ -1126,7 +1066,7 @@ save the report to e.g. ~/.claude/output/{project}/external-research/{slug}.md
 /apex -f <abs forge path> "<task>"                           apex builds
 ```
 
-A supported pattern of the `-f` contract: `forge` and `apex` accept any absolute Markdown path verbatim. Hunt is research-as-input for engineering decisions, sized for tens of queries. Deep research is research-as-deliverable for cited briefs, sized for hundreds.
+`forge` and `apex` accept any absolute Markdown path verbatim via `-f`. Hunt is research-as-input sized for tens of queries; deep research is research-as-deliverable sized for hundreds.
 
 ### Design → Develop
 
@@ -1135,11 +1075,9 @@ Happy path, new project:
 ```
 /scaffold next-cloudflare              bootstrap project
       |
-/award-design "brief"                  build the site (code-first) — no DESIGN.md required
+/award-design "brief"                  force a universe (writes DESIGN.md) + build the frontend
       |
-/award-design  (Persist, opt-in)       crystallize a DESIGN.md from the build, when you want consistency
-      |
-/design-system audit                   lint the crystallized tokens, fix findings
+/design-system audit                   lint the tokens, fix findings
       |
 /design-system export tailwind         generate tailwind.theme.json (canonical)
       |
@@ -1203,7 +1141,7 @@ graph LR
   style issues fill:#2d333b,stroke:#8b949e,stroke-dasharray: 5 5
 ```
 
-`oneshot` optionally escalates to `apex` or `forge` when a task is too complex. `markitdown -s` produces a file consumable by any skill accepting `-f`. `write-clear-readme` invokes `humanize-en` as a final pass on English output when the skill is installed; otherwise it falls back to a manual pattern check. `brand-voice` produces `BRAND-VOICE.md` consumed by `humanize-en -f` for brand-aware rewriting; both work standalone. All remaining skills (`claude-md`, `agent-creator`, `video-loop`, `markitdown`) are standalone too.
+`oneshot` escalates to `apex` or `forge` when a task outgrows it. `markitdown -s` produces a file any `-f` consumer can read. `write-clear-readme` falls back to a manual pattern check when `humanize-en` is absent.
 
 </details>
 
@@ -1246,23 +1184,9 @@ Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
 - [`skill-execution-discipline-rules.md`](./.claude/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
 - [`skill-adversarial-verification-rules.md`](./.claude/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a finding or decision
 
-### Canonical writing rules
+### Canonical blocks
 
-Prose-emitting skills (`agent-creator`, `apex`, `award-design`, `brand-voice`, `claude-md`, `code-ultrareview`, `forge`, `oneshot`, `suno-produce`, `write-clear-readme`) carry an identical *Writing rules* block immediately after their H1. The block ships inside the skill folder so the rules travel on independent install — plugins cannot reference files outside their own directory, and `~/.claude/rules/*` is not propagated by `npx skills add`.
-
-The canonical source is [`.claude/rules/skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md). Run `scripts/sync_writing_rules.py` after editing it to propagate changes. The parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity and blocks merge if any declared skill drifts.
-
-### Canonical label-hygiene rules
-
-Skills that ship external artifacts carry the *Label hygiene* canonical block alongside the writing-rules block. Three skills qualify today: `apex`, `code-ultrareview`, `oneshot`. The block forbids author-coordinate language in any artifact the skill emits, and names the carve-outs for skills that own the format (forge templates, apex rule documentation).
-
-The canonical source lives in [`.claude/rules/skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md). `scripts/sync_writing_rules.py` propagates it; the parity test enforces byte equality. The repo backstop [`tests/_meta/test_no_internal_label_leak.py`](./tests/_meta/test_no_internal_label_leak.py) scans shipped skill source and fails CI red on any unallowlisted match. Per-line opt-out: `# noqa: internal-label` (Python / shell), `<!-- noqa: internal-label -->` (Markdown).
-
-### Canonical execution-discipline and adversarial-verification rules
-
-Two further canonical blocks share the same machinery. *Engineering discipline* (`apex`, `code-ultrareview`, `oneshot`) governs how a skill changes code. *Adversarial verification* (`forge`, `apex`, `code-ultrareview`) governs how a skill trusts its own findings — refute by default, no silent drop. Both carry philosophy only; each skill keeps its own scoring mechanics.
-
-Canonical sources: [`.claude/rules/skill-execution-discipline-rules.md`](./.claude/rules/skill-execution-discipline-rules.md) and [`.claude/rules/skill-adversarial-verification-rules.md`](./.claude/rules/skill-adversarial-verification-rules.md). The same `scripts/sync_writing_rules.py` propagates all four blocks; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and per-rule classification.
+Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.claude/rules/` (linked above). `scripts/sync_writing_rules.py` propagates all four; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
 
 ---
 

@@ -47,6 +47,16 @@ Skills compose via the `-f` flag. A producer saves its file, then reports the **
 
 **`-f <path>`** — the value is an **explicit path, used verbatim**. The consumer `Read`s exactly that path. No filename reconstruction, no `{producer}`/`{project}` inference, no glob, no "latest" guess — the producer already printed the real path and the bridge carries it literally. A path that does not exist → fail loud (regenerate via the producer, or correct the path). That is the whole contract: paths are explicit, never magic.
 
+## Cross-skill references
+
+Skills install standalone — `npx skills add coroboros/agent-skills --skill <name>` copies one folder, so a sibling skill's bundled files are not on disk. A skill MUST NOT point the model at another skill's files by a path that assumes co-installation.
+
+- **Forbidden** — a relative path escaping the skill folder (`../<other>/…`, `../../<other>/…`) or a raw repo path (`skills/<other>/…`). On a solo install the target does not exist and the `Read` fails.
+- **Cite by external link** — point at the source of truth: the canonical upstream (the DESIGN.md format lives at `github.com/google-labs-code/design.md`) or, for our own elaboration, the blob URL `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` paired with the sibling by slash-name (`/<other>`).
+- **Optional runtime cooperation** — when a skill *uses* a sibling at runtime (a script, a governance handoff), detect-or-degrade: try `${CLAUDE_SKILL_DIR}/../<other>/…`, then `~/.claude/skills/<other>/…`, then `~/.agents/skills/<other>/…`, and on miss state the fallback and continue. `humanize-en` (`extract_rules.py`) and `apex` (the code-ultrareview orchestrator) are the reference implementations.
+
+code-ultrareview's Documentation axis flags a raw `skills/<other>/…` citation — the standing audit for drift.
+
 ## Install model
 
 Distribution is git-based via [skills.sh](https://skills.sh):

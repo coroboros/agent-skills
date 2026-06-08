@@ -13,7 +13,7 @@
       "id": 2,
       "name": "steps-aside-without-design-md",
       "prompt": "Restyle the hero section to feel more premium. The project has no DESIGN.md.",
-      "expected_output": "Does not block the edit or author a DESIGN.md from scratch. Recommends /award-design for a designed build — which can crystallize a DESIGN.md afterward via its Persist step — and proceeds with a one-line pointer rather than forcing a file. init is named only as a minimal fallback when /award-design is unavailable.",
+      "expected_output": "Does not block the edit or author a DESIGN.md from scratch. Recommends /award-design for a designed build — which authors the DESIGN.md up front and builds under it — and proceeds with a one-line pointer rather than forcing a file. init is named only as a minimal fallback when /award-design is unavailable.",
       "files": []
     },
     {

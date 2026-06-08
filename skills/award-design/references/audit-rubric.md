@@ -1,14 +1,14 @@
 # Audit Rubric
 
-Quantitative scoring rubric run at the close of the build. Use alongside `anti-patterns.md` — that file gives you the catalog of failures, this one gives you a score you can act on.
+Quantitative scoring rubric the review pass applies. Use alongside `anti-patterns.md` — that file gives you the catalog of failures, this one gives you a score you can act on.
 
-Anti-patterns alone is a checklist: "did I do X?" The rubric forces calibration: "how well did I do X — 3/10 or 8/10?" A 6/10 on Typography with a 9/10 on Motion ships differently than the reverse. Scoring surfaces what to fix first.
+Anti-patterns is the binary filter — "did I do X?" The rubric forces calibration — "how well did I do X, 3/10 or 8/10?" A 6/10 on Typography with a 9/10 on Motion ships differently than the reverse. Scoring surfaces what to fix first.
 
-**This rubric is the SOFT (advisory) gate** in award-design's two-gate close. It is commentary that points at the next pass — never a pass/fail verdict, and never a self-graded number presented as "shipped at 9/10". The pass/fail decision belongs to the HARD gate (the countable checks in `anti-patterns.md` plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
+**This rubric is advisory** — the calibrated half of the review pass. It is commentary that points at the next pass — never a pass/fail verdict, and never a self-graded number presented as "shipped at 9/10". The pass/fail decision belongs to the stop-and-fix filter (the axiomatic rejections + countable checks in `anti-patterns.md` plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
 
 ## When to run this
 
-- At the close of the build — before requesting review or submitting to Awwwards/FWA/CSSDA
+- At the review pass before ship — before requesting review or submitting to Awwwards/FWA/CSSDA
 - When the user says "review this", "audit this page", or "is this award-ready?"
 - When iterating after negative feedback and you need a structured comparison
 
@@ -74,6 +74,23 @@ Composite check against `anti-patterns.md`. Score inverts — fewer AI-tells = h
 - **5** — 1–2 AI tells slipped through (maybe Inter, maybe a fake round number). Fixable in a pass.
 - **10** — Zero axiomatic rejections violated. No template shapes. Content feels real.
 
+## Usability — Nielsen's 10 heuristics (0–4 each)
+
+Usability is 30% of the Awwwards score and the bulk of what `review` mode checks on a live site. Score each heuristic 0 (absent) to 4 (exemplary); a marketing site rarely needs all ten at 4, but a 0 or 1 on a load-bearing one is a stop-and-fix.
+
+1. **Visibility of system status** — loading, hover, active, submitted states are always shown; nothing leaves the user guessing.
+2. **Match to the real world** — language and metaphors fit the audience; no internal jargon.
+3. **User control & freedom** — back, undo, escape from modals/menus; no scroll-hijack trap.
+4. **Consistency & standards** — one pattern per action; links navigate, buttons act; platform conventions held.
+5. **Error prevention** — forms guard against mistakes before they happen (input types, inline validation).
+6. **Recognition over recall** — options are visible; the user never memorizes across steps.
+7. **Flexibility & efficiency** — keyboard paths, deep-linkable state, shortcuts for repeat users.
+8. **Aesthetic & minimalist design** — every element earns its place; no decoration competing with the signature.
+9. **Error recovery** — clear, inline, human error messages with a way forward.
+10. **Help & documentation** — discoverable when the task needs it; never required for the happy path.
+
+Feed the total into the Accessibility read above and into the `review` verdict, citing an example per low score.
+
 ## Output format
 
 Present results as a compact scored audit.
@@ -129,4 +146,4 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 
 ## Relation to `anti-patterns.md`
 
-`anti-patterns.md` is the binary catalog (present/absent). This rubric is the calibrated measurement. In practice: run `anti-patterns.md` first as a quick pre-flight — any axiomatic rejection triggers a stop-and-fix. Then score with this rubric for everything that passes the binary gate.
+`anti-patterns.md` is the binary catalog (present/absent). This rubric is the calibrated measurement. In practice: run `anti-patterns.md` first as a quick pre-flight — any axiomatic rejection triggers a stop-and-fix. Then score with this rubric for everything that passes the binary filter.

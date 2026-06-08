@@ -2,7 +2,7 @@
 
 Loaded only when the user explicitly asks for a voice-matching pass on an opinion piece, personal essay, or any format where personality is part of the brief. For docs, specs, and READMEs, **do not** load this file — neutral-precise is the default register.
 
-> **Brand voice vs sample voice.** This file covers *sample-driven* calibration — match the writing in *one* user-provided sample, on a *one-off* basis. For *brand-level* voice that persists across documents and authors (forbidden lexicon, rewrite rules, `BRAND-VOICE.md`), use [`/brand-voice`](../../brand-voice/SKILL.md) and pass the result via `humanize-en -f BRAND-VOICE.md`.
+> **Brand voice vs sample voice.** This file covers *sample-driven* calibration — match the writing in *one* user-provided sample, on a *one-off* basis. For *brand-level* voice that persists across documents and authors (forbidden lexicon, rewrite rules, `BRAND-VOICE.md`), use [`/brand-voice`](https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/SKILL.md) and pass the result via `humanize-en -f BRAND-VOICE.md`.
 
 ## When this applies
 

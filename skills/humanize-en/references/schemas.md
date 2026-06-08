@@ -93,7 +93,7 @@ Brand `rule_id` formats — exact values emitted per detector:
 
 Each detector is enabled only when the voice doc declares it (via `forbidden_patterns`, `pronouns.forbid`, `forbidden_lexicon`, or `rewrite_rules`). The `pronouns:second-person 'you' in marketing` rule_id contains a literal apostrophe — JSON-safe but worth quoting carefully when pasted into shell tooling.
 
-`forbidden_patterns` values that have **no** deterministic detector (`marketing_analogies`, `superficial_ing` per `../brand-voice/references/canonical-format.md`) are silently passed through — the LLM rewrite step is the only enforcement layer. The brand prescan emits zero hits for these even when present in the YAML; the *Coverage report* row still appears under `-f` so the audit gap is visible.
+`forbidden_patterns` values that have **no** deterministic detector (`marketing_analogies`, `superficial_ing` per [brand-voice's canonical-format reference](https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/references/canonical-format.md)) are silently passed through — the LLM rewrite step is the only enforcement layer. The brand prescan emits zero hits for these even when present in the YAML; the *Coverage report* row still appears under `-f` so the audit gap is visible.
 
 `pronouns.forbid` is matched case-insensitively — voice docs may write `"First-person singular"` or `"first-person singular"` interchangeably; both enable the detector.
 

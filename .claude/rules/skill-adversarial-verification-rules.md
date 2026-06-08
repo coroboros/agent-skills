@@ -32,15 +32,15 @@ The sync script and the parity test read this list:
 
 - forge
 - apex
+- award-design
 - code-ultrareview
 
-Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine.
+Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine; award-design refutes its own committed direction and the built site in its review mode.
 
 ## Excluded skills (with reason)
 
 - oneshot — deliberately single-pass with a complexity circuit breaker; a refute-by-default loop contradicts its fast-path design. Correctness is governed by its execution-discipline and label-hygiene blocks.
 - agent-creator — emits agent config (`.claude/agents/`), not findings or decisions to verify.
-- award-design — emits DESIGN.md (per-project content artifact), not verified findings.
 - design-system — governs DESIGN.md tokens; tooling/status output, not findings.
 - claude-md — emits CLAUDE.md (per-project content artifact), not findings.
 - brand-voice — emits BRAND-VOICE.md (per-project content artifact), not findings.
