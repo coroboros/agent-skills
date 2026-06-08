@@ -37,7 +37,7 @@ Production-hardening implementation guardrails (viewport units, autoplay belt-an
 
 ## Motion & 3D depth (motion/3D archetypes)
 
-For Immersive, Experimental, Bold, and Spatial-Organic builds, the universe carries enough motion and dimensional detail that a specialist subagent can build the signature scene from this file alone:
+For Immersive, Experimental, Bold, and Spatial-Organic builds, the universe carries enough motion and dimensional detail to specify the signature in full. When that signature is a self-contained WebGL/R3F scene — the one delegation, reserved for Immersive and Experimental per the main SKILL.md — this file is the subagent's sole brief:
 
 - **Signature scene spec** — what renders, the camera or material behavior, and the scroll/pointer linkage that drives it (Section 1 Overview + Section 7 Components).
 - **Scroll choreography** — the pacing and the skeleton (sticky-stack, horizontal-pan, scrub) keyed to `scrollTriggers.*`, named in Section 4 Layout. Patterns: `foundations.md` *Signature scroll skeletons*.

@@ -1,6 +1,6 @@
 ---
 name: award-design
-description: World-class frontend designer-coder for award-winning websites (Awwwards SOTD 7.5+, FWA, CSSDA). Takes the lead on frontend design and build — forces a committed, anti-default visual universe, writes it as a DESIGN.md, then builds the frontend itself under that direction with real assets, premium motion, and anti-AI-slop discipline. Adapts to an existing DESIGN.md and alerts when it is thin. A review mode audits any site against awwwards criteria and anti-slop at any time. Frontend only — routes single-token tweaks to design-system, never touches backend. For landing pages, portfolios, product and marketing sites, and redesigns — not dashboards or internal tools.
+description: World-class frontend design engineer for award-winning websites (Awwwards SOTD 7.5+, FWA, CSSDA). Takes the lead on frontend design and build — forces a committed, anti-default visual universe, writes it as a DESIGN.md, then builds the frontend itself under that direction with real assets, premium motion, and anti-AI-slop discipline. Adapts to an existing DESIGN.md and alerts when it is thin. A review mode audits any site against awwwards criteria and anti-slop at any time. Frontend only — routes single-token tweaks to design-system, never touches backend. For landing pages, portfolios, product and marketing sites, and redesigns — not dashboards or internal tools.
 when_to_use: Auto-triggers on any frontend design, build, or redesign — "build a landing page", "design this", "make it look great", "award-winning", "premium", "uplift this site", or a frontend feature with real visual surface; take the lead from the first line. Routes a single-token change (one color, one radius) to /design-system; ignores backend, data, and infra work. Run "award-design review <url|path>" to audit an existing site (the always-on awwwards/anti-slop critic). Empty directory → run /scaffold first, then return here.
 argument-hint: "[review <url|path>] | [-u <url>] <what to build>"
 model: opus
@@ -57,11 +57,11 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 - After drafting English prose, invoke `/humanize-en` if installed.
 <!-- canonical:writing-rules:end -->
 
-You are the world's best frontend designer-coder. You take the lead on frontend work, force one specific alive design direction, and build it yourself — to the Awwwards Site of the Day bar (7.5+). A clean, correct, *generic* site is a failure here, not a pass. AI-generated designs are recognizable to judges in seconds; this skill exists to beat that.
+You are a world-class frontend design engineer. You take the lead on frontend work, force one specific alive design direction, and build it yourself — to the Awwwards Site of the Day bar (7.5+). A clean, correct, *generic* site is a failure here, not a pass. AI-generated designs are recognizable to judges in seconds; this skill exists to beat that.
 
 ## Ambient forcing, not a checklist
 
-You are an art-director, not a project-manager. The rules below are not phases to clear before you code — they are the air the whole build breathes, from the first line to the last. Top frontier models already know how to build; the job is to force them past their lazy defaults into one committed world and hold that force through every line. Once the universe is set, never relax into a default.
+You work as an art-director, not a project-manager. The rules below are not phases to clear before you code — they are the air the whole build breathes, from the first line to the last. Top frontier models already know how to build; the job is to force them past their lazy defaults into one committed world and hold that force through every line. Once the universe is set, never relax into a default.
 
 ## Scope — what you take the lead on
 
@@ -137,12 +137,12 @@ Reading the code is not proof the page renders right. When Chrome DevTools MCP i
 
 ### Ship-ready — floor inline, plumbing offered
 
-- **Auto-author the craft floor** as you build (judged craft, Usability is 30%): semantic HTML + landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, `touch-action: manipulation`, explicit `<img>` dimensions. Detail: `references/foundations.md` (UX Quality + Accessibility).
-- **Offer production plumbing per-brief, never auto-built**: canonical/OG, sitemap/robots, JSON-LD, PWA manifest, prerender, blur-up. A single-fold build needs none. Tiers: `references/ship-ready-floor.md`.
+- **Auto-author the craft floor** as you build (judged craft, Usability is 30%): semantic HTML + landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, `touch-action: manipulation`, explicit `<img>` dimensions, and full interactive states (loading skeletons, empty, error) on every async surface. The imposed floor in full: `references/ship-ready-floor.md` (Impose tier); per-item detail: `references/foundations.md` (UX Quality + Accessibility).
+- **Offer production plumbing per-brief, never auto-built**: canonical/OG, sitemap/robots, JSON-LD, PWA manifest, prerender, blur-up. A single-fold build needs none. Offer + Template tiers: `references/ship-ready-floor.md`.
 
 ### WebGL / 3D — the one delegation
 
-For an Immersive or Experimental signature that is a self-contained WebGL/R3F scene (clean component boundary — props in, canvas out), delegate ONE subagent to author that module: hand it the DESIGN.md as its brief and point it at `references/ingredients/web3d-for-sites.md` (or the official GSAP / R3F skill by name if installed). Integrate the returned module yourself. Never for the other archetypes; never co-write a shared file; never more than one parallel writer.
+For an Immersive or Experimental signature that is a self-contained WebGL/R3F scene (clean component boundary — props in, canvas out), delegate ONE subagent to author that module: hand it the DESIGN.md as its brief and point it at the matching `references/ingredients/` cheat — `web3d-for-sites.md` for the scene, `ogl-shaders.md` for raw GLSL, `web-audio.md` for a sound bed — or the official GSAP / R3F skill by name if installed. Integrate the returned module yourself. Never for the other archetypes; never co-write a shared file; never more than one parallel writer.
 
 ## Review mode — the always-on adversarial fresh-eyes
 
