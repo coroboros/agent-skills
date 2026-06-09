@@ -2,7 +2,7 @@
 
 Methodology for the adversarial step that runs after Stress-test in Phase 2 (Judge). The prompt skeletons live in `subagent-prompts.md`; this file covers the panel roster, the dedup-and-score barrier, the bounded convergence loop, when to skip, and how to integrate findings.
 
-Anthropic documents the underlying pattern as `adversarial-review` in *Lessons from Building Claude Code: How We Use Skills* — a fresh-eyes subagent that critiques, iterates, and degrades findings to nitpicks. Forge runs a perspective-diverse panel in one parallel round, then converges on the survivors — bounded to ≤2 rounds because forge produces a plan, not code.
+Forge runs a perspective-diverse panel in one parallel round, then converges on the survivors — bounded to ≤2 rounds because forge produces a plan, not code.
 
 ## Why a panel, not one critic
 
