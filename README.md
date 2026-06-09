@@ -122,15 +122,15 @@ Pre-implementation thinking — research the problem space, weigh approaches wit
 | `-s` / `-S` | Save artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` / force no-save |
 | `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
 | `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks, no revision pause / disable |
-| `-e` / `-E` | Economy mode — no subagents (Hunt research and Judge's fresh-eyes critic) / disable |
+| `-e` / `-E` | Economy mode — no subagents (Hunt research floor and Judge's adversarial panel) / disable |
 | `-f` | Load prior context (forge plan, RFC, GitHub issue `#N` or URL) |
 
 Uppercase forms disable the ambient default when the skill runs with a pre-set mode. Requires `gh` authenticated when using `-i` or passing a GitHub URL/`#N` to `-f`.
 
 **What it does**
 
-1. **Hunt** — frames and reframes the real problem, then researches wide via parallel subagents; triangulates sources rather than picking one. On-demand references for breadth (`research-discipline.md`), the 5-question clarify playbook (`clarify-playbook.md`), and subagent prompt skeletons (`subagent-prompts.md`).
-2. **Judge** — diverges ≥3 structurally distinct approaches, stress-tests with premortem + steelman, then runs an **adversarial fresh-eyes critic** in a clean-context subagent — the same conversation cannot reliably argue against the plan it just shipped.
+1. **Hunt** — frames and reframes the real problem, then researches wide via parallel subagents above a hard floor (≥1 codebase + ≥1 external agent every run, `-e` the only escape); triangulates sources rather than picking one, and auto-launches a second research round when the premortem surfaces an un-researched failure mode. On-demand references for breadth (`research-discipline.md`), the 5-question clarify playbook (`clarify-playbook.md`), and subagent prompt skeletons (`subagent-prompts.md`).
+2. **Judge** — diverges ≥3 structurally distinct approaches, stress-tests with premortem + steelman, then runs an **adversarial panel** (3-5 lensed clean-context critics in parallel) and a bounded **convergence** round on the survivors — the same conversation cannot reliably argue against the plan it just shipped (`adversarial-panel.md`).
 3. **Decide** — three tiers: **decide** the reversible and conventional calls, **surface** the structurally load-bearing forks for the user (named with the pick, the runner-up, and what would flip it), **escalate** the few forks the user genuinely owns.
 4. **Forge** — chooses the artifact shape, walks a pre-save audit, saves, validates (when there are workstreams), pauses for revision under non-auto, then routes.
 

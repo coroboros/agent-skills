@@ -1,9 +1,9 @@
 # Decision: {title}
 
 <!-- DEFAULT shape: # Decision — keep this H1, Decision header, Assumption ledger,
-     Overview, and (when relevant) Risks + Open questions. Omit Workstreams,
-     Dependencies, and Execution order. Present and pause for the decompose
-     question after Save.
+     Research findings, Overview, and (when relevant) Risks, Kill criteria,
+     Open questions. Omit Workstreams, Dependencies, and Execution order.
+     Present and pause for the decompose question after Save.
 
      PROMOTED shape: # Spec — retitle the H1 to `# Spec: {title}` and include the
      full structure below (Workstreams, Dependencies, Execution order). Promote
@@ -28,6 +28,13 @@ Tag each as **verified fact**, **assumption**, or **inherited convention**. Flag
 - [verified fact] {what is known, and the source}
 - [assumption] {what was assumed, and why}
 - [inherited convention] {what was taken as given from existing code or prior docs}
+
+## Research findings
+
+Cited evidence that grounded the decision, capped at the load-bearing findings — the research made visible, not buried in the ledger. Tag each source `primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`; surface divergence, not only convergence. Prominent here in the Decision shape; condense to a 2-3 bullet digest in the Spec shape.
+
+- {finding} — {source}, {date if any} `[primary]`
+- {divergence worth surfacing, if any}
 
 ## Overview
 
@@ -99,6 +106,10 @@ WS-3 --> WS-5
 | {risk 2} | ... | ... | ... |
 
 [Only genuine risks — not generic "things might change" filler.]
+
+## Kill criteria
+
+[2-3 tripwires that would end this approach, each a measurable state plus a date or milestone — "if {state} by {date}, abandon and revisit". Pre-commit now, before sunk cost clouds the call. "none" for a pure tech choice with no commitment to abort.]
 
 ## Open questions
 

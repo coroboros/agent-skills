@@ -282,50 +282,114 @@ class TestThreeTierDecide(unittest.TestCase):
         )
 
 
-class TestAdversarialFreshEyes(unittest.TestCase):
-    """Judge runs one adversarial fresh-eyes critic after Stress-test
-    (commit 273f6ff). The critic gets a clean context (leader + runner-up
-    + premortem only) — the same conversation cannot reliably argue
-    against the plan it just shipped. Pattern from Anthropic's
-    adversarial-review."""
+class TestAdversarialPanel(unittest.TestCase):
+    """Judge runs an adversarial panel (3-5 lensed critics in parallel)
+    then a bounded convergence round after Stress-test. Each critic gets a
+    clean context (leader + runner-up + premortem only) — the same
+    conversation cannot reliably argue against the plan it just shipped.
+    Pattern from Anthropic's adversarial-review, fanned out per lens and
+    converged on the survivors (bounded to <=2 rounds)."""
 
-    # **Header.** trailing period sits inside the bold markers, so regexes
-    # must accept an optional period before the closing `**`.
-    ADVERSARIAL_HEADER = r"\*\*Adversarial fresh-eyes\.?\*\*"
+    ADVERSARIAL_HEADER = r"\*\*Adversarial panel \+ convergence\.?\*\*"
 
-    def test_adversarial_step_in_phase_2(self):
+    def _judge_section(self):
         m = re.search(
             r"### Phase 2 — Judge\s*\n(.*?)(?=^### |\Z)",
             _body(), re.DOTALL | re.MULTILINE,
         )
         self.assertIsNotNone(m, "Phase 2 — Judge section missing")
         assert m is not None
-        section = m.group(1)
+        return m.group(1)
+
+    def test_adversarial_step_in_phase_2(self):
+        section = self._judge_section()
         self.assertRegex(
             section, self.ADVERSARIAL_HEADER,
-            "Phase 2 must include the **Adversarial fresh-eyes** step",
+            "Phase 2 must include the **Adversarial panel + convergence** step",
         )
         self.assertRegex(
-            section.lower(), r"general-purpose.+(clean|fresh) context",
-            "Adversarial step must spawn general-purpose with a clean context",
+            section.lower(), r"general-purpose.+clean context",
+            "Panel must spawn general-purpose critics with a clean context",
+        )
+
+    def test_panel_fans_out_multiple_lensed_critics(self):
+        """Round 1 launches 3-5 critics, one per lens, in one parallel
+        message — the depth upgrade over the prior single one-shot critic."""
+        section = self._judge_section().lower()
+        self.assertIn("3-5", section,
+                      "Phase 2 must launch a 3-5 critic panel (Round 1)")
+        self.assertIn("lens", section,
+                      "Panel critics must each carry a distinct lens")
+        self.assertIn("parallel", section,
+                      "Panel critics launch in one parallel message")
+
+    def test_convergence_round_bounded(self):
+        """Round 2 converges on surviving findings, bounded to <=2 rounds —
+        forge emits a bounded plan, not an unbounded refute loop."""
+        section = self._judge_section().lower()
+        self.assertIn("convergence", section,
+                      "Phase 2 must run a convergence round on survivors")
+        self.assertRegex(
+            section, r"2 rounds|two rounds",
+            "Convergence must be bounded to <=2 rounds",
         )
 
     def test_adversarial_default_on_with_economy_skip(self):
         """ON by default; skipped under economy_mode. The economy flag
         is the user's opt-out for token/latency reasons."""
-        body = _body()
-        # The phrase "ON by default" is the canonical declaration.
-        m = re.search(
-            self.ADVERSARIAL_HEADER + r".*?(?=\*\*[A-Z]|\Z)",
-            body, re.DOTALL,
-        )
-        self.assertIsNotNone(m, "Adversarial step section missing")
-        assert m is not None
-        text = m.group(0)
-        self.assertIn("ON by default", text,
+        section = self._judge_section()
+        self.assertIn("ON by default", section,
                       "Adversarial step must declare 'ON by default'")
-        self.assertIn("economy_mode", text,
+        self.assertIn("economy_mode", section,
                       "Adversarial step must document the economy_mode skip")
+
+
+class TestResearchFloor(unittest.TestCase):
+    """Always-deep: forge is invoked deliberately, never for trivial work,
+    so there is no zero-agent path. Every run launches >=1 Explore + >=1
+    general-purpose; economy_mode is the only escape hatch. Drift back to a
+    skip-gate re-introduces the skim the deepening fixes."""
+
+    def _subagent_section(self):
+        m = re.search(
+            r"## Subagent strategy\s*\n(.*?)(?=^## |\Z)",
+            _body(), re.DOTALL | re.MULTILINE,
+        )
+        self.assertIsNotNone(m, "## Subagent strategy section missing")
+        assert m is not None
+        return m.group(1)
+
+    def test_floor_documented(self):
+        section = self._subagent_section().lower()
+        self.assertIn("floor", section,
+                      "Subagent strategy must state the research floor")
+        self.assertIn("1 explore", section,
+                      "Floor must require >=1 Explore agent")
+        self.assertIn("1 general-purpose", section,
+                      "Floor must require >=1 general-purpose agent")
+
+    def test_no_zero_agent_skip_row(self):
+        section = self._subagent_section()
+        self.assertNotIn("Answer already clear", section,
+                         "The zero-agent skip row must be removed")
+        self.assertNotRegex(
+            section, r"\|\s*0\s*\|",
+            "No row may set the agent count to 0 — there is no skip path",
+        )
+
+    def test_economy_is_the_only_escape(self):
+        section = self._subagent_section()
+        self.assertIn("economy_mode", section,
+                      "economy_mode must be named as the floor's escape hatch")
+
+    def test_rules_section_pins_floor(self):
+        m = re.search(r"## Rules\s*\n(.*?)(?=^##\s|\Z)", _body(),
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "## Rules section missing")
+        assert m is not None
+        rules = m.group(1).lower()
+        self.assertIn("never skim hunt", rules,
+                      "Rules must pin the never-skim-Hunt research floor")
 
 
 class TestPreSaveAuditAndRevisionPause(unittest.TestCase):
@@ -377,14 +441,14 @@ class TestPreSaveAuditAndRevisionPause(unittest.TestCase):
 class TestNewReferencesRouted(unittest.TestCase):
     """The rebuild added four references — research-discipline (Hunt),
     clarify-playbook (Hunt), subagent-prompts (Hunt + Judge), and
-    adversarial-critique (Judge). SKILL.md must route to each on demand.
+    adversarial-panel (Judge). SKILL.md must route to each on demand.
     Drift here turns load-bearing depth into orphan files."""
 
     REFERENCES = [
         "research-discipline.md",
         "clarify-playbook.md",
         "subagent-prompts.md",
-        "adversarial-critique.md",
+        "adversarial-panel.md",
     ]
 
     def test_each_new_reference_routed(self):
