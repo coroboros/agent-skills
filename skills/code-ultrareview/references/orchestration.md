@@ -7,7 +7,7 @@ Main-thread orchestration details for Phase 3 (axis review) and Phase 4 (validat
 The orchestrator prepares per-axis bundles via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` subagent in one message.
 
 ```bash
-python3 scripts/axis_dispatch.py prepare \
+python3 ${CLAUDE_SKILL_DIR}/scripts/axis_dispatch.py prepare \
   --scope <scope.json> \
   --findings <tool-findings.jsonl> \
   --diff <diff.patch> \
@@ -37,7 +37,7 @@ Each subagent emits findings as JSONL on stdout, one finding per line, against t
 The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one Haiku `Task` per finding in the same message — batched ≤10 parallel.
 
 ```bash
-python3 scripts/run_validators.py prepare \
+python3 ${CLAUDE_SKILL_DIR}/scripts/run_validators.py prepare \
   --scope <scope.json> \
   --findings <axis-findings.jsonl> \
   --diff <diff.patch> \
