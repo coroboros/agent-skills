@@ -53,15 +53,14 @@ Source quality. Tag every cited source with exactly one of:
 Skip: generic best practices the question did not ask about, training-data recall without a current source, single-source claims dressed up as consensus.
 ```
 
-## general-purpose — fresh-eyes adversarial critic (Judge)
+## general-purpose — adversarial panel lens (Judge, Round 1)
 
-Used by the Adversarial step in Phase 2. The point is a clean context that did NOT produce the leader, so the critique is not auto-justification.
+Used by the panel in Phase 2. Launch one critic per lens in a single parallel message — each a clean context that did NOT produce the leader, so the critique is not auto-justification. Fill `{lens_instruction}` from the roster below; everything else is identical across critics.
 
 ```
 You are an adversarial reviewer. You have not seen the research or
-deliberation that led to the leading approach. Your job is to find
-the overengineering, the unquestioned assumption, and the simpler
-path that was overlooked.
+deliberation that led to the leading approach. Critique it through
+ONE lens only — do not range across the others.
 
 <leading_approach>
 {one-paragraph summary}
@@ -75,21 +74,48 @@ path that was overlooked.
 {bulleted list}
 </premortem_failures>
 
-Critique:
-1. Where is the overengineering? Name the component or step that could be removed without losing the core outcome.
-2. What load-bearing assumption is unquestioned? Look at the leader's premise, not its mechanics.
-3. Is the simplest answer to NOT build this? Argue the case for doing nothing or doing it later — at full strength, not as a strawman.
-4. What did the premortem miss? Name failure modes that are not on the list.
-5. Where does the runner-up beat the leader on a dimension the leader's framing hides?
+Your lens: {lens_instruction}
 
 Be specific. Generic "this is complex" or "consider trade-offs" is not a critique. Cite the component, the assumption, the alternative — by name.
 
-Return: 3-7 findings, ranked by severity. For each, one sentence on the issue and one sentence on what the leader's authors should reconsider.
+Return: 3-7 findings under your lens, ranked by severity. For each, one sentence on the issue and one sentence on what the leader's authors should reconsider.
+```
+
+Lens roster — one critic each (3 for a focused call, 5 for architecture-level):
+
+- **overengineering / simplicity** — Where is the overengineering? Name the component or step removable without losing the core outcome. Is the simplest answer to NOT build this?
+- **load-bearing-assumption audit** — What load-bearing assumption is unquestioned? Look at the leader's premise, not its mechanics.
+- **do-nothing / defer** — Argue the case for doing nothing or doing it later, at full strength, never as a strawman.
+- **runner-up's hidden win** — Where does the runner-up beat the leader on a dimension the leader's framing hides?
+- **premortem gaps** — What failure modes are missing from the premortem list?
+
+## general-purpose — convergence skeptic (Judge, Round 2)
+
+One per surviving finding. The skeptic sees only the finding and the orchestrator's rebuttal — not the panel's other findings, not the deliberation.
+
+```
+A panel surfaced this finding against the leading approach, and the
+plan's author rebutted it. Judge whether the rebuttal holds.
+
+<finding>
+{one finding}
+</finding>
+
+<rebuttal score="{1-5}">
+{the author's rebuttal}
+</rebuttal>
+
+Verdict — one of:
+- KILL: the rebuttal holds; the finding is materially wrong. Refute it in one sentence citing the rebuttal's evidence.
+- CONFIRM: the finding stands; the rebuttal does not nullify it. Say in one sentence whether it flips the leader, or belongs in Risks / Open questions.
+
+Do not hedge. Generic agreement is not a verdict. Return the verdict word and the one-sentence rationale.
 ```
 
 ## Anti-patterns
 
 - Pasting the skeleton without filling in `{specific_area}` or `{specific_question}` — the subagent has no context to scope itself.
 - Asking the subagent to "decide" or "recommend" — subagents return findings, the main context decides.
-- Launching a subagent on a question already answered by framing — exploration is cheap, but a subagent on a settled question burns budget for no gain.
+- Assigning one critic two lenses, or two critics the same lens — the panel's value is one distinct angle per clean context.
+- Running a convergence skeptic with the panel's full output instead of just its one finding — that leaks the cross-finding context the round exists to keep out.
 - Launching agents sequentially when their queries are independent — parallel is the whole point.

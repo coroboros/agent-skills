@@ -10,11 +10,13 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 TEMPLATE = REPO_ROOT / "skills" / "forge" / "templates" / "forge-artifact.md"
 
 
-# H2 sections in canonical order. Decision + Assumption ledger lead (the
-# brief-derived header); the spec body (Overview…Execution order) follows.
+# H2 sections in canonical order. Decision + Assumption ledger + Research
+# findings lead (the brief-derived header, research made visible); the spec
+# body (Overview…Execution order) follows, with Kill criteria after Risks.
 REQUIRED_SECTIONS = [
     "Decision",
     "Assumption ledger",
+    "Research findings",
     "Overview",
     "Goals",
     "Non-goals",
@@ -22,6 +24,7 @@ REQUIRED_SECTIONS = [
     "Workstreams",
     "Dependencies",
     "Risks",
+    "Kill criteria",
     "Open questions",
     "Parking lot",
     "Execution order",

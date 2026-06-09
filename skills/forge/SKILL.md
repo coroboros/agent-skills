@@ -118,26 +118,25 @@ If `{issues_mode}` = true, a `## GitHub Issues` section is appended after creati
 
 ## Subagent strategy
 
-The Hunt phase uses **adaptive agent launching** and the Judge phase runs one **adversarial fresh-eyes critic** after Stress-test, unless `{economy_mode}` = true.
+The Hunt phase uses **adaptive agent launching** above a hard floor, and the Judge phase runs an **adversarial panel** then a bounded **convergence** round after Stress-test, unless `{economy_mode}` = true.
 
 **Available subagent types:**
 
 - `Explore` — find existing patterns, files, architecture, prior decisions via `git log` (read-only, fast, context-isolated)
 - `general-purpose` — research approaches, library docs, post-mortems, web search
 
-**Launch count scales with complexity:**
+**Floor, then scale with complexity.** Every run launches at least 1 Explore + 1 general-purpose — forge is invoked deliberately, never for trivial work, so there is no zero-agent path. `{economy_mode}` is the only escape hatch.
 
 | Scenario | Agents | Composition |
 |----------|--------|-------------|
-| Answer already clear from framing | 0 | Decide directly — don't waste tokens |
-| Simple A-vs-B in a known space | 1-2 | 1x Explore or 1x general-purpose |
-| New tech/pattern in a familiar ecosystem | 2-3 | 1x Explore (related code) + 1x general-purpose (docs) |
+| Simple A-vs-B in a known space | 2 | 1x Explore + 1x general-purpose |
+| New tech/pattern in a familiar ecosystem | 2-3 | 1x Explore (related code) + 1-2x general-purpose (docs) |
 | Unfamiliar domain, multiple dimensions | 3-5 | 2x Explore + 1-2x general-purpose |
-| Architecture-level, many unknowns | 5-7 | 2x Explore + 2-3x general-purpose |
+| Architecture-level, many unknowns | 6-10 | 3-4x Explore + 3-4x general-purpose |
 
-Exploration output is large and noisy; subagents keep that noise out of the main context — only the distilled findings return. Launch all chosen agents in one message so they run in parallel. Don't over-launch: if the idea is simple or the codebase is small, skip subagents and use direct tools.
+Exploration output is large and noisy; subagents keep that noise out of the main context — only the distilled findings return. Launch all chosen agents in one message so they run in parallel. Scale up from the floor with the stakes; never drop below it unless `{economy_mode}` = true.
 
-**Prompt skeletons.** Pin the report shape and the constraint in every prompt — a vague subagent prompt returns a vague summary. For Explore (codebase reconnaissance), general-purpose (external research), and the adversarial critic used by Judge, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` on demand. Adapt the skeleton to the question; do not paste verbatim.
+**Prompt skeletons.** Pin the report shape and the constraint in every prompt — a vague subagent prompt returns a vague summary. For Explore (codebase reconnaissance), general-purpose (external research), and the adversarial panel + convergence skeptics used by Judge, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` on demand. Adapt the skeleton to the question; do not paste verbatim.
 
 ## State variables
 
@@ -189,7 +188,7 @@ Keep it minimal — no verbose parsing logs, no separators.
 - **Never implement.** Forge produces a document (and optionally issues), not code changes. No edits or writes beyond the artifact.
 - **Three tiers in Decide.** Reversible and conventional → decide and record the rationale. Load-bearing → surface the call with the pick, the runner-up, and what would flip it. User-owned → escalate. Auto-deciding a load-bearing call is the overengineering tell — see Phase 3.
 - **Cross-reference, don't cherry-pick.** Triangulate sources for convergence and contradiction; never adopt the first plausible answer.
-- **Think hardest at Judge and Decide.** Don't overthink Hunt-phase triage — gathering is cheap.
+- **Think hardest at Judge and Decide — never skim Hunt.** Every run grounds the call in ≥1 codebase + ≥1 external agent unless `{economy_mode}`; perceived clarity is where un-audited assumptions hide.
 - **Load references on demand.** Read `references/*.md` only when the phase needs them — keep the main context lean.
 - **Always include concrete acceptance criteria** — every workstream, Given/When/Then + ≥1 negative; see `references/spec-craft.md`.
 - **3-7 workstreams.** Code-bearing artifacts have between 3 and 7 workstreams. Fewer means one task — go straight to `/oneshot` or `/apex`. More means re-decompose. Enforced by `scripts/validate_spec.py`.
@@ -209,7 +208,7 @@ Frame the real problem, then research it wide.
 
 **Clarify (if vague and not `{auto_mode}`).** If scope, constraints, success criteria, or a load-bearing dependency is unclear and could flip the outcome, ask the 1-3 most relevant decision-forcing questions in a single message before researching — never five when one matters, never a second round, unless the user opts into a deep grill (relentless, one-question-at-a-time; see the playbook). For the question set, the when-to-ask gate, the prior-context attenuation rule, and the opt-in deep grill, read `${CLAUDE_SKILL_DIR}/references/clarify-playbook.md` on demand. Under `{auto_mode}`, never ask — decide, tag the call `assumption` in the ledger, surface the shakiest as an open question.
 
-**Research.** Investigate from multiple angles via parallel subagents scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. Every cited external source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per the prompt contract in `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` § *general-purpose — external research* — downstream readers discount lower-quality sources before fusion. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
+**Research.** Investigate from multiple angles via parallel subagents above the research floor, scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. Every cited external source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per the prompt contract in `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` § *general-purpose — external research* — downstream readers discount lower-quality sources before fusion. When the Phase 2 premortem surfaces a failure mode no source covered, launch one more research agent before Decide — the second round is automatic, not optional. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
 
 ### Phase 2 — Judge
 
@@ -225,7 +224,13 @@ Diverge before converging, then stress-test.
 
 Be rigorous, not contrarian. For a sharper angle — first-principles, inversion, reverse-brainstorm, elimination — read `references/thinking-tools.md` on demand.
 
-**Adversarial fresh-eyes.** ON by default. Launch one `general-purpose` subagent with a clean context — leader summary, runner-up summary, and the premortem failures only. The point is that the critique comes from a context that did NOT produce the leader: the same conversation cannot reliably argue against the plan it just shipped. For the prompt skeleton, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for the full skip conditions (`{economy_mode}`, wide-gap Judge convergence with no shaky assumption, pure-strategy with a dominant option) and the integration rule (fold into Decision, refute in writing, or file in Risks / Open questions — never silently drop), read `${CLAUDE_SKILL_DIR}/references/adversarial-critique.md`. When refuting a finding, score the rebuttal 1–5 per the Concession Threshold Protocol — concede only at ≥ 4, otherwise fold or file.
+**Adversarial panel + convergence.** ON by default; skipped only under `{economy_mode}`. The critique must come from contexts that did NOT produce the leader — the same conversation cannot reliably argue against the plan it just shipped.
+
+- **Round 1 — panel.** Launch 3-5 `general-purpose` critics in one parallel message, each a clean context fed only the leader summary, the runner-up summary, and the premortem failures, and each assigned ONE distinct lens, in priority order: overengineering/simplicity, load-bearing-assumption audit, the do-nothing/defer case, the runner-up's hidden-dimension win, and the premortem gaps. Use the first 3 lenses for a focused call, all 5 for an architecture-level one.
+- **Barrier.** Merge the returned findings, dedup by target, and score each rebuttal 1–5 on the Concession Threshold — concede only at ≥ 4; below that the finding survives.
+- **Round 2 — convergence.** Launch one fresh skeptic per surviving finding to kill it (refute in writing) or confirm it (escalate to a flip condition or a risk). Stop when findings degrade to nitpicks, or after 2 rounds total — forge emits a bounded plan, not code.
+
+Every finding flips the leader, is refuted in writing at ≥ 4, or is filed in Risks / Open questions — never silently dropped. For the lens skeletons and the convergence skeleton read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for the panel roster, the dedup rule, the bounded-convergence loop, and the `{economy_mode}` skip, read `${CLAUDE_SKILL_DIR}/references/adversarial-panel.md`.
 
 ### Phase 3 — Decide
 
@@ -273,9 +278,11 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 **Write the artifact** using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR}/templates/forge-artifact.md` before writing):
 
 1. **Decision header** — chosen approach + rationale, runner-up + what would flip it, escalated forks (or "none").
-2. **Assumption ledger** — every load-bearing assumption tagged verified fact / assumption / inherited convention. Fold the adversarial-critique findings here — each finding either flipped the leader, was refuted in writing at score ≥ 4 per the Concession Threshold Protocol, or filed in Risks / Open questions. Silent drops are a defect.
-3. **Spec shape only (promoted)** — H1 `# Spec: {title}`, 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`.
-4. **Decision shape (default)** — H1 `# Decision: {title}`. Omit workstreams, dependencies, and execution order. After Save, present and pause for the decompose question described above.
+2. **Assumption ledger** — every load-bearing assumption tagged verified fact / assumption / inherited convention. Fold the panel + convergence findings here — each finding either flipped the leader, was refuted in writing at score ≥ 4 per the Concession Threshold Protocol, or filed in Risks / Open questions. Silent drops are a defect.
+3. **Research findings** — the cited, quality-tagged evidence that grounded the call, capped at the top findings by load-bearingness. Prominent in the Decision shape (the user came to see the thinking); a 2-3 bullet digest in the Spec shape. This is the research made visible, not buried in the ledger.
+4. **Kill criteria** — 2-3 measurable tripwires, each a state + a date or milestone ("if {state} by {date}, abandon and revisit"), pre-committed before sunk cost clouds the call. "none" is valid for a pure tech choice with no commitment to abort.
+5. **Spec shape only (promoted)** — H1 `# Spec: {title}`, 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`.
+6. **Decision shape (default)** — H1 `# Decision: {title}`. Omit workstreams, dependencies, and execution order. After Save, present and pause for the decompose question described above.
 
 **Pre-save audit.** Before save, walk the audit checklist in `${CLAUDE_SKILL_DIR}/references/spec-craft.md` § Pre-save audit. The Decision-shape items apply always; the Spec-shape items apply when promoted. Rewrite anything flagged and re-walk the list. This is the layer the schema validator does not catch — vague AC, goals stated as outputs, greedy P0, untagged non-goals, XL workstreams that need splitting, surfaced forks left empty when load-bearing calls exist.
 
@@ -306,7 +313,7 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 - `references/clarify-playbook.md` — five decision-forcing question lenses, when-to-ask gate, opt-in deep grill; read on demand by Hunt
 - `references/subagent-prompts.md` — prompt skeletons for Explore, general-purpose, and the adversarial critic; read on demand whenever launching a subagent
 - `references/thinking-tools.md` — first-principles, inversion, reverse-brainstorm, elimination; read on demand by Judge
-- `references/adversarial-critique.md` — fresh-eyes methodology: when to run, when to skip, how to integrate findings; read on demand by Judge
+- `references/adversarial-panel.md` — panel + bounded-convergence methodology: lenses, dedup, when to skip, how to integrate findings; read on demand by Judge
 - `references/spec-craft.md` — acceptance-criteria, priority, and goal-hardening technique; read on demand by Forge
 - `references/issue-creation.md` — GitHub issue orchestration; read only when `-i` is set
 - `scripts/validate_spec.py` — schema + dependency-graph validator (Forge; requires Python 3.7+)
@@ -322,7 +329,9 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 ## Success criteria
 
 - A decision with a clear rationale, the runner-up, and what would flip it.
-- Adversarial-critique findings folded into the artifact (or refuted in writing) — never silently dropped.
+- Adversarial panel + convergence findings each flipped, refuted in writing at ≥ 4, or filed — never silently dropped; convergence bounded to ≤ 2 rounds.
+- Research floor honored — ≥1 codebase + ≥1 external agent unless `-e`; a second research round fired if the premortem surfaced an unresearched failure mode.
+- Kill criteria emitted (measurable tripwire + date, or "none"); research-findings section present and quality-tagged.
 - Shape routing respected: Decision by default; Spec only when `{auto_mode}`, a build verb, an explicit decomposition signal, or `{issues_mode}` fires.
 - Surfaced forks named for any load-bearing call (or "none" when there genuinely are none) — three-tier Decide upheld.
 - Pre-save audit cleared (Decision items always; Spec items when promoted) — the validator passes only after the audit does.

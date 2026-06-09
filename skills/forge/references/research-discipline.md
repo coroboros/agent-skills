@@ -34,12 +34,12 @@ A quality tag rates the source type; provenance rates its interest. For each loa
 
 Premortem framing, generic best practices, common gotchas for well-known libraries — the model already carries these. Use research to ground the *specific* call: this codebase, this version, this constraint.
 
-Skip research entirely when the answer is already clear from framing — exploration is cheap, but launching subagents on a settled question burns context for no gain.
+Every run grounds the call in ≥1 codebase + ≥1 external angle — the floor stands even when the framing feels settled, unless `{economy_mode}`. Perceived clarity is exactly where un-audited assumptions hide; forge is invoked deliberately for thinking, so there is no settled-enough-to-skip path.
 
 ## When to widen the net
 
 - Two angles converged but the answer feels too clean → add the third angle.
-- The premortem in Phase 2 surfaces a failure mode no source mentioned → research it directly.
+- The premortem in Phase 2 surfaces a failure mode no source mentioned → launch one more research agent before Decide. This second round is automatic, not optional.
 - A load-bearing assumption is tagged `inherited convention` and you cannot find its origin → that is a research question worth one more subagent.
 
 ## When to stop

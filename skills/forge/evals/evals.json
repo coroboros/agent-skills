@@ -1,6 +1,6 @@
 {
   "skill_name": "forge",
-  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase Hunt/Judge/Decide/Forge flow, the Decision-default routing with the six Spec-promotion conditions, the three-tier Decide model, the adversarial fresh-eyes critic, the pre-save audit + validator gate pair, the revision pause, and the /apex bridge.",
+  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase Hunt/Judge/Decide/Forge flow, the Decision-default routing with the six Spec-promotion conditions, the three-tier Decide model, the always-deep research floor with its automatic premortem-gap second round, the adversarial panel + bounded convergence, the kill-criteria and research-findings sections, the pre-save audit + validator gate pair, the revision pause, and the /apex bridge.",
   "evals": [
     {
       "id": 1,
@@ -32,9 +32,9 @@
     },
     {
       "id": 5,
-      "name": "stress-test-runs-premortem-and-steelman-and-fresh-eyes",
+      "name": "stress-test-then-adversarial-panel-and-convergence",
       "prompt": "/forge should we adopt a Turborepo monorepo for our 4 services",
-      "expected_output": "The stress-test runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. Then the Adversarial fresh-eyes step launches one `general-purpose` subagent with a clean context (leader summary + runner-up summary + premortem failures only — no deliberation history). The subagent returns 3-7 critique findings; each is folded into the Decision, refuted in writing, or filed in Risks / Open questions. Never silently dropped.",
+      "expected_output": "The stress-test runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. Then the Adversarial panel + convergence step launches 3-5 `general-purpose` critics in one parallel message, each a clean context (leader summary + runner-up summary + premortem failures only — no deliberation history) holding ONE distinct lens (overengineering, assumption audit, do-nothing, runner-up's hidden win, premortem gaps). The orchestrator merges the findings, dedups by target, and scores each rebuttal 1-5 on the Concession Threshold; surviving findings get one fresh skeptic each in a convergence round bounded to <=2 rounds. Each finding is folded into the Decision, refuted in writing at >=4, or filed in Risks / Open questions — never silently dropped. The methodology routes to references/adversarial-panel.md.",
       "files": []
     },
     {
@@ -116,16 +116,51 @@
     },
     {
       "id": 17,
-      "name": "adversarial-fresh-eyes-catches-overengineering",
+      "name": "adversarial-panel-catches-overengineering",
       "prompt": "/forge -s build a job queue with priorities, dead-letter queues, exponential backoff, idempotency tokens, distributed tracing, and circuit breakers for our weekly cron",
-      "expected_output": "Phase 2's Adversarial fresh-eyes step launches a general-purpose subagent with a clean context (leader summary + runner-up summary + premortem only — no deliberation history) and asks where the overengineering is, what load-bearing assumption is unquestioned, and whether the simplest answer is to NOT build this. For a weekly cron with no scale yet, the critic surfaces 'this is a setTimeout problem masquerading as Kafka' or equivalent. The leader either flips toward a simpler approach, the finding is refuted in writing in the Decision section, or it is filed as a Risk / Open question. The critic's finding is not silently dropped.",
+      "expected_output": "Phase 2's Adversarial panel runs the overengineering/simplicity lens as one of its 3-5 clean-context critics (leader + runner-up + premortem only — no deliberation history), asking where the overengineering is and whether the simplest answer is to NOT build this. For a weekly cron with no scale yet, that lens surfaces 'this is a setTimeout problem masquerading as Kafka' or equivalent. The convergence round confirms the finding (a fresh skeptic fails to kill it); the leader flips toward a simpler approach, or the finding is refuted in writing at >=4, or it is filed as a Risk / Open question. The finding is not silently dropped.",
       "files": []
     },
     {
       "id": 18,
-      "name": "economy-mode-skips-subagents-including-fresh-eyes",
+      "name": "economy-mode-skips-subagents-including-panel",
       "prompt": "/forge -e -s add search functionality",
-      "expected_output": "Under -e (economy mode), the skill skips Hunt-phase subagents (Explore + general-purpose) AND skips the Phase 2 Adversarial fresh-eyes critic — the user opted out of token / latency cost. Hunt uses direct tools (Read, Glob, Grep) instead. The artifact still emits the full Spec with Decision header, Assumption ledger (tagged with the fresh-eyes skip as an `[assumption]` line), and workstreams. The downgrade is acknowledged, not silent.",
+      "expected_output": "Under -e (economy mode), the skill skips the Hunt research floor (Explore + general-purpose) AND skips the Phase 2 Adversarial panel + convergence — economy_mode is the only escape hatch from always-deep, and the user opted out of token / latency cost. Hunt uses direct tools (Read, Glob, Grep) instead. The artifact still emits the full Spec with Decision header, Assumption ledger (tagged with the panel skip as an `[assumption]` line), and workstreams. The downgrade is acknowledged, not silent.",
+      "files": []
+    },
+    {
+      "id": 19,
+      "name": "research-floor-forces-min-two-agents",
+      "prompt": "/forge should we name the cache key by user id or by session id",
+      "expected_output": "The question looks settled at first glance, but forge is invoked deliberately, so there is no zero-agent path. Hunt launches at least 1 Explore (how cache keys are derived in this codebase, prior decisions via git log) + 1 general-purpose (keying pitfalls — collisions, invalidation, multi-device session churn) — the research floor. Only -e (economy_mode) would skip it. The call is grounded in what was read, not asserted from framing.",
+      "files": []
+    },
+    {
+      "id": 20,
+      "name": "convergence-bounded-to-two-rounds",
+      "prompt": "/forge should we shard the events table by tenant now or defer it",
+      "expected_output": "After the panel, findings that survive the Concession Threshold barrier (rebuttal scored < 4) each get one fresh skeptic in a convergence round that kills the finding (refute in writing) or confirms it (escalate to a flip condition or a risk). The loop stops when findings degrade to nitpicks or after 2 rounds total — forge emits a bounded plan, not an unbounded refute loop. The methodology routes to references/adversarial-panel.md.",
+      "files": []
+    },
+    {
+      "id": 21,
+      "name": "kill-criteria-emitted-with-tripwire-and-date",
+      "prompt": "/forge -s migrate our search from Postgres full-text to a dedicated engine",
+      "expected_output": "The artifact carries a Kill criteria section with 2-3 measurable tripwires, each a state plus a date or milestone ('if relevance quality has not beaten the Postgres baseline by the Q3 review, abandon and revisit'), pre-committed before sunk cost clouds the call. For a commitment with a real exit cost the section is populated, not 'none'. A pure tech choice with no abort commitment may record 'none'.",
+      "files": []
+    },
+    {
+      "id": 22,
+      "name": "research-findings-section-cited-and-tagged",
+      "prompt": "/forge should we use Drizzle or Prisma for our Neon Postgres",
+      "expected_output": "The Decision artifact carries a Research findings section that makes the evidence visible rather than burying it in the Assumption ledger: the load-bearing findings, each with its source and a quality tag (primary / secondary / blog / anecdote / vendor-marketing), and any divergence surfaced rather than smoothed over. The section is prominent in the Decision shape; in a promoted Spec shape it condenses to a 2-3 bullet digest.",
+      "files": []
+    },
+    {
+      "id": 23,
+      "name": "premortem-gap-triggers-auto-second-research-round",
+      "prompt": "/forge should we move session storage from cookies to Redis",
+      "expected_output": "When the Phase 2 premortem surfaces a failure mode no Hunt source covered (for example Redis eviction silently logging users out under memory pressure), forge launches one more research agent on that specific failure mode before Decide. The second round is automatic, not optional — the premortem-gap widen rule in references/research-discipline.md. The new finding is folded into the Risks or the Decision, not left as an un-researched premortem bullet.",
       "files": []
     }
   ]
