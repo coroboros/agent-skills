@@ -1,13 +1,11 @@
 ---
 name: code-ultrareview
 description: Eight-axis judgment code review for the current diff — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance (+ Coherence on metadata changes). Five-phase pipeline scope → deterministic tool battery (npx/uvx-preferred, zero-install for the JS + Python majority) → 8 parallel LLM axis reviewers → Haiku validators on sub-80 findings (verbatim rubric, ≥80 threshold) → synthesis with no-silent-drop + Conventional Comments JSONL. Every report closes with "What I did NOT check" (security → /security-review, runtime perf, flaky detection). Opt-in flags `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`. Public-skill posture — zero auto-install, graceful skip on missing native tools. Invoke before a commit or PR — "review my changes", "deep review", "did I miss anything", "check before I commit", "audit this PR", "drift / gaps / blind spots".
-when_to_use: 'User-invoked before commit or PR; runs the full 8-axis fan-out at max effort — no tiers. Defers security to /security-review (link in every report); defers runtime performance and benchmarks (explicit non-goal). Distinct from Anthropic''s remote /ultrareview command.'
+when_to_use: 'User-invoked before commit or PR; runs the full 8-axis fan-out — no tiers. Defers security to /security-review (link in every report); defers runtime performance and benchmarks (explicit non-goal). Distinct from Anthropic''s remote /ultrareview command.'
 argument-hint: "[-b <ref>] [--repo-kind <kind>] [--reconcile <input>] [--verify-build] [--mutation-test] [--apply-safe] [--include-prose] [--axes <list>] [--preflight] [-s] [-S]"
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 allowed-tools: Read, Grep, Glob, Bash, Task, WebFetch
-model: opus
-effort: max
 disable-model-invocation: true
 metadata:
   author: coroboros
@@ -55,7 +53,7 @@ Internal planning labels are author coordinates, not reader coordinates. Strip t
 Carve-outs — literal `WS-N` is legitimate where the skill IS the format authority (forge templates, apex rule documentation). Reviewer-facing dev docs (e.g. `MIGRATION.md` under `tests/<skill>/`) may reference deleted artifacts by their author-time names.
 <!-- canonical:label-hygiene:end -->
 
-> **Eight-axis judgment code review.** Five-phase pipeline scope → tool battery → 8 parallel axis reviewers → Haiku validators → synthesis. Always runs at full strength. Distinct from Anthropic's remote `/ultrareview` — same goal, in-session on the user's subscription.
+> **Eight-axis judgment code review.** Five-phase pipeline scope → tool battery → 8 parallel axis reviewers → Haiku validators → synthesis. Always runs at full strength — every axis, full battery, no sampling. Distinct from Anthropic's remote `/ultrareview` — same goal, in-session on the user's subscription.
 
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
@@ -90,7 +88,7 @@ Run the 8 axes — Correctness, Simplification, Tests, Documentation, Style, Int
 | `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation before any write |
 | `--include-prose` | Coherence axis compares README freeform paragraphs as well (default: structured fields only) |
 | `--axes <list>` | Comma-separated subset of axes to run (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
-| `--preflight` | List detected tools per repo_kind + print install commands for missing ones. Informational only, no install |
+| `--preflight` | Runs `scripts/preflight_tools.sh --scope <scope.json>` — lists detected tools per repo_kind + prints install commands for missing ones. Informational only, no install |
 
 Lowercase enables, uppercase disables. No `-f` — this skill is a producer, not a consumer.
 
@@ -111,7 +109,7 @@ Lowercase enables, uppercase disables. No `-f` — this skill is a producer, not
 
 Runs `scripts/scope.py`. Deterministic, no LLM. Outputs `scope.json`:
 
-- **Diff resolution** — clean tree → `scripts/resolve_base.sh` ladder; dirty tree → `git diff HEAD` + every untracked file inlined as added lines.
+- **Diff resolution** — clean tree → `scripts/resolve_base.sh` ladder; dirty tree → `git diff HEAD` + every untracked file inlined as added lines. Recipe for producing the `diff.patch` fed to Phase 3's `prepare --diff` (two-dot against the resolved base; untracked files via `git diff --no-index /dev/null <file>`): `references/orchestration.md` § *Produce the diff*.
 - **Repo-kind classification** — 8 kinds (`skills` / `app` / `library` / `docs` / `monorepo` / `python` / `rust` / `go`) + `unknown`. Override via `--repo-kind` or `.code-ultrareview.yaml`.
 - **CLAUDE.md chain** — root `CLAUDE.md` + nested `CLAUDE.md` in changed directories + `.claude/rules/*.md` + `~/.claude/rules/*.md`. Ordered root-to-deepest. Read by axis reviewers and validators.
 - **Coherence activation** — any of `package.json`, `.claude-plugin/marketplace.json`, `marketplace.json`, `SKILL.md`, root `README.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod` in the diff → `scope.json["activates_coherence"] = true`.
@@ -129,7 +127,7 @@ Runs `scripts/run_battery.sh`. Deterministic CLIs feed `tool-findings.jsonl` tag
 
 ### Phase 3 — Axis review
 
-The orchestrator prepares 8 per-axis bundles (+ Coherence when active) via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` `Task` in one message. Each subagent reads its axis brief, the rubric in `references/anthropic-verbatim.md`, the diff, and its filtered tool findings. Each emits canonical-schema JSONL on stdout. Subagents cannot spawn other subagents — the main thread launches both axis reviewers AND validators.
+The orchestrator prepares 8 per-axis bundles (+ Coherence when active) via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` `Task` (or your harness's equivalent) in one message. Each subagent reads its axis brief, the rubric in `references/anthropic-verbatim.md`, the diff, and its filtered tool findings. Each emits canonical-schema JSONL on stdout. Subagents cannot spawn other subagents — the main thread launches both axis reviewers AND validators. No subagent primitive in the harness? Run the axes sequentially and adversarially self-refute each finding in a fresh pass against the verbatim rubric before reporting — same phases, same contracts, no fan-out.
 
 The 8 always-on axes: **Correctness** · **Simplification** · **Tests** · **Documentation** · **Style** · **Intent** · **Design/API** · **Performance**. Each maps to `references/axes/<name>.md` for scope + repo-kind branches. Coherence is the conditional 9th — added when `scope.json["activates_coherence"]` is true; when inactive, the header surfaces `Coherence axis: inactive` so the absence is visible. Full axis map, inter-axis precedence, and orchestration details (prepare CLI, bundle schema, no-silent-failure contract): `references/axes-overview.md` + `references/orchestration.md`.
 
@@ -161,7 +159,7 @@ The closing **"What I did NOT check"** section is mandatory and always present, 
 
 ## Final report layout
 
-`templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; no rename, merge, reorder, or improvise. **Terminal echo is mandatory** — the full canonical report prints to the chat-terminal on every invocation; `-s` is purely additive (writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, byte-for-byte identical to terminal output). Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80) lives in `scripts/synthesis_core.py:SEVERITY_MARKERS`.
+`templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; no rename, merge, reorder, or improvise. **Terminal echo is mandatory** — the full canonical report prints to the chat-terminal on every invocation; `-s` is purely additive (writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, byte-for-byte identical to terminal output). Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80) lives in `scripts/synthesize.py:SEVERITY_MARKERS`.
 
 ## Trust model
 
@@ -217,7 +215,7 @@ The four opt-in flags layer orthogonally on the always-on pipeline: mutation tes
 
 - **Reviewer primitives** — `references/anthropic-verbatim.md` (rubric + HIGH SIGNAL + false-positive taxonomy), `references/axes-overview.md` (8 axes + Coherence + inter-axis precedence), `references/axes/<name>.md` (per-axis briefs), `references/orchestration.md` (Phase 3 + 4 + 3.5 prepare CLIs and bundle schemas).
 - **Opt-in flags** — `references/ultra-execution.md` covers `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe` in full.
-- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.
+- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, `preflight_tools.sh` (`--preflight`), `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.
 
 ## Gotchas
 

@@ -29,6 +29,8 @@ If `/award-design` is installed, the best init path is:
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 1. **Check if target path exists**. If a `DESIGN.md` is already at the target:
    - Abort by default — don't silently overwrite.
    - Offer three options: overwrite (with backup), run `/design-system audit` on the existing file instead, or run `/design-system migrate` if the existing file looks like Stitch format.
@@ -37,7 +39,7 @@ If `/award-design` is installed, the best init path is:
    - No archetype → generic minimal template (primary neutral palette, Inter typography, 4px radius scale, 8px spacing base, button + card + input components)
    - Archetype given → recommend `/award-design` (see *On archetype flavors* below) and only proceed with the generic template if the user confirms
 4. **Write** the file to `-o <path>` or `./DESIGN.md`.
-5. **Run audit** on the new file: `bash ${CLAUDE_SKILL_DIR}/scripts/audit.sh <output>`. A minimal template should lint with ≤ 2 warnings (`orphaned-tokens`, `missing-sections` is acceptable for placeholders).
+5. **Run audit** on the new file: `bash "$SKILL_DIR"/scripts/audit.sh <output>`. A minimal template should lint with ≤ 2 warnings (`orphaned-tokens`, `missing-sections` is acceptable for placeholders).
 6. **Report** to the user:
    - Path created
    - Audit status

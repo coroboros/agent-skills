@@ -101,6 +101,7 @@ If `{from_file}` is a **spec** — H1 starts with `# Spec:` AND the file contain
 
 - Log: `Spec AC accepted verbatim from {from_file}` in the analysis output. <!-- noqa: internal-label -->
 - Skip the AC inference step (§ 5 below) — the spec's AC are the contract.
+- A task naming one workstream (`implement WS-2`) scopes the verbatim AC to that workstream — the other workstreams stay out of this run's contract. <!-- noqa: internal-label -->
 - Negative scope: copy each workstream's `## Not Included` block when present; copy the spec-level `## Non-goals` section when no per-workstream negative scope exists.
 
 This prevents silent AC drift when chaining `/forge → /apex -f <forge plan>`.
@@ -111,8 +112,10 @@ The prior context (whether from an issue or a file) replaces the need for web re
 
 **If `{save_mode}` = true:**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
 ```
 
 Append findings to `{output_dir}/01-analyze.md` as you work.
@@ -130,6 +133,8 @@ These keywords guide exploration - NOT planning.
 
 **If `{economy_mode}` = true:**
 → Use direct tools (see step-00b-economy.md for rules)
+
+If your harness has no subagents, take this same path regardless of `{economy_mode}`.
 
 ```
 1. Glob to find files: **/*{keyword}*
@@ -354,8 +359,8 @@ Do NOT ask for user confirmation here - always proceed directly to step-02-plan.
 Append summary to `{output_dir}/01-analyze.md` then:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "01" "analyze" "complete"
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "01" "analyze" "complete"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
 ```
 
 ---

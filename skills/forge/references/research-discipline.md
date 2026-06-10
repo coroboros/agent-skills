@@ -34,7 +34,7 @@ A quality tag rates the source type; provenance rates its interest. For each loa
 
 Premortem framing, generic best practices, common gotchas for well-known libraries — the model already carries these. Use research to ground the *specific* call: this codebase, this version, this constraint.
 
-Every run grounds the call in ≥1 codebase + ≥1 external angle — the floor stands even when the framing feels settled, unless `{economy_mode}`. Perceived clarity is exactly where un-audited assumptions hide; forge is invoked deliberately for thinking, so there is no settled-enough-to-skip path.
+Every run grounds the call in ≥1 codebase + ≥1 external angle — the floor stands even when the framing feels settled, unless `{economy_mode}` — and it binds harnesses without subagents too: run both passes yourself, sequentially. Perceived clarity is exactly where un-audited assumptions hide; forge is invoked deliberately for thinking, so there is no settled-enough-to-skip path.
 
 ## When to widen the net
 

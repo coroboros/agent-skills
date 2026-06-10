@@ -4,7 +4,7 @@ Strategy: run the script with cwd=<project> and an isolated HOME, then verify
 the global `$HOME/.claude/output/<project>/apex/<NN-feature>/` structure was
 created with all 5 step templates rendered (variable substitution applied).
 `<project>` = kebab-cased basename of the project root (git toplevel, else
-pwd). Output is global per .claude/rules/repo-conventions.md § Output paths —
+pwd). Output is global per .agents/rules/repo-conventions.md § Output paths —
 the tests also assert it never lands inside the project tree (de-pollution).
 """
 
@@ -232,6 +232,16 @@ class TestAutoIncrement(unittest.TestCase):
             apex = home / ".claude" / "output" / _project(proj) / "apex"
             new = [p.name for p in apex.iterdir() if "octal-edge" in p.name]
             self.assertEqual(new, ["09-octal-edge"])
+
+
+class TestContextTemplateSeed(unittest.TestCase):
+    """00-init must seed complete: the table exists only once init wrote it, and a
+    Pending row makes every resume resolve step_num 0, which validate_state rejects."""
+
+    def test_template_seeds_00_init_complete(self):
+        template = (REPO_ROOT / "skills" / "apex" / "templates" / "00-context.md").read_text(encoding="utf-8")
+        self.assertIn("| 00-init | ✓ Complete |", template)
+        self.assertNotIn("| 00-init | ⏸ Pending |", template)
 
 
 if __name__ == "__main__":

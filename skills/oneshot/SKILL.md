@@ -1,11 +1,10 @@
 ---
 name: oneshot
-description: Single-pass feature implementation using Explore → Code → Test. Ships focused changes at maximum speed, with a built-in circuit breaker that stops and recommends `/apex` or `/forge` when the task turns out more complex than it looked. Use this whenever the user wants a quick win on a single, focused task — even when they don't say "oneshot" (e.g. "just", "quickly", "small change", "#42", or a GitHub issue URL for a small fix).
-when_to_use: When the task is simple, focused, and well-defined. Quick fixes, small features, single-concern changes. When the user says "quickly", "just do", "simple change", provides a GitHub issue reference for a small fix, or describes a clearly scoped task. NOT for multi-file refactors or unfamiliar codebases — use `/apex`. NOT for planning or weighing approaches — use `/forge`.
+description: Single-pass feature implementation using Explore → Code → Test. Ships focused changes at maximum speed, with a built-in circuit breaker that stops and recommends `/ultrapex` (or `/apex`) or `/forge` when the task turns out more complex than it looked. Use this whenever the user wants a quick win on a single, focused task — even when they don't say "oneshot" (e.g. "just", "quickly", "small change", "#42", or a GitHub issue URL for a small fix).
+when_to_use: When the task is simple, focused, and well-defined. Quick fixes, small features, single-concern changes. When the user says "quickly", "just do", "simple change", provides a GitHub issue reference for a small fix, or describes a clearly scoped task. NOT for multi-file refactors or unfamiliar codebases — use `/ultrapex` (Fable-class) or `/apex`. NOT for planning or weighing approaches — use `/forge`.
 argument-hint: "<description or #issue>"
-model: sonnet
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -75,7 +74,7 @@ Gather the minimum context needed to identify the edit target. Direct tools firs
 - `Grep` for specific symbols or strings.
 - Quick `WebSearch` only if library-specific API knowledge is missing.
 
-**When to spawn an `Explore` subagent instead:** if one or two direct searches don't locate the edit target, stop searching and spawn a single `Explore` subagent with a specific question ("find the file that handles {X}"). Reason: multiple rounds of Glob/Grep pollute the main context with file contents you'll never edit — a subagent returns just the answer. This is an exception path, not the default.
+**When to spawn an `Explore` subagent instead:** if one or two direct searches don't locate the edit target, stop searching and spawn a single `Explore` subagent (or your harness's equivalent) with a specific question ("find the file that handles {X}"). Reason: multiple rounds of Glob/Grep pollute the main context with file contents you'll never edit — a subagent returns just the answer. This is an exception path, not the default. If your harness has no subagents, explore inline.
 
 No exploration tours. As soon as the edit target is identified, move on.
 
@@ -156,4 +155,4 @@ Run the project's lint and typecheck commands — discover them from project ins
 
 1. **Circuit-breaker after Explore needs explicit user approval to continue.** When the task spans >5 files, >2 systems, or hits cross-cutting concerns, the skill stops post-Explore and surfaces the complexity check. The model sometimes treats the "Recommendation: /apex" line as a verdict and auto-restarts instead of asking. Fix: when the breaker trips, present the scope to the user and wait. Re-entry into oneshot for a complex task tends to thrash.
 2. **`gh` unauthenticated = silent issue-ref fail.** A `#42` or `owner/repo#42` reference is fetched via `gh issue view`; an unauthenticated `gh` returns empty output, and the model proceeds with no task context. Fix: run `gh auth status` before invoking with an issue ref; or paste the issue body directly as the task description.
-3. **Stuck-after-2-attempts is NOT auto-escalated to `/apex`.** The Blocked output names the recommendation but does not invoke it. The model sometimes interprets the recommendation as "Claude should run it next." Fix: when oneshot reports Blocked, the user manually runs `/apex {task}` (or `/forge` first for ambiguity). Escalation is a user action, not an automatic handoff.
+3. **Stuck-after-2-attempts is NOT auto-escalated to `/apex`.** The Blocked output names the recommendation but does not invoke it. The model sometimes interprets the recommendation as "the agent should run it next." Fix: when oneshot reports Blocked, the user manually runs `/apex {task}` (or `/forge` first for ambiguity). Escalation is a user action, not an automatic handoff.

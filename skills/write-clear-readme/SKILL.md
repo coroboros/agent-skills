@@ -3,18 +3,16 @@ name: write-clear-readme
 description: Author, audit, or polish a project README — clarity, structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first, proposes diffs, applies on approval. Use when creating, restructuring, auditing, optimizing, or polishing a README for clarity, concision, or scannable structure — "write readme", "audit readme", "polish readme", "clarify readme", "optimize readme", "restructure readme", README clarity/wording — for long human-facing docs, skill libraries, npm SDK references, or CLI manuals.
 when_to_use: Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
-model: opus
 disable-model-invocation: true
-allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *)
+allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *) Bash(python3 *) Bash(basename *) Bash(test *) Bash(ls *)
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---
 
 <!--
 Exception — `disable-model-invocation: true`. READMEs are high-stakes, user-facing
-artifacts; Claude should never autonomously decide to rewrite one based on a casual
+artifacts; the agent should never autonomously decide to rewrite one based on a casual
 keyword. The user must explicitly invoke via `/write-clear-readme`. The `when_to_use`
 keywords still help the user discover the skill in the `/` menu listing (per
 `claude-code-skills.md`, skill listing is independent from model auto-invocation).
@@ -226,8 +224,10 @@ The canonical *Writing rules* block already requires invoking `/humanize-en` aft
 
 > **Silent assumption — name it.** This audit evaluates structure, anchor integrity, collapse uniformity, and prose tells. It does NOT evaluate whether the right content is in this file. For that, consider whether sections should be cut, merged, reshaped, or split into adjacent files — and ask the user before rewriting scope.
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 1. **Read existing README** in full.
-2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, bloat tokens, `Expand —` prefixes, stale counts adjacent to nouns, h3-above-details redundancy, and a visual-rhythm signal (callout + image density). Exit 1 on hard findings; the JSON is your hit-list.
+2. **Run the structural audit script**: `"$SKILL_DIR"/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, bloat tokens, `Expand —` prefixes, stale counts adjacent to nouns, h3-above-details redundancy, and a visual-rhythm signal (callout + image density). Exit 1 on hard findings; the JSON is your hit-list.
 3. **Score against Universal rules** (structure — use the script output first):
    - Is the overview (TOC / index / table) visible without clicking?
    - Do all anchors resolve?
@@ -275,14 +275,14 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 ## Rules
 
 - NEVER auto-apply changes without user approval.
-- NEVER collapse Install / Quick Start / Requirements.
-- NEVER nest `<details>` blocks.
-- NEVER wrap a group heading or a TOC anchor target inside `<details>`.
+- NEVER collapse Install / Quick Start / Requirements — what a first-time reader needs is never behind a click.
+- NEVER nest `<details>` blocks — GitHub renders nested disclosure unreliably.
+- NEVER wrap a group heading or a TOC anchor target inside `<details>` — a collapsed heading vanishes from the visual scan, and auto-expand on anchor jumps is not reliable across renderers.
 - NEVER apply Pattern A or B partially — every peer at the chosen level collapses or none does.
-- NEVER prefix `<summary>` with `Expand —` (or `Expand –`, `Expand -`).
-- NEVER put a numeric content-count adjacent to a noun in prose or `<summary>` — qualitative descriptors only.
+- NEVER prefix `<summary>` with `Expand —` (or `Expand –`, `Expand -`) — the disclosure triangle already says it.
+- NEVER put a numeric content-count adjacent to a noun in prose or `<summary>` — counts go stale on the next edit; qualitative descriptors only.
 - NEVER change anchors, code blocks, or link URLs in polish mode (those are content, not prose).
-- ALWAYS add `<br>` after `<summary>`.
+- ALWAYS add `<br>` after `<summary>` — GitHub needs it to render the first inner block.
 - ALWAYS match the existing README's style (quote convention, heading hierarchy, badge format) when editing.
 - ALWAYS verify the rendered output before declaring done (GitHub preview, IDE preview, or user confirmation).
 - Empty `$ARGUMENTS` follows the *Subcommands* default row above. Non-empty: first token is the subcommand, second is the path.

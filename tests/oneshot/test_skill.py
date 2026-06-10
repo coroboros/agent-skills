@@ -24,10 +24,10 @@ def _body():
 
 
 class TestOneshotFrontmatter(unittest.TestCase):
-    def test_model_sonnet(self):
-        """oneshot is sonnet-tier — bounded reasoning for fast turnarounds."""
+    def test_model_unset_inherits_session(self):
+        """model stays unset — pinning would downgrade stronger sessions."""
         fm = _frontmatter()
-        self.assertEqual(fm.get("model"), "sonnet")
+        self.assertIsNone(fm.get("model"))
 
     def test_argument_hint_format(self):
         fm = _frontmatter()

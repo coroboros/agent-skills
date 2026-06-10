@@ -34,7 +34,7 @@ State the role, focus areas, and approach explicitly.
 
 ### Constraints
 
-Include what the subagent should NOT do. Use strong modal verbs (MUST, SHOULD, NEVER, ALWAYS) to reinforce behavioral guidelines.
+Include what the subagent should NOT do. Reserve MUST/NEVER for hard boundaries and pair each with its why — explained guidelines hold better than shouted ones.
 
 Example:
 ```markdown
@@ -430,11 +430,11 @@ This keeps the instruction/data boundary clean and blunts prompt injection: inst
 
 ### Extended thinking
 
-For complex reasoning tasks, leverage extended thinking:
+Thinking is adaptive on current models — depth follows the `effort` setting and task complexity, with no token budget to configure:
 
 ```markdown
 <thinking_approach>
-Use extended thinking for:
+Reserve deep reasoning for:
 - Root cause analysis of complex bugs
 - Security vulnerability assessment
 - Architectural design decisions
@@ -448,13 +448,13 @@ Rather than:
 </thinking_approach>
 ```
 
-**When to use extended thinking**:
+**When deep reasoning matters**:
 - Debugging complex issues
 - Security analysis
 - Code architecture review
 - Performance optimization requiring deep analysis
 
-**Minimum thinking budget**: 1024 tokens (increase for more complex tasks)
+**Tuning depth**: raise the agent's `effort` field for harder tasks — thinking budgets are deprecated
 
 ### Success criteria
 

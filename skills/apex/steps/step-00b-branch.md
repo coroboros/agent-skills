@@ -54,7 +54,7 @@ Store result as `{current_branch}`
 → Auto-create branch: `feat/{task_id}`
 
 **If `{auto_mode}` = false:**
-Use AskUserQuestion:
+Use AskUserQuestion (when available; otherwise ask in plain text and wait for the reply):
 ```yaml
 questions:
   - header: "Branch"
@@ -76,6 +76,8 @@ questions:
 git checkout -b feat/{task_id}
 ```
 → `{branch_name}` = `feat/{task_id}`
+
+If `{task_id}` does not exist yet (non-save run, or `-b` resolving before template setup), derive the slug from the task description instead — kebab, ≤5 words: `feat/{slug}`.
 
 **If user chose "Custom branch name":**
 → Ask for branch name
@@ -110,7 +112,7 @@ Display:
 ❌ Starting implementation before returning
 ❌ Not setting `{branch_name}` variable
 ❌ Creating branch without user consent (when not auto_mode)
-❌ **CRITICAL**: Using plain text prompts instead of AskUserQuestion
+❌ **CRITICAL**: Using plain text prompts instead of AskUserQuestion (when it is available)
 
 ---
 

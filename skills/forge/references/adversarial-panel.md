@@ -12,7 +12,7 @@ One critic carries one blind spot. A panel where each critic holds a single dist
 
 ## Round 1 — the panel
 
-ON by default, after Stress-test, before Decide. Launch the critics in one parallel message — one `general-purpose` per lens, each clean-context.
+ON by default, after Stress-test, before Decide. Launch the critics in one parallel message — one `general-purpose` per lens, each clean-context. If your harness has no subagents, run each critic lens yourself sequentially in fresh passes — one lens at a time, nothing carried over between them.
 
 Lenses, in priority order:
 
@@ -71,7 +71,7 @@ Concession — treating the finding as refuted, dropping it without filing — i
 - Letting a critic decide. Critics surface findings; the main context decides.
 - Asking a critic for a recommendation. The recommendation is the leader; each critic's job is the case against it.
 - Running a critic with the full deliberation history. That recreates the auto-justification bias the clean-context step exists to avoid.
-- Running the panel sequentially. One parallel message is the whole point — sequential defeats it.
+- Running the panel sequentially. One parallel message is the whole point — sequential defeats it. (Harnesses without subagents excepted — there, sequential fresh passes are the fallback.)
 - Exceeding 2 convergence rounds. The bound is the difference between a plan and an unbounded refute loop.
 - Silently dropping findings that don't fit the artifact. Every finding flips the plan, is refuted in writing, or is filed in Risks / Open questions.
 

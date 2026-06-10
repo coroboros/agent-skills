@@ -1,11 +1,10 @@
 ---
 name: apex
 description: Systematic implementation using APEX methodology (Analyze-Plan-Execute-eXamine) with parallel subagents and self-validation. Use when implementing features, fixing bugs, or making code changes that benefit from structured workflow.
-when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`.
+when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`. On a Fable-class or newer frontier session, prefer `/ultrapex`; apex is the pick for step-gated checkpoints and resumable state.
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -98,7 +97,7 @@ See **Parameters** below for the complete flag list.
 | `-e` | `--economy` | `-E` | `--no-economy` | No subagents, direct tools only |
 | `-b` | `--branch` | `-B` | `--no-branch` | Verify not on main; create branch if needed |
 | `-i` | `--interactive` | — | — | Configure flags via AskUserQuestion |
-| `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on under `claude -p`) |
+| `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on when `CLAUDE_NONINTERACTIVE` is exported (set it in `claude -p` wrappers and CI)) |
 | `-r` | `--resume` | — | — | Continue from a previous task (takes `<task-id>`) |
 | `-f` | `--from` | — | — | Prior context: GitHub issue (`#N`, URL), forge plan (e.g. `~/.claude/output/{project}/forge/forge-{slug}.md`), or any file as foundational input. Non-Markdown → pre-process via `/markitdown -s` |
 
@@ -106,7 +105,7 @@ Parsing algorithm, defaults, examples, and override semantics (lowercase enables
 
 ## Compatibility
 
-`-g` (the `/goal` integration) requires **Claude Code v2.1.139 or later**. On older versions, Claude Code rejects the unknown slash command and the flag becomes a no-op without halting apex.
+`-g` (the `/goal` integration) requires **Claude Code v2.1.139 or later**. On older versions, Claude Code rejects the unknown slash command and the flag becomes a no-op without halting apex. If `/goal` is unavailable in your harness, skip the goal gate and proceed.
 
 The `/goal` evaluator is **transcript-only** — it cannot run tools or read files independently. The emitted condition therefore forces command output into the transcript verbatim (e.g. `npm test exits 0`, not "tests pass") so the evaluator has a deterministic signal to judge.
 
@@ -150,12 +149,14 @@ All outputs saved under `~/.claude/output/{project}/apex/{task-id}/`, where `{pr
 
 **Resume mode (`-r {task-id}`):**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 Resolve the partial ID deterministically, then **auto-validate state** before restoring:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/resume_lookup.sh {partial_id}
+bash "$SKILL_DIR"/scripts/resume_lookup.sh {partial_id}
 # → resolves to {task_dir}
-bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {task_id} {step_num}
+bash "$SKILL_DIR"/scripts/validate_state.sh {task_id} {step_num}
 # → exit 0: state consistent, continue restoration
 # → non-zero: halt with the script's stderr findings; do NOT restore
 ```
@@ -215,7 +216,7 @@ The analyze phase (step-01) uses **adaptive agent launching** (unless economy_mo
 
 **Available subagent types (built-in):**
 
-- `Explore` — find existing patterns, files, utilities (read-only, fast)
+- `Explore` — find existing patterns, files, utilities (read-only, fast). Type names are Claude Code's; other harnesses use their nearest equivalents.
 - `general-purpose` — research library docs, web search, approaches, gotchas
 
 **Launch 0-10 agents based on task complexity:**
@@ -229,6 +230,8 @@ The analyze phase (step-01) uses **adaptive agent launching** (unless economy_mo
 | Major | 6-10 | Multiple systems, many unknowns |
 
 **BE SMART:** Analyze what you actually need before launching. Don't spawn a subagent for work you can complete directly in a single response. Spawn multiple subagents in the same turn when fanning out across items or reading multiple files.
+
+If your harness has no subagents, apply the economy-mode overrides (`steps/step-00b-economy.md`) — direct tools, run the explorations sequentially yourself.
 
 ## Save Output Pattern
 
@@ -253,7 +256,7 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 
 ## Gotchas
 
-1. **Progress-table mismatch halts `-r` resume with exit 3.** `scripts/validate_state.sh:69` requires the row in `00-context.md`'s `## Progress` table to match the step filename exactly (`| 01-analyze | ✓ Complete |`). A hand-renamed step file or a half-applied `update-progress.sh` invocation leaves the table out of sync; `tests/apex/test_validate_state.py:102-107` pins this. Fix: always run `scripts/update-progress.sh` after step completion; never rename step files post-creation.
+1. **Progress-table mismatch halts `-r` resume with exit 3.** `scripts/validate_state.sh:66` requires the row in `00-context.md`'s `## Progress` table to match the step filename exactly (`| 01-analyze | ✓ Complete |`). A hand-renamed step file or a half-applied `update-progress.sh` invocation leaves the table out of sync; `tests/apex/test_validate_state.py:102-107` pins this. Fix: always run `scripts/update-progress.sh` after step completion; never rename step files post-creation.
 2. **`-f` is an injection surface for indirect prompt attacks.** A GitHub issue body, a `WebFetch`-pulled doc, or a `-f` file written by an upstream skill can embed instructions disguised as data. Trust model (§ above) requires user review of the analysis report before Execute. Auto-mode (`-a`) skips per-tool confirmations but does not skip plan approval. Drop the surface entirely for sensitive tasks: pass `-e` (no subagents, no fetches).
 3. **Step-00 context overwrite when `-f` mismatches resumed `-r` task ID.** `setup-templates.sh` recreates `00-context.md` on first setup; resuming with `-r 01-foo` but `-f ~/.claude/output/{project}/forge/forge-bar.md` mixes two intents: state variables get the `-f` content, progress table reads the resumed task. Always match the IDs: `-r 01-foo` pairs with `-f ~/.claude/output/{project}/apex/01-foo/02-plan.md` or a fresh forge plan for that task.
 4. **Structured `{NN-feature}/` collisions across parallel worktrees.** Two worktrees of the same repo share the same kebab-cased `{project}` basename → both write under `~/.claude/output/{project}/apex/`. Auto-numbering scans the dir at script invocation, so two near-simultaneous `setup-templates.sh` calls can land on the same `NN` prefix. Fix: serialize apex setup across worktrees of the same repo, or rename one worktree's basename to differentiate.

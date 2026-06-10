@@ -27,11 +27,12 @@ At least one source flag is required — `update` does not enter interview mode 
 
 ## Workflow
 
+
 ### 1. Read existing doc
 
 - Resolve target path. Default `./BRAND-VOICE.md`.
 - If the target does not exist, abort: *"No `BRAND-VOICE.md` at `<path>`. Use `/brand-voice extract` first."*
-- `Read` the full file. `split_frontmatter` to separate YAML from prose. Parse YAML via `python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py <path>` for a flat view.
+- `Read` the full file. `split_frontmatter` to separate YAML from prose. Parse YAML via `python3 "$SKILL_DIR"/scripts/extract_rules.py <path>` for a flat view.
 - **Inheritance check** — if the target declares `voice.extends`, `update` operates on the *child file's delta only*. The parent is not modified, and the merge described in step 4 applies to the child's declarations against new sources — not against the inherited parent values. Authors who want to update the parent run `/brand-voice update <parent_path>` separately.
 
 ### 2. Detect manual sections
@@ -94,7 +95,7 @@ The user must answer `yes` explicitly.
 
 - Build the merged file in a temp file.
 - `voice_lint.py` — must return 0 (GREEN/YELLOW). RED → fix and re-lint.
-- On user `yes`: write the merged file to the target path. Manual sections are already preserved by the merge step (§3) — the write is a straight replace of the synthesised content.
+- On user `yes`: write the merged file to the target path. Manual sections are already preserved by the merge step (§4) — the write is a straight replace of the synthesised content.
 
 ### 7. Post-write report
 

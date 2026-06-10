@@ -35,9 +35,9 @@ Reference: `coroboros/archivist/docs/code/code-skills.md`.
 
 Claude Code-only extensions (`argument-hint`, `when_to_use`, `$ARGUMENTS`, `paths`, `hooks`, `` !`cmd` ``, `shell`, `context`, `agent`, `model`, `effort`, `disable-model-invocation`, `user-invocable`) do not travel to Claude.ai, Claude desktop, or the SDK. `allowed-tools` is also Claude Code CLI-only per the SDK skills doc. Per the official spec, skills are portable by default (`name` + `description` only); any extension narrows scope.
 
-**Repo scope convention** for the root README skills table:
+**Repo scope convention** — two tiers, declared in frontmatter (not in the README table):
 
-- **`All agents`** — uses only open-standard fields (`name`, `description`, `license`, `compatibility`, `metadata`). Portable across any agent honoring the Agent Skills spec.
-- **`Claude`** — uses Claude Code-specific extensions. Optimized for Claude Code CLI per Anthropic's docs; degrades gracefully in Claude.ai, Claude desktop, and other agents supporting the open standard.
+- **Portable** — no Claude-only runtime mechanics in the body (subagents, MCP tools, interactive UI). Claude-only *frontmatter* extensions may remain: spec-lenient clients ignore unknown fields, so they are inert elsewhere.
+- **Harness-coupled** — the body leans on Claude Code mechanics, each with a graceful-degradation clause.
 
-Every SKILL.md declares its intended environment via the top-level spec-canonical `compatibility:` field. See `skill-authoring.md` → *Post-generation conformance → Frontmatter* for the exact text to use.
+Harness-coupled skills declare their intended environment via the top-level spec-canonical `compatibility:` field; portable skills omit it. See `skill-authoring.md` → *Post-generation conformance → Frontmatter* for the canonical text and the tier rule.

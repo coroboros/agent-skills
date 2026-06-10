@@ -3,10 +3,8 @@ name: video-loop
 description: Create a looping background video — crossfade the loop point, encode optimized MP4 + WebM, optional poster frame. Use whenever the user has a video that needs to loop for web use (hero sections, backgrounds, landing-page ambience), wants to fix a visible jump at the loop point, or needs to optimize a clip for web delivery — even if they just say "make this loop smoothly" or "compress this for the site".
 when_to_use: When the user has a video that needs to loop without visible artifacts on the web (hero sections, backgrounds), or when the end-to-start transition is visible and needs a crossfade fix, or when optimizing video assets for web delivery (MP4 + WebM). Keywords — loop, video, background, hero, seamless, crossfade, encode, webm, mp4, ffmpeg, compress video, optimize video. For audio loops use `/audio-loop` (sibling — parallel architecture, loudness + gapless FLAC + Web Audio snippet). Skip for audio processing, cuts/trimming beyond looping, or motion-graphics work.
 argument-hint: "<input.mp4> [options] — e.g. /video-loop hero.mp4 -d 1.5"
-model: sonnet
 allowed-tools: Bash(ffmpeg *) Bash(ffprobe *) Bash(command *) Bash(bash *) Bash(stat *) Read
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
   sources:
@@ -28,7 +26,7 @@ All ffmpeg work happens in `scripts/video-loop.sh` — this skill validates inpu
 | `-w <crf>` | `32` | VP9 WebM CRF |
 | `-o <dir>` | Same as input | Output directory |
 | `-p` | off | Also extract a poster frame (first frame as JPEG) |
-| `-n` | off | No crossfade — optimize and encode only |
+| `-C` | off | Disable the crossfade — optimize and encode only (`-n` accepted as a deprecated alias) |
 
 > **No `-s/-S` save-mode flag.** Unlike media-cluster siblings (`/audio-loop`, `/markitdown`), video-loop outputs are web assets (MP4 / WebM / poster) the user drops directly into their site's video directory. No downstream skill consumes video files via `-f`, so the `~/.claude/output/<skill>/<project>/` convention would add ceremony without enabling anything — `-o <dir>` is the direct path.
 
@@ -47,12 +45,14 @@ ffmpeg -y -ss 0 -i <input> -frames:v 1 -update 1 /tmp/vl-first.png
 ffmpeg -y -sseof -0.1 -i <input> -frames:v 1 -update 1 /tmp/vl-last.png
 ```
 
-Read both frames. If they're nearly identical, suggest `-n` (the source already loops cleanly, crossfade would only blur motion). If they differ significantly, proceed with the default fade or recommend a longer `-d` for more gradual blending.
+Read both frames. If they're nearly identical, suggest `-C` (the source already loops cleanly, crossfade would only blur motion). If they differ significantly, proceed with the default fade or recommend a longer `-d` for more gradual blending.
 
 ### 3. Run the pipeline
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/video-loop.sh <input> [flags]
+bash "$SKILL_DIR"/scripts/video-loop.sh <input> [flags]
 ```
 
 The script does the rest: probes metadata, builds the lossless loop intermediate when crossfade is requested, encodes MP4 (H.264 + faststart) and WebM (VP9), optionally extracts a poster frame. It emits a machine-readable summary on stdout, one `RESULT: key=value` line per fact.

@@ -15,8 +15,8 @@ from _helpers import get_skill_dirs, load_frontmatter  # noqa: E402
 
 KEBAB_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 CANONICAL_COMPATIBILITY = (
-    "Claude Code CLI (per Agent Skills spec). Graceful degradation in "
-    "other environments supporting the open standard."
+    "Optimized for Claude Code; degrades gracefully on any agent "
+    "implementing the Agent Skills standard."
 )
 RESERVED_NAME_EXCEPTIONS = {"claude-md"}
 
@@ -96,31 +96,31 @@ class TestMetadataField(unittest.TestCase):
 
 
 class TestCompatibilityField(unittest.TestCase):
-    def test_compatibility_canonical_text(self):
+    """Per the spec, most skills do not need `compatibility` — portable skills omit
+    it. Harness-coupled skills declare the canonical text; this pins it against
+    per-skill drift."""
+
+    def test_compatibility_absent_or_canonical(self):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
                 fm, _ = load_frontmatter(skill)
-                compat = fm.get("compatibility", "")
+                compat = fm.get("compatibility")
+                if compat is None:
+                    continue  # portable skill — field omitted by policy
                 self.assertEqual(compat, CANONICAL_COMPATIBILITY,
                                  f"{skill.name}: non-canonical compatibility text")
 
 
-class TestModelEnum(unittest.TestCase):
-    """If `model:` is declared, it must be one of haiku|sonnet|opus per Claude Code
-    convention. Free-form strings (or typos like 'sonett') silently ignored at runtime —
-    this test pins the enum so a typo surfaces in CI, not in production session start."""
+class TestNoModelEffortPins(unittest.TestCase):
+    """Skills inherit the session model and effort — a pin downgrades stronger
+    sessions and overrides the user's dial. Repo-wide policy since the unpinning."""
 
-    ALLOWED_MODELS = {"haiku", "sonnet", "opus"}
-
-    def test_model_in_allowed_set(self):
+    def test_model_and_effort_unset(self):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
                 fm, _ = load_frontmatter(skill)
-                model = fm.get("model")
-                if model is None:
-                    continue  # model is optional
-                self.assertIn(model, self.ALLOWED_MODELS,
-                              f"{skill.name}: model='{model}' not in {self.ALLOWED_MODELS}")
+                self.assertIsNone(fm.get("model"), f"{skill.name}: model pin forbidden")
+                self.assertIsNone(fm.get("effort"), f"{skill.name}: effort pin forbidden")
 
 
 class TestNoXMLMarkupInFrontmatter(unittest.TestCase):

@@ -76,7 +76,7 @@ Evaluate the security review output on a 1-5 scale:
 4. Comprehensive coverage including framework-specific issues
 5. Exceptional coverage including business logic vulnerabilities
 
-Think step-by-step about which vulnerabilities were checked and which were missed.
+Assess which vulnerabilities were checked and which were missed; return the verdict with a one-paragraph justification.
 ```
 
 **Implementation**: Pass subagent output and criteria to Claude, get structured evaluation.

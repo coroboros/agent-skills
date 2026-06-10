@@ -22,6 +22,11 @@ Apply to four input channels with a tier model:
 - **PR body** — Tier 1 checks + length budget (≤ 5 summary bullets · ≤ 8 test plan items · ≤ 80 lines soft / > 150 hard).
 - **Commit subject + body** — Tier 1 checks (subject ≤ 72 chars · body line ≤ 100 chars wrap · body ≤ 20 non-blank lines) + Conventional Commits shape on the subject.
 
+Data sources — `$SKILL_DIR` = this skill's folder, `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere:
+
+- **PR title + body** — `"$SKILL_DIR"/scripts/fetch_pr_meta.sh` (no arguments). Emits `RESULT:` lines (`pr_found`, `pr_number`, `pr_url`, `pr_base`, `pr_head`, `pr_title`) plus the body verbatim between `---BODY---` / `---END---`. `pr_found=false` (no open PR, or `gh` unavailable/unauthenticated) → skip the PR channels, no finding.
+- **Commit subject + body** — `"$SKILL_DIR"/scripts/fetch_commits.sh [-b <ref>]`. Emits a `RESULT: base=<ref> commit_count=<N>` header, then one NUL-delimited `<sha>\0<subject>\0<body>\0---` record per commit between base and HEAD.
+
 #### Leaks (always High severity)
 
 | Pattern | Reason |
@@ -67,7 +72,7 @@ Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill 
 | Layer | Anti-pattern | Bulletproof pattern |
 |-------|--------------|---------------------|
 | Documentation citation | `skills/<other>/references/<file>.md` | `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` + sibling skill by name (`/<other>`) |
-| Runtime dispatch | `skills/<other>/scripts/<file>` | Slash command `/<other>`; triple-fallback for direct script — `${CLAUDE_SKILL_DIR}/../<other>/...` → `~/.claude/skills/<other>/...` → `~/.agents/skills/<other>/...` → fail-loud with install-command hint |
+| Runtime dispatch | `skills/<other>/scripts/<file>` | Slash command `/<other>`; triple-fallback for direct script — `"$SKILL_DIR"/../<other>/...` → `~/.claude/skills/<other>/...` → `~/.agents/skills/<other>/...` → fail-loud with install-command hint |
 | Parity contract | `Mirrors skills/<other>/scripts/X.py` | GitHub URL + the phrase "parity counterpart" + "both files must change together" |
 
 Same-skill self-references drop the `skills/<self>/` prefix — use relative sibling paths (`../references/<file>.md`) or rephrase ("the skill's references"). Anthropic's canonical write-up of Composing Skills documents the by-name pattern only; GitHub URLs and triple-fallback fill the gaps for the documented partial-install case.
@@ -120,5 +125,6 @@ When `humanize-en` is installed on the user's machine (`~/.claude/skills/humaniz
 - `scope.json` — repo kind, languages, files touched, CLAUDE.md chain.
 - `tool-findings.jsonl` filtered to `axis: documentation` — markdownlint + vale findings.
 - The diff itself.
+- PR title + body via `"$SKILL_DIR"/scripts/fetch_pr_meta.sh`; commit records via `"$SKILL_DIR"/scripts/fetch_commits.sh` (invocations in *Prose hygiene* above).
 - This brief.
 - `references/anthropic-verbatim.md` — rubric + false-positive list.

@@ -27,7 +27,7 @@ Emitted by `scripts/audit_claude_md.py <path>`.
 | `target_lines` | integer | Canonical target (currently 200). |
 | `over_target` | boolean | `lines > target_lines`. |
 | `bloat[].line` | integer | 1-indexed line number of the hit. |
-| `bloat[].category` | string | One of `linter-enforced`, `marketing-or-vision`, `obvious-info`, `verbose-explanation`, `redundant-spec`, `generic-best-practice`. |
+| `bloat[].category` | string | One of `linter-enforced`, `marketing-or-vision`, `obvious-info`, `verbose-explanation`, `redundant-spec`, `generic-best-practices`. |
 | `bloat[].match` | string | The matching substring (trimmed). |
 | `broken_imports[].line` | integer | Line of the `@path` import. |
 | `broken_imports[].path` | string | The unresolved path (relative or `~`-expanded). |

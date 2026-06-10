@@ -1,11 +1,10 @@
 ---
 name: claude-md
 description: Create and optimize CLAUDE.md memory files or .claude/rules/ modular rules for Claude Code projects. Covers file hierarchy, content structure, path-scoped rules, best practices, and anti-patterns. Use when working with CLAUDE.md files, .claude/rules directories, setting up new projects, or improving Claude Code's context awareness — even when the user just says "memory file" or mentions Claude instructions without naming the filename.
-when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE, auto memory, MEMORY.md, subagent memory. Without a subcommand, treat the argument as free-form guidance about memory files.
+when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE, auto memory, MEMORY.md, subagent memory. Without a subcommand, treat the argument as free-form guidance about memory files. Skip for subagent system prompts and .claude/agents/ configs — use /agent-creator.
 argument-hint: [init | optimize | revise | task description]
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -220,10 +219,10 @@ Before creating or updating memory files, use AskUserQuestion:
 
 ## Subcommands
 
-The skill supports three argument-driven workflows via `$ARGUMENTS`. Load the matching step file when the argument is present:
+The skill supports three argument-driven workflows via `$ARGUMENTS`. `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere. Load the matching step file when the argument is present:
 
-- **`init`** — Scaffold a minimal CLAUDE.md. See [steps/init.md](steps/init.md). Uses `bash ${CLAUDE_SKILL_DIR}/scripts/init_structure.sh <mode>` for the file layout.
-- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `python3 ${CLAUDE_SKILL_DIR}/scripts/audit_claude_md.py <path>` — the JSON hit-list is your fix list. Read `references/optimize-guide.md` for the WHY behind each category.
+- **`init`** — Scaffold a minimal CLAUDE.md: detect the project, draft the file, write after user approval; the Rules section starts empty. See [steps/init.md](steps/init.md). Optional layout scaffold: `bash "$SKILL_DIR"/scripts/init_structure.sh <mode>` writes starter rule stubs — use only when the user asks for a pre-seeded layout.
+- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `python3 "$SKILL_DIR"/scripts/audit_claude_md.py <path>` — the JSON hit-list is your fix list. Read `references/optimize-guide.md` for the WHY behind each category.
 - **`revise`** — Capture session learnings into CLAUDE.md. See [steps/revise.md](steps/revise.md).
 
 Without a subcommand, treat the argument as free-form guidance about memory files and answer from the sections above.
@@ -241,7 +240,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 
 ## Deterministic scripts
 
-- `scripts/audit_claude_md.py` — line-count + 6-category bloat scan + `@import` resolver. Run first before optimize/revise — the JSON output is your hit-list. Python 3.7+.
+- `scripts/audit_claude_md.py` — line-count + 6-category bloat scan + `@import` resolver. Run first for optimize — the JSON output is your hit-list; revise consults it when drift is suspected. Python 3.7+.
 - `scripts/validate_rule_file.py` — YAML frontmatter + `paths:` glob validator for `.claude/rules/*.md`. Python 3.7+.
 - `scripts/init_structure.sh` — idempotent scaffold for the three storage strategies (`single`, `hybrid`, `rules-only`). Never overwrites.
 

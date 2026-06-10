@@ -27,10 +27,12 @@ The script exits `0` when the lint has zero errors, `1` when errors are present 
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 1. **Resolve path.** Default to `./DESIGN.md` if no positional argument.
 2. **Run the script.**
    ```bash
-   bash ${CLAUDE_SKILL_DIR}/scripts/audit.sh <path>
+   bash "$SKILL_DIR"/scripts/audit.sh <path>
    ```
    The script emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file. Parse `RESULT: json=<tmp-path>` and `Read` that file to get `findings[]` and `summary`.
 3. **Handle CLI unavailability.** If `RESULT: status=npx-missing`, fall back to manual validation against `references/design-md-spec.md` — without a parser we can only check structural invariants (YAML present, eight sections in canonical order, no duplicate headings). Report what was checked and what was not.
@@ -185,7 +187,7 @@ Extends the default audit with cross-checks against the broader Coroboros design
 
 Locate `/award-design`'s reference files via this order:
 
-1. `${CLAUDE_SKILL_DIR}/../award-design/references/anti-patterns.md` (sibling install — the standard case when both skills come from `coroboros/agent-skills`)
+1. `"$SKILL_DIR"/../award-design/references/anti-patterns.md` (sibling install — the standard case when both skills come from `coroboros/agent-skills`)
 2. `.claude/skills/award-design/references/anti-patterns.md` (project-local install)
 3. `~/.claude/skills/award-design/references/anti-patterns.md` (user install)
 

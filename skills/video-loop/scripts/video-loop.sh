@@ -3,7 +3,7 @@
 # video-loop.sh — build a seamless looping background video (MP4 + WebM)
 #
 # Usage:
-#   video-loop.sh <input> [-d <fade>] [-q <h264_crf>] [-w <vp9_crf>] [-o <out_dir>] [-p] [-n]
+#   video-loop.sh <input> [-d <fade>] [-q <h264_crf>] [-w <vp9_crf>] [-o <out_dir>] [-p] [-C]
 #
 # Options:
 #   -d <fade>       Crossfade duration in seconds (default: 1.5)
@@ -11,7 +11,7 @@
 #   -w <vp9_crf>    VP9 CRF (default: 32)
 #   -o <out_dir>    Output directory (default: same as input)
 #   -p              Also extract poster frame (first frame as JPEG)
-#   -n              No crossfade — re-encode only
+#   -C              Disable crossfade — re-encode only (-n: deprecated alias)
 #
 # Pipeline:
 #   probe → (optional crossfade → lossless intermediate) → encode MP4 → encode WebM → (optional poster)
@@ -49,14 +49,15 @@ case "$1" in -h|--help) usage ;; esac
 INPUT=$1
 shift
 
-while getopts ":d:q:w:o:pn" opt; do
+while getopts ":d:q:w:o:pnC" opt; do
   case $opt in
     d) FADE=$OPTARG ;;
     q) H264_CRF=$OPTARG ;;
     w) VP9_CRF=$OPTARG ;;
     o) OUT_DIR=$OPTARG ;;
     p) POSTER=1 ;;
-    n) NO_FADE=1 ;;
+    C) NO_FADE=1 ;;
+    n) NO_FADE=1 ;;  # deprecated alias of -C
     \?) echo "unknown flag: -$OPTARG" >&2; usage ;;
     :)  echo "flag -$OPTARG requires a value" >&2; usage ;;
   esac

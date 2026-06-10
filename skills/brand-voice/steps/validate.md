@@ -24,6 +24,7 @@ Lint a `BRAND-VOICE.md` against the canonical format. Read-only. Use to verify a
 
 ## Workflow
 
+
 ### 1. Resolve target path
 
 In order of precedence: positional argument, `-o <path>` flag, `./BRAND-VOICE.md`. If the resolved path does not exist, exit with a clear error: *"`<path>` not found. Run `/brand-voice extract` first."*
@@ -31,7 +32,7 @@ In order of precedence: positional argument, `-o <path>` flag, `./BRAND-VOICE.md
 ### 2. Run the linter
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py <path>
+python3 "$SKILL_DIR"/scripts/voice_lint.py <path>
 ```
 
 The script returns JSON per [`references/schemas.md`](../references/schemas.md) § voice_lint.py. Three verdicts: `GREEN` (zero errors, zero warnings), `YELLOW` (warnings only), `RED` (errors).
@@ -178,5 +179,5 @@ Verdict RED: 3 errors block the doc from being considered valid. Fix the errors 
 - **No frontmatter at all** — `frontmatter-invalid-yaml` error with line 1 ("file must start with `---`"). Reported by the script.
 - **Path does not exist** — exit 2 with the suggestion to run `/brand-voice extract`.
 - **`--json` and human-format both requested** — `--json` wins. The flag toggles output mode.
-- **Child syntactically RED, chain not resolved** — the linter returns early with child-only errors (validation order §4.2 in `canonical-format.md`). Authors fix the child first; chain failures surface on the next pass.
+- **Child syntactically RED, chain not resolved** — the linter returns early with child-only errors (the Validation order steps in `canonical-format.md`). Authors fix the child first; chain failures surface on the next pass.
 - **Parent on the chain is RED** — child gets one wrapping `extends-parent-invalid` error per failing ancestor, with the ancestor's actual errors nested in `parent_errors`. Run `/brand-voice validate <ancestor>` to focus on a single layer.

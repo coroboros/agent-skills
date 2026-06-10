@@ -2,6 +2,8 @@
 
 Capture session learnings into CLAUDE.md. Triggered when `$ARGUMENTS` contains "revise".
 
+When drift is suspected, run `python3 "$SKILL_DIR"/scripts/audit_claude_md.py <path>` first — its JSON pinpoints the bloat categories to target (`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere).
+
 ## Step 1: Reflect on the session
 
 Review the conversation for knowledge that would help future sessions:

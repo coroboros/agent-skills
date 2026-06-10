@@ -37,14 +37,14 @@ The body is the system prompt. Use markdown headings, XML tags, or a combination
 | `description` | Yes | When Claude should delegate to this agent. Write clear trigger conditions |
 | `tools` | No | Comma-separated allowlist. Inherits all tools if omitted |
 | `disallowedTools` | No | Comma-separated denylist, removed from inherited tools |
-| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-7`), or `inherit`. Defaults to `inherit` |
+| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-8`), or `inherit`. Defaults to `inherit` |
 | `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan` |
 | `maxTurns` | No | Maximum agentic turns before auto-stop |
 | `skills` | No | Skills to load into agent context at startup (full content injected) |
 | `mcpServers` | No | MCP servers: string references or inline definitions |
 | `hooks` | No | Lifecycle hooks scoped to this agent |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
-| `background` | No | `true` to always run as background task |
+| `background` | No | `true` to always run as background task. Default: `false` |
 | `effort` | No | Effort level override: `low`, `medium`, `high`, `max` |
 | `isolation` | No | `worktree` to run in a temporary git worktree |
 | `color` | No | Display color: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan` |
@@ -148,7 +148,7 @@ Use `/agents` command to see full list of available tools.
 ### Model capabilities
 
 **Opus** (`opus`):
-- Most capable model, strongest reasoning
+- High-capability tier, deep reasoning
 - **Use for**: Complex analysis, critical decisions, highest-stakes tasks
 
 **Sonnet** (`sonnet`):
@@ -165,32 +165,34 @@ Use `/agents` command to see full list of available tools.
 - Uses same model as main conversation
 - **Use for**: Ensuring consistent capabilities throughout session
 
-**Full model ID** (e.g. `claude-opus-4-7`):
+**Full model ID** (e.g. `claude-opus-4-8`):
 - Pin to a specific model version
 - **Use for**: Reproducible behavior across sessions
 
+The frontier tier (e.g. Claude Fable 5) has no alias — reach it with `inherit` on a frontier session, or a full model ID.
+
 ### Orchestration strategy
 
-**Sonnet + Haiku orchestration pattern** (optimal cost/performance):
+**Stronger orchestrator + cheaper workers pattern** (optimal cost/performance — e.g. the `sonnet` + `haiku` aliases):
 
 ```markdown
-1. Sonnet 4.5 (Coordinator):
+1. Sonnet (Coordinator):
    - Creates plan
    - Breaks task into subtasks
    - Identifies parallelizable work
 
-2. Multiple Haiku 4.5 instances (Workers):
+2. Multiple Haiku instances (Workers):
    - Execute subtasks in parallel
    - Fast and cost-efficient
-   - 90% of Sonnet's capability for execution
+   - Strong coding capability for execution
 
-3. Sonnet 4.5 (Validator):
+3. Sonnet (Validator):
    - Integrates results
    - Validates output quality
    - Ensures coherence
 ```
 
-**Benefit**: Use expensive Sonnet only for planning and validation, cheap Haiku for execution.
+**Benefit**: Use the stronger model only for planning and validation, cheap workers for execution.
 
 ### Decision framework
 
@@ -199,7 +201,7 @@ Use `/agents` command to see full list of available tools.
 | Task Type | Recommended Model | Rationale |
 |-----------|------------------|-----------|
 | Simple validation | Haiku | Fast, cheap, sufficient capability |
-| Code execution | Haiku | 73.3% SWE-bench, very fast |
+| Code execution | Haiku | Strong coding capability, very fast |
 | Complex analysis | Sonnet | Superior reasoning, worth the cost |
 | Multi-step planning | Sonnet | Best for breaking down complexity |
 | Quality validation | Sonnet | Critical checkpoint, needs intelligence |

@@ -10,7 +10,7 @@ returns_to: step-00-init.md
 
 - 🛑 NEVER skip the interactive menu
 - 🛑 NEVER assume user preferences
-- ✅ ALWAYS use AskUserQuestion for flag selection
+- ✅ ALWAYS use AskUserQuestion for flag selection (when available; otherwise ask in plain text and wait for the reply)
 - ✅ ALWAYS update all flag variables before returning
 - 📋 YOU ARE A CONFIGURATOR, not an implementer
 - 💬 FOCUS on flag configuration only
@@ -46,7 +46,7 @@ Show current flag values:
 
 ### 2. Ask for Flag Changes
 
-Use AskUserQuestion with multiSelect:
+Use AskUserQuestion with multiSelect (when available; otherwise ask in plain text and wait for the reply):
 ```yaml
 questions:
   - header: "Configure"
@@ -107,7 +107,7 @@ Display updated configuration:
 ❌ Not showing current flag states
 ❌ Forgetting to toggle selected flags
 ❌ Starting workflow instead of returning
-❌ **CRITICAL**: Using plain text prompts instead of AskUserQuestion
+❌ **CRITICAL**: Using plain text prompts instead of AskUserQuestion (when it is available)
 
 ---
 

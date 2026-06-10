@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Propagate canonical blocks from `.claude/rules/skill-{prose,label-hygiene,execution-discipline}-rules.md` into each declared SKILL.md.
+"""Propagate canonical blocks from `.agents/rules/skill-{prose,label-hygiene,execution-discipline,adversarial-verification}-rules.md` into each declared SKILL.md.
 
 Four rule families share this script:
 
@@ -28,7 +28,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-RULES_DIR = REPO_ROOT / ".claude" / "rules"
+RULES_DIR = REPO_ROOT / ".agents" / "rules"
 SKILLS_DIR = REPO_ROOT / "skills"
 
 

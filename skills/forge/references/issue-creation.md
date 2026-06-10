@@ -13,8 +13,10 @@ If `gh` is unauthenticated or no repo is detected: tell the user to run `gh auth
 
 ## 2. Create labels (idempotent)
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/setup-labels.sh
+bash "$SKILL_DIR"/scripts/setup-labels.sh
 ```
 
 Creates priority (`P0`/`P1`/`P2`), complexity (`size:S`/`size:M`/`size:L`/`size:XL`), and type (`forge`) labels with `--force`, so re-runs are safe.

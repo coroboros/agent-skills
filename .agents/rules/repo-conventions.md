@@ -53,7 +53,7 @@ Skills install standalone — `npx skills add coroboros/agent-skills --skill <na
 
 - **Forbidden** — a relative path escaping the skill folder (`../<other>/…`, `../../<other>/…`) or a raw repo path (`skills/<other>/…`). On a solo install the target does not exist and the `Read` fails.
 - **Cite by external link** — point at the source of truth: the canonical upstream (the DESIGN.md format lives at `github.com/google-labs-code/design.md`) or, for our own elaboration, the blob URL `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` paired with the sibling by slash-name (`/<other>`).
-- **Optional runtime cooperation** — when a skill *uses* a sibling at runtime (a script, a governance handoff), detect-or-degrade: try `${CLAUDE_SKILL_DIR}/../<other>/…`, then `~/.claude/skills/<other>/…`, then `~/.agents/skills/<other>/…`, and on miss state the fallback and continue. `humanize-en` (`extract_rules.py`) and `apex` (the code-ultrareview orchestrator) are the reference implementations.
+- **Optional runtime cooperation** — when a skill *uses* a sibling at runtime (a script, a governance handoff), detect-or-degrade: try `"$SKILL_DIR"/../<other>/…`, then `~/.claude/skills/<other>/…`, then `~/.agents/skills/<other>/…`, and on miss state the fallback and continue. `humanize-en` (`extract_rules.py`) and `apex` (the code-ultrareview orchestrator) are the reference implementations.
 
 code-ultrareview's Documentation axis flags a raw `skills/<other>/…` citation — the standing audit for drift.
 
@@ -102,10 +102,13 @@ See `.claude-plugin/marketplace.json` for the authoritative per-plugin skill lis
 ```
 coroboros/agent-skills/
 ├── README.md              # User-facing — install, skills table, pipeline
-├── CLAUDE.md              # Agent-facing — imports .claude/rules/
+├── AGENTS.md              # Agent-facing index — canonical rules + at-a-glance
+├── CLAUDE.md              # Thin Claude Code entrypoint — imports AGENTS.md
 ├── LICENSE.md
+├── .agents/
+│   └── rules/             # Canonical repo-specific rules, indexed by AGENTS.md
 ├── .claude/
-│   └── rules/             # Canonical repo-specific rules, imported by CLAUDE.md
+│   └── rules/             # Claude Code behavior adapters installed by `behave`
 ├── .claude-plugin/        # Plugin marketplace manifest (category grouping)
 │   └── marketplace.json
 ├── assets/                # Shared brand assets (logo, icons)
@@ -160,12 +163,16 @@ Two workflows trigger on every pull request and push to `main`:
 - `.github/workflows/ci.yml` runs the full `unittest` suite. Branch protection on `main` requires the `tests` status check — red tests block merge.
 - `.github/workflows/scan-skills.yml` calls Cisco's `skill-scanner` reusable workflow (policy `balanced`, fail-on `critical`) against the `skills/` tree. SHA-pinned to a tagged release; Dependabot opens a PR weekly when a new version lands.
 
+## Spec validation posture
+
+`skills-ref validate` (the agentskills.io reference validator) rejects any frontmatter field outside the spec's six — including the Claude Code extensions (`when_to_use`, `argument-hint`, …) this repo uses deliberately. It is therefore NOT a CI gate. The real cross-client hazard is unparseable YAML, which `tests/_meta/test_skill_frontmatter.py` already catches by parsing every frontmatter; clients are required by the spec's own implementation guide to ignore unknown fields (Codex's loader provably does).
+
 ## Skill scope declaration
 
-In the root README skills table, mark each skill:
+Scope lives in the `compatibility` frontmatter field, not in the README table:
 
-- **`All agents`** — portable, uses only the open-standard frontmatter and no Claude Code-specific features (`$ARGUMENTS`, `argument-hint`, `paths`, etc.).
-- **`Claude Code`** — relies on Claude Code extensions. Won't work as-is in Claude.ai or the API.
+- **omitted** — portable: open-standard frontmatter, portable body, runs on any spec-honoring agent.
+- **canonical string present** — Claude Code-optimized; degrades gracefully elsewhere. The exact text and tier rule live in `skill-authoring.md` → *Post-generation conformance*.
 
 ## Context efficiency
 

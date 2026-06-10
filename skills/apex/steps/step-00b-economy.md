@@ -6,14 +6,14 @@ load_condition: economy_mode = true
 
 # Economy Mode Overrides
 
-**This file is ONLY loaded when `-e` or `--economy` flag is active.**
+**This file is ONLY loaded when `-e` or `--economy` flag is active.** Harnesses without subagents load it too — the same overrides apply regardless of the flag.
 
 These instructions OVERRIDE the default behavior in all steps to save tokens by avoiding subagent launches.
 
 ---
 
 <why_economy_mode>
-**Purpose:** Reduce token usage for users with limited Claude Code plans.
+**Purpose:** Reduce token usage for users on limited plans.
 
 **Trade-offs:**
 - ✅ Uses ~70% fewer tokens
@@ -184,7 +184,7 @@ DO:
 ⚡ ECONOMY MODE - Using direct tools, no subagents
 ```
 
-This reminds both Claude and the user that economy mode is active.
+This reminds both the agent and the user that economy mode is active.
 </economy_indicator>
 
 ---

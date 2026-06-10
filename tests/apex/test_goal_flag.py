@@ -4,7 +4,7 @@ Verifies SKILL.md flag tables + argument-hint + Compatibility section,
 step-00 parsing + headless auto-detection, step-04 /goal emission template.
 
 Test approach. Apex is a prose-driven skill — no `apex.sh` / `apex.py`
-entrypoint to subprocess-invoke. Per `.claude/rules/skill-authoring.md`
+entrypoint to subprocess-invoke. Per `.agents/rules/skill-authoring.md`
 § Testing, the convention for prompt-driven skills is structural tests
 over runtime subprocess tests. The assertions below verify the documented
 contracts (flag tables, parsing rules, headless detection logic, /goal
@@ -80,6 +80,9 @@ class TestGoalFlag(unittest.TestCase):
         self.assertIn("CLAUDE_NONINTERACTIVE", self.step_00)
         self.assertIn("TTY", self.step_00)
         self.assertIn("auto-on", self.step_00)
+        self.assertIn("Do not probe the TTY", self.step_00,
+                      "a tool shell is never a TTY — the probe must stay banned as a signal")
+        self.assertNotIn("! [ -t 0 ]", self.step_00)
 
     def test_step_04_emits_goal_directive(self):
         """step-04-examine.md emits the /goal directive in a new § 0 sub-step."""

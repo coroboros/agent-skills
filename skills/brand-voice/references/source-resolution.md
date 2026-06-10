@@ -21,7 +21,7 @@ Each source flag (`-u`, `-n`, `-d`, `-f`) resolves to a body of Markdown text th
 1. Detect input shape:
    - Bare ID (UUID-like) → treat as a page ID.
    - `https://www.notion.so/...` URL → extract the trailing ID (last 32-char hex segment).
-2. Call `mcp__claude_ai_Notion__notion-fetch` with the page ID.
+2. Call the Notion MCP fetch tool (`mcp__claude_ai_Notion__notion-fetch` when the claude.ai connector is the provider) with the page ID.
 3. If the page has linked sub-pages, fetch them at depth 1 (no recursion). The agent decides whether to include sub-page content based on whether the title looks voice-related (`voice`, `writing`, `style`, `tone`, `editorial`).
 4. If the Notion MCP is not installed, error out:
    > "The Notion MCP is not installed. Install it from the Claude Code MCP catalog, or export the Notion page to Markdown and pass `-d <export-folder>` instead."
@@ -36,7 +36,7 @@ The MCP tool is authorised through Claude Code's permission layer, not via the s
 3. If empty, error:
    > "No Markdown files in `<dir>`."
 4. If the count is ≤ 5, read each file directly with `Read`.
-5. If the count is > 5, dispatch a `general-purpose` subagent with:
+5. If the count is > 5, dispatch a `general-purpose` subagent (or your harness's equivalent) with:
    > "Read every `.md` file under `<dir>` and produce a single Markdown document concatenating their content with a `## <relative-path>` heading per file. Skip files with no prose (less than 50 chars of non-frontmatter content)."
 
 The subagent is used past 5 files to keep the main skill's context clean — the aggregated draft can be 10K+ lines for a large brand archive.

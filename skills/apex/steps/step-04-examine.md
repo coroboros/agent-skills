@@ -75,14 +75,16 @@ Resolve `<typecheck cmd>`, `<lint cmd>`, `<test cmd>` from § 2 "Discover Availa
 
 Command tokens must land verbatim in the transcript — the Haiku evaluator behind `/goal` only judges what it sees, so paraphrases like "tests pass" defeat the gate.
 
-If `{goal_mode}` = false, skip this step entirely.
+If `{goal_mode}` = false, skip this step entirely. If `/goal` is unavailable in your harness, skip the goal gate and proceed.
 
 ### 1. Initialize Save Output (if save_mode)
 
 **If `{save_mode}` = true:**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
 ```
 
 Append results to `{output_dir}/04-examine.md` as you work.
@@ -96,7 +98,7 @@ Look for: `typecheck`, `lint`, `test`, `build`, `format` (or equivalents).
 
 **3.0 Derivation lens**
 
-Load `references/derivation-lens.md` and run the lens — code-ultrareview's Python orchestrator if detected, else the inline fallback. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence.
+Load `references/derivation-lens.md` and run the lens — code-ultrareview's Python orchestrator if detected, else the inline fallback. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence. With `{save_mode}` = false there is no `02-plan.md` — reconcile against the approved plan from the step-02 conversation instead.
 
 **Gating:**
 
@@ -105,7 +107,7 @@ Load `references/derivation-lens.md` and run the lens — code-ultrareview's Pyt
 - **DECISION-OVERRIDE** findings → continue. Surface for user judgment.
 - **CONSISTENT** → no finding; counted in coverage.
 
-Log a one-line summary to `04-examine.md`:
+Log a one-line summary to `04-examine.md` (when `{save_mode}`):
 
 ```
 **Derivation lens:** GAP: <n> · SCOPE-ADD: <n> (advisory) · DECISION-OVERRIDE: <n> · CONSISTENT: <n>
@@ -149,7 +151,8 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 
 - Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough.
 - Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
-- `{economy_mode}` = true → skip the subagent; self-refute inline instead.
+- `{economy_mode}` = true → skip the subagent; self-refute in a fresh pass instead.
+- Harness without subagents → same fallback: self-refute in a fresh pass.
 
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 
@@ -241,7 +244,7 @@ Append to `{output_dir}/04-examine.md`:
 **Timestamp:** {ISO timestamp}
 ```
 
-Run: `bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
+Run: `bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
 
 ---
 

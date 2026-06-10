@@ -5,7 +5,7 @@ step-04's invocation sub-step ordering, removal of the legacy AC checklist,
 and the template-level placeholder.
 
 Test approach. Apex is a prose-driven skill — no `apex.sh` / `apex.py`
-entrypoint to subprocess-invoke. Per `.claude/rules/skill-authoring.md`
+entrypoint to subprocess-invoke. Per `.agents/rules/skill-authoring.md`
 § Testing, the convention for prompt-driven skills is structural tests
 over runtime subprocess tests. The assertions below verify that the
 reference file declares the taxonomy and the detection protocol, and

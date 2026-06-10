@@ -4,7 +4,7 @@ The keystone is no longer bare-name reconstruction — it is the opposite:
 **explicit path, used verbatim, no magic**. It is stated as prose in three
 files that can silently drift apart:
 
-- `.claude/rules/repo-conventions.md`  — the SSOT rule (§ Pipeline chaining)
+- `.agents/rules/repo-conventions.md`  — the SSOT rule (§ Pipeline chaining)
 - `skills/forge/SKILL.md` — forge's consumer-side application (Hunt phase, `-f`)
 - `skills/apex/steps/step-01-analyze.md`  — apex's consumer-side application
 
@@ -19,7 +19,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent.parent
 SOURCES = {
-    "rule": REPO / ".claude" / "rules" / "repo-conventions.md",
+    "rule": REPO / ".agents" / "rules" / "repo-conventions.md",
     "forge": REPO / "skills" / "forge" / "SKILL.md",
     "apex-step": REPO / "skills" / "apex" / "steps" / "step-01-analyze.md",
 }

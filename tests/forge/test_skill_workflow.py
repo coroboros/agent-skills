@@ -136,17 +136,18 @@ class TestRulesSection(unittest.TestCase):
                 )
 
 
-class TestModelOpus(unittest.TestCase):
-    """forge uses opus per skill design — strategic reasoning and decomposition
-    need the strongest model. Pin the choice."""
+class TestModelInherit(unittest.TestCase):
+    """model stays unset — a pin would downgrade stronger sessions; forge
+    inherits the session model."""
 
-    def test_model_is_opus(self):
+    def test_model_unset_inherits_session(self):
         import sys
         sys.path.insert(0, str(REPO_ROOT / "skills" / "brand-voice" / "scripts"))
         from utils import parse_yaml_minimal, split_frontmatter  # noqa: E402
         fm_text, _ = split_frontmatter(_body())
         fm = parse_yaml_minimal(fm_text) if fm_text else {}
-        self.assertEqual(fm.get("model"), "opus")
+        self.assertIsNone(fm.get("model"),
+                          "model must stay unset — skills inherit the session model")
 
 
 class TestBridge(unittest.TestCase):
@@ -468,6 +469,16 @@ class TestNewReferencesRouted(unittest.TestCase):
                     (ref_dir / ref).is_file(),
                     f"references/{ref} missing on disk",
                 )
+
+
+class TestPromotionImpliesSave(unittest.TestCase):
+    """An unsaved Spec promotion used to hit the mandatory validate gate with no
+    file on disk and emit an apex bridge to a missing path."""
+
+    def test_promotion_implies_save(self):
+        body = _body()
+        self.assertIn("**Promotion implies `-s`.**", body)
+        self.assertIn("Explicit `-S` wins", body)
 
 
 if __name__ == "__main__":

@@ -65,36 +65,37 @@ Some skills wrap external CLIs — each is declared in its SKILL.md.
 
 Skills are grouped by plugin. Each plugin collects related skills — expand any section below to see usage, flags, and behavior.
 
-| Plugin | Skill | Model | Description |
-|--------|-------|-------|-------------|
-| Workflow | [forge](#forge) | opus | Research, weigh approaches, decide — emit one apex-ready plan |
-| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine |
-| Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test for small, well-scoped tasks |
-| Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers |
-| Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
-| Design | [award-design](#award-design) | opus | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
-| Design | [design-system](#design-system) | opus | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
-| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ |
-| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents |
-| Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points |
-| Media | [audio-loop](#audio-loop) | sonnet | Gapless web-ready ambient audio loops (FLAC + Web Audio) |
-| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts |
-| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI |
-| Productivity | [notion](#notion) | opus | Notion via the official MCP connector, or the `ntn` CLI for uploads and CI |
-| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
-| Writing | [write-clear-readme](#write-clear-readme) | opus | Author, audit, or polish READMEs — clarity, structure, concision |
-| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
+| Plugin | Skill | Description |
+|--------|-------|-------------|
+| Workflow | [forge](#forge) | Research, weigh approaches, decide — emit one apex-ready plan |
+| Workflow | [apex](#apex) | Structured implementation — Analyze, Plan, Execute, eXamine |
+| Workflow | [ultrapex](#ultrapex) | Judgment-first APEX for Fable-class models — invariants, parallel subagents, adversarial verification |
+| Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Test for small, well-scoped tasks |
+| Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
+| Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
+| Design | [award-design](#award-design) | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
+| Design | [design-system](#design-system) | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
+| Claude Code | [claude-md](#claude-md) | Create and optimize CLAUDE.md and .claude/rules/ |
+| Claude Code | [agent-creator](#agent-creator) | Expert guidance for creating Claude Code subagents |
+| Media | [video-loop](#video-loop) | Loop background videos with invisible cut points |
+| Media | [audio-loop](#audio-loop) | Gapless web-ready ambient audio loops (FLAC + Web Audio) |
+| Media | [suno-produce](#suno-produce) | Turn a music brief into Suno v5.5 prompt artifacts |
+| Media | [markitdown](#markitdown) | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI |
+| Productivity | [notion](#notion) | Notion via the official MCP connector, or the `ntn` CLI for uploads and CI |
+| Writing | [brand-voice](#brand-voice) | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
+| Writing | [write-clear-readme](#write-clear-readme) | Author, audit, or polish READMEs — clarity, structure, concision |
+| Writing | [humanize-en](#humanize-en) | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
 
-Every skill is `Claude` scope — Claude Code-optimized per the [Agent Skills spec](https://agentskills.io), degrading gracefully in Claude.ai, desktop, and other open-standard agents (see [Standards](#standards)). Each `model:` is forced per skill (opus = deep judgment, sonnet = bounded reasoning, haiku = scripted flows) regardless of session default; opus costs more tokens — override with `--model` or skip on a tight plan.
+Skills inherit the session model — no `model:` pins, so a stronger session is never downgraded by a skill. Scope is two-tier per the [Agent Skills spec](https://agentskills.io): portable skills omit the `compatibility` field entirely; Claude Code-optimized skills declare it and degrade gracefully on any open-standard agent (see [Standards](#standards)).
 
 ---
 
 ### Workflow Skills
 
-Strategic thinking, planning, and implementation — `forge`, `apex`, `oneshot`.
+Strategic thinking, planning, and implementation — `forge`, `apex`, `ultrapex`, `oneshot`.
 
 <details>
-<summary><em>forge · apex · oneshot</em></summary>
+<summary><em>forge · apex · ultrapex · oneshot</em></summary>
 
 <br>
 
@@ -120,7 +121,7 @@ Pre-implementation thinking — research the problem space, weigh approaches wit
 | Flag | Description |
 |------|-------------|
 | `-s` / `-S` | Save artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` / force no-save |
-| `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
+| `-i` / `-I` | Create GitHub issues from workstreams (implies `-s`) / disable |
 | `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks, no revision pause / disable |
 | `-e` / `-E` | Economy mode — no subagents (Hunt research floor and Judge's adversarial panel) / disable |
 | `-f` | Load prior context (forge plan, RFC, GitHub issue `#N` or URL) |
@@ -201,6 +202,33 @@ Analyze fetches third-party content into the workflow — web research via `gene
 
 ---
 
+#### ultrapex
+
+Outcome-driven end-to-end implementation for Fable-class frontier models — the judgment-first sibling of `/apex`: same mission, invariants instead of step scripts.
+
+**Usage**
+
+```bash
+# Implement end to end, save the report
+/ultrapex -s implement user registration
+
+# Build a forge plan
+/ultrapex -f ~/.claude/output/{project}/forge/forge-{slug}.md
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-s` | Save the final report to `~/.claude/output/{project}/ultrapex/` |
+| `-f` | Feed a producer artifact (usually a forge plan) as the task context |
+
+**What it does**
+
+Five invariants instead of gated steps: understand before building, decide and commit (pause only at genuine forks), build complete and scoped, verify adversarially with fresh-context refuter subagents scaled to blast radius, report grounded in tool-result evidence. Self-scoped by a Model scope section — on models below Fable-class it routes to `/apex`, which keeps step gates, resume, and economy mode.
+
+---
+
 #### oneshot
 
 Single-pass feature implementation — Explore, Code, Test. Ship now, iterate later.
@@ -275,7 +303,7 @@ Runs the official framework CLI, overlays the opinionated config (Biome, Cloudfl
 
 #### code-ultrareview
 
-Eight-axis judgment code review at full strength, in-session — the deepest reasoning budget regardless of session defaults. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
+Eight-axis judgment code review at full strength, in-session — every axis run, full battery, no sampling. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
 
 **Usage**
 
@@ -606,7 +634,7 @@ Loop background videos for the web — crossfade the cut point, optimize, multi-
 /video-loop hero.mp4 -d 2.0             # Custom crossfade duration (default: 1.5s)
 /video-loop hero.mp4 -q 23 -w 28        # Higher quality (lower CRF = bigger file)
 /video-loop hero.mp4 -p                 # Also extract poster frame
-/video-loop hero.mp4 -n                 # Skip crossfade — optimize/encode only
+/video-loop hero.mp4 -C                 # Skip crossfade — optimize/encode only
 /video-loop hero.mp4 -o public/videos/  # Custom output directory
 ```
 
@@ -619,7 +647,7 @@ Loop background videos for the web — crossfade the cut point, optimize, multi-
 | `-w` | `32` | VP9 WebM CRF |
 | `-o` | input dir | Output directory |
 | `-p` | off | Extract poster frame (JPEG) |
-| `-n` | off | No crossfade, encode only |
+| `-C` | off | Disable crossfade, encode only (`-n` deprecated alias) |
 
 **What it does**
 
@@ -667,7 +695,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 
 **What it does**
 
-Auto-corrects stereo imbalance (attenuates the louder channel when the L/R delta exceeds 1 dB; skipped below 0.3 dB or with `-B`), normalizes loudness, resamples, and encodes lossless FLAC. Emits a drop-in `<script>` implementing the Web Audio play-on-first-gesture pattern with fade-in, tuned to `-v`.
+Auto-corrects stereo imbalance (attenuates the louder channel when the L/R delta exceeds 1 dB; skipped below 1 dB or with `-B` or with `-B`), normalizes loudness, resamples, and encodes lossless FLAC. Emits a drop-in `<script>` implementing the Web Audio play-on-first-gesture pattern with fade-in, tuned to `-v`.
 
 **Why FLAC and not AAC.** Web Audio's `AudioBufferSourceNode{loop:true}` loops sample-accurate by spec, but it loops the buffer that `decodeAudioData` returned — AAC's priming samples are baked into that buffer on most browser decoders, producing an audible gap at the loop boundary. FLAC is lossless with no priming, so the decoded buffer is byte-identical to the source WAV. Trade: FLAC is ~6–8× larger than AAC 128 kbps on noise-heavy content, but still modest for typical ambient loops (a few hundred KB to low MB).
 
@@ -1045,12 +1073,12 @@ Skills chain together by design. Each works standalone; chaining covers longer w
       |
 /apex -f <abs forge path> "<task>"           implement systematically
       |
-/code-ultrareview -s                       review the change (adaptive, report-only)
+/code-ultrareview -s                       review the change (full strength, report-only)
       |
 /apex -f <abs code-ultrareview path>       fix the findings
 ```
 
-Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for an adaptive fresh-eyes pass before committing.
+Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for a full-strength fresh-eyes pass before committing.
 
 ### Deep external research → Plan
 
@@ -1159,7 +1187,7 @@ python3 -m unittest discover tests/ -v
 python3 -m unittest discover tests/<skill-name>/ -v
 ```
 
-Stdlib only. See [`.claude/rules/skill-authoring.md`](./.claude/rules/skill-authoring.md) for the testing requirement.
+Stdlib only. See [`.agents/rules/skill-authoring.md`](./.agents/rules/skill-authoring.md) for the testing requirement.
 
 ---
 
@@ -1171,22 +1199,22 @@ Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner
 
 ## Standards
 
-This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus Claude Code extensions (`when_to_use`, `argument-hint`, `model`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable.
+This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus `compatibility` on harness-coupled skills (two-tier scope) and Claude Code extensions (`when_to_use`, `argument-hint`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable. No `model:` or `effort:` pins — skills inherit the session.
 
-Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
+Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing index (Codex and every `AGENTS.md`-reading harness), [`CLAUDE.md`](./CLAUDE.md) imports it for Claude Code. Authoring conventions live in [`.agents/rules/`](./.agents/rules/):
 
-- [`agentskills-spec.md`](./.claude/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
-- [`claude-code-skills.md`](./.claude/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
-- [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
-- [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
-- [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
-- [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
-- [`skill-execution-discipline-rules.md`](./.claude/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
-- [`skill-adversarial-verification-rules.md`](./.claude/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a finding or decision
+- [`agentskills-spec.md`](./.agents/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
+- [`claude-code-skills.md`](./.agents/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
+- [`skill-authoring.md`](./.agents/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
+- [`repo-conventions.md`](./.agents/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
+- [`skill-prose-rules.md`](./.agents/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
+- [`skill-label-hygiene-rules.md`](./.agents/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
+- [`skill-execution-discipline-rules.md`](./.agents/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
+- [`skill-adversarial-verification-rules.md`](./.agents/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a finding or decision
 
 ### Canonical blocks
 
-Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.claude/rules/` (linked above). `scripts/sync_writing_rules.py` propagates all four; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
+Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.agents/rules/` (linked above). `scripts/sync_writing_rules.py` propagates all four; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
 
 ---
 

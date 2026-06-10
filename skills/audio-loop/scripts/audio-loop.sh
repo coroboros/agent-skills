@@ -37,7 +37,7 @@ OUT_DIR=""
 NO_BALANCE=0
 
 usage() {
-  sed -n '2,27p' "$0" | sed 's/^# \{0,1\}//'
+  sed -n '2,31p' "$0" | sed 's/^# \{0,1\}//'
   exit 2
 }
 

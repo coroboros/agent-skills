@@ -19,10 +19,10 @@ When inactive, the report header surfaces `Coherence axis: inactive` so the abse
 
 ## Dispatch protocol
 
-The Phase 3 orchestrator launches one `Explore` subagent for the Coherence axis when active. The subagent invokes the orchestrator:
+The Phase 3 orchestrator launches one `Explore` subagent for the Coherence axis when active. `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere. The subagent invokes the orchestrator:
 
 ```bash
-python3 "${CLAUDE_SKILL_DIR}/scripts/coherence/run.py" \
+python3 "$SKILL_DIR/scripts/coherence/run.py" \
   --repo "<repo>" [--include-prose] --json
 ```
 

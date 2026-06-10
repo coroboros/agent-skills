@@ -4,9 +4,8 @@ description: Turn a music brief into Suno v5.5-ready prompt artifacts — TRACK.
 when_to_use: When the user wants to create a song, track, EP, or album with Suno v5.5. Routes via `$ARGUMENTS` first token — `create` (default — synthesise TRACK.md from a brief, optionally ALBUM.md when album mode is detected), `revise <path> "<feedback>"` (archive current TRACK.md to versions/, emit a refined one), `validate <path>` (deterministic linter — char limits, descriptor counts, slider ranges, metatag canon, copyright/artist-citation contract). Triggers on "make a song", "write me a track", "produce a song", "song about", "lyrics for", "Suno prompt", "make an album", "EP about", "v5.5 prompt", "/suno", "/track". Skip when the user wants pure lyric writing without a Suno target (defer to a generic writing skill); when the request is broad music research (run `/forge` first then `-f` the result into this); when the request is audio post-production like loops or mastering (defer to `/audio-loop`).
 argument-hint: "[create|revise|validate] <description-or-path> [-f ARTIST.md]"
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 allowed-tools: Read Write Edit Glob Grep AskUserQuestion WebSearch Bash(mkdir *) Bash(test *) Bash(ls *) Bash(python3 *) Bash(git *) Bash(cp *) Bash(mv *)
-model: opus
 metadata:
   author: coroboros
   sources:
@@ -99,7 +98,7 @@ Full frontmatter shape, worked examples per genre (cinematic, melodic-trap, indi
 
 ## Auto-detect sufficient specification
 
-Skip the interview when the brief covers **at least 3** of the 5 anchor dimensions below; otherwise use `AskUserQuestion` (max 4, recommended-option first, single round — do not loop) for the gaps. If `ARTIST.md` is bound via `-f`, vocal profile / instrumentation / rights / slider defaults flow from it (drop those questions).
+Skip the interview when the brief covers **at least 3** of the 5 anchor dimensions below; otherwise use `AskUserQuestion` (max 4, recommended-option first, single round — do not loop; when unavailable, ask in plain text) for the gaps. If `ARTIST.md` is bound via `-f`, vocal profile / instrumentation / rights / slider defaults flow from it (drop those questions).
 
 | Dimension | Why it matters | Example values |
 |-----------|---------------|----------------|
@@ -147,7 +146,7 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 - **Two genres maximum.** Three or more genres muddy the output. When the brief asks for fusion, pick one primary and reinforce with mood / instrumentation.
 - **Front-load the prompt block.** TRACK.md begins with the copy-paste-ready payload, not with the rationale. Users paste, then read.
 - **Versions are sacred.** `revise` archives the prior `TRACK.md` to `versions/v{N+1}.md` before overwriting. Never lose the previous take.
-- **Validate before write.** Every `create` and `revise` runs `scripts/validate.py` on the synthesised content. RED never reaches disk. YELLOW surfaces in the user-facing summary.
+- **Validate before write.** Every `create` and `revise` runs `scripts/validate.py` on the synthesised content. RED never reaches the canonical path. YELLOW surfaces in the user-facing summary.
 - **Voice attached → drop vocal descriptors.** Always. Vocal direction in Style conflicts with a cloned Voice and produces blended timbre.
 - **Auto-detect album mode → confirm before scaffolding.** When the brief reads as multi-track, propose the album folder structure and ask for confirmation. Never silently create `ALBUM.md`.
 - **Never name artists or copyrighted entities in prompts.** Hard rule, two reasons. *Legal* — citing an artist or copyrighted entity creates rights exposure (publicity rights, trademark, label trade-name); the prompt is a discoverable artifact, shared and committed. *Functional* — Suno filters or ignores the citation, so the model collapses to an averaged tag rather than the requested fingerprint. The validator emits **RED** on high-confidence citation patterns (`in the style of <Name>`, `voice of/like <Name>`, `sounds like <Name>`, `à la <Name>`, `<Name>'s sound/style/voice/era`) in Style or Lyrics, and **YELLOW** on bare title-case proper-noun pairs in Style. Translate every brief reference to sound — era + production texture + vocal timbre. Example: "make me a track like Sufjan Stevens" → "indie folk, intimate fingerpicked acoustic, soft male tenor, banjo, breathy delivery, lo-fi tape warmth". More translated stacks: [`references/style-and-lyrics.md`](./references/style-and-lyrics.md).

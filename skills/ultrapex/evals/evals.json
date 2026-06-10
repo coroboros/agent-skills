@@ -1,0 +1,34 @@
+{
+  "skill_name": "ultrapex",
+  "description": "Routing-gate and contract evals — the Model scope gate and the sibling routing are the skill's safety story; these pin them against description and when_to_use drift.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "frontier-session-runs-the-contract",
+      "prompt": "/ultrapex -s add per-route rate limiting to the API gateway — config-driven limits, middleware, and tests",
+      "expected_output": "On a Fable-class session the skill runs the five-invariant flow end to end: reads the touched code paths before editing, commits to an approach (pausing only at a genuine fork), builds within scope, verifies adversarially with fresh-context refuter subagents scaled to the blast radius, and saves a grounded report (Outcome / Changes / Verification / Open items) to ~/.claude/output/{project}/ultrapex/, reporting the expanded path.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "below-class-escalates-to-apex",
+      "prompt": "/ultrapex implement the password-reset flow",
+      "expected_output": "On a model below Fable-class (or unsure of its class), the skill refuses to run the judgment-first flow per its Model scope section and redirects to /apex — the same mission with step gates — rather than improvising invariants without the capability they assume.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "planning-only-routes-to-forge",
+      "prompt": "/ultrapex should we move sessions from Redis to Postgres, or keep Redis and add persistence?",
+      "expected_output": "Option-weighing with no build mandate is out of scope: the skill declines implementation framing and redirects to /forge for the research-and-decide pass, offering to return via ultrapex -f once a plan artifact exists.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "trivial-task-routes-to-oneshot",
+      "prompt": "/ultrapex fix the typo in the README install command",
+      "expected_output": "A trivial single-file tweak is not an ultrapex run: the skill redirects to /oneshot rather than spinning up scoping and adversarial verification for a one-line change.",
+      "files": []
+    }
+  ]
+}

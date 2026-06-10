@@ -276,5 +276,5 @@ If a need is not covered above, the answer is probably "use a separate `BRAND-VO
 The `lint_all.py` script (run from the directory containing both files) catches parent-change regressions across every child:
 
 ```bash
-python3 ~/.claude/skills/brand-voice/scripts/lint_all.py .
+python3 "$SKILL_DIR"/scripts/lint_all.py .   # $SKILL_DIR = this skill's folder — ${CLAUDE_SKILL_DIR} in Claude Code, the install dir elsewhere
 ```

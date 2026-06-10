@@ -4,7 +4,7 @@ Canonical block embedded verbatim in every skill whose primary outputs are shipp
 
 ## Canonical block
 
-The block below — including the two HTML-comment markers — is inserted verbatim into each declared SKILL.md, placed immediately after the H1 title and before any other `##` section. The `## Important` header follows the canonical guidance on placement of critical instructions for maximum adherence.
+The block below — including the two HTML-comment markers — is inserted verbatim into each declared SKILL.md, placed immediately after the H1 title and before any other `##` section. The `## Critical` header follows the canonical guidance on placement of critical instructions for maximum adherence.
 
 ```markdown
 <!-- canonical:label-hygiene:start -->
@@ -29,6 +29,7 @@ Writing rules (`skill-prose-rules.md`) govern *style* — front-load verbs, no m
 The sync script and the parity test read this list:
 
 - apex
+- ultrapex
 - code-ultrareview
 - oneshot
 

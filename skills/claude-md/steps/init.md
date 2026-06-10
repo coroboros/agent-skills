@@ -2,6 +2,8 @@
 
 Scaffold a minimal CLAUDE.md with only the essential sections. Triggered when `$ARGUMENTS` contains "init".
 
+Optional fast-path: `bash "$SKILL_DIR"/scripts/init_structure.sh <mode>` scaffolds the file layout with starter rule stubs — use only when the user asks for a pre-seeded layout instead of the detected draft below.
+
 ## Step 1: Detect project context
 
 Read `package.json` (or equivalent: `pyproject.toml`, `Cargo.toml`, `go.mod`, etc.) to detect:
