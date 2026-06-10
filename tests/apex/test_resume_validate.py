@@ -142,5 +142,17 @@ class TestResumeValidateBehavior(unittest.TestCase):
         self.assertIn("error=", result.stderr)
 
 
+class TestEveryStepWritesItsRow(unittest.TestCase):
+    """Resume reads the Progress table as authoritative — a step that never writes
+    its complete row strands every resume landing after it."""
+
+    def test_steps_chain_progress_rows(self):
+        steps_dir = REPO_ROOT / "skills" / "apex" / "steps"
+        for num, name in (("01", "analyze"), ("02", "plan"), ("03", "execute"), ("04", "examine")):
+            body = (steps_dir / f"step-{num}-{name}.md").read_text(encoding="utf-8")
+            with self.subTest(step=num):
+                self.assertIn(f'update-progress.sh "{{task_id}}" "{num}" "{name}" "complete"', body)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -471,5 +471,15 @@ class TestNewReferencesRouted(unittest.TestCase):
                 )
 
 
+class TestPromotionImpliesSave(unittest.TestCase):
+    """An unsaved Spec promotion used to hit the mandatory validate gate with no
+    file on disk and emit an apex bridge to a missing path."""
+
+    def test_promotion_implies_save(self):
+        body = _body()
+        self.assertIn("**Promotion implies `-s`.**", body)
+        self.assertIn("Explicit `-S` wins", body)
+
+
 if __name__ == "__main__":
     unittest.main()

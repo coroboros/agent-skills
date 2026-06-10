@@ -92,19 +92,19 @@ When album mode was confirmed in step 1, produce `ALBUM.md` alongside the per-tr
 
 For an N-track album, scaffold the `tracks/01-{slug}/`, `tracks/02-{slug}/`, … directories. Synthesise each TRACK.md in the same pass — the album arc informs each track's Rationale section, and the tracklist transitions get cross-referenced from each TRACK.md's iteration log.
 
-### 7. Validate
+### 7. Validate, then write
 
-Run [`../scripts/validate.py`](../scripts/validate.py) on every TRACK.md just-written and on ALBUM.md.
+Write every draft to a temp folder first, keeping the canonical filename — [`../scripts/validate.py`](../scripts/validate.py) dispatches on it (e.g. `/tmp/suno-draft/TRACK.md`; in album mode, mirror the project layout under the temp folder so one directory walk covers ALBUM.md and every TRACK.md). The final path receives content only after the verdict.
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ```bash
-python3 "$SKILL_DIR"/scripts/validate.py <path/to/TRACK.md>
+python3 "$SKILL_DIR"/scripts/validate.py /tmp/suno-draft/TRACK.md
 ```
 
-- **GREEN** → write proceeds, no surfacing in summary.
-- **YELLOW** → write proceeds, warnings included in user-facing summary verbatim.
-- **RED** → block. Fix the issue in the synthesis (re-tighten descriptor count, trim Lyrics, drop SFX brackets) and re-validate. Do not write to disk on RED. Do not ask the user — the model fixes and retries up to twice. If still RED on the third attempt, surface the validator output and stop.
+- **GREEN** (exit 0) → `mv` the draft into place, no surfacing in summary.
+- **YELLOW** (exit 2) → `mv` the draft into place, warnings included in user-facing summary verbatim.
+- **RED** (exit 1) → block the move. Fix the issue in the temp draft (re-tighten descriptor count, trim Lyrics, drop SFX brackets) and re-validate — the final path is never touched by RED content. Do not ask the user — the model fixes and retries up to twice. If still RED on the third attempt, surface the validator output and stop.
 
 ### 8. Emit `.gitignore` if missing
 

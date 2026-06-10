@@ -77,6 +77,8 @@ git checkout -b feat/{task_id}
 ```
 → `{branch_name}` = `feat/{task_id}`
 
+If `{task_id}` does not exist yet (non-save run, or `-b` resolving before template setup), derive the slug from the task description instead — kebab, ≤5 words: `feat/{slug}`.
+
 **If user chose "Custom branch name":**
 → Ask for branch name
 ```bash

@@ -6,6 +6,30 @@ Main-thread orchestration details for Phase 3 (axis review) and Phase 4 (validat
 
 The orchestrator prepares per-axis bundles via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` subagent in one message. `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
+### Produce the diff
+
+`prepare --diff` takes a patch file no phase emits on its own — the orchestrator produces it, matching the Phase 1 scope resolution (`scope.json["base"]`, `["target"]`, `["dirty_tree"]`):
+
+- **Clean tree** (`dirty_tree` false) — diff the base + target from `scope.json` (resolved by `scripts/resolve_base.sh`; the base is already a merge-base, so the two-dot form is correct — no three-dot):
+
+  ```bash
+  git diff <base> <target> > /tmp/cur-diff.patch
+  ```
+
+- **Dirty tree** (`dirty_tree` true) — tracked changes plus every untracked file appended as added lines, so uncommitted-new content reviews too:
+
+  ```bash
+  git diff HEAD > /tmp/cur-diff.patch   # outside the repo — a patch in the cwd is itself untracked and would self-include below
+  git ls-files --others --exclude-standard -z \
+    | while IFS= read -r -d '' f; do
+        git diff --no-index /dev/null "$f" >> /tmp/cur-diff.patch || true
+      done
+  ```
+
+  `git diff --no-index` exits 1 whenever the files differ — always here — so the `|| true` keeps `set -e` shells running.
+
+### Prepare the bundles
+
 ```bash
 python3 "$SKILL_DIR"/scripts/axis_dispatch.py prepare \
   --scope <scope.json> \

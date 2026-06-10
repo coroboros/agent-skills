@@ -2,9 +2,11 @@
 
 Deep cleanup of a bloated CLAUDE.md file. Triggered when `$ARGUMENTS` contains "optimize". `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
-## Step 0: Read the optimization guide (REQUIRED FIRST)
+## Step 0: Run the audit, then read the guide (REQUIRED FIRST)
 
-Use the Read tool on `"$SKILL_DIR"/references/optimize-guide.md` BEFORE doing anything else. This file contains the research data (ETH Zurich study), the 6 bloat categories with specific examples, target metrics, and before/after examples. Skipping it produces a subpar optimization — the guide's concrete examples are what make the removal criteria unambiguous.
+Run `python3 "$SKILL_DIR"/scripts/audit_claude_md.py <path>` on the target file BEFORE doing anything else — the JSON report (line count, bloat hits by category, broken imports) is your fix list.
+
+THEN use the Read tool on `"$SKILL_DIR"/references/optimize-guide.md` before editing. This file contains the research data (ETH Zurich study), the 6 bloat categories with specific examples, target metrics, and before/after examples. Skipping it produces a subpar optimization — the guide's concrete examples are what make the removal criteria unambiguous.
 
 ## Step 1: Inventory
 
@@ -21,10 +23,10 @@ For each line ask: "Can the agent discover this by reading the project, or does 
 The 6 categories (full examples in the guide):
 
 1. **Linter-enforced rules** (ESLint, Prettier, Biome, TypeScript strict) — the tool enforces it, the agent doesn't need a reminder
-2. **Marketing / goals / vision** — zero code value
-3. **Obvious info the agent discovers itself** — directory structure, framework defaults, deps from `package.json`
-4. **Verbose explanations** — paragraphs where 1 line suffices, tutorials, history
-5. **Redundant specs** — copies of config files, schema descriptions, env var lists
+2. **Repository overviews** — directory structure, framework defaults, deps from `package.json` — obvious info the agent discovers itself
+3. **Marketing / goals / vision** — zero code value
+4. **Redundant specs** — copies of config files, schema descriptions, env var lists
+5. **Verbose explanations** — paragraphs where 1 line suffices, tutorials, history
 6. **Generic best practices** — "write clean code", "DRY", "SOLID"
 
 ## Step 4: Keep only essentials
@@ -45,6 +47,6 @@ The 6 categories (full examples in the guide):
 
 ## Step 6: Present diff
 
-Show before/after with line counts. For each removal, cite which bloat category it falls under. Let the user approve before applying changes.
+Show before/after with line counts. For each removal, cite the bloat category by name (e.g. "Redundant specs"), never by number. Let the user approve before applying changes.
 
 **Target:** under 200 lines per file (current Claude Code guidance). Shorter is better — adherence drops measurably past 200.

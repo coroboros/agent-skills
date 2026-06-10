@@ -20,7 +20,7 @@ Count files matching `versions/v*.md` in the project folder. Next version is `v{
 
 ### 3. Archive the current take
 
-Copy current `TRACK.md` to `versions/v{N+1}.md` verbatim. Use `cp`, not `mv` — the new TRACK.md will overwrite in step 6, and the archive must exist before that happens.
+Copy current `TRACK.md` to `versions/v{N+1}.md` verbatim. Use `cp`, not `mv` — the new TRACK.md will overwrite in step 8, and the archive must exist before that happens.
 
 ```bash
 mkdir -p {path}/versions
@@ -69,15 +69,21 @@ Example:
 - v3 (2026-05-09): mix + performance — drop reverb-drenched, add (whispered) to verse 1, raise Audio Influence 78→85; archived v2
 ```
 
-### 7. Write the new TRACK.md
+### 7. Validate the candidate
 
-Overwrite the file at `{path}/TRACK.md`. The archived `versions/v{N+1}.md` is the previous take, untouched; the new TRACK.md is the current best.
+Write the revised candidate to a temp folder first, keeping the canonical filename — the validator dispatches on it (e.g. `/tmp/suno-revise/TRACK.md`). Update frontmatter `revised: YYYY-MM-DD` in the candidate; leave `created:` untouched.
 
-Update frontmatter `revised: YYYY-MM-DD`. Leave `created:` untouched.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
-### 8. Validate
+```bash
+python3 "$SKILL_DIR"/scripts/validate.py /tmp/suno-revise/TRACK.md
+```
 
-Run `scripts/validate.py {path}/TRACK.md`. Same RED/YELLOW/GREEN handling as `create`. RED on the new file blocks the write — but the archive in step 3 already happened, so retry without re-archiving (only the TRACK.md is re-synthesised; `versions/v{N+1}.md` stays as the previous take).
+Same RED/YELLOW/GREEN handling as `create`. RED (exit 1) blocks the move in step 8 — `{path}/TRACK.md` still holds the previous take, never touched by RED content. Fix the temp candidate and re-validate; no re-archiving needed (only the candidate is re-synthesised; `versions/v{N+1}.md` stays as the previous take).
+
+### 8. Write the new TRACK.md
+
+On GREEN or YELLOW (exit 0 or 2), `mv` the validated candidate over `{path}/TRACK.md`. The archived `versions/v{N+1}.md` is the previous take, untouched; the new TRACK.md is the current best.
 
 ### 9. Print the user-facing summary
 

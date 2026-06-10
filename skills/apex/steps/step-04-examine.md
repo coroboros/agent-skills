@@ -98,7 +98,7 @@ Look for: `typecheck`, `lint`, `test`, `build`, `format` (or equivalents).
 
 **3.0 Derivation lens**
 
-Load `references/derivation-lens.md` and run the lens — code-ultrareview's Python orchestrator if detected, else the inline fallback. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence.
+Load `references/derivation-lens.md` and run the lens — code-ultrareview's Python orchestrator if detected, else the inline fallback. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence. With `{save_mode}` = false there is no `02-plan.md` — reconcile against the approved plan from the step-02 conversation instead.
 
 **Gating:**
 
@@ -107,7 +107,7 @@ Load `references/derivation-lens.md` and run the lens — code-ultrareview's Pyt
 - **DECISION-OVERRIDE** findings → continue. Surface for user judgment.
 - **CONSISTENT** → no finding; counted in coverage.
 
-Log a one-line summary to `04-examine.md`:
+Log a one-line summary to `04-examine.md` (when `{save_mode}`):
 
 ```
 **Derivation lens:** GAP: <n> · SCOPE-ADD: <n> (advisory) · DECISION-OVERRIDE: <n> · CONSISTENT: <n>

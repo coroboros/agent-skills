@@ -97,7 +97,7 @@ See **Parameters** below for the complete flag list.
 | `-e` | `--economy` | `-E` | `--no-economy` | No subagents, direct tools only |
 | `-b` | `--branch` | `-B` | `--no-branch` | Verify not on main; create branch if needed |
 | `-i` | `--interactive` | — | — | Configure flags via AskUserQuestion |
-| `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on under `claude -p`) |
+| `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on when `CLAUDE_NONINTERACTIVE` is exported (set it in `claude -p` wrappers and CI)) |
 | `-r` | `--resume` | — | — | Continue from a previous task (takes `<task-id>`) |
 | `-f` | `--from` | — | — | Prior context: GitHub issue (`#N`, URL), forge plan (e.g. `~/.claude/output/{project}/forge/forge-{slug}.md`), or any file as foundational input. Non-Markdown → pre-process via `/markitdown -s` |
 

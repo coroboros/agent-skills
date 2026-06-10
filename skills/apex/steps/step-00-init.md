@@ -52,7 +52,7 @@ save_mode: false # -s: Save outputs to ~/.claude/output/{project}/apex/
 economy_mode: false # -e: No subagents, save tokens (for limited plans)
 branch_mode: false # -b: Verify not on main, create branch if needed
 interactive_mode: false # -i: Configure flags interactively
-goal_mode: false # -g: Wire /goal to loop step-04 until AC verified (auto-on under `claude -p`)
+goal_mode: false # -g: Wire /goal to loop step-04 until AC verified (auto-on when `CLAUDE_NONINTERACTIVE` is exported (set it in `claude -p` wrappers and CI))
 
 # Presets:
 # Budget-friendly:  economy_mode: true
@@ -119,10 +119,9 @@ Example: "add user authentication" → "add-user-authentication"
 
 ### 1a. Headless auto-detection (for `{goal_mode}`)
 
-If neither `-g` nor `-G` was passed explicitly AND any of these holds, default `{goal_mode}` = true:
+If neither `-g` nor `-G` was passed explicitly, `{goal_mode}` defaults to true only on an explicit headless signal: `${CLAUDE_NONINTERACTIVE}` set to any non-empty value — apex's own opt-in contract; export it in headless wrappers (`claude -p` scripts, CI) to make `-g` auto-on.
 
-- `${CLAUDE_NONINTERACTIVE}` is set to any non-empty value, OR
-- stdin is not a TTY (`! [ -t 0 ]` in bash).
+Do not probe the TTY (`[ -t 0 ]`): a tool shell is never a TTY, so the probe reads every session — interactive included — as headless.
 
 If `-G` was passed explicitly, it always overrides auto-detection (`{goal_mode}` stays false).
 
@@ -139,31 +138,26 @@ If {resume_task} is NOT set, skip directly to step 3.
 
 **If `{resume_task}` is set:**
 
-1. **Search for matching task:**
+1. **Resolve the task:**
 
    ```bash
-   ls ~/.claude/output/{project}/apex/ | grep "^{resume_task}"
+   bash "$SKILL_DIR"/scripts/resume_lookup.sh "{resume_task}"
    ```
 
-2. **If exact match found:**
-   - Read `00-context.md`'s `## Progress` table. Find the first row not marked `✓ Complete`; extract the numeric prefix from that step name (e.g., `04` from `04-examine`). Assign the integer (1–4) to `{step_num}` — the value passes to `validate_state.sh` below.
+   - Exit 0 → the absolute task path is on stdout; set `{task_id}` to its basename — the full directory name. Partial IDs never reach the steps below.
+   - Exit 1 (ambiguous) → present the candidates from stderr and ask the user which one.
+   - Exit 2 (no match) → list available tasks and ask for the correct ID.
+
+2. **Once resolved:**
+   - Read `00-context.md`'s `## Progress` table. Find the first row not marked `✓ Complete`; extract the numeric prefix from that step name (e.g., `02` from `02-plan`). Assign the integer (1–4) to `{step_num}` — the value passes to `validate_state.sh` below. Legacy tasks created before `00-init` was seeded complete show `00-init | ⏸ Pending` — treat that row as complete and take the first non-✓ row from `01` onward. Every row ✓ → the task is finished: say so and offer a re-run of step 4 (re-examine) or a fresh task.
    - **Auto-validate state** before any restoration:
      ```bash
-     bash "$SKILL_DIR"/scripts/validate_state.sh {resume_task} {step_num}
+     bash "$SKILL_DIR"/scripts/validate_state.sh {task_id} {step_num}
      ```
      Non-zero exit halts the resume with the script's stderr findings — do **not** continue state restoration on failure (the task is corrupt or partial; surface the diagnostic to the user).
    - Restore state variables from `00-context.md`.
-   - Scan step files to find last completed step (check for completion marker).
-   - Load next incomplete step.
+   - Load the step file for `{step_num}` — the Progress table is authoritative; every step writes its row on completion.
    - **STOP** - do not continue with fresh init
-
-3. **If partial match (e.g., `-r 01`):**
-   - If single match: use it
-   - If multiple matches: list them and ask user to specify
-
-4. **If no match found:**
-   - List available tasks
-   - Ask user to provide correct ID
 
 **If {resume_task} is NOT set:** → Skip directly to step 3
 

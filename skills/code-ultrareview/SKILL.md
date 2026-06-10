@@ -88,7 +88,7 @@ Run the 8 axes — Correctness, Simplification, Tests, Documentation, Style, Int
 | `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation before any write |
 | `--include-prose` | Coherence axis compares README freeform paragraphs as well (default: structured fields only) |
 | `--axes <list>` | Comma-separated subset of axes to run (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
-| `--preflight` | List detected tools per repo_kind + print install commands for missing ones. Informational only, no install |
+| `--preflight` | Runs `scripts/preflight_tools.sh --scope <scope.json>` — lists detected tools per repo_kind + prints install commands for missing ones. Informational only, no install |
 
 Lowercase enables, uppercase disables. No `-f` — this skill is a producer, not a consumer.
 
@@ -109,7 +109,7 @@ Lowercase enables, uppercase disables. No `-f` — this skill is a producer, not
 
 Runs `scripts/scope.py`. Deterministic, no LLM. Outputs `scope.json`:
 
-- **Diff resolution** — clean tree → `scripts/resolve_base.sh` ladder; dirty tree → `git diff HEAD` + every untracked file inlined as added lines.
+- **Diff resolution** — clean tree → `scripts/resolve_base.sh` ladder; dirty tree → `git diff HEAD` + every untracked file inlined as added lines. Recipe for producing the `diff.patch` fed to Phase 3's `prepare --diff` (two-dot against the resolved base; untracked files via `git diff --no-index /dev/null <file>`): `references/orchestration.md` § *Produce the diff*.
 - **Repo-kind classification** — 8 kinds (`skills` / `app` / `library` / `docs` / `monorepo` / `python` / `rust` / `go`) + `unknown`. Override via `--repo-kind` or `.code-ultrareview.yaml`.
 - **CLAUDE.md chain** — root `CLAUDE.md` + nested `CLAUDE.md` in changed directories + `.claude/rules/*.md` + `~/.claude/rules/*.md`. Ordered root-to-deepest. Read by axis reviewers and validators.
 - **Coherence activation** — any of `package.json`, `.claude-plugin/marketplace.json`, `marketplace.json`, `SKILL.md`, root `README.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod` in the diff → `scope.json["activates_coherence"] = true`.
@@ -215,7 +215,7 @@ The four opt-in flags layer orthogonally on the always-on pipeline: mutation tes
 
 - **Reviewer primitives** — `references/anthropic-verbatim.md` (rubric + HIGH SIGNAL + false-positive taxonomy), `references/axes-overview.md` (8 axes + Coherence + inter-axis precedence), `references/axes/<name>.md` (per-axis briefs), `references/orchestration.md` (Phase 3 + 4 + 3.5 prepare CLIs and bundle schemas).
 - **Opt-in flags** — `references/ultra-execution.md` covers `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe` in full.
-- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.
+- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, `preflight_tools.sh` (`--preflight`), `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.
 
 ## Gotchas
 

@@ -201,6 +201,13 @@ Append to `{output_dir}/03-execute.md`:
 **Timestamp:** {ISO timestamp}
 ```
 
+then:
+
+```bash
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "complete"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
+```
+
 ---
 
 ## Deliverable hygiene

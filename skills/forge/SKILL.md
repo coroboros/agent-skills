@@ -193,7 +193,7 @@ Keep it minimal — no verbose parsing logs, no separators.
 - **Load references on demand.** Read `references/*.md` only when the phase needs them — keep the main context lean.
 - **Always include concrete acceptance criteria** — every workstream, Given/When/Then + ≥1 negative; see `references/spec-craft.md`.
 - **3-7 workstreams.** Code-bearing artifacts have between 3 and 7 workstreams. Fewer means one task — go straight to `/oneshot` or `/apex`. More means re-decompose. Enforced by `scripts/validate_spec.py`.
-- **Audit and validate before finalizing.** Walk the pre-save audit in `references/spec-craft.md` § Pre-save audit (Decision items always; Spec items when promoted) — rewrite anything flagged. When the artifact has workstreams, also run `python3 "$SKILL_DIR"/scripts/validate_spec.py {output_file}` — exit 0 required (Priority/Complexity set; deps resolve; no cycles). The audit catches soft defects the validator cannot see; both gates must pass.
+- **Audit and validate before finalizing.** Walk the pre-save audit in `references/spec-craft.md` § Pre-save audit (Decision items always; Spec items when promoted) — rewrite anything flagged. When the artifact has workstreams, also run `python3 "$SKILL_DIR"/scripts/validate_spec.py {output_file}` (under `-S`, the temp Spec from Phase 4 Save) — exit 0 required (Priority/Complexity set; deps resolve; no cycles). The audit catches soft defects the validator cannot see; both gates must pass.
 
 ## Workflow — four phases
 
@@ -205,7 +205,7 @@ Frame the real problem, then research it wide.
 
 **Reframe.** The stated problem is rarely the real one. Restate the problem behind it, write 1-3 "How might we …" framings, and name the one you'll pursue. Generating solutions is Phase 2, not here.
 
-**Load prior context (if `{from_file}`).** A GitHub issue (`#N` / URL) → `gh issue view <n> --json title,body,labels,comments`; carry its acceptance criteria forward. A local file (a prior forge artifact, an RFC, a design doc) → `Read` the explicit path verbatim. No reconstruction, inference, or glob: the producer already printed the absolute path; the bridge carries it literally. If the path does not exist, fail loud and ask the user to correct or regenerate it. Extract its decisions, constraints, and open questions, and skip re-researching anything the prior context already covers.
+**Load prior context (if `{from_file}`).** A GitHub issue (`#N` / URL) → `gh issue view <n> --json title,body,labels,comments`; carry its acceptance criteria forward. A non-GitHub web URL (an RFC, a blog post, a vendor doc) → fetch it with `WebFetch` (or your harness's web-fetch tool) and treat the fetched content as the prior context. A local file (a prior forge artifact, an RFC, a design doc) → `Read` the explicit path verbatim. No reconstruction, inference, or glob: the producer already printed the absolute path; the bridge carries it literally. If the path does not exist, fail loud and ask the user to correct or regenerate it. Extract its decisions, constraints, and open questions, and skip re-researching anything the prior context already covers.
 
 **Clarify (if vague and not `{auto_mode}`).** If scope, constraints, success criteria, or a load-bearing dependency is unclear and could flip the outcome, ask the 1-3 most relevant decision-forcing questions in a single message before researching — never five when one matters, never a second round, unless the user opts into a deep grill (relentless, one-question-at-a-time; see the playbook). For the question set, the when-to-ask gate, the prior-context attenuation rule, and the opt-in deep grill, read `"$SKILL_DIR"/references/clarify-playbook.md` on demand. Under `{auto_mode}`, never ask — decide, tag the call `assumption` in the ledger, surface the shakiest as an open question.
 
@@ -276,6 +276,8 @@ Emit ONE artifact. Research and adversarial findings stay in the subagents — o
 
 Otherwise: write the Decision, present it, then ask the user whether to decompose into workstreams and wait. This keeps the discuss-then-build seam intact for exploratory questions where the user came for thinking, not for plumbing.
 
+**Promotion implies `-s`.** When the shape lands on `# Spec:`, `{save_mode}` turns on — the validation gate and the `/apex` bridge both need the file on disk — the same way `-i` implies `-s`. A plain `# Decision:` without `-s` still saves nothing. Explicit `-S` wins: `{save_mode}` stays off, the Spec is written to a temp file for the validator, and the apex bridge is replaced by a re-run note (see Present and route).
+
 **Write the artifact** using `templates/forge-artifact.md` (read `"$SKILL_DIR"/templates/forge-artifact.md` before writing):
 
 1. **Decision header** — chosen approach + rationale, runner-up + what would flip it, escalated forks (or "none").
@@ -287,9 +289,9 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 
 **Pre-save audit.** Before save, walk the audit checklist in `"$SKILL_DIR"/references/spec-craft.md` § Pre-save audit. The Decision-shape items apply always; the Spec-shape items apply when promoted. Rewrite anything flagged and re-walk the list. This is the layer the schema validator does not catch — vague AC, goals stated as outputs, greedy P0, untagged non-goals, XL workstreams that need splitting, surfaced forks left empty when load-bearing calls exist.
 
-**Save** (if `{save_mode}`) to the `$HOME`-expanded `{output_file}`; report the fully-expanded absolute path.
+**Save** (if `{save_mode}` — promotion implies `-s`, so always true for the Spec shape unless `-S`) to the `$HOME`-expanded `{output_file}`; report the fully-expanded absolute path. If promotion turned `{save_mode}` on after the entry point, `mkdir -p` the `$HOME`-expanded `{output_dir}` first. Under `-S`, write the Spec to a temp file instead — the validator needs a file on disk; nothing lands in `{output_dir}`.
 
-**Validate** (when workstreams exist) — `python3 "$SKILL_DIR"/scripts/validate_spec.py {output_file}`, exit 0 required. Rewrite until it clears.
+**Validate** (when workstreams exist) — `python3 "$SKILL_DIR"/scripts/validate_spec.py {output_file}` (under `-S`, the temp file from Save), exit 0 required. Rewrite until it clears.
 
 **Revision pause** (Spec shape AND `{auto_mode}` = false). After Save + Validate, present a one-paragraph summary of the spec and ask the user: *"Spec is ready. Want to revise anything before /apex implements WS-1?"* Wait. Apply revisions inline, re-save, re-run the audit, re-validate. Skip under `{auto_mode}` = true — the user opted into commit-and-emit.
 
@@ -303,7 +305,9 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
   /apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
   ```
 
-- **Decision shape (default)** — no apex bridge. Ask the user whether to decompose the decision into workstreams and wait. If they opt in, re-enter Phase 4 with the Spec shape (the existing artifact path is reused; the file is overwritten with the promoted version). If they opt out, the discussion concludes here.
+  Under `-S` there is no bridgeable file — replace the bridge with: re-run with `-s` to get a bridgeable artifact.
+
+- **Decision shape (default)** — no apex bridge. Ask the user whether to decompose the decision into workstreams and wait. If they opt in, re-enter Phase 4 with the Spec shape — a saved Decision's path is reused and the file overwritten with the promoted version; an unsaved one saves fresh to `{output_file}` (promotion implies `-s`; under `-S`, the temp-file route above applies instead). If they opt out, the discussion concludes here.
 
 > **Dependency:** the bridge requires the `apex` skill. If unavailable, tell the user and suggest installing it, or proceed manually from the artifact.
 

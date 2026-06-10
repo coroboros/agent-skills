@@ -259,6 +259,13 @@ Append to `{output_dir}/02-plan.md`:
 **Timestamp:** {ISO timestamp}
 ```
 
+then:
+
+```bash
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "02" "plan" "complete"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_progress"
+```
+
 ---
 
 ## SUCCESS METRICS:

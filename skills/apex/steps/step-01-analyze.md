@@ -101,6 +101,7 @@ If `{from_file}` is a **spec** — H1 starts with `# Spec:` AND the file contain
 
 - Log: `Spec AC accepted verbatim from {from_file}` in the analysis output. <!-- noqa: internal-label -->
 - Skip the AC inference step (§ 5 below) — the spec's AC are the contract.
+- A task naming one workstream (`implement WS-2`) scopes the verbatim AC to that workstream — the other workstreams stay out of this run's contract. <!-- noqa: internal-label -->
 - Negative scope: copy each workstream's `## Not Included` block when present; copy the spec-level `## Non-goals` section when no per-workstream negative scope exists.
 
 This prevents silent AC drift when chaining `/forge → /apex -f <forge plan>`.

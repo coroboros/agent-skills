@@ -234,5 +234,15 @@ class TestAutoIncrement(unittest.TestCase):
             self.assertEqual(new, ["09-octal-edge"])
 
 
+class TestContextTemplateSeed(unittest.TestCase):
+    """00-init must seed complete: the table exists only once init wrote it, and a
+    Pending row makes every resume resolve step_num 0, which validate_state rejects."""
+
+    def test_template_seeds_00_init_complete(self):
+        template = (REPO_ROOT / "skills" / "apex" / "templates" / "00-context.md").read_text(encoding="utf-8")
+        self.assertIn("| 00-init | ✓ Complete |", template)
+        self.assertNotIn("| 00-init | ⏸ Pending |", template)
+
+
 if __name__ == "__main__":
     unittest.main()
