@@ -102,10 +102,13 @@ See `.claude-plugin/marketplace.json` for the authoritative per-plugin skill lis
 ```
 coroboros/agent-skills/
 ├── README.md              # User-facing — install, skills table, pipeline
-├── CLAUDE.md              # Agent-facing — imports .claude/rules/
+├── AGENTS.md              # Agent-facing index — canonical rules + at-a-glance
+├── CLAUDE.md              # Thin Claude Code entrypoint — imports AGENTS.md
 ├── LICENSE.md
+├── .agents/
+│   └── rules/             # Canonical repo-specific rules, indexed by AGENTS.md
 ├── .claude/
-│   └── rules/             # Canonical repo-specific rules, imported by CLAUDE.md
+│   └── rules/             # Claude Code behavior adapters installed by `behave`
 ├── .claude-plugin/        # Plugin marketplace manifest (category grouping)
 │   └── marketplace.json
 ├── assets/                # Shared brand assets (logo, icons)

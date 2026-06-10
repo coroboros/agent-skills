@@ -128,14 +128,16 @@ class TestCLI(unittest.TestCase):
 
 
 class TestExistingRulesAreValid(unittest.TestCase):
-    """Every .claude/rules/*.md in the repo should validate cleanly. This catches
-    rule-file regressions across the project root."""
+    """Every rule file in the repo (.agents/rules/ canonical + .claude/rules/
+    behavior adapters) should validate cleanly. This catches rule-file
+    regressions across the project root."""
 
     def test_repo_rules_validate(self):
-        rules_dir = REPO_ROOT / ".claude" / "rules"
-        if not rules_dir.is_dir():
-            self.skipTest("no .claude/rules/ at repo root")
-        for rule in rules_dir.glob("*.md"):
+        rule_dirs = [REPO_ROOT / ".agents" / "rules", REPO_ROOT / ".claude" / "rules"]
+        rules = [r for d in rule_dirs if d.is_dir() for r in sorted(d.glob("*.md"))]
+        if not rules:
+            self.skipTest("no rule directories at repo root")
+        for rule in rules:
             with self.subTest(rule=rule.name):
                 r = _run(rule)
                 self.assertEqual(r.returncode, 0,

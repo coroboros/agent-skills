@@ -36,7 +36,7 @@ class TestProducerConsumerPaths(unittest.TestCase):
 
     RULE = (
         Path(__file__).resolve().parent.parent.parent
-        / ".claude" / "rules" / "repo-conventions.md"
+        / ".agents" / "rules" / "repo-conventions.md"
     ).read_text(encoding="utf-8")
 
     def test_forge_bridges_apex_explicit_path(self):

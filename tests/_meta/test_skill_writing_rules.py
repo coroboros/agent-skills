@@ -3,7 +3,7 @@
 Four canonical rules share this suite — `writing-rules` (style), `label-hygiene`
 (internal-label vocabulary leakage), `execution-discipline` (how the skill changes
 code), and `adversarial-verification` (how the skill trusts its own findings). Each
-lives in its own `.claude/rules/skill-*.md` file with its own marker pair and
+lives in its own `.agents/rules/skill-*.md` file with its own marker pair and
 declared-skill list, and propagates via `scripts/sync_writing_rules.py`. These tests
 enforce byte-level parity, placement near the top, exclusion of non-declared skills,
 and absence of personal/brand-voice path leaks — once per rule.
@@ -39,7 +39,7 @@ class Rule(NamedTuple):
 CANONICAL_RULES: tuple[Rule, ...] = (
     Rule(
         id="writing-rules",
-        canonical_file=REPO_ROOT / ".claude" / "rules" / "skill-prose-rules.md",
+        canonical_file=REPO_ROOT / ".agents" / "rules" / "skill-prose-rules.md",
         start_marker="<!-- canonical:writing-rules:start -->",
         end_marker="<!-- canonical:writing-rules:end -->",
         declared_header="## Declared prose-emitting skills",
@@ -48,7 +48,7 @@ CANONICAL_RULES: tuple[Rule, ...] = (
     ),
     Rule(
         id="label-hygiene",
-        canonical_file=REPO_ROOT / ".claude" / "rules" / "skill-label-hygiene-rules.md",
+        canonical_file=REPO_ROOT / ".agents" / "rules" / "skill-label-hygiene-rules.md",
         start_marker="<!-- canonical:label-hygiene:start -->",
         end_marker="<!-- canonical:label-hygiene:end -->",
         declared_header="## Declared label-hygiene skills",
@@ -58,7 +58,7 @@ CANONICAL_RULES: tuple[Rule, ...] = (
     Rule(
         id="execution-discipline",
         canonical_file=REPO_ROOT
-        / ".claude"
+        / ".agents"
         / "rules"
         / "skill-execution-discipline-rules.md",
         start_marker="<!-- canonical:execution-discipline:start -->",
@@ -70,7 +70,7 @@ CANONICAL_RULES: tuple[Rule, ...] = (
     Rule(
         id="adversarial-verification",
         canonical_file=REPO_ROOT
-        / ".claude"
+        / ".agents"
         / "rules"
         / "skill-adversarial-verification-rules.md",
         start_marker="<!-- canonical:adversarial-verification:start -->",

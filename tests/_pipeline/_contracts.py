@@ -1,6 +1,6 @@
 """Single source of truth for cross-skill pipeline contracts.
 
-Skills compose via the `-f` flag (see `.claude/rules/repo-conventions.md`):
+Skills compose via the `-f` flag (see `.agents/rules/repo-conventions.md`):
 a producer saves to `~/.claude/output/<project>/<skill>/<skill>-<slug>.md`
 and reports the fully-expanded absolute path; a consumer takes that explicit
 path via `-f` verbatim — no reconstruction, no inference. Schema drift

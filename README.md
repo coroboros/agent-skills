@@ -1159,7 +1159,7 @@ python3 -m unittest discover tests/ -v
 python3 -m unittest discover tests/<skill-name>/ -v
 ```
 
-Stdlib only. See [`.claude/rules/skill-authoring.md`](./.claude/rules/skill-authoring.md) for the testing requirement.
+Stdlib only. See [`.agents/rules/skill-authoring.md`](./.agents/rules/skill-authoring.md) for the testing requirement.
 
 ---
 
@@ -1173,20 +1173,20 @@ Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner
 
 This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus Claude Code extensions (`when_to_use`, `argument-hint`, `model`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable.
 
-Authoring conventions live in [`.claude/rules/`](./.claude/rules/):
+Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing index (Codex and every `AGENTS.md`-reading harness), [`CLAUDE.md`](./CLAUDE.md) imports it for Claude Code. Authoring conventions live in [`.agents/rules/`](./.agents/rules/):
 
-- [`agentskills-spec.md`](./.claude/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
-- [`claude-code-skills.md`](./.claude/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
-- [`skill-authoring.md`](./.claude/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
-- [`repo-conventions.md`](./.claude/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
-- [`skill-prose-rules.md`](./.claude/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
-- [`skill-label-hygiene-rules.md`](./.claude/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
-- [`skill-execution-discipline-rules.md`](./.claude/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
-- [`skill-adversarial-verification-rules.md`](./.claude/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a finding or decision
+- [`agentskills-spec.md`](./.agents/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
+- [`claude-code-skills.md`](./.agents/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
+- [`skill-authoring.md`](./.agents/rules/skill-authoring.md) — mandatory use of Anthropic's official `skill-creator`, and the testing requirement that ships with any script change
+- [`repo-conventions.md`](./.agents/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
+- [`skill-prose-rules.md`](./.agents/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
+- [`skill-label-hygiene-rules.md`](./.agents/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
+- [`skill-execution-discipline-rules.md`](./.agents/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
+- [`skill-adversarial-verification-rules.md`](./.agents/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a finding or decision
 
 ### Canonical blocks
 
-Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.claude/rules/` (linked above). `scripts/sync_writing_rules.py` propagates all four; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
+Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.agents/rules/` (linked above). `scripts/sync_writing_rules.py` propagates all four; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
 
 ---
 
