@@ -81,10 +81,10 @@ Parsed from `$ARGUMENTS`; everything after the flags is the task description.
 
 Five invariants. Breaking one is a failed run, however good the code.
 
-1. **Understand before building.** Read the code paths you will touch — exports, immediate callers, shared utilities — before the first edit. A claim about unread code is invention, and "looks orthogonal" is the classic blind spot.
-2. **Decide and commit.** When you have enough information to act, act. Pause for the user only at a genuine fork — a destructive or irreversible action, a real scope change, or input only they hold — and bring a recommendation, not a survey. Anywhere else, state the assumption and keep moving.
-3. **Build complete and scoped.** Production-grade, never half-finished — and every changed line traces to the request. No unrequested refactors, no speculative abstractions, no validation for scenarios that cannot happen.
-4. **Verify adversarially.** Verification is independent of the author: dispatch fresh-context subagents prompted to refute the work against the task — refute, not confirm — and scale the panel to the blast radius: multiple independent refuters for irreversible or published work, one fresh pass for the contained. Judge refutations on evidence, never a single-refuter veto. Run the tests and keep the output. No subagents in your harness → self-refute in fresh sequential passes.
+1. **Understand before building.** Read the code paths you will touch — exports, immediate callers, shared utilities — before the first edit; "looks orthogonal" is the classic blind spot.
+2. **Decide and commit.** When you have enough information to act, act. Pause for the user only at a genuine fork — a destructive or irreversible action, a real scope change, or input only they can provide — and bring a recommendation, not a survey. Anywhere else, state the assumption and keep moving.
+3. **Build complete and scoped.** Production-grade, never half-finished — and every changed line traces to the request. The Engineering-discipline block above owns the scope rules; they hold under time pressure too.
+4. **Verify adversarially.** The Adversarial-verification block above is the doctrine; the mechanics here: fresh-context refuter subagents scaled to the blast radius — several independent refuters for irreversible or published work, one fresh pass for the contained — judged on majority or evidence, never a single-refuter veto. Run the tests and keep the output. No subagents in your harness → self-refute in fresh sequential passes.
 5. **Report grounded.** Every claim in the report audits against a tool result from this run. Outcome first; failing parts reported as failing, skipped parts named. A polished report of unverified work is the worst output this skill can produce.
 
 ## Shape of a run

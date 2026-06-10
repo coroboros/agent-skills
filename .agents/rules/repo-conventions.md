@@ -53,7 +53,7 @@ Skills install standalone — `npx skills add coroboros/agent-skills --skill <na
 
 - **Forbidden** — a relative path escaping the skill folder (`../<other>/…`, `../../<other>/…`) or a raw repo path (`skills/<other>/…`). On a solo install the target does not exist and the `Read` fails.
 - **Cite by external link** — point at the source of truth: the canonical upstream (the DESIGN.md format lives at `github.com/google-labs-code/design.md`) or, for our own elaboration, the blob URL `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` paired with the sibling by slash-name (`/<other>`).
-- **Optional runtime cooperation** — when a skill *uses* a sibling at runtime (a script, a governance handoff), detect-or-degrade: try `${CLAUDE_SKILL_DIR}/../<other>/…`, then `~/.claude/skills/<other>/…`, then `~/.agents/skills/<other>/…`, and on miss state the fallback and continue. `humanize-en` (`extract_rules.py`) and `apex` (the code-ultrareview orchestrator) are the reference implementations.
+- **Optional runtime cooperation** — when a skill *uses* a sibling at runtime (a script, a governance handoff), detect-or-degrade: try `"$SKILL_DIR"/../<other>/…`, then `~/.claude/skills/<other>/…`, then `~/.agents/skills/<other>/…`, and on miss state the fallback and continue. `humanize-en` (`extract_rules.py`) and `apex` (the code-ultrareview orchestrator) are the reference implementations.
 
 code-ultrareview's Documentation axis flags a raw `skills/<other>/…` citation — the standing audit for drift.
 

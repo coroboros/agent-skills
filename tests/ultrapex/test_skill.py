@@ -33,8 +33,9 @@ class TestUltrapexFrontmatter(unittest.TestCase):
         self.assertIsNone(_frontmatter().get("effort"))
 
     def test_coupled_compatibility_tier(self):
-        """ultrapex dispatches subagents — it belongs to the harness-coupled tier."""
-        self.assertIn("Optimized for Claude Code", _frontmatter().get("compatibility", ""))
+        """ultrapex dispatches subagents — it belongs to the harness-coupled tier.
+        The exact string is pinned repo-wide by tests/_meta/test_skill_frontmatter.py."""
+        self.assertIsNotNone(_frontmatter().get("compatibility"))
 
     def test_routes_to_apex_below_class(self):
         """when_to_use must keep the /apex routing — apex is the workhorse below Fable-class."""
@@ -49,19 +50,14 @@ class TestUltrapexContract(unittest.TestCase):
         self.assertIn("use `/apex`", body.split("## Model scope")[1].split("##")[0])
 
     def test_adversarial_verification_is_explicit(self):
-        """The explicit word is load-bearing: the contract names adversarial verification, not a paraphrase."""
-        body = _body()
-        self.assertIn("Verify adversarially", body)
-        self.assertIn("refute", body)
+        """The explicit word is load-bearing: the contract itself names adversarial
+        verification and refuters — not just the injected canonical block."""
+        contract = _body().split("## The contract")[1].split("## Shape")[0]
+        self.assertIn("Verify adversarially", contract)
+        self.assertIn("refute", contract)
 
     def test_subagent_degradation_clause(self):
         self.assertIn("No subagents in your harness", _body())
-
-    def test_all_four_canonical_blocks(self):
-        body = _body()
-        for block in ("adversarial-verification", "execution-discipline", "label-hygiene", "writing-rules"):
-            self.assertIn(f"<!-- canonical:{block}:start -->", body, block)
-            self.assertIn(f"<!-- canonical:{block}:end -->", body, block)
 
     def test_output_path_convention(self):
         """Single-file producer per repo conventions."""

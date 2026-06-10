@@ -137,8 +137,8 @@ class TestRulesSection(unittest.TestCase):
 
 
 class TestModelInherit(unittest.TestCase):
-    """forge uses opus per skill design — strategic reasoning and decomposition
-    need the strongest model. Pin the choice."""
+    """model stays unset — a pin would downgrade stronger sessions; forge
+    inherits the session model."""
 
     def test_model_unset_inherits_session(self):
         import sys

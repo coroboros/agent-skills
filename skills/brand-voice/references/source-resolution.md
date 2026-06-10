@@ -36,7 +36,7 @@ The MCP tool is authorised through Claude Code's permission layer, not via the s
 3. If empty, error:
    > "No Markdown files in `<dir>`."
 4. If the count is ≤ 5, read each file directly with `Read`.
-5. If the count is > 5, dispatch a `general-purpose` subagent with:
+5. If the count is > 5, dispatch a `general-purpose` subagent (or your harness's equivalent) with:
    > "Read every `.md` file under `<dir>` and produce a single Markdown document concatenating their content with a `## <relative-path>` heading per file. Skip files with no prose (less than 50 chars of non-frontmatter content)."
 
 The subagent is used past 5 files to keep the main skill's context clean — the aggregated draft can be 10K+ lines for a large brand archive.

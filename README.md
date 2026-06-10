@@ -121,7 +121,7 @@ Pre-implementation thinking — research the problem space, weigh approaches wit
 | Flag | Description |
 |------|-------------|
 | `-s` / `-S` | Save artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` / force no-save |
-| `-i` / `-I` | Create GitHub issues from workstreams (requires `-s`) / disable |
+| `-i` / `-I` | Create GitHub issues from workstreams (implies `-s`) / disable |
 | `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks, no revision pause / disable |
 | `-e` / `-E` | Economy mode — no subagents (Hunt research floor and Judge's adversarial panel) / disable |
 | `-f` | Load prior context (forge plan, RFC, GitHub issue `#N` or URL) |
@@ -634,7 +634,7 @@ Loop background videos for the web — crossfade the cut point, optimize, multi-
 /video-loop hero.mp4 -d 2.0             # Custom crossfade duration (default: 1.5s)
 /video-loop hero.mp4 -q 23 -w 28        # Higher quality (lower CRF = bigger file)
 /video-loop hero.mp4 -p                 # Also extract poster frame
-/video-loop hero.mp4 -n                 # Skip crossfade — optimize/encode only
+/video-loop hero.mp4 -C                 # Skip crossfade — optimize/encode only
 /video-loop hero.mp4 -o public/videos/  # Custom output directory
 ```
 
@@ -1073,12 +1073,12 @@ Skills chain together by design. Each works standalone; chaining covers longer w
       |
 /apex -f <abs forge path> "<task>"           implement systematically
       |
-/code-ultrareview -s                       review the change (adaptive, report-only)
+/code-ultrareview -s                       review the change (full strength, report-only)
       |
 /apex -f <abs code-ultrareview path>       fix the findings
 ```
 
-Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for an adaptive fresh-eyes pass before committing.
+Or skip ahead: `/forge` → `/apex` for planned work, or `/oneshot` for trivial tasks. Run `/code-ultrareview` after any change for a full-strength fresh-eyes pass before committing.
 
 ### Deep external research → Plan
 
@@ -1199,7 +1199,7 @@ Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner
 
 ## Standards
 
-This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus Claude Code extensions (`when_to_use`, `argument-hint`, `model`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable.
+This repo follows the [agentskills.io](https://agentskills.io) open standard. Each skill uses the canonical frontmatter fields (`name`, `description`, `license`, `metadata`) plus `compatibility` on harness-coupled skills (two-tier scope) and Claude Code extensions (`when_to_use`, `argument-hint`, `disable-model-invocation`, `allowed-tools`, `paths`) where applicable. No `model:` or `effort:` pins — skills inherit the session.
 
 Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing index (Codex and every `AGENTS.md`-reading harness), [`CLAUDE.md`](./CLAUDE.md) imports it for Claude Code. Authoring conventions live in [`.agents/rules/`](./.agents/rules/):
 

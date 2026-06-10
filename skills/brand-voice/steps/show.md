@@ -33,7 +33,6 @@ Print a flat list of testable rules from the voice doc — no prose, no rational
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ### `--rules` (default)
 

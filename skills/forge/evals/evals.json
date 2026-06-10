@@ -55,7 +55,7 @@
       "id": 8,
       "name": "pre-save-audit-then-validate",
       "prompt": "/forge -s add a real-time collaboration layer to the document editor",
-      "expected_output": "Before save, the skill walks the pre-save audit in references/spec-craft.md § Pre-save audit — checking AC vagueness, P0 ruthlessness, goals as outcomes vs outputs, non-goal rationale tags, no XL workstreams, dependency consistency, blocking-vs-non-blocking split, and surfaced-forks-not-empty when load-bearing calls exist. Rewrites anything flagged and re-walks the list. Then runs `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py <output_file>`, exit 0 required. Both gates pass; the audit catches what the schema validator cannot.",
+      "expected_output": "Before save, the skill walks the pre-save audit in references/spec-craft.md § Pre-save audit — checking AC vagueness, P0 ruthlessness, goals as outcomes vs outputs, non-goal rationale tags, no XL workstreams, dependency consistency, blocking-vs-non-blocking split, and surfaced-forks-not-empty when load-bearing calls exist. Rewrites anything flagged and re-walks the list. Then runs `python3 \"$SKILL_DIR\"/scripts/validate_spec.py <output_file>`, exit 0 required. Both gates pass; the audit catches what the schema validator cannot.",
       "files": []
     },
     {

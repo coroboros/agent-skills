@@ -111,22 +111,16 @@ class TestCompatibilityField(unittest.TestCase):
                                  f"{skill.name}: non-canonical compatibility text")
 
 
-class TestModelEnum(unittest.TestCase):
-    """If `model:` is declared, it must be one of haiku|sonnet|opus per Claude Code
-    convention. Free-form strings (or typos like 'sonett') silently ignored at runtime —
-    this test pins the enum so a typo surfaces in CI, not in production session start."""
+class TestNoModelEffortPins(unittest.TestCase):
+    """Skills inherit the session model and effort — a pin downgrades stronger
+    sessions and overrides the user's dial. Repo-wide policy since the unpinning."""
 
-    ALLOWED_MODELS = {"haiku", "sonnet", "opus"}
-
-    def test_model_in_allowed_set(self):
+    def test_model_and_effort_unset(self):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
                 fm, _ = load_frontmatter(skill)
-                model = fm.get("model")
-                if model is None:
-                    continue  # model is optional
-                self.assertIn(model, self.ALLOWED_MODELS,
-                              f"{skill.name}: model='{model}' not in {self.ALLOWED_MODELS}")
+                self.assertIsNone(fm.get("model"), f"{skill.name}: model pin forbidden")
+                self.assertIsNone(fm.get("effort"), f"{skill.name}: effort pin forbidden")
 
 
 class TestNoXMLMarkupInFrontmatter(unittest.TestCase):

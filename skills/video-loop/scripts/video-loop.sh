@@ -11,7 +11,7 @@
 #   -w <vp9_crf>    VP9 CRF (default: 32)
 #   -o <out_dir>    Output directory (default: same as input)
 #   -p              Also extract poster frame (first frame as JPEG)
-#   -n              No crossfade — re-encode only
+#   -C              Disable crossfade — re-encode only (-n: deprecated alias)
 #
 # Pipeline:
 #   probe → (optional crossfade → lossless intermediate) → encode MP4 → encode WebM → (optional poster)

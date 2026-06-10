@@ -67,7 +67,7 @@ Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill 
 | Layer | Anti-pattern | Bulletproof pattern |
 |-------|--------------|---------------------|
 | Documentation citation | `skills/<other>/references/<file>.md` | `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` + sibling skill by name (`/<other>`) |
-| Runtime dispatch | `skills/<other>/scripts/<file>` | Slash command `/<other>`; triple-fallback for direct script — `${CLAUDE_SKILL_DIR}/../<other>/...` → `~/.claude/skills/<other>/...` → `~/.agents/skills/<other>/...` → fail-loud with install-command hint |
+| Runtime dispatch | `skills/<other>/scripts/<file>` | Slash command `/<other>`; triple-fallback for direct script — `"$SKILL_DIR"/../<other>/...` → `~/.claude/skills/<other>/...` → `~/.agents/skills/<other>/...` → fail-loud with install-command hint |
 | Parity contract | `Mirrors skills/<other>/scripts/X.py` | GitHub URL + the phrase "parity counterpart" + "both files must change together" |
 
 Same-skill self-references drop the `skills/<self>/` prefix — use relative sibling paths (`../references/<file>.md`) or rephrase ("the skill's references"). Anthropic's canonical write-up of Composing Skills documents the by-name pattern only; GitHub URLs and triple-fallback fill the gaps for the documented partial-install case.

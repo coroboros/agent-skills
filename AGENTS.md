@@ -13,11 +13,7 @@ Before planning or editing, read this rule first:
 
 Public collection of installable AI agent skills for Claude Code and compatible agents. Each skill is a self-contained folder in `skills/` with a `SKILL.md` at its root.
 
-Markdown + bash + Python 3 (stdlib only). No build step. No package manager.
-
-## Canonical rules
-
-Read the matching rule before planning or editing:
+## Repo rules
 
 - `.agents/rules/agentskills-spec.md` — canonical frontmatter, folder anatomy, size budget
 - `.agents/rules/claude-code-skills.md` — Claude Code extensions and string substitutions

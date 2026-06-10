@@ -22,7 +22,7 @@ Ingest one or more sources, synthesise the canonical voice doc, write to disk.
 | Flag | Meaning |
 |------|---------|
 | `-u <url>` | URL source — `WebFetch` direct, fallback to `/markitdown -s <url>` |
-| `-n <id\|url>` | Notion page — the Notion MCP fetch tool when connected → else WebFetch (or your web-fetch tool) on a public page → else ask the user to paste the content |
+| `-n <id\|url>` | Notion page — the Notion MCP fetch tool; no MCP: export the page to Markdown and pass `-d` (authority: `references/source-resolution.md`) |
 | `-d <dir>` | Directory of MD files — `Glob`, then aggregate |
 | `-f <file>` | Single MD/MDX/TXT file — `Read` direct |
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
@@ -34,7 +34,6 @@ If no source flag is given (and `--extends` is not used), the skill enters inter
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ### 1. Pre-flight
 

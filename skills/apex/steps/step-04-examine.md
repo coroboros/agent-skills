@@ -151,8 +151,8 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 
 - Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough.
 - Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
-- `{economy_mode}` = true → skip the subagent; self-refute inline instead.
-- Harness without subagents → same fallback: self-refute inline.
+- `{economy_mode}` = true → skip the subagent; self-refute in a fresh pass instead.
+- Harness without subagents → same fallback: self-refute in a fresh pass.
 
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 

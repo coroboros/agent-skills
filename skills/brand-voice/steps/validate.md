@@ -24,7 +24,6 @@ Lint a `BRAND-VOICE.md` against the canonical format. Read-only. Use to verify a
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ### 1. Resolve target path
 
