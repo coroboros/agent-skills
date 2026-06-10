@@ -49,14 +49,15 @@ case "$1" in -h|--help) usage ;; esac
 INPUT=$1
 shift
 
-while getopts ":d:q:w:o:pn" opt; do
+while getopts ":d:q:w:o:pnC" opt; do
   case $opt in
     d) FADE=$OPTARG ;;
     q) H264_CRF=$OPTARG ;;
     w) VP9_CRF=$OPTARG ;;
     o) OUT_DIR=$OPTARG ;;
     p) POSTER=1 ;;
-    n) NO_FADE=1 ;;
+    C) NO_FADE=1 ;;
+    n) NO_FADE=1 ;;  # deprecated alias of -C (pre-dates the uppercase-disable flag convention)
     \?) echo "unknown flag: -$OPTARG" >&2; usage ;;
     :)  echo "flag -$OPTARG requires a value" >&2; usage ;;
   esac

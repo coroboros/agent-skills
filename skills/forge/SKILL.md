@@ -124,7 +124,7 @@ The Hunt phase uses **adaptive agent launching** above a hard floor, and the Jud
 - `Explore` — find existing patterns, files, architecture, prior decisions via `git log` (read-only, fast, context-isolated)
 - `general-purpose` — research approaches, library docs, post-mortems, web search
 
-**Floor, then scale with complexity.** Every run launches at least 1 Explore + 1 general-purpose — forge is invoked deliberately, never for trivial work, so there is no zero-agent path. `{economy_mode}` is the only escape hatch.
+**Floor, then scale with complexity.** Every run launches at least 1 Explore + 1 general-purpose — forge is invoked deliberately, never for trivial work, so there is no zero-agent path. `{economy_mode}` is the only escape hatch. A harness without subagents satisfies the floor itself: run the codebase pass and the external pass sequentially, fresh context each.
 
 | Scenario | Agents | Composition |
 |----------|--------|-------------|
@@ -133,7 +133,7 @@ The Hunt phase uses **adaptive agent launching** above a hard floor, and the Jud
 | Unfamiliar domain, multiple dimensions | 3-5 | 2x Explore + 1-2x general-purpose |
 | Architecture-level, many unknowns | 6-10 | 3-4x Explore + 3-4x general-purpose |
 
-Exploration output is large and noisy; subagents keep that noise out of the main context — only the distilled findings return. Launch all chosen agents in one message so they run in parallel. Scale up from the floor with the stakes; never drop below it unless `{economy_mode}` = true.
+Exploration output is large and noisy; subagents keep that noise out of the main context — only the distilled findings return. Launch all chosen agents in one message so they run in parallel. Scale up from the floor with the stakes; never drop below it unless `{economy_mode}` = true (no subagents in the harness → same floor, run both passes yourself).
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
 

@@ -146,10 +146,10 @@ class PipelineValidationTests(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
 
     def test_no_fade_skips_half_duration_check(self):
-        # `-n` bypasses the crossfade branch entirely, so a "huge" -d is moot.
+        # `-C` (and its deprecated alias `-n`) bypasses the crossfade branch entirely, so a "huge" -d is moot.
         out = self.tmp / "out_no_fade"
         out.mkdir(exist_ok=True)
-        r = _run(str(self.input), "-n", "-d", "999", "-o", str(out))
+        r = _run(str(self.input), "-C", "-d", "999", "-o", str(out))
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         result = _parse_result(r.stdout)
         self.assertEqual(result["no_fade"], "1")

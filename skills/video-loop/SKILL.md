@@ -26,7 +26,7 @@ All ffmpeg work happens in `scripts/video-loop.sh` — this skill validates inpu
 | `-w <crf>` | `32` | VP9 WebM CRF |
 | `-o <dir>` | Same as input | Output directory |
 | `-p` | off | Also extract a poster frame (first frame as JPEG) |
-| `-n` | off | No crossfade — optimize and encode only |
+| `-C` | off | Disable the crossfade — optimize and encode only (`-C` accepted as a deprecated alias) |
 
 > **No `-s/-S` save-mode flag.** Unlike media-cluster siblings (`/audio-loop`, `/markitdown`), video-loop outputs are web assets (MP4 / WebM / poster) the user drops directly into their site's video directory. No downstream skill consumes video files via `-f`, so the `~/.claude/output/<skill>/<project>/` convention would add ceremony without enabling anything — `-o <dir>` is the direct path.
 
@@ -45,7 +45,7 @@ ffmpeg -y -ss 0 -i <input> -frames:v 1 -update 1 /tmp/vl-first.png
 ffmpeg -y -sseof -0.1 -i <input> -frames:v 1 -update 1 /tmp/vl-last.png
 ```
 
-Read both frames. If they're nearly identical, suggest `-n` (the source already loops cleanly, crossfade would only blur motion). If they differ significantly, proceed with the default fade or recommend a longer `-d` for more gradual blending.
+Read both frames. If they're nearly identical, suggest `-C` (the source already loops cleanly, crossfade would only blur motion). If they differ significantly, proceed with the default fade or recommend a longer `-d` for more gradual blending.
 
 ### 3. Run the pipeline
 

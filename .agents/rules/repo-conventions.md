@@ -163,6 +163,10 @@ Two workflows trigger on every pull request and push to `main`:
 - `.github/workflows/ci.yml` runs the full `unittest` suite. Branch protection on `main` requires the `tests` status check — red tests block merge.
 - `.github/workflows/scan-skills.yml` calls Cisco's `skill-scanner` reusable workflow (policy `balanced`, fail-on `critical`) against the `skills/` tree. SHA-pinned to a tagged release; Dependabot opens a PR weekly when a new version lands.
 
+## Spec validation posture
+
+`skills-ref validate` (the agentskills.io reference validator) rejects any frontmatter field outside the spec's six — including the Claude Code extensions (`when_to_use`, `argument-hint`, …) this repo uses deliberately. It is therefore NOT a CI gate. The real cross-client hazard is unparseable YAML, which `tests/_meta/test_skill_frontmatter.py` already catches by parsing every frontmatter; clients are required by the spec's own implementation guide to ignore unknown fields (Codex's loader provably does).
+
 ## Skill scope declaration
 
 In the root README skills table, mark each skill:
