@@ -54,7 +54,7 @@ Internal planning labels are author coordinates, not reader coordinates. Strip t
 Carve-outs — literal `WS-N` is legitimate where the skill IS the format authority (forge templates, apex rule documentation). Reviewer-facing dev docs (e.g. `MIGRATION.md` under `tests/<skill>/`) may reference deleted artifacts by their author-time names.
 <!-- canonical:label-hygiene:end -->
 
-> **Eight-axis judgment code review.** Five-phase pipeline scope → tool battery → 8 parallel axis reviewers → Haiku validators → synthesis. Always runs at full strength. Distinct from Anthropic's remote `/ultrareview` — same goal, in-session on the user's subscription.
+> **Eight-axis judgment code review.** Five-phase pipeline scope → tool battery → 8 parallel axis reviewers → Haiku validators → synthesis. Always runs at full strength — effort maxed, every axis, no sampling. Distinct from Anthropic's remote `/ultrareview` — same goal, in-session on the user's subscription.
 
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules

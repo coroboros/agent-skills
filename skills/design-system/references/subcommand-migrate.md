@@ -63,7 +63,7 @@ Unknown or ambiguous values: fill with a concrete guess AND mention in the migra
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Detect format** (see heuristics above). Abort or confirm with the user if unsure.
 2. **Backup** the original as `<path>.legacy.<ISO-timestamp>`.

@@ -30,7 +30,7 @@ The script exits `0` when zero errors, `1` when any errors are present (warnings
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Resolve DESIGN.md path.** Default to `./DESIGN.md`.
 2. **Auto-detect or accept explicit CSS layer.** Order of probing (first match wins):

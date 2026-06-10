@@ -27,7 +27,7 @@ The script exits `0` when the lint has zero errors, `1` when errors are present 
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Resolve path.** Default to `./DESIGN.md` if no positional argument.
 2. **Run the script.**

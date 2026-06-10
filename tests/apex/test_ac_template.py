@@ -5,7 +5,7 @@ Verifies step-01-analyze.md adopted the Given/When/Then AC template, the
 rule that accepts spec AC verbatim when `-f` points to a spec.
 
 Test approach. Apex is a prose-driven skill — no `apex.sh` / `apex.py`
-entrypoint to subprocess-invoke. Per `.claude/rules/skill-authoring.md`
+entrypoint to subprocess-invoke. Per `.agents/rules/skill-authoring.md`
 § Testing, the convention for prompt-driven skills is structural tests
 over runtime subprocess tests. The assertions below verify that the
 SKILL.md / step files / templates document the contracts. Runtime

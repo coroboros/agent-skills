@@ -40,4 +40,4 @@ Claude Code-only extensions (`argument-hint`, `when_to_use`, `$ARGUMENTS`, `path
 - **`All agents`** — uses only open-standard fields (`name`, `description`, `license`, `compatibility`, `metadata`). Portable across any agent honoring the Agent Skills spec.
 - **`Claude`** — uses Claude Code-specific extensions. Optimized for Claude Code CLI per Anthropic's docs; degrades gracefully in Claude.ai, Claude desktop, and other agents supporting the open standard.
 
-Every SKILL.md declares its intended environment via the top-level spec-canonical `compatibility:` field. See `skill-authoring.md` → *Post-generation conformance → Frontmatter* for the exact text to use.
+Harness-coupled skills declare their intended environment via the top-level spec-canonical `compatibility:` field; portable skills omit it. See `skill-authoring.md` → *Post-generation conformance → Frontmatter* for the canonical text and the tier rule.

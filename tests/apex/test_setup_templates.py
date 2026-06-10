@@ -4,7 +4,7 @@ Strategy: run the script with cwd=<project> and an isolated HOME, then verify
 the global `$HOME/.claude/output/<project>/apex/<NN-feature>/` structure was
 created with all 5 step templates rendered (variable substitution applied).
 `<project>` = kebab-cased basename of the project root (git toplevel, else
-pwd). Output is global per .claude/rules/repo-conventions.md § Output paths —
+pwd). Output is global per .agents/rules/repo-conventions.md § Output paths —
 the tests also assert it never lands inside the project tree (de-pollution).
 """
 

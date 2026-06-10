@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Propagate canonical blocks from `.agents/rules/skill-{prose,label-hygiene,execution-discipline}-rules.md` into each declared SKILL.md.
+"""Propagate canonical blocks from `.agents/rules/skill-{prose,label-hygiene,execution-discipline,adversarial-verification}-rules.md` into each declared SKILL.md.
 
 Four rule families share this script:
 

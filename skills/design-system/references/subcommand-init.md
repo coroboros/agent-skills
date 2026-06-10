@@ -29,7 +29,7 @@ If `/award-design` is installed, the best init path is:
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Check if target path exists**. If a `DESIGN.md` is already at the target:
    - Abort by default — don't silently overwrite.

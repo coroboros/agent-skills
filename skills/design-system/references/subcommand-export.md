@@ -22,7 +22,7 @@ Convert DESIGN.md tokens to other token formats — Tailwind theme config or W3C
 
 ## Workflow
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Resolve format** (first positional, default `tailwind`).
 2. **Resolve source** (second positional, default `./DESIGN.md`).

@@ -56,7 +56,7 @@ Once the loop returns GREEN, align the skill with this repo before committing:
    - Keep only: `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools` (from [agentskills-spec](./agentskills-spec.md)), plus Claude Code extensions (from [claude-code-skills](./claude-code-skills.md)) if the skill is Claude Code-scoped.
    - Any custom fields go under `metadata:`.
    - Add `metadata.author: coroboros`. Do **not** add `metadata.version` — skills are co-versioned through the repo tags and the `marketplace.json` version. Per-skill versions create drift (every release, only touched skills get bumped, others lag behind — confusing to readers). `git log skills/<name>/` is the authoritative change history.
-   - Declare intended environment via the top-level spec-canonical `compatibility:` field (max 500 chars). For this repo, use exactly: `"Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."` — same text across all skills so readers can scan it consistently.
+   - Declare intended environment via the top-level spec-canonical `compatibility:` field (max 500 chars) — two tiers, enforced by `tests/_meta/test_skill_frontmatter.py`. Portable skills (open-standard fields and portable bodies only) **omit the field** — the spec says most skills do not need it. Harness-coupled skills use exactly: `"Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."` — same text across all coupled skills so readers can scan it consistently.
    - When the skill wraps or adapts external work (a CLI, a published methodology, another skill), cite via `metadata.sources` as a YAML list of URLs or short references. Example:
      ```yaml
      metadata:

@@ -169,10 +169,10 @@ Two workflows trigger on every pull request and push to `main`:
 
 ## Skill scope declaration
 
-In the root README skills table, mark each skill:
+Scope lives in the `compatibility` frontmatter field, not in the README table:
 
-- **`All agents`** — portable, uses only the open-standard frontmatter and no Claude Code-specific features (`$ARGUMENTS`, `argument-hint`, `paths`, etc.).
-- **`Claude Code`** — relies on Claude Code extensions. Won't work as-is in Claude.ai or the API.
+- **omitted** — portable: open-standard frontmatter, portable body, runs on any spec-honoring agent.
+- **canonical string present** — Claude Code-optimized; degrades gracefully elsewhere. The exact text and tier rule live in `skill-authoring.md` → *Post-generation conformance*.
 
 ## Context efficiency
 

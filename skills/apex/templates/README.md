@@ -131,7 +131,7 @@ Step files now reference templates and scripts:
 
 The file `{output_dir}/01-analyze.md` has already been created by the setup script.
 
-Update progress (`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing SKILL.md elsewhere):
+Update progress (`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere):
 ```bash
 bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
 ```

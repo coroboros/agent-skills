@@ -96,7 +96,7 @@ For an N-track album, scaffold the `tracks/01-{slug}/`, `tracks/02-{slug}/`, …
 
 Run [`../scripts/validate.py`](../scripts/validate.py) on every TRACK.md just-written and on ALBUM.md.
 
-`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ```bash
 python3 "$SKILL_DIR"/scripts/validate.py <path/to/TRACK.md>

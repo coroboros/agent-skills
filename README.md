@@ -86,16 +86,16 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Writing | [write-clear-readme](#write-clear-readme) | Author, audit, or polish READMEs — clarity, structure, concision |
 | Writing | [humanize-en](#humanize-en) | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
 
-Every skill is `Claude` scope — Claude Code-optimized per the [Agent Skills spec](https://agentskills.io), degrading gracefully in Claude.ai, desktop, and other open-standard agents (see [Standards](#standards)). Each `model:` is forced per skill (opus = deep judgment, sonnet = bounded reasoning, haiku = scripted flows) regardless of session default; opus costs more tokens — override with `--model` or skip on a tight plan.
+Skills inherit the session model — no `model:` pins, so a stronger session is never downgraded by a skill. Scope is two-tier per the [Agent Skills spec](https://agentskills.io): portable skills omit the `compatibility` field entirely; Claude Code-optimized skills declare it and degrade gracefully on any open-standard agent (see [Standards](#standards)).
 
 ---
 
 ### Workflow Skills
 
-Strategic thinking, planning, and implementation — `forge`, `apex`, `oneshot`.
+Strategic thinking, planning, and implementation — `forge`, `apex`, `ultrapex`, `oneshot`.
 
 <details>
-<summary><em>forge · apex · oneshot</em></summary>
+<summary><em>forge · apex · ultrapex · oneshot</em></summary>
 
 <br>
 
@@ -303,7 +303,7 @@ Runs the official framework CLI, overlays the opinionated config (Biome, Cloudfl
 
 #### code-ultrareview
 
-Eight-axis judgment code review at full strength, in-session — the deepest reasoning budget regardless of session defaults. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
+Eight-axis judgment code review at full strength, in-session — effort maxed, every axis run, no sampling. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
 
 **Usage**
 
