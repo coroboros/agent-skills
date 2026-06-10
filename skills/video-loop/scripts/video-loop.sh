@@ -3,7 +3,7 @@
 # video-loop.sh — build a seamless looping background video (MP4 + WebM)
 #
 # Usage:
-#   video-loop.sh <input> [-d <fade>] [-q <h264_crf>] [-w <vp9_crf>] [-o <out_dir>] [-p] [-n]
+#   video-loop.sh <input> [-d <fade>] [-q <h264_crf>] [-w <vp9_crf>] [-o <out_dir>] [-p] [-C]
 #
 # Options:
 #   -d <fade>       Crossfade duration in seconds (default: 1.5)

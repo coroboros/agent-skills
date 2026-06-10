@@ -150,6 +150,12 @@ class PipelineValidationTests(unittest.TestCase):
         out = self.tmp / "out_no_fade"
         out.mkdir(exist_ok=True)
         r = _run(str(self.input), "-C", "-d", "999", "-o", str(out))
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_deprecated_n_alias_still_works(self):
+        """-n predates the uppercase-disable convention; public installs rely on it."""
+        out = self.tmp / "out-alias"
+        r = _run(str(self.input), "-n", "-d", "999", "-o", str(out))
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         result = _parse_result(r.stdout)
         self.assertEqual(result["no_fade"], "1")

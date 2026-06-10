@@ -331,7 +331,7 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 
 - A decision with a clear rationale, the runner-up, and what would flip it.
 - Adversarial panel + convergence findings each flipped, refuted in writing at ≥ 4, or filed — never silently dropped; convergence bounded to ≤ 2 rounds.
-- Research floor honored — ≥1 codebase + ≥1 external agent unless `-e`; a second research round fired if the premortem surfaced an unresearched failure mode.
+- Research floor honored — ≥1 codebase + ≥1 external research pass (subagents when available) unless `-e`; a second research round fired if the premortem surfaced an unresearched failure mode.
 - Kill criteria emitted (measurable tripwire + date, or "none"); research-findings section present and quality-tagged.
 - Shape routing respected: Decision by default; Spec only when `{auto_mode}`, a build verb, an explicit decomposition signal, or `{issues_mode}` fires.
 - Surfaced forks named for any load-bearing call (or "none" when there genuinely are none) — three-tier Decide upheld.

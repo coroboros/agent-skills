@@ -647,7 +647,7 @@ Loop background videos for the web — crossfade the cut point, optimize, multi-
 | `-w` | `32` | VP9 WebM CRF |
 | `-o` | input dir | Output directory |
 | `-p` | off | Extract poster frame (JPEG) |
-| `-n` | off | No crossfade, encode only |
+| `-C` | off | Disable crossfade, encode only (`-n` deprecated alias) |
 
 **What it does**
 
