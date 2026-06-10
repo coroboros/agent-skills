@@ -29,6 +29,7 @@ Writing rules (`skill-prose-rules.md`) govern *style* — front-load verbs, no m
 The sync script and the parity test read this list:
 
 - apex
+- ultrapex
 - code-ultrareview
 - oneshot
 

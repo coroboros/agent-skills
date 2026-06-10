@@ -69,6 +69,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 |--------|-------|-------------|
 | Workflow | [forge](#forge) | Research, weigh approaches, decide — emit one apex-ready plan |
 | Workflow | [apex](#apex) | Structured implementation — Analyze, Plan, Execute, eXamine |
+| Workflow | [ultrapex](#ultrapex) | Judgment-first APEX for Fable-class models — invariants, parallel subagents, adversarial verification |
 | Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Test for small, well-scoped tasks |
 | Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
@@ -198,6 +199,33 @@ Analyze fetches third-party content into the workflow — web research via `gene
 **Sources**
 
 - [Melvynx/aiblueprint — apex](https://github.com/Melvynx/aiblueprint) — APEX methodology (Analyze, Plan, Execute, eXamine) reference implementation
+
+---
+
+#### ultrapex
+
+Outcome-driven end-to-end implementation for Fable-class frontier models — the judgment-first sibling of `/apex`: same mission, invariants instead of step scripts.
+
+**Usage**
+
+```bash
+# Implement end to end, save the report
+/ultrapex -s implement user registration
+
+# Build a forge plan
+/ultrapex -f ~/.claude/output/{project}/forge/forge-{slug}.md
+```
+
+**Flags**
+
+| Flag | Description |
+|------|-------------|
+| `-s` | Save the final report to `~/.claude/output/{project}/ultrapex/` |
+| `-f` | Feed a producer artifact (usually a forge plan) as the task context |
+
+**What it does**
+
+Five invariants instead of gated steps: understand before building, decide and commit (pause only at genuine forks), build complete and scoped, verify adversarially with fresh-context refuter subagents scaled to blast radius, report grounded in tool-result evidence. Self-scoped by a Model scope section — on models below Fable-class it routes to `/apex`, which keeps step gates, resume, and economy mode.
 
 ---
 

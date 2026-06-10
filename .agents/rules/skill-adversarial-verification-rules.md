@@ -32,6 +32,7 @@ The sync script and the parity test read this list:
 
 - forge
 - apex
+- ultrapex
 - award-design
 - code-ultrareview
 

@@ -5,24 +5,25 @@
     "email": "ob@coroboros.com"
   },
   "metadata": {
-    "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
+    "description": "AI agent skills for Claude Code and compatible agents \u2014 workflow, coding, design, Claude Code meta, media, productivity, and writing",
     "version": "3.16.0"
   },
   "plugins": [
     {
       "name": "workflow-skills",
-      "description": "Strategic thinking, planning, and implementation — forge, apex, oneshot",
+      "description": "Strategic thinking, planning, and implementation \u2014 forge, apex, oneshot",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/forge",
         "./skills/apex",
+        "./skills/ultrapex",
         "./skills/oneshot"
       ]
     },
     {
       "name": "coding-skills",
-      "description": "Coding workflow — scaffold projects and code-ultrareview (eight-axis judgment review with Haiku validators and JSONL output)",
+      "description": "Coding workflow \u2014 scaffold projects and code-ultrareview (eight-axis judgment review with Haiku validators and JSONL output)",
       "source": "./",
       "strict": false,
       "skills": [
@@ -42,7 +43,7 @@
     },
     {
       "name": "claude-code-skills",
-      "description": "Meta skills for configuring Claude Code itself — CLAUDE.md authoring, subagent creation",
+      "description": "Meta skills for configuring Claude Code itself \u2014 CLAUDE.md authoring, subagent creation",
       "source": "./",
       "strict": false,
       "skills": [
@@ -52,7 +53,7 @@
     },
     {
       "name": "media-skills",
-      "description": "Media conversion, polishing, and production — file-to-Markdown, video/audio looping, Suno music prompts",
+      "description": "Media conversion, polishing, and production \u2014 file-to-Markdown, video/audio looping, Suno music prompts",
       "source": "./",
       "strict": false,
       "skills": [
@@ -64,7 +65,7 @@
     },
     {
       "name": "productivity-skills",
-      "description": "External knowledge and workflow integrations — Notion, plus future productivity surfaces (Linear, Slack, calendars)",
+      "description": "External knowledge and workflow integrations \u2014 Notion, plus future productivity surfaces (Linear, Slack, calendars)",
       "source": "./",
       "strict": false,
       "skills": [
@@ -73,7 +74,7 @@
     },
     {
       "name": "writing-skills",
-      "description": "English writing for project documentation — brand voice, READMEs, AI-tell removal",
+      "description": "English writing for project documentation \u2014 brand voice, READMEs, AI-tell removal",
       "source": "./",
       "strict": false,
       "skills": [

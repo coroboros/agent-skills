@@ -27,6 +27,7 @@ Writing rules (`skill-prose-rules.md`) govern *style* of the prose a skill emits
 The sync script and the parity test read this list:
 
 - apex
+- ultrapex
 - award-design
 - code-ultrareview
 - oneshot

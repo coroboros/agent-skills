@@ -33,6 +33,7 @@ The sync script and the parity test read this list:
 
 - agent-creator
 - apex
+- ultrapex
 - award-design
 - brand-voice
 - claude-md
