@@ -3,9 +3,8 @@ name: brand-voice
 description: Govern the BRAND-VOICE.md — extract a brand's writing voice from URL, Notion page, MD file/directory, or interview into a structured executable doc; update incrementally; diff versions; validate the canonical format; show testable rules. Supports multi-voice via `voice.extends` (founder on corporate, persona on institutional, multi-host) with `_replace`/`_remove` overrides. Consumed by writing skills via `-f` (e.g. `humanize-en`). Use when defining, extracting, refreshing, validating, or inspecting a brand's writing voice — "create a brand voice doc", "extract voice from this site", "tone of voice", "writing style guide", "BRAND-VOICE.md", "founder voice", "persona voice", "multi-voice".
 when_to_use: Routes via `$ARGUMENTS` first token — `extract` (sources → BRAND-VOICE.md; `--extends <parent>` scaffolds a child), `update` (refresh from new sources), `diff` (regression check; single-arg form when child has `voice.extends`), `validate` / `lint` / `check` (walks chain), `show` (testable rules; `--chain`/`--explain`/`--raw` for inheritance). Skip when the user wants to *humanize* prose against an existing voice — invoke `/humanize-en -f BRAND-VOICE.md` instead.
 argument-hint: "[extract|update|diff|validate|show] [-s] [-o <path>] [-u <url>] [-n <id|url>] [-d <dir>] [-f <file>] [refs|paths]"
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 allowed-tools: Read Write Edit Grep Glob WebFetch AskUserQuestion Bash(jq *) Bash(test *) Bash(wc *) Bash(find *) Bash(python3 *) Bash(git *) Bash(mktemp *)
 metadata:
   author: coroboros
@@ -96,11 +95,11 @@ Sources are combinable — pass any number of `-u`, `-n`, `-d`, `-f`. The skill 
 
 | Flag | Source | Mechanism |
 |------|--------|-----------|
-| `-u <url>` | URL | `WebFetch` direct → fallback `/markitdown -s <url>` if binary/error |
-| `-n <id\|url>` | Notion page | `mcp__claude_ai_Notion__notion-fetch` (page + linked sub-pages, depth 1) |
+| `-u <url>` | URL | `WebFetch` (or your harness's web-fetch tool) direct → fallback `/markitdown -s <url>` if binary/error |
+| `-n <id\|url>` | Notion page | Notion MCP fetch tool (page + linked sub-pages, depth 1) — no MCP: export to Markdown and use `-d` |
 | `-d <dir>` | Folder of MD/MDX | `Glob <dir>/**/*.md` → aggregate |
 | `-f <file>` | Single MD/MDX/TXT | `Read` direct |
-| (none, with `extract`) | Interview | 8 canonical questions via `AskUserQuestion` |
+| (none, with `extract`) | Interview | 8 canonical questions via `AskUserQuestion` (when unavailable, ask in plain text) |
 
 Full resolution rules — including failure handling, conflicts, MCP unavailability, large-folder fan-out, and contribution summary — live in [`references/source-resolution.md`](./references/source-resolution.md).
 
@@ -140,12 +139,14 @@ Brand voice is consumed by writing skills via `-f`. The current consumer is `hum
   → draft humanized against universal AI tells + brand-specific rules
 ```
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 Two ways for a consumer to read the rules:
 
 - **Invoke `extract_rules.py --full`** — preferred. The script flattens the YAML to plain text, automatically resolves any `voice.extends` chain, applies `_replace` and `_remove` overrides, and emits a 50–150 line block ready for inclusion in an LLM prompt. This is what `humanize-en -f` does as of the inheritance release.
 
   ```bash
-  python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py --full ./BRAND-VOICE.md
+  python3 "$SKILL_DIR"/scripts/extract_rules.py --full ./BRAND-VOICE.md
   ```
 
 - **`Read` the YAML frontmatter directly** — fallback when the consumer's `allowed-tools` does not include `Bash`, or when the consumer wants raw structure. The consumer parses the YAML and uses `forbidden_lexicon`, `rewrite_rules`, `sentence_norms`, `forbidden_patterns`, `pronouns`, `core_attributes`, `contexts` directly. This path does **not** resolve `voice.extends` — child files appear as-written.
@@ -159,7 +160,7 @@ When a brand voice rule conflicts with a universal AI-tell pattern (e.g., the vo
 Every doc the skill writes (or the user authors) is validated by [`scripts/voice_lint.py`](./scripts/voice_lint.py):
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py ./BRAND-VOICE.md
+python3 "$SKILL_DIR"/scripts/voice_lint.py ./BRAND-VOICE.md
 ```
 
 Verdicts: `GREEN` (zero errors, zero warnings), `YELLOW` (warnings only — acceptable but flagged), `RED` (errors — block). Output is JSON per [`references/schemas.md`](./references/schemas.md) § voice_lint.py.

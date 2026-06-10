@@ -136,17 +136,18 @@ class TestRulesSection(unittest.TestCase):
                 )
 
 
-class TestModelOpus(unittest.TestCase):
+class TestModelInherit(unittest.TestCase):
     """forge uses opus per skill design — strategic reasoning and decomposition
     need the strongest model. Pin the choice."""
 
-    def test_model_is_opus(self):
+    def test_model_unset_inherits_session(self):
         import sys
         sys.path.insert(0, str(REPO_ROOT / "skills" / "brand-voice" / "scripts"))
         from utils import parse_yaml_minimal, split_frontmatter  # noqa: E402
         fm_text, _ = split_frontmatter(_body())
         fm = parse_yaml_minimal(fm_text) if fm_text else {}
-        self.assertEqual(fm.get("model"), "opus")
+        self.assertIsNone(fm.get("model"),
+                          "model must stay unset — skills inherit the session model")
 
 
 class TestBridge(unittest.TestCase):

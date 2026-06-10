@@ -61,8 +61,10 @@ From previous steps:
 
 **If `{save_mode}` = true:**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "03" "execute" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_progress"
 ```
 
 Append logs to `{output_dir}/03-execute.md` as you work.
@@ -126,6 +128,7 @@ Make changes specified in the plan:
 → Make reasonable decision and continue
 
 **If `{auto_mode}` = false:**
+→ Ask via AskUserQuestion when available, otherwise in plain text, and wait for the reply:
 
 ```yaml
 questions:
@@ -167,6 +170,7 @@ Fix any errors immediately.
 → Proceed to examination
 
 **If `{auto_mode}` = false:**
+→ Ask via AskUserQuestion when available, otherwise in plain text, and wait for the reply:
 
 ```yaml
 questions:
@@ -231,7 +235,7 @@ Test each line: would it still make sense to someone reading only the final diff
 ❌ Multiple todos in_progress simultaneously
 ❌ Ignoring type or lint errors
 ❌ Leaking internal labels (WS-N, task IDs) or machinery references into shipped code, comments, or commit text
-❌ **CRITICAL**: Not using AskUserQuestion for blockers
+❌ **CRITICAL**: Not using AskUserQuestion for blockers (when it is available)
 
 ## EXECUTION PROTOCOLS:
 

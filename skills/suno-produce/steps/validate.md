@@ -66,8 +66,10 @@ The script dispatches by filename. Verdicts: GREEN (zero issues), YELLOW (warnin
 
 ### 2. Run the validator
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/validate.py <path/to/artifact-or-folder>
+python3 "$SKILL_DIR"/scripts/validate.py <path/to/artifact-or-folder>
 ```
 
 The script:

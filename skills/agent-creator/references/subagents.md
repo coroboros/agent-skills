@@ -37,7 +37,7 @@ The body is the system prompt. Use markdown headings, XML tags, or a combination
 | `description` | Yes | When Claude should delegate to this agent. Write clear trigger conditions |
 | `tools` | No | Comma-separated allowlist. Inherits all tools if omitted |
 | `disallowedTools` | No | Comma-separated denylist, removed from inherited tools |
-| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-7`), or `inherit`. Defaults to `inherit` |
+| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-8`), or `inherit`. Defaults to `inherit` |
 | `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan` |
 | `maxTurns` | No | Maximum agentic turns before auto-stop |
 | `skills` | No | Skills to load into agent context at startup (full content injected) |
@@ -148,7 +148,7 @@ Use `/agents` command to see full list of available tools.
 ### Model capabilities
 
 **Opus** (`opus`):
-- Most capable model, strongest reasoning
+- High-capability tier, deep reasoning
 - **Use for**: Complex analysis, critical decisions, highest-stakes tasks
 
 **Sonnet** (`sonnet`):
@@ -165,16 +165,16 @@ Use `/agents` command to see full list of available tools.
 - Uses same model as main conversation
 - **Use for**: Ensuring consistent capabilities throughout session
 
-**Full model ID** (e.g. `claude-opus-4-7`):
+**Full model ID** (e.g. `claude-opus-4-8`):
 - Pin to a specific model version
 - **Use for**: Reproducible behavior across sessions
 
 ### Orchestration strategy
 
-**Sonnet + Haiku orchestration pattern** (optimal cost/performance):
+**Stronger orchestrator + cheaper workers pattern** (optimal cost/performance — pick current tiers, e.g. Sonnet 4.6 + Haiku 4.5):
 
 ```markdown
-1. Sonnet 4.5 (Coordinator):
+1. Sonnet 4.6 (Coordinator):
    - Creates plan
    - Breaks task into subtasks
    - Identifies parallelizable work
@@ -182,15 +182,15 @@ Use `/agents` command to see full list of available tools.
 2. Multiple Haiku 4.5 instances (Workers):
    - Execute subtasks in parallel
    - Fast and cost-efficient
-   - 90% of Sonnet's capability for execution
+   - Strong coding capability for execution
 
-3. Sonnet 4.5 (Validator):
+3. Sonnet 4.6 (Validator):
    - Integrates results
    - Validates output quality
    - Ensures coherence
 ```
 
-**Benefit**: Use expensive Sonnet only for planning and validation, cheap Haiku for execution.
+**Benefit**: Use the stronger model only for planning and validation, cheap workers for execution.
 
 ### Decision framework
 

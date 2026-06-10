@@ -3,18 +3,16 @@ name: write-clear-readme
 description: Author, audit, or polish a project README — clarity, structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first, proposes diffs, applies on approval. Use when creating, restructuring, auditing, optimizing, or polishing a README for clarity, concision, or scannable structure — "write readme", "audit readme", "polish readme", "clarify readme", "optimize readme", "restructure readme", README clarity/wording — for long human-facing docs, skill libraries, npm SDK references, or CLI manuals.
 when_to_use: Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
-model: opus
 disable-model-invocation: true
 allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *)
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
 ---
 
 <!--
 Exception — `disable-model-invocation: true`. READMEs are high-stakes, user-facing
-artifacts; Claude should never autonomously decide to rewrite one based on a casual
+artifacts; the agent should never autonomously decide to rewrite one based on a casual
 keyword. The user must explicitly invoke via `/write-clear-readme`. The `when_to_use`
 keywords still help the user discover the skill in the `/` menu listing (per
 `claude-code-skills.md`, skill listing is independent from model auto-invocation).
@@ -226,8 +224,10 @@ The canonical *Writing rules* block already requires invoking `/humanize-en` aft
 
 > **Silent assumption — name it.** This audit evaluates structure, anchor integrity, collapse uniformity, and prose tells. It does NOT evaluate whether the right content is in this file. For that, consider whether sections should be cut, merged, reshaped, or split into adjacent files — and ask the user before rewriting scope.
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 1. **Read existing README** in full.
-2. **Run the structural audit script**: `${CLAUDE_SKILL_DIR}/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, bloat tokens, `Expand —` prefixes, stale counts adjacent to nouns, h3-above-details redundancy, and a visual-rhythm signal (callout + image density). Exit 1 on hard findings; the JSON is your hit-list.
+2. **Run the structural audit script**: `"$SKILL_DIR"/scripts/audit_readme.py <path>` emits a JSON report covering unresolved anchors, nested `<details>`, missing `<br>` after `<summary>`, bloat tokens, `Expand —` prefixes, stale counts adjacent to nouns, h3-above-details redundancy, and a visual-rhythm signal (callout + image density). Exit 1 on hard findings; the JSON is your hit-list.
 3. **Score against Universal rules** (structure — use the script output first):
    - Is the overview (TOC / index / table) visible without clicking?
    - Do all anchors resolve?

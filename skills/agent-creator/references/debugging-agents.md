@@ -63,7 +63,7 @@ Format:
   "invocation_id": "inv_20251115_abc123",
   "timestamp": "2025-11-15T14:23:01Z",
   "subagent": "security-reviewer",
-  "model": "claude-sonnet-4-5",
+  "model": "claude-sonnet-4-6",
   "input": {
     "task": "Review auth.ts for security issues",
     "context": {...}

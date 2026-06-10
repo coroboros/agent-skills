@@ -27,11 +27,13 @@ At least one source flag is required — `update` does not enter interview mode 
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ### 1. Read existing doc
 
 - Resolve target path. Default `./BRAND-VOICE.md`.
 - If the target does not exist, abort: *"No `BRAND-VOICE.md` at `<path>`. Use `/brand-voice extract` first."*
-- `Read` the full file. `split_frontmatter` to separate YAML from prose. Parse YAML via `python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py <path>` for a flat view.
+- `Read` the full file. `split_frontmatter` to separate YAML from prose. Parse YAML via `python3 "$SKILL_DIR"/scripts/extract_rules.py <path>` for a flat view.
 - **Inheritance check** — if the target declares `voice.extends`, `update` operates on the *child file's delta only*. The parent is not modified, and the merge described in step 4 applies to the child's declarations against new sources — not against the inherited parent values. Authors who want to update the parent run `/brand-voice update <parent_path>` separately.
 
 ### 2. Detect manual sections

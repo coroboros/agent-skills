@@ -2,9 +2,8 @@
 name: notion
 description: Notion access from Claude Code via the official MCP connector (default path, ~95% of intents) or the `ntn` CLI (only for file uploads, Notion Workers, headless/CI scripts, raw API discovery, shell piping). Routes intent to the right transport, pre-flights the Notion-flavored Markdown spec and target data-source schema, and pins the empirical gotchas not surfaced by tool descriptions or `ntn --help`. Use whenever the user wants to read, fetch, search, create, update, query, or organize Notion content — pages, databases, data sources, views, comments, blocks, properties, schemas, wikis, docs — or upload a file to Notion, build a Notion Worker, or script Notion non-interactively. Triggers on Notion, Notion page, Notion database, Notion DB, Notion wiki, Notion doc, Notion comment, Notion view, Notion property, Notion schema, Notion file, Notion Worker, NOTION_API_TOKEN, ntn, ntn api.
 when_to_use: When the user wants to read, write, query, search, or organize Notion content (pages, databases, data sources, views, comments, blocks, properties, schemas, wikis, files), build a Notion Worker, or script Notion non-interactively. Skip when the user is in the claude.ai web app (different surface, native handling), has explicitly disabled the Notion MCP connector AND has not installed the `ntn` CLI, or when the request targets a different knowledge tool (Linear, Confluence, Coda, Obsidian).
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -43,7 +42,7 @@ For ~95% of Notion intents. The MCP wraps the API in DSLs that have no CLI equiv
 - **Raw API discovery** — `ntn api ls` enumerates every endpoint. Useful when an action isn't covered by any high-level MCP tool.
 - **Shell piping** — `ntn pages get <id> --json | jq …` for ad-hoc data wrangling.
 
-If none of the five apply: stay on the MCP.
+If none of the five apply: stay on the MCP. No Notion MCP tools in the session (non-Claude harness, or the connector disabled) — the `ntn` CLI is your path for every intent above.
 
 ### When the CLI path is required but `ntn` is missing
 

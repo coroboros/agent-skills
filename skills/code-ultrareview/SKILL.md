@@ -4,9 +4,8 @@ description: Eight-axis judgment code review for the current diff — Correctnes
 when_to_use: 'User-invoked before commit or PR; runs the full 8-axis fan-out at max effort — no tiers. Defers security to /security-review (link in every report); defers runtime performance and benchmarks (explicit non-goal). Distinct from Anthropic''s remote /ultrareview command.'
 argument-hint: "[-b <ref>] [--repo-kind <kind>] [--reconcile <input>] [--verify-build] [--mutation-test] [--apply-safe] [--include-prose] [--axes <list>] [--preflight] [-s] [-S]"
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 allowed-tools: Read, Grep, Glob, Bash, Task, WebFetch
-model: opus
 effort: max
 disable-model-invocation: true
 metadata:
@@ -129,7 +128,7 @@ Runs `scripts/run_battery.sh`. Deterministic CLIs feed `tool-findings.jsonl` tag
 
 ### Phase 3 — Axis review
 
-The orchestrator prepares 8 per-axis bundles (+ Coherence when active) via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` `Task` in one message. Each subagent reads its axis brief, the rubric in `references/anthropic-verbatim.md`, the diff, and its filtered tool findings. Each emits canonical-schema JSONL on stdout. Subagents cannot spawn other subagents — the main thread launches both axis reviewers AND validators.
+The orchestrator prepares 8 per-axis bundles (+ Coherence when active) via `scripts/axis_dispatch.py prepare`, then launches every bundle as a parallel `Explore` `Task` in one message. Each subagent reads its axis brief, the rubric in `references/anthropic-verbatim.md`, the diff, and its filtered tool findings. Each emits canonical-schema JSONL on stdout. Subagents cannot spawn other subagents — the main thread launches both axis reviewers AND validators. No subagent primitive in the harness? Run the axes sequentially in-context and self-validate each finding against the verbatim rubric before reporting — same phases, same contracts, no fan-out.
 
 The 8 always-on axes: **Correctness** · **Simplification** · **Tests** · **Documentation** · **Style** · **Intent** · **Design/API** · **Performance**. Each maps to `references/axes/<name>.md` for scope + repo-kind branches. Coherence is the conditional 9th — added when `scope.json["activates_coherence"]` is true; when inactive, the header surfaces `Coherence axis: inactive` so the absence is visible. Full axis map, inter-axis precedence, and orchestration details (prepare CLI, bundle schema, no-silent-failure contract): `references/axes-overview.md` + `references/orchestration.md`.
 

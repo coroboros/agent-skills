@@ -3,9 +3,8 @@ name: forge
 description: Pre-implementation thinking — research the problem space, weigh approaches with devil's-advocate rigor, decide what's reversible and conventional while surfacing the load-bearing forks for the user, and emit one apex-ready plan. Use whenever a non-trivial task needs thinking, comparison, or decomposition before code — even when the user doesn't say "forge" (e.g. "should we", "what's the best way", "compare", "evaluate", "pros and cons", "think through", "plan this", "break this down", "spec out", "create issues for", "map out the steps"). Produces a Decision by default (terminal — discuss-then-build); promotes to a Spec with prioritized workstreams when the build path is clear. NOT implementation (→ /apex or /oneshot).
 when_to_use: When a non-trivial task needs research, option-weighing, or decomposition before building. After a rough idea when the direction or the work's shape is still open. When the user asks to explore, compare, evaluate, plan, break down, or create issues for a feature. Skip for clearly self-contained work where the approach is settled — go straight to /apex; skip for tiny one-file changes — use /oneshot. Never for implementation.
 argument-hint: "[-s] [-f <path>] [-i] [-a] [-e] <question or idea>"
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -136,7 +135,9 @@ The Hunt phase uses **adaptive agent launching** above a hard floor, and the Jud
 
 Exploration output is large and noisy; subagents keep that noise out of the main context — only the distilled findings return. Launch all chosen agents in one message so they run in parallel. Scale up from the floor with the stakes; never drop below it unless `{economy_mode}` = true.
 
-**Prompt skeletons.** Pin the report shape and the constraint in every prompt — a vague subagent prompt returns a vague summary. For Explore (codebase reconnaissance), general-purpose (external research), and the adversarial panel + convergence skeptics used by Judge, read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` on demand. Adapt the skeleton to the question; do not paste verbatim.
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
+**Prompt skeletons.** Pin the report shape and the constraint in every prompt — a vague subagent prompt returns a vague summary. For Explore (codebase reconnaissance), general-purpose (external research), and the adversarial panel + convergence skeptics used by Judge, read `"$SKILL_DIR"/references/subagent-prompts.md` on demand. Adapt the skeleton to the question; do not paste verbatim.
 
 ## State variables
 
@@ -192,7 +193,7 @@ Keep it minimal — no verbose parsing logs, no separators.
 - **Load references on demand.** Read `references/*.md` only when the phase needs them — keep the main context lean.
 - **Always include concrete acceptance criteria** — every workstream, Given/When/Then + ≥1 negative; see `references/spec-craft.md`.
 - **3-7 workstreams.** Code-bearing artifacts have between 3 and 7 workstreams. Fewer means one task — go straight to `/oneshot` or `/apex`. More means re-decompose. Enforced by `scripts/validate_spec.py`.
-- **Audit and validate before finalizing.** Walk the pre-save audit in `references/spec-craft.md` § Pre-save audit (Decision items always; Spec items when promoted) — rewrite anything flagged. When the artifact has workstreams, also run `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}` — exit 0 required (Priority/Complexity set; deps resolve; no cycles). The audit catches soft defects the validator cannot see; both gates must pass.
+- **Audit and validate before finalizing.** Walk the pre-save audit in `references/spec-craft.md` § Pre-save audit (Decision items always; Spec items when promoted) — rewrite anything flagged. When the artifact has workstreams, also run `python3 "$SKILL_DIR"/scripts/validate_spec.py {output_file}` — exit 0 required (Priority/Complexity set; deps resolve; no cycles). The audit catches soft defects the validator cannot see; both gates must pass.
 
 ## Workflow — four phases
 
@@ -206,9 +207,9 @@ Frame the real problem, then research it wide.
 
 **Load prior context (if `{from_file}`).** A GitHub issue (`#N` / URL) → `gh issue view <n> --json title,body,labels,comments`; carry its acceptance criteria forward. A local file (a prior forge artifact, an RFC, a design doc) → `Read` the explicit path verbatim. No reconstruction, inference, or glob: the producer already printed the absolute path; the bridge carries it literally. If the path does not exist, fail loud and ask the user to correct or regenerate it. Extract its decisions, constraints, and open questions, and skip re-researching anything the prior context already covers.
 
-**Clarify (if vague and not `{auto_mode}`).** If scope, constraints, success criteria, or a load-bearing dependency is unclear and could flip the outcome, ask the 1-3 most relevant decision-forcing questions in a single message before researching — never five when one matters, never a second round, unless the user opts into a deep grill (relentless, one-question-at-a-time; see the playbook). For the question set, the when-to-ask gate, the prior-context attenuation rule, and the opt-in deep grill, read `${CLAUDE_SKILL_DIR}/references/clarify-playbook.md` on demand. Under `{auto_mode}`, never ask — decide, tag the call `assumption` in the ledger, surface the shakiest as an open question.
+**Clarify (if vague and not `{auto_mode}`).** If scope, constraints, success criteria, or a load-bearing dependency is unclear and could flip the outcome, ask the 1-3 most relevant decision-forcing questions in a single message before researching — never five when one matters, never a second round, unless the user opts into a deep grill (relentless, one-question-at-a-time; see the playbook). For the question set, the when-to-ask gate, the prior-context attenuation rule, and the opt-in deep grill, read `"$SKILL_DIR"/references/clarify-playbook.md` on demand. Under `{auto_mode}`, never ask — decide, tag the call `assumption` in the ledger, surface the shakiest as an open question.
 
-**Research.** Investigate from multiple angles via parallel subagents above the research floor, scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. Every cited external source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per the prompt contract in `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md` § *general-purpose — external research* — downstream readers discount lower-quality sources before fusion. When the Phase 2 premortem surfaces a failure mode no source covered, launch one more research agent before Decide — the second round is automatic, not optional. For breadth, stop-criteria, and the rule of when to widen the net, read `${CLAUDE_SKILL_DIR}/references/research-discipline.md` on demand.
+**Research.** Investigate from multiple angles via parallel subagents above the research floor, scaled to complexity (see Subagent strategy). Cover the three angles that apply — codebase context, technical best practices, external evidence — and **triangulate**: a single source is anecdote, convergence across two or three is signal, divergence is the more informative finding. Every cited external source carries a quality tag (`primary` / `secondary` / `blog` / `anecdote` / `vendor-marketing`) per the prompt contract in `"$SKILL_DIR"/references/subagent-prompts.md` § *general-purpose — external research* — downstream readers discount lower-quality sources before fusion. When the Phase 2 premortem surfaces a failure mode no source covered, launch one more research agent before Decide — the second round is automatic, not optional. For breadth, stop-criteria, and the rule of when to widen the net, read `"$SKILL_DIR"/references/research-discipline.md` on demand.
 
 ### Phase 2 — Judge
 
@@ -226,11 +227,11 @@ Be rigorous, not contrarian. For a sharper angle — first-principles, inversion
 
 **Adversarial panel + convergence.** ON by default; skipped only under `{economy_mode}`. The critique must come from contexts that did NOT produce the leader — the same conversation cannot reliably argue against the plan it just shipped.
 
-- **Round 1 — panel.** Launch 3-5 `general-purpose` critics in one parallel message, each a clean context fed only the leader summary, the runner-up summary, and the premortem failures, and each assigned ONE distinct lens, in priority order: overengineering/simplicity, load-bearing-assumption audit, the do-nothing/defer case, the runner-up's hidden-dimension win, and the premortem gaps. Use the first 3 lenses for a focused call, all 5 for an architecture-level one.
+- **Round 1 — panel.** Launch 3-5 `general-purpose` critics in one parallel message, each a clean context fed only the leader summary, the runner-up summary, and the premortem failures, and each assigned ONE distinct lens, in priority order: overengineering/simplicity, load-bearing-assumption audit, the do-nothing/defer case, the runner-up's hidden-dimension win, and the premortem gaps. Use the first 3 lenses for a focused call, all 5 for an architecture-level one. If your harness has no subagents, run each critic lens yourself sequentially in fresh passes.
 - **Barrier.** Merge the returned findings, dedup by target, and score each rebuttal 1–5 on the Concession Threshold — concede only at ≥ 4; below that the finding survives.
 - **Round 2 — convergence.** Launch one fresh skeptic per surviving finding to kill it (refute in writing) or confirm it (escalate to a flip condition or a risk). Stop when findings degrade to nitpicks, or after 2 rounds total — forge emits a bounded plan, not code.
 
-Every finding flips the leader, is refuted in writing at ≥ 4, or is filed in Risks / Open questions — never silently dropped. For the lens skeletons and the convergence skeleton read `${CLAUDE_SKILL_DIR}/references/subagent-prompts.md`; for the panel roster, the dedup rule, the bounded-convergence loop, and the `{economy_mode}` skip, read `${CLAUDE_SKILL_DIR}/references/adversarial-panel.md`.
+Every finding flips the leader, is refuted in writing at ≥ 4, or is filed in Risks / Open questions — never silently dropped. For the lens skeletons and the convergence skeleton read `"$SKILL_DIR"/references/subagent-prompts.md`; for the panel roster, the dedup rule, the bounded-convergence loop, and the `{economy_mode}` skip, read `"$SKILL_DIR"/references/adversarial-panel.md`.
 
 ### Phase 3 — Decide
 
@@ -275,7 +276,7 @@ Emit ONE artifact. Research and adversarial findings stay in the subagents — o
 
 Otherwise: write the Decision, present it, then ask the user whether to decompose into workstreams and wait. This keeps the discuss-then-build seam intact for exploratory questions where the user came for thinking, not for plumbing.
 
-**Write the artifact** using `templates/forge-artifact.md` (read `${CLAUDE_SKILL_DIR}/templates/forge-artifact.md` before writing):
+**Write the artifact** using `templates/forge-artifact.md` (read `"$SKILL_DIR"/templates/forge-artifact.md` before writing):
 
 1. **Decision header** — chosen approach + rationale, runner-up + what would flip it, escalated forks (or "none").
 2. **Assumption ledger** — every load-bearing assumption tagged verified fact / assumption / inherited convention. Fold the panel + convergence findings here — each finding either flipped the leader, was refuted in writing at score ≥ 4 per the Concession Threshold Protocol, or filed in Risks / Open questions. Silent drops are a defect.
@@ -284,15 +285,15 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 5. **Spec shape only (promoted)** — H1 `# Spec: {title}`, 3-7 workstreams (Priority, Complexity, Depends on, Tasks, Acceptance criteria), a dependency graph with no cycles, and an execution order. Apply the AC and priority discipline in `references/spec-craft.md`.
 6. **Decision shape (default)** — H1 `# Decision: {title}`. Omit workstreams, dependencies, and execution order. After Save, present and pause for the decompose question described above.
 
-**Pre-save audit.** Before save, walk the audit checklist in `${CLAUDE_SKILL_DIR}/references/spec-craft.md` § Pre-save audit. The Decision-shape items apply always; the Spec-shape items apply when promoted. Rewrite anything flagged and re-walk the list. This is the layer the schema validator does not catch — vague AC, goals stated as outputs, greedy P0, untagged non-goals, XL workstreams that need splitting, surfaced forks left empty when load-bearing calls exist.
+**Pre-save audit.** Before save, walk the audit checklist in `"$SKILL_DIR"/references/spec-craft.md` § Pre-save audit. The Decision-shape items apply always; the Spec-shape items apply when promoted. Rewrite anything flagged and re-walk the list. This is the layer the schema validator does not catch — vague AC, goals stated as outputs, greedy P0, untagged non-goals, XL workstreams that need splitting, surfaced forks left empty when load-bearing calls exist.
 
 **Save** (if `{save_mode}`) to the `$HOME`-expanded `{output_file}`; report the fully-expanded absolute path.
 
-**Validate** (when workstreams exist) — `python3 ${CLAUDE_SKILL_DIR}/scripts/validate_spec.py {output_file}`, exit 0 required. Rewrite until it clears.
+**Validate** (when workstreams exist) — `python3 "$SKILL_DIR"/scripts/validate_spec.py {output_file}`, exit 0 required. Rewrite until it clears.
 
 **Revision pause** (Spec shape AND `{auto_mode}` = false). After Save + Validate, present a one-paragraph summary of the spec and ask the user: *"Spec is ready. Want to revise anything before /apex implements WS-1?"* Wait. Apply revisions inline, re-save, re-run the audit, re-validate. Skip under `{auto_mode}` = true — the user opted into commit-and-emit.
 
-**Issues** (if `{issues_mode}`) — read `${CLAUDE_SKILL_DIR}/references/issue-creation.md` and follow it to create labels, an epic, and workstream issues in dependency order, then append the `## GitHub Issues` section.
+**Issues** (if `{issues_mode}`) — read `"$SKILL_DIR"/references/issue-creation.md` and follow it to create labels, an epic, and workstream issues in dependency order, then append the `## GitHub Issues` section.
 
 **Present and route.** Present the decision in plain language — chosen approach, runner-up + what would flip it, top risk.
 

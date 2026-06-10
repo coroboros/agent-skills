@@ -4,9 +4,8 @@ description: Turn a music brief into Suno v5.5-ready prompt artifacts — TRACK.
 when_to_use: When the user wants to create a song, track, EP, or album with Suno v5.5. Routes via `$ARGUMENTS` first token — `create` (default — synthesise TRACK.md from a brief, optionally ALBUM.md when album mode is detected), `revise <path> "<feedback>"` (archive current TRACK.md to versions/, emit a refined one), `validate <path>` (deterministic linter — char limits, descriptor counts, slider ranges, metatag canon, copyright/artist-citation contract). Triggers on "make a song", "write me a track", "produce a song", "song about", "lyrics for", "Suno prompt", "make an album", "EP about", "v5.5 prompt", "/suno", "/track". Skip when the user wants pure lyric writing without a Suno target (defer to a generic writing skill); when the request is broad music research (run `/forge` first then `-f` the result into this); when the request is audio post-production like loops or mastering (defer to `/audio-loop`).
 argument-hint: "[create|revise|validate] <description-or-path> [-f ARTIST.md]"
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 allowed-tools: Read Write Edit Glob Grep AskUserQuestion WebSearch Bash(mkdir *) Bash(test *) Bash(ls *) Bash(python3 *) Bash(git *) Bash(cp *) Bash(mv *)
-model: opus
 metadata:
   author: coroboros
   sources:

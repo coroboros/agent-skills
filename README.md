@@ -65,25 +65,25 @@ Some skills wrap external CLIs — each is declared in its SKILL.md.
 
 Skills are grouped by plugin. Each plugin collects related skills — expand any section below to see usage, flags, and behavior.
 
-| Plugin | Skill | Model | Description |
-|--------|-------|-------|-------------|
-| Workflow | [forge](#forge) | opus | Research, weigh approaches, decide — emit one apex-ready plan |
-| Workflow | [apex](#apex) | opus | Structured implementation — Analyze, Plan, Execute, eXamine |
-| Workflow | [oneshot](#oneshot) | sonnet | Single-pass Explore-Code-Test for small, well-scoped tasks |
-| Coding | [scaffold](#scaffold) | haiku | Bootstrap Next.js/Astro projects on Cloudflare Workers |
-| Coding | [code-ultrareview](#code-ultrareview) | opus | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
-| Design | [award-design](#award-design) | opus | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
-| Design | [design-system](#design-system) | opus | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
-| Claude Code | [claude-md](#claude-md) | opus | Create and optimize CLAUDE.md and .claude/rules/ |
-| Claude Code | [agent-creator](#agent-creator) | opus | Expert guidance for creating Claude Code subagents |
-| Media | [video-loop](#video-loop) | sonnet | Loop background videos with invisible cut points |
-| Media | [audio-loop](#audio-loop) | sonnet | Gapless web-ready ambient audio loops (FLAC + Web Audio) |
-| Media | [suno-produce](#suno-produce) | opus | Turn a music brief into Suno v5.5 prompt artifacts |
-| Media | [markitdown](#markitdown) | sonnet | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI |
-| Productivity | [notion](#notion) | opus | Notion via the official MCP connector, or the `ntn` CLI for uploads and CI |
-| Writing | [brand-voice](#brand-voice) | opus | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
-| Writing | [write-clear-readme](#write-clear-readme) | opus | Author, audit, or polish READMEs — clarity, structure, concision |
-| Writing | [humanize-en](#humanize-en) | sonnet | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
+| Plugin | Skill | Description |
+|--------|-------|-------------|
+| Workflow | [forge](#forge) | Research, weigh approaches, decide — emit one apex-ready plan |
+| Workflow | [apex](#apex) | Structured implementation — Analyze, Plan, Execute, eXamine |
+| Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Test for small, well-scoped tasks |
+| Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
+| Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
+| Design | [award-design](#award-design) | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
+| Design | [design-system](#design-system) | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
+| Claude Code | [claude-md](#claude-md) | Create and optimize CLAUDE.md and .claude/rules/ |
+| Claude Code | [agent-creator](#agent-creator) | Expert guidance for creating Claude Code subagents |
+| Media | [video-loop](#video-loop) | Loop background videos with invisible cut points |
+| Media | [audio-loop](#audio-loop) | Gapless web-ready ambient audio loops (FLAC + Web Audio) |
+| Media | [suno-produce](#suno-produce) | Turn a music brief into Suno v5.5 prompt artifacts |
+| Media | [markitdown](#markitdown) | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI |
+| Productivity | [notion](#notion) | Notion via the official MCP connector, or the `ntn` CLI for uploads and CI |
+| Writing | [brand-voice](#brand-voice) | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
+| Writing | [write-clear-readme](#write-clear-readme) | Author, audit, or polish READMEs — clarity, structure, concision |
+| Writing | [humanize-en](#humanize-en) | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
 
 Every skill is `Claude` scope — Claude Code-optimized per the [Agent Skills spec](https://agentskills.io), degrading gracefully in Claude.ai, desktop, and other open-standard agents (see [Standards](#standards)). Each `model:` is forced per skill (opus = deep judgment, sonnet = bounded reasoning, haiku = scripted flows) regardless of session default; opus costs more tokens — override with `--model` or skip on a tight plan.
 

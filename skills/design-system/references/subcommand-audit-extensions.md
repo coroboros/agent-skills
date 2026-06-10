@@ -30,6 +30,8 @@ The script exits `0` when zero errors, `1` when any errors are present (warnings
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 1. **Resolve DESIGN.md path.** Default to `./DESIGN.md`.
 2. **Auto-detect or accept explicit CSS layer.** Order of probing (first match wins):
    - `--css <path>` if passed
@@ -40,7 +42,7 @@ The script exits `0` when zero errors, `1` when any errors are present (warnings
    - `src/app/global.css`
 3. **Run the script.**
    ```bash
-   bash ${CLAUDE_SKILL_DIR}/scripts/audit-extensions.sh <path> [--css <css-path>] [--strict]
+   bash "$SKILL_DIR"/scripts/audit-extensions.sh <path> [--css <css-path>] [--strict]
    ```
    Emits `RESULT: key=value` lines and per-finding `FINDING:` lines.
 4. **Compose the report** using the template below.

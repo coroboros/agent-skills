@@ -3,10 +3,8 @@ name: video-loop
 description: Create a looping background video — crossfade the loop point, encode optimized MP4 + WebM, optional poster frame. Use whenever the user has a video that needs to loop for web use (hero sections, backgrounds, landing-page ambience), wants to fix a visible jump at the loop point, or needs to optimize a clip for web delivery — even if they just say "make this loop smoothly" or "compress this for the site".
 when_to_use: When the user has a video that needs to loop without visible artifacts on the web (hero sections, backgrounds), or when the end-to-start transition is visible and needs a crossfade fix, or when optimizing video assets for web delivery (MP4 + WebM). Keywords — loop, video, background, hero, seamless, crossfade, encode, webm, mp4, ffmpeg, compress video, optimize video. For audio loops use `/audio-loop` (sibling — parallel architecture, loudness + gapless FLAC + Web Audio snippet). Skip for audio processing, cuts/trimming beyond looping, or motion-graphics work.
 argument-hint: "<input.mp4> [options] — e.g. /video-loop hero.mp4 -d 1.5"
-model: sonnet
 allowed-tools: Bash(ffmpeg *) Bash(ffprobe *) Bash(command *) Bash(bash *) Bash(stat *) Read
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
   sources:
@@ -51,8 +49,10 @@ Read both frames. If they're nearly identical, suggest `-n` (the source already 
 
 ### 3. Run the pipeline
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/video-loop.sh <input> [flags]
+bash "$SKILL_DIR"/scripts/video-loop.sh <input> [flags]
 ```
 
 The script does the rest: probes metadata, builds the lossless loop intermediate when crossfade is requested, encodes MP4 (H.264 + faststart) and WebM (VP9), optionally extracts a poster frame. It emits a machine-readable summary on stdout, one `RESULT: key=value` line per fact.

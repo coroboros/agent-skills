@@ -3,10 +3,8 @@ name: audio-loop
 description: Use this skill whenever a user has an audio file (.wav/.mp3/.flac/etc.) that needs to loop as background on a website or web page — hero ambience, landing-page atmosphere, portfolio mood audio, ambient wind/rain/ocean/forest/breeze/pad beds, or any "play quietly behind the page while users read/scroll/interact" use case. Trigger on intents like making a clip loop without audible gaps or boundary artifacts on a site, fixing a click/tick/pop/bump at the loop boundary, fixing stereo bias or L/R imbalance on a web-bound ambient clip, normalizing loudness (LUFS) for web delivery, encoding a loop for web playback, or fading audio in on first user click/gesture — in any web framework (Next.js, Vue, Astro, Nuxt, plain HTML). The skill outputs a gapless FLAC plus a paste-in Web Audio snippet that unlocks on first interaction. Skip for general audio editing (cuts, mixing, effects), music/podcast mastering, or transcription.
 when_to_use: When the user has an audio clip that needs to loop without audible artifacts on a web page, or when `<audio loop>` is producing an audible gap or tick at each iteration. Keywords — audio, loop, ambient, hero, background, breeze, wind, rain, atmosphere, soundscape, seamless, gapless, flac, web audio, loudness, lufs, normalize, stereo balance, ffmpeg. For video loops use `/video-loop` (sibling — parallel architecture, crossfade + MP4/WebM encode). Skip for music/podcast production or audio transcription.
 argument-hint: "<input.wav> [options] — e.g. /audio-loop breeze.wav -t -28"
-model: sonnet
 allowed-tools: Bash(ffmpeg *) Bash(ffprobe *) Bash(command *) Bash(bash *) Bash(stat *) Read
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 metadata:
   author: coroboros
   sources:
@@ -58,8 +56,10 @@ Where `gain = 10^(-|delta_dB| / 20)`. The script computes `delta_dB` from the as
 
 ### 4. Run the pipeline
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/audio-loop.sh <input> [flags]
+bash "$SKILL_DIR"/scripts/audio-loop.sh <input> [flags]
 ```
 
 The script chains: probe → (optional pan correction) → `loudnorm=I=<target>:TP=-2:LRA=7` → `aresample=<source_rate>` (**crucial** — see **Rules**) → encode FLAC (`-c:a flac -compression_level 8`). It emits `RESULT: key=value` lines on stdout.

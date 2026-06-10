@@ -15,8 +15,8 @@ from _helpers import get_skill_dirs, load_frontmatter  # noqa: E402
 
 KEBAB_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 CANONICAL_COMPATIBILITY = (
-    "Claude Code CLI (per Agent Skills spec). Graceful degradation in "
-    "other environments supporting the open standard."
+    "Optimized for Claude Code; degrades gracefully on any agent "
+    "implementing the Agent Skills standard."
 )
 RESERVED_NAME_EXCEPTIONS = {"claude-md"}
 
@@ -96,11 +96,17 @@ class TestMetadataField(unittest.TestCase):
 
 
 class TestCompatibilityField(unittest.TestCase):
-    def test_compatibility_canonical_text(self):
+    """Per the spec, most skills do not need `compatibility` — portable skills omit
+    it. Harness-coupled skills declare the canonical text; this pins it against
+    per-skill drift."""
+
+    def test_compatibility_absent_or_canonical(self):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
                 fm, _ = load_frontmatter(skill)
-                compat = fm.get("compatibility", "")
+                compat = fm.get("compatibility")
+                if compat is None:
+                    continue  # portable skill — field omitted by policy
                 self.assertEqual(compat, CANONICAL_COMPATIBILITY,
                                  f"{skill.name}: non-canonical compatibility text")
 

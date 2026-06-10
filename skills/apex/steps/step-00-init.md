@@ -130,6 +130,8 @@ When auto-on fires, surface it in the init summary as **"headless: -g auto-on"**
 
 ### 2. Check Resume Mode
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 <critical>
 ONLY execute this section if {resume_task} is set!
 If {resume_task} is NOT set, skip directly to step 3.
@@ -147,7 +149,7 @@ If {resume_task} is NOT set, skip directly to step 3.
    - Read `00-context.md`'s `## Progress` table. Find the first row not marked `✓ Complete`; extract the numeric prefix from that step name (e.g., `04` from `04-examine`). Assign the integer (1–4) to `{step_num}` — the value passes to `validate_state.sh` below.
    - **Auto-validate state** before any restoration:
      ```bash
-     bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {resume_task} {step_num}
+     bash "$SKILL_DIR"/scripts/validate_state.sh {resume_task} {step_num}
      ```
      Non-zero exit halts the resume with the script's stderr findings — do **not** continue state restoration on failure (the task is corrupt or partial; surface the diagnostic to the user).
    - Restore state variables from `00-context.md`.
@@ -192,7 +194,7 @@ IF {economy_mode} = true:
 Run the template setup script to initialize all output files:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/setup-templates.sh \
+bash "$SKILL_DIR"/scripts/setup-templates.sh \
   "{feature_name}" \
   "{task_description}" \
   "{auto_mode}" \

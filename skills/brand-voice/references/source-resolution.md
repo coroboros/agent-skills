@@ -21,7 +21,7 @@ Each source flag (`-u`, `-n`, `-d`, `-f`) resolves to a body of Markdown text th
 1. Detect input shape:
    - Bare ID (UUID-like) → treat as a page ID.
    - `https://www.notion.so/...` URL → extract the trailing ID (last 32-char hex segment).
-2. Call `mcp__claude_ai_Notion__notion-fetch` with the page ID.
+2. Call the Notion MCP fetch tool (`mcp__claude_ai_Notion__notion-fetch` when the claude.ai connector is the provider) with the page ID.
 3. If the page has linked sub-pages, fetch them at depth 1 (no recursion). The agent decides whether to include sub-page content based on whether the title looks voice-related (`voice`, `writing`, `style`, `tone`, `editorial`).
 4. If the Notion MCP is not installed, error out:
    > "The Notion MCP is not installed. Install it from the Claude Code MCP catalog, or export the Notion page to Markdown and pass `-d <export-folder>` instead."

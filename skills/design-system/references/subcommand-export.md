@@ -22,6 +22,8 @@ Convert DESIGN.md tokens to other token formats — Tailwind theme config or W3C
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 1. **Resolve format** (first positional, default `tailwind`).
 2. **Resolve source** (second positional, default `./DESIGN.md`).
 3. **Resolve output**:
@@ -30,7 +32,7 @@ Convert DESIGN.md tokens to other token formats — Tailwind theme config or W3C
    - Else for `dtcg`: stdout (pipe-friendly).
 4. **Run the script**:
    ```bash
-   bash ${CLAUDE_SKILL_DIR}/scripts/export.sh <format> <source> [output]
+   bash "$SKILL_DIR"/scripts/export.sh <format> <source> [output]
    ```
 5. **Report** size + path + format-specific integration note.
 

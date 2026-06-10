@@ -24,6 +24,8 @@ Lint a `BRAND-VOICE.md` against the canonical format. Read-only. Use to verify a
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ### 1. Resolve target path
 
 In order of precedence: positional argument, `-o <path>` flag, `./BRAND-VOICE.md`. If the resolved path does not exist, exit with a clear error: *"`<path>` not found. Run `/brand-voice extract` first."*
@@ -31,7 +33,7 @@ In order of precedence: positional argument, `-o <path>` flag, `./BRAND-VOICE.md
 ### 2. Run the linter
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py <path>
+python3 "$SKILL_DIR"/scripts/voice_lint.py <path>
 ```
 
 The script returns JSON per [`references/schemas.md`](../references/schemas.md) § voice_lint.py. Three verdicts: `GREEN` (zero errors, zero warnings), `YELLOW` (warnings only), `RED` (errors).

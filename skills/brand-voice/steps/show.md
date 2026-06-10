@@ -33,9 +33,11 @@ Print a flat list of testable rules from the voice doc — no prose, no rational
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ### `--rules` (default)
 
-Run `python3 ${CLAUDE_SKILL_DIR}/scripts/extract_rules.py <target>`. Stream stdout directly to the user. Output shape per `references/schemas.md` § extract_rules.py.
+Run `python3 "$SKILL_DIR"/scripts/extract_rules.py <target>`. Stream stdout directly to the user. Output shape per `references/schemas.md` § extract_rules.py.
 
 This is the same path `humanize-en -f` uses internally. `show --rules` is the human-readable verification: "what rules will downstream skills see?"
 

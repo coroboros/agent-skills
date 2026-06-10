@@ -22,7 +22,7 @@ Ingest one or more sources, synthesise the canonical voice doc, write to disk.
 | Flag | Meaning |
 |------|---------|
 | `-u <url>` | URL source — `WebFetch` direct, fallback to `/markitdown -s <url>` |
-| `-n <id\|url>` | Notion page — via `mcp__claude_ai_Notion__notion-fetch` |
+| `-n <id\|url>` | Notion page — the Notion MCP fetch tool when connected → else WebFetch (or your web-fetch tool) on a public page → else ask the user to paste the content |
 | `-d <dir>` | Directory of MD files — `Glob`, then aggregate |
 | `-f <file>` | Single MD/MDX/TXT file — `Read` direct |
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
@@ -34,6 +34,8 @@ If no source flag is given (and `--extends` is not used), the skill enters inter
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ### 1. Pre-flight
 
 - If `-o <path>` is omitted, target = `./BRAND-VOICE.md` at the current working directory.
@@ -43,7 +45,7 @@ If no source flag is given (and `--extends` is not used), the skill enters inter
 - If the parent directory of `-o` does not exist, abort with a clear `mkdir -p` suggestion.
 - **`--extends <parent_path>` pre-flight** — when the flag is present:
   1. Resolve `<parent_path>` (absolute or relative to CWD).
-  2. Run `python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py <parent_path>`.
+  2. Run `python3 "$SKILL_DIR"/scripts/voice_lint.py <parent_path>`.
   3. Exit 1 (parent RED) → abort: *"Parent `<parent_path>` is RED. Fix it first."* Authors don't accidentally extend a broken parent.
   4. Exit 2 (parent missing/unreadable) → abort with the lint error.
   5. Exit 0 (GREEN/YELLOW) → proceed.
@@ -74,7 +76,7 @@ Resolve each `-u`, `-n`, `-d`, `-f` per `references/source-resolution.md`. Aggre
 If zero sources, dispatch interview mode:
 
 1. Read `references/interview-questions.md`.
-2. Ask each question via `AskUserQuestion`, one at a time. Question 1 (identity) and at least one of question 2 or question 5 are required — without those there is nothing to write.
+2. Ask each question via `AskUserQuestion` (when unavailable, ask in plain text), one at a time. Question 1 (identity) and at least one of question 2 or question 5 are required — without those there is nothing to write.
 3. Stitch answers into the working draft with one H2 per question.
 
 ### 3. Synthesis
@@ -89,7 +91,7 @@ Synthesise the working draft into the canonical format:
 **Ground `sentence_norms` in the corpus.** Before the LLM fills `sentence_norms`, measure the aggregated source prose. Write it to a temp file and run:
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/measure_corpus.py --as-sentence-norms /tmp/<corpus>.md
+python3 "$SKILL_DIR"/scripts/measure_corpus.py --as-sentence-norms /tmp/<corpus>.md
 ```
 
 - A JSON object → use those `sentence_norms` verbatim. They are measured, reproducible across runs, and ordered so `voice_lint` accepts them by construction.
@@ -104,7 +106,7 @@ Apply the synthesised voice to the prose itself: the doc must pass its own filte
 Write the synthesised content to a temp file under `/tmp/`. Run:
 
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/voice_lint.py /tmp/<file>.md
+python3 "$SKILL_DIR"/scripts/voice_lint.py /tmp/<file>.md
 ```
 
 - Exit 0 (GREEN/YELLOW) → proceed.

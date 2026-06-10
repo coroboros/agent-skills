@@ -16,7 +16,7 @@ Scan the brief for multi-track signals:
 - Words: "EP", "album", "record", "mixtape", "side A / side B", explicit track counts ("4-track", "5 songs"), or numbered track lists in the brief.
 - Plural "tracks" or "songs" with no qualifier → ambiguous; ask.
 
-If detected, run `AskUserQuestion` once with two options to confirm:
+If detected, run `AskUserQuestion` once with two options to confirm (when `AskUserQuestion` is unavailable, ask in plain text and wait for the reply):
 
 - **Album / EP mode (recommended)** — produce `ALBUM.md` with concept and tracklist, plus per-track folders under `tracks/`.
 - **Single track only** — produce a single `TRACK.md` and ignore the multi-track signals.
@@ -96,8 +96,10 @@ For an N-track album, scaffold the `tracks/01-{slug}/`, `tracks/02-{slug}/`, …
 
 Run [`../scripts/validate.py`](../scripts/validate.py) on every TRACK.md just-written and on ALBUM.md.
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 ```bash
-python3 ${CLAUDE_SKILL_DIR}/scripts/validate.py <path/to/TRACK.md>
+python3 "$SKILL_DIR"/scripts/validate.py <path/to/TRACK.md>
 ```
 
 - **GREEN** → write proceeds, no surfacing in summary.

@@ -12,9 +12,7 @@ paths:
   - src/features/*/components/**
   - DESIGN.md
   - tailwind.config.*
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
 allowed-tools: Read Write Edit Grep Glob Bash(npx *) Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
 metadata:
   author: coroboros

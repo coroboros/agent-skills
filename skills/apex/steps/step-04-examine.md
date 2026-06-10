@@ -75,14 +75,16 @@ Resolve `<typecheck cmd>`, `<lint cmd>`, `<test cmd>` from § 2 "Discover Availa
 
 Command tokens must land verbatim in the transcript — the Haiku evaluator behind `/goal` only judges what it sees, so paraphrases like "tests pass" defeat the gate.
 
-If `{goal_mode}` = false, skip this step entirely.
+If `{goal_mode}` = false, skip this step entirely. If `/goal` is unavailable in your harness, skip the goal gate and proceed.
 
 ### 1. Initialize Save Output (if save_mode)
 
 **If `{save_mode}` = true:**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
 ```
 
 Append results to `{output_dir}/04-examine.md` as you work.
@@ -150,6 +152,7 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 - Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough.
 - Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
 - `{economy_mode}` = true → skip the subagent; self-refute inline instead.
+- Harness without subagents → same fallback: self-refute inline.
 
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 
@@ -241,7 +244,7 @@ Append to `{output_dir}/04-examine.md`:
 **Timestamp:** {ISO timestamp}
 ```
 
-Run: `bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
+Run: `bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
 
 ---
 

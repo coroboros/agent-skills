@@ -3,9 +3,8 @@ name: apex
 description: Systematic implementation using APEX methodology (Analyze-Plan-Execute-eXamine) with parallel subagents and self-validation. Use when implementing features, fixing bugs, or making code changes that benefit from structured workflow.
 when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`.
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -106,7 +105,7 @@ Parsing algorithm, defaults, examples, and override semantics (lowercase enables
 
 ## Compatibility
 
-`-g` (the `/goal` integration) requires **Claude Code v2.1.139 or later**. On older versions, Claude Code rejects the unknown slash command and the flag becomes a no-op without halting apex.
+`-g` (the `/goal` integration) requires **Claude Code v2.1.139 or later**. On older versions, Claude Code rejects the unknown slash command and the flag becomes a no-op without halting apex. If `/goal` is unavailable in your harness, skip the goal gate and proceed.
 
 The `/goal` evaluator is **transcript-only** — it cannot run tools or read files independently. The emitted condition therefore forces command output into the transcript verbatim (e.g. `npm test exits 0`, not "tests pass") so the evaluator has a deterministic signal to judge.
 
@@ -150,12 +149,14 @@ All outputs saved under `~/.claude/output/{project}/apex/{task-id}/`, where `{pr
 
 **Resume mode (`-r {task-id}`):**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 Resolve the partial ID deterministically, then **auto-validate state** before restoring:
 
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/resume_lookup.sh {partial_id}
+bash "$SKILL_DIR"/scripts/resume_lookup.sh {partial_id}
 # → resolves to {task_dir}
-bash ${CLAUDE_SKILL_DIR}/scripts/validate_state.sh {task_id} {step_num}
+bash "$SKILL_DIR"/scripts/validate_state.sh {task_id} {step_num}
 # → exit 0: state consistent, continue restoration
 # → non-zero: halt with the script's stderr findings; do NOT restore
 ```
@@ -229,6 +230,8 @@ The analyze phase (step-01) uses **adaptive agent launching** (unless economy_mo
 | Major | 6-10 | Multiple systems, many unknowns |
 
 **BE SMART:** Analyze what you actually need before launching. Don't spawn a subagent for work you can complete directly in a single response. Spawn multiple subagents in the same turn when fanning out across items or reading multiple files.
+
+If your harness has no subagents, apply the economy-mode overrides (`steps/step-00b-economy.md`) — direct tools, run the explorations sequentially yourself.
 
 ## Save Output Pattern
 

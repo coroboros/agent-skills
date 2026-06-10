@@ -27,12 +27,14 @@ Smart defaults keep the common case (reviewing local changes before commit) a si
 
 ## Workflow
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
+
 **Two-file mode** (2 positional args):
 
 1. Verify both files exist.
 2. Run the script:
    ```bash
-   bash ${CLAUDE_SKILL_DIR}/scripts/diff.sh <before> <after>
+   bash "$SKILL_DIR"/scripts/diff.sh <before> <after>
    ```
 3. Parse `RESULT: regression=true|false` and the JSON at `RESULT: json=<tmp>`.
 4. Compose the report.

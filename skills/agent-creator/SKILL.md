@@ -2,9 +2,8 @@
 name: agent-creator
 description: Create, configure, and orchestrate Claude Code subagents — specialized Claude instances with focused roles and limited tool access. Covers YAML frontmatter (name, description, tools, model, permissions, hooks, MCP servers), system prompt design, tool restriction patterns, background execution, and multi-agent orchestration. Use whenever the user mentions subagents, delegation, specialists, agent configs, `.claude/agents/`, the `/agents` command, or wants to parallelize work — even when they just say "background agent" or "delegate this".
 when_to_use: When the user wants to create, edit, configure, or orchestrate a Claude Code subagent. Keywords — subagent, agent, delegate, specialist, `/agents`, `.claude/agents/`, agent config, background agent, parallel agents, orchestration, multi-agent workflow. Also trigger when the user asks how subagents work, which tools/models to choose, or how to restrict agent permissions. Skip when the user is working on a non-delegating skill or an API-level tool that has no subagent primitive.
-model: opus
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -102,7 +101,7 @@ All supported YAML frontmatter fields. Only `name` and `description` are require
 | `description` | Yes | When Claude should delegate to this agent. Write clear trigger conditions |
 | `tools` | No | Comma-separated allowlist. Inherits all tools if omitted |
 | `disallowedTools` | No | Comma-separated denylist, removed from inherited tools |
-| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-7`), or `inherit`. Defaults to `inherit` |
+| `model` | No | `sonnet`, `opus`, `haiku`, full model ID (e.g. `claude-opus-4-8`), or `inherit`. Defaults to `inherit` |
 | `permissionMode` | No | `default`, `acceptEdits`, `auto`, `dontAsk`, `bypassPermissions`, or `plan` |
 | `maxTurns` | No | Maximum agentic turns before auto-stop |
 | `skills` | No | Skills to load into agent context at startup (full content injected) |
@@ -202,10 +201,10 @@ Agent 3: test-analyzer (background)
 
 ## Gotchas
 
-1. **`tools` + `disallowedTools` resolution is counterintuitive when both are set.** Per § Configuration line 125, `disallowedTools` applies first, then `tools` resolves against the remainder. Setting `tools: Read, Write` + `disallowedTools: Write` yields an agent with only `Read`; Write is denied before the allowlist sees it. Fix: use one mechanism, not both; prefer the allowlist for fine-grained control.
-2. **Plugin-scoped agents silently ignore `hooks`, `mcpServers`, `permissionMode`.** Per § Configuration line 127, these fields are stripped from plugin agents for security; the agent loads without them and emits no warning. Fix: for plugin agents, move hook logic into the system prompt; for full configurability, use project-level `.claude/agents/` instead of plugin distribution.
+1. **`tools` + `disallowedTools` resolution is counterintuitive when both are set.** Per § Configuration, `disallowedTools` applies first, then `tools` resolves against the remainder. Setting `tools: Read, Write` + `disallowedTools: Write` yields an agent with only `Read`; Write is denied before the allowlist sees it. Fix: use one mechanism, not both; prefer the allowlist for fine-grained control.
+2. **Plugin-scoped agents silently ignore `hooks`, `mcpServers`, `permissionMode`.** Per § Configuration, these fields are stripped from plugin agents for security; the agent loads without them and emits no warning. Fix: for plugin agents, move hook logic into the system prompt; for full configurability, use project-level `.claude/agents/` instead of plugin distribution.
 3. **Subagents cannot spawn other subagents.** Per § Execution Model, including `Agent` in a subagent's `tools` is rejected at runtime. Multi-agent fan-out must happen from the main thread (or a `--agent`-launched main agent), never from inside a subagent. Fix: flatten the workflow so the main thread orchestrates the parallel subagents directly.
-4. **Model selection precedence surprises across env-var + frontmatter + per-invocation.** Per § Configuration line 118: `CLAUDE_CODE_SUBAGENT_MODEL` env var > per-invocation model > frontmatter model > main conversation model. An ambient `CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5-20251001` overrides a `model: opus` in frontmatter. Fix: explicitly set `model` in frontmatter to document the contract; verify against `echo $CLAUDE_CODE_SUBAGENT_MODEL` if behavior surprises.
+4. **Model selection precedence surprises across env-var + frontmatter + per-invocation.** Per § Configuration, `CLAUDE_CODE_SUBAGENT_MODEL` env var > per-invocation model > frontmatter model > main conversation model. An ambient `CLAUDE_CODE_SUBAGENT_MODEL=claude-haiku-4-5-20251001` overrides a `model: opus` in frontmatter. Fix: explicitly set `model` in frontmatter to document the contract; verify against `echo $CLAUDE_CODE_SUBAGENT_MODEL` if behavior surprises.
 
 ## Success Criteria
 

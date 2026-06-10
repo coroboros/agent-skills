@@ -63,8 +63,10 @@ From previous steps:
 
 **If `{save_mode}` = true:**
 
+`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
+
 ```bash
-bash ${CLAUDE_SKILL_DIR}/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progress"
 ```
 
 Append plan to `{output_dir}/02-plan.md` as you work.
@@ -86,6 +88,7 @@ Mental simulation:
 → Use recommended option for any ambiguity, proceed automatically
 
 **If `{auto_mode}` = false AND multiple valid approaches exist:**
+→ Ask via AskUserQuestion when available, otherwise in plain text, and wait for the reply:
 
 ```yaml
 questions:
@@ -223,6 +226,7 @@ Checklist:
 → Skip confirmation, proceed directly to execution
 
 **If `{auto_mode}` = false:**
+→ Ask via AskUserQuestion when available, otherwise in plain text, and wait for the reply:
 
 ```yaml
 questions:
@@ -274,7 +278,7 @@ Append to `{output_dir}/02-plan.md`:
 ❌ Missing test strategy
 ❌ Not mapping to acceptance criteria
 ❌ Starting to write code (that's step 3!)
-❌ **CRITICAL**: Not using AskUserQuestion for approval
+❌ **CRITICAL**: Not using AskUserQuestion for approval (when it is available)
 
 ## PLANNING PROTOCOLS:
 

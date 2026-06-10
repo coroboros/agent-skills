@@ -1,10 +1,10 @@
 # claude-md optimize
 
-Deep cleanup of a bloated CLAUDE.md file. Triggered when `$ARGUMENTS` contains "optimize".
+Deep cleanup of a bloated CLAUDE.md file. Triggered when `$ARGUMENTS` contains "optimize". `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ## Step 0: Read the optimization guide (REQUIRED FIRST)
 
-Use the Read tool on `${CLAUDE_SKILL_DIR}/references/optimize-guide.md` BEFORE doing anything else. This file contains the research data (ETH Zurich study), the 6 bloat categories with specific examples, target metrics, and before/after examples. Skipping it produces a subpar optimization — the guide's concrete examples are what make the removal criteria unambiguous.
+Use the Read tool on `"$SKILL_DIR"/references/optimize-guide.md` BEFORE doing anything else. This file contains the research data (ETH Zurich study), the 6 bloat categories with specific examples, target metrics, and before/after examples. Skipping it produces a subpar optimization — the guide's concrete examples are what make the removal criteria unambiguous.
 
 ## Step 1: Inventory
 

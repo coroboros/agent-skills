@@ -3,10 +3,9 @@ name: award-design
 description: World-class frontend design engineer for award-winning websites (Awwwards SOTD 7.5+, FWA, CSSDA). Takes the lead on frontend design and build — forces a committed, anti-default visual universe, writes it as a DESIGN.md, then builds the frontend itself under that direction with real assets, premium motion, and anti-AI-slop discipline. Adapts to an existing DESIGN.md and alerts when it is thin. A review mode audits any site against awwwards criteria and anti-slop at any time. Frontend only — routes single-token tweaks to design-system, never touches backend. For landing pages, portfolios, product and marketing sites, and redesigns — not dashboards or internal tools.
 when_to_use: Auto-triggers on any frontend design, build, or redesign — "build a landing page", "design this", "make it look great", "award-winning", "premium", "uplift this site", or a frontend feature with real visual surface; take the lead from the first line. Routes a single-token change (one color, one radius) to /design-system; ignores backend, data, and infra work. Run "award-design review <url|path>" to audit an existing site (the always-on awwwards/anti-slop critic). Empty directory → run /scaffold first, then return here.
 argument-hint: "[review <url|path>] | [-u <url>] <what to build>"
-model: opus
 effort: xhigh
 license: MIT
-compatibility: "Claude Code CLI (per Agent Skills spec). Graceful degradation in other environments supporting the open standard."
+compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
 metadata:
   author: coroboros
   sources:
@@ -142,7 +141,7 @@ Reading the code is not proof the page renders right. When Chrome DevTools MCP i
 
 ### WebGL / 3D — the one delegation
 
-For an Immersive or Experimental signature that is a self-contained WebGL/R3F scene (clean component boundary — props in, canvas out), delegate ONE subagent to author that module: hand it the DESIGN.md as its brief and point it at the matching `references/ingredients/` cheat — `web3d-for-sites.md` for the scene, `ogl-shaders.md` for raw GLSL, `web-audio.md` for a sound bed — or the official GSAP / R3F skill by name if installed. Integrate the returned module yourself. Never for the other archetypes; never co-write a shared file; never more than one parallel writer.
+For an Immersive or Experimental signature that is a self-contained WebGL/R3F scene (clean component boundary — props in, canvas out), delegate ONE subagent to author that module: hand it the DESIGN.md as its brief and point it at the matching `references/ingredients/` cheat — `web3d-for-sites.md` for the scene, `ogl-shaders.md` for raw GLSL, `web-audio.md` for a sound bed — or the official GSAP / R3F skill by name if installed. Integrate the returned module yourself. No subagents on the current harness → author the module inline yourself, same brief, same cheat. Never for the other archetypes; never co-write a shared file; never more than one parallel writer.
 
 ## Review mode — the always-on adversarial fresh-eyes
 
