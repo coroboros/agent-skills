@@ -24,7 +24,7 @@ Print a flat list of testable rules from the voice doc — no prose, no rational
 | `--rules` | Print the testable rule block (default) |
 | `--examples` | Print only the `rewrite_rules` `reject → accept` table |
 | `--all` | Print rules, rewrite_rules examples, and counter-examples section |
-| `--raw` | Skip `voice.extends` chain resolution; print child-only rules |
+| `--raw` (script flag: `--no-resolve-extends`) | Skip `voice.extends` chain resolution; print child-only rules |
 | `--chain` | Print the resolution chain instead of rules: `child.md → parent.md → grandparent.md (depth N)` |
 | `--explain` | Annotate each rule with `# from <relpath>` origin file |
 | `--explain-json` | Emit structured provenance JSON instead of plain text |

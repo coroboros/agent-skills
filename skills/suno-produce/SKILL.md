@@ -98,7 +98,7 @@ Full frontmatter shape, worked examples per genre (cinematic, melodic-trap, indi
 
 ## Auto-detect sufficient specification
 
-Skip the interview when the brief covers **at least 3** of the 5 anchor dimensions below; otherwise use `AskUserQuestion` (max 4, recommended-option first, single round — do not loop) for the gaps. If `ARTIST.md` is bound via `-f`, vocal profile / instrumentation / rights / slider defaults flow from it (drop those questions).
+Skip the interview when the brief covers **at least 3** of the 5 anchor dimensions below; otherwise use `AskUserQuestion` (max 4, recommended-option first, single round — do not loop; when unavailable, ask in plain text) for the gaps. If `ARTIST.md` is bound via `-f`, vocal profile / instrumentation / rights / slider defaults flow from it (drop those questions).
 
 | Dimension | Why it matters | Example values |
 |-----------|---------------|----------------|

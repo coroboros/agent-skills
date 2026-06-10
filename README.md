@@ -695,7 +695,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 
 **What it does**
 
-Auto-corrects stereo imbalance (attenuates the louder channel when the L/R delta exceeds 1 dB; skipped below 0.3 dB or with `-B`), normalizes loudness, resamples, and encodes lossless FLAC. Emits a drop-in `<script>` implementing the Web Audio play-on-first-gesture pattern with fade-in, tuned to `-v`.
+Auto-corrects stereo imbalance (attenuates the louder channel when the L/R delta exceeds 1 dB; skipped below 1 dB or with `-B` or with `-B`), normalizes loudness, resamples, and encodes lossless FLAC. Emits a drop-in `<script>` implementing the Web Audio play-on-first-gesture pattern with fade-in, tuned to `-v`.
 
 **Why FLAC and not AAC.** Web Audio's `AudioBufferSourceNode{loop:true}` loops sample-accurate by spec, but it loops the buffer that `decodeAudioData` returned — AAC's priming samples are baked into that buffer on most browser decoders, producing an audible gap at the loop boundary. FLAC is lossless with no priming, so the decoded buffer is byte-identical to the source WAV. Trade: FLAC is ~6–8× larger than AAC 128 kbps on noise-heavy content, but still modest for typical ambient loops (a few hundred KB to low MB).
 

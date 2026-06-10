@@ -1,7 +1,7 @@
 ---
 name: oneshot
-description: Single-pass feature implementation using Explore → Code → Test. Ships focused changes at maximum speed, with a built-in circuit breaker that stops and recommends `/apex` or `/forge` when the task turns out more complex than it looked. Use this whenever the user wants a quick win on a single, focused task — even when they don't say "oneshot" (e.g. "just", "quickly", "small change", "#42", or a GitHub issue URL for a small fix).
-when_to_use: When the task is simple, focused, and well-defined. Quick fixes, small features, single-concern changes. When the user says "quickly", "just do", "simple change", provides a GitHub issue reference for a small fix, or describes a clearly scoped task. NOT for multi-file refactors or unfamiliar codebases — use `/apex`. NOT for planning or weighing approaches — use `/forge`.
+description: Single-pass feature implementation using Explore → Code → Test. Ships focused changes at maximum speed, with a built-in circuit breaker that stops and recommends `/ultrapex` (or `/apex`) or `/forge` when the task turns out more complex than it looked. Use this whenever the user wants a quick win on a single, focused task — even when they don't say "oneshot" (e.g. "just", "quickly", "small change", "#42", or a GitHub issue URL for a small fix).
+when_to_use: When the task is simple, focused, and well-defined. Quick fixes, small features, single-concern changes. When the user says "quickly", "just do", "simple change", provides a GitHub issue reference for a small fix, or describes a clearly scoped task. NOT for multi-file refactors or unfamiliar codebases — use `/ultrapex` (Fable-class) or `/apex`. NOT for planning or weighing approaches — use `/forge`.
 argument-hint: "<description or #issue>"
 license: MIT
 compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."

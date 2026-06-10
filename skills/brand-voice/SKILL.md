@@ -1,7 +1,7 @@
 ---
 name: brand-voice
 description: Govern the BRAND-VOICE.md — extract a brand's writing voice from URL, Notion page, MD file/directory, or interview into a structured executable doc; update incrementally; diff versions; validate the canonical format; show testable rules. Supports multi-voice via `voice.extends` (founder on corporate, persona on institutional, multi-host) with `_replace`/`_remove` overrides. Consumed by writing skills via `-f` (e.g. `humanize-en`). Use when defining, extracting, refreshing, validating, or inspecting a brand's writing voice — "create a brand voice doc", "extract voice from this site", "tone of voice", "writing style guide", "BRAND-VOICE.md", "founder voice", "persona voice", "multi-voice".
-when_to_use: Routes via `$ARGUMENTS` first token — `extract` (sources → BRAND-VOICE.md; `--extends <parent>` scaffolds a child), `update` (refresh from new sources), `diff` (regression check; single-arg form when child has `voice.extends`), `validate` / `lint` / `check` (walks chain), `show` (testable rules; `--chain`/`--explain`/`--raw` for inheritance). Skip when the user wants to *humanize* prose against an existing voice — invoke `/humanize-en -f BRAND-VOICE.md` instead.
+when_to_use: Routes via `$ARGUMENTS` first token — `extract` (sources → BRAND-VOICE.md; `--extends <parent>` scaffolds a child), `update` (refresh from new sources), `diff` (regression check; single-arg form when child has `voice.extends`), `validate` / `lint` / `check` (walks chain), `show` (testable rules; `--chain`/`--explain`/`--raw` for inheritance). Skip when the user wants to apply or check prose against an existing voice (rewrite, humanize, "does this match") — invoke `/humanize-en -f BRAND-VOICE.md` instead.
 argument-hint: "[extract|update|diff|validate|show] [-s] [-o <path>] [-u <url>] [-n <id|url>] [-d <dir>] [-f <file>] [refs|paths]"
 license: MIT
 compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
@@ -210,8 +210,8 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 
 ## Gotchas
 
-1. **Child `_replace` directives win over parent rules even when `--chain` shows the parent.** `scripts/utils.py:resolve_extends_chain` walks parent → child; merge applies overrides last. Verify final state with `voice_lint.py --chain` before merging.
+1. **Child `_replace` directives win over parent rules even when `--chain` shows the parent.** `scripts/utils.py:resolve_extends_chain` walks parent → child; merge applies overrides last. Verify final state with `voice_lint.py` (chain state is in its JSON output; `--chain` is a `show` flag) before merging.
 2. **A structurally invalid parent passes chain resolution but fails lint when linted directly.** Fix: lint every file in the chain via `scripts/lint_all.py`, not just the target; block writes if any ancestor is RED.
-3. **`_replace` / `_remove` only apply to fields in `REPLACE_ALLOWED_FIELDS` / `REMOVE_ALLOWED_FIELDS`** (`scripts/utils.py:336-355`). Overrides on other fields (e.g., `voice`, `source_urls`, `signature_traits`) no-op at merge and surface only at lint time. Always run `voice_lint.py` on the child after override edits.
-4. **Chains over 5 hops fail with `extends-depth-exceeded`** (`scripts/utils.py:334`: `MAX_EXTENDS_DEPTH = 5`). Fix: keep chains short (≤3 hops); flatten when a child needs more than 2 ancestors.
+3. **`_replace` / `_remove` only apply to fields in `REPLACE_ALLOWED_FIELDS` / `REMOVE_ALLOWED_FIELDS`** (`scripts/utils.py:334-352`). Overrides on other fields (e.g., `voice`, `source_urls`, `signature_traits`) no-op at merge and surface only at lint time. Always run `voice_lint.py` on the child after override edits.
+4. **Chains over 5 hops fail with `extends-depth-exceeded`** (`scripts/utils.py:332`: `MAX_EXTENDS_DEPTH = 5`). Fix: keep chains short (≤3 hops); flatten when a child needs more than 2 ancestors.
 5. **`extract_rules.py` path mismatch breaks `humanize-en -f` silently.** Consumers try three candidates and degrade to universal patterns if none resolve. Symlink or copy the script when your install path is non-standard.

@@ -75,7 +75,7 @@ Parsed from `$ARGUMENTS`; everything after the flags is the task description.
 | Flag | Meaning |
 |------|---------|
 | `-s` | **S**ave the final report to `~/.claude/output/{project}/ultrapex/ultrapex-{slug}.md` |
-| `-f <path>` | **F**eed — consume a producer artifact (usually `/forge`) as the task context; `Read` exactly that path, no reconstruction |
+| `-f <path>` | **F**eed — consume a producer artifact (usually `/forge`) as the task context; `Read` exactly that path, no reconstruction. Missing path → fail loud, regenerate via the producer |
 
 ## The contract
 
@@ -107,7 +107,7 @@ These are checkpoints a sound run naturally passes through, not gated steps — 
 ## Open items     — anything not done, not verified, or deferred — named plainly
 ```
 
-With `-s`, save it under `~/.claude/output/{project}/ultrapex/` (single-file producer per repo output conventions), then report the fully-expanded absolute path.
+With `-s`, save it under `~/.claude/output/{project}/ultrapex/` — `{project}` = kebab-cased basename of the git toplevel (cwd basename outside a repo), `{slug}` = kebab of the task intent, ≤5 words — then report the fully-expanded absolute path.
 
 ## Siblings
 

@@ -29,13 +29,13 @@ If the user does not specify a scaffold or is ambiguous, show this table and ask
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
 
-### 1. Preflight
-
-`bash "$SKILL_DIR"/scripts/preflight.sh {project_dir}` → check `RESULT:` lines. Stop-conditions: `pnpm=no` → suggest `corepack enable && corepack prepare pnpm@latest --activate`; `node=too-old` → ask user to upgrade; `target=occupied` → confirm before proceeding; `ok=true` → continue.
-
-### 2. Parse arguments
+### 1. Parse arguments
 
 Extract `{scaffold}` and `{project_name}` from `$ARGUMENTS`. Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`. Missing `{scaffold}` → show the *Available scaffolds* table and ask. Missing `{project_name}` → derive from cwd or ask. `{project_dir}` defaults to `.`.
+
+### 2. Preflight
+
+`bash "$SKILL_DIR"/scripts/preflight.sh {project_dir}` → check `RESULT:` lines. Stop-conditions: `pnpm=no` → suggest `corepack enable && corepack prepare pnpm@latest --activate`; `node=too-old` → ask user to upgrade; `target=occupied` → confirm before proceeding; `ok=true` → continue.
 
 ### 3. Install
 

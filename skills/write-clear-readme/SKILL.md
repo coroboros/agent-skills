@@ -4,7 +4,7 @@ description: Author, audit, or polish a project README — clarity, structure (P
 when_to_use: Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
 disable-model-invocation: true
-allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *)
+allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *) Bash(python3 *) Bash(basename *) Bash(test *) Bash(ls *)
 license: MIT
 metadata:
   author: coroboros
@@ -277,7 +277,7 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 - NEVER auto-apply changes without user approval.
 - NEVER collapse Install / Quick Start / Requirements — what a first-time reader needs is never behind a click.
 - NEVER nest `<details>` blocks — GitHub renders nested disclosure unreliably.
-- NEVER wrap a group heading or a TOC anchor target inside `<details>` — collapsed anchors break TOC navigation.
+- NEVER wrap a group heading or a TOC anchor target inside `<details>` — a collapsed heading vanishes from the visual scan, and auto-expand on anchor jumps is not reliable across renderers.
 - NEVER apply Pattern A or B partially — every peer at the chosen level collapses or none does.
 - NEVER prefix `<summary>` with `Expand —` (or `Expand –`, `Expand -`) — the disclosure triangle already says it.
 - NEVER put a numeric content-count adjacent to a noun in prose or `<summary>` — counts go stale on the next edit; qualitative descriptors only.

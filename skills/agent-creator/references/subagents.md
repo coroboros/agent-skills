@@ -44,7 +44,7 @@ The body is the system prompt. Use markdown headings, XML tags, or a combination
 | `mcpServers` | No | MCP servers: string references or inline definitions |
 | `hooks` | No | Lifecycle hooks scoped to this agent |
 | `memory` | No | Persistent memory scope: `user`, `project`, or `local` |
-| `background` | No | `true` to always run as background task |
+| `background` | No | `true` to always run as background task. Default: `false` |
 | `effort` | No | Effort level override: `low`, `medium`, `high`, `max` |
 | `isolation` | No | `worktree` to run in a temporary git worktree |
 | `color` | No | Display color: `red`, `blue`, `green`, `yellow`, `purple`, `orange`, `pink`, `cyan` |
@@ -201,7 +201,7 @@ The frontier tier (e.g. Claude Fable 5) has no alias — reach it with `inherit`
 | Task Type | Recommended Model | Rationale |
 |-----------|------------------|-----------|
 | Simple validation | Haiku | Fast, cheap, sufficient capability |
-| Code execution | Haiku | 73.3% SWE-bench, very fast |
+| Code execution | Haiku | Strong coding capability, very fast |
 | Complex analysis | Sonnet | Superior reasoning, worth the cost |
 | Multi-step planning | Sonnet | Best for breaking down complexity |
 | Quality validation | Sonnet | Critical checkpoint, needs intelligence |

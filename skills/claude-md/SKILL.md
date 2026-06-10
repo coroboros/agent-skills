@@ -1,7 +1,7 @@
 ---
 name: claude-md
 description: Create and optimize CLAUDE.md memory files or .claude/rules/ modular rules for Claude Code projects. Covers file hierarchy, content structure, path-scoped rules, best practices, and anti-patterns. Use when working with CLAUDE.md files, .claude/rules directories, setting up new projects, or improving Claude Code's context awareness — even when the user just says "memory file" or mentions Claude instructions without naming the filename.
-when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE, auto memory, MEMORY.md, subagent memory. Without a subcommand, treat the argument as free-form guidance about memory files.
+when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE, auto memory, MEMORY.md, subagent memory. Without a subcommand, treat the argument as free-form guidance about memory files. Skip for subagent system prompts and .claude/agents/ configs — use /agent-creator.
 argument-hint: [init | optimize | revise | task description]
 license: MIT
 compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."

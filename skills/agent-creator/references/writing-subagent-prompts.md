@@ -34,7 +34,7 @@ State the role, focus areas, and approach explicitly.
 
 ### Constraints
 
-Include what the subagent should NOT do. Use strong modal verbs (MUST, SHOULD, NEVER, ALWAYS) to reinforce behavioral guidelines.
+Include what the subagent should NOT do. Reserve MUST/NEVER for hard boundaries and pair each with its why — explained guidelines hold better than shouted ones.
 
 Example:
 ```markdown
