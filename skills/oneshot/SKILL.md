@@ -74,7 +74,7 @@ Gather the minimum context needed to identify the edit target. Direct tools firs
 - `Grep` for specific symbols or strings.
 - Quick `WebSearch` only if library-specific API knowledge is missing.
 
-**When to spawn an `Explore` subagent instead:** if one or two direct searches don't locate the edit target, stop searching and spawn a single `Explore` subagent with a specific question ("find the file that handles {X}"). Reason: multiple rounds of Glob/Grep pollute the main context with file contents you'll never edit — a subagent returns just the answer. This is an exception path, not the default. If your harness has no subagents, explore inline.
+**When to spawn an `Explore` subagent instead:** if one or two direct searches don't locate the edit target, stop searching and spawn a single `Explore` subagent (or your harness's equivalent) with a specific question ("find the file that handles {X}"). Reason: multiple rounds of Glob/Grep pollute the main context with file contents you'll never edit — a subagent returns just the answer. This is an exception path, not the default. If your harness has no subagents, explore inline.
 
 No exploration tours. As soon as the edit target is identified, move on.
 

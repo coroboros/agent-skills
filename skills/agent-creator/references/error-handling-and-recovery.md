@@ -285,7 +285,7 @@ Before returning output:
 Invocation ID: abc-123-def
 Timestamp: 2025-11-15T14:23:01Z
 Subagent: security-reviewer
-Model: sonnet-4.6
+Model: sonnet
 Input: "Review changes in commit a3f2b1c"
 Tool calls:
   1. git diff a3f2b1c (success, 234 lines)

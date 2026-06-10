@@ -121,7 +121,7 @@ The Hunt phase uses **adaptive agent launching** above a hard floor, and the Jud
 
 **Available subagent types:**
 
-- `Explore` — find existing patterns, files, architecture, prior decisions via `git log` (read-only, fast, context-isolated)
+- `Explore` — find existing patterns, files, architecture, prior decisions via `git log` (read-only, fast, context-isolated). Type names are Claude Code's; other harnesses use their nearest equivalents.
 - `general-purpose` — research approaches, library docs, post-mortems, web search
 
 **Floor, then scale with complexity.** Every run launches at least 1 Explore + 1 general-purpose — forge is invoked deliberately, never for trivial work, so there is no zero-agent path. `{economy_mode}` is the only escape hatch. A harness without subagents satisfies the floor itself: run the codebase pass and the external pass sequentially, fresh context each.
@@ -227,7 +227,7 @@ Be rigorous, not contrarian. For a sharper angle — first-principles, inversion
 
 **Adversarial panel + convergence.** ON by default; skipped only under `{economy_mode}`. The critique must come from contexts that did NOT produce the leader — the same conversation cannot reliably argue against the plan it just shipped.
 
-- **Round 1 — panel.** Launch 3-5 `general-purpose` critics in one parallel message, each a clean context fed only the leader summary, the runner-up summary, and the premortem failures, and each assigned ONE distinct lens, in priority order: overengineering/simplicity, load-bearing-assumption audit, the do-nothing/defer case, the runner-up's hidden-dimension win, and the premortem gaps. Use the first 3 lenses for a focused call, all 5 for an architecture-level one. If your harness has no subagents, run each critic lens yourself sequentially in fresh passes.
+- **Round 1 — panel.** Launch 3-5 `general-purpose` critics in one parallel message, each a clean context fed only the leader summary, the runner-up summary, and the premortem failures, and each assigned ONE distinct lens, in priority order: overengineering/simplicity, load-bearing-assumption audit, the do-nothing/defer case, the runner-up's hidden-dimension win, and the premortem gaps. Use the first 3 lenses for a focused call, all 5 for an architecture-level one. If your harness has no subagents, run each critic lens yourself sequentially in fresh adversarial passes.
 - **Barrier.** Merge the returned findings, dedup by target, and score each rebuttal 1–5 on the Concession Threshold — concede only at ≥ 4; below that the finding survives.
 - **Round 2 — convergence.** Launch one fresh skeptic per surviving finding to kill it (refute in writing) or confirm it (escalate to a flip condition or a risk). Stop when findings degrade to nitpicks, or after 2 rounds total — forge emits a bounded plan, not code.
 

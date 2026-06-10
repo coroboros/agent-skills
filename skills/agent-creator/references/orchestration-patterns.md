@@ -277,26 +277,26 @@ Workers (5 concurrent instances of security-reviewer):
 
 #### Sonnet/Haiku orchestration
 
-**Stronger orchestrator + cheaper workers** (e.g. Sonnet 4.6 + Haiku 4.5): Optimal cost/performance pattern.
+**Stronger orchestrator + cheaper workers**: Optimal cost/performance pattern.
 
 Principle:
-- Orchestrator tier (e.g. Sonnet 4.6): strong at planning, integration, and validation
-- Worker tier (e.g. Haiku 4.5): capable coding model, fast and cost-efficient in parallel
+- Orchestrator tier (e.g. `sonnet`): strong at planning, integration, and validation
+- Worker tier (e.g. `haiku`): capable coding model, fast and cost-efficient in parallel
 
 **Pattern**:
 ```markdown
-1. Sonnet 4.6 (Orchestrator):
+1. Sonnet (Orchestrator):
    - Analyzes task
    - Creates plan
    - Breaks into subtasks
    - Identifies what can be parallelized
 
-2. Multiple Haiku 4.5 instances (Workers):
+2. Multiple Haiku instances (Workers):
    - Each completes assigned subtask
    - Executes in parallel for speed
    - Returns results to orchestrator
 
-3. Sonnet 4.6 (Orchestrator):
+3. Sonnet (Orchestrator):
    - Integrates results from all workers
    - Validates output quality
    - Ensures coherence
@@ -544,10 +544,10 @@ Heavy coordinator = bottleneck. Coordinator should route and synthesize, not do 
 **Use model tiers strategically**.
 
 - Default: `inherit` (omit `model` — agents follow the session model; override only when confident a different tier fits)
-- Planning/validation: Sonnet 4.6 (needs intelligence)
-- Execution of clear tasks: Haiku 4.5 (fast, cheap, still capable)
-- Highest stakes decisions: Sonnet 4.6
-- Bulk processing: Haiku 4.5
+- Planning/validation: Sonnet (needs intelligence)
+- Execution of clear tasks: Haiku (fast, cheap, still capable)
+- Highest stakes decisions: Sonnet
+- Bulk processing: Haiku
 
 ## Pattern selection
 

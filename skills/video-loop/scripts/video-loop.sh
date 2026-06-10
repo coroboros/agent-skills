@@ -57,7 +57,7 @@ while getopts ":d:q:w:o:pnC" opt; do
     o) OUT_DIR=$OPTARG ;;
     p) POSTER=1 ;;
     C) NO_FADE=1 ;;
-    n) NO_FADE=1 ;;  # deprecated alias of -C (pre-dates the uppercase-disable flag convention)
+    n) NO_FADE=1 ;;  # deprecated alias of -C
     \?) echo "unknown flag: -$OPTARG" >&2; usage ;;
     :)  echo "flag -$OPTARG requires a value" >&2; usage ;;
   esac

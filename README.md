@@ -303,7 +303,7 @@ Runs the official framework CLI, overlays the opinionated config (Biome, Cloudfl
 
 #### code-ultrareview
 
-Eight-axis judgment code review at full strength, in-session — effort maxed, every axis run, no sampling. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
+Eight-axis judgment code review at full strength, in-session — every axis run, full battery, no sampling. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
 
 **Usage**
 

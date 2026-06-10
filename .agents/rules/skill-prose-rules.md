@@ -55,8 +55,8 @@ The sync script and the parity test read this list:
 
 ## Rules for skill authors
 
-- Insert the Canonical block (markers included) immediately after the SKILL.md H1 title and before any other `##` section.
-- Skill-specific style additions (e.g., `write-clear-readme`'s "Headings as questions or commands") live in a separate `## <Skill-name>-specific style` section adjacent to the canonical block.
+- Insert the Canonical block (markers included) immediately after the SKILL.md H1 title. With the adversarial-verification, execution-discipline, and label-hygiene blocks also present, the natural order — produced by `scripts/sync_writing_rules.py` — places writing-rules last of the four.
+- Skill-specific style additions (e.g., `write-clear-readme`'s "Headings as questions or commands") live in a separate `## <Subject>-specific style` section adjacent to the canonical block (e.g. `## README-specific style` in `write-clear-readme`).
 - The HTML-comment markers must remain unchanged — they are the extraction contract for `scripts/sync_writing_rules.py` and `tests/_meta/test_skill_writing_rules.py`.
 - Never inject brand-voice paths or maintainer-specific paths into the canonical block — that would leak per-author config into public artifacts.
 - Run `scripts/sync_writing_rules.py` after editing this file to propagate changes.

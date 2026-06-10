@@ -24,7 +24,7 @@ These rules govern how this skill trusts its own output — apply them whenever 
 
 Writing rules (`skill-prose-rules.md`) govern *style* of the prose a skill emits. Label hygiene (`skill-label-hygiene-rules.md`) governs *vocabulary leakage* into shipped artifacts. Execution discipline (`skill-execution-discipline-rules.md`) governs *how the skill changes code*. Adversarial verification governs *how the skill trusts its own findings* — refute-by-default, no-silent-drop, and the discipline to not manufacture doubt on settled facts. Different concern, different declared scope (claim/finding/decision emitters), different failure modes. Co-located in adjacent canonical blocks; never merged.
 
-The block carries philosophy only — no scoring scale. Each declared skill keeps its own mechanics: forge scores rebuttals on its Concession Threshold, code-ultrareview re-scores findings through confidence validators, apex gates its eXamine self-check by stakes. The shared spine is the same; the numbers are local.
+The block carries philosophy only — no scoring scale. Each declared skill keeps its own mechanics: forge scores rebuttals on its Concession Threshold, code-ultrareview re-scores findings through confidence validators, apex gates its eXamine self-check by stakes, ultrapex scales its refuter panel to blast radius. The shared spine is the same; the numbers are local.
 
 ## Declared adversarial-verification skills
 
@@ -36,7 +36,7 @@ The sync script and the parity test read this list:
 - award-design
 - code-ultrareview
 
-Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine; award-design refutes its own committed direction and the built site in its review mode.
+Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine; ultrapex refutes before reporting; award-design refutes its own committed direction and the built site in its review mode.
 
 ## Excluded skills (with reason)
 

@@ -169,22 +169,24 @@ Use `/agents` command to see full list of available tools.
 - Pin to a specific model version
 - **Use for**: Reproducible behavior across sessions
 
+The frontier tier (e.g. Claude Fable 5) has no alias — reach it with `inherit` on a frontier session, or a full model ID.
+
 ### Orchestration strategy
 
-**Stronger orchestrator + cheaper workers pattern** (optimal cost/performance — pick current tiers, e.g. Sonnet 4.6 + Haiku 4.5):
+**Stronger orchestrator + cheaper workers pattern** (optimal cost/performance — e.g. the `sonnet` + `haiku` aliases):
 
 ```markdown
-1. Sonnet 4.6 (Coordinator):
+1. Sonnet (Coordinator):
    - Creates plan
    - Breaks task into subtasks
    - Identifies parallelizable work
 
-2. Multiple Haiku 4.5 instances (Workers):
+2. Multiple Haiku instances (Workers):
    - Execute subtasks in parallel
    - Fast and cost-efficient
    - Strong coding capability for execution
 
-3. Sonnet 4.6 (Validator):
+3. Sonnet (Validator):
    - Integrates results
    - Validates output quality
    - Ensures coherence

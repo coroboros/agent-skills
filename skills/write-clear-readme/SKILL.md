@@ -275,14 +275,14 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 ## Rules
 
 - NEVER auto-apply changes without user approval.
-- NEVER collapse Install / Quick Start / Requirements.
-- NEVER nest `<details>` blocks.
-- NEVER wrap a group heading or a TOC anchor target inside `<details>`.
+- NEVER collapse Install / Quick Start / Requirements — what a first-time reader needs is never behind a click.
+- NEVER nest `<details>` blocks — GitHub renders nested disclosure unreliably.
+- NEVER wrap a group heading or a TOC anchor target inside `<details>` — collapsed anchors break TOC navigation.
 - NEVER apply Pattern A or B partially — every peer at the chosen level collapses or none does.
-- NEVER prefix `<summary>` with `Expand —` (or `Expand –`, `Expand -`).
-- NEVER put a numeric content-count adjacent to a noun in prose or `<summary>` — qualitative descriptors only.
+- NEVER prefix `<summary>` with `Expand —` (or `Expand –`, `Expand -`) — the disclosure triangle already says it.
+- NEVER put a numeric content-count adjacent to a noun in prose or `<summary>` — counts go stale on the next edit; qualitative descriptors only.
 - NEVER change anchors, code blocks, or link URLs in polish mode (those are content, not prose).
-- ALWAYS add `<br>` after `<summary>`.
+- ALWAYS add `<br>` after `<summary>` — GitHub needs it to render the first inner block.
 - ALWAYS match the existing README's style (quote convention, heading hierarchy, badge format) when editing.
 - ALWAYS verify the rendered output before declaring done (GitHub preview, IDE preview, or user confirmation).
 - Empty `$ARGUMENTS` follows the *Subcommands* default row above. Non-empty: first token is the subcommand, second is the path.

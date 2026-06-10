@@ -216,7 +216,7 @@ The analyze phase (step-01) uses **adaptive agent launching** (unless economy_mo
 
 **Available subagent types (built-in):**
 
-- `Explore` — find existing patterns, files, utilities (read-only, fast)
+- `Explore` — find existing patterns, files, utilities (read-only, fast). Type names are Claude Code's; other harnesses use their nearest equivalents.
 - `general-purpose` — research library docs, web search, approaches, gotchas
 
 **Launch 0-10 agents based on task complexity:**
