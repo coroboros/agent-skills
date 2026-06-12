@@ -29,6 +29,7 @@ Tested per skill, scanned by Cisco's `skill-scanner`.
   - [Media Skills](#media-skills)
   - [Productivity Skills](#productivity-skills)
   - [Writing Skills](#writing-skills)
+  - [Companion Skills](#companion-skills)
 - [Pipeline](#pipeline)
 - [Testing](#testing)
 - [Security](#security)
@@ -63,7 +64,7 @@ Some skills wrap external CLIs — each is declared in its SKILL.md.
 
 ## Skills
 
-Skills are grouped by plugin. Each plugin collects related skills — expand any section below to see usage, flags, and behavior.
+Skills are grouped by plugin. Each plugin collects related skills — expand any section below to see usage, flags, and behavior. Companion skills live in their tool's repo and install from it — see [Companion Skills](#companion-skills).
 
 | Plugin | Skill | Description |
 |--------|-------|-------------|
@@ -85,6 +86,9 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Writing | [brand-voice](#brand-voice) | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
 | Writing | [write-clear-readme](#write-clear-readme) | Author, audit, or polish READMEs — clarity, structure, concision |
 | Writing | [humanize-en](#humanize-en) | Strip AI tells from English prose — brand-aware via `-f BRAND-VOICE.md` |
+| Companion | [scrybe](#companion-skills) | Offline Whisper speech-to-text — transcripts, subtitles, translation |
+| Companion | [skillward](#companion-skills) | Vet an untrusted skill, plugin, or MCP server before install — offline scanner ensemble, one verdict |
+| Companion | [shellscan](#companion-skills) | Find and lint every shell in a project — `.sh`, shebangs, GitLab CI YAML |
 
 Skills inherit the session model — no `model:` pins, so a stronger session is never downgraded by a skill. Scope is two-tier per the [Agent Skills spec](https://agentskills.io): portable skills omit the `compatibility` field entirely; Claude Code-optimized skills declare it and degrade gracefully on any open-standard agent (see [Standards](#standards)).
 
@@ -1059,6 +1063,20 @@ Invoked as a subroutine by [`write-clear-readme`](#write-clear-readme) after cla
 - [`blader/humanizer`](https://github.com/blader/humanizer) (MIT) — pattern extensions (filler phrases, hedging, signposting, authority tropes, fragmented headers) and the voice-calibration approach used in `references/voice.md`
 
 </details>
+
+---
+
+### Companion Skills
+
+Some Coroboros tools ship their own skill inside the tool's repo — versioned with the tool, installed straight from it.
+
+| Skill | Repo | Install |
+|-------|------|---------|
+| scrybe | [github.com/coroboros/scrybe](https://github.com/coroboros/scrybe) | `npx skills add coroboros/scrybe` |
+| skillward | [github.com/coroboros/skillward](https://github.com/coroboros/skillward) | `npx skills add coroboros/skillward` |
+| shellscan | [gitlab.com/coroboros/security/infrastructure/shellscan](https://gitlab.com/coroboros/security/infrastructure/shellscan) | `npx skills add https://gitlab.com/coroboros/security/infrastructure/shellscan` |
+
+GitHub repos install by `owner/repo` shorthand; GitLab repos take the full URL.
 
 ---
 
