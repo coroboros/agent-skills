@@ -1075,10 +1075,10 @@ Some Coroboros tools ship their own skill inside the tool's repo — versioned w
 |-------|------|---------|
 | scrybe | [github.com/coroboros/scrybe](https://github.com/coroboros/scrybe) | `npx skills add coroboros/scrybe` |
 | skillward | [github.com/coroboros/skillward](https://github.com/coroboros/skillward) | `npx skills add coroboros/skillward` |
-| shellscan | [gitlab.com/coroboros/security/infrastructure/shellscan](https://gitlab.com/coroboros/security/infrastructure/shellscan) | `npx skills add https://gitlab.com/coroboros/security/infrastructure/shellscan` |
-| karate | [gitlab.com/coroboros/infrastructure/karate](https://gitlab.com/coroboros/infrastructure/karate) | `npx skills add https://gitlab.com/coroboros/infrastructure/karate` |
+| shellscan | [github.com/coroboros/shellscan](https://github.com/coroboros/shellscan) | `npx skills add coroboros/shellscan` |
+| karate | [github.com/coroboros/karate](https://github.com/coroboros/karate) | `npx skills add coroboros/karate` |
 
-GitHub repos install by `owner/repo` shorthand; GitLab repos take the full URL.
+Companion repos install by `owner/repo` shorthand.
 
 ---
 
