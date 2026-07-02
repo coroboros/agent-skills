@@ -49,6 +49,7 @@ Scope rule — skills whose primary output is a claim, a finding, or a decision 
 - suno-produce — emits TRACK.md / ALBUM.md (per-project content artifact), not findings.
 - scaffold — runs a fixed bootstrap and emits a short status report, not findings.
 - markitdown — wraps a converter CLI and emits a short status report, not findings.
+- download-media — wraps a downloader CLI and emits a short status report, not findings.
 - notion — routes to MCP/CLI and emits a short status report, not findings.
 - audio-loop — media tooling emitting short status reports, not findings.
 - video-loop — media tooling emitting short status reports, not findings.

@@ -49,6 +49,7 @@ The sync script and the parity test read this list:
 - `audio-loop` — tooling skill emitting short status reports, not prose artifacts.
 - `video-loop` — tooling skill emitting short status reports, not prose artifacts.
 - `markitdown` — tooling skill emitting short status reports, not prose artifacts.
+- `download-media` — tooling skill emitting short status reports, not prose artifacts.
 - `scaffold` — tooling skill emitting short status reports, not prose artifacts.
 - `design-system` — tooling skill emitting short status reports, not prose artifacts.
 - `notion` — tooling skill routing to MCP/CLI and emitting short status reports, not prose artifacts.

@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
-    "version": "3.16.3"
+    "version": "3.17.0"
   },
   "plugins": [
     {
@@ -53,14 +53,15 @@
     },
     {
       "name": "media-skills",
-      "description": "Media conversion, polishing, and production — file-to-Markdown, video/audio looping, Suno music prompts",
+      "description": "Media conversion, production, and download — file-to-Markdown, video/audio loops, Suno prompts, yt-dlp downloads",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/video-loop",
         "./skills/audio-loop",
         "./skills/suno-produce",
-        "./skills/markitdown"
+        "./skills/markitdown",
+        "./skills/download-media"
       ]
     },
     {
