@@ -41,7 +41,7 @@
       "id": 6,
       "name": "saves-to-canonical-path",
       "prompt": "/forge -s redesign the billing system",
-      "expected_output": "With -s and the `redesign` verb triggering Spec promotion, the artifact is written to `~/.claude/output/{project}/forge/forge-{slug}.md` ({slug} = kebab of the idea; {project} = repo basename), and the fully-expanded absolute path is reported back with the `/apex -f <that path>` bridge command.",
+      "expected_output": "With -s and the `redesign` verb triggering Spec promotion, the artifact is written to `~/.agents/output/{project}/forge/forge-{slug}.md` ({slug} = kebab of the idea; {project} = repo basename), and the fully-expanded absolute path is reported back with the `/apex -f <that path>` bridge command.",
       "files": []
     },
     {
@@ -110,7 +110,7 @@
     {
       "id": 16,
       "name": "from-file-prior-spec-preserves-spec-shape",
-      "prompt": "/forge -s -f ~/.claude/output/example-project/forge/forge-oauth-auth.md tighten the OAuth plan",
+      "prompt": "/forge -s -f ~/.agents/output/example-project/forge/forge-oauth-auth.md tighten the OAuth plan",
       "expected_output": "The `-f` argument points at a prior Spec artifact (H1 `# Spec:` and `## Workstreams`). The routing detects the prior Spec shape and preserves it — `tighten the plan` is not a build verb, but iterating on an existing Spec without preserving its workstreams would emit a near-empty Decision and lose the WS-N structure. The skill reads the path verbatim per repo-conventions.md § Pipeline chaining (no glob, no inference), carries forward the Assumption ledger, and emits the refined Spec with updated workstreams.",
       "files": []
     },

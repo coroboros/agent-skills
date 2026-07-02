@@ -83,11 +83,11 @@ class TestParametersTable(unittest.TestCase):
 
     def test_save_flag_documented(self):
         body = _body()
-        # `-s` saves to ~/.claude/output/{project}/forge/forge-{slug}.md.
+        # `-s` saves to ~/.agents/output/{project}/forge/forge-{slug}.md.
         self.assertRegex(
             body,
-            r"`-s`.*?~/\.claude/output/\{project\}/forge/forge-",
-            "Parameters table must document `-s` → ~/.claude/output/{project}/forge/forge-{slug}.md",
+            r"`-s`.*?~/\.agents/output/\{project\}/forge/forge-",
+            "Parameters table must document `-s` → ~/.agents/output/{project}/forge/forge-{slug}.md",
         )
 
     def test_uppercase_S_documented(self):
@@ -152,7 +152,7 @@ class TestModelInherit(unittest.TestCase):
 
 class TestBridge(unittest.TestCase):
     """Phase 4 commits forge to the `/apex -f` hand-off for the Spec shape,
-    inlining the artifact's explicit path `~/.claude/output/{project}/forge/
+    inlining the artifact's explicit path `~/.agents/output/{project}/forge/
     forge-{slug}.md` (no reconstruction) per repo-conventions.md § Pipeline
     chaining. The Decision shape (default) explicitly has no apex bridge —
     it asks the decompose question and waits, so users don't think a bridge
@@ -163,7 +163,7 @@ class TestBridge(unittest.TestCase):
         self.assertIn("/apex -f", body, "forge must bridge to /apex via -f")
         self.assertRegex(
             body,
-            r"/apex -f ~/\.claude/output/\{project\}/forge/forge-\{slug\}\.md",
+            r"/apex -f ~/\.agents/output/\{project\}/forge/forge-\{slug\}\.md",
             "bridge to /apex must inline the explicit forge artifact path",
         )
 

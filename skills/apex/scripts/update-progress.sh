@@ -18,7 +18,7 @@ fi
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
 : "${PROJECT:=unnamed}"  # all-non-alphanumeric basename kebabs empty — keep the path well-formed
-CONTEXT_FILE="${HOME}/.claude/output/${PROJECT}/apex/${TASK_ID}/00-context.md"
+CONTEXT_FILE="${HOME}/.agents/output/${PROJECT}/apex/${TASK_ID}/00-context.md"
 
 if [[ ! -f "$CONTEXT_FILE" ]]; then
     echo "Error: Context file not found: $CONTEXT_FILE"
@@ -36,9 +36,9 @@ else
     exit 1
 fi
 
-# Scope the temp file under ~/.claude/output — keeps inter-process state off
+# Scope the temp file under ~/.agents/output — keeps inter-process state off
 # the world-writable /tmp surface flagged by external scanners (W011).
-APEX_TEMP_DIR="${HOME}/.claude/output"
+APEX_TEMP_DIR="${HOME}/.agents/output"
 mkdir -p "$APEX_TEMP_DIR"
 TEMP_FILE=$(mktemp "$APEX_TEMP_DIR/.apex-progress.XXXXXX")
 

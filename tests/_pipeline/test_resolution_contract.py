@@ -58,7 +58,7 @@ class TestExplicitPathContractConsistency(unittest.TestCase):
             with self.subTest(source=k):
                 t = p.read_text(encoding="utf-8")
                 self.assertNotRegex(
-                    t, r"bare filename.*→.*~/\.claude/output",
+                    t, r"bare filename.*→.*~/\.agents/output",
                     f"{p.relative_to(REPO)} reintroduces bare-name resolution",
                 )
 

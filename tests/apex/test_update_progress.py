@@ -1,7 +1,7 @@
 """Tests for skills/apex/scripts/update-progress.sh.
 
 Strategy: a synthetic 00-context.md is seeded at the script's resolved
-location — global `$HOME/.claude/output/{project}/apex/<task_id>/` where
+location — global `$HOME/.agents/output/{project}/apex/<task_id>/` where
 `{project}` = kebab-cased basename of the project root (pwd outside any repo,
 GIT_CEILING capping the git walk). HOME is isolated to a temp dir so the
 script never touches the developer's real `~`.
@@ -66,7 +66,7 @@ def _dirs(t):
 
 def _seed(home: Path, project: str, task_id: str = "01-add-auth",
           body: str = CONTEXT_TEMPLATE) -> Path:
-    ctx_dir = home / ".claude" / "output" / project / "apex" / task_id
+    ctx_dir = home / ".agents" / "output" / project / "apex" / task_id
     ctx_dir.mkdir(parents=True)
     ctx_file = ctx_dir / "00-context.md"
     ctx_file.write_text(body, encoding="utf-8")
@@ -161,7 +161,7 @@ class TestRowMutation(unittest.TestCase):
 class TestTempFileScoping(unittest.TestCase):
     """The progress-update script must NOT create temp files on the world-writable
     /tmp surface (W011 external-scanner finding). The mktemp template is scoped
-    to $HOME/.claude/output/ — apex's own output dir."""
+    to $HOME/.agents/output/ — apex's own output dir."""
 
     def test_source_mktemp_carries_apex_progress_template(self):
         """Source-level contract: every mktemp call has a template arg whose
@@ -180,7 +180,7 @@ class TestTempFileScoping(unittest.TestCase):
 
     def test_runtime_temp_file_lands_under_home_apex_output(self):
         """End-to-end: run the script under bash -x and verify the traced
-        mktemp invocation expanded to a path under $HOME/.claude/output/."""
+        mktemp invocation expanded to a path under $HOME/.agents/output/."""
         with tempfile.TemporaryDirectory() as t:
             proj, home = _dirs(t)
             _seed(home, _project(proj))
@@ -206,7 +206,7 @@ class TestTempFileScoping(unittest.TestCase):
             if ln.lstrip().startswith("+"):
                 self.assertIn(str(home), ln,
                               f"mktemp ran outside isolated $HOME: {ln}")
-                self.assertIn(".claude/output", ln,
+                self.assertIn(".agents/output", ln,
                               f"mktemp ran outside apex output dir: {ln}")
 
 

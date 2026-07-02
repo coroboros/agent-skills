@@ -2,8 +2,8 @@
 
 Resolves `--reconcile @auto` to the conventional set of planning sources:
 
-    ~/.claude/output/{project}/forge/forge-*.md
-    ~/.claude/output/{project}/apex/{task-id}/                 (latest only)
+    ~/.agents/output/{project}/forge/forge-*.md
+    ~/.agents/output/{project}/apex/{task-id}/                 (latest only)
     docs/proposals/*.md  docs/design/*.md  docs/rfcs/*.md  docs/adr/*.md
     PR body of the current branch (via `gh pr view`)
 
@@ -11,7 +11,7 @@ The orchestrator can also accept explicit paths or `gh:pr:<N>` /
 `gh:issue:<owner/repo#N>` references — those are resolved by `run.py`,
 not here.
 
-Graceful degradation: missing `gh`, missing `~/.claude/output/{project}/`,
+Graceful degradation: missing `gh`, missing `~/.agents/output/{project}/`,
 or repo with no branch all degrade silently — only the available sources
 get returned.
 """
@@ -35,7 +35,7 @@ def project_name(repo: Path) -> str:
     """Kebab-cased basename of the git toplevel (or the input dir).
 
     Same derivation used across the skills' output paths
-    (`~/.claude/output/{project}/{skill}/`).
+    (`~/.agents/output/{project}/{skill}/`).
     """
     try:
         r = subprocess.run(
@@ -54,9 +54,9 @@ def project_name(repo: Path) -> str:
 
 
 def claude_output_dir(repo: Path) -> Path:
-    """`~/.claude/output/{project}/` for the given repo."""
+    """`~/.agents/output/{project}/` for the given repo."""
     home = Path(os.environ.get("HOME", "")).expanduser()
-    return home / ".claude" / "output" / project_name(repo)
+    return home / ".agents" / "output" / project_name(repo)
 
 
 def _glob_artifacts(repo: Path, sub: str, pattern: str, kind: str) -> list:
@@ -80,7 +80,7 @@ def _artifact_for(path: Path, kind: str | None = None) -> Artifact:
 
 
 def latest_apex_task(repo: Path) -> Artifact | None:
-    """Find the most-recent apex task dir under `~/.claude/output/{project}/apex/`.
+    """Find the most-recent apex task dir under `~/.agents/output/{project}/apex/`.
 
     The task-id format is `NN-feature-name`. Reverse-sort by name gives
     the highest numbered dir first, which is the latest invocation.

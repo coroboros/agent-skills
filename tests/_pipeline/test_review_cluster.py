@@ -1,6 +1,6 @@
 """Pipeline contract: code-ultrareview → apex (report-only producer).
 
-code-ultrareview saves a report under .claude/output/code-ultrareview/{slug}/; /apex
+code-ultrareview saves a report under .agents/output/code-ultrareview/{slug}/; /apex
 consumes it via -f as generic foundational context (no apex change needed).
 /oneshot is intentionally excluded — it has no -f flag and takes a
 description, not a file. A realistic report fixture must satisfy the schema;
@@ -38,7 +38,7 @@ class TestProducerConsumerPaths(unittest.TestCase):
 
     def test_code_ultrareview_documents_its_output_path(self):
         md = read_skill_md(REVIEW["producer"])
-        self.assertIn(".claude/output/{project}/code-ultrareview/", md)
+        self.assertIn(".agents/output/{project}/code-ultrareview/", md)
         self.assertIn("code-ultrareview-{slug}.md", md)
 
     def test_apex_consumes_any_file_via_from(self):
