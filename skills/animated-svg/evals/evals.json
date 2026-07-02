@@ -1,0 +1,41 @@
+{
+  "skill_name": "animated-svg",
+  "description": "Behavioural evaluation set for the animated-svg skill. Cases pin the readme-profile self-containment contract (no JS, no external refs, camo-safe SMIL + CSS-in-SVG), the redraw-never-autotrace doctrine for raster references, the frame-capture verification loop (static gate, frozen frames, refute the stills), profile routing (readme vs web), and the refusal paths (JS players, pointer events in <img> context).",
+  "evals": [
+    {
+      "id": 1,
+      "name": "readme-banner-draw-on-seamless-loop",
+      "prompt": "Create an animated SVG banner for my open-source project's README — I want the logo mark to draw itself in, then loop with something subtle. It has to work on GitHub.",
+      "expected_output": "Authors a self-contained SVG on the readme profile: SMIL + CSS-in-SVG only, no <script>, no event handlers, no external fonts/images, viewBox + <title> present. Uses the draw-on technique (pathLength-normalized stroke-dashoffset, or the mask-reveal variant for filled artwork) and a quiet secondary loop (shimmer or similar), both per references/techniques.md, with eased motion — not linear — and a seamless cycle whose last keyframe equals the first. Runs scripts/check_svg.py (exit 0, fails=0), generates frozen frames via scripts/frame_harness.py including t=0 and t=duration, screenshots them with an available browser surface, and refutes the stills (frames differ at midpoints, loop endpoints match, dark-background pass) before delivering the file plus a README embed snippet. If no browser surface exists, states the fallback explicitly rather than implying the frames were seen.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "raster-logo-redraw-not-autotrace",
+      "prompt": "Here's our company logo as a PNG (logo.png in the repo root). Turn it into an animated SVG version for our docs site header.",
+      "expected_output": "Redraws the mark as clean semantic paths — named groups per animatable unit — rather than autotracing the raster; declines any potrace/vtracer-style conversion and explains why (thousands of anonymous micro-paths, no animatable structure, 50-100x weight). Samples the palette from the PNG, rebuilds the silhouette, animates with techniques routed through references/techniques.md, then verifies: check_svg.py static gate, frame_harness.py frozen frames, screenshot comparison against the raster reference so the silhouette still reads as the original mark. Asks or infers the delivery profile (docs site header may be web or readme) since the profiles change constraints, not just warnings.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "refuses-lottie-player-for-readme",
+      "prompt": "I found a cool .lottie animation of a rocket. Can you embed it in my README with the dotlottie-web player so it plays on the repo page?",
+      "expected_output": "Declines the player route: GitHub serves README media through camo in <img> context where JavaScript never executes, so dotlottie-web (a WASM/canvas JS player) can never run there — out of scope by design, per the skill's core constraint. Redirects to the working equivalent: author a self-contained animated SVG of the rocket (SMIL + CSS-in-SVG) that survives the README, or keep the .lottie for the project's website where a JS runtime exists. Does not attempt a script tag, an iframe, or an external embed service as a workaround.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "hover-request-routed-to-autonomous-loop",
+      "prompt": "Make my README logo SVG spin when people hover over it.",
+      "expected_output": "Explains that pointer events never reach <img> content on GitHub — a :hover rule inside the SVG is dead code there — and offers the two real options rather than silently shipping broken interactivity: an autonomous loop (always-spinning or periodic, kept gentle per the README-assets-whisper rule) for the readme profile, or true hover behavior under the web profile if the SVG is inlined on a site the user controls. Implements whichever the user picks with the transform-origin fix (transform-box: fill-box / explicit SMIL rotation center) so the spin doesn't fly off-screen.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "loader-web-profile-reduced-motion",
+      "prompt": "Animated SVG loading spinner for our app, brand color #c6a15b, must respect users who turn off animations.",
+      "expected_output": "Builds the spinner on the web profile with CSS @keyframes rather than SMIL for the primary motion, because the reduced-motion requirement demands a media-gateable implementation — SMIL ignores media queries (references/techniques.md § Reduced motion). Includes a prefers-reduced-motion gate that stops or minimizes the loop, uses transform/opacity properties with transform-box: fill-box, and passes check_svg.py with the reduced-motion check green. Verifies with frozen frames that the spinner reads correctly at multiple phases and delivers inline-embed guidance (currentColor or the brand token) for app integration.",
+      "files": []
+    }
+  ]
+}

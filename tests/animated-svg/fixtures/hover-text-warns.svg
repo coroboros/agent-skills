@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .g:hover { animation: spin 2s linear infinite; }
+  </style>
+  <g class="g"><text x="10" y="50">Hi</text></g>
+  <circle cx="50" cy="80" r="5">
+    <animate attributeName="r" values="5;8;5" dur="2s" repeatCount="indefinite" begin="click"/>
+  </circle>
+</svg>

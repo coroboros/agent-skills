@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Set-only fixture</title>
+  <circle cx="50" cy="50" r="20" fill="#c6a15b">
+    <set attributeName="fill" to="#8b6914" begin="2s"/>
+  </circle>
+</svg>

@@ -52,6 +52,7 @@ Scope rule — skills whose primary output is shared external surface (code, com
 - `scaffold` — tooling skill emitting short status reports, not code or commits.
 - `design-system` — tooling skill emitting short status reports, not code or commits.
 - `notion` — tooling skill routing to MCP/CLI and emitting short status reports, not code or commits.
+- `animated-svg` — emits a standalone SVG asset and embed snippets, not commits or review prose.
 
 ## Rules for skill authors
 

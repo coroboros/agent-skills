@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
-    "version": "3.18.1"
+    "version": "3.19.0"
   },
   "plugins": [
     {
@@ -33,12 +33,13 @@
     },
     {
       "name": "design-skills",
-      "description": "Recommend design archetypes and enforce DESIGN.md tokens across UI",
+      "description": "Recommend design archetypes, enforce DESIGN.md tokens, and animate vector assets",
       "source": "./",
       "strict": false,
       "skills": [
         "./skills/award-design",
-        "./skills/design-system"
+        "./skills/design-system",
+        "./skills/animated-svg"
       ]
     },
     {

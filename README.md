@@ -76,6 +76,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
 | Design | [award-design](#award-design) | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
 | Design | [design-system](#design-system) | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
+| Design | [animated-svg](#animated-svg) | Self-contained animated SVGs — SMIL + CSS, no JS, README-safe, frame-verified |
 | Claude Code | [claude-md](#claude-md) | Create and optimize CLAUDE.md and .claude/rules/ |
 | Claude Code | [agent-creator](#agent-creator) | Expert guidance for creating Claude Code subagents |
 | Media | [video-loop](#video-loop) | Loop background videos with invisible cut points |
@@ -390,10 +391,10 @@ Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO find
 
 ### Design Skills
 
-Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-design`, `design-system`.
+Recommend design archetypes, enforce DESIGN.md tokens, and animate vector assets — `award-design`, `design-system`, `animated-svg`.
 
 <details>
-<summary><em>award-design · design-system</em></summary>
+<summary><em>award-design · design-system · animated-svg</em></summary>
 
 <br>
 
@@ -537,6 +538,37 @@ Ships a condensed spec, CLI + subcommand references, deterministic scripts, and 
 
 - [Google DESIGN.md](https://github.com/google-labs-code/design.md) — the canonical open standard this skill enforces; `@google/design.md` CLI for `lint`, `diff`, `export`, `spec`
 - [W3C Design Token Format](https://www.designtokens.org/) — token schema inspiration; `export --format dtcg` produces a compatible `tokens.json`
+
+---
+
+#### animated-svg
+
+Author self-contained animated SVGs — SMIL + CSS-in-SVG, zero JavaScript — that stay animated where scripts never run: GitHub READMEs and profiles first (SVG-as-image never executes scripts), plus registry pages, docs sites, and inline web use. Redraws artwork as semantic paths, choreographs the motion, then proves it with a frame-capture verification loop.
+
+**Usage**
+
+```bash
+/animated-svg logo draw-on loop for the README -o assets/logo-animated.svg
+/animated-svg loading spinner, brand color, respect reduced motion -p web
+```
+
+**Flags**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-o <path>` | asked or inferred | Output file |
+| `-p readme\|web` | `readme` | Delivery profile — README/registry `<img>` context vs inline-on-page |
+
+**What it does**
+
+- **Profile-first constraints** — `readme` is strict: no `<script>`, no event handlers, no external fonts or images (none of it works in `<img>` context); `web` relaxes external refs and allows `:hover`/class-driven interactivity
+- **Motion doctrine** — one signature motion plus one quiet second-read detail, physical easing, 2–8 s whispering loops for README assets, seamless by construction (last keyframe = first)
+- **Semantic paths** — every animatable unit is a named path or group; raster references are redrawn, never autotraced
+- **Static gate** — `scripts/check_svg.py` (stdlib) checks well-formedness, viewBox, animation presence, no-JS, self-containment, fonts, reduced-motion, interactivity, `<title>`, size budget; failures exit 1 and block delivery, warns are review items
+- **Frame-capture verification** — `scripts/frame_harness.py` (stdlib) freezes the animation at chosen instants (SMIL `setCurrentTime`, WAAPI `currentTime`) into plain local HTML pages; screenshot with any browser surface, then refute the stills: midframes differ, loop endpoints match, dark-background pass
+- **Techniques reference** — draw-on (`pathLength` trick), mask reveal for filled artwork, transform-origin fix, morphing, gradient shimmer, motion-along-path, reduced-motion and dark-mode patterns: `references/techniques.md`
+
+**Requirements** — Python 3 (stdlib). Screenshots use any available browser surface (dev-browser, Chrome DevTools MCP, Playwright); without one the skill says so and falls back to a code-level read.
 
 </details>
 

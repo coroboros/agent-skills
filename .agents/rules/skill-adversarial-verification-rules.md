@@ -34,9 +34,10 @@ The sync script and the parity test read this list:
 - apex
 - ultrapex
 - award-design
+- animated-svg
 - code-ultrareview
 
-Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine; ultrapex refutes before reporting; award-design refutes its own committed direction and the built site in its review mode.
+Scope rule — skills whose primary output is a claim, a finding, or a decision that drives expensive or irreversible action, and that already run a verification loop. forge decides; code-ultrareview surfaces defects; apex self-validates in eXamine; ultrapex refutes before reporting; award-design refutes its own committed direction and the built site in its review mode; animated-svg refutes its frame captures before delivering.
 
 ## Excluded skills (with reason)
 
