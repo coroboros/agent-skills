@@ -83,7 +83,7 @@ Execute systematic implementation workflows using the APEX methodology. This ski
 **Flags:**
 
 - `-a` (auto): Skip confirmations
-- `-s` (save): Save outputs to `~/.claude/output/{project}/apex/`
+- `-s` (save): Save outputs to `~/.agents/output/{project}/apex/`
 - `-e` (economy): No subagents, save tokens
 
 See **Parameters** below for the complete flag list.
@@ -93,13 +93,13 @@ See **Parameters** below for the complete flag list.
 | Short | Long | Off | Long-off | Behavior |
 |-------|------|-----|----------|----------|
 | `-a` | `--auto` | `-A` | `--no-auto` | Skip confirmations, auto-approve plans |
-| `-s` | `--save` | `-S` | `--no-save` | Save outputs to `~/.claude/output/{project}/apex/` |
+| `-s` | `--save` | `-S` | `--no-save` | Save outputs to `~/.agents/output/{project}/apex/` |
 | `-e` | `--economy` | `-E` | `--no-economy` | No subagents, direct tools only |
 | `-b` | `--branch` | `-B` | `--no-branch` | Verify not on main; create branch if needed |
 | `-i` | `--interactive` | — | — | Configure flags via AskUserQuestion |
 | `-g` | `--goal` | `-G` | `--no-goal` | Wire `/goal` to loop step-04 until AC verified (v2.1.139+; auto-on when `CLAUDE_NONINTERACTIVE` is exported (set it in `claude -p` wrappers and CI)) |
 | `-r` | `--resume` | — | — | Continue from a previous task (takes `<task-id>`) |
-| `-f` | `--from` | — | — | Prior context: GitHub issue (`#N`, URL), forge plan (e.g. `~/.claude/output/{project}/forge/forge-{slug}.md`), or any file as foundational input. Non-Markdown → pre-process via `/markitdown -s` |
+| `-f` | `--from` | — | — | Prior context: GitHub issue (`#N`, URL), forge plan (e.g. `~/.agents/output/{project}/forge/forge-{slug}.md`), or any file as foundational input. Non-Markdown → pre-process via `/markitdown -s` |
 
 Parsing algorithm, defaults, examples, and override semantics (lowercase enables, uppercase disables): `steps/step-00-init.md`.
 
@@ -128,14 +128,14 @@ Fetched content feeds the analysis report that Plan and Execute work from. An ad
 
 ## Output Structure
 
-The output path is `~/.claude/output/{project}/apex/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.claude/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
+The output path is `~/.agents/output/{project}/apex/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.agents/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
 
 **When `{save_mode}` = true:**
 
-All outputs saved under `~/.claude/output/{project}/apex/{task-id}/`, where `{project}` is the kebab-cased basename of the git toplevel (else the cwd outside a git repo):
+All outputs saved under `~/.agents/output/{project}/apex/{task-id}/`, where `{project}` is the kebab-cased basename of the git toplevel (else the cwd outside a git repo):
 
 ```
-~/.claude/output/{project}/apex/{task-id}/
+~/.agents/output/{project}/apex/{task-id}/
 ├── 00-context.md # Params, user request, timestamp
 ├── 01-analyze.md # Analysis findings
 ├── 02-plan.md # Implementation plan
@@ -258,8 +258,8 @@ Step-00 runs `scripts/setup-templates.sh` to initialize all output files from th
 
 1. **Progress-table mismatch halts `-r` resume with exit 3.** `scripts/validate_state.sh:66` requires the row in `00-context.md`'s `## Progress` table to match the step filename exactly (`| 01-analyze | ✓ Complete |`). A hand-renamed step file or a half-applied `update-progress.sh` invocation leaves the table out of sync; `tests/apex/test_validate_state.py:102-107` pins this. Fix: always run `scripts/update-progress.sh` after step completion; never rename step files post-creation.
 2. **`-f` is an injection surface for indirect prompt attacks.** A GitHub issue body, a `WebFetch`-pulled doc, or a `-f` file written by an upstream skill can embed instructions disguised as data. Trust model (§ above) requires user review of the analysis report before Execute. Auto-mode (`-a`) skips per-tool confirmations but does not skip plan approval. Drop the surface entirely for sensitive tasks: pass `-e` (no subagents, no fetches).
-3. **Step-00 context overwrite when `-f` mismatches resumed `-r` task ID.** `setup-templates.sh` recreates `00-context.md` on first setup; resuming with `-r 01-foo` but `-f ~/.claude/output/{project}/forge/forge-bar.md` mixes two intents: state variables get the `-f` content, progress table reads the resumed task. Always match the IDs: `-r 01-foo` pairs with `-f ~/.claude/output/{project}/apex/01-foo/02-plan.md` or a fresh forge plan for that task.
-4. **Structured `{NN-feature}/` collisions across parallel worktrees.** Two worktrees of the same repo share the same kebab-cased `{project}` basename → both write under `~/.claude/output/{project}/apex/`. Auto-numbering scans the dir at script invocation, so two near-simultaneous `setup-templates.sh` calls can land on the same `NN` prefix. Fix: serialize apex setup across worktrees of the same repo, or rename one worktree's basename to differentiate.
+3. **Step-00 context overwrite when `-f` mismatches resumed `-r` task ID.** `setup-templates.sh` recreates `00-context.md` on first setup; resuming with `-r 01-foo` but `-f ~/.agents/output/{project}/forge/forge-bar.md` mixes two intents: state variables get the `-f` content, progress table reads the resumed task. Always match the IDs: `-r 01-foo` pairs with `-f ~/.agents/output/{project}/apex/01-foo/02-plan.md` or a fresh forge plan for that task.
+4. **Structured `{NN-feature}/` collisions across parallel worktrees.** Two worktrees of the same repo share the same kebab-cased `{project}` basename → both write under `~/.agents/output/{project}/apex/`. Auto-numbering scans the dir at script invocation, so two near-simultaneous `setup-templates.sh` calls can land on the same `NN` prefix. Fix: serialize apex setup across worktrees of the same repo, or rename one worktree's basename to differentiate.
 
 ## Success Criteria
 

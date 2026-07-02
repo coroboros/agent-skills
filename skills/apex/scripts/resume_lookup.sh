@@ -5,7 +5,7 @@
 # Usage:
 #   resume_lookup.sh <partial_id>
 #
-# Glob-searches ~/.claude/output/{project}/apex/ for task folders matching <partial_id>:
+# Glob-searches ~/.agents/output/{project}/apex/ for task folders matching <partial_id>:
 #   - exact prefix match preferred (e.g. "01" matches "01-auth-middleware")
 #   - falls back to substring match anywhere in the name
 #
@@ -23,7 +23,7 @@ PARTIAL="${1:?usage: resume_lookup.sh <partial_id>}"
 PROJECT_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || pwd)
 PROJECT=$(basename "$PROJECT_ROOT" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
 : "${PROJECT:=unnamed}"  # all-non-alphanumeric basename kebabs empty — keep the path well-formed
-APEX_DIR="${HOME}/.claude/output/${PROJECT}/apex"
+APEX_DIR="${HOME}/.agents/output/${PROJECT}/apex"
 
 if [[ ! -d "$APEX_DIR" ]]; then
   echo "RESULT: error=apex-dir-missing path=$APEX_DIR" >&2

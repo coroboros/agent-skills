@@ -61,7 +61,7 @@ class TestUltrapexContract(unittest.TestCase):
 
     def test_output_path_convention(self):
         """Single-file producer per repo conventions."""
-        self.assertIn("~/.claude/output/{project}/ultrapex/ultrapex-{slug}.md", _body())
+        self.assertIn("~/.agents/output/{project}/ultrapex/ultrapex-{slug}.md", _body())
 
     def test_no_raw_skill_dir_env(self):
         """ultrapex ships no scripts; nothing should reference the env var at all."""

@@ -78,7 +78,7 @@ Run the 8 axes — Correctness, Simplification, Tests, Documentation, Style, Int
 
 | Flag | Behavior |
 |------|----------|
-| `-s` | Save the report + JSONL to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.{md,jsonl}` |
+| `-s` | Save the report + JSONL to `~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.{md,jsonl}` |
 | `-S` | Force no-save (overrides any ambient save mode) |
 | `-b <ref>` | Override the review base (skip auto-detection via `scripts/resolve_base.sh`) |
 | `--repo-kind <kind>` | Override the scope classifier. Values: `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo override at `.code-ultrareview.yaml` (`repo_kind: <kind>`); the flag wins on conflict. Invalid value exits 2 |
@@ -153,13 +153,13 @@ Runs `scripts/synthesize.py` on top of `scripts/synthesis_core.py` primitives:
 2. **Inter-axis precedence** — when 2+ axes flag the same `file:line` with the same finding wording, highest severity wins; ties resolve via `Correctness > Design/API > Simplification > Tests > Documentation > Style > Intent > Performance > Coherence` (`scripts/synthesis_core.py:AXIS_PRIORITY`). Distinct findings at coincident lines (a Correctness null-deref and a Tests missing-assert on the same line) survive as separate entries.
 3. **A2 routing** — sub-80 stays in Unverified with the validator's reason.
 4. **Verdict** — `Ship` / `Fix-then-ship` / `Needs work` (`scripts/synthesis_core.py:compute_verdict`).
-5. **Report emission** — markdown to terminal + `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. JSONL alongside with Conventional Comments labels (`issue` / `suggestion` / `nitpick` / `question`).
+5. **Report emission** — markdown to terminal + `~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. JSONL alongside with Conventional Comments labels (`issue` / `suggestion` / `nitpick` / `question`).
 
 The closing **"What I did NOT check"** section is mandatory and always present, even when nothing was skipped — it lists security (defers to `/security-review`), runtime performance / benchmarks (explicit non-goal), flaky test detection (explicit non-goal), and any tools from `scope.json["tools_skipped"]`.
 
 ## Final report layout
 
-`templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; no rename, merge, reorder, or improvise. **Terminal echo is mandatory** — the full canonical report prints to the chat-terminal on every invocation; `-s` is purely additive (writes the same bytes to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, byte-for-byte identical to terminal output). Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80) lives in `scripts/synthesize.py:SEVERITY_MARKERS`.
+`templates/code-ultrareview.md` is the canonical wire format — every `##` section renders verbatim in template order with its emoji prefix; no rename, merge, reorder, or improvise. **Terminal echo is mandatory** — the full canonical report prints to the chat-terminal on every invocation; `-s` is purely additive (writes the same bytes to `~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`, byte-for-byte identical to terminal output). Severity marker mapping (🔴 High blocks ship · 🟠 Medium fix-soon · 🟢 Low nit · ⚠️ Unverified sub-80) lives in `scripts/synthesize.py:SEVERITY_MARKERS`.
 
 ## Trust model
 
@@ -197,7 +197,7 @@ The closing "What I did NOT check" section always names these — explicit user-
 
 Bridge to the fix pass after the report ships:
 
-- `/apex -f ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix pass (requires `-s`; pass the absolute path the report prints).
+- `/apex -f ~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.md` — structured fix pass (requires `-s`; pass the absolute path the report prints).
 - `/oneshot "<finding>"` — single-finding quick fix (takes a description, not a file).
 
 ### Opt-in flag composition
@@ -222,4 +222,4 @@ The four opt-in flags layer orthogonally on the always-on pipeline: mutation tes
 1. **Sub-80 findings can be dropped instead of surfaced in `### ⚠️ Unverified`.** The A2 contract (`scripts/synthesis_core.py:apply_a2`) is no-silent-drop. The model sometimes treats a sub-80 score as a rejection signal and omits the finding entirely. Fix: scan the `### ⚠️ Unverified` section explicitly on every report; compare finding count to axis output to catch drops.
 2. **First-run `npx` / `uvx` downloads add latency.** Cold start adds ~5s per tool the first time the battery touches it; subsequent runs are fast (cached at `~/.npm/_npx` / `~/.cache/uv`). The README install table documents this so users don't fear repeated downloads.
 3. **Coherence activates silently on metadata changes.** A single `package.json` touch triggers the 9th subagent automatically. Watch for the `Coherence axis: active` line in the report header — it tells you the axis ran without you asking.
-4. **`--reconcile @auto` skips silently on malformed planning artifacts.** A forge or apex file with broken YAML frontmatter (unclosed `---`, tab indentation, unquoted colons) is dropped from the auto-detect list. Verify with `head -20 ~/.claude/output/{project}/forge/forge-*.md` before relying on `@auto`.
+4. **`--reconcile @auto` skips silently on malformed planning artifacts.** A forge or apex file with broken YAML frontmatter (unclosed `---`, tab indentation, unquoted colons) is dropped from the auto-detect list. Verify with `head -20 ~/.agents/output/{project}/forge/forge-*.md` before relying on `@auto`.

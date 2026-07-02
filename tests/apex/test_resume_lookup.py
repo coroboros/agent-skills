@@ -3,7 +3,7 @@
 Same project-root resolution as validate_state.sh: `git rev-parse` then `pwd`.
 Tests run with `cwd=` a temp project dir and `GIT_CEILING_DIRECTORIES` capping
 the git walk so the fallback is deterministic. Output is global —
-`$HOME/.claude/output/{project}/apex/` — so HOME is isolated to a temp dir and
+`$HOME/.agents/output/{project}/apex/` — so HOME is isolated to a temp dir and
 `{project}` = kebab-cased basename of the project root.
 """
 
@@ -52,7 +52,7 @@ class TestResumeLookup(unittest.TestCase):
         self._tmp_home.cleanup()
 
     def _seed_tasks(self, *task_ids):
-        base = self.home / ".claude" / "output" / self.project / "apex"
+        base = self.home / ".agents" / "output" / self.project / "apex"
         base.mkdir(parents=True, exist_ok=True)
         for tid in task_ids:
             (base / tid).mkdir(exist_ok=True)

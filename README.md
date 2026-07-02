@@ -126,7 +126,7 @@ Pre-implementation thinking — research the problem space, weigh approaches wit
 
 | Flag | Description |
 |------|-------------|
-| `-s` / `-S` | Save artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` / force no-save |
+| `-s` / `-S` | Save artifact to `~/.agents/output/{project}/forge/forge-{slug}.md` / force no-save |
 | `-i` / `-I` | Create GitHub issues from workstreams (implies `-s`) / disable |
 | `-a` / `-A` | Auto mode — skip Q&A, decide reasonable forks, no revision pause / disable |
 | `-e` / `-E` | Economy mode — no subagents (Hunt research floor and Judge's adversarial panel) / disable |
@@ -167,7 +167,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 /apex -f "#42" implement what issue 42 describes
 
 # From a prior forge plan
-/apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
+/apex -f ~/.agents/output/{project}/forge/forge-{slug}.md implement WS-1
 
 # Resume a previous task
 /apex -r 01-auth-middleware
@@ -178,7 +178,7 @@ Systematic implementation using the APEX methodology — Analyze, Plan, Execute,
 | Flag | Description |
 |------|-------------|
 | `-a` / `-A` | Autonomous mode — skip confirmations / disable |
-| `-s` / `-S` | Save outputs to `~/.claude/output/{project}/apex/{task-id}/` / force no-save |
+| `-s` / `-S` | Save outputs to `~/.agents/output/{project}/apex/{task-id}/` / force no-save |
 | `-e` / `-E` | Economy mode — no subagents / disable |
 | `-b` / `-B` | Branch mode — verify not on main, create branch if needed / disable |
 | `-g` / `-G` | Wire `/goal` to loop step-04 until AC verified (auto-on under `claude -p`; requires Claude Code v2.1.139+) / disable |
@@ -219,14 +219,14 @@ Outcome-driven end-to-end implementation for Fable-class frontier models — the
 /ultrapex -s implement user registration
 
 # Build a forge plan
-/ultrapex -f ~/.claude/output/{project}/forge/forge-{slug}.md
+/ultrapex -f ~/.agents/output/{project}/forge/forge-{slug}.md
 ```
 
 **Flags**
 
 | Flag | Description |
 |------|-------------|
-| `-s` | Save the final report to `~/.claude/output/{project}/ultrapex/` |
+| `-s` | Save the final report to `~/.agents/output/{project}/ultrapex/` |
 | `-f` | Feed a producer artifact (usually a forge plan) as the task context |
 
 **What it does**
@@ -329,7 +329,7 @@ Eight-axis judgment code review at full strength, in-session — every axis run,
 
 | Flag | Description |
 |------|-------------|
-| `-s` / `-S` | Save the report + JSONL to `~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.{md,jsonl}` / force no-save |
+| `-s` / `-S` | Save the report + JSONL to `~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.{md,jsonl}` / force no-save |
 | `-b <ref>` | Override the review base (skip auto-detection) |
 | `--repo-kind <kind>` | Override the scope classifier. `<kind>` ∈ `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo at `.code-ultrareview.yaml`; the flag wins on conflict. Invalid value exits 2 |
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
@@ -474,7 +474,7 @@ Also invocable directly via `/design-system` with one of seven subcommands:
 
 ```bash
 /design-system audit                                # lint ./DESIGN.md, report with fix proposals
-/design-system audit ./docs/DESIGN.md -s            # save the report under ~/.claude/output/
+/design-system audit ./docs/DESIGN.md -s            # save the report under ~/.agents/output/
 /design-system diff                                 # diff ./DESIGN.md vs HEAD (git-aware)
 /design-system diff old.md new.md                   # two-file diff
 /design-system export tailwind                      # → tailwind.theme.json
@@ -502,7 +502,7 @@ Also invocable directly via `/design-system` with one of seven subcommands:
 
 | Flag | Subcommand | Description |
 |------|------------|-------------|
-| `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `~/.claude/output/{project}/design-system/{sub}/report.md` |
+| `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `~/.agents/output/{project}/design-system/{sub}/report.md` |
 | `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
 | `--json` | `audit`, `diff`, `spec`, `audit-extensions` | Raw JSON instead of the formatted report |
 | `--strict` | `audit`, `audit-extensions` | `audit`: cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
@@ -686,7 +686,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 /audio-loop breeze.wav -v 0.4           # Lower volume in the emitted JS snippet
 /audio-loop breeze.wav -B               # Skip stereo balance auto-correction
 /audio-loop breeze.wav -o public/audio/ # Custom output directory
-/audio-loop -s breeze.wav               # Save under ~/.claude/output/{project}/audio-loop/breeze/
+/audio-loop -s breeze.wav               # Save under ~/.agents/output/{project}/audio-loop/breeze/
 ```
 
 **Flags**
@@ -696,7 +696,7 @@ Produce a gapless web-ready ambient audio loop from a source clip — auto-balan
 | `-t <LUFS>` | `-28` | Integrated loudness target |
 | `-v <0..1>` | `0.6` | Target volume baked into the emitted JS snippet |
 | `-o <dir>` | input dir | Output directory |
-| `-s` / `-S` | off | Save to `~/.claude/output/{project}/audio-loop/{slug}/` / force no-save |
+| `-s` / `-S` | off | Save to `~/.agents/output/{project}/audio-loop/{slug}/` / force no-save |
 | `-B` | off | Disable stereo balance auto-correction |
 
 **What it does**
@@ -797,7 +797,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 
 ```bash
 /markitdown ~/Downloads/report.pdf            # convert and print to terminal
-/markitdown -s ~/Downloads/report.pdf         # convert + save under ~/.claude/output/{project}/markitdown/report/
+/markitdown -s ~/Downloads/report.pdf         # convert + save under ~/.agents/output/{project}/markitdown/report/
 /markitdown -s -p deck.pptx                   # use third-party plugins (e.g. markitdown-ocr)
 /markitdown -d invoice.pdf                    # Azure Document Intelligence
 /markitdown -k brand.html                     # keep base64 images inline
@@ -809,7 +809,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-s` | off | Save Markdown to `~/.claude/output/{project}/markitdown/{slug}/{stem}.md` |
+| `-s` | off | Save Markdown to `~/.agents/output/{project}/markitdown/{slug}/{stem}.md` |
 | `-S` | — | Force no-save (override an ambient save mode) |
 | `-d` | off | Use Azure Document Intelligence (needs `MARKITDOWN_DOCINTEL_ENDPOINT`) |
 | `-p` | off | Enable installed third-party `markitdown` plugins |
@@ -818,7 +818,7 @@ Convert any document to Markdown using [Microsoft's `markitdown` CLI](https://gi
 
 **What it does**
 
-Composes the right `markitdown` invocation from the flags and streams Markdown to the terminal — or, with `-s`, writes it under `~/.claude/output/{project}/markitdown/{slug}/{stem}.md` for downstream skills to consume via `-f`. Never auto-installs: a missing CLI prints the install command and stops.
+Composes the right `markitdown` invocation from the flags and streams Markdown to the terminal — or, with `-s`, writes it under `~/.agents/output/{project}/markitdown/{slug}/{stem}.md` for downstream skills to consume via `-f`. Never auto-installs: a missing CLI prints the install command and stops.
 
 **Sources**
 
@@ -860,7 +860,7 @@ Download video or audio from any [yt-dlp-supported site](https://github.com/yt-d
 | `-c A-B` | — | Clip a time range (needs ffmpeg) |
 | `-u <langs>` | — | Subtitles as sidecar files, e.g. `-u "en.*,fr"` |
 | `-r <height>` | — | Cap resolution, e.g. `-r 1080` |
-| `-d <dir>` | `~/.claude/output/{project}/download-media/{slug}/` | Destination directory |
+| `-d <dir>` | `~/.agents/output/{project}/download-media/{slug}/` | Destination directory |
 
 Anything after the URL passes to `yt-dlp` verbatim — cookies, SponsorBlock, download archives, chapter splitting, the full flag surface.
 
@@ -983,7 +983,7 @@ Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Mi
 | `-d <dir>` | Folder of MD/MDX — `Glob` aggregate |
 | `-f <file>` | Single MD/MDX/TXT file |
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
-| `-s` / `-S` | Save / disable save under `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` |
+| `-s` / `-S` | Save / disable save under `~/.agents/output/{project}/brand-voice/brand-voice-{slug}.md` |
 | `--extends <parent>` | (`extract`) scaffold a child voice inheriting from `<parent>`; pre-flight lints the parent (refuses on RED) |
 | `--raw` | (`show`) skip `voice.extends` chain resolution; print child-only rules |
 | `--chain` | (`show`) print the resolution chain root → child |
@@ -1156,7 +1156,7 @@ The native `/deep-research` and [Claude's Research](https://claude.com/blog/rese
 ```
 /deep-research or Claude Desktop Research     hundreds of queries, cited Markdown
       |
-save the report to e.g. ~/.claude/output/{project}/external-research/{slug}.md
+save the report to e.g. ~/.agents/output/{project}/external-research/{slug}.md
       |
 /forge -f <abs path> "<question informed by the research>"   forge reads verbatim per the -f contract
       |

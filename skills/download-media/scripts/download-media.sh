@@ -10,7 +10,7 @@
 #   -c A-B      clip a time range, e.g. -c 10:15-12:30 (needs ffmpeg)
 #   -u LANGS    subtitles as sidecar files, e.g. -u "en.*,fr" (includes auto-generated)
 #   -r HEIGHT   cap resolution, e.g. -r 1080
-#   -d DIR      destination dir (default ~/.claude/output/<project>/download-media/<slug>/)
+#   -d DIR      destination dir (default ~/.agents/output/<project>/download-media/<slug>/)
 #
 # Everything after the URL is passed to yt-dlp verbatim.
 # Emits `RESULT: key=value` lines for the skill to parse.
@@ -104,10 +104,10 @@ SLUG=$(printf '%s' "$SEG" \
 [[ -z "$SLUG" ]] && SLUG="media"
 
 if [[ -z "$DEST" ]]; then
-  # Global per repo-conventions.md § Output paths: ~/.claude/output/{project}/download-media/{slug}.
+  # Global per repo-conventions.md § Output paths: ~/.agents/output/{project}/download-media/{slug}.
   PROJECT=$(basename "$(git rev-parse --show-toplevel 2>/dev/null || pwd)" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '-' | sed 's/^-*//; s/-*$//')
   : "${PROJECT:=unnamed}"
-  DEST="${HOME}/.claude/output/${PROJECT}/download-media/${SLUG}"
+  DEST="${HOME}/.agents/output/${PROJECT}/download-media/${SLUG}"
 fi
 mkdir -p "$DEST"
 

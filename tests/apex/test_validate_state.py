@@ -3,7 +3,7 @@
 The script resolves the project root via `git rev-parse --show-toplevel`
 with a `pwd` fallback; tests run with `cwd=` a temp dir outside any git repo
 (GIT_CEILING_DIRECTORIES caps the walk) so the fallback is deterministic.
-Output is global — `$HOME/.claude/output/{project}/apex/` — so HOME is
+Output is global — `$HOME/.agents/output/{project}/apex/` — so HOME is
 isolated to a temp dir and `{project}` = kebab-cased basename of the root.
 """
 
@@ -55,8 +55,8 @@ class TestValidateState(unittest.TestCase):
 
     def _seed_task(self, task_id, *, with_context=True, step_files=None, progress_rows=None):
         """Materialize a fake apex task tree under the global
-        `$HOME/.claude/output/{project}/apex/<task_id>/`."""
-        task_dir = self.home / ".claude" / "output" / self.project / "apex" / task_id
+        `$HOME/.agents/output/{project}/apex/<task_id>/`."""
+        task_dir = self.home / ".agents" / "output" / self.project / "apex" / task_id
         task_dir.mkdir(parents=True, exist_ok=True)
         if with_context:
             body = "# Context\n\n## Progress\n\n| Step | Status | Updated |\n|------|--------|---------|\n"

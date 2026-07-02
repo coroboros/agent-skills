@@ -261,7 +261,7 @@ def _render_header(
         "> **Terminal echo is mandatory.** The full report below prints to "
         "the chat-terminal on every invocation. The `-s` flag is purely "
         "additive — it writes the same bytes to "
-        "`~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. "
+        "`~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.md`. "
         "It does not gate, truncate, or summarise what the user sees in "
         "chat. Terminal output and saved file are byte-for-byte identical.",
     ]
@@ -447,7 +447,7 @@ def _render_footer() -> str:
     return (
         "---\n\n"
         "_Report-only by default. To fix: "
-        "`/apex -f ~/.claude/output/{project}/code-ultrareview/"
+        "`/apex -f ~/.agents/output/{project}/code-ultrareview/"
         "code-ultrareview-{slug}.md` or `/oneshot \"<finding>\"`. Opt-in "
         "`--apply-safe` writes manifest sync + failing tests with diff "
         "preview + per-file confirmation._"
@@ -475,10 +475,10 @@ def output_paths(repo_root: Path, slug: str) -> tuple[Path, Path]:
     """Build the canonical save-mode paths.
 
     Returns `(md, jsonl)` under
-    `~/.claude/output/<project>/code-ultrareview/`.
+    `~/.agents/output/<project>/code-ultrareview/`.
     """
     project = project_slug(repo_root)
-    base = Path.home() / ".claude" / "output" / project / "code-ultrareview"
+    base = Path.home() / ".agents" / "output" / project / "code-ultrareview"
     return (
         base / f"code-ultrareview-{slug}.md",
         base / f"code-ultrareview-{slug}.jsonl",
@@ -501,7 +501,7 @@ def main(argv: list[str] | None = None) -> int:
                              "canonical save-mode paths.")
     parser.add_argument("--save", dest="save", action="store_true",
                         help="Write to canonical "
-                             "~/.claude/output/.../code-ultrareview-<slug>.{md,jsonl}.")
+                             "~/.agents/output/.../code-ultrareview-<slug>.{md,jsonl}.")
     parser.add_argument("--no-save", dest="save", action="store_false")
     parser.set_defaults(save=False)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())

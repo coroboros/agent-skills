@@ -217,7 +217,7 @@ Expanded form of the `## Critical — Label hygiene` canonical block in SKILL.md
 Everything you write — code, comments, commit subjects, PR and issue bodies, docs — ships to people who never saw this workflow. The scaffolding that got you here is noise to them. Strip it:
 
 - **Translate internal labels into domain facts.** A spec's `WS-3`, an issue's task ID, a plan's phase name are *your* coordinates, not the reader's. Write `add token refresh on 401`, never `WS-3` or `the plan's step 2` — in commit subjects, code comments, and prose alike.
-- **Don't cite the machinery.** No references to the plan, spec, postmortem, the APEX phases, or scratch-file paths (`~/.claude/output/...`) in anything that ships — the reader can't open them, so the pointer is a dead end.
+- **Don't cite the machinery.** No references to the plan, spec, postmortem, the APEX phases, or scratch-file paths (`~/.agents/output/...`) in anything that ships — the reader can't open them, so the pointer is a dead end.
 - **Comment the why, never the what.** Keep a comment only when it carries what the code cannot: a non-obvious constraint, the cause of a workaround, a governing spec clause. Delete any comment that just restates the line below it.
 
 Test each line: would it still make sense to someone reading only the final diff, with no access to the plan? If not, it's scaffolding — rewrite it as a domain fact or cut it.

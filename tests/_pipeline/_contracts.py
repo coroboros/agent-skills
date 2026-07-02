@@ -1,7 +1,7 @@
 """Single source of truth for cross-skill pipeline contracts.
 
 Skills compose via the `-f` flag (see `.agents/rules/repo-conventions.md`):
-a producer saves to `~/.claude/output/<project>/<skill>/<skill>-<slug>.md`
+a producer saves to `~/.agents/output/<project>/<skill>/<skill>-<slug>.md`
 and reports the fully-expanded absolute path; a consumer takes that explicit
 path via `-f` verbatim — no reconstruction, no inference. Schema drift
 between producer and consumer is where bugs hide —
@@ -19,7 +19,7 @@ CLUSTERS = {
     "workflow": {
         # forge → apex
         "producer": "forge",
-        "producer_output": "~/.claude/output/{project}/forge/forge-{slug}.md",
+        "producer_output": "~/.agents/output/{project}/forge/forge-{slug}.md",
         "consumer": "apex",  # apex consumes the forge plan via -f
         # Schema keys the producer commits to and the consumer reads — drift
         # in either side breaks the chain. Validated by test_workflow_cluster.
@@ -95,7 +95,7 @@ CLUSTERS = {
         # (### 🔴 High / ### 🟠 Medium / ### 🟢 Low / ### ⚠️ Unverified) under
         # ## 🔎 Findings — every ## section is emoji-prefixed and HR-separated.
         "producer": "code-ultrareview",
-        "producer_output": "~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md",
+        "producer_output": "~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.md",
         "consumer": "apex",
         # Schema the producer commits to and a consumer reads — drift in
         # either side breaks the chain. Validated by test_review_cluster.

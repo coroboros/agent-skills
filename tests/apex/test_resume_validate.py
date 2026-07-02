@@ -117,7 +117,7 @@ class TestResumeValidateBehavior(unittest.TestCase):
     def _materialize_fixture(self, fixture_name, task_id):
         """Copy fixture contents into the global apex task dir under temp HOME."""
         fixture_dir = FIXTURES / fixture_name
-        task_dir = self.home / ".claude" / "output" / self.project / "apex" / task_id
+        task_dir = self.home / ".agents" / "output" / self.project / "apex" / task_id
         task_dir.mkdir(parents=True, exist_ok=True)
         for item in fixture_dir.iterdir():
             shutil.copy(item, task_dir / item.name)

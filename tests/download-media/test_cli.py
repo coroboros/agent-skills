@@ -238,14 +238,14 @@ class TestDestinationAndResults(_ShimCase):
     def test_default_dest_under_global_output(self):
         r = self._run(self.URL)
         self.assertEqual(r.returncode, 0, msg=r.stderr)
-        dest = (self.home / ".claude" / "output" / _project(self.cwd)
+        dest = (self.home / ".agents" / "output" / _project(self.cwd)
                 / "download-media" / "v-dqw4w9wgxcq")
         self.assertIn(f"RESULT: dest={dest}", r.stdout)
         self.assertTrue(dest.is_dir())
         argv = self._argv()
         self.assertEqual(argv[argv.index("-P") + 1], str(dest))
         # De-pollution: nothing written inside the project tree except argv capture.
-        self.assertFalse((self.cwd / ".claude").exists())
+        self.assertFalse((self.cwd / ".agents").exists())
 
     def test_dest_override(self):
         custom = self.cwd / "media"
@@ -254,7 +254,7 @@ class TestDestinationAndResults(_ShimCase):
         self.assertIn(f"RESULT: dest={custom}", r.stdout)
         argv = self._argv()
         self.assertEqual(argv[argv.index("-P") + 1], str(custom))
-        self.assertFalse((self.home / ".claude").exists())
+        self.assertFalse((self.home / ".agents").exists())
 
     def test_result_schema_single_file(self):
         r = self._run(self.URL)

@@ -56,13 +56,13 @@ The discriminator is the Decide phase, in three tiers: forge **decides** the rev
 
 | Flag | Inverse | Behavior |
 |------|---------|----------|
-| `-s` / `--save` | `-S` / `--no-save` | Save the artifact to `~/.claude/output/{project}/forge/forge-{slug}.md` (global; `{slug}` = kebab of the idea, ≤5 words) |
+| `-s` / `--save` | `-S` / `--no-save` | Save the artifact to `~/.agents/output/{project}/forge/forge-{slug}.md` (global; `{slug}` = kebab of the idea, ≤5 words) |
 | `-i` / `--issues` | `-I` / `--no-issues` | Create GitHub issues from the workstreams (implies `-s`) |
 | `-a` / `--auto` | `-A` / `--no-auto` | Decide everything reasonable, skip Q&A, assume on forks (headless) |
 | `-e` / `--economy` | `-E` / `--no-economy` | No subagents — direct tools only |
 | `-f <path>` / `--from <path>` | — | Prior context — file, GitHub issue (`#N`), or URL as foundational input. Non-Markdown sources (PDF, DOCX, PPTX, audio, YouTube) → pre-process with `/markitdown -s` and pass the saved path |
 
-Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. Output saved to `~/.claude/output/{project}/forge/forge-{slug}.md`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd) and `{slug}` is a kebab of `{idea}` (≤5 words).
+Lowercase enables, uppercase disables. All flags default OFF. Flags are removed from input; remainder becomes `{idea}`. Output saved to `~/.agents/output/{project}/forge/forge-{slug}.md`, where `{project}` is the kebab-cased basename of the git toplevel (else cwd) and `{slug}` is a kebab of `{idea}` (≤5 words).
 
 ### Requirements
 
@@ -75,7 +75,7 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 /forge -s -a redesign the billing system            # decide reasonable forks, no Q&A
 /forge -s add user authentication with OAuth
 /forge -s -f "#42" implement payment refunds         # from a GitHub issue
-/forge -s -f ~/.claude/output/{project}/forge/forge-{slug}.md "tighten the OAuth plan"  # iterate on a prior artifact
+/forge -s -f ~/.agents/output/{project}/forge/forge-{slug}.md "tighten the OAuth plan"  # iterate on a prior artifact
 /forge -s -i migrate from REST to GraphQL            # plan + create issues
 /forge -s -e add search functionality                # no subagents
 ```
@@ -83,7 +83,7 @@ Lowercase enables, uppercase disables. All flags default OFF. Flags are removed 
 ## Pipeline
 
 ```
-/forge -s "<question or idea>"          → ~/.claude/output/{project}/forge/forge-{slug}.md  ← you are here
+/forge -s "<question or idea>"          → ~/.agents/output/{project}/forge/forge-{slug}.md  ← you are here
 /apex -f <abs forge path> implement WS-1 → code
 ```
 
@@ -104,7 +104,7 @@ A supported feature of the `-f` contract — both `forge` and `apex` read any ab
 When `{save_mode}` = true:
 
 ```
-~/.claude/output/{project}/forge/
+~/.agents/output/{project}/forge/
 └── forge-{slug}.md    # one file per intent — multiple artifacts coexist in a repo
 ```
 
@@ -153,7 +153,7 @@ Persist throughout:
 | `{issues_mode}` | boolean | Create GitHub issues (forces save) |
 | `{economy_mode}` | boolean | No subagents |
 | `{from_file}` | string | Path to prior context (if `-f` provided) |
-| `{output_dir}` | string | `~/.claude/output/{project}/forge/` (expanded to an absolute path for writes) |
+| `{output_dir}` | string | `~/.agents/output/{project}/forge/` (expanded to an absolute path for writes) |
 | `{output_file}` | string | `{output_dir}forge-{slug}.md` |
 
 ## Entry point
@@ -162,7 +162,7 @@ Persist throughout:
 
 1. **Parse flags** — lowercase enables, uppercase disables; `-f` consumes the next arg as `{from_file}`; remainder becomes `{idea}`.
 2. **Apply implications** — if `{issues_mode}` = true, force `{save_mode}` = true.
-3. **Generate identifiers** — derive `{slug}` and `{project}` per § Parameters; `{output_dir}` = `~/.claude/output/{project}/forge/`; `{output_file}` = `{output_dir}forge-{slug}.md`.
+3. **Generate identifiers** — derive `{slug}` and `{project}` per § Parameters; `{output_dir}` = `~/.agents/output/{project}/forge/`; `{output_file}` = `{output_dir}forge-{slug}.md`.
 4. **Create output dir** — if `{save_mode}` = true, `mkdir -p` the `$HOME`-expanded `{output_dir}`; report the fully-expanded absolute `{output_file}` (no tilde, no magic).
 5. **Show a compact summary** — one line + one table — then proceed to Hunt:
 
@@ -302,7 +302,7 @@ Otherwise: write the Decision, present it, then ask the user whether to decompos
 - **Spec shape** — inline the **fully-expanded absolute path** in the apex bridge (placeholder shown here; emit the resolved path at runtime):
 
   ```
-  /apex -f ~/.claude/output/{project}/forge/forge-{slug}.md implement WS-1
+  /apex -f ~/.agents/output/{project}/forge/forge-{slug}.md implement WS-1
   ```
 
   Under `-S` there is no bridgeable file — replace the bridge with: re-run with `-s` to get a bridgeable artifact.
