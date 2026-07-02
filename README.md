@@ -82,6 +82,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Media | [audio-loop](#audio-loop) | Gapless web-ready ambient audio loops (FLAC + Web Audio) |
 | Media | [suno-produce](#suno-produce) | Turn a music brief into Suno v5.5 prompt artifacts |
 | Media | [markitdown](#markitdown) | Convert PDF/Office/HTML/audio/YouTube to Markdown via Microsoft's CLI |
+| Media | [download-media](#download-media) | Download video, audio, playlists, clips, subtitles from ~1800 sites via `yt-dlp` |
 | Productivity | [notion](#notion) | Notion via the official MCP connector, or the `ntn` CLI for uploads and CI |
 | Writing | [brand-voice](#brand-voice) | Govern BRAND-VOICE.md — extract, update, validate; feeds `humanize-en -f` |
 | Writing | [write-clear-readme](#write-clear-readme) | Author, audit, or polish READMEs — clarity, structure, concision |
@@ -614,10 +615,10 @@ Expert guidance for creating, configuring, and orchestrating Claude Code subagen
 
 ### Media Skills
 
-Media conversion, polishing, and production — `video-loop`, `audio-loop`, `suno-produce`, `markitdown`.
+Media conversion, polishing, and production — `video-loop`, `audio-loop`, `suno-produce`, `markitdown`, `download-media`.
 
 <details>
-<summary><em>video-loop · audio-loop · suno-produce · markitdown</em></summary>
+<summary><em>video-loop · audio-loop · suno-produce · markitdown · download-media</em></summary>
 
 <br>
 
@@ -822,6 +823,54 @@ Composes the right `markitdown` invocation from the flags and streams Markdown t
 **Sources**
 
 - [Microsoft `markitdown`](https://github.com/microsoft/markitdown) (MIT) — the CLI this skill wraps
+
+---
+
+#### download-media
+
+Download video or audio from any [yt-dlp-supported site](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) (~1800 — YouTube, Vimeo, SoundCloud, Twitch, X…) using the [`yt-dlp` CLI](https://github.com/yt-dlp/yt-dlp) — full videos, mp3 audio, playlists, time-range clips, subtitles. Personal and authorized use; no DRM circumvention.
+
+**Requirements**
+
+- `yt-dlp` on PATH: `brew install yt-dlp` (macOS) or `pipx install yt-dlp`
+- `ffmpeg` strongly recommended (merging, mp3 extraction, clipping): `brew install ffmpeg`
+
+**Usage**
+
+```bash
+/download-media https://youtu.be/dQw4w9WgXcQ                 # video, mp4, best compatible
+/download-media -a <url>                                      # mp3
+/download-media -r 1080 <url>                                 # cap at 1080p
+/download-media -p <playlist-url>                             # whole playlist
+/download-media -c 10:15-12:30 <url>                          # clip a segment
+/download-media -u "en.*" <url>                               # video + English subtitles
+/download-media -i <url>                                      # list formats, download nothing
+/download-media -d ~/Downloads <url>                          # custom destination
+/download-media <url> --embed-thumbnail --embed-metadata      # passthrough to yt-dlp
+```
+
+**Flags**
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-a` | off | Audio only, mp3 (needs ffmpeg) |
+| `-b` | off | Best native quality — skip the mp4 compatibility preset |
+| `-p` | off | Full playlist (default: single video) |
+| `-i` | off | Inspect only — list available formats |
+| `-c A-B` | — | Clip a time range (needs ffmpeg) |
+| `-u <langs>` | — | Subtitles as sidecar files, e.g. `-u "en.*,fr"` |
+| `-r <height>` | — | Cap resolution, e.g. `-r 1080` |
+| `-d <dir>` | `~/.claude/output/{project}/download-media/{slug}/` | Destination directory |
+
+Anything after the URL passes to `yt-dlp` verbatim — cookies, SponsorBlock, download archives, chapter splitting, the full flag surface.
+
+**What it does**
+
+Composes the right `yt-dlp` invocation from the flags — mp4-compatible by default, preset-based audio extraction, playlist templating — downloads to a predictable destination, and reports the real post-merge file paths. Never auto-installs: a missing CLI prints the install command and stops.
+
+**Sources**
+
+- [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) (Unlicense) — the CLI this skill wraps
 
 </details>
 
