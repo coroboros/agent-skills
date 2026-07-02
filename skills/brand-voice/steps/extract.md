@@ -12,7 +12,7 @@ Ingest one or more sources, synthesise the canonical voice doc, write to disk.
 /brand-voice extract                                           # interview mode
 /brand-voice extract -u https://x.com -f ./notes.md            # combined sources
 /brand-voice extract -u https://x.com -o ./assets/voice.md     # custom output path
-/brand-voice extract -s -u https://x.com                       # also save under ~/.claude/output/
+/brand-voice extract -s -u https://x.com                       # also save under ~/.agents/output/
 /brand-voice extract --extends ./BRAND-VOICE.md \
                      -o ./BRAND-VOICE-FOUNDER.md               # scaffold a child voice
 ```
@@ -26,7 +26,7 @@ Ingest one or more sources, synthesise the canonical voice doc, write to disk.
 | `-d <dir>` | Directory of MD files — `Glob`, then aggregate |
 | `-f <file>` | Single MD/MDX/TXT file — `Read` direct |
 | `-o <path>` | Output path (default: `./BRAND-VOICE.md`) |
-| `-s` | Also save a copy under `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` for pipeline history |
+| `-s` | Also save a copy under `~/.agents/output/{project}/brand-voice/brand-voice-{slug}.md` for pipeline history |
 | `-S` | Disable `-s` if it was set ambiently |
 | `--extends <parent_path>` | Scaffold a child voice that inherits from `<parent_path>`. Pre-flight lints the parent (refuses on RED) and pre-populates `voice.extends` plus a comment block summarising parent's mergeable fields. |
 
@@ -137,7 +137,7 @@ The user must answer `yes` explicitly. No silent write.
 On `yes`:
 
 - `Write` to `-o <path>` (default `./BRAND-VOICE.md`).
-- If `-s` is set, also `Write` to `~/.claude/output/{project}/brand-voice/brand-voice-{slug}.md` (`{slug}` = kebab of `voice.name`; `{project}` = kebab-cased basename of the git toplevel, else cwd) and report its fully-expanded absolute path.
+- If `-s` is set, also `Write` to `~/.agents/output/{project}/brand-voice/brand-voice-{slug}.md` (`{slug}` = kebab of `voice.name`; `{project}` = kebab-cased basename of the git toplevel, else cwd) and report its fully-expanded absolute path.
 
 ### 7. Post-write report
 

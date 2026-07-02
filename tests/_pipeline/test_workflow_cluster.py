@@ -27,7 +27,7 @@ WORKFLOW = CLUSTERS["workflow"]
 
 class TestProducerConsumerPaths(unittest.TestCase):
     """v2 contract (repo-conventions.md § Pipeline chaining): a producer
-    saves to ~/.claude/output/{project}/{skill}/{skill}-{slug}.md and prints
+    saves to ~/.agents/output/{project}/{skill}/{skill}-{slug}.md and prints
     that fully-expanded absolute path; the consumer is handed that explicit
     path verbatim — no reconstruction, no inference, no glob. Pinned: forge's
     documented path shape appears in its own bridge to apex, apex's -f example

@@ -151,7 +151,7 @@ class TestIgnoreFileParser(unittest.TestCase):
             (Path(t) / ".derivation-ignore").write_text(
                 "paths:\n"
                 "  ignore_paths:\n"
-                "    - ~/.claude/output/x/spec/spec-legacy.md\n"
+                "    - ~/.agents/output/x/spec/spec-legacy.md\n"
                 "    - spec-temp.md\n"
                 "claims:\n"
                 "  ignore_text:\n"
@@ -161,7 +161,7 @@ class TestIgnoreFileParser(unittest.TestCase):
             ig = _common.load_ignore(Path(t))
         self.assertEqual(
             ig.list_for("paths", "ignore_paths"),
-            ["~/.claude/output/x/spec/spec-legacy.md", "spec-temp.md"],
+            ["~/.agents/output/x/spec/spec-legacy.md", "spec-temp.md"],
         )
         self.assertTrue(ig.has("claims", "ignore_text", "out of scope"))
 

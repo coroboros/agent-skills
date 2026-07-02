@@ -123,7 +123,7 @@ class TestShimmedWrapper(unittest.TestCase):
 
     def setUp(self):
         # Per-test cwd (the project root) and an isolated HOME, so the global
-        # ~/.claude/output write never touches the developer's real home.
+        # ~/.agents/output write never touches the developer's real home.
         self.cwd = Path(tempfile.mkdtemp(prefix="markitdown-cwd-"))
         self.home = Path(tempfile.mkdtemp(prefix="markitdown-home-"))
 
@@ -208,11 +208,11 @@ class TestShimmedWrapper(unittest.TestCase):
         self.assertIn("RESULT: saved=true", r.stdout)
         self.assertIn("RESULT: slug=report-q1", r.stdout)
         # Global, project-scoped, HOME-expanded absolute path.
-        out_file = (self.home / ".claude" / "output" / _project(self.cwd)
+        out_file = (self.home / ".agents" / "output" / _project(self.cwd)
                     / "markitdown" / "report-q1" / "Report Q1.md")
         self.assertIn(f"RESULT: path={out_file}", r.stdout)
         # De-pollution: nothing written inside the project tree.
-        self.assertFalse((self.cwd / ".claude").exists())
+        self.assertFalse((self.cwd / ".agents").exists())
         # File on disk where the RESULT says.
         self.assertTrue(out_file.is_file())
         self.assertEqual(out_file.read_text(), SHIM_PAYLOAD)
@@ -224,12 +224,12 @@ class TestShimmedWrapper(unittest.TestCase):
 
     def test_uppercase_S_overrides_lowercase_s(self):
         """getopts processes flags left-to-right; `-s -S` must end with SAVE=0
-        (no-save). The wrapper streams payload to stdout, no .claude/output."""
+        (no-save). The wrapper streams payload to stdout, no .agents/output."""
         f = self._write_input("doc.txt")
         r = self._run("-s", "-S", str(f))
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         self.assertIn("RESULT: saved=false", r.stdout)
-        self.assertFalse((self.cwd / ".claude").exists())
+        self.assertFalse((self.cwd / ".agents").exists())
 
     def test_lowercase_s_overrides_uppercase_S(self):
         """Symmetric — `-S -s` ends with SAVE=1."""

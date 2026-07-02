@@ -25,11 +25,11 @@ All ffmpeg work happens in `scripts/audio-loop.sh` — this skill validates the 
 | `-t <LUFS>` | `-28` | Integrated loudness target (ambient web default) |
 | `-v <0..1>` | `0.6` | Target volume baked into the emitted JS snippet |
 | `-o <dir>` | input dir | Output directory |
-| `-s` | off | Save to `~/.claude/output/{project}/audio-loop/{slug}/` |
+| `-s` | off | Save to `~/.agents/output/{project}/audio-loop/{slug}/` |
 | `-S` | off | Force no-save |
 | `-B` | off | Disable stereo balance auto-correction |
 
-**Where each flag is handled.** `-t`, `-o`, and `-B` pass through to `scripts/audio-loop.sh`. `-v` is skill-only — the agent reads it from `$ARGUMENTS` and interpolates it into the `TARGET` constant of the emitted JS snippet; the script never sees it. `-s` / `-S` follow the repo save-mode convention — the agent translates `-s` into an `-o <save_path>` passed to the script, where `<save_path>` is `~/.claude/output/{project}/audio-loop/{slug}/` (`{project}` = kebab-cased basename of the git toplevel, else cwd; create it `$HOME`-expanded, report the fully-expanded absolute path — no tilde, no magic).
+**Where each flag is handled.** `-t`, `-o`, and `-B` pass through to `scripts/audio-loop.sh`. `-v` is skill-only — the agent reads it from `$ARGUMENTS` and interpolates it into the `TARGET` constant of the emitted JS snippet; the script never sees it. `-s` / `-S` follow the repo save-mode convention — the agent translates `-s` into an `-o <save_path>` passed to the script, where `<save_path>` is `~/.agents/output/{project}/audio-loop/{slug}/` (`{project}` = kebab-cased basename of the git toplevel, else cwd; create it `$HOME`-expanded, report the fully-expanded absolute path — no tilde, no magic).
 
 **Deliberately no crossfade flag.** If the source WAV has a real sample-level discontinuity at the loop boundary, that's source editing — outside this skill's scope. If the user is hearing a bump with FLAC + Web Audio, see **Diagnostic by negative result** below.
 

@@ -1,7 +1,7 @@
 """Tests for skills/apex/scripts/setup-templates.sh.
 
 Strategy: run the script with cwd=<project> and an isolated HOME, then verify
-the global `$HOME/.claude/output/<project>/apex/<NN-feature>/` structure was
+the global `$HOME/.agents/output/<project>/apex/<NN-feature>/` structure was
 created with all 5 step templates rendered (variable substitution applied).
 `<project>` = kebab-cased basename of the project root (git toplevel, else
 pwd). Output is global per .agents/rules/repo-conventions.md § Output paths —
@@ -74,11 +74,11 @@ class TestFreshRun(unittest.TestCase):
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
 
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             self.assertTrue(apex.is_dir(),
                             f"expected global apex dir at {apex}")
             # De-pollution: nothing written inside the project tree.
-            self.assertFalse((proj / ".claude").exists(),
+            self.assertFalse((proj / ".agents").exists(),
                              "output must NOT be created inside the project")
 
             tasks = list(apex.iterdir())
@@ -121,12 +121,12 @@ class TestProjectRootAnchor(unittest.TestCase):
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
 
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             self.assertTrue(apex.is_dir(),
                             "output keyed by git-toplevel basename, global")
-            self.assertFalse((proj / ".claude").exists(),
+            self.assertFalse((proj / ".agents").exists(),
                              "output must NOT be created in the repo")
-            self.assertFalse((nested / ".claude").exists(),
+            self.assertFalse((nested / ".agents").exists(),
                              "output must NOT be created at the nested cwd")
             task = next(apex.iterdir())
             self.assertIn(f"OUTPUT_DIR={task}", r.stdout)
@@ -140,9 +140,9 @@ class TestProjectRootAnchor(unittest.TestCase):
             r = _run("plain-task", "No git here", cwd=proj, home=home)
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             self.assertTrue(apex.is_dir())
-            self.assertFalse((proj / ".claude").exists())
+            self.assertFalse((proj / ".agents").exists())
 
 
 class TestMetacharSafety(unittest.TestCase):
@@ -163,7 +163,7 @@ class TestMetacharSafety(unittest.TestCase):
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
 
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             task = next(apex.iterdir())
             ctx = (task / "00-context.md").read_text(encoding="utf-8")
             self.assertIn(self.NASTY, ctx,
@@ -181,7 +181,7 @@ class TestMetacharSafety(unittest.TestCase):
             r = _run("pipe-test", "a|b|c", cwd=proj, home=home)
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             task = next(apex.iterdir())
             ctx = (task / "00-context.md").read_text(encoding="utf-8")
             self.assertIn("a|b|c", ctx)
@@ -199,7 +199,7 @@ class TestAutoIncrement(unittest.TestCase):
             r2 = _run("second-feature", "Second task", cwd=proj, home=home)
             self.assertEqual(r2.returncode, 0)
 
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             tasks = sorted(p.name for p in apex.iterdir())
             self.assertEqual(len(tasks), 2)
             self.assertEqual(tasks[0], "01-first-feature")
@@ -211,11 +211,11 @@ class TestAutoIncrement(unittest.TestCase):
             proj = Path(t) / "proj"
             home = Path(t) / "home"
             proj.mkdir()
-            (home / ".claude" / "output" / _project(proj) / "apex" / "09-existing").mkdir(parents=True)
+            (home / ".agents" / "output" / _project(proj) / "apex" / "09-existing").mkdir(parents=True)
             r = _run("new-task", "Description", cwd=proj, home=home)
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             new = [p.name for p in apex.iterdir() if "new-task" in p.name]
             self.assertEqual(new, ["10-new-task"])
 
@@ -225,11 +225,11 @@ class TestAutoIncrement(unittest.TestCase):
             proj = Path(t) / "proj"
             home = Path(t) / "home"
             proj.mkdir()
-            (home / ".claude" / "output" / _project(proj) / "apex" / "08-prior").mkdir(parents=True)
+            (home / ".agents" / "output" / _project(proj) / "apex" / "08-prior").mkdir(parents=True)
             r = _run("octal-edge", "case", cwd=proj, home=home)
             self.assertEqual(r.returncode, 0,
                              f"stderr={r.stderr}\nstdout={r.stdout}")
-            apex = home / ".claude" / "output" / _project(proj) / "apex"
+            apex = home / ".agents" / "output" / _project(proj) / "apex"
             new = [p.name for p in apex.iterdir() if "octal-edge" in p.name]
             self.assertEqual(new, ["09-octal-edge"])
 

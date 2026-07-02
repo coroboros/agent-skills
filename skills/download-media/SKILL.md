@@ -13,7 +13,7 @@ metadata:
 
 # Download Media
 
-Download video or audio from any [yt-dlp-supported site](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) using the [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) CLI. The skill validates the input, composes the right flags for the intent, downloads under `~/.claude/output/<project>/download-media/<slug>/` (or a `-d` destination), and reports the final file paths — fully expanded, no tilde, no magic.
+Download video or audio from any [yt-dlp-supported site](https://github.com/yt-dlp/yt-dlp/blob/master/supportedsites.md) using the [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) CLI. The skill validates the input, composes the right flags for the intent, downloads under `~/.agents/output/<project>/download-media/<slug>/` (or a `-d` destination), and reports the final file paths — fully expanded, no tilde, no magic.
 
 The deterministic work — install checks, slug derivation, destination, flag composition, final-path capture — happens in `scripts/download-media.sh`. The skill parses `$ARGUMENTS`, hands them to the script, and turns the script's `RESULT:` lines into a human report.
 
