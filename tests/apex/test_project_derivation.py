@@ -42,7 +42,7 @@ CASES = {
     "___": "unnamed",
 }
 
-_SEG = re.compile(r"/\.claude/output/([^/\s]+)/apex")
+_SEG = re.compile(r"/\.agents/output/([^/\s]+)/apex")
 
 
 def _expected(name: str) -> str:

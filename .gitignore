@@ -2,5 +2,6 @@
 .env*.local
 .claude/settings.local.json
 .claude/output/
+.agents/output/
 __pycache__/
 *.py[cod]

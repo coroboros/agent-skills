@@ -116,7 +116,7 @@ Activates the planning-artifact reconciliation branch of the Intent axis. The or
 
 | Token | Meaning |
 |-------|---------|
-| `@auto` | `~/.claude/output/{project}/forge/forge-*.md`, latest `apex/{task-id}/` plan, `docs/{proposals,design,rfcs,adr}/*.md`, current branch's PR body |
+| `@auto` | `~/.agents/output/{project}/forge/forge-*.md`, latest `apex/{task-id}/` plan, `docs/{proposals,design,rfcs,adr}/*.md`, current branch's PR body |
 | `@pr` | Current branch's PR body via `gh pr view` |
 | `<path>` | Explicit file or directory |
 | `gh:pr:<N>` | PR by number via `gh api` |
@@ -210,4 +210,4 @@ The four flags compose orthogonally — the orchestrator runs each independently
 - Build verification runs the repo's own test suite. Side-effecting tests (filesystem writes, network calls) will execute — invoke `code-ultrareview` on a clean tree.
 - Mutation testing runtime can exceed 10 minutes per language. The default 600 s timeout is permissive; long suites may need `MUTATION_TIMEOUT=1800` or longer.
 - `--apply-safe` never modifies production logic. Logic changes belong to a fix-pass skill, not a review skill.
-- `--reconcile @auto` silently drops planning artifacts with malformed frontmatter (unclosed `---`, tab indentation, unquoted colons). Verify with `head -20 ~/.claude/output/{project}/forge/forge-*.md` before relying on `@auto`.
+- `--reconcile @auto` silently drops planning artifacts with malformed frontmatter (unclosed `---`, tab indentation, unquoted colons). Verify with `head -20 ~/.agents/output/{project}/forge/forge-*.md` before relying on `@auto`.

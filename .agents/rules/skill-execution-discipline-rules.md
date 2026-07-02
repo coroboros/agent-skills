@@ -45,6 +45,7 @@ Scope rule — skills that write, edit, or propose code (implementation, review,
 - suno-produce — emits TRACK.md / ALBUM.md (per-project content artifact), not code.
 - scaffold — runs a fixed bootstrap and emits a short status report, not authored code.
 - markitdown — wraps a converter CLI and emits a short status report, not code.
+- download-media — wraps a downloader CLI and emits a short status report, not code.
 - notion — routes to MCP/CLI and emits a short status report, not code.
 - audio-loop — media tooling emitting short status reports, not code.
 - video-loop — media tooling emitting short status reports, not code.

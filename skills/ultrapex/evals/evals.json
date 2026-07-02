@@ -6,7 +6,7 @@
       "id": 1,
       "name": "frontier-session-runs-the-contract",
       "prompt": "/ultrapex -s add per-route rate limiting to the API gateway — config-driven limits, middleware, and tests",
-      "expected_output": "On a Fable-class session the skill runs the five-invariant flow end to end: reads the touched code paths before editing, commits to an approach (pausing only at a genuine fork), builds within scope, verifies adversarially with fresh-context refuter subagents scaled to the blast radius, and saves a grounded report (Outcome / Changes / Verification / Open items) to ~/.claude/output/{project}/ultrapex/, reporting the expanded path.",
+      "expected_output": "On a Fable-class session the skill runs the five-invariant flow end to end: reads the touched code paths before editing, commits to an approach (pausing only at a genuine fork), builds within scope, verifies adversarially with fresh-context refuter subagents scaled to the blast radius, and saves a grounded report (Outcome / Changes / Verification / Open items) to ~/.agents/output/{project}/ultrapex/, reporting the expanded path.",
       "files": []
     },
     {

@@ -55,7 +55,7 @@ questions:
       - label: "Auto mode"
         description: "{auto_mode ? 'Disable' : 'Enable'} - skip confirmations"
       - label: "Save mode"
-        description: "{save_mode ? 'Disable' : 'Enable'} - save outputs to ~/.claude/output/"
+        description: "{save_mode ? 'Disable' : 'Enable'} - save outputs to ~/.agents/output/"
       - label: "Economy mode"
         description: "{economy_mode ? 'Disable' : 'Enable'} - no subagents, save tokens"
       - label: "Branch mode"

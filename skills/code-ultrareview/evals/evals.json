@@ -97,7 +97,7 @@
       "id": 13,
       "name": "report-only-bridges-to-apex",
       "prompt": "/code-ultrareview -s review this branch then fix the issues",
-      "expected_output": "The skill produces and saves the report to ~/.claude/output/{project}/code-ultrareview/code-ultrareview-{slug}.md and the JSONL alongside, and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
+      "expected_output": "The skill produces and saves the report to ~/.agents/output/{project}/code-ultrareview/code-ultrareview-{slug}.md and the JSONL alongside, and does NOT edit any code. It bridges with the exact command `/apex -f <that absolute path>` for the fix pass (and notes /oneshot takes a description, not a file).",
       "files": []
     },
     {
@@ -216,7 +216,7 @@
       "id": 31,
       "name": "reconcile-auto-detects-conventional-paths",
       "prompt": "/code-ultrareview --reconcile @auto (with forge + apex plan + PR body available)",
-      "expected_output": "The Intent axis derivation sub-mode activates. `scripts/derivation/auto_detect.py` finds artifacts at ~/.claude/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## 📐 Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
+      "expected_output": "The Intent axis derivation sub-mode activates. `scripts/derivation/auto_detect.py` finds artifacts at ~/.agents/output/{project}/{forge,apex}/, docs/{proposals,design,rfcs,adr}/*.md, and the current PR body via `gh pr view`. Findings ordered by artifact freshness (newest first). Each artifact lists in the `## 📐 Derivation coverage` section with its freshness in days. Interactive prompt fires only when stdin is a TTY AND multiple candidates are found.",
       "files": []
     },
     {

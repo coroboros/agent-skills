@@ -48,6 +48,7 @@ Scope rule — skills whose primary output is shared external surface (code, com
 - `audio-loop` — tooling skill emitting short status reports, not code or commits.
 - `video-loop` — tooling skill emitting short status reports, not code or commits.
 - `markitdown` — tooling skill emitting short status reports, not code or commits.
+- `download-media` — tooling skill emitting short status reports, not code or commits.
 - `scaffold` — tooling skill emitting short status reports, not code or commits.
 - `design-system` — tooling skill emitting short status reports, not code or commits.
 - `notion` — tooling skill routing to MCP/CLI and emitting short status reports, not code or commits.

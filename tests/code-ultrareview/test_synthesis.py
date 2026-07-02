@@ -20,7 +20,7 @@ Pins the eight contracts from the workstream:
        `scope.json["activates_coherence"]`.
     8. Save-mode paths — `--output-dir <dir>` writes `report.md` +
        `report.jsonl`; `--save` lands at the canonical
-       `~/.claude/output/<project>/code-ultrareview/code-ultrareview-<slug>.{md,jsonl}`.
+       `~/.agents/output/<project>/code-ultrareview/code-ultrareview-<slug>.{md,jsonl}`.
 """
 
 from __future__ import annotations
@@ -415,7 +415,7 @@ class TestOutputPaths(unittest.TestCase):
                     json.loads(line)
 
     def test_save_mode_writes_to_canonical_path(self):
-        """`--save` lands at `~/.claude/output/<project>/code-ultrareview/
+        """`--save` lands at `~/.agents/output/<project>/code-ultrareview/
         code-ultrareview-<slug>.{md,jsonl}`. Run inside a temp git repo so
         the `<project>` slug is deterministic."""
         with tempfile.TemporaryDirectory() as tmp:
@@ -444,7 +444,7 @@ class TestOutputPaths(unittest.TestCase):
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             canonical_dir = (
-                output_root / ".claude" / "output" / "fake-project"
+                output_root / ".agents" / "output" / "fake-project"
                 / "code-ultrareview"
             )
             self.assertTrue((canonical_dir / "code-ultrareview-audit.md").exists())
