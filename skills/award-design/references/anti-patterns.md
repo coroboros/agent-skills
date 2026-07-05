@@ -119,6 +119,8 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Pills, tags, or photo-credit captions overlaid on images — `Plate 03 · House archive`, `Field study no. 12`. Let the image speak, or caption below it in one functional line. Credit only a real photographer, with permission.
 - Decorative status dots — a colored dot before every nav item, list row, or badge. Only for real semantic state (a live availability flag), at most one per section.
 - Micro-meta sentences under eyebrows ("Each of these is a feature we ship today, not a roadmap promise."). Eyebrow + headline + body is enough.
+- Registration-meta eyebrows — "PROOF COPY, GRINDER NO. 114", "Brand · No. 01", edition and catalogue strings. They tell the buyer nothing and read as AI set-dressing, however diegetic the universe. Override: the number IS the product's name (Meridian K2, Porsche 911).
+- Unexplained data marks — dots, bars, or glyphs in a figure with no legend line naming what they are. A visual the viewer can't decode is decoration wearing a chart's clothes.
 - A foreign-family word injected into a headline for visual interest — a serif word inside a sans H1. Emphasis is italic or bold of the same family.
 
 ### Technical

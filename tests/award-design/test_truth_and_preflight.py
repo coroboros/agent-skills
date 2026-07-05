@@ -168,11 +168,18 @@ class TestPreflightGateStructure(unittest.TestCase):
         m = re.search(r"## Verdict block(.*)\Z", self.preflight, re.DOTALL)
         self.assertIsNotNone(m)
         verdict = m.group(1)
-        for field in ("**Scanner:**", "**Boxes:**", "**Counts:**",
+        for field in ("**Scanner:**", "**Open with:**", "**Boxes:**", "**Counts:**",
                       "**Justified overrides:**", "**Tooling gaps:**", "**Status:**"):
             with self.subTest(field=field):
                 self.assertIn(field, verdict, f"verdict block missing field: {field}")
         self.assertIn("READY | NOT DONE", verdict)
+
+    def test_no_js_floor_gated(self):
+        """A module build opened over file:// runs zero JS — a base-CSS-hidden
+        page ships a blackout. The floor box and the JS-disabled loop render
+        exist so the artifact the user opens is the artifact that was verified."""
+        self.assertIn("**No-JS floor**", self.preflight)
+        self.assertIn("static fallback", self.preflight)
 
     def test_rotation_stamp_box_matches_phase_4_format(self):
         self.assertIn("/* award-design ·", self.preflight,

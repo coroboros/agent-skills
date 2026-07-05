@@ -98,6 +98,10 @@ LINE_RULES = [
     ("UNSPLASH", REVIEW,
      "unsplash hotlink — breaks often and reads stock; use generated or seeded assets",
      re.compile(r"(?:images|source)\.unsplash\.com"), CODE_EXTS),
+    ("NOJS-HIDDEN", REVIEW,
+     "initial hidden state in base CSS — a dead script ships a blackout; hide via JS-added classes",
+     re.compile(r"(?i)^(?!.*(?:@keyframes|\bfrom\b|\bto\b|\d+%|:hover|:focus|:active|\.no-js|html\.js))"
+                r".*(?:opacity:\s*0(?![.\d])|visibility:\s*hidden)"), {".css", ".scss"}),
     ("EMOJI-UI", REVIEW,
      "emoji in markup — icons come from an icon set, never emoji",
      re.compile(r"[\U0001F300-\U0001FAFF☀-⛿✀-➿]"), TEXT_EXTS),

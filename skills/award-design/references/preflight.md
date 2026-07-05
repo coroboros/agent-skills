@@ -82,6 +82,7 @@ Catalog: `ship-ready-floor.md` (Impose tier) + `foundations.md` UX Quality and A
 - [ ] Touch targets ≥ 44×44 on mobile; `touch-action: manipulation` on tap targets
 - [ ] WCAG AA contrast in every state — including button text vs button background (no white-on-white CTA), form placeholders, focus rings, glassmorphic surfaces
 - [ ] `prefers-reduced-motion` branch exists and swaps motion for opacity `(scanner: REDUCED-MOTION)`
+- [ ] **No-JS floor** — a JS-disabled render shows every section's content: initial hidden states applied via JS-added classes only, never in base CSS; canvas/3D heroes carry a static fallback `(scanner: NOJS-HIDDEN)`
 - [ ] `min-h-[100dvh]` / `dvh` units — zero `h-screen` / bare `100vh` heroes `(scanner: H-SCREEN)`
 - [ ] Zero `window.addEventListener('scroll')` — ScrollTrigger, `useScroll`, IntersectionObserver, or CSS scroll-driven only `(scanner: SCROLL-LISTENER)`
 - [ ] Every `<img>` has explicit dimensions and an `alt` `(scanner: IMG-ALT, IMG-DIMENSIONS)`
@@ -95,6 +96,8 @@ Catalog: `ship-ready-floor.md` (Impose tier) + `foundations.md` UX Quality and A
 Re-read **every visible string** on the page — headlines, subheads, eyebrows, buttons, body, captions, alt text, footer, error messages.
 
 - [ ] No broken grammar, no unclear referents, no cute-but-wrong AI phrasing — flagged strings rewritten plain
+- [ ] Every eyebrow passes the buyer-learn test — it names something the reader needs (category, value, place in the page); registration meta ("PROOF COPY", "No. 114", edition strings) is decoration that signals AI, unless the number IS the product's name
+- [ ] Every data visual carries a one-line legend naming what its marks are — a chart the viewer can't decode is decoration
 - [ ] Numbers are real, or explicitly labeled as mock — no invented spec-precision
 - [ ] Zero lorem ipsum `(scanner: LOREM)`; zero scroll cues ("Scroll to explore", bouncing chevrons) `(scanner: SCROLL-CUE)`
 - [ ] No AI copy clichés in site copy (Elevate, Seamless, Unleash, Next-Gen, Delve)
@@ -126,6 +129,7 @@ Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until t
 ## Pre-flight verdict — <build name>
 
 **Scanner:** <N> FAIL (<all fixed | K justified below>) · <M> REVIEW (judged)
+**Open with:** <command — a module build needs a server; `file://` runs zero JS>
 **Boxes:** <ticked>/<total>
 **Counts:** eyebrows <n>/<max> · sections <n> · layout families <n> · marquees <n> · CTA intents <n>
 **Justified overrides:** <rule → one-line, brief-tied justification — or "none">

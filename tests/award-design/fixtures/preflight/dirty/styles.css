@@ -6,6 +6,9 @@ body {
 a:focus {
   outline: none;
 }
+.reveal-on-scroll {
+  opacity: 0;
+}
 .hero {
   background-image: url("https://images.unsplash.com/photo-123");
   height: 100vh;
