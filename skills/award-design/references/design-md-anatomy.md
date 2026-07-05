@@ -35,6 +35,16 @@ Every vital narrative element from `/award-design` maps to one of the eight orde
 
 Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `production-hardening.md`. Full extension convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
 
+## Signature beat table
+
+The signature moment is specified as choreography before it is coded — a beat table in Section 4 Layout (cross-reference `motion.*`, `scrollTriggers.*`). Every duration and ease resolves to `motion.*` tokens; a signature that cannot be written as beats is an effect waiting to happen, not a design.
+
+| Beat | Trigger | Element | Transform | Duration / ease |
+|---|---|---|---|---|
+| 1 | scroll 0–20% (scrub) | `.hero-mask` | `clip-path` inset 100%→0 | scrub, linear |
+| 2 | beat 1 completes | `.headline` chars | y 100%→0, stagger 30ms | 0.8s, `{motion.ease-signature}` |
+| 3 | pointer enters CTA | `.cta-ring` | scale 1→1.15 | 0.4s, `{motion.ease-signature}` |
+
 ## Motion & 3D depth (motion/3D archetypes)
 
 For Immersive, Experimental, Bold, and Spatial-Organic builds, the universe carries enough motion and dimensional detail to specify the signature in full. When that signature is a self-contained WebGL/R3F scene — the one delegation, reserved for Immersive and Experimental per the main SKILL.md — this file is the subagent's sole brief:

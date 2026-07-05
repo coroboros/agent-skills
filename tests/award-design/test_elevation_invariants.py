@@ -349,6 +349,50 @@ class TestMotionVocabulary(unittest.TestCase):
                       "conflicting signals must surface as a contradiction, not be averaged")
 
 
+class TestOpticalCraft(unittest.TestCase):
+    """references/optical-craft.md is the last-10% layer — type optics, spatial
+    optics, interaction personality, and the quiet layer. Model defaults are
+    geometrically correct and optically wrong; losing a section here reopens
+    the exact ceiling the file exists to break."""
+
+    def setUp(self):
+        self.craft = _read(REFS / "optical-craft.md")
+
+    def test_four_sections_present(self):
+        for section in ("## Type optics", "## Spatial optics",
+                        "## Interaction personality", "## The quiet layer"):
+            with self.subTest(section=section):
+                self.assertIn(section, self.craft)
+
+    def test_tracking_is_a_curve_with_values(self):
+        self.assertIn("Tracking is a curve, not a value", self.craft)
+        self.assertIn("-0.03em", self.craft, "display tracking values must be concrete")
+        self.assertIn("+0.05em", self.craft, "uppercase tracking values must be concrete")
+
+    def test_text_wrap_polish_present(self):
+        self.assertIn("text-wrap: balance", self.craft)
+        self.assertIn("text-wrap: pretty", self.craft)
+        self.assertIn("tabular-nums", self.craft)
+
+    def test_interaction_personality_covers_all_nine_archetypes(self):
+        m = re.search(r"## Interaction personality(.*?)(?=^## )", self.craft,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m)
+        table = m.group(1)
+        for archetype in ("Minimalist", "Brutalist", "Editorial", "Bold / Maximal",
+                          "Immersive / Cinematic", "Experimental", "Corporate Luxury",
+                          "Bento / Card", "Spatial Organic"):
+            with self.subTest(archetype=archetype):
+                self.assertIn(f"| {archetype} |", table,
+                              f"personality row missing for {archetype}")
+
+    def test_quiet_layer_demands_two(self):
+        self.assertIn("pick ≥2", self.craft)
+        for detail in ("::selection", "favicon", "<title>"):
+            with self.subTest(detail=detail):
+                self.assertIn(detail, self.craft)
+
+
 class TestInspirationSet(unittest.TestCase):
     """references/inspiration.md curates cross-archetype galleries and the motion
     canon as URLs (never a vendored corpus), and frames component kits as

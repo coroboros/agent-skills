@@ -49,6 +49,10 @@ When the build needs an asset and none was supplied, walk the order — never sk
 
 Stock photography is not on this list — it tanks scores (see `anti-patterns.md` *Design failures*). The protocol reaches for generated, seeded, or honest-placeholder assets, never a stock library.
 
+## One treatment
+
+Sourcing is half the job; unification is the other half. Every image on the page passes through the universe's treatment — the grade, duotone, grain, or crop language named in the DESIGN.md photography direction. Three technically good images with three different color temperatures read as stock scatter; the same three under one grade read as art direction. When assets arrive mismatched, unify in CSS (`filter`, blend modes, an overlay tint in the surface hue) rather than shipping the scatter.
+
 ## Filter wiring
 
 Two checks feed the stop-and-fix filter, carried as axiomatic rejections in `anti-patterns.md`:

@@ -67,6 +67,8 @@ Each is a number computed from the rendered page against a threshold. Cite the c
 | [ ] **Split-header** | zero "left big headline + right floating explainer" section headers — stack vertically | Global — Override: the right column carries a real visual or interactive element, never filler text |
 | [ ] **Long-list component** | every list > 5 items uses a designed component (grouped chunks, card grid, tabs, scroll-snap, marquee) | Global — bare rows with a hairline under each is the fail |
 | [ ] **Italic descenders** | every italic display word containing `y g j p q` has line-height ≥ 1.1 and bottom reserve | Global — clipped descenders are a rendering bug, not a style |
+| [ ] **Pacing curve** | the design_plan's per-section intensity holds on the page: exactly one climax (the signature) and ≥ 1 rest; every section within ±1 of the others is a flat curve | Global — a page of equally loud sections is a template |
+| [ ] **Quiet layer** | ≥ 2 second-read details shipped from the `optical-craft.md` menu (`::selection`, palette favicon, voice-written `<title>`, designed 404, …), in palette and voice | Global |
 
 ## 5. Craft floor
 
@@ -80,7 +82,7 @@ Catalog: `ship-ready-floor.md` (Impose tier) + `foundations.md` UX Quality and A
 - [ ] `prefers-reduced-motion` branch exists and swaps motion for opacity `(scanner: REDUCED-MOTION)`
 - [ ] `min-h-[100dvh]` / `dvh` units — zero `h-screen` / bare `100vh` heroes `(scanner: H-SCREEN)`
 - [ ] Zero `window.addEventListener('scroll')` — ScrollTrigger, `useScroll`, IntersectionObserver, or CSS scroll-driven only `(scanner: SCROLL-LISTENER)`
-- [ ] Every `<img>` has explicit dimensions and an `alt` `(scanner: IMG-ALT)`
+- [ ] Every `<img>` has explicit dimensions and an `alt` `(scanner: IMG-ALT, IMG-DIMENSIONS)`
 - [ ] **Icon discipline** — one icon family for the whole page, standardized stroke width, zero hand-rolled icon paths
 - [ ] Every imported package exists in `package.json` (or the install command was output first)
 - [ ] Zero truncation tells in shipped code — `// ...`, `[remaining`, "for brevity" `(scanner: TRUNCATION)`
@@ -105,6 +107,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 ## 8. Browser proof
 
 - [ ] Full-page screenshots at **375px, 768px, 1440px**, taken and actually read — every universe claim visible in the pixels, not just coded
+- [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography
 - [ ] The signature interaction driven live: it fires, completes, and holds frame
 - [ ] Console clean at every width
 - [ ] No browser tooling available → the gap is declared in the verdict, with the code-level fallback noted

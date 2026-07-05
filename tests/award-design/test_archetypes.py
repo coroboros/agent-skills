@@ -45,6 +45,7 @@ CROSS_CUTTING = [
     "foundations.md",
     "imagery.md",
     "inspiration.md",
+    "optical-craft.md",
     "preflight.md",
     "premium-patterns.md",
     "production-hardening.md",

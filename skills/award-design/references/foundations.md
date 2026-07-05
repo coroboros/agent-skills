@@ -82,6 +82,8 @@ Perceptually uniform color manipulation. Eliminates "muddy middle" in gradients:
 .muted   { background: oklch(from var(--brand) l calc(c - 0.08) h); }
 ```
 
+Derive the neutrals too: surfaces, borders, and shadows carry the brand hue at low chroma (`oklch(from var(--brand) 0.96 0.01 h)` for a surface, shadows tinted with the surface hue). A foreign gray border or a pure-black shadow on a warm page is the mismatch tell — the page has one light, and light has a temperature.
+
 ### Dark mode
 
 82% of mobile users prefer dark. Never pure black (#000) or pure white (#FFF):
@@ -436,6 +438,17 @@ motion:
 ```
 
 `stiffness: 100, damping: 20` is the weight-and-mass register that reads as "premium" rather than "snappy". Buttons, cards, and modal entries default to this. The snappier variant (`180 / 18`) belongs to active-state feedback (press, drag) where the extra responsiveness is felt as control. Linear easing is banned across the system — see anti-patterns.
+
+## Copy
+
+Judges read the headline before they see the grid — the words are half the design, written in the universe's register, never filled in after.
+
+- **The swap test**: if the H1 pastes cleanly onto a competitor's site, it is not a headline, it is a category label. "Design without limits" fails; "The yard, run by software" (Terminal Industries) passes.
+- **Concrete noun + verb beats abstract benefit.** Pull the noun from the product's actual world (the yard, the ledger, the kiln) — abstraction is the default the model reaches for when it hasn't decided what the product is.
+- **The subhead does the explaining.** The H1 lands the world in ≤6 words; the subhead earns the claim in ≤20. Inverting that (explanatory H1, poetic subhead) is the amateur order.
+- **Numbers only when true** — a real metric beats an adjective; an invented one fails the copy audit (`preflight.md` §6).
+- **One register, held.** The DESIGN.md Overview names the copy register; every string on the page speaks it — buttons, empty states, error messages, `alt` text included.
+- Sentence case reads more refined than Title Case On Every Header — see anti-patterns Content tells.
 
 ## Performance
 

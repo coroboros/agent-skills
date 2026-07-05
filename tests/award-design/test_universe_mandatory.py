@@ -185,6 +185,34 @@ class TestCommitAndProve(unittest.TestCase):
         self.assertIn("console clean", phase4.lower())
         self.assertIn("before starting the next section", phase4.lower())
 
+    def test_font_resolution_proof(self):
+        """A display font silently falling back to a system font is invisible
+        in the code and destroys the whole design — the browser gate must
+        verify the computed face."""
+        phase4 = self.phase4.lower()
+        self.assertIn("font-family", phase4)
+        self.assertIn("resolves to the committed face", phase4)
+
+    def test_pacing_map_committed(self):
+        """Models compose section by section — locally fine, globally flat.
+        The design_plan must pace the page like a score: one climax, one rest,
+        never a flat curve."""
+        phase4 = self.phase4
+        self.assertIn("**Pace**", phase4)
+        self.assertIn("exactly one climax", phase4)
+        self.assertIn("at least one rest", phase4)
+        self.assertIn("flat curve", phase4.lower())
+
+    def test_mobile_intent_committed(self):
+        phase4 = self.phase4
+        self.assertIn("mobile intent", phase4.lower())
+        self.assertIn("beyond stacking", phase4)
+        self.assertIn("not a smaller screen", phase4)
+
+    def test_phase_4_loads_optical_craft(self):
+        self.assertIn("references/optical-craft.md", self.phase4,
+                      "Phase 4 must load the optical-craft reference before the first component")
+
     def test_rotation_stamp_written(self):
         self.assertIn("/* award-design ·", self.phase4,
                       "Phase 4 must stamp the stylesheet for the rotation ledger")

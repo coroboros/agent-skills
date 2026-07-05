@@ -83,6 +83,9 @@ LINE_RULES = [
     ("IMG-ALT", FAIL,
      "<img> without alt",
      re.compile(r"<img\b(?![^>]*\balt\s*=)[^>]*>"), TEXT_EXTS),
+    ("IMG-DIMENSIONS", FAIL,
+     "<img> without explicit width and height — reserve the space or ship CLS",
+     re.compile(r"<img\b(?!(?=[^>]*\bwidth\s*=)(?=[^>]*\bheight\s*=))[^>]*>"), TEXT_EXTS),
     ("OUTLINE-NONE", FAIL,  # downgraded to REVIEW when :focus-visible exists project-wide
      "outline removed — needs a visible :focus-visible replacement",
      re.compile(r"outline\s*:\s*(?:none|0)\b|\boutline-none\b"), CODE_EXTS),

@@ -132,6 +132,17 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertIn("375px, 768px, 1440px", self.preflight,
                       "browser proof must pin the three verification widths")
 
+    def test_font_resolution_box_in_browser_proof(self):
+        self.assertIn("resolves to the committed face", self.preflight,
+                      "browser proof must carry the computed-font-resolution box")
+
+    def test_pacing_and_quiet_layer_boxes(self):
+        for box in ("**Pacing curve**", "**Quiet layer**"):
+            with self.subTest(box=box):
+                self.assertIn(box, self.preflight, f"countable box missing: {box}")
+        self.assertIn("optical-craft.md", self.preflight,
+                      "the quiet-layer box must route to the optical-craft menu")
+
     def test_verdict_block_fields(self):
         m = re.search(r"## Verdict block(.*)\Z", self.preflight, re.DOTALL)
         self.assertIsNotNone(m)

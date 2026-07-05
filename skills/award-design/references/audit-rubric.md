@@ -152,6 +152,7 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 
 - **Anti-anchoring order**: form the design judgment from the rendered evidence (screenshots, driven interactions) FIRST; run `scripts/preflight_scan.py` and read any preflight verdict SECOND. Mechanical findings received early anchor the eye on the countable and blind it to composition — the scan sharpens a judgment, it never seeds one.
 - **Evidence, not opinion**: cite selectors, cite values. "The hero uses `linear-gradient(135deg, #a855f7, #ec4899)`" beats "the colors feel AI".
+- **Exemplar gap read**: close every audit with three concrete gaps between this build and the archetype's canonical winner (the DNA list in its reference file), each with a fix. Comparative judgment calibrates better than absolute scoring — a gap names what the winner does that this build doesn't.
 - **No hedge scores**: 6/10 and 7/10 are different. Pick one. If you can't decide, look harder.
 - **Fixes, not observations**: every P0/P1 must include a concrete CSS snippet or content rewrite. "Improve contrast" is not a fix; `color: #595959` is.
 - **Don't recommend what you can't verify**: if you haven't checked it, say so rather than guess.

@@ -170,6 +170,17 @@ class TestProseSectionMapping(unittest.TestCase):
                     f"prose-section mapping must host narrative concept: {narrative}",
                 )
 
+    def test_anatomy_specifies_the_signature_beat_table(self):
+        """Motion is designed like an animator designs it — as beats, before
+        code. The anatomy must carry the beat-table format the DESIGN.md's
+        signature choreography is written in."""
+        anatomy = _anatomy()
+        self.assertIn("Signature beat table", anatomy)
+        for column in ("Beat", "Trigger", "Element", "Transform", "Duration / ease"):
+            with self.subTest(column=column):
+                self.assertIn(column, anatomy,
+                              f"beat table must carry the {column} column")
+
     def test_anatomy_lists_all_eight_canonical_sections(self):
         """Every canonical Google section must appear at least once in the
         anatomy mapping — otherwise the agent can't tell where to put content."""

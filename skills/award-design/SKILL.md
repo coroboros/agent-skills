@@ -122,7 +122,7 @@ No frontend ships without a committed universe — this phase forces it.
 
 **Load now:** `references/design-md-anatomy.md`.
 
-Author the complete DESIGN.md (Google format) when none exists — all eight prose sections plus token namespaces (canonical + the extension-token convention, both in the reference), deep rather than sketched: type, color with contrast, spacing, motion, elevation, imagery direction, the signature choreography. It is the constant reference: re-read it each phase, hand it to every subagent.
+Author the complete DESIGN.md (Google format) when none exists — all eight prose sections plus token namespaces (canonical + the extension-token convention, both in the reference), deep rather than sketched: type, color with contrast, spacing, motion, elevation, imagery direction, and the signature choreography **written as a beat table** (trigger, element, transform, duration/ease per beat — format in the reference; a signature that cannot be written as beats is not designed yet). It is the constant reference: re-read it each phase, hand it to every subagent.
 
 - **Existing DESIGN.md** → adopt it as the ultimate reference; build consistent with it. **Alert** when it is thin, incomplete, or the direction warrants a refactor — never silently re-author.
 - **After the build**, `/design-system` governs the file (drift, updates, audits). A later single-token change goes there, not here.
@@ -140,11 +140,13 @@ Author the complete DESIGN.md (Google format) when none exists — all eight pro
 
 ## Phase 4 — Commit, then build
 
-**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md`, before the first component. Pull `references/foundations.md` sections as each layer demands.
+**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md`, before the first component. Pull `references/foundations.md` sections as each layer demands.
 
 **Commit — a binding `design_plan` before any markup:**
 
 - **Commit** explicit per-element selections: hero architecture, type stack, color roles, the real visual per section, motion paradigms, the signature beat, spacing rhythm.
+- **Pace** the page like a score: per-section intensity (1–10) with exactly one climax — the signature — and at least one rest. A flat curve (every section within ±1) is a template, however good each section looks alone.
+- **State the mobile intent** per section: what changes below 768px beyond stacking — what gets cut, what grows, what replaces hover. Mobile is a different performance of the same universe, not a smaller screen.
 - **Prove** each load-bearing one: the `clamp()` / `max-w` that GUARANTEES the H1 lands in ≤2 lines; the named real asset for the hero; the easing + trigger for the signature; the grid spans that leave zero empty cells.
 
 Then follow it exactly — drifting to a default mid-build is forbidden.
@@ -158,7 +160,7 @@ Then follow it exactly — drifting to a default mid-build is forbidden.
 - **Stamp the main stylesheet's first line:** `/* award-design · <archetype> · <palette-family> · <display>/<body> · <hero-layout> */` — the rotation ledger the next build reads (Phase 1).
 - **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) may go to ONE subagent: hand it the DESIGN.md as brief plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. No subagents on the harness → author it inline, same brief. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
 
-**Per-section gate (browser):** with Chrome DevTools MCP or the `dev-browser` CLI — screenshot at 375px and 1440px, computed styles trace to DESIGN.md tokens, the hero visual loaded, console clean. Fix drift before starting the next section. Neither tool present → say so, fall back to a code-level read, and flag the gap in the Phase 5 verdict.
+**Per-section gate (browser):** with Chrome DevTools MCP or the `dev-browser` CLI — screenshot at 375px and 1440px, computed styles trace to DESIGN.md tokens, the hero visual loaded, computed `font-family` on display text resolves to the committed face (a silent fallback to a system font voids the whole section and is never visible in the code), console clean. Fix drift before starting the next section. Neither tool present → say so, fall back to a code-level read, and flag the gap in the Phase 5 verdict.
 
 **Artifact:** the design_plan + per-section proof.
 
@@ -188,6 +190,7 @@ If a single box cannot be honestly ticked, the build is not done. Fix, re-run, t
 - Judge from rendered evidence: on a live `<url>`, screenshot and inspect the page — the pixels are the evidence, not the markup. Treat "this is on track" as unproven; hunt where the page reads generic, safe, or off-universe.
 - Form the design judgment first; run `scripts/preflight_scan.py` and read mechanical results second (anti-anchoring).
 - Audit against `references/audit-rubric.md` (Nielsen heuristics + concept veto), `references/anti-patterns.md`, `references/preflight.md`, and the DESIGN.md when one exists.
+- Close with the **exemplar gap read**: three concrete gaps between this build and the archetype's canonical winner (its reference file's DNA), each with a fix — comparative reads calibrate better than absolute scores.
 - Report on-track / off-track with concrete, cited fixes. Never a silent pass.
 
 ## Judging criteria
