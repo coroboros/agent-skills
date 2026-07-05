@@ -27,7 +27,7 @@ Three stacks fit the DNA. Pick the one matching brand voice and content type.
 
 ### Light editorial — NYTimes / Substack / Anthropic profile
 
-Off-white or warm cream foundation (`#FFFFFF` to `#F8F5F0`). Body sits in deep charcoal (`#111111` or `#2F3437`); secondary text in warm gray (`#787774`). Restrained accents — terracotta, deep red, ink black, navy. Hairline dividers (`#EAEAEA`) separate sections. Photography is high-contrast B&W or desaturated color. Ideal for media and publishing, long-form storytelling, writer platforms, premium content sites.
+Off-white or warm cream foundation (`#FCFCFC` to `#F8F5F0`). Body sits in deep charcoal (`#111111` or `#2F3437`); secondary text in warm gray (`#787774`). Restrained accents — terracotta, deep red, ink black, navy. Hairline dividers (`#EAEAEA`) separate sections. Photography is high-contrast B&W or desaturated color. Ideal for media and publishing, long-form storytelling, writer platforms, premium content sites.
 
 ### Dark cinematic poster — Siena Film profile
 
@@ -53,7 +53,7 @@ Serifs returned hard in 2025–2026. Burberry's switch back to serif signaled th
 
 Background spans three families per stack:
 
-- **Light editorial**: `#FFFFFF` or warm cream `#F8F5F0` to `#FAF7F0`
+- **Light editorial**: `#FCFCFC` or warm cream `#F8F5F0` to `#FAF7F0`
 - **Dark cinematic poster**: near-black `#0A0A0A` to `#141413`
 - **Warm magazine**: cream `#F8F5F0` to `#FAF7F0` with warm photography overlays
 

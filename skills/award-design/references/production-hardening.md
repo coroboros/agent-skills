@@ -45,9 +45,11 @@ Every award-design hero uses viewport-relative heights. Picking the wrong unit i
 **CSS fallback:**
 
 ```css
-.hero { height: 100vh; }
-@supports (height: 100svh) { .hero { height: 100svh; } }
+.hero { min-height: 100svh; }                       /* stable floor — Baseline 2022, same as dvh */
+@supports (height: 100dvh) { .hero { min-height: 100dvh; } }  /* dynamic where wanted */
 ```
+
+A bare `100vh` fallback line would trip the pre-flight scanner and misbehave on iOS anyway — engines old enough to lack `svh` also lack `dvh`; omit the legacy line.
 
 ## Reading svh from JS
 

@@ -449,6 +449,7 @@ Judges read the headline before they see the grid — the words are half the des
 - **Numbers only when true** — a real metric beats an adjective; an invented one fails the copy audit (`preflight.md` §6).
 - **One register, held.** The DESIGN.md Overview names the copy register; every string on the page speaks it — buttons, empty states, error messages, `alt` text included.
 - Sentence case reads more refined than Title Case On Every Header — see anti-patterns Content tells.
+- **Scrub via the copy audit, not a generic humanizer.** Site copy is voice-locked diegetic writing; run it against the AI-vocabulary list and the pre-flight copy audit (§6) — a general-purpose tell-scrubber flattens the register it took a universe to build.
 
 ## Performance
 

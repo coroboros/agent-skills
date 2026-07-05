@@ -1,14 +1,14 @@
 # Audit Rubric
 
-Quantitative scoring rubric the review pass applies. Use alongside `anti-patterns.md` — that file gives you the catalog of failures, this one gives you a score you can act on.
+Quantitative scoring rubric review mode (R1/R2 and standalone) applies. Use alongside `anti-patterns.md` — that file gives you the catalog of failures, this one gives you a score you can act on.
 
 Anti-patterns is the binary filter — "did I do X?" The rubric forces calibration — "how well did I do X, 3/10 or 8/10?" A 6/10 on Typography with a 9/10 on Motion ships differently than the reverse. Scoring surfaces what to fix first.
 
-**This rubric is advisory** — the calibrated half of the review pass. It is commentary that points at the next pass — never a pass/fail verdict, and never a self-graded number presented as "shipped at 9/10". The pass/fail decision belongs to the stop-and-fix filter (the axiomatic rejections + countable checks in `anti-patterns.md` plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
+**This rubric is advisory** — the calibrated half of the review pass. It is commentary that points at the next pass — never a pass/fail verdict, and never a self-graded number presented as "shipped at 9/10". The pass/fail decision belongs to the stop-and-fix filter (the axiomatic rejections in `anti-patterns.md` + the countable boxes in `preflight.md` §4, plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
 
 ## When to run this
 
-- At the review pass before ship — before requesting review or submitting to Awwwards/FWA/CSSDA
+- At Phase 6 (R2) before ship — before requesting review or submitting to Awwwards/FWA/CSSDA
 - When the user says "review this", "audit this page", or "is this award-ready?"
 - When iterating after negative feedback and you need a structured comparison
 
@@ -121,7 +121,7 @@ Present results as a compact scored audit.
 | Anti-slop | 9/10 | Minor: one stock-feeling headline |
 
 **Overall: 6.6/10 — Honorable Mention range. SOTD needs 7.5+.**
-*(Concept ≤ 5 would cap this line at 6.0 — when the veto fires, state it here explicitly.)*
+*(Overall = the mean of the eight category scores, then the concept veto applies: Concept ≤ 5 caps the line at 6.0 — when it fires, state it here explicitly.)*
 
 ## Top Issues
 

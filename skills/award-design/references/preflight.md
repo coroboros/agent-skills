@@ -10,11 +10,12 @@ This file is the checklist; `anti-patterns.md` is the catalog behind it (rationa
 python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>
 ```
 
-(Path relative to this skill's root. `--archetype editorial|corporate-luxury` suppresses the em-dash rule where it is a legitimate typographic choice.)
+(Path relative to this skill's root. `--archetype` applies declared archetype grammar: `editorial` and `corporate-luxury` suppress EMDASH; `brutalist` suppresses META-LABEL. The scanner skips `DESIGN.md` — the spec legitimately quotes banned phrases as prohibitions.)
 
 - Every **FAIL** hit: fix it, or write a one-line justification tied to the brief into the verdict block.
 - Every **REVIEW** hit: judge it against the catalog and record the call.
 - The scanner **catches, it never clears** — a clean scan ticks no box below. It cannot see composition, hierarchy, or intent; the boxes and the R2 review carry that weight.
+- Scanner severities don't mirror the box tiers: a REVIEW rule can feed an axiomatic box when the regex can't distinguish legitimate use (emoji in copy vs emoji as icons, a licensed unsplash asset vs a hotlink). The box is the gate; the scanner is the flashlight.
 
 Boxes tagged with a scanner rule below have mechanical help; the scan count feeds the box, the box still needs the honest tick.
 
@@ -30,8 +31,8 @@ Catalog: `anti-patterns.md` *Axiomatic rejections* (numbered 1–14). One violat
 - [ ] No 3 equal cards as the feature section
 - [ ] No emojis as UI icons `(scanner: EMOJI-UI)`
 - [ ] Signature moment present — the loud one AND the quiet second-read detail
-- [ ] Hero H1 lands in ≤3 lines at desktop (2 is the rule, 3 the ceiling)
-- [ ] Zero `SECTION 01` / index meta-labels `(scanner: META-LABEL)`
+- [ ] Hero H1 lands in the lines the design_plan proved (≤2 committed; 3 is the absolute ceiling and takes a written override)
+- [ ] Zero `SECTION 01` / index meta-labels `(scanner: META-LABEL)` — Brutalist's ASCII process flags are the declared exception (`brutalist.md`)
 - [ ] No generic avatars (SVG eggs, stock "diverse team")
 - [ ] No startup-slop brand names (Acme, Nexus, SmartFlow)
 - [ ] Hero carries a real visual (photography / generated / 3D / deliberate type-as-image)
@@ -58,7 +59,7 @@ Each is a number computed from the rendered page against a threshold. Cite the c
 | [ ] **Layout-family variety** | ≥ 4 distinct section layout families per 8 sections | Archetype-conditional — suppressed for single-fold portfolios and pure docs |
 | [ ] **Hero-stack cap** | ≤ 4 stacked text elements (eyebrow OR brand strip · H1 · subtext ≤ 20 words · one CTA cluster); no trust-strip, logo wall, or pricing teaser inside the hero | Global — Override: a long editorial standfirst counts as one element — cap the stack, not the sentence |
 | [ ] **CTA-intent consistency** | one label per intent across the page ("Get in touch" + "Let's talk" = same intent = fail) | Global — repeating the *same* label for the same intent is fine |
-| [ ] **Em-dash density** | body-copy density ≤ ~1 per 100 words `(scanner: EMDASH)` | Archetype-conditional — suppressed for `editorial` and `corporate-luxury`, where the em-dash is a deliberate typographic choice |
+| [ ] **Em-dash density** | body-copy density ≤ ~1 per 100 words, en dashes count `(scanner: EMDASH)` | Archetype-conditional — suppressed for `editorial` and `corporate-luxury`, where the em-dash is a deliberate typographic choice |
 | [ ] **Hero top padding** | ≤ 6rem (`pt-24`) at desktop | Global — needs more breathing room → scale the type or the asset, never the padding |
 | [ ] **Nav discipline** | one line at ≥1024px, height ≤ 80px | Global — condense labels, drop secondary items, or go hamburger; a two-line desktop nav is broken |
 | [ ] **CTA wrap** | every CTA label fits one line at desktop | Global — shorten the label (≤3 words for primary) or widen the button |
@@ -102,15 +103,16 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] Every heavy layer (GSAP, Three/R3F, Lenis, View Transitions, Web Audio) cites its Phase 3 source — skill or docs, named
 - [ ] Assets follow the acquisition protocol (generate → seed → honest placeholder); no stock hotlinks `(scanner: UNSPLASH)`
 - [ ] Brand logos are real SVG marks (Simple Icons / devicon / official kit) with light + dark variants; logo walls are logos only
-- [ ] The rotation stamp is the stylesheet's first line (`/* award-design · … */` — format defined at Phase 4)
+- [ ] The rotation stamp is the stylesheet's first line (`/* award-design · … */` — format defined at Phase 4; on first contact with a project this skill didn't build, write it now from the adopted universe)
 
 ## 8. Browser proof
 
-- [ ] Full-page screenshots at **375px, 768px, 1440px**, taken and actually read — every universe claim visible in the pixels, not just coded
+- [ ] Full-page screenshots at **375px, 768px, 1440px**, taken and read — one line per screenshot on what it showed; every universe claim visible in the pixels, not just coded
 - [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography
-- [ ] The signature interaction driven live: it fires, completes, and holds frame
+- [ ] The signature interaction driven live: it fires, completes, and holds frame — where the tooling offers a performance trace, the signature holds 60fps and LCP measures against the < 1.5s target (or the measured value is declared as a gap)
 - [ ] Console clean at every width
-- [ ] No browser tooling available → the gap is declared in the verdict, with the code-level fallback noted
+
+No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict (Tooling gaps field), each with the code-level fallback noted; the status may still read READY when everything else holds. Falsely ticking a browser box is worse than declaring the gap.
 
 ## Verdict block
 

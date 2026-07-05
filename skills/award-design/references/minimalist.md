@@ -27,7 +27,7 @@ Three stacks fit the DNA. Pick the one matching brand voice and content type.
 
 ### Airy Swiss-grid — Linear / Stripe / Vercel profile
 
-Off-white foundation (`#FAFAFA`, `#F7F6F3`, `#FBFBFA`). Swiss typographic discipline — Inter, Geist, or PP Neue Montreal at 48–96px headlines with surgical letter-spacing. Single accent (Linear violet, Stripe purple, Vercel pure grayscale with weight contrast only). Hairline dividers (`#EAEAEA`) where structure demands. Ideal for SaaS, developer tooling, design platforms, technical product marketing.
+Off-white foundation (`#FAFAFA`, `#F7F6F3`, `#FBFBFA`). Swiss typographic discipline — Geist, Söhne, or PP Neue Montreal at 48–96px headlines with surgical letter-spacing. Single accent (Linear violet, Stripe purple, Vercel pure grayscale with weight contrast only). Hairline dividers (`#EAEAEA`) where structure demands. Ideal for SaaS, developer tooling, design platforms, technical product marketing.
 
 ### Cinematic photography-led — Terminal Industries profile
 
@@ -95,7 +95,7 @@ Restraint extends to motion — opacity-led, never showy.
 .minimal-card:hover { opacity: 1; transform: scale(1.02); }
 ```
 
-Durations bind to `motion.duration-*`, easings to `motion.ease-*`. The Motion atmosphere score sits at 2–4 by default; pushing higher means the archetype is leaning toward Editorial or Immersive, and the recommendation should be revisited.
+Durations bind to `motion.duration-*`, easings to `motion.ease-*`. The Motion atmosphere score sits at 3 by default (±2 per the brief); pushing higher means the archetype is leaning toward Editorial or Immersive, and the recommendation should be revisited.
 
 ## What makes it award-worthy
 
@@ -109,4 +109,4 @@ SaaS (Linear, Stripe, Vercel adjacency), luxury brands with quiet voice, archite
 
 ## Cross-references
 
-Read alongside `foundations.md` (typography systems, OKLCH single-accent strategy, animation toolkit), `anti-patterns.md` (blanding is rejected; pure `#FFFFFF` with no character is rejected; Inter as display font is rejected), `audit-rubric.md` (Hierarchy 9+, Color 9+ are entry bars in this archetype), `exemplars.md` (Linear, Stripe, Vercel, Mintlify).
+Read alongside `foundations.md` (typography systems, OKLCH single-accent strategy, animation toolkit), `anti-patterns.md` (blanding is rejected; pure `#FFF` with no character is rejected; Inter as display font is rejected), `audit-rubric.md` (Hierarchy 9+, Color 9+ are entry bars in this archetype), `exemplars.md` (Linear, Stripe, Vercel, Mintlify).

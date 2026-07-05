@@ -13,9 +13,11 @@ documents so an SPA shell rendering from JS is not a false fail.
 Usage:
     python3 preflight_scan.py <path> [<path>...] [--archetype NAME] [--allow RULE-ID]...
 
-`--archetype editorial|corporate-luxury` suppresses EMDASH (a deliberate
-typographic choice there). `--allow RULE-ID` suppresses a rule for this run —
-each use requires a written justification in the pre-flight verdict.
+`--archetype` applies declared archetype grammar: editorial and
+corporate-luxury suppress EMDASH (a deliberate typographic choice there);
+brutalist suppresses META-LABEL (ASCII process flags are its register).
+`--allow RULE-ID` suppresses a rule for this run — each use requires a
+written justification in the pre-flight verdict.
 
 Exit codes: 0 = no FAIL findings, 1 = FAIL findings present, 2 = usage error.
 """
@@ -35,7 +37,11 @@ CODE_EXTS = TEXT_EXTS | {".js", ".ts", ".css", ".scss"}
 EXCLUDED_DIRS = {"node_modules", ".git", ".next", ".astro", "coverage", "vendor", "__pycache__",
                  "dist", "build", ".output", ".nuxt", ".svelte-kit", ".vercel"}
 
-EMDASH_SUPPRESSED_ARCHETYPES = {"editorial", "corporate-luxury"}
+ARCHETYPE_SUPPRESSIONS = {
+    "editorial": {"EMDASH"},
+    "corporate-luxury": {"EMDASH"},
+    "brutalist": {"META-LABEL"},
+}
 MAX_EXCERPTS_PER_RULE = 10
 
 # Line rules: (id, severity, description, pattern, extensions).
@@ -48,7 +54,7 @@ LINE_RULES = [
      re.compile(
          r"(?i)(?:color|background(?:-color)?|fill|stroke|border(?:-[a-z]+)*|outline|"
          r"box-shadow|text-shadow)\s*:\s*[^;{}\n]*#(?:000000|000|fff|ffffff)\b"
-         r"|\b(?:bg|text|border|from|to|via|fill|stroke)-(?:black|white)\b"), CODE_EXTS),
+         r"|\b(?:bg|text|border|from|to|via|fill|stroke)-(?:black|white)\b(?!/)"), CODE_EXTS),
     ("H-SCREEN", FAIL,
      "h-screen / bare 100vh — use dvh units (iOS Safari URL-bar toggle breaks vh)",
      re.compile(r"\bh-screen\b|(?<![-\w.])100vh\b"), CODE_EXTS),
@@ -83,8 +89,8 @@ LINE_RULES = [
     ("IMG-ALT", FAIL,
      "<img> without alt",
      re.compile(r"<img\b(?![^>]*\balt\s*=)[^>]*>"), TEXT_EXTS),
-    ("IMG-DIMENSIONS", FAIL,
-     "<img> without explicit width and height — reserve the space or ship CLS",
+    ("IMG-DIMENSIONS", REVIEW,
+     "<img> without width/height attributes — verify CSS reserves the space (aspect-ratio), or ship CLS",
      re.compile(r"<img\b(?!(?=[^>]*\bwidth\s*=)(?=[^>]*\bheight\s*=))[^>]*>"), TEXT_EXTS),
     ("OUTLINE-NONE", FAIL,  # downgraded to REVIEW when :focus-visible exists project-wide
      "outline removed — needs a visible :focus-visible replacement",
@@ -114,9 +120,12 @@ MOTION_SIGNAL = re.compile(
     r"|framer-motion|motion/react|whileInView")
 MOTION_GUARD = re.compile(r"prefers-reduced-motion|useReducedMotion")
 FOCUS_VISIBLE = re.compile(r":focus-visible")
+# Markup-side signature only: a stylesheet's `text-transform: uppercase`
+# defines a treatment once, so counting it can never register a removed
+# eyebrow. Vanilla-CSS eyebrows escape this count (false-negative bias) —
+# the pre-flight box still judges the rendered page.
 EYEBROW_SIGNATURE = re.compile(
-    r"uppercase[^\"'`]*tracking-|tracking-\[[^\]]*\][^\"'`]*uppercase"
-    r"|text-transform:\s*uppercase")
+    r"uppercase[^\"'`]*tracking-|tracking-\[[^\]]*\][^\"'`]*uppercase")
 SECTION_TAG = re.compile(r"<section\b")
 H1_TAG = re.compile(r"<h1\b")
 MAIN_TAG = re.compile(r"<main\b")
@@ -136,7 +145,7 @@ def iter_files(paths):
     for raw in paths:
         root = Path(raw)
         if root.is_file():
-            if root.suffix.lower() in CODE_EXTS:
+            if root.suffix.lower() in CODE_EXTS and root.name != "DESIGN.md":
                 yield root
             continue
         if not root.is_dir():
@@ -144,6 +153,10 @@ def iter_files(paths):
             continue
         for path in sorted(root.rglob("*")):
             if any(part in EXCLUDED_DIRS for part in path.relative_to(root).parts[:-1]):
+                continue
+            # DESIGN.md is the spec, not the build — its Don'ts legitimately
+            # quote banned phrases as prohibitions and would never scan clean.
+            if path.name == "DESIGN.md":
                 continue
             if path.is_file() and path.suffix.lower() in CODE_EXTS:
                 yield path
@@ -162,9 +175,10 @@ def scan_paths(paths, archetype="", allow=()):
     for rule_id in sorted(suppressed - known_rule_ids()):
         print(f"warning: --allow {rule_id} matches no rule (typo?)", file=sys.stderr)
     suppression_notes = [f"{rid} (--allow)" for rid in sorted(suppressed)]
-    if archetype.strip().lower() in EMDASH_SUPPRESSED_ARCHETYPES:
-        suppressed.add("EMDASH")
-        suppression_notes.append(f"EMDASH (archetype {archetype.strip().lower()})")
+    archetype_key = archetype.strip().lower()
+    for rule_id in sorted(ARCHETYPE_SUPPRESSIONS.get(archetype_key, ())):
+        suppressed.add(rule_id)
+        suppression_notes.append(f"{rule_id} (archetype {archetype_key})")
 
     findings = []
     files = list(iter_files(paths))
@@ -235,8 +249,9 @@ def scan_paths(paths, archetype="", allow=()):
             "motion present with no prefers-reduced-motion branch anywhere",
             "project", f"{motion_signals} motion signal(s), zero guards"))
 
-    sections = len(SECTION_TAG.findall(project_blob))
-    eyebrows = len(EYEBROW_SIGNATURE.findall(project_blob))
+    text_blob = "\n".join(t for p, t in texts.items() if p.suffix.lower() in TEXT_EXTS)
+    sections = len(SECTION_TAG.findall(text_blob))
+    eyebrows = len(EYEBROW_SIGNATURE.findall(text_blob))
     if ("EYEBROW-DENSITY" not in suppressed and sections >= 3
             and eyebrows > math.ceil(sections / 3)):
         findings.append(Finding(

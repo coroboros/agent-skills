@@ -27,11 +27,11 @@ Three stacks fit the DNA. Pick the one matching product type and personality.
 
 ### Structural-pure — Apple / Linear feature grid profile
 
-Light foundation (`#F9FAFB` to `#FFFFFF`) or dark foundation (`#0A0A0F` to `#12121A`). Cards in pure white or `#1A1A24`. Hairline borders (`#E5E7EB` light / `rgba(255,255,255,0.08)` dark). Per-card accent colors for visual differentiation. Content-first, motion restrained. Ideal for SaaS product pages, feature comparison, dashboard previews, technical product marketing.
+Light foundation (`#F9FAFB` to `#FCFCFC`) or dark foundation (`#0A0A0F` to `#12121A`). Cards in off-white (`#FCFCFC`) or `#1A1A24`. Hairline borders (`#E5E7EB` light / `rgba(255,255,255,0.08)` dark). Per-card accent colors for visual differentiation. Content-first, motion restrained. Ideal for SaaS product pages, feature comparison, dashboard previews, technical product marketing.
 
 ### Motion-engine premium — Bento 2.0 (Vercel-core meets Dribbble) profile
 
-Light foundation (`#F9FAFB`) with white cards (`#FFFFFF`), 1px borders at `border-slate-200/50`, generous `rounded-[2.5rem]` corners, "diffusion shadow" (`box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05)` — wide, low-opacity, tinted). Labels (titles, descriptions) sit OUTSIDE and BELOW the cards in a gallery-style presentation. Cards contain perpetual micro-interactions — every tile is "alive". Uses Geist, Satoshi, or Cabinet Grotesk with `tracking-tight`. Padding `p-8` to `p-10`. Ideal for premium SaaS, AI products, modern dashboards, agency-built marketing pages.
+Light foundation (`#F9FAFB`) with off-white cards (`#FCFCFC`), 1px borders at `border-slate-200/50`, generous `rounded-[2.5rem]` corners, "diffusion shadow" (`box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05)` — wide, low-opacity, tinted). Labels (titles, descriptions) sit OUTSIDE and BELOW the cards in a gallery-style presentation. Cards contain perpetual micro-interactions — every tile is "alive". Uses Geist, Satoshi, or Cabinet Grotesk with `tracking-tight`. Padding `p-8` to `p-10`. Ideal for premium SaaS, AI products, modern dashboards, agency-built marketing pages.
 
 ### Brutalist-bento hybrid — Anime.js profile
 
@@ -44,7 +44,7 @@ When the project calls for the premium motion-rich expression, follow the Bento 
 ### Architecture
 
 - **Background**: `#F9FAFB` (light) or `#0A0A0F` (dark)
-- **Card surface**: pure `#FFFFFF` (light) or `#1A1A24` (dark) with 1px hairline border at `rgba(0,0,0,0.05)` (light) or `rgba(255,255,255,0.06)` (dark)
+- **Card surface**: `#FCFCFC` (light) or `#1A1A24` (dark) with 1px hairline border at `rgba(0,0,0,0.05)` (light) or `rgba(255,255,255,0.06)` (dark)
 - **Corner radius**: `rounded-[2.5rem]` (40px) for major containers; nested elements use concentric smaller radii (`rounded-[calc(2.5rem-0.375rem)]`) — the Doppelrand pattern, see `premium-patterns.md`
 - **Diffusion shadow**: wide, low-opacity, tinted to background hue — `box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05)`. Creates depth without clutter
 - **Padding**: `p-8` or `p-10` (32–40px) inside cards
@@ -101,7 +101,7 @@ Container widths bind to `containers.bento-grid`. Card sizes bind to `aspectRati
 
 ## Typography
 
-- **Headlines**: Geist, Satoshi, Cabinet Grotesk, Inter Display — 24–48px, weight 600, `tracking-tight`
+- **Headlines**: Geist, Cabinet Grotesk, PP Neue Montreal — 24–48px, weight 600, `tracking-tight`. Satoshi works but is an overexposed kit pick — rotate or justify (`inspiration.md`)
 - **Body**: same family at 14–16px, weight 400
 - **Metrics and data**: monospace (Geist Mono, JetBrains Mono) for numbers and data points; `font-variant-numeric: tabular-nums`
 - **Per-tile contrast**: each tile can shift typographic register — one tile uses display serif, another monospace metric — variance signals that each tile is its own world

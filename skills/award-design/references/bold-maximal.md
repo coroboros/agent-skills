@@ -41,7 +41,7 @@ Multiple brand hues rotated per section. Each section claims its own color world
 
 Display faces are art objects, not labels.
 
-- **Display**: Monument Extended, Clash Display, Satoshi Black, Druk Wide, Reckless Variable — 100–300px+, variable weight (100→900) and width (75→150) animated through scroll
+- **Display**: Monument Extended, Clash Display, Satoshi Black, Druk Wide, Reckless Variable — 100–300px+, variable weight (100→900) and width (75→150) animated through scroll. Clash and Satoshi are overexposed kit picks — rotate or justify (`inspiration.md`)
 - **Body**: Satoshi, PP Neue Montreal, Inter (variable) — 16–18px, weight 400, line-height 1.5
 - **Kinetic**: GSAP SplitText for splitting and reforming, weight/width interpolation tied to scroll position
 - **Decorative type**: hand-drawn or custom letterforms in the bright illustrated stack

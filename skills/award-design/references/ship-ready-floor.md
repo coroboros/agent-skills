@@ -10,7 +10,7 @@ Most of the Impose tier already lives in `foundations.md` UX Quality + Accessibi
 
 ## Impose — the craft floor (cheap, pure upside)
 
-Present on every build, gated. None competes with the design; all is floor.
+Present on every build, gated. None competes with the design; all is floor. An item the harness genuinely blocks (no raster tooling for the OG image, no domain for the canonical on a local build) is declared in the pre-flight verdict, never faked and never silently dropped.
 
 - **Full interactive cycles — the 8-state contract** — every interactive element ships its applicable states: default, hover, focus-visible, active, disabled, loading, empty/error, success. Async surfaces carry loading (skeletons matching the final layout, not a spinner), empty, and error states; `:active` gives tactile press feedback (`-translate-y-[1px]` or `scale-[0.98]`). A control with only a resting state is unfinished.
 - **Contrast on controls** — buttons and form fields meet WCAG AA in every state (rest, hover, disabled, focus). Glassmorphic and tinted controls are the usual failures — test them.

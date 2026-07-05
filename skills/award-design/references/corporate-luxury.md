@@ -13,7 +13,7 @@ Built around Cartier's Geneva pavilion. Six contemplative 3D alcove universes ar
 
 ## DNA — non-negotiable
 
-- Generous whitespace (200px+ section padding) signals exclusivity, not waste
+- Generous whitespace (128–200px+ section padding) signals exclusivity, not waste
 - Custom or premium serif at display sizes is the typographic mark of the archetype
 - Color rests on neutral foundations punctuated by jewel tones, muted golds, or single deep brand color
 - Motion uses long easing curves (1–1.5s, `cubic-bezier(0.16, 1, 0.3, 1)`) — nothing rushes
@@ -58,6 +58,8 @@ Color rests on neutral foundations.
 - **Accent — jewel tones**: muted gold `#C5A572`, deep emerald `#006D5B`, sapphire `#1B365D`, ruby `#8B2E2E`
 - **Signature 2025**: Pantone Mocha Mousse `#A47764`
 - **Borders**: `#E8E4DF` or `rgba(0,0,0,0.06)`
+
+This warm-cream + muted-gold + charcoal family is the overexposed premium-consumer cluster (`anti-patterns.md` *AI Tells*). Rotate at least one of the three roles per build — bone for cream, oxblood or deep emerald for gold, ink for charcoal — or write the brief-tied justification for keeping all three.
 
 Colors feel inherited — neither neon nor primary, never high saturation. One accent per surface, used as signal rather than decoration.
 

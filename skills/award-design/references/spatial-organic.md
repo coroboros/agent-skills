@@ -42,7 +42,7 @@ Mid-tone neutral foundation with frosted pastel gradient orbs (sage green `#87A9
 Variable fonts animated on scroll/hover serve the "alive" quality.
 
 - **Headlines**: Fragment, GT Flexa, Editorial New, PP Editorial New, bespoke typefaces — variable weight and width animated on scroll
-- **Body**: rounded warm sans-serifs — Outfit, General Sans, Satoshi — 16–18px, weight 400
+- **Body**: rounded warm sans-serifs — Outfit, General Sans, Satoshi — 16–18px, weight 400 (General Sans/Satoshi are overexposed kit picks — rotate or justify, `inspiration.md`)
 - **Display technique**: oversized kinetic type as primary design element, not just communication
 - **Cross-cultural**: "Lingua-Lettering" — unified visual rhythm across Latin, Arabic, CJK when applicable
 

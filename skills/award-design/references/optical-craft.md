@@ -22,17 +22,17 @@ What separates 7.5 from 8+ once the universe, layout, and motion are right: deci
 
 ## Interaction personality — states express the universe
 
-The 8-state contract (ship-ready floor) guarantees states exist; this table gives them character. A generic `opacity: 0.8` hover is a resting-state page wearing a costume. Pick the row, tune within it, bind values to `motion.*` tokens.
+The 8-state contract (ship-ready floor) guarantees states exist; this table gives them character. A generic `opacity: 0.8` hover is a resting-state page wearing a costume. The table summarizes the archetype references — pick the row, tune within its band per the archetype file, bind values to `motion.*` tokens.
 
 | Archetype | Hover feel | Timing | Displacement |
 |---|---|---|---|
-| Minimalist | breath — weight or opacity shift | 150–200ms, ease-out | ≤1px; mostly none |
-| Brutalist | snap — instant invert or color swap | 0–80ms, `steps()` or linear | hard 2–4px jumps |
+| Minimalist | breath — weight or opacity shift | 150–200ms, ease-out | card scale 1.02–1.05; otherwise none |
+| Brutalist | snap — instant invert or color swap | 0–80ms state snaps (glitch bursts may run ~200ms) | hard 2–4px jumps |
 | Editorial | ink — underline reveal, italic lean | 200–300ms, ease | baseline-anchored |
 | Bold / Maximal | bounce — spring overshoot | spring `stiffness: 300, damping: 15` | playful 4–8px |
 | Immersive / Cinematic | drift — parallax pull, glow bloom | 300–500ms, `expo.out` | z-depth, never bare x/y |
 | Experimental | bespoke — its own physics, consistent with the metaphor | derived from the world | derived from the world |
-| Corporate Luxury | glide — slow, weighted | 400–600ms, `cubic-bezier(0.16, 1, 0.3, 1)` | scale ceiling 1.02 |
+| Corporate Luxury | glide — slow, weighted | 400–800ms, `cubic-bezier(0.16, 1, 0.3, 1)` | scale ceiling 1.05 |
 | Bento / Card | lift — shadow deepens, card rises | 200–250ms, ease-out | 2px rise, shadow +1 step |
 | Spatial Organic | morph — radius or blob shift | 300–400ms, spring | shape, not position |
 
@@ -42,9 +42,9 @@ The signature is the loud moment; these are what a judge notices on the return v
 
 - `::selection` styled — accent background, surface text
 - the `:focus-visible` ring designed in the accent (the floor requires it exists; making it beautiful is the detail)
-- favicon and `theme-color` drawn from the palette, never a default blue
+- favicon and `theme-color` drawn from the palette, never a default blue (the floor ships them; drawing them from the universe is the detail)
 - `<title>` written as microcopy in the copy register, never "Home | Brand"
-- an OG image designed inside the universe, not a screenshot
+- an OG image designed inside the universe, not a screenshot (the floor ships one; designing it is the detail)
 - `alt` text written in voice — accurate first, alive second
 - a 404 page in the same universe
 - form placeholder microcopy in voice

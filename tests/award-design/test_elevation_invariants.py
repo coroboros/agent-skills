@@ -349,6 +349,37 @@ class TestMotionVocabulary(unittest.TestCase):
                       "conflicting signals must surface as a contradiction, not be averaged")
 
 
+class TestArchetypeGateCompliance(unittest.TestCase):
+    """An archetype file that prescribes a value the skill's own gate FAILs is
+    a self-contradiction — a build following it can never ship. Pure #FFFFFF
+    prescriptions and un-alpha'd bg-white samples were the field-found class;
+    this pins the whole class shut."""
+
+    ARCHETYPE_FILES = [
+        "minimalist.md", "brutalist.md", "editorial.md", "bold-maximal.md",
+        "immersive-cinematic.md", "experimental.md", "corporate-luxury.md",
+        "bento-card.md", "spatial-organic.md", "premium-patterns.md",
+    ]
+
+    def test_no_pure_white_prescriptions(self):
+        for name in self.ARCHETYPE_FILES:
+            body = _read(REFS / name)
+            with self.subTest(file=name):
+                self.assertNotIn("#FFFFFF", body,
+                                 f"{name} prescribes pure #FFFFFF — axiom 3 fails it")
+                self.assertIsNone(
+                    re.search(r"\bbg-white\b(?!/)", body),
+                    f"{name} ships an un-alpha'd bg-white sample — the scanner fails it")
+
+    def test_no_pure_black_prescriptions(self):
+        for name in self.ARCHETYPE_FILES:
+            body = _read(REFS / name)
+            with self.subTest(file=name):
+                self.assertIsNone(
+                    re.search(r"`#000000`|`#000`(?!/)", body),
+                    f"{name} prescribes pure #000 — axiom 3 fails it")
+
+
 class TestOpticalCraft(unittest.TestCase):
     """references/optical-craft.md is the last-10% layer — type optics, spatial
     optics, interaction personality, and the quiet layer. Model defaults are

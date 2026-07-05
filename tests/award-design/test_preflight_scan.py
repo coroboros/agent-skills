@@ -95,6 +95,29 @@ class TestSuppressions(unittest.TestCase):
         findings, _ = scan.scan_paths([str(FIXTURES / "dirty")], archetype="corporate-luxury")
         self.assertNotIn("EMDASH", _rule_ids(findings))
 
+    def test_brutalist_suppresses_meta_label_only(self):
+        """ASCII process flags are declared Brutalist grammar — META-LABEL is
+        suppressed there, but the palette and structure rules keep firing."""
+        findings, notes = scan.scan_paths([str(FIXTURES / "dirty")], archetype="brutalist")
+        ids = _rule_ids(findings)
+        self.assertNotIn("META-LABEL", ids)
+        self.assertIn("EMDASH", ids, "brutalist does not suppress EMDASH")
+        self.assertIn("AI-PURPLE", ids)
+        self.assertTrue(any("META-LABEL" in note for note in notes))
+
+    def test_pure_bw_ignores_alpha_variants(self):
+        """`bg-white/5` is a translucent glass layer, not a pure surface —
+        the PURE-BW tailwind pattern must skip alpha-suffixed utilities."""
+        import tempfile
+        html = ('<!doctype html><html><body><main><h1>Glass</h1>'
+                '<div class="bg-white/5 border-white/10">panel</div>'
+                '<p>' + " ".join(f"w{i}" for i in range(40)) + '</p>'
+                '</main></body></html>')
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "index.html").write_text(html, encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        self.assertNotIn("PURE-BW", _rule_ids(findings))
+
     def test_allow_suppresses_named_rule(self):
         findings, notes = scan.scan_paths([str(FIXTURES / "dirty")], allow=["IMG-ALT"])
         self.assertNotIn("IMG-ALT", _rule_ids(findings))
@@ -132,6 +155,26 @@ class TestEmdashDensitySemantics(unittest.TestCase):
         self.assertTrue(emdash, "dirty fixture is dash-dense — EMDASH must fire")
         self.assertRegex(emdash[0].description, r"\d+ per \d+ visible words",
                          "the finding must cite the computed density")
+
+
+class TestDesignMdExcluded(unittest.TestCase):
+    """DESIGN.md is the spec, not the build — its Don'ts quote banned phrases
+    as prohibitions and would never scan clean. The scanner must skip it."""
+
+    def test_design_md_tells_do_not_scan(self):
+        import tempfile
+        design = ("# DESIGN\n\n## Do's and Don'ts\n\n"
+                  "- Never use SECTION 01 meta-labels or 'Scroll to explore' cues.\n"
+                  "- Never use h-screen; lorem ipsum never ships; no John Doe.\n")
+        page = ('<!doctype html><html><body><main><h1>Real page</h1>'
+                '<p>' + " ".join(f"w{i}" for i in range(40)) + '</p>'
+                '</main></body></html>')
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "DESIGN.md").write_text(design, encoding="utf-8")
+            (Path(tmp) / "index.html").write_text(page, encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        self.assertEqual([], [(f.rule_id, f.location) for f in findings],
+                         "DESIGN.md prohibition prose must not produce findings")
 
 
 class TestSpaShellStructuralSkip(unittest.TestCase):

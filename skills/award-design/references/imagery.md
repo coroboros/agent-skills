@@ -2,7 +2,7 @@
 
 The largest single imposition most AI builds miss. Judges read empty visual zones as "unfinished" before they read anything else, so a page with no real images is a placeholder, not a design. This protocol is asset discipline: what to use, in what priority, and what never to fake.
 
-Load while building under the universe, and at the review pass before ship.
+Load while building under the universe, and again at the Phase 5 gate before ship.
 
 ## Zero images is a bug
 
@@ -10,6 +10,7 @@ Even a minimalist build carries 2–3 real images. A hero that is a headline flo
 
 - Photography (real or generated), 3D / canvas, or a textured / illustrated surface.
 - A *deliberate* typographic treatment that IS the visual — kinetic SplitText, oversized editorial display, type-as-image. Brutalist and Editorial heroes earn the floor on type alone when the type is the art.
+- A consistent illustration system the universe decrees — drafting plates, diagrams, hand-drawn figures. The bug is *empty visual zones*, not the absence of photographs specifically.
 
 What does not clear the floor: a centered headline over a purple/blue or beige gradient, stock-feeling hero slabs, or a single icon standing in for a hero image.
 

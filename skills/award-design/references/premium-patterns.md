@@ -137,7 +137,7 @@ The H1 is the page's first visual decision. LLMs default to narrow containers an
 
 - Two CTAs maximum below the headline — primary and secondary
 - Primary uses the Button-in-Button pattern
-- Button text contrast is non-negotiable: dark background → white text, light background → dark text
+- Button text contrast is non-negotiable: dark background → off-white text, light background → near-black text
 
 ### Hero layout options
 
@@ -182,7 +182,7 @@ Asymmetric layouts above the `md` breakpoint MUST collapse aggressively below 76
 
 ### Verification checklist
 
-Before shipping, confirm at viewport widths 375px (iPhone SE), 414px (iPhone 14), 768px (iPad portrait):
+Before shipping, confirm at viewport widths 375px (iPhone SE), 414px (iPhone 14), 768px (iPad portrait) — the mobile-collapse subset; the pre-flight browser proof runs 375/768/1440:
 
 - No horizontal scroll bars
 - No overlapping touch targets (44×44 minimum)
@@ -235,7 +235,7 @@ Apply procedural noise filters EXCLUSIVELY to fixed `pointer-events: none` pseud
 For mocking software interfaces (dashboards, apps, command palettes) inside marketing pages, wrap the mockup in a minimalist container with a thin top bar containing three small light-gray circles. Replicates macOS window controls without overcomplicating.
 
 ```html
-<div class="rounded-xl bg-white shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
+<div class="rounded-xl bg-[#FCFCFC] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
   <div class="flex items-center gap-1.5 border-b border-slate-200/50 px-4 py-3">
     <span class="h-3 w-3 rounded-full bg-slate-300"></span>
     <span class="h-3 w-3 rounded-full bg-slate-300"></span>
@@ -255,7 +255,7 @@ Section openers benefit from a three-element rhythm:
 2. Headline (the section's primary message, 2 lines max)
 3. One CTA below — Button-in-Button pattern, never two competing CTAs in a section opener
 
-Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96px) minimum on marketing pages, `py-32` to `py-48` (128–192px) on luxury and editorial.
+Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96px) minimum on marketing pages, `py-32` to `py-48` (128–192px) on luxury and editorial; a cockpit-dense build (Density 7+ in the DESIGN.md) follows its calibrated tighter band instead.
 
 ## 9. Liquid Glass Refraction
 

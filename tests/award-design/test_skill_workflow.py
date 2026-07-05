@@ -134,6 +134,34 @@ class TestForcingHeader(unittest.TestCase):
                       "Phase 6 must gate on a fresh-context review of the rendered site")
 
 
+class TestScopedPath(unittest.TestCase):
+    """A bounded change on a healthy DESIGN.md scales the artifacts instead of
+    running the full ceremony — without this declared short path, the protocol's
+    authority dies the first time a model reasonably bails on it."""
+
+    def _scoped(self):
+        m = re.search(r"^### Scoped changes — scale, never skip\b(.*?)(?=^##\s)",
+                      _body(), re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "### Scoped changes section missing")
+        return m.group(1)
+
+    def test_scaling_keeps_every_gate(self):
+        scoped = self._scoped()
+        self.assertIn("the artifacts shrink, the gates hold", scoped)
+        self.assertIn("never silently regenerate", scoped)
+
+    def test_full_protocol_triggers_enumerated(self):
+        scoped = self._scoped()
+        for trigger in ("no DESIGN.md", "redesign brief", "new page family", "thin DESIGN.md"):
+            with self.subTest(trigger=trigger):
+                self.assertIn(trigger, scoped)
+
+    def test_scaling_is_declared(self):
+        scoped = self._scoped()
+        self.assertIn("scoped run:", scoped,
+                      "the scaled run must be declared, or it is a skipped phase")
+
+
 class TestRoutingBoundary(unittest.TestCase):
     """Routing is the discipline that keeps the skill from sprawling: review
     subcommand, single-token tweaks to /design-system, backend never, empty

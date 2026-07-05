@@ -19,7 +19,7 @@ Apply in order. Do not skip ahead unless the brief explicitly carves out a step 
 
 ### 1. Font swap
 
-Biggest instant lift, lowest risk. If the display face is Inter, Roboto, Arial, or any system font, the page is failing axiom #2 of `anti-patterns.md` from the first hero. Swap to a deliberate face — a custom mark, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Instrument Serif, Geist, PP Editorial New). Keep the body sans-serif if it's reasonable; the display change alone moves Typography 0/10 → 6/10 in a single deploy.
+Biggest instant lift, lowest risk. If the display face is Inter, Roboto, Arial, or any system font, the page is failing axiom #2 of `anti-patterns.md` from the first hero. Swap to a deliberate face — a custom mark, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Geist, PP Editorial New). Keep the body sans-serif if it's reasonable; the display change alone moves Typography 0/10 → 6/10 in a single deploy.
 
 The swap pulls from the archetype reference's typography section. If no archetype is set yet, run the brand-extraction flow first (`brand-extraction.md`) to seed the archetype hypothesis.
 
@@ -41,7 +41,7 @@ The deepest lift; also the slowest. After typography and color are right, asymme
 
 1. **Mobile collapse mandates** (`premium-patterns.md` pattern 5) — every asymmetric desktop layout collapses to single-column below 768px, all `transform`-rotation and negative-margin overlaps removed below `md`.
 2. **`min-h-[100dvh]`** replaces `h-screen` everywhere — `h-screen` jumps catastrophically on iOS Safari URL-bar toggle.
-3. **Section spacing** — push to `py-24` minimum on marketing pages, `py-32` to `py-48` on luxury and editorial. Density bias (`foundations.md` Layout) applies — under-spacing is the AI default.
+3. **Section spacing** — push to `py-24` minimum on marketing pages, `py-32` to `py-48` on luxury and editorial (a Density 7+ DESIGN.md keeps its calibrated tighter band). Density bias (`foundations.md` Layout) applies — under-spacing is the AI default.
 4. **Hero 2-Line Iron Rule** (`premium-patterns.md` pattern 4) — wide containers (`max-w-5xl` to `max-w-6xl`), `clamp()` scaling, H1 in 2–3 lines maximum.
 5. **Three equal cards** (axiom #6) — never. Vary card sizes, move to bento or editorial layouts, or use a dominant card with supporting detail.
 
@@ -64,14 +64,14 @@ After everything else. The polish layer: `letter-spacing` adjustments on display
 Some interventions cost more than they return. Skip these unless the brief explicitly requires them:
 
 - **Full archetype change** mid-retrofit. If the existing site is Bento and the user wants Spatial Organic, that's not a retrofit — that's a re-architect. Re-enter the protocol at Phase 1 with the new archetype (SKILL.md gotcha 1), which regenerates the entire DESIGN.md from new foundations.
-- **Migrating animation libraries** (GSAP → Framer Motion or vice versa) for the sake of "modernization". Use whichever the codebase already runs; mixing the two in the same component tree is an axiom-#15 anti-pattern (`foundations.md` AI Tells technical).
+- **Migrating animation libraries** (GSAP → Framer Motion or vice versa) for the sake of "modernization". Use whichever the codebase already runs; mixing the two in the same component tree is a Technical AI tell (`anti-patterns.md`).
 - **Adding a signature moment to a page that doesn't have a focal point**. Axiom #8 requires a signature, but bolting a kinetic typography reveal onto a generic centered hero just emphasizes the underlying template. Fix the hero composition first (step 4); the signature can ride on top.
 - **WebGL or 3D additions** to a site that doesn't carry the cinematic register. Performance cost is high; payoff is low if the rest of the site is SaaS-rhythm.
 - **Replacing all icons with custom SVGs** when the existing icon set is consistent and the brand has no icon-system stake. A library swap (Lucide → Phosphor) is a rounding error; a full custom-icon program is a six-week project. Pick one.
 
 ## After the retrofit
 
-Run the same validation as a new project — the review pass (filter + rubric):
+Run the same validation as a new project — the Phase 5–6 gate (pre-flight + review mode):
 
 1. `references/anti-patterns.md` — axiomatic rejections first; if any present, the retrofit isn't done.
 2. `references/audit-rubric.md` — score the seven categories. The retrofit target is +2 points per category from the pre-fix baseline.
