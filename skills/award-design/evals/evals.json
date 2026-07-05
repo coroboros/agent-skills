@@ -78,6 +78,13 @@
       "prompt": "Bento-style landing page for an AI note-taking product — hero + 4 feature tiles, compact, single page. I want it pixel-perfect on mobile AND desktop.",
       "expected_output": "Resolves the browser ladder before Phase 4 and states the rung and presence check in the Phase 3 artifact (Chrome DevTools MCP → dev-browser → webwright; none present → offers `npm install -g dev-browser && dev-browser install` once; only a declined offer degrades to the declared code-level fallback). With tooling, runs the conformance loop per section: screenshots at 375px AND 1440px on every iteration (responsive judged per loop, never retrofitted), hunts drift against the design_plan and DESIGN.md tokens including computed font-family resolution, fixes, re-renders — exits only when both widths pass in the same iteration, capped at 5 loops with residue filed in the verdict. With the MCP connected, the performance trace is mandatory (LCP vs < 1.5s, signature at 60fps — a miss is a finding, not a gap). The pre-flight §8 boxes cite the loop's clean exit.",
       "files": []
+    },
+    {
+      "id": 12,
+      "name": "imposes-award-imperatives-and-comparative-hero-gate",
+      "prompt": "One-page site for a high-end omakase restaurant. Dark, elegant, editorial. Make it award-winning.",
+      "expected_output": "Loads `references/award-imperatives.md` at Phase 3–4 and imposes the transverse gates rather than leaving them to taste. The design_plan explicitly commits a navigation pattern (a show-on-scroll-up header or a full-screen overlay — never 'no nav'; a hero-only anchor list that scrolls away is not a navigation system) and a named signature interaction (not a load-time fade). Runs the hero-first micro-loop in Phase 4 — renders the hero and gates it with the comparative desire read against the archetype's canonical winner (Cartier / Siena via `references/exemplars.md`), sending a weak hero back to its concept, not its polish. Applies the restraint veto to any clever metaphor (props a real luxury house would not ship are cut, not polished). Phase 5 verifies the measured performance budget (LCP < 1.5s, CLS < 0.05, INP < 100ms, < 3MB, 60fps) from the browser tooling and AVIF/WebP imagery. R1/R2 open with the exemplar comparison as the primary driver of the concept and desire verdict, not a closing footnote.",
+      "files": []
     }
   ]
 }

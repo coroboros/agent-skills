@@ -38,6 +38,7 @@ CROSS_CUTTING = [
     "anti-patterns.md",
     "atmosphere-calibration.md",
     "audit-rubric.md",
+    "award-imperatives.md",
     "brand-extraction.md",
     "design-md-anatomy.md",
     "exemplars.md",

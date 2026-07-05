@@ -143,25 +143,28 @@ Author the complete DESIGN.md (Google format) when none exists — all eight pro
 
 ## Phase 3 — Source the truth
 
-**Load now:** `references/external-truth.md` + `references/imagery.md`.
+**Load now:** `references/external-truth.md` + `references/imagery.md` + `references/award-imperatives.md`.
 
 - **Heavy layers are never written from training memory.** GSAP/ScrollTrigger/SplitText, Three.js/R3F, Lenis, View Transitions, scroll-driven CSS, Web Audio — for each layer the signature actually uses, walk the resolution ladder: installed skill → offer the user the install (once, with the exact command) → fetch current docs. The ladder is the gate: code written for these layers without a declared source is a Phase 5 fail. A brief naming a real product or brand gates its *facts* too: verify existence, release status, version, and price against live sources before designing claims around them — a stale claim reworks the build (`references/external-truth.md`).
+- **The award imperatives decide which layers to source** (`references/award-imperatives.md`): the signature interaction, the navigation pattern (a show-on-scroll-up header or a full-screen overlay — never "no nav"), smooth-scroll and the scroll-as-narrative choreography, `clip-path` image reveals, the micro-interactions the archetype earns, and any OKLCH / container-query / `@property` layer each resolve through the same ladder. A build that ships without a transverse imperative is a Phase 5 gap, not a stylistic choice.
 - **Assets are secured now**, not improvised mid-build: run the imagery acquisition protocol (generate → seeded source → honest labeled placeholder + asset list). A named brand's real assets are searched and verified before anything is invented.
 
 **Artifact:** one truth-source line per heavy layer (layer → skill or docs consulted) + the browser-tooling rung (which tool, how presence was checked) + the asset list. The design_plan (Phase 4) may add assets the list missed — one declared top-up through the same acquisition protocol, before the first markup; mid-build improvisation stays forbidden.
 
 ## Phase 4 — Commit, then build
 
-**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md`, before the first component. From `references/foundations.md`, pull the sections the design_plan names — the type ramp, the color derivation, and the locked craft layer at minimum — and list what was pulled in the design_plan; a section that later drifts unpulled is a skipped load.
+**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md` + `references/award-imperatives.md`, before the first component. From `references/foundations.md`, pull the sections the design_plan names — the type ramp, the color derivation, and the locked craft layer at minimum — and list what was pulled in the design_plan; a section that later drifts unpulled is a skipped load.
 
 **Commit — a binding `design_plan` before any markup:**
 
-- **Commit** explicit per-element selections: hero architecture, type stack, color roles, the real visual per section, motion paradigms, the signature beat, spacing rhythm, and the locked craft layer (named, not implied) — citing the Phase 0 dials where they bind (Density → spacing rhythm, Variance → grid asymmetry, Motion → the pacing ceiling), so the declared dials are spent, not decorative.
+- **Commit** explicit per-element selections: hero architecture, the **navigation pattern** (show-on-scroll-up header or full-screen overlay — never "no nav"), type stack, color roles, the real visual per section, motion paradigms, the **signature interaction** (named, unforgettable, not a load fade), spacing rhythm, and the locked craft layer (named, not implied) — citing the Phase 0 dials where they bind (Density → spacing rhythm, Variance → grid asymmetry, Motion → the pacing ceiling), so the declared dials are spent, not decorative. The transverse imperatives (`references/award-imperatives.md`) are committed here, not discovered at ship.
 - **Pace** the page like a score: per-section intensity (1–10) with exactly one climax — the signature — and at least one rest. A flat curve (every section within ±1) is a template, however good each section looks alone. Name each section's *job* in the funnel (attention → understanding → proof → close); the final section closes with one strong CTA and a trust cue — a mood reel with no close is decoration.
 - **State the mobile intent** per section: what changes below 768px beyond stacking — what gets cut, what grows, what replaces hover. Mobile is a different performance of the same universe, not a smaller screen.
 - **Prove** each load-bearing one: the `clamp()` / `max-w` that GUARANTEES the H1 lands in ≤2 lines; the named real asset for the hero; the easing + trigger for the signature; the grid spans that leave zero empty cells. Name the ≥3 axes pushed past the generic template — named here, verifiable on the page.
 
 Then follow it exactly — drifting to a default mid-build is forbidden.
+
+**Hero first — the make-or-break gate.** The hero is the first impression and the largest single driver of the score, so it is built and cleared *before* any other section — a page built on a weak hero wastes the rest of the build. Where the harness has subagents, generate 2–3 distinct hero directions (different image, layout, and signature beat, not three tweaks of one); render each; let a fresh-context panel pick and kill against the archetype's canonical winner (`references/exemplars.md`). Without subagents, build one hero and gate it the same way. The gate is the **comparative desire read** (`references/audit-rubric.md` §0): render the hero, put the canonical winner beside it, and ask "would a jury pick this over that, or would you apologize showing it?" A no is not a drift-fix — it sends you back to the hero's concept (architecture, image, motion, the premise itself), never its polish. Only a hero that clears the comparative bar earns the rest of the page.
 
 **Build under the forcing** — you conceive AND build, no handoff; every line is written with the universe present:
 
@@ -190,8 +193,9 @@ Fix drift before starting the next section. Sections whose visuals are structura
 
 1. **Mechanical scan** — run the bundled scanner: `python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>` (path relative to this skill's root). Every FAIL hit is fixed or given a one-line written justification tied to the brief. The scanner catches, it never clears — a clean scan ticks no box by itself.
 2. **The boxes** — tick every box in `preflight.md`, in order, with counts where a box demands them.
+3. **Award imperatives** — verify the transverse gates (`references/award-imperatives.md`): a named signature interaction, a real navigation pattern, smooth-scroll narrative, `clip-path` reveals, the archetype's micro-interactions, and the **measured performance budget** read from the browser tooling — LCP < 1.5s · CLS < 0.05 · INP < 100ms · total weight < 3 MB · sustained 60fps, images served AVIF/WebP. A budget asserted from memory instead of measured is a fail. A missing imperative is filed with its fix, never ticked.
 
-If a single box cannot be honestly ticked, the build is not done. Fix, re-run, then proceed. No sampling, no compression.
+If a single box or imperative cannot be honestly ticked, the build is not done. Fix, re-run, then proceed. No sampling, no compression.
 
 **Artifact:** the filled verdict block (format in `preflight.md`), in the output.
 
@@ -207,18 +211,20 @@ If a single box cannot be honestly ticked, the build is not done. Fix, re-run, t
 
 `award-design review <url|path>` — standalone, and run as R1/R2 inside every build. Fresh eyes that try to **refute**, not confirm. Fresh context means a subagent where the harness has them; without subagents, the fallback still emits the full reviewer artifact — the scored rubric plus the attempted refutations, written out and labeled `degraded: same-context` — a bare "re-read, looks fine" clears nothing.
 
-**R1 — concept stage (no files exist yet):** refute the universe artifact itself — the spine against the two-altitude test, the archetype against the brief, the rotation against the stamp and session history, the signature against the removing-every-effect test — scored on the rubric's Concept anchors and the archetype reference's DNA. The rendered-evidence steps below apply to R2 and standalone runs only.
+**R1 — concept stage (no files exist yet):** refute the universe artifact itself — the spine against the two-altitude test, the archetype against the brief, the rotation against the stamp and session history, the signature against the removing-every-effect test, and **the premise against the restraint veto** (does the metaphor manufacture props a real brand at this tier would not ship?) — scored on the rubric's Concept anchors and the archetype reference's DNA. The rendered-evidence steps below apply to R2 and standalone runs only.
 
-- Open with the **desire read**: would a stranger screenshot this hero and send it to someone? An honest no is OFF-TRACK whatever the boxes say — the verdict names what would make it sendable.
+- Open with the **comparative desire read** — the exemplar comparison frames the whole review: pull up the archetype's canonical winner (`references/exemplars.md`) and judge the hero *beside it* — would a jury pick this over the current Site of the Day, or would you apologize showing it? "Screenshottable" is the floor; "proud to ship as your best next to the winner" is the bar (`references/audit-rubric.md` §0). An honest no is OFF-TRACK whatever the boxes say, and it sends the fix to the concept, not the polish. An absolute "is this nice" grades leniently; only the comparison to the best is strict.
+- Run the **premise veto**: attack the concept's *idea*, not its execution — a metaphor can be perfectly coherent and still be anti-luxury cleverness that manufactures clutter (`references/audit-rubric.md` §0, `references/award-imperatives.md`).
 - Judge from rendered evidence: on a live `<url>`, screenshot and inspect the page — the pixels are the evidence, not the markup. Treat "this is on track" as unproven; hunt where the page reads generic, safe, or off-universe.
 - Form the design judgment first; run `scripts/preflight_scan.py` and read mechanical results second (anti-anchoring).
-- Audit against `references/audit-rubric.md` (Nielsen heuristics + concept veto), `references/anti-patterns.md`, `references/preflight.md`, and the DESIGN.md when one exists.
-- Close with the **exemplar gap read**: three concrete gaps between this build and the archetype's canonical winner (its reference file's DNA), each with a fix — comparative reads calibrate better than absolute scores.
+- Audit against `references/audit-rubric.md` (Nielsen heuristics + concept + premise vetoes), `references/anti-patterns.md`, `references/preflight.md`, `references/award-imperatives.md`, and the DESIGN.md when one exists.
+- **Multi-lens panel** where the harness has subagents: on a make-or-break surface, run one reviewer per lens — comparison-to-winner, restraint/premise, would-you-be-ashamed-to-show, would-a-rival-studio-mock-it — and take the verdict by severity and majority, never a single-reviewer veto. One reviewer grades leniently; diverse harsh lenses catch what it misses.
+- Close by naming three concrete gaps between this build and the canonical winner, each with a fix.
 - Report on-track / off-track with concrete, cited fixes. Never a silent pass.
 
 ## Judging criteria
 
-Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorable Mention 6.5+; SOTD ~7.5+. What separates 8+ from 6–7: one signature interaction (not scattered micro-animations), mobile *reconsidered* (not bolted on), complex visuals fast on mid-range devices (LCP < 1.5s), real photography, scroll as narrative, precise choreography. Strategic path: CSSDA → FWA → Awwwards; submit Feb–Apr or Sep–Nov. Full rubric: `references/audit-rubric.md`.
+Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorable Mention 6.5+; SOTD ~7.5+. What separates 8+ from 6–7: one signature interaction (not scattered micro-animations), mobile *reconsidered* (not bolted on), complex visuals fast on mid-range devices (LCP < 1.5s), real photography, scroll as narrative, precise choreography. These are imposed as gates in `references/award-imperatives.md`, not left to taste. Strategic path: CSSDA → FWA → Awwwards; submit Feb–Apr or Sep–Nov. Full rubric: `references/audit-rubric.md`.
 
 ## Output discipline
 
