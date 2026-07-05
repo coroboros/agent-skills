@@ -28,6 +28,8 @@ The spine itself: is there one world, felt in layout, type, color, motion, and c
 
 **Concept veto:** Concept ≤ 5 caps the overall score at 6.0 — below SOTD, whatever the other categories earn. Polish cannot rescue a templated idea; the fix is Phase 1 (regenerate the spine), never more execution. State the cap explicitly in the output when it fires.
 
+**The desire read opens every review:** would a stranger screenshot the hero and send it to someone? An honest no caps Concept at 5 — the veto fires, and box compliance cannot buy it back. A page can pass every gate and still be a spec-sheet in costume; this is the question that catches it.
+
 ### 1. Hierarchy
 
 How clearly the eye moves from most to least important. Type scale contrast, visual weight, scan path.
@@ -100,6 +102,10 @@ Usability is 30% of the Awwwards score and the bulk of what `review` mode checks
 10. **Help & documentation** — discoverable when the task needs it; never required for the happy path.
 
 Feed the total into the Accessibility read above and into the `review` verdict, citing an example per low score.
+
+## Cognitive load (quick pass)
+
+Score alongside the heuristics: one primary action per screen zone; navigation ≤ 5 top-level items; pricing ≤ 3 tiers; a first-time visitor can say what the product is, for whom, and what to do next within 10 seconds of the hero; no zone asks the eye to track more than ~4 simultaneous elements (working-memory ceiling). A miss here is a P1 with a named fix.
 
 ## Output format
 

@@ -20,7 +20,7 @@ Lock the craft layer; derive the framework from the archetype; adapt to existing
 
 ### Fluid scales
 
-Eliminate breakpoint-based sizing. Seamless scaling across all viewports:
+Eliminate breakpoint-based sizing. Continuous scaling across all viewports:
 
 ```css
 :root {
@@ -89,14 +89,14 @@ Derive the neutrals too: surfaces, borders, and shadows carry the brand hue at l
 82% of mobile users prefer dark. Never pure black (#000) or pure white (#FFF):
 - Backgrounds: #121212, #1E1E1E, or deep navies (#14213D)
 - Text: off-whites (#E0E0E0)
-- Design tokens via CSS custom properties for seamless light/dark switching
+- Design tokens via CSS custom properties for clean light/dark switching
 
 ### Dominant color strategies
 
 1. Dark base + single vibrant accent (most common on winners)
 2. Monochromatic depth via OKLCH lightness variations
 3. Earthy muted pastels (sustainability/wellness brands)
-4. Neon micro-glow accents against dark surfaces
+4. Neon micro-glow accents against dark surfaces — authored, never the GitHub-dark default (uniform `#0D1117` + generic cyan/purple glow; see anti-patterns)
 5. OKLCH multi-hue gradients replacing flat sRGB
 
 ## Layout
@@ -167,7 +167,7 @@ A multi-section page that lands every section on the same anchor, the same surfa
 - **Composition Anchor diversity** — across all sections, at least **3 different anchor positions** must appear (centered statement, top-left lead, bottom-left over image, bottom-right CTA cluster, left-third + right-two-thirds, off-grid editorial offset, image-as-canvas). Hero must vary away from the AI default of left-text / right-image.
 - **Background Mode variation** — pick one per section; vary across the page so no two consecutive sections share the same surface treatment (solid + inline asset, subtle texture/paper/grid, full-bleed image + overlay, editorial side-image, flat color block + detail crop, cinematic tonal gradient, color-blocked diptych).
 - **CTA variation** — vary the call-to-action shape at least once across the site. Default pill on every section is templated. Mix in: outline/ghost, underlined inline link, banner-style full-width, oversized headline + tiny hint, CTA as caption.
-- **Section size variety** — mix section ambition deliberately across the page. Some large/rich (full-bleed hero, immersive showcase), some mini/minimalist (single-line statement, tight detail block), some medium editorial. Uniform section heights produce slab-rhythm; mixed ambition produces premium scrollscape.
+- **Section size variety** — mix section ambition deliberately across the page. Some large/rich (full-bleed hero, immersive feature stage), some mini/minimalist (single-line statement, tight detail block), some medium editorial. Uniform section heights produce slab-rhythm; mixed ambition produces premium scrollscape.
 
 Apply on multi-section landing pages and product narratives where a default rhythm would otherwise dominate. Not applicable to single-fold portfolios or pure docs. Cross-references: `premium-patterns.md` Hero Architecture options, `anti-patterns.md` predictable symmetric layouts.
 
@@ -256,21 +256,25 @@ ScrollTrigger.create({
 **Horizontal-pan** (vertical scroll drives horizontal travel):
 
 ```javascript
-gsap.to('.track', {
+const track = document.querySelector('.track');
+gsap.to(track, {
   x: () => -(track.scrollWidth - innerWidth),
   ease: 'none',              // 1:1 with scroll, never an eased curve
   scrollTrigger: {
-    trigger: '.track',
-    pin: true,
+    trigger: '.track-wrap',
+    pin: '.track-wrap',      // pin the wrapper — never the element being animated
     scrub: 1,
+    start: 'top top',
     end: () => '+=' + (track.scrollWidth - innerWidth),  // distance == travel
+    invalidateOnRefresh: true,
   },
 });
+document.fonts.ready.then(() => ScrollTrigger.refresh());  // trigger positions move when the font lands
 ```
 
-`ease: 'none'` with an `end` equal to the travel distance keeps the pan locked to the scrollbar.
+`ease: 'none'` with an `end` equal to the travel distance keeps the pan locked to the scrollbar. Pin the wrapper and animate the child — pinning the element you animate produces jitter and offset drift (the official GSAP caveat).
 
-Common failures, both patterns: `start: 'top center'` or `'top 80%'` instead of `'top top'` — the pin fires halfway down the viewport and the user sees half a slide; and missing cleanup — in React, wrap the timeline in `gsap.context()` inside `useEffect` and `return () => ctx.revert()`, or the trigger survives unmount and stacks on remount.
+Common failures, both patterns: `start: 'top center'` or `'top 80%'` instead of `'top top'` — the pin fires halfway down the viewport and the user sees half a slide; missing cleanup — in React, wrap the timeline in `gsap.context()` inside `useEffect` and `return () => ctx.revert()`, or the trigger survives unmount and stacks on remount; missing `ScrollTrigger.refresh()` after anything that moves layout post-measure (`font-display: swap` landing, lazy content, accordions) — positions silently drift; ScrollTriggers live on the timeline or a top-level tween, never nested inside a parent timeline; `scrub` and `toggleActions` never share a trigger (scrub silently wins); `markers: true` never ships; and a second `position: sticky; top: 0` under a sticky nav paints over it — offset the later element by the nav height (`top: var(--nav-height)`) and split the z-index scale.
 
 ### Signature easing lexicon
 
@@ -292,6 +296,8 @@ CSS-native equivalent, no library — `linear()` interpolates a spring or curve 
 ```
 
 Pin durations and eases to `motion.*` extension tokens; never author easings ad-hoc per component. Linear (constant-velocity) easing stays banned for UI transitions — see anti-patterns; `ease: 'none'` above is the deliberate exception for scrubbed scroll.
+
+Exits run at 60–70% of their entrance duration — leaving is acknowledgment, arriving is the event. Motion direction encodes hierarchy: forward navigation slides one way, back reverses it; siblings share an axis.
 
 ### Reduced-motion gate (GSAP)
 
@@ -462,6 +468,8 @@ Only animate: `transform`, `opacity`, `filter`, `backdrop-filter`:
 /* Always */ .box:hover { transform: translateX(100px) scale(1.05); }
 ```
 
+`will-change` only on elements actively animating — blanket `will-change`/`force3D` "just in case" costs memory and repaints. Kill or pause tweens the moment their element leaves the viewport.
+
 ### Lazy loading
 
 - `content-visibility: auto` on below-fold sections
@@ -479,7 +487,7 @@ const observer = new IntersectionObserver(([entry]) => {
 
 ### Image optimization
 
-AVIF > WebP > JPEG via `<picture>`. AVIF ~50% smaller than JPEG. Font loading: `font-display: swap` + `<link rel="preload">`.
+AVIF > WebP > JPEG via `<picture>`. AVIF ~50% smaller than JPEG. Font loading: `font-display: swap` + `<link rel="preload">`. Self-host the files (or the framework's font module) — a Google Fonts `<link>` in production is a third-party request on the critical path and a GDPR exposure.
 
 ### Prerendering
 
@@ -533,6 +541,9 @@ body {
 - Display errors inline next to the field; focus first error on submit
 - Disable `spellcheck` on emails, codes, and usernames
 - Warn before navigation with unsaved changes
+- `autocomplete` + meaningful `name` on every input; never `autocomplete="off"` on non-auth fields. Checkbox/radio: label and control share one hit target. Placeholders show a real example and end with `…` — never restate the label.
+- Validate on blur, never per keystroke; error text below the field with `min-height: 1lh` reserved so the layout doesn't jump.
+- Input states change color, never border-width (width shifts move the layout); the focus ring is an `outline`, not a border swap; input height matches the adjacent button's height; disabled is a full treatment, never opacity alone.
 
 ### Typography micro-rules
 
@@ -552,6 +563,7 @@ Use `…` (U+2026) not `...`. Use curly quotes `"` `"` not straight quotes. Non-
 - URL must reflect visible state (filters, tabs, pagination, open panels) — judges test deep-linking
 - `<a>`/`<Link>` for navigation (Cmd/Ctrl+click must work), `<button>` for actions — never `<div onClick>`
 - Destructive actions need confirmation dialog or undo window
+- Anchor targets carry `scroll-margin-top` matching the fixed nav height, or the nav eats every anchored heading
 
 ### Dark mode
 

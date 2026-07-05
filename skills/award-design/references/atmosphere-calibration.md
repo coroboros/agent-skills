@@ -46,6 +46,8 @@ Read the brief's vocabulary to set the starting dials, then apply the ±2 archet
 
 Apply to the archetype's default scores, then clamp to 1–10. Conflicting signals (a brief that is both "dense" and "airy") are a brief contradiction — surface it, never average the two. The table sets a starting point; the archetype reference and the brief's specifics refine it.
 
+Theme (light/dark) is never a default: write one sentence of the physical scene the page inhabits ("a printed proof sheet under a north-facing window" / "a cockpit at night") until it forces the answer.
+
 ## Dial → CSS heuristics
 
 Concrete starting points per band; the archetype reference refines them.

@@ -13,7 +13,7 @@ Most of the Impose tier already lives in `foundations.md` UX Quality + Accessibi
 Present on every build, gated. None competes with the design; all is floor. An item the harness genuinely blocks (no raster tooling for the OG image, no domain for the canonical on a local build) is declared in the pre-flight verdict, never faked and never silently dropped.
 
 - **The no-JS floor** — the page's resting state renders its content. Initial hidden states (`opacity: 0` reveals, gated sections) are applied by JS only (`html.no-js` → visible; a boot script swaps the class), never in base CSS; a canvas/3D hero carries a static fallback layer (poster or CSS composition) shown when JS is absent. A module build opened over `file://` runs zero JS — a base-CSS-hidden page ships a blackout to anyone the JS fails for.
-- **Full interactive cycles — the 8-state contract** — every interactive element ships its applicable states: default, hover, focus-visible, active, disabled, loading, empty/error, success. Async surfaces carry loading (skeletons matching the final layout, not a spinner), empty, and error states; `:active` gives tactile press feedback (`-translate-y-[1px]` or `scale-[0.98]`). A control with only a resting state is unfinished.
+- **Full interactive cycles — the 8-state contract** — every interactive element ships its applicable states: default, hover, focus-visible, active, disabled, loading, empty/error, success. Async surfaces carry loading (skeletons matching the final layout, not a spinner), empty, and error states; `:active` gives tactile press feedback (`-translate-y-[1px]` or `scale-[0.98]`). Async results are announced (`aria-live="polite"` / `role="status"`). A control with only a resting state is unfinished. Prove it by construction where cheap: a throwaway preview that forces each state via classes makes the contract decidable instead of claimed.
 - **Contrast on controls** — buttons and form fields meet WCAG AA in every state (rest, hover, disabled, focus). Glassmorphic and tinted controls are the usual failures — test them.
 - **Cursor-affordance discipline** — `pointer` on actionable, `text` on text, `not-allowed` on disabled, default elsewhere. A `div` button with a default cursor reads as broken.
 - **One consistent link-hover signature** — a single hover treatment (underline reveal, color shift) applied everywhere. Mixed hover behaviors read as unfinished.
@@ -23,6 +23,8 @@ Present on every build, gated. None competes with the design; all is floor. An i
 - **Favicon + `icon.svg` + OG image** — a real favicon, an SVG icon, and an Open Graph image so shared links render.
 - **`theme-color`** — light and dark `theme-color` meta so mobile chrome matches the surface.
 - **`prefers-reduced-motion`** — motion replaced with opacity, never removed.
+- **Focus ring at t=0** — `:focus-visible` indicators appear instantly; transitioning them in leaves keyboard users unmarked mid-animation.
+- **Reveal safety** — scroll/entry reveals *enhance* an already-visible default; hidden tabs and headless renderers never fire IntersectionObserver, and a reveal that gates visibility ships blank sections there. (The no-JS floor's JS-alive sibling.)
 
 Detail and code for each: `foundations.md` UX Quality + Accessibility. This list is the filter's checklist; that file is the implementation.
 

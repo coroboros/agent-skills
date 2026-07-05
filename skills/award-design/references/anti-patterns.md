@@ -72,6 +72,11 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Outer glow box-shadows, oversaturated neon accents.
 - Gradient text on large headers.
 - Static gradients as primary design elements (no longer differentiated).
+- Ghost cards — 1px border plus a large soft shadow (blur ≥16px) on the same element; pick one elevation language.
+- Card radius ≥32px — over-rounding reads as a kit default; cap cards at 12–16px unless the shape lock documents otherwise.
+- Decorative grid-line/graph-paper backgrounds and `repeating-linear-gradient` stripes as section wallpaper.
+- Sketchy/doodle SVG decorations — hand-drawn squiggles read as clip-art unless the universe is genuinely illustrated.
+- The GitHub-dark default: uniform `#0D1117`-family surfaces with generic cyan/purple neon glow — the third overexposed cluster beside warm-cream and sand/brass. Authored darks (one hue temperature, one owned accent) stay legitimate.
 
 ### Typography
 
@@ -81,6 +86,9 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Oversized H1 that screams — control hierarchy with weight and color, not just scale.
 - Serif on dashboards/software UI (serif is for editorial/luxury only).
 - Clipped italic descenders — an italic display word containing `y g j p q` under `line-height: 1` loses its tails. Use ≥1.1 line-height plus bottom reserve on the wrapper; audit every italic display word before ship.
+- Serif as a reflex — "creative brief = serif" is the most-tested type tell. A serif needs the brief to name one, or a genuinely editorial/luxury register plus a written why. Rotate the pool; never the same serif twice running.
+- The reflex-reject procedure: name the first three faces that come to mind and reject them; a final pick that matches the reflex needs its rationale written. Extended overexposed pool beyond Fraunces/Instrument Serif: Playfair Display, Cormorant, Lora, Crimson, Syne.
+- A single italicized word dropped into an upright headline as the only emphasis — recognized tell; earn it (editorial voice, declared) or skip it.
 
 ### Layout
 
@@ -99,6 +107,13 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Hero top padding past `pt-24` (≈6rem) — the content floats halfway down the viewport and reads as a bug, not as space. Scale the type or the asset instead.
 - CTA labels wrapping to 2+ lines at desktop — shorten to ≤3 words or widen the button; never clamp a primary CTA's `max-width`.
 - Mixed corner-radius systems with no documented rule — round buttons in a square layout, square cards on a pill-button page. One radius system, or a written rule applied everywhere.
+- Vertical rotated text ("INDEX OF WORK 2018–2026" at 90°) — agency cliché; only when the composition genuinely needs the spine.
+- Crosshair or hairline grid lines as pure decoration — lines organize content or they go.
+- Scoring/progress bars with filled background tracks as comparison visuals on marketing pages.
+- `<br>`-broken-and-italicized headlines ("for thirty<br><em>years.</em>") as a default design move.
+- The AI-nav fingerprint: wordmark hard-left, 4–5 inline text links, CTA button hard-right, 1px hairline border-bottom — the most-recognized template nav. Break at least one element (placement, container, or divider).
+- Tag-beside-heading two-column section head (eyebrow left, heading right) — the templated-editorial tell; stack them.
+- Side-stripe accent border — a 2px+ colored `border-left`/`border-right` on cards or callouts; the 2018-SaaS tell.
 
 ### Content
 
@@ -122,6 +137,10 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Registration-meta eyebrows — "PROOF COPY, GRINDER NO. 114", "Brand · No. 01", edition and catalogue strings. They tell the buyer nothing and read as AI set-dressing, however diegetic the universe. Override: the number IS the product's name (Meridian K2, Porsche 911).
 - Undecodable data marks — dots, bars, or glyphs a stranger can't name. Self-evident marks need nothing; ambiguous ones take a one-line legend. The loop's screenshot is the test: can someone who didn't build it say what each mark is?
 - A foreign-family word injected into a headline for visual interest — a serif word inside a sans H1. Emphasis is italic or bold of the same family.
+- "Quietly in use at" / "Quietly trusted by" social-proof headers — use plain "Trusted by" or let the logos speak.
+- Poetic section labels — "From the field", "Field notes", "On our desks", "Currently on the bench" as section headers read performative-craftsman; plain functional labels or none. (A diegetic universe may earn one — declared, not defaulted.)
+- Live-stock counters as decoration ("Reservation 412 of 800") — only real data on a genuinely limited run.
+- Charts where humans belong — sparklines and stat-graphics on briefs that need human proof (quotes, receipts, screenshots); and the three-identical-stat-columns KPI row.
 
 ### Technical
 
@@ -134,6 +153,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Static PNG grain overlays on scrolling containers — continuous GPU repaints. Apply procedural noise (Canvas/WebGL) to fixed `pointer-events: none` layers.
 - Perpetual animations not memoized in their own microscopic Client Component — re-renders the parent layout 60×/second and breaks performance budget.
 - Importing a package absent from `package.json` — check first; if missing, output the install command before the import. Assumed dependencies are broken builds.
+- `<img>` hover transforms (`group-hover:scale`, `:hover { transform: scale }` on photos) — the stock image-zoom tell; motion belongs to the card, not the photo.
 
 ## UX anti-patterns disguised as creativity
 
@@ -157,6 +177,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - **Long list as bare rows** — >5 items with a hairline under each is the laziest layout. Reach for grouped chunks (3 clusters, one soft divider each), a 2-col card grid (spec name + display value + one-line why), tabs/accordion for categorisables, scroll-snap pills, or featured-vs-rest (3–4 hero specs large, the rest behind a disclosure). The 10-row spec table with `border-b` on every row is the canonical fail.
 - **Emoji or hand-rolled SVG paths as icons** — one icon family per page (Phosphor, Radix, Tabler, HugeIcons), standardized stroke width, missing glyph → compose from primitives or add a second library, never draw paths from scratch.
 - **Trendy-component-kit sameness** — beams, sparkles, spotlight cards, animated-gradient heroes, 3D-tilt cards dropped in from Aceternity / Magic UI / Cult unmodified. The 2026 AI-landing-page monoculture; judges flag it on sight. Override: scaffold from the kit, then restyle past its defaults — font, gradient, motion timing, color (see `inspiration.md`).
+- **Edge-to-edge sticky navbar glued to the top** — the default chrome; consider a floating island nav (glass pill, `w-max` centered), a morphing hamburger, or a full-screen overlay with staggered reveal (`premium-patterns.md` navigation pattern).
 
 ## Output discipline
 

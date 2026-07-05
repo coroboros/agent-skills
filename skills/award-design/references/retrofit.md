@@ -69,6 +69,10 @@ Some interventions cost more than they return. Skip these unless the brief expli
 - **WebGL or 3D additions** to a site that doesn't carry the cinematic register. Performance cost is high; payoff is low if the rest of the site is SaaS-rhythm.
 - **Replacing all icons with custom SVGs** when the existing icon set is consistent and the brand has no icon-system stake. A library swap (Lucide → Phosphor) is a rounding error; a full custom-icon program is a six-week project. Pick one.
 
+## What never changes silently
+
+SEO migration is the #1 redesign risk; analytics is #2. Without explicit user approval, never modify: URL structure or route slugs; anchor IDs; primary nav labels; form field names or order (breaks analytics and autofill); the logo or wordmark; legal, consent, or cookie copy. Preserve the copy voice unless a rewrite was asked; honor existing accessibility wins (focus states, alt text, contrast); keep element IDs and classes that downstream tracking selects on. Record the pre-retrofit SEO baseline (ranking pages, meta titles, structured data, OG cards) before touching layout.
+
 ## After the retrofit
 
 Run the same validation as a new project — the Phase 5–6 gate (pre-flight + review mode):

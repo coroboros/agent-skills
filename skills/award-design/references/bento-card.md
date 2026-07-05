@@ -15,6 +15,7 @@ A canonical modern bento layout. A modular asymmetric grid of self-contained fea
 
 - Modular asymmetric tiles — never uniform 3-equal-cards-in-a-row (the "feature row" cliché)
 - Each tile is a self-contained information unit with its own visual treatment
+- Every tile *demonstrates* its claim — live, animated, or visual — never a mini spec-sheet of labels and rows; describing is the failure this archetype exists to avoid (the canonical reference demos every card)
 - Container queries (`container-type: inline-size`) make tiles self-aware
 - Consistent corner radii across the grid; equal gutter widths (12–24px) — visual rhythm holds
 - Hero cards (2×2 spans, or `col-span: 2 row-span: 2`) carry primary features
@@ -58,7 +59,7 @@ Each Bento 2.0 grid mixes these tile-types. The goal is variance — never all f
 1. **The Intelligent List** — vertical stack of items with infinite auto-sorting loop. Items swap positions via Framer Motion `layoutId`, simulating real-time prioritization.
 2. **The Command Input** — search or AI bar with multi-step typewriter effect. Cycles through complex prompts, blinking cursor, "processing" shimmer state.
 3. **The Live Status** — scheduling or telemetry interface with "breathing" status indicators. Pop-up notification badge emerges with overshoot-spring, holds 3 seconds, vanishes.
-4. **The Wide Data Stream** — horizontal infinite carousel of data cards or metrics. Seamless loop via `x: ["0%", "-100%"]`. Speed feels effortless.
+4. **The Wide Data Stream** — horizontal infinite carousel of data cards or metrics. Gapless loop via `x: ["0%", "-100%"]`. Speed feels effortless.
 5. **The Contextual UI (Focus Mode)** — document view animating staggered text-block highlight, followed by float-in floating action toolbar with micro-icons.
 
 ### Choreography
@@ -136,7 +137,7 @@ The archetype loses identity when bento becomes "3 equal cards in a row" with ro
 
 ## Ideal for
 
-SaaS product pages (Notion, Linear, Supabase, Vercel adjacency), feature comparison pages, product launches with multiple capabilities to showcase, dashboard previews, AI-product feature grids, developer-tooling marketing.
+SaaS product pages (Notion, Linear, Supabase, Vercel adjacency), feature comparison pages, product launches with multiple capabilities to demo, dashboard previews, AI-product feature grids, developer-tooling marketing.
 
 ## Cross-references
 

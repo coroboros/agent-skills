@@ -84,7 +84,7 @@ Design laziness is a behavioral artifact, not a knowledge gap — a model under-
 A bounded change inside a project with a healthy DESIGN.md (a new section, a component, one added page) runs every phase at the scale of the touched surface — the artifacts shrink, the gates hold:
 
 - Phase 0 → mode + a one-line read of the existing universe, deriving and declaring the archetype from the DESIGN.md or the stylesheet stamp (the scanner and the stamp box need it). Phases 1–2 → adopt the DESIGN.md and re-read it; alert if thin, never silently regenerate. A surface that genuinely extends it (a new section family) amends the DESIGN.md declaredly at Phase 2 — adoption is not freezing; only *silent* changes are banned. R1 refutes the new surface's *fit* with the adopted universe — the universe itself is a settled fact.
-- Phase 3 → gate only the heavy layers the change introduces. Phase 4 → design_plan for the new surface only, built under the existing tokens; the pacing check re-reads the whole page the surface lands on.
+- Phase 3 → gate only the heavy layers the change introduces. Phase 4 → design_plan for the new surface only, built under the existing tokens; the pacing check re-reads the whole page the surface lands on. Never clobber an existing global stylesheet — append and extend, keep its directives; never write into `dist/`/`build/` outputs.
 - Phases 5–6 → preflight boxes and R2 scoped to the touched pages; scan the touched paths (the scanner takes a file list) and file out-of-scope pre-existing hits as risks, never fix them silently; the consistency locks still read the full page.
 
 The full protocol runs when any of these hold: no DESIGN.md, a redesign brief, a new page family, or a thin DESIGN.md. Scaling is declared ("scoped run: <surface>") — an undeclared shortcut is a skipped phase.
@@ -96,7 +96,8 @@ The full protocol runs when any of these hold: no DESIGN.md, a redesign brief, a
 1. **Mode** — build · redesign-preserve · redesign-overhaul. Preserve-vs-overhaul ambiguous → ask once, one question only; otherwise declare and proceed.
 2. **Design Read** — one committed line: *"Reading this as: \<page kind> for \<audience>, with a \<vibe> language, in the \<archetype> line."*
 3. **Archetype** — first pass from the signal map below; validate against the brand's personality, never against what is trending — a luxury hotel is never brutalist. Hybrid brief → `references/remixing.md`.
-4. **Dials** — declare Density / Variance / Motion (1–10) from the archetype defaults plus brief signals. Declared, never internal: the dials arbitrate later choices ("break the grid?" → Variance) and land in the DESIGN.md Overview prose.
+4. **Dials** — declare Density / Variance / Motion (1–10) from the archetype defaults plus brief signals. Declared, never internal: the dials arbitrate later choices ("break the grid?" → Variance) and land in the DESIGN.md Overview prose. A landing or marketing brief caps Density at 5 unless the brief demands data-density — and the page opens on a hero *moment*, never on a grid (the bento starts at section two).
+5. **Quiet constraints override aesthetics.** Public-sector, regulated, accessibility-first, and kids' briefs cap the anti-default forcing: the universe stays committed but conservative, official design systems (GOV.UK/USWDS-class) win where legally expected, and compliance beats character on every conflict.
 
 **Artifact:** mode + Design Read + archetype + the three dial values, stated before anything else is produced.
 
@@ -116,7 +117,7 @@ The full protocol runs when any of these hold: no DESIGN.md, a redesign brief, a
 
 ## Phase 1 — Conceive the universe
 
-**Load now:** the chosen archetype's reference (table above) + `references/anti-patterns.md` *Cross-build anti-default* for the rotation rules.
+**Load now:** the chosen archetype's reference (table above) + `references/anti-patterns.md` *Cross-build anti-default* for the rotation rules + the Concept anchors (§0) in `references/audit-rubric.md` — the self-check and the veto run on the anchors, never on a remembered summary.
 
 No frontend ships without a committed universe — this phase forces it.
 
@@ -144,7 +145,7 @@ Author the complete DESIGN.md (Google format) when none exists — all eight pro
 
 **Load now:** `references/external-truth.md` + `references/imagery.md`.
 
-- **Heavy layers are never written from training memory.** GSAP/ScrollTrigger/SplitText, Three.js/R3F, Lenis, View Transitions, scroll-driven CSS, Web Audio — for each layer the signature actually uses, walk the resolution ladder: installed skill → offer the user the install (once, with the exact command) → fetch current docs. The ladder is the gate: code written for these layers without a declared source is a Phase 5 fail.
+- **Heavy layers are never written from training memory.** GSAP/ScrollTrigger/SplitText, Three.js/R3F, Lenis, View Transitions, scroll-driven CSS, Web Audio — for each layer the signature actually uses, walk the resolution ladder: installed skill → offer the user the install (once, with the exact command) → fetch current docs. The ladder is the gate: code written for these layers without a declared source is a Phase 5 fail. A brief naming a real product or brand gates its *facts* too: verify existence, release status, version, and price against live sources before designing claims around them — a stale claim reworks the build (`references/external-truth.md`).
 - **Assets are secured now**, not improvised mid-build: run the imagery acquisition protocol (generate → seeded source → honest labeled placeholder + asset list). A named brand's real assets are searched and verified before anything is invented.
 
 **Artifact:** one truth-source line per heavy layer (layer → skill or docs consulted) + the browser-tooling rung (which tool, how presence was checked) + the asset list. The design_plan (Phase 4) may add assets the list missed — one declared top-up through the same acquisition protocol, before the first markup; mid-build improvisation stays forbidden.
@@ -156,7 +157,7 @@ Author the complete DESIGN.md (Google format) when none exists — all eight pro
 **Commit — a binding `design_plan` before any markup:**
 
 - **Commit** explicit per-element selections: hero architecture, type stack, color roles, the real visual per section, motion paradigms, the signature beat, spacing rhythm, and the locked craft layer (named, not implied) — citing the Phase 0 dials where they bind (Density → spacing rhythm, Variance → grid asymmetry, Motion → the pacing ceiling), so the declared dials are spent, not decorative.
-- **Pace** the page like a score: per-section intensity (1–10) with exactly one climax — the signature — and at least one rest. A flat curve (every section within ±1) is a template, however good each section looks alone.
+- **Pace** the page like a score: per-section intensity (1–10) with exactly one climax — the signature — and at least one rest. A flat curve (every section within ±1) is a template, however good each section looks alone. Name each section's *job* in the funnel (attention → understanding → proof → close); the final section closes with one strong CTA and a trust cue — a mood reel with no close is decoration.
 - **State the mobile intent** per section: what changes below 768px beyond stacking — what gets cut, what grows, what replaces hover. Mobile is a different performance of the same universe, not a smaller screen.
 - **Prove** each load-bearing one: the `clamp()` / `max-w` that GUARANTEES the H1 lands in ≤2 lines; the named real asset for the hero; the easing + trigger for the signature; the grid spans that leave zero empty cells. Name the ≥3 axes pushed past the generic template — named here, verifiable on the page.
 
@@ -166,6 +167,7 @@ Then follow it exactly — drifting to a default mid-build is forbidden.
 
 - Section by section; no section ships generic. **Claimed = shown** — every universe claim is present in the code, not just promised; motion claimed above a calm baseline means the page actually moves. Push ≥3 axes past the generic SaaS template; premium components where they earn it (`references/premium-patterns.md`).
 - **Anti-slop stays ambient, not just gated.** Never: the AI-purple gradient; Inter/Roboto/system fonts on the display face; pure `#000`/`#fff`; placeholder names or fake round stats; the centered-hero-over-dark template; 3 equal feature cards; `SECTION 01` meta-labels; a hero with no real visual. The gate re-checks all of it at Phase 5; catching it there instead of here means it was built wrong.
+- **Motion is motivated or absent.** Every animation answers "what does this communicate" in one sentence (hierarchy, storytelling, feedback, state); unable to ship it working → drop the Motion dial and ship clean static rather than half-built choreography.
 - **Stack** — lock one craft layer per build (GSAP, Lenis, CSS scroll-driven, View Transitions, variable fonts, OKLCH). Key the framework to the archetype: content/perf → Astro, motion/3D → TanStack Start. An existing project's stack always wins. Map and pins: `references/foundations.md`.
 - **Craft floor auto-authored as you build** (`references/ship-ready-floor.md` Impose tier): semantic landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, explicit `<img>` dimensions, and the 8-state contract on every interactive element.
 - **Stamp the main stylesheet's first line:** `/* award-design · <archetype> · <palette-family> · <display>/<body> · <hero-layout> */` — the rotation ledger the next build reads (Phase 1).
@@ -207,6 +209,7 @@ If a single box cannot be honestly ticked, the build is not done. Fix, re-run, t
 
 **R1 — concept stage (no files exist yet):** refute the universe artifact itself — the spine against the two-altitude test, the archetype against the brief, the rotation against the stamp and session history, the signature against the removing-every-effect test — scored on the rubric's Concept anchors and the archetype reference's DNA. The rendered-evidence steps below apply to R2 and standalone runs only.
 
+- Open with the **desire read**: would a stranger screenshot this hero and send it to someone? An honest no is OFF-TRACK whatever the boxes say — the verdict names what would make it sendable.
 - Judge from rendered evidence: on a live `<url>`, screenshot and inspect the page — the pixels are the evidence, not the markup. Treat "this is on track" as unproven; hunt where the page reads generic, safe, or off-universe.
 - Form the design judgment first; run `scripts/preflight_scan.py` and read mechanical results second (anti-anchoring).
 - Audit against `references/audit-rubric.md` (Nielsen heuristics + concept veto), `references/anti-patterns.md`, `references/preflight.md`, and the DESIGN.md when one exists.
@@ -219,7 +222,7 @@ Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorabl
 
 ## Output discipline
 
-The DESIGN.md is long-form. Never ship truncation tells — `// ...`, `[remaining sections similar]`, "for brevity", "the rest follows the same pattern". Each section is complete or marked paused. At a token ceiling, finish at a clean `##` boundary and end with `[PAUSED — N of 8 sections complete. Send "continue" to resume from: <next section name>]`; on `continue`, resume exactly there. Full banned-phrase list: `references/anti-patterns.md` *Output discipline*.
+The DESIGN.md is long-form. Never ship truncation tells — `// ...`, `[remaining sections similar]`, "for brevity", "the rest follows the same pattern". Each section is complete or marked paused. At a token ceiling, finish at a clean `##` boundary and end with `[PAUSED — N of 8 sections complete. Send "continue" to resume from: <next section name>]`; on `continue`, resume exactly there. Full banned-phrase list: `references/anti-patterns.md` *Output discipline*. Count the deliverables the request implies, lock the number, cross-check it before output — a missing file is silent truncation.
 
 ## Gotchas
 

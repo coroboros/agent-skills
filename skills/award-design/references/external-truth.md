@@ -20,7 +20,7 @@ A static minimalist page loads none of this; an Immersive scrolltelling build ma
 | Three.js / R3F / drei | 3D scenes — Immersive, Experimental | any Three.js / React Three Fiber skill present | — | threejs.org/docs · r3f.docs.pmnd.rs |
 | Lenis | smooth-scroll foundation | — | — | github.com/darkroomengineering/lenis |
 | Motion (Framer Motion) | React UI motion, layout animations | any Motion skill present | — | motion.dev/docs |
-| View Transitions · scroll-driven CSS · popover/anchor · modern CSS | page morphs, off-thread reveals, any cutting-edge CSS the build leans on | `modern-web-guidance` | `npx skills add https://github.com/GoogleChrome/modern-web-guidance` | `npx -y modern-web-guidance@latest search "<query>"` then `retrieve "<id>"` (runs without the skill) · MDN |
+| View Transitions · scroll-driven CSS · popover/anchor · modern CSS | page morphs, off-thread reveals, any cutting-edge CSS, form UX, or a Core Web Vitals miss the build must debug | `modern-web-guidance` | `npx skills add https://github.com/GoogleChrome/modern-web-guidance` | `npx -y modern-web-guidance@latest search "<query>"` then `retrieve "<id>"` (runs without the skill) · MDN |
 | Web Audio / Howler | sound layer — Immersive, Experimental | `audio-loop` for ambient loop beds | — | `references/ingredients/web-audio.md` · howlerjs.com |
 | Raw WebGL / GLSL (OGL) | custom shader signatures | — | — | `references/ingredients/ogl-shaders.md` · github.com/oframe/ogl |
 
@@ -33,6 +33,10 @@ Rendering proof is not optional tooling — resolve it like a heavy layer, befor
 | Screenshot · drive · console · traces | Chrome DevTools MCP (adds performance traces and LCP) · `dev-browser` CLI · `webwright` plugin | `npm install -g dev-browser && dev-browser install` | only a *declined* offer degrades to the code-level read + a declared gap in the verdict |
 
 The conformance loop (Phase 4) and the browser proof (pre-flight §8) ride on this rung. State the rung and the presence check in the Phase 3 artifact. `dev-browser` is the sufficient default; a connected Chrome DevTools MCP makes its measurements *mandatory* — LCP and the signature's frame rate stop being declarable gaps (pre-flight §8).
+
+## Product facts are gated too
+
+A brief naming a real product, brand, or place gates its facts like a heavy layer: verify existence, release status, current version, and price via live web sources before designing claims around them — never assert from training memory. One documented failure: a build claimed a shipped product was unreleased; it had launched four days earlier — two hours of rework. Record verified facts beside the Phase 3 artifact; the copy audit (§6) checks the page against them.
 
 ## Stale-signature tripwires
 

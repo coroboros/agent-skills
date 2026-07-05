@@ -11,6 +11,7 @@ What separates 7.5 from 8+ once the universe, layout, and motion are right: deci
 - **`font-optical-sizing: auto`** whenever the variable font carries an `opsz` axis — display cuts at display sizes, text cuts at text sizes, one file.
 - **`text-box-trim`** (leading-trim) aligns cap height to the container edge instead of the line box — check current support via the external-truth gate before leaning on it; ship it as progressive enhancement.
 - Italic descender clearance is catalogued in `anti-patterns.md` — this pass is where it actually gets applied, word by word.
+- **All-caps display floors at `line-height: 1.0`** — below it, cap-height collides with the line above at the first long word. Tight is the look; collision is a bug.
 
 ## Spatial optics
 
@@ -21,6 +22,7 @@ What separates 7.5 from 8+ once the universe, layout, and motion are right: deci
 - **Diagram labels are type, not texture.** Dimension callouts and figure annotations hold ≥10px equivalent at AA contrast — a drawing whose numbers can't be read is a texture pretending to be a figure.
 - **Borders take the surface's temperature.** On light: `rgb(0 0 0 / 0.06–0.10)`; on dark: `rgb(255 255 255 / 0.08–0.14)`; both nudged toward the surface hue (`oklch(from var(--surface) …)`). The same foreign gray on both sides of a theme is the mismatch tell.
 - **Shadows are colored.** Tint every shadow with the surface hue at low alpha — pure-black shadows on a warm page read as stickers. Elevation reads as light, and light has a temperature.
+- **Cross-card alignment.** In any card row, CTAs pin to the card bottom and equivalent content starts at the same Y across columns — drifting baselines read as broken, not organic.
 
 ## Interaction personality — states express the universe
 

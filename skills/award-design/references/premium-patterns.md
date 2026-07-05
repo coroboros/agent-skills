@@ -173,6 +173,7 @@ Asymmetric layouts above the `md` breakpoint MUST collapse aggressively below 76
 - Layouts default to `w-full px-4 py-8` on viewports under 768px
 - All `transform`-based rotations and negative-margin overlaps are removed below `md` — they cause touch-target conflicts
 - `min-h-[100dvh]` replaces `h-screen` everywhere — `h-screen` jumps catastrophically on iOS Safari URL-bar toggle
+- Grid tracks holding images use `minmax(0, 1fr)` — bare `1fr` resolves to `minmax(auto,1fr)` and a large image forces horizontal scroll on phones. Display headlines carry `overflow-wrap: anywhere`. Page-level clipping is `overflow-x: clip`, never `hidden` (kills `position: sticky`). Sweep 320–1920px.
 
 ### Layout-specific collapse
 
@@ -230,22 +231,9 @@ For lists with `staggerChildren`, the parent (`variants`) and children MUST live
 
 Apply procedural noise filters EXCLUSIVELY to fixed `pointer-events: none` pseudo-elements (e.g., `position: fixed; inset: 0; z-index: 50; pointer-events: none`). Never to scrolling containers — continuous GPU repaints collapse mobile frame rate. Static PNG grain overlays read as the AI version; procedural Canvas or WebGL noise is the credentialed alternative.
 
-## 7. Mac OS Window Chrome (mockup pattern)
+## 7. Window Chrome — real captures only
 
-For mocking software interfaces (dashboards, apps, command palettes) inside marketing pages, wrap the mockup in a minimalist container with a thin top bar containing three small light-gray circles. Replicates macOS window controls without overcomplicating.
-
-```html
-<div class="rounded-xl bg-[#FCFCFC] shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
-  <div class="flex items-center gap-1.5 border-b border-slate-200/50 px-4 py-3">
-    <span class="h-3 w-3 rounded-full bg-slate-300"></span>
-    <span class="h-3 w-3 rounded-full bg-slate-300"></span>
-    <span class="h-3 w-3 rounded-full bg-slate-300"></span>
-  </div>
-  <div class="p-6"><!-- mockup content --></div>
-</div>
-```
-
-The convention is so universally readable that it requires no caption. Every variant — colored circles, traffic-light circles, plain dots — works.
+CSS-rebuilt browser bars and traffic-light dots are one of the strongest AI tells, and they contradict the fake-screenshot axiom (`anti-patterns.md` axiom #14) — chrome drawn in divs promises a product the page cannot show. Product UI ships as a real capture inside a plain elevated frame: a radius, a shadow, a 1px border — no fake chrome. When no capture exists, ship an honest labeled placeholder sized to the final aspect ratio per `imagery.md`.
 
 ## 8. Eyebrow + Headline + CTA — the section opener
 
@@ -289,7 +277,7 @@ A flat translucent panel reads as a digital effect. The inner highlight tells th
 
 ### Anti-pattern
 
-`backdrop-filter: blur()` applied to scrolling content. Continuous GPU repaints collapse mobile frame rate (Safari drops to 15–20fps). Glass surfaces apply only to fixed or sticky elements (navbars, modal overlays, command palettes) — never to scrolling cards. See `production-hardening.md` and pattern 6 (Performance Locks).
+`backdrop-filter: blur()` applied to scrolling content. Continuous GPU repaints collapse mobile frame rate (Safari drops to 15–20fps). Glass surfaces apply only to fixed or sticky elements (navbars, modal overlays, command palettes) — never to scrolling cards. See `production-hardening.md` and pattern 6 (Performance Locks). Ship the `prefers-reduced-transparency` solid-fill fallback — glass with no fallback fails the users who asked for less.
 
 Particularly powerful in Spatial Organic (the canonical context), Corporate Luxury (premium product cards on dark backgrounds), and any modal/command-palette surface across archetypes.
 
@@ -379,6 +367,24 @@ One choreographed perpetual motion on a hero element keeps the page "alive" with
 ### Anti-pattern
 
 Three or four perpetual motions running together — pulse on the badge, typewriter in the input, shimmer on the card, orbit in the background. The eye loses anchor; the page reads as visual chaos rather than craft. One perpetual motion per fold; two only when they reinforce the same focal point.
+
+## 12. Navigation as a designed component
+
+The nav is the first component judged — and the default edge-to-edge sticky bar with a hairline border is the template fingerprint. Three premium moves:
+
+- **Floating island** — a glass pill detached from the edges: `mt-6 mx-auto w-max rounded-full`, content-width, never viewport-width
+- **Morphing hamburger** — the icon morphs to an X and opens a full-screen overlay with staggered mask reveals
+- **Inherited surface** — the nav's surface inherits the section behind it instead of carrying its own chrome
+
+Whatever the move: one line at desktop, ≤80px tall, active state marked, instant focus rings.
+
+### Token mapping
+
+Bind the nav height to `heights.nav` and its transitions to `motion.*` extension tokens — never ad-hoc values in the nav component.
+
+### Anti-pattern
+
+The AI-nav fingerprint — wordmark hard-left, 4–5 inline text links, CTA button hard-right, 1px hairline border-bottom (`anti-patterns.md` AI Tells → Layout). Break at least one element: placement, container, or divider.
 
 ## Cross-references
 

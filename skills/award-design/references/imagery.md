@@ -9,7 +9,7 @@ Load while building under the universe, and again at the Phase 5 gate before shi
 Even a minimalist build carries 2–3 real images. A hero that is a headline floating over a flat gradient with no visual decision is the canonical placeholder hero — not a minimalist one. The visual can be:
 
 - Photography (real or generated), 3D / canvas, or a textured / illustrated surface.
-- A *deliberate* typographic treatment that IS the visual — kinetic SplitText, oversized editorial display, type-as-image. Brutalist and Editorial heroes earn the floor on type alone when the type is the art.
+- A *deliberate* typographic treatment that IS the visual — kinetic SplitText, oversized editorial display, type-as-image. Brutalist and Editorial heroes earn the floor on type alone when the type is the art. The bar for "the type is the art": display-scale presence (the composition would hang as a poster), kinetic or compositional intent — body-scale text inside a card never qualifies, however good the copy. A page shipping zero imagery clears the floor only over this bar.
 - A consistent illustration system the universe decrees — drafting plates, diagrams, hand-drawn figures. The bug is *empty visual zones*, not the absence of photographs specifically.
 
 What does not clear the floor: a centered headline over a purple/blue or beige gradient, stock-feeling hero slabs, or a single icon standing in for a hero image.
@@ -31,6 +31,7 @@ An honest labeled placeholder beats a hand-rolled CSS illustration of a UI: the 
 - Source marks from **Simple Icons** (simpleicons.org) or **devicon** (devicon.dev) — real SVG wordmarks and glyphs, never a text span styled to look like a logo.
 - Ship **light and dark variants** — a single-tone mark disappears against half the surfaces it lands on.
 - A logo wall is **logos only** — no mixed text labels, no "and 200+ more" filler. Size by visual weight, not bounding box.
+- An invented brand gets an invented mark — a simple monogram or geometric SVG glyph in the page's own style; a plain text wordmark posing as a logo reads as placeholder.
 
 ## Branded builds — acquire and verify real assets
 

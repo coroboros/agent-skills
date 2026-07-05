@@ -13,3 +13,18 @@ a:focus {
   background-image: url("https://images.unsplash.com/photo-123");
   height: 100vh;
 }
+.callout {
+  border-left: 4px solid #e11;
+}
+.quote {
+  font-family: Georgia, serif;
+}
+.code {
+  font-family: "Courier New", monospace;
+}
+.aside {
+  font-family: Verdana, sans-serif;
+}
+.badge {
+  font-family: "Trebuchet MS", sans-serif;
+}

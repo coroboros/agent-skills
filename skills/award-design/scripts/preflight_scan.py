@@ -8,7 +8,9 @@ Line-based matching keeps rules cheap and auditable; multi-line constructs
 trade-off: false negatives over false positives. Two rules honor that bias
 structurally: EMDASH fires on density (> ~1 per 100 visible words, min 3),
 never on a single legitimate dash; H1-COUNT / MAIN-LANDMARK skip near-empty
-documents so an SPA shell rendering from JS is not a false fail.
+documents so an SPA shell rendering from JS is not a false fail. FONT-COUNT
+is project-level: it counts distinct first families across stylesheets
+(fallback stacks count as one) and flags past 3 families + 1 mono outlier.
 
 Usage:
     python3 preflight_scan.py <path> [<path>...] [--archetype NAME] [--allow RULE-ID]...
@@ -61,6 +63,12 @@ LINE_RULES = [
     ("SCROLL-LISTENER", FAIL,
      "window scroll listener — use ScrollTrigger, useScroll, IntersectionObserver, or CSS scroll-driven",
      re.compile(r"addEventListener\(\s*['\"]scroll['\"]"), CODE_EXTS),
+    ("MARKERS", FAIL,
+     "ScrollTrigger markers left on — debug scaffolding never ships",
+     re.compile(r"markers:\s*true"), CODE_EXTS),
+    ("SIDE-STRIPE", FAIL,
+     "colored side-stripe accent border on a card/callout — the 2018-SaaS tell",
+     re.compile(r"border-(?:left|right)\s*:\s*(?:[2-9]|\d{2,})px|\bborder-[lr]-(?:2|4|8)\b"), CODE_EXTS),
     ("META-LABEL", FAIL,
      "index meta-label (SECTION 01 / STEP 2 / PHASE 03) — name the topic, not the count",
      re.compile(r"\b(?:SECTION|QUESTION|STAGE|STEP|PHASE|PASS)\s?0?\d\b"), TEXT_EXTS),
@@ -73,7 +81,7 @@ LINE_RULES = [
      TEXT_EXTS),
     ("FAKE-STAT", FAIL,
      "fake round statistic (99.99%, 10,000+) — real data has texture",
-     re.compile(r"99\.99\s*%|10,?000\+"), TEXT_EXTS),
+     re.compile(r"99\.9\d*\s*%|(?:10|50),?000\+|\d+×\s*faster|\+\d+%\s*conversion"), TEXT_EXTS),
     ("SCROLL-CUE", FAIL,
      "scroll cue (Scroll to explore, ↓) — design the affordance, don't label it",
      re.compile(r"(?i)scroll (?:to (?:explore|discover|walk)|down (?:to|for)|for more)"
@@ -119,6 +127,11 @@ TAG_RE = re.compile(r"<[^>]+>")
 # Page-structure rules (H1-COUNT / MAIN-LANDMARK) skip near-empty documents —
 # an SPA shell (<body><div id="root">) renders its h1/main from JS.
 PAGE_MIN_WORDS = 30
+
+# FONT-COUNT: the capture stops at the first comma/quote, so a fallback stack
+# ("Söhne, Helvetica Neue, sans-serif") counts as one family, not three.
+FONT_FAMILY_DECL = re.compile(r"font-family\s*:\s*['\"]?([^,;'\"]+)")
+FONT_COUNT_MAX = 4  # 3 families + 1 mono outlier
 
 # Signals for the project-level REDUCED-MOTION rule.
 MOTION_SIGNAL = re.compile(
@@ -168,7 +181,8 @@ def iter_files(paths):
                 yield path
 
 
-PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY"}
+PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
+                    "FONT-COUNT"}
 
 
 def known_rule_ids():
@@ -265,6 +279,17 @@ def scan_paths(paths, archetype="", allow=()):
             "eyebrow-signature count exceeds ceil(sections/3) — verify against the rendered page",
             "project", f"{eyebrows} eyebrow signature(s) for {sections} section(s), "
                        f"max {math.ceil(sections / 3)}"))
+
+    families = set()
+    for path, text in texts.items():
+        if path.suffix.lower() in {".css", ".scss"}:
+            for match in FONT_FAMILY_DECL.finditer(text):
+                families.add(match.group(1).strip().lower())
+    if "FONT-COUNT" not in suppressed and len(families) > FONT_COUNT_MAX:
+        findings.append(Finding(
+            "FONT-COUNT", REVIEW,
+            "distinct font-family count exceeds the page-wide cap — more reads as collage",
+            "project", f"{len(families)} distinct font families — cap is 3 plus one mono outlier"))
 
     return findings, suppression_notes
 
