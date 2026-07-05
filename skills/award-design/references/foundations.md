@@ -268,6 +268,8 @@ gsap.to('.track', {
 
 `ease: 'none'` with an `end` equal to the travel distance keeps the pan locked to the scrollbar.
 
+Common failures, both patterns: `start: 'top center'` or `'top 80%'` instead of `'top top'` — the pin fires halfway down the viewport and the user sees half a slide; and missing cleanup — in React, wrap the timeline in `gsap.context()` inside `useEffect` and `return () => ctx.revert()`, or the trigger survives unmount and stacks on remount.
+
 ### Signature easing lexicon
 
 The easing IS the personality. Generic `ease` / `ease-in-out` is the motion equivalent of Inter on an H1.

@@ -18,6 +18,16 @@ Can also be invoked standalone by the user (without going through the full workf
 
 Each category has anchors at 0, 5, 10. Interpolate honestly — don't inflate to avoid difficult conversations with the user.
 
+### 0. Concept — with veto
+
+The spine itself: is there one world, felt in layout, type, color, motion, and copy?
+
+- **0** — No spine. A literal restatement of the product dressed in tokens. Any competent template could wear this design.
+- **5** — Coherent but expected: the direction is what the category invites, executed cleanly. Recognizable as "the obvious answer, done well".
+- **10** — One committed world; remove the copy and the design still says what the product is. The signature moment is the world's climax, not an effect bolted on.
+
+**Concept veto:** Concept ≤ 5 caps the overall score at 6.0 — below SOTD, whatever the other categories earn. Polish cannot rescue a templated idea; the fix is Phase 1 (regenerate the spine), never more execution. State the cap explicitly in the output when it fires.
+
 ### 1. Hierarchy
 
 How clearly the eye moves from most to least important. Type scale contrast, visual weight, scan path.
@@ -101,6 +111,7 @@ Present results as a compact scored audit.
 ## Scores
 | Category | Score | Verdict |
 |---|---|---|
+| Concept | 7/10 | One world, felt in type and motion; second-read detail thin |
 | Hierarchy | 7/10 | H1/H2 separation tight; weight contrast works |
 | Spacing | 5/10 | Scale drifts — 10px and 14px appear |
 | Typography | 8/10 | Good pairing; body letter-spacing untuned |
@@ -110,6 +121,7 @@ Present results as a compact scored audit.
 | Anti-slop | 9/10 | Minor: one stock-feeling headline |
 
 **Overall: 6.6/10 — Honorable Mention range. SOTD needs 7.5+.**
+*(Concept ≤ 5 would cap this line at 6.0 — when the veto fires, state it here explicitly.)*
 
 ## Top Issues
 
@@ -138,6 +150,7 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 
 ## Rules when running the audit
 
+- **Anti-anchoring order**: form the design judgment from the rendered evidence (screenshots, driven interactions) FIRST; run `scripts/preflight_scan.py` and read any preflight verdict SECOND. Mechanical findings received early anchor the eye on the countable and blind it to composition — the scan sharpens a judgment, it never seeds one.
 - **Evidence, not opinion**: cite selectors, cite values. "The hero uses `linear-gradient(135deg, #a855f7, #ec4899)`" beats "the colors feel AI".
 - **No hedge scores**: 6/10 and 7/10 are different. Pick one. If you can't decide, look harder.
 - **Fixes, not observations**: every P0/P1 must include a concrete CSS snippet or content rewrite. "Improve contrast" is not a fix; `color: #595959` is.
@@ -146,4 +159,4 @@ Fix: `:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }`
 
 ## Relation to `anti-patterns.md`
 
-`anti-patterns.md` is the binary catalog (present/absent). This rubric is the calibrated measurement. In practice: run `anti-patterns.md` first as a quick pre-flight — any axiomatic rejection triggers a stop-and-fix. Then score with this rubric for everything that passes the binary filter.
+`anti-patterns.md` is the binary catalog (present/absent). This rubric is the calibrated measurement. In practice: run `anti-patterns.md` first as a quick pre-flight — any axiomatic rejection triggers a stop-and-fix. Then score with this rubric for everything that passes the binary filter. This catalog-first sequencing governs the *self-audit during a build*; in a fresh-context review the anti-anchoring rule above wins — pixels and judgment first, mechanical output (the scanner, a preflight verdict) second.

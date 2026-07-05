@@ -63,7 +63,7 @@ After everything else. The polish layer: `letter-spacing` adjustments on display
 
 Some interventions cost more than they return. Skip these unless the brief explicitly requires them:
 
-- **Full archetype change** mid-retrofit. If the existing site is Bento and the user wants Spatial Organic, that's not a retrofit — that's a re-architect. Run the SKILL.md "Changing archetype mid-project" sub-flow instead, which regenerates the entire DESIGN.md from new foundations.
+- **Full archetype change** mid-retrofit. If the existing site is Bento and the user wants Spatial Organic, that's not a retrofit — that's a re-architect. Re-enter the protocol at Phase 1 with the new archetype (SKILL.md gotcha 1), which regenerates the entire DESIGN.md from new foundations.
 - **Migrating animation libraries** (GSAP → Framer Motion or vice versa) for the sake of "modernization". Use whichever the codebase already runs; mixing the two in the same component tree is an axiom-#15 anti-pattern (`foundations.md` AI Tells technical).
 - **Adding a signature moment to a page that doesn't have a focal point**. Axiom #8 requires a signature, but bolting a kinetic typography reveal onto a generic centered hero just emphasizes the underlying template. Fix the hero composition first (step 4); the signature can ride on top.
 - **WebGL or 3D additions** to a site that doesn't carry the cinematic register. Performance cost is high; payoff is low if the rest of the site is SaaS-rhythm.
@@ -87,4 +87,4 @@ Update DESIGN.md to reflect the post-retrofit state. The token diff between pre 
 - `audit-rubric.md` — quantitative scoring; the retrofit aims to lift each category 2+ points
 - `premium-patterns.md` — components that replace the generic ones in step 5
 - `foundations.md` — typography, color, motion, and performance fundamentals applied throughout
-- SKILL.md "Changing archetype mid-project" — the alternative when the retrofit needs to become a re-architect
+- SKILL.md gotcha 1 (archetype flip → re-enter at Phase 1) — the alternative when the retrofit needs to become a re-architect

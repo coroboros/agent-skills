@@ -33,7 +33,7 @@ ARCHETYPES = [
     "spatial-organic",
 ]
 
-# Cross-cutting references that must exist for the workflow to function
+# Cross-cutting references that must exist for the protocol to function
 CROSS_CUTTING = [
     "anti-patterns.md",
     "atmosphere-calibration.md",
@@ -41,9 +41,11 @@ CROSS_CUTTING = [
     "brand-extraction.md",
     "design-md-anatomy.md",
     "exemplars.md",
+    "external-truth.md",
     "foundations.md",
     "imagery.md",
     "inspiration.md",
+    "preflight.md",
     "premium-patterns.md",
     "production-hardening.md",
     "remixing.md",
@@ -78,16 +80,16 @@ class TestCrossCuttingReferences(unittest.TestCase):
 
 
 class TestArchetypeTable(unittest.TestCase):
-    """The archetype table in SKILL.md (`## Archetypes — the direction layer`)
-    must list all 9 archetypes and reference each archetype's
-    `references/<name>.md` file. This is the direction layer the Concept Spine
-    draws its line from — a missing row silently strands a brief."""
+    """The archetype table in SKILL.md (Phase 0 — Read the room) must list all
+    9 archetypes and reference each archetype's `references/<name>.md` file.
+    This is the direction layer the Concept Spine draws its line from — a
+    missing row silently strands a brief."""
 
     def _table_section(self):
         text = SKILL_MD.read_text(encoding="utf-8")
-        m = re.search(r"^## Archetypes\b.*?\n(.*?)(?=^##\s)",
+        m = re.search(r"^## Phase 0 — Read the room\b.*?\n(.*?)(?=^##\s)",
                       text, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## Archetypes section missing")
+        self.assertIsNotNone(m, "## Phase 0 — Read the room section missing")
         return m.group(1)
 
     def test_table_lists_every_archetype(self):

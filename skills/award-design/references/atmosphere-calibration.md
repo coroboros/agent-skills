@@ -1,6 +1,6 @@
 # Atmosphere Calibration
 
-After selecting an archetype, calibrate its atmosphere on three axes (1-10). This makes design choices measurable rather than intuitive, and prevents drift during implementation.
+After selecting an archetype, calibrate its atmosphere on three axes (1-10). This makes design choices measurable rather than intuitive, and prevents drift during implementation. The three dial values are a **declared artifact**: stated in the Phase 0 output (never calibrated silently) and recorded in the DESIGN.md Overview prose — later choices arbitrate against them ("break the grid?" → Variance).
 
 ## Axes
 
@@ -26,7 +26,7 @@ Adjust ±2 based on the brief.
 | Bento / Card | 7 | 4 | 4 |
 | Spatial Organic | 4 | 6 | 6 |
 
-Use these to resolve design ambiguity: "More whitespace here?" → check Density. "Break the grid?" → check Variance. "Need scroll animation?" → check Motion. Record final calibrated scores in `DESIGN.md`.
+Use these to resolve design ambiguity: "More whitespace here?" → check Density. "Break the grid?" → check Variance. "Need scroll animation?" → check Motion. Record final calibrated scores in the `DESIGN.md` Overview prose (never as YAML token groups).
 
 ## Signal → dial inference
 

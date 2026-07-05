@@ -1,0 +1,12 @@
+body {
+  color: #000;
+  background: #fff;
+  font-family: Inter, sans-serif;
+}
+a:focus {
+  outline: none;
+}
+.hero {
+  background-image: url("https://images.unsplash.com/photo-123");
+  height: 100vh;
+}

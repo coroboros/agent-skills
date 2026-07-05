@@ -25,29 +25,15 @@ Run this list first when validating. Anything it catches is stop-and-fix, not ni
 
 ## Countable checks
 
-The deterministic core of award-design's stop-and-fix filter. Unlike the axiomatic rejections (binary present/absent) and the rubric (subjective 0-10), these are *mechanically countable* — a number computed from the rendered page, compared against a threshold. Each declares its scope: **global** (every build) or **archetype-conditional** (suppressed for the named archetypes where the pattern is a legitimate choice). A failed check is stop-and-fix, cited with the count.
+The deterministic core of the stop-and-fix filter — a number computed from the rendered page, compared against a threshold. The boxes live in **`preflight.md` §4** (the Phase 5 gate), one row per check with its formula, scope, and override; `scripts/preflight_scan.py` machine-counts the ones it can. One home, no drift: this catalog keeps the axioms, tells, and rationale the boxes point back to.
 
-| Check | Rule | Scope |
-|---|---|---|
-| **Eyebrow density** | Eyebrow tags ≤ `ceil(sectionCount / 3)` — eyebrows punctuate, they don't label every section | Global |
-| **Bento fill** | N list items render as exactly N cells — zero empty or filler cells (`grid-auto-flow: dense`, verified `col-span`/`row-span` interlock) | Global |
-| **Banned palette** | No hex in the AI-purple set (`#a855f7`, `#8b5cf6`, `#ec4899`, `#6366f1`, and the `135deg` purple→pink/blue gradients); no pure `#000` / `#fff` | Global |
-| **Heading lines** | Hero H1 wraps in ≤ 3 lines (2-Line Iron Rule, 3 the hard ceiling) | Global |
-| **Meta-labels** | Zero `SECTION 01` / `QUESTION 05` index labels | Global |
-| **Em-dash density** | Body-copy em-dash density ≤ ~1 per 100 words — high density reads as AI-generated prose | Archetype-conditional — **suppressed for `editorial` and `corporate-luxury`**, where the em-dash is a deliberate typographic choice |
-| **Hero-stack cap** | Hero carries ≤ 4 stacked elements (eyebrow + H1 + subtext + one CTA cluster); subtext ≤ 20 words; no trust-strip or logo-wall inside the hero. Override: a long editorial standfirst counts as one element — cap the stack, not the sentence | Global |
-| **CTA-intent consistency** | One label per intent across the page — `Get Started` + `Start Free` + `Try Now` for the same signup is the tell. Repeating the *same* label for the same intent is fine | Global |
-| **Zigzag cap** | ≤ 2 consecutive image-text split rows before the layout breaks pattern. Override: a third is admissible only if it inverts composition, never a fourth left/right repeat | Global |
-| **Marquee cap** | ≤ 1 marquee / infinite-scroll ticker per page — a single signature ticker is fine; a logo wall *and* a testimonial ribbon is the tell | Global |
-| **Layout-family variety** | ≥ 4 distinct section layout families per 8 sections (hero, feature-split, bento, full-bleed media, editorial column, stat band, CTA band…) | Archetype-conditional — **suppressed for single-fold portfolios and pure docs** (see `foundations.md` Composition variety mandates) |
-
-Scope note: the em-dash check targets **generated site copy**, not the codebase or this skill's own prose. Count it in the rendered body text; suppress entirely for the two archetypes above. The global checks run on every archetype, no exception. Countability is the upgrade over a context-blind blocklist — award-design scores *from* an archetype, it does not subtract *toward* a generic ban.
+Scope note: the em-dash check targets **generated site copy**, not the codebase or this skill's own prose — count it in rendered body text, suppressed for `editorial` and `corporate-luxury`. Countability is the upgrade over a context-blind blocklist — award-design scores *from* an archetype, it does not subtract *toward* a generic ban.
 
 ## Cross-build anti-default
 
 Anti-default is not only within a build (reject the lazy first option) — it holds across builds. The same brief type must never converge on one house look.
 
-- **Rotation memory** — do not reuse the previous build's palette family, type pairing, or hero layout. If the last premium-consumer build ran sand+brass, this one runs a different family. Track the last build's palette / type / hero in-session and rotate off it.
+- **Rotation memory** — do not reuse the previous build's palette family, type pairing, or hero layout. If the last premium-consumer build ran sand+brass, this one runs a different family. Two sources feed it: the previous build's stamp (first line of the main stylesheet, written at Phase 4 — format defined there, once) and this session's builds. State the rotation out loud in the Phase 1 artifact — rotating in your head is how the house look creeps back.
 - **Per-build invention** — every build introduces ≥1 mechanic it has not used before: a novel layout anchor, an unseen motion, a fresh type treatment, a new interaction. A build that reuses only known moves is a default in disguise.
 - **Deterministic non-default selection** — seed the choice off the brief (page kind, audience, brand-name length), never the first option the model reaches for.
 
@@ -94,6 +80,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Instrument Serif and Fraunces — the two LLM-favorite display serifs, now overexposed. Rotate to a less-defaulted face or justify. Editorial and Corporate Luxury may run a serif display, but pick past these two or state why.
 - Oversized H1 that screams — control hierarchy with weight and color, not just scale.
 - Serif on dashboards/software UI (serif is for editorial/luxury only).
+- Clipped italic descenders — an italic display word containing `y g j p q` under `line-height: 1` loses its tails. Use ≥1.1 line-height plus bottom reserve on the wrapper; audit every italic display word before ship.
 
 ### Layout
 
@@ -106,6 +93,12 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Asymmetric layouts that don't collapse below 768px — touch-target conflicts, horizontal scroll, drift. Mobile collapse to single-column (`w-full px-4 py-8`) is mandatory.
 - Empty bento cells. Apply `grid-auto-flow: dense` and verify `col-span` / `row-span` interlock leaves zero voids.
 - Hero H1 wrapped across 4–6 lines (the 2-Line Iron Rule violation).
+- Split-header sections — left big headline, right small explainer paragraph floating with no compositional anchor. Stack vertically (headline, body at 65ch). Override: the right column carries a real visual or interactive element, never filler text.
+- Theme flip mid-page — a light-warm section sandwiched between dark sections (or vice versa) reads as walking into a different website mid-scroll. One theme per page. Override: a single deliberate color-block device, declared in the DESIGN.md.
+- Two-line desktop navigation, or a nav bar taller than 80px eating the viewport. Condense labels, drop secondary items, or go hamburger.
+- Hero top padding past `pt-24` (≈6rem) — the content floats halfway down the viewport and reads as a bug, not as space. Scale the type or the asset instead.
+- CTA labels wrapping to 2+ lines at desktop — shorten to ≤3 words or widen the button; never clamp a primary CTA's `max-width`.
+- Mixed corner-radius systems with no documented rule — round buttons in a square layout, square cards on a pill-button page. One radius system, or a written rule applied everywhere.
 
 ### Content
 
@@ -117,6 +110,16 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Broken Unsplash links — use `picsum.photos/seed/{context}/W/H` or SVG placeholders.
 - Lorem Ipsum — write real draft copy. Latin placeholder text never ships.
 - Filler UI text — "Scroll to explore", "Swipe down", scroll-arrow indicators, bouncing chevrons. They signal "AI couldn't decide what to put here" and add visual noise that competes with the hero. If the user needs the cue, design the affordance into the layout (rhythm, depth, asymmetric reveal); don't bolt on an instruction.
+- Quotes running past 3 lines, or attribution by name alone ("- Sarah"). A landing-page quote is a snippet: cut it, attribute with name + role.
+- The middle-dot (`·`) as the default separator — "foo · bar · baz · qux" strips. Ration to ≤1 per metadata line; prefer line breaks, hairlines, or columns.
+- Generic step labels — "Stage 1 / Stage 2", "Step 1 / Step 2", "Phase 01". The verb-noun is the label ("Install", "Configure", "Ship"); the count adds nothing.
+- Atmospheric locale / time / weather strips ("LIS 14:23 · 18°C", "Lisbon, working with founders") — agency-portfolio decoration. A contact address in the footer is fine; an atmospheric strip is not. Override: genuinely place-focused or timezone-distributed brands.
+- Decoration text strips at the hero bottom — `BRAND. MOTION. SPATIAL.`, `TYPE / FORM / MOTION` mono-caps bands. Only when the strip carries real navigable links or real status.
+- Version labels and footers on marketing pages — `V0.6`, `BETA`, `INVITE-ONLY` hero eyebrows; `v1.4.2 · last sync 4s ago` footers. Devtool fixtures, not landing-page content. Override: the brief is explicitly a launch/preview announcement.
+- Pills, tags, or photo-credit captions overlaid on images — `Plate 03 · House archive`, `Field study no. 12`. Let the image speak, or caption below it in one functional line. Credit only a real photographer, with permission.
+- Decorative status dots — a colored dot before every nav item, list row, or badge. Only for real semantic state (a live availability flag), at most one per section.
+- Micro-meta sentences under eyebrows ("Each of these is a feature we ship today, not a roadmap promise."). Eyebrow + headline + body is enough.
+- A foreign-family word injected into a headline for visual interest — a serif word inside a sans H1. Emphasis is italic or bold of the same family.
 
 ### Technical
 
@@ -128,6 +131,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - `backdrop-filter: blur()` on scrolling content. Apply blur only to fixed/sticky elements (navbars, modal overlays). Otherwise mobile Safari drops to 15–20fps.
 - Static PNG grain overlays on scrolling containers — continuous GPU repaints. Apply procedural noise (Canvas/WebGL) to fixed `pointer-events: none` layers.
 - Perpetual animations not memoized in their own microscopic Client Component — re-renders the parent layout 60×/second and breaks performance budget.
+- Importing a package absent from `package.json` — check first; if missing, output the install command before the import. Assumed dependencies are broken builds.
 
 ## UX anti-patterns disguised as creativity
 
@@ -148,6 +152,8 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - **Avatar circles exclusively** — try squircles or rounded squares.
 - **Light/dark toggle as sun/moon switch** — try a dropdown, system preference detection, or settings integration.
 - **Footer link farm with 4 columns** — focus on main paths and legally required links.
+- **Long list as bare rows** — >5 items with a hairline under each is the laziest layout. Reach for grouped chunks (3 clusters, one soft divider each), a 2-col card grid (spec name + display value + one-line why), tabs/accordion for categorisables, scroll-snap pills, or featured-vs-rest (3–4 hero specs large, the rest behind a disclosure). The 10-row spec table with `border-b` on every row is the canonical fail.
+- **Emoji or hand-rolled SVG paths as icons** — one icon family per page (Phosphor, Radix, Tabler, HugeIcons), standardized stroke width, missing glyph → compose from primitives or add a second library, never draw paths from scratch.
 - **Trendy-component-kit sameness** — beams, sparkles, spotlight cards, animated-gradient heroes, 3D-tilt cards dropped in from Aceternity / Magic UI / Cult unmodified. The 2026 AI-landing-page monoculture; judges flag it on sight. Override: scaffold from the kit, then restyle past its defaults — font, gradient, motion timing, color (see `inspiration.md`).
 
 ## Output discipline

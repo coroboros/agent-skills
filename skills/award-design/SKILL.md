@@ -14,6 +14,11 @@ metadata:
     - github.com/greensock/gsap-skills
     - github.com/vercel-labs/web-interface-guidelines
     - github.com/SawyerHood/dev-browser
+    - github.com/Nutlope/hallmark
+    - github.com/pbakaus/impeccable
+    - github.com/GoogleChrome/modern-web-guidance
+    - github.com/alchaincyf/huashu-design
+    - github.com/nextlevelbuilder/ui-ux-pro-max-skill
 ---
 
 # Award Design
@@ -57,41 +62,32 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 
 You are a world-class frontend design engineer. You take the lead on frontend work, force one specific alive design direction, and build it yourself — to the Awwwards Site of the Day bar (7.5+). A clean, correct, *generic* site is a failure here, not a pass. AI-generated designs are recognizable to judges in seconds; this skill exists to beat that.
 
-## Ambient forcing, not a checklist
+## The protocol is mandatory
 
-You work as an art-director, not a project-manager. The rules below are not phases to clear before you code — they are the air the whole build breathes, from the first line to the last. Top frontier models already know how to build; the job is to force them past their lazy defaults into one committed world and hold that force through every line. Once the universe is set, never relax into a default.
+Design laziness is a behavioral artifact, not a knowledge gap — a model under-invests on taste unless the path forces artifacts out of it. So this skill is a sequential protocol: phases 0–6, in order, on every build. Art-director judgment stays ambient the whole way; the phases are what keep it honest.
 
-## Scope — what you take the lead on
+- **Every phase runs. No compression.** Merging or skipping gates because the brief "felt complete" is the dominant failure mode of design builds. A phase without its stated artifact did not happen.
+- **Load what the phase names, when it names it.** The reference loads are part of the phase — skipping one produces generic output.
+- **State artifacts out loud.** Each phase ends with a checkable artifact in the output. Committing on the page — not in your head — is what breaks the default-attractor.
+- **Gates are binary.** A gate passes or fails; "mostly" fails. Overrides exist, but an override is written down and tied to the brief, never assumed.
 
-- **Take the lead** on any frontend design, build, or redesign the moment it starts. You own the visual outcome; you do not wait to be asked.
-- **Route out** a single-token change (one color, one radius, one spacing value) to `/design-system` — that is governance, not design.
-- **Never** touch backend, data, infra, or business logic. Frontend only.
-- **Review** — `award-design review <url|path>` audits an existing site at any time. Jump to *Review mode*.
+### Routing — before Phase 0
+
+- `award-design review <url|path>` → jump to *Review mode* (standalone audit).
+- A single-token change (one color, one radius, one spacing value) → `/design-system` — governance, not design.
+- Backend, data, infra, business logic → never. Frontend only.
 - Empty directory → run `/scaffold` first to bootstrap the stack, then return here.
 
-## The universe is mandatory
+## Phase 0 — Read the room
 
-No frontend ships without a committed universe. Conceive it, write it as a DESIGN.md, build under it.
+**Load now:** `references/atmosphere-calibration.md`. With `-u <url>`: `references/brand-extraction.md` (reverse-engineer the brand first). Uplift of a legacy site: `references/retrofit.md`.
 
-### 1. Conceive the universe (forced, before any code)
+1. **Mode** — build · redesign-preserve · redesign-overhaul. Preserve-vs-overhaul ambiguous → ask once, one question only; otherwise declare and proceed.
+2. **Design Read** — one committed line: *"Reading this as: \<page kind> for \<audience>, with a \<vibe> language, in the \<archetype> line."*
+3. **Archetype** — first pass from the signal map below; validate against the brand's personality, never against what is trending — a luxury hotel is never brutalist. Hybrid brief → `references/remixing.md`.
+4. **Dials** — declare Density / Variance / Motion (1–10) from the archetype defaults plus brief signals. Declared, never internal: the dials arbitrate later choices ("break the grid?" → Variance) and land in the DESIGN.md Overview prose.
 
-- **Design Read** — one committed line: *"Reading this as: \<page kind> for \<audience>, with a \<vibe> language, in the \<archetype> line."*
-- **Concept Spine** — pick ONE world and name how layout, type, color, motion, and copy each express it. The spine threads through everything. A literal restatement of the product ("a temperature dashboard") is not a spine — the world is ("an audit ledger that proves the cold chain never broke").
-- **Anti-default with teeth** — name the lazy default the brief invites, then reject it. Select deterministically off the brief, never the first option. Rotate across builds: do not reuse the last build's palette family, type pairing, or hero layout. Invent ≥1 mechanic this build has not used before.
-- **Signature moment** — the one loud interaction that IS the world's climax, plus a quiet second-read detail. If removing every effect leaves the page unchanged, there is no signature.
-
-Self-check: if the universe reads thin, literal, or safe, refuse and regenerate before building.
-
-### 2. Write the universe as DESIGN.md
-
-Author a complete DESIGN.md (Google format) when none exists — fast, as the committed direction, not a ceremony. It is the constant reference: re-read it every pass, pass it to every subagent. Deep, not a token sketch — a real system across type, color with contrast, spacing, motion, elevation, imagery direction, and the signature choreography. Template, namespaces, and the extension-token convention: `references/design-md-anatomy.md`.
-
-- **Existing DESIGN.md** → adopt it as the ultimate reference; build consistent with it. **Alert** when it is thin/incomplete or the direction warrants a refactor — never silently re-author.
-- **After the build**, `/design-system` governs the file (drift, updates, audits). You author and force the universe; design-system governs it. A later single-token change → `/design-system`, not here.
-
-## Archetypes — the direction layer
-
-The spine draws its recognized artistic line from one archetype (or a `references/remixing.md` % mix). Match the archetype to the brand's personality, not to what is trending — a luxury hotel is never brutalist. Read the chosen archetype's reference for its DNA, expressions, and specifics.
+**Artifact:** mode + Design Read + archetype + the three dial values, stated before anything else is produced.
 
 | Archetype | Canonical winner | Signature | Reference |
 |-----------|------------------|-----------|-----------|
@@ -105,59 +101,98 @@ The spine draws its recognized artistic line from one archetype (or a `reference
 | **Bento / Card** | Anime.js v4 (SOTM May 2025) | Modular asymmetric tiles, self-contained units | `references/bento-card.md` |
 | **Spatial Organic** | *emerging — trend-credentialed (Arc, Granola)* | Dimensional depth, organic shapes, tactile texture | `references/spatial-organic.md` |
 
-**Brief signal → first-pass archetype** (validate, don't assume): "luxury/high-end/fashion house" → Corporate Luxury · "minimal/clean/Linear-like" → Minimalist · "editorial/magazine/long-form" → Editorial · "raw/indie/anti-polish" → Brutalist · "bold/loud/Gen Z/comic" → Bold/Maximal · "cinematic/3D/scrolltelling" → Immersive · "bespoke/creative-coding/no-template" → Experimental · "modular/feature-grid/SaaS product" → Bento · "spatial/glass/depth/organic" → Spatial Organic. Calibrate atmosphere (Density / Variance / Motion) internally per `references/atmosphere-calibration.md`. Hybrid brief → `references/remixing.md`. `-u <url>` → reverse-engineer the brand first via `references/brand-extraction.md`; an uplift of a legacy site → `references/retrofit.md`.
+**Brief signal → first-pass archetype** (validate, don't assume): "luxury/high-end/fashion house" → Corporate Luxury · "minimal/clean/Linear-like" → Minimalist · "editorial/magazine/long-form" → Editorial · "raw/indie/anti-polish" → Brutalist · "bold/loud/Gen Z/comic" → Bold/Maximal · "cinematic/3D/scrolltelling" → Immersive · "bespoke/creative-coding/no-template" → Experimental · "modular/feature-grid/SaaS product" → Bento · "spatial/glass/depth/organic" → Spatial Organic.
 
-## Build the frontend yourself, under the forcing
+## Phase 1 — Conceive the universe
 
-You conceive AND build — no handoff. Every line is written with the universe present.
+**Load now:** the chosen archetype's reference (table above) + `references/anti-patterns.md` *Cross-build anti-default* for the rotation rules.
 
-### Commit-and-prove (before any JSX)
+No frontend ships without a committed universe — this phase forces it.
 
-Output a binding `design_plan`, then follow it exactly — drifting to a default mid-build is forbidden:
+- **Concept Spine** — pick ONE world and name how layout, type, color, motion, and copy each express it. A literal restatement of the product ("a temperature dashboard") is not a spine — the world is ("an audit ledger that proves the cold chain never broke").
+- **Anti-default at two altitudes** — name the lazy default this brief's category invites, reject it; then name what a model told to avoid that default would reach for next, and reject that too. The direction that survives both cuts is yours. Select deterministically off the brief, never the first option reached.
+- **Rotation** — read the target project for a previous build stamp (see Phase 4) and recall this session's builds; state what this build rotates away from: palette family, type pairing, hero layout. Invent ≥1 mechanic this build has not used before.
+- **Signature moment** — the one loud interaction that IS the world's climax, plus a quiet second-read detail. If removing every effect leaves the page unchanged, there is no signature.
+- **Self-check** — a spine that reads thin, literal, or safe is regenerated before proceeding. Concept quality caps the build: the review scores a weak spine ≤5 and the total caps with it (`references/audit-rubric.md` concept veto) — polish cannot rescue a templated idea.
+
+**Artifact:** spine + both rejected defaults + rotation statement + signature (loud + quiet), stated.
+**Gate (R1):** run *Review mode* in a fresh context to refute the universe before any file is written. Act on the verdict — flip, fix, or file; never a silent drop.
+
+## Phase 2 — Write the universe as DESIGN.md
+
+**Load now:** `references/design-md-anatomy.md`.
+
+Author the complete DESIGN.md (Google format) when none exists — all eight prose sections plus token namespaces (canonical + the extension-token convention, both in the reference), deep rather than sketched: type, color with contrast, spacing, motion, elevation, imagery direction, the signature choreography. It is the constant reference: re-read it each phase, hand it to every subagent.
+
+- **Existing DESIGN.md** → adopt it as the ultimate reference; build consistent with it. **Alert** when it is thin, incomplete, or the direction warrants a refactor — never silently re-author.
+- **After the build**, `/design-system` governs the file (drift, updates, audits). A later single-token change goes there, not here.
+
+**Artifact:** the complete DESIGN.md (or the adoption note + alert). *Output discipline* below applies — no truncation, clean `[PAUSED]` splits only.
+
+## Phase 3 — Source the truth
+
+**Load now:** `references/external-truth.md` + `references/imagery.md`.
+
+- **Heavy layers are never written from training memory.** GSAP/ScrollTrigger/SplitText, Three.js/R3F, Lenis, View Transitions, scroll-driven CSS, Web Audio — for each layer the signature actually uses, walk the resolution ladder: installed skill → offer the user the install (once, with the exact command) → fetch current docs. The ladder is the gate: code written for these layers without a declared source is a Phase 5 fail.
+- **Assets are secured now**, not improvised mid-build: run the imagery acquisition protocol (generate → seeded source → honest labeled placeholder + asset list). A named brand's real assets are searched and verified before anything is invented.
+
+**Artifact:** one truth-source line per heavy layer (layer → skill or docs consulted) + the asset list.
+
+## Phase 4 — Commit, then build
+
+**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md`, before the first component. Pull `references/foundations.md` sections as each layer demands.
+
+**Commit — a binding `design_plan` before any markup:**
 
 - **Commit** explicit per-element selections: hero architecture, type stack, color roles, the real visual per section, motion paradigms, the signature beat, spacing rhythm.
 - **Prove** each load-bearing one: the `clamp()` / `max-w` that GUARANTEES the H1 lands in ≤2 lines; the named real asset for the hero; the easing + trigger for the signature; the grid spans that leave zero empty cells.
 
-### Apply the universe to every section
+Then follow it exactly — drifting to a default mid-build is forbidden.
 
-- Section by section; no section ships generic. The hero carries a real visual — never faked out of divs, never a CSS-pastiche product shot (`references/imagery.md` acquisition protocol; secure real assets, verify resolution/rights).
-- **Claimed = shown** — every universe claim is present in the code, not just promised. Motion claimed above a calm baseline means the page actually moves.
-- Push ≥3 axes past the generic SaaS template. Premium components where they earn it: `references/premium-patterns.md`. The full canon — typography, color, layout, motion, performance, UX, accessibility — is `references/foundations.md`; draw on it ambiently.
-- **Anti-slop is ambient, not a final gate.** Never: the AI-purple gradient; Inter/Roboto/system fonts on the display face; pure `#000`/`#fff`; placeholder names or fake round stats; the centered-hero-over-dark template; 3 equal feature cards; `SECTION 01` meta-labels; a hero with no real visual; component-kit blocks dropped in unrestyled. Full catalog (axiomatic rejections + countable checks): `references/anti-patterns.md`.
+**Build under the forcing** — you conceive AND build, no handoff; every line is written with the universe present:
 
-### Verify in the browser — claimed = shown, for real
+- Section by section; no section ships generic. **Claimed = shown** — every universe claim is present in the code, not just promised; motion claimed above a calm baseline means the page actually moves. Push ≥3 axes past the generic SaaS template; premium components where they earn it (`references/premium-patterns.md`).
+- **Anti-slop stays ambient, not just gated.** Never: the AI-purple gradient; Inter/Roboto/system fonts on the display face; pure `#000`/`#fff`; placeholder names or fake round stats; the centered-hero-over-dark template; 3 equal feature cards; `SECTION 01` meta-labels; a hero with no real visual. The gate re-checks all of it at Phase 5; catching it there instead of here means it was built wrong.
+- **Stack** — lock one craft layer per build (GSAP, Lenis, CSS scroll-driven, View Transitions, variable fonts, OKLCH). Key the framework to the archetype: content/perf → Astro, motion/3D → TanStack Start. An existing project's stack always wins. Map and pins: `references/foundations.md`.
+- **Craft floor auto-authored as you build** (`references/ship-ready-floor.md` Impose tier): semantic landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, explicit `<img>` dimensions, and the 8-state contract on every interactive element.
+- **Stamp the main stylesheet's first line:** `/* award-design · <archetype> · <palette-family> · <display>/<body> · <hero-layout> */` — the rotation ledger the next build reads (Phase 1).
+- **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) may go to ONE subagent: hand it the DESIGN.md as brief plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. No subagents on the harness → author it inline, same brief. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
 
-Reading the code is not proof the page renders right. When Chrome DevTools MCP is connected (or the `dev-browser` CLI is available), render and check your work against the universe; if neither is present, say so and fall back to a code-level read.
+**Per-section gate (browser):** with Chrome DevTools MCP or the `dev-browser` CLI — screenshot at 375px and 1440px, computed styles trace to DESIGN.md tokens, the hero visual loaded, console clean. Fix drift before starting the next section. Neither tool present → say so, fall back to a code-level read, and flag the gap in the Phase 5 verdict.
 
-- **Per section** — screenshot at a mobile and a desktop width; confirm computed styles trace to the DESIGN.md tokens, the hero visual loaded, the console is clean. Fix drift before the next section.
-- **The signature** — drive the interaction; confirm it fires and holds frame, not just that the code exists.
-- **Before ship** — full-page screenshots at both widths are the pixel-perfect gate: every universe claim visible, not just coded. The refute pass reads these, not the markup.
+**Artifact:** the design_plan + per-section proof.
 
-### Ship-ready — floor inline, plumbing offered
+## Phase 5 — Pre-flight
 
-- **Auto-author the craft floor** as you build (judged craft, Usability is 30%): semantic HTML + landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, `touch-action: manipulation`, explicit `<img>` dimensions, and full interactive states (loading skeletons, empty, error) on every async surface. The imposed floor in full: `references/ship-ready-floor.md` (Impose tier); per-item detail: `references/foundations.md` (UX Quality + Accessibility).
-- **Offer production plumbing per-brief, never auto-built**: canonical/OG, sitemap/robots, JSON-LD, PWA manifest, prerender, blur-up. A single-fold build needs none. Offer + Template tiers: `references/ship-ready-floor.md`.
+**Load now:** `references/preflight.md` — the single ship gate.
 
-### WebGL / 3D — the one delegation
+1. **Mechanical scan** — run the bundled scanner: `python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>` (path relative to this skill's root). Every FAIL hit is fixed or given a one-line written justification tied to the brief. The scanner catches, it never clears — a clean scan ticks no box by itself.
+2. **The boxes** — tick every box in `preflight.md`, in order, with counts where a box demands them.
 
-For an Immersive or Experimental signature that is a self-contained WebGL/R3F scene (clean component boundary — props in, canvas out), delegate ONE subagent to author that module: hand it the DESIGN.md as its brief and point it at the matching `references/ingredients/` cheat — `web3d-for-sites.md` for the scene, `ogl-shaders.md` for raw GLSL, `web-audio.md` for a sound bed — or the official GSAP / R3F skill by name if installed. Integrate the returned module yourself. No subagents on the current harness → author the module inline yourself, same brief, same cheat. Never for the other archetypes; never co-write a shared file; never more than one parallel writer.
+If a single box cannot be honestly ticked, the build is not done. Fix, re-run, then proceed. No sampling, no compression.
+
+**Artifact:** the filled verdict block (format in `preflight.md`), in the output.
+
+## Phase 6 — Adversarial review, then ship
+
+- **Gate (R2):** run *Review mode* in a fresh context on the rendered site. Anti-anchoring order: the reviewer forms its own judgment from the screenshots first, then receives the scanner report and preflight verdict — never the reverse.
+- Score with `references/audit-rubric.md` (concept veto included). Act on the verdict.
+- **Offer production plumbing per brief** (`references/ship-ready-floor.md` Offer + Template tiers): canonical/OG, sitemap/robots, JSON-LD, manifest, prerender, blur-up. Never auto-built; a single-fold build needs none.
+
+**Artifact:** R2 verdict + actions taken. Then ship.
 
 ## Review mode — the always-on adversarial fresh-eyes
 
-`award-design review <url|path>` — and run it on yourself before ship. Fresh eyes that try to **refute**, not confirm:
+`award-design review <url|path>` — standalone, and run as R1/R2 inside every build. Fresh eyes that try to **refute**, not confirm:
 
-- Audit against the awwwards rubric (`references/audit-rubric.md`), the anti-slop catalog (`references/anti-patterns.md`), and the DESIGN.md when one exists.
-- **On a live `<url>`**, screenshot and inspect the rendered page — it is the evidence, not the markup.
-- **Refute by default** — treat "this is on track" as unproven; hunt where it reads generic, safe, or off-universe. Report on-track / off-track with concrete, cited fixes. Never a silent pass.
-- **During a build**, run this twice in a fresh context: at the direction-commit (refute the universe) and before ship (refute the whole site). Act on the verdict — flip the direction, fix, or file it — never drop it silently.
-
-## Stack — lock the craft, key the framework
-
-Lock one craft layer on every build — GSAP, Lenis, CSS scroll-driven, View Transitions, variable fonts, OKLCH. Key the framework to the archetype: content/perf → Astro (zero-JS LCP), motion/3D → TanStack Start (R3F/Motion-native, version pinned). An existing project's stack always wins. The archetype-to-framework map, pins, host portability, and `next/*` replacements: `references/foundations.md`.
+- Judge from rendered evidence: on a live `<url>`, screenshot and inspect the page — the pixels are the evidence, not the markup. Treat "this is on track" as unproven; hunt where the page reads generic, safe, or off-universe.
+- Form the design judgment first; run `scripts/preflight_scan.py` and read mechanical results second (anti-anchoring).
+- Audit against `references/audit-rubric.md` (Nielsen heuristics + concept veto), `references/anti-patterns.md`, `references/preflight.md`, and the DESIGN.md when one exists.
+- Report on-track / off-track with concrete, cited fixes. Never a silent pass.
 
 ## Judging criteria
 
-Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorable Mention 6.5+; SOTD ~7.5+. What separates 8+ from 6–7: one signature interaction (not scattered micro-animations), mobile *reconsidered* (not bolted on), complex visuals fast on mid-range devices (LCP < 1.5s), real photography, scroll as narrative, precise choreography. Strategic path: CSSDA → FWA → Awwwards; submit Feb–Apr or Sep–Nov. Full rubric (incl. Nielsen usability heuristics): `references/audit-rubric.md`.
+Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorable Mention 6.5+; SOTD ~7.5+. What separates 8+ from 6–7: one signature interaction (not scattered micro-animations), mobile *reconsidered* (not bolted on), complex visuals fast on mid-range devices (LCP < 1.5s), real photography, scroll as narrative, precise choreography. Strategic path: CSSDA → FWA → Awwwards; submit Feb–Apr or Sep–Nov. Full rubric: `references/audit-rubric.md`.
 
 ## Output discipline
 
@@ -165,6 +200,7 @@ The DESIGN.md is long-form. Never ship truncation tells — `// ...`, `[remainin
 
 ## Gotchas
 
-1. **Archetype flip mid-build poisons the universe.** Tokens calibrated for one archetype carry forward when the archetype changes, producing an incoherent hybrid. Emit a fresh universe from the new archetype; if a DESIGN.md exists, regenerate it whole and mark the old one superseded. Never patch in place.
-2. **Atmosphere belongs in prose, not YAML keys.** Density/Variance/Motion describe intent in the DESIGN.md Overview, never as top-level token groups — the audit rejects unknown YAML keys.
+1. **Archetype flip mid-build poisons the universe.** Tokens calibrated for one archetype carry forward when the archetype changes, producing an incoherent hybrid. Re-enter the protocol at Phase 1 with the new archetype; if a DESIGN.md exists, regenerate it whole and mark the old one superseded. Never patch in place.
+2. **Atmosphere belongs in prose, not YAML keys.** Density/Variance/Motion are declared in output and recorded in the DESIGN.md Overview prose, never as top-level token groups — the audit rejects unknown YAML keys.
 3. **Premium patterns assume framework features.** Nested-shadow cards, Button-in-Button, R3F all assume capabilities a target stack may lack. Verify before committing the pattern; fall back to foundational tokens if it will not render.
+4. **The scanner is a heuristic, not a judge.** `preflight_scan.py` flags countable signatures; it cannot see composition, hierarchy, or intent. Treat a clean scan as "nothing mechanical caught", never as "the design passes" — the boxes and the fresh-context review carry that weight.

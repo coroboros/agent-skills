@@ -1,18 +1,14 @@
-"""award-design universe-mandatory contract — the inversion of code-first.
+"""award-design universe-mandatory contract — now carried by protocol phases.
 
-The rebuild reversed the old "code-first, no upfront DESIGN.md required, inline
-token block, offer Persist" posture. The universe is now MANDATORY: no frontend
-ships without a committed universe; the skill writes a DESIGN.md when none
-exists, adapts to (and alerts on a thin) existing one, and /design-system
-governs the file after. The build first emits a binding `design_plan` with
-per-element commitments and a proof line each — before any JSX — and every
-universe claim must be shown in the code, not just promised. A standalone
-`review` mode audits any site refute-by-default.
-
-Each assertion would FAIL on the pre-rebuild SKILL.md (which declared the
-DESIGN.md optional, gated nothing on a committed universe, and crystallized the
-file only on an opt-in Persist) — that is what makes them verify the inversion
-rather than merely describe it."""
+The universe remains MANDATORY: no frontend ships without a committed one.
+The protocol rebuild moved its enforcement into phases — Phase 0 reads the
+room (Design Read, archetype, declared dials), Phase 1 conceives the universe
+(spine, two-altitude anti-default, rotation, signature, R1 refutation),
+Phase 2 writes it as a DESIGN.md, Phase 4 commits-and-proves before any markup
+and carries the WebGL one-subagent carve-out. Review mode stays the always-on
+refuter. These tests pin those contracts at their new homes; each would FAIL
+on the pre-protocol SKILL.md (different sections) AND on the pre-rebuild one
+(no universe forcing at all)."""
 
 import re
 import unittest
@@ -31,378 +27,291 @@ def _foundations():
     return FOUNDATIONS_MD.read_text(encoding="utf-8")
 
 
-def _universe_section():
-    """The `## The universe is mandatory` block — the heart of the inversion."""
-    m = re.search(
-        r"^## The universe is mandatory\b(.*?)(?=^##\s)",
-        _body(), re.DOTALL | re.MULTILINE,
-    )
-    assert m is not None, "## The universe is mandatory section missing"
-    return m.group(1)
-
-
-def _build_section():
-    """The `## Build the frontend yourself, under the forcing` block."""
-    m = re.search(
-        r"^## Build the frontend yourself, under the forcing\b(.*?)(?=^##\s)",
-        _body(), re.DOTALL | re.MULTILINE,
-    )
-    assert m is not None, "## Build the frontend yourself section missing"
+def _phase(n):
+    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
+    assert m is not None, f"## Phase {n} section missing"
     return m.group(1)
 
 
 class TestUniverseIsMandatory(unittest.TestCase):
-    """No frontend ships without a committed universe — the exact opposite of
-    the old code-first default. The build is gated on it, not on an opt-in."""
-
-    def test_section_exists(self):
-        self.assertIn("## The universe is mandatory", _body())
+    """No frontend ships without a committed universe — the build is gated on
+    it (Phases 1–2), never an opt-in."""
 
     def test_no_ship_without_committed_universe(self):
-        section = _universe_section().lower()
-        self.assertIn("no frontend ships without a committed universe", section,
-                      "the universe must be declared a hard precondition of any build")
+        self.assertIn("No frontend ships without a committed universe", _phase(1),
+                      "the universe must stay a hard precondition of any build")
 
     def test_design_md_is_not_optional(self):
-        """The old 'no DESIGN.md required before pixels' posture must be gone."""
         body = _body().lower()
-        for stale in (
-            "no design.md required",
-            "no design.md is required",
-            "no design file is authored before pixels",
-            "no design file before pixels",
-        ):
+        for stale in ("no design.md required", "no design.md is required",
+                      "no design file is authored before pixels"):
             with self.subTest(phrase=stale):
-                self.assertNotIn(stale, body,
-                                 f"the optional-DESIGN.md posture must not survive: {stale!r}")
+                self.assertNotIn(stale, body)
 
-    def test_no_inline_token_block_default(self):
-        """The build no longer commits an inline YAML token block in place of a
-        DESIGN.md — it authors the file."""
-        body = _body().lower()
-        self.assertNotIn("inline token block", body,
-                         "the inline-token-block-instead-of-DESIGN.md posture must be gone")
-
-    def test_no_opt_in_persist_path(self):
-        """The DESIGN.md is authored up front now, not crystallized on a later
-        opt-in. No `## Persist` section, no 'opt-in Persist' wording."""
+    def test_no_inline_token_block_or_persist_path(self):
         body = _body()
-        self.assertNotRegex(body, r"(?m)^## Persist\b",
-                            "the opt-in Persist section must not survive the rebuild")
-        self.assertNotIn("Persist path", body,
-                         "the opt-in Persist path must be gone — the universe is authored up front")
+        self.assertNotIn("inline token block", body.lower())
+        self.assertNotRegex(body, r"(?m)^## Persist\b")
 
 
 class TestForcedConcepting(unittest.TestCase):
-    """Conceiving the universe forces four moves before any code: a Design Read,
-    a Concept Spine, anti-default-with-teeth, and a signature moment. Each is the
-    discipline that pushes top frontier models past their lazy defaults; dropping one
-    generic-build escape hatch. The skill must refuse a thin universe."""
+    """Phase 1 forces the moves that push a model past its lazy defaults:
+    a Concept Spine, the two-altitude anti-default, an out-loud rotation, a
+    signature moment, and a regenerate-on-thin self-check capped by the
+    concept veto."""
 
     def setUp(self):
-        self.section = _universe_section()
+        self.phase1 = _phase(1)
 
-    def test_design_read_forced(self):
-        self.assertIn("Design Read", self.section,
-                      "concepting must force a committed Design Read line")
+    def test_design_read_declared_at_phase_0(self):
+        phase0 = _phase(0)
+        self.assertIn("Design Read", phase0)
+        self.assertIn("Reading this as:", phase0,
+                      "Phase 0 must force the committed one-line Design Read")
 
     def test_concept_spine_forced(self):
-        self.assertIn("Concept Spine", self.section,
-                      "concepting must force a named Concept Spine")
-        self.assertIn("ONE world", self.section,
-                      "the Concept Spine must commit to one world, not a literal restatement")
+        self.assertIn("Concept Spine", self.phase1)
+        self.assertIn("ONE world", self.phase1,
+                      "the spine commits to one world, not a literal restatement")
 
-    def test_anti_default_with_teeth(self):
-        section = self.section
-        self.assertIn("Anti-default with teeth", section,
-                      "concepting must force anti-default-with-teeth")
-        # The teeth: name-then-reject the lazy default, rotate across builds,
-        # and invent a fresh mechanic — not a generic 'be original'.
-        self.assertRegex(section.lower(), r"reject|lazy default",
-                         "anti-default must name and reject the brief's lazy default")
-        self.assertIn("Rotate", section,
-                      "anti-default must rotate off the last build's palette / type / hero")
+    def test_anti_default_at_two_altitudes(self):
+        """One rejection produces the second-most-obvious default; the
+        two-altitude cut (reject the lazy default AND the told-to-avoid-it
+        reach) is what lands on a genuinely non-obvious direction."""
+        phase1 = self.phase1
+        self.assertIn("Anti-default at two altitudes", phase1)
+        self.assertRegex(phase1.lower(), r"reject.*reject that too|reject it; then name",
+                         "both altitudes must be named and rejected")
+        self.assertIn("never the first option", phase1)
+
+    def test_rotation_is_stated_and_ledgered(self):
+        phase1 = self.phase1
+        self.assertIn("Rotation", phase1)
+        self.assertIn("stamp", phase1,
+                      "rotation must read the previous build's stylesheet stamp")
+        self.assertRegex(phase1.lower(), r"palette family, type pairing, hero layout",
+                         "rotation must name the three rotated axes")
+        self.assertIn("≥1 mechanic", phase1,
+                      "every build must invent at least one fresh mechanic")
 
     def test_signature_moment_forced(self):
-        section = self.section
-        self.assertIn("Signature moment", section,
-                      "concepting must force a signature moment")
-        # The falsifiable test for a real signature.
-        self.assertIn("removing every effect", section.lower(),
-                      "the signature must carry its falsifiable removing-every-effect test")
+        self.assertIn("Signature moment", self.phase1)
+        self.assertIn("removing every effect", self.phase1.lower(),
+                      "the signature keeps its falsifiable removing-every-effect test")
 
-    def test_thin_universe_is_refused(self):
-        section = self.section.lower()
-        self.assertIn("refuse", section,
-                      "a thin / literal / safe universe must be refused and regenerated")
+    def test_thin_universe_regenerated_and_veto_wired(self):
+        phase1 = self.phase1
+        self.assertIn("regenerated before proceeding", phase1,
+                      "a thin / literal / safe spine must be regenerated")
+        self.assertIn("concept veto", phase1.lower(),
+                      "concept quality must cap the build via the rubric's veto")
+
+    def test_r1_refutes_before_any_file(self):
+        self.assertIn("before any file is written", self.phase1,
+                      "R1 must refute the universe before any file exists")
 
 
 class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
-    """The skill writes a DESIGN.md (Google format) when none exists, adapts to
-    an existing one as the ultimate reference, and alerts when that file is thin
-    — never silently re-authoring. /design-system governs the file after."""
+    """Phase 2 writes the DESIGN.md (Google format) when none exists, adopts
+    an existing one as the ultimate reference, alerts when it is thin, and
+    hands governance to /design-system after the build."""
 
     def setUp(self):
-        self.section = _universe_section()
+        self.phase2 = _phase(2)
 
     def test_authors_design_md_when_none_exists(self):
-        section = self.section
-        self.assertIn("DESIGN.md", section, "the universe must be written as a DESIGN.md")
-        self.assertRegex(
-            section, r"Author a complete DESIGN\.md|write it as a DESIGN\.md",
-            "the skill must author a complete DESIGN.md when none exists",
-        )
-        self.assertIn("Google format", section,
-                      "the authored DESIGN.md must be the Google format")
+        phase2 = self.phase2
+        self.assertRegex(phase2, r"Author the complete DESIGN\.md")
+        self.assertIn("Google format", phase2)
+        self.assertIn("eight prose sections", phase2)
 
     def test_adapts_to_existing_design_md(self):
-        section = self.section
-        self.assertIn("Existing DESIGN.md", section,
-                      "the skill must branch on an existing DESIGN.md")
-        self.assertRegex(
-            section.lower(), r"adopt it|build consistent",
-            "an existing DESIGN.md must be adopted as the reference, not ignored",
-        )
+        phase2 = self.phase2
+        self.assertIn("Existing DESIGN.md", phase2)
+        self.assertRegex(phase2.lower(), r"adopt it|build consistent")
 
     def test_alerts_when_existing_design_md_is_thin(self):
-        section = self.section
-        self.assertIn("Alert", section,
-                      "the skill must alert when an existing DESIGN.md is thin/incomplete")
-        self.assertIn("never silently re-author", section.lower(),
-                      "a thin DESIGN.md must trigger an alert, never a silent re-author")
+        self.assertIn("Alert", self.phase2)
+        self.assertIn("never silently re-author", self.phase2.lower())
 
     def test_design_system_governs_after_the_build(self):
-        section = self.section.lower()
-        self.assertIn("after the build", section,
-                      "governance must hand off after the build")
-        self.assertIn("/design-system", self.section,
-                      "/design-system must govern the DESIGN.md after the build")
-        self.assertIn("design-system governs", section,
-                      "the author-vs-govern split must be stated explicitly")
+        phase2 = self.phase2
+        self.assertIn("After the build", phase2)
+        self.assertIn("/design-system", phase2)
+        self.assertIn("governs", phase2.lower())
 
     def test_design_md_is_the_constant_reference(self):
-        """The DESIGN.md is re-read every pass and handed to every subagent —
-        the reference contract, not a write-once artifact."""
-        section = self.section.lower()
-        self.assertIn("re-read it every pass", section,
-                      "the DESIGN.md must be re-read every pass")
-        self.assertIn("every subagent", section,
-                      "the DESIGN.md must be passed to every subagent")
+        phase2 = self.phase2.lower()
+        self.assertIn("re-read it each phase", phase2)
+        self.assertIn("every subagent", phase2)
 
 
 class TestCommitAndProve(unittest.TestCase):
-    """Before any JSX the build emits a binding `design_plan`: explicit
-    per-element commitments, each load-bearing one paired with a proof line.
-    This is the gate that converts the universe into code commitments; without
-    it the build drifts to a default mid-stream."""
+    """Phase 4 emits a binding design_plan before any markup: explicit
+    per-element commitments, each load-bearing one paired with a proof line."""
 
     def setUp(self):
-        self.build = _build_section()
-        m = re.search(
-            r"### Commit-and-prove(.*?)(?=^###\s|\Z)",
-            self.build, re.DOTALL | re.MULTILINE,
-        )
-        self.assertIsNotNone(m, "### Commit-and-prove subsection missing")
-        self.commit = m.group(1)
+        self.phase4 = _phase(4)
 
-    def test_design_plan_is_binding_and_pre_jsx(self):
-        self.assertIn("design_plan", self.commit,
-                      "the build must output a binding design_plan")
-        self.assertIn("before any jsx", self.build.lower(),
-                      "the design_plan must precede any JSX")
-        self.assertRegex(
-            self.commit.lower(), r"follow it exactly|drifting to a default.*forbidden",
-            "the design_plan must be binding — drifting to a default is forbidden",
-        )
+    def test_design_plan_is_binding_and_pre_markup(self):
+        phase4 = self.phase4
+        self.assertIn("design_plan", phase4)
+        self.assertIn("before any markup", phase4.lower())
+        self.assertRegex(phase4.lower(),
+                         r"follow it exactly|drifting to a default.*forbidden")
 
     def test_commits_explicit_per_element_selections(self):
-        commit = self.commit
-        self.assertRegex(commit, r"\*\*Commit\*\*",
-                         "commit-and-prove must carry an explicit Commit clause")
-        # The per-element commitments must enumerate the load-bearing surfaces.
+        phase4 = self.phase4
+        self.assertRegex(phase4, r"\*\*Commit\*\*")
         for element in ("hero", "type", "color", "motion", "signature"):
             with self.subTest(element=element):
-                self.assertIn(element, commit.lower(),
-                              f"the design_plan must commit the {element} selection")
+                self.assertIn(element, phase4.lower())
 
     def test_each_commitment_carries_a_proof(self):
-        commit = self.commit
-        self.assertRegex(commit, r"\*\*Prove\*\*",
-                         "commit-and-prove must carry an explicit Prove clause")
-        # Proofs are concrete guarantees, not restatements.
-        self.assertIn("clamp()", commit,
-                      "the H1 proof must name the clamp()/max-w that guarantees ≤2 lines")
-        self.assertRegex(commit.lower(), r"≤2 lines|≤ 2 lines|2 lines",
-                         "the H1 proof must guarantee the headline lands in ≤2 lines")
+        phase4 = self.phase4
+        self.assertRegex(phase4, r"\*\*Prove\*\*")
+        self.assertIn("clamp()", phase4)
+        self.assertRegex(phase4.lower(), r"≤2 lines|≤ 2 lines|2 lines")
 
     def test_claimed_equals_shown(self):
-        """Every universe claim must be present in the code, not just promised —
-        the rule that makes the design_plan binding rather than aspirational."""
-        build = self.build
-        self.assertIn("Claimed = shown", build,
-                      "the build must enforce claimed = shown")
-        self.assertIn("not just promised", build.lower(),
-                      "claimed = shown must require the claim be in the code, not just promised")
+        phase4 = self.phase4
+        self.assertIn("Claimed = shown", phase4)
+        self.assertIn("not just promised", phase4.lower())
+
+    def test_per_section_browser_gate(self):
+        phase4 = self.phase4
+        self.assertRegex(phase4, r"375px and 1440px",
+                         "the per-section browser gate must name its widths")
+        self.assertIn("console clean", phase4.lower())
+        self.assertIn("before starting the next section", phase4.lower())
+
+    def test_rotation_stamp_written(self):
+        self.assertIn("/* award-design ·", self.phase4,
+                      "Phase 4 must stamp the stylesheet for the rotation ledger")
 
 
 class TestReviewMode(unittest.TestCase):
-    """A standalone review mode audits any site refute-by-default — invoked via
-    `award-design review <url|path>`, run on yourself before ship, and never a
-    silent pass. This replaces nothing in the old code-first contract; it is a
-    new always-on critic the tests must pin."""
+    """Review mode stays the always-on refuter — standalone via
+    `award-design review <url|path>` and as R1/R2 inside every build, judging
+    pixels before machine output."""
 
     def _review(self):
-        m = re.search(
-            r"^## Review mode\b(.*?)(?=^##\s)",
-            _body(), re.DOTALL | re.MULTILINE,
-        )
+        m = re.search(r"^## Review mode\b(.*?)(?=^##\s)", _body(), re.DOTALL | re.MULTILINE)
         self.assertIsNotNone(m, "## Review mode section missing")
         return m.group(1)
 
-    def test_review_section_exists(self):
-        self.assertIn("## Review mode", _body())
-
     def test_review_invoked_by_subcommand(self):
-        review = self._review()
-        self.assertIn("award-design review <url|path>", review,
-                      "review mode must document the `award-design review <url|path>` invocation")
+        self.assertIn("award-design review <url|path>", self._review())
 
-    def test_review_is_refute_by_default(self):
+    def test_review_refutes_never_confirms(self):
         review = self._review().lower()
-        self.assertIn("refute by default", review,
-                      "review mode must refute by default, not confirm")
-        self.assertIn("never a silent pass", review,
-                      "review mode must never silently pass")
+        self.assertRegex(review, r"\*\*refute\*\*, not confirm|refute by default")
+        self.assertIn("never a silent pass", review)
 
-    def test_review_runs_against_rubric_and_anti_slop(self):
-        review = self._review()
-        self.assertIn("references/audit-rubric.md", review,
-                      "review must audit against the awwwards rubric reference")
-        self.assertIn("references/anti-patterns.md", review,
-                      "review must audit against the anti-slop catalog")
+    def test_review_runs_inside_every_build(self):
+        self.assertIn("R1/R2 inside every build", self._review())
 
-    def test_review_runs_on_self_before_ship(self):
+    def test_review_judges_pixels_before_scanner(self):
         review = self._review().lower()
-        self.assertRegex(
-            review, r"on yourself before ship|before ship",
-            "review must be run on the build itself before ship",
-        )
+        self.assertIn("pixels are the evidence", review)
+        self.assertRegex(review, r"judgment first.*mechanical results second",
+                         "the anti-anchoring order must hold in standalone review too")
+
+    def test_review_runs_against_rubric_catalog_and_gate(self):
+        review = self._review()
+        for ref in ("references/audit-rubric.md", "references/anti-patterns.md",
+                    "references/preflight.md"):
+            with self.subTest(ref=ref):
+                self.assertIn(ref, review)
 
 
 class TestWebGLOneSubagentCarveOut(unittest.TestCase):
-    """The single delegation carve-out: an Immersive/Experimental WebGL/R3F
-    signature with a clean component boundary delegates ONE subagent to author
-    that module — never for other archetypes, never a shared file, never more
-    than one parallel writer. The build is otherwise authored by the skill
-    itself (no handoff)."""
+    """The single delegation carve-out lives in Phase 4: one subagent for a
+    self-contained Immersive/Experimental WebGL/R3F scene, integrated by the
+    skill itself — never for other archetypes, never a shared file."""
 
     def setUp(self):
-        m = re.search(
-            r"### WebGL / 3D — the one delegation(.*?)(?=^###\s|^##\s)",
-            _body(), re.DOTALL | re.MULTILINE,
-        )
-        self.assertIsNotNone(m, "### WebGL / 3D — the one delegation subsection missing")
+        m = re.search(r"\*\*WebGL / 3D — the one delegation\.\*\*(.*?)(?=\n- \*\*|\n\n\*\*|\n##)",
+                      _body(), re.DOTALL)
+        self.assertIsNotNone(m, "WebGL / 3D — the one delegation clause missing")
         self.carve = m.group(1)
 
     def test_single_subagent_only(self):
-        carve = self.carve
-        self.assertIn("ONE subagent", carve,
-                      "the carve-out must delegate exactly one subagent")
-        self.assertIn("never more than one parallel writer", carve.lower(),
-                      "the carve-out must forbid more than one parallel writer")
+        self.assertIn("ONE subagent", self.carve)
+        self.assertIn("never more than one parallel writer", self.carve.lower())
 
     def test_scoped_to_immersive_experimental_only(self):
-        carve = self.carve
-        self.assertTrue(
-            "Immersive" in carve and "Experimental" in carve,
-            "the carve-out must scope to Immersive / Experimental signatures",
-        )
-        self.assertIn("Never for the other archetypes", carve,
-                      "the carve-out must exclude the other archetypes")
+        self.assertTrue("Immersive" in self.carve and "Experimental" in self.carve)
+        self.assertIn("never for other archetypes", self.carve.lower())
 
     def test_clean_boundary_and_self_integration(self):
         carve = self.carve.lower()
-        self.assertRegex(carve, r"clean component boundary|props in, canvas out",
-                         "the carve-out requires a clean component boundary")
-        self.assertIn("integrate the returned module yourself", carve,
-                      "the skill must integrate the returned module itself")
+        self.assertIn("props in, canvas out", carve)
+        self.assertIn("integrate the returned module yourself", carve)
 
     def test_no_shared_file_co_authoring(self):
-        self.assertIn("never co-write a shared file", self.carve.lower(),
-                      "the carve-out must forbid co-writing a shared file")
+        self.assertIn("never co-write a shared file", self.carve.lower())
+
+    def test_briefed_with_design_md_and_truth_source(self):
+        carve = self.carve
+        self.assertIn("DESIGN.md", carve, "the subagent's brief is the DESIGN.md")
+        self.assertIn("Phase 3", carve,
+                      "the subagent must ride the truth source resolved at Phase 3")
 
 
 class TestStackMapping(unittest.TestCase):
-    """The stack is keyed to the archetype, not locked to one framework: Astro
-    for content archetypes, TanStack Start for motion/3D archetypes, with a
-    locked universal craft layer and host kept orthogonal. Drift here means the
-    skill recommends the wrong runtime for the chosen archetype."""
+    """The stack is keyed to the archetype in Phase 4 (terse) with the detail
+    in foundations.md — Astro for content archetypes, TanStack Start for
+    motion/3D, locked universal craft, existing stack wins."""
 
-    def _stack(self):
-        """Stack DETAIL — per-archetype map, motion-path, adapt-not-migrate, host
-        — lives in foundations.md; the body carries only the terse rule + route."""
+    def _stack_detail(self):
         m = re.search(r"^## Stack\b.*?\n(.*?)(?=^##\s)", _foundations(), re.DOTALL | re.MULTILINE)
         self.assertIsNotNone(m, "foundations.md ## Stack section missing")
         return m.group(1)
 
-    def test_body_keys_stack_and_routes(self):
-        """The body keys the framework to the archetype tersely and routes the
-        detail to foundations.md — progressive disclosure, not a restated map."""
-        m = re.search(r"^## Stack\b.*?\n(.*?)(?=^##\s)", _body(), re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "SKILL.md ## Stack section missing")
-        body_stack = m.group(1)
-        self.assertIn("Astro", body_stack, "body must key content to Astro")
-        self.assertIn("TanStack Start", body_stack,
-                      "body must key motion/3D to TanStack Start")
-        self.assertIn("foundations.md", body_stack,
-                      "body must route the stack detail to foundations.md")
+    def test_phase_4_keys_stack_and_routes(self):
+        phase4 = _phase(4)
+        self.assertIn("Astro", phase4)
+        self.assertIn("TanStack Start", phase4)
+        self.assertIn("foundations.md", phase4)
+        self.assertIn("existing project's stack always wins", phase4.lower())
 
     def test_locked_universal_craft(self):
-        stack = self._stack()
+        stack = self._stack_detail()
         for craft in ("GSAP", "Lenis", "View Transitions", "variable fonts", "OKLCH"):
             with self.subTest(craft=craft):
-                self.assertIn(craft, stack, f"locked universal craft must include {craft}")
-        self.assertRegex(stack.lower(), r"css scroll-driven",
-                         "locked craft must include CSS scroll-driven animations")
+                self.assertIn(craft, stack)
+        self.assertRegex(stack.lower(), r"css scroll-driven")
 
     def test_astro_for_content_archetypes(self):
-        stack = self._stack()
-        m = next((ln for ln in stack.splitlines() if "Astro" in ln), "")
-        self.assertTrue(m, "stack must map Astro to its archetypes")
+        line = next((ln for ln in self._stack_detail().splitlines() if "Astro" in ln), "")
+        self.assertTrue(line, "stack must map Astro to its archetypes")
         for archetype in ("Minimalist", "Editorial", "Corporate-Luxury", "Bento"):
             with self.subTest(archetype=archetype):
-                self.assertIn(archetype, m,
-                              f"Astro must be keyed to the {archetype} content archetype")
+                self.assertIn(archetype, line)
 
     def test_tanstack_for_motion_3d_archetypes(self):
-        stack = self._stack()
-        m = next((ln for ln in stack.splitlines() if "TanStack Start" in ln), "")
-        self.assertTrue(m, "stack must map TanStack Start to its archetypes")
+        line = next((ln for ln in self._stack_detail().splitlines()
+                     if "TanStack Start" in ln), "")
+        self.assertTrue(line, "stack must map TanStack Start to its archetypes")
         for archetype in ("Immersive", "Experimental", "Bold", "Spatial-Organic"):
             with self.subTest(archetype=archetype):
-                self.assertIn(archetype, m,
-                              f"TanStack Start must be keyed to the {archetype} archetype")
+                self.assertIn(archetype, line)
 
     def test_motion_framer_and_r3f_on_tanstack_path_only(self):
-        stack = self._stack()
         self.assertRegex(
-            stack, r"(Motion/Framer \+ R3F|Motion \(Framer\).*R3F).*TanStack path only",
-            "Motion/Framer + R3F must be scoped to the TanStack path only",
-        )
+            self._stack_detail(),
+            r"(Motion/Framer \+ R3F|Motion \(Framer\).*R3F).*TanStack path only")
 
     def test_existing_stack_wins_no_migration(self):
-        stack = self._stack()
-        self.assertIn("Existing project's stack wins", stack,
-                      "an existing project's stack must win — adapt, not migrate")
-        self.assertRegex(stack.lower(), r"adapt, don't migrate|adapt, never migrate",
-                         "the rule must be adapt-not-migrate")
+        stack = self._stack_detail()
+        self.assertIn("Existing project's stack wins", stack)
+        self.assertRegex(stack.lower(), r"adapt, don't migrate|adapt, never migrate")
 
     def test_host_is_orthogonal(self):
-        stack = self._stack().lower()
-        self.assertIn("host orthogonal", stack,
-                      "host must be declared orthogonal (Nitro presets, /scaffold optional)")
-        self.assertIn("never assumed", stack,
-                      "the /scaffold deploy preset must never be assumed")
+        stack = self._stack_detail().lower()
+        self.assertIn("host orthogonal", stack)
+        self.assertIn("never assumed", stack)
 
 
 if __name__ == "__main__":

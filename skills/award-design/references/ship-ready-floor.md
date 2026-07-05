@@ -12,7 +12,7 @@ Most of the Impose tier already lives in `foundations.md` UX Quality + Accessibi
 
 Present on every build, gated. None competes with the design; all is floor.
 
-- **Full interactive cycles** — every async surface has loading (skeletons matching the final layout, not a spinner), empty, and error states; `:active` gives tactile press feedback. A control with only a resting state is unfinished.
+- **Full interactive cycles — the 8-state contract** — every interactive element ships its applicable states: default, hover, focus-visible, active, disabled, loading, empty/error, success. Async surfaces carry loading (skeletons matching the final layout, not a spinner), empty, and error states; `:active` gives tactile press feedback (`-translate-y-[1px]` or `scale-[0.98]`). A control with only a resting state is unfinished.
 - **Contrast on controls** — buttons and form fields meet WCAG AA in every state (rest, hover, disabled, focus). Glassmorphic and tinted controls are the usual failures — test them.
 - **Cursor-affordance discipline** — `pointer` on actionable, `text` on text, `not-allowed` on disabled, default elsewhere. A `div` button with a default cursor reads as broken.
 - **One consistent link-hover signature** — a single hover treatment (underline reveal, color shift) applied everywhere. Mixed hover behaviors read as unfinished.
