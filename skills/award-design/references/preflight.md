@@ -107,6 +107,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 
 ## 8. Browser proof
 
+- [ ] The conformance loop exited clean on every section — both core widths passing in the same iteration; drift left standing at the 5-loop cap is filed below, never silently accepted
 - [ ] Full-page screenshots at **375px, 768px, 1440px**, taken and read — one line per screenshot on what it showed; every universe claim visible in the pixels, not just coded
 - [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography
 - [ ] The signature interaction driven live: it fires, completes, and holds frame — where the tooling offers a performance trace, the signature holds 60fps and LCP measures against the < 1.5s target (or the measured value is declared as a gap)

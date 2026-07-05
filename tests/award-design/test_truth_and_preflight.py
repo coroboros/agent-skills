@@ -78,6 +78,17 @@ class TestCapabilityMap(unittest.TestCase):
                 self.assertIn(tripwire, self.truth,
                               f"stale-signature tripwire missing: {tripwire}")
 
+    def test_browser_verification_is_a_gated_capability(self):
+        """Rendering proof resolves like a heavy layer: MCP → dev-browser →
+        webwright → install offer; only a declined offer degrades."""
+        self.assertIn("## Browser verification", self.truth)
+        self.assertIn("npm install -g dev-browser && dev-browser install", self.truth)
+        for candidate in ("Chrome DevTools MCP", "dev-browser", "webwright"):
+            with self.subTest(candidate=candidate):
+                self.assertIn(candidate, self.truth)
+        self.assertIn("*declined* offer", self.truth,
+                      "only a declined install offer may degrade the gate")
+
 
 class TestPreflightGateStructure(unittest.TestCase):
     """The gate's spine: scan first, then axiomatic boxes, locks, countables,
@@ -135,6 +146,10 @@ class TestPreflightGateStructure(unittest.TestCase):
     def test_font_resolution_box_in_browser_proof(self):
         self.assertIn("resolves to the committed face", self.preflight,
                       "browser proof must carry the computed-font-resolution box")
+
+    def test_conformance_loop_box_in_browser_proof(self):
+        self.assertIn("conformance loop exited clean", self.preflight.lower())
+        self.assertIn("5-loop cap", self.preflight)
 
     def test_pacing_and_quiet_layer_boxes(self):
         for box in ("**Pacing curve**", "**Quiet layer**"):

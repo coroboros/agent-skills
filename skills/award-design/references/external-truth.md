@@ -24,6 +24,16 @@ A static minimalist page loads none of this; an Immersive scrolltelling build ma
 | Web Audio / Howler | sound layer — Immersive, Experimental | `audio-loop` for ambient loop beds | — | `references/ingredients/web-audio.md` · howlerjs.com |
 | Raw WebGL / GLSL (OGL) | custom shader signatures | — | — | `references/ingredients/ogl-shaders.md` · github.com/oframe/ogl |
 
+## Browser verification — a gated capability too
+
+Rendering proof is not optional tooling — resolve it like a heavy layer, before Phase 4 opens. A build that never rendered is a build nobody looked at.
+
+| Capability | Candidates (first present wins) | Install offer | Fallback |
+|---|---|---|---|
+| Screenshot · drive · console · traces | Chrome DevTools MCP (adds performance traces and LCP) · `dev-browser` CLI · `webwright` plugin | `npm install -g dev-browser && dev-browser install` | only a *declined* offer degrades to the code-level read + a declared gap in the verdict |
+
+The conformance loop (Phase 4) and the browser proof (pre-flight §8) ride on this rung. `dev-browser` is the sufficient default; the MCP adds measurement when connected.
+
 ## Stale-signature tripwires
 
 Writing any of these from memory means the ladder was skipped — stop and resolve the layer first:

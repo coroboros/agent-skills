@@ -185,6 +185,26 @@ class TestCommitAndProve(unittest.TestCase):
         self.assertIn("console clean", phase4.lower())
         self.assertIn("before starting the next section", phase4.lower())
 
+    def test_conformance_loop_is_the_gate(self):
+        """The gate is a loop, not a single look: screenshot → hunt drift →
+        fix → re-render, both widths every iteration, exit only when both pass
+        in the same iteration, capped with declared residue."""
+        phase4 = self.phase4
+        self.assertIn("loop until conformant", phase4.lower())
+        self.assertIn("*every* iteration", phase4)
+        self.assertIn("*same* iteration", phase4)
+        self.assertIn("Cap: 5 loops", phase4)
+        self.assertIn("never silently accepted", phase4)
+
+    def test_browser_tooling_is_install_gated(self):
+        """No tooling → the skill offers the install once; only a declined
+        offer degrades to the code-level fallback."""
+        phase4 = self.phase4
+        self.assertIn("npm install -g dev-browser && dev-browser install", phase4)
+        self.assertIn("declined offer", phase4.lower())
+        self.assertIn("references/external-truth.md", phase4,
+                      "the browser ladder lives in external-truth.md")
+
     def test_font_resolution_proof(self):
         """A display font silently falling back to a system font is invisible
         in the code and destroys the whole design — the browser gate must

@@ -170,7 +170,13 @@ Then follow it exactly — drifting to a default mid-build is forbidden.
 - **Stamp the main stylesheet's first line:** `/* award-design · <archetype> · <palette-family> · <display>/<body> · <hero-layout> */` — the rotation ledger the next build reads (Phase 1).
 - **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) may go to ONE subagent: hand it the DESIGN.md as brief plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. No subagents on the harness → author it inline, same brief. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
 
-**Per-section gate (browser):** with Chrome DevTools MCP or the `dev-browser` CLI — screenshot at 375px and 1440px, computed styles trace to DESIGN.md tokens, the hero visual loaded, computed `font-family` on display text resolves to the committed face (a silent fallback to a system font voids the whole section and is never visible in the code), console clean. Fix drift before starting the next section. Neither tool present → say so, fall back to a code-level read (which may batch into one declared end-of-phase pass), and flag the gap in the Phase 5 verdict.
+**Per-section gate — the conformance loop (browser):** resolve the tooling through the browser ladder (`references/external-truth.md`): Chrome DevTools MCP, `dev-browser`, or `webwright`; none present → offer the install once (`npm install -g dev-browser && dev-browser install`). Only a declined offer degrades to a code-level read (which may batch into one declared end-of-phase pass, flagged in the Phase 5 verdict). With tooling, **loop until conformant**:
+
+1. Screenshot at 375px and 1440px — both widths, *every* iteration; responsive is judged per loop, never retrofitted at the end.
+2. Hunt drift against the design_plan and the DESIGN.md: computed styles trace to tokens, the hero visual loaded, computed `font-family` on display text resolves to the committed face (a silent system-font fallback is invisible in code and fatal on screen), console clean, no dead vertical zones, nothing a judge would flag in the frame.
+3. Fix, re-render, loop. Exit only when both widths pass in the *same* iteration. Cap: 5 loops per section — drift still standing at the cap is filed in the Phase 5 verdict, never silently accepted.
+
+Fix drift before starting the next section.
 
 **Artifact:** the design_plan + per-section proof.
 

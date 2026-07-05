@@ -17,6 +17,7 @@ What separates 7.5 from 8+ once the universe, layout, and motion are right: deci
 - **Optical centering beats geometric centering.** A glyph or icon geometrically centered in a button sits visually low — nudge up 1–2px. A play triangle centers on its visual mass — nudge right. Trust the screenshot, not the math.
 - **Circles next to squares run ~2% larger**, or they read smaller at equal bounding box. Same for diamonds and acute shapes.
 - **Headings belong to what follows.** `margin-top` ≥ 2× `margin-bottom` on section headings — a heading floating equidistant between two blocks orphans itself and flattens the rhythm.
+- **A divider is punctuation, not a section.** A rule, ruler, or ornament sits inside the section rhythm — at most one `--space-xl` of air on each side. A divider floating in more than twice its own visual height of emptiness reads as a missing section, not as whitespace.
 - **Borders take the surface's temperature.** On light: `rgb(0 0 0 / 0.06–0.10)`; on dark: `rgb(255 255 255 / 0.08–0.14)`; both nudged toward the surface hue (`oklch(from var(--surface) …)`). The same foreign gray on both sides of a theme is the mismatch tell.
 - **Shadows are colored.** Tint every shadow with the surface hue at low alpha — pure-black shadows on a warm page read as stickers. Elevation reads as light, and light has a temperature.
 
