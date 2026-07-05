@@ -14,6 +14,8 @@ Even a minimalist build carries 2–3 real images. A hero that is a headline flo
 
 What does not clear the floor: a centered headline over a purple/blue or beige gradient, stock-feeling hero slabs, or a single icon standing in for a hero image.
 
+**The silhouette test.** The hero object is nameable from its first frame by someone who hasn't read the copy. An exploded, abstracted, or assembling state may carry the narrative — but it keeps an anchor of legibility (a readable sub-assembly, a ghost outline of the whole, one completed detail at recognizable scale). Drama that costs recognition costs the sale. Same bar for the model itself: push definition past primitive stand-ins (profiles, bevels, material breaks) — a box-built object reads as placeholder at close range.
+
 ## No fake-div screenshots
 
 Never hand-roll a fake product UI out of divs, borders, and gradients to simulate a screenshot or dashboard. It reads as AI filler instantly and never matches the real product. Order of preference:

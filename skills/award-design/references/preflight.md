@@ -97,7 +97,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 
 - [ ] No broken grammar, no unclear referents, no cute-but-wrong AI phrasing — flagged strings rewritten plain
 - [ ] Every eyebrow passes the buyer-learn test — it names something the reader needs (category, value, place in the page); registration meta ("PROOF COPY", "No. 114", edition strings) is decoration that signals AI, unless the number IS the product's name
-- [ ] Every data visual carries a one-line legend naming what its marks are — a chart the viewer can't decode is decoration
+- [ ] Every data visual decodes at a glance — marks self-evident in context, or named by a one-line legend; the loop screenshot is the test (a stranger can say what each mark is)
 - [ ] Numbers are real, or explicitly labeled as mock — no invented spec-precision
 - [ ] Zero lorem ipsum `(scanner: LOREM)`; zero scroll cues ("Scroll to explore", bouncing chevrons) `(scanner: SCROLL-CUE)`
 - [ ] No AI copy clichés in site copy (Elevate, Seamless, Unleash, Next-Gen, Delve)
