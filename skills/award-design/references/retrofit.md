@@ -76,7 +76,7 @@ Run the same validation as a new project — the Phase 5–6 gate (pre-flight + 
 1. `references/anti-patterns.md` — axiomatic rejections first; if any present, the retrofit isn't done.
 2. `references/audit-rubric.md` — score the seven categories. The retrofit target is +2 points per category from the pre-fix baseline.
 3. `references/foundations.md` UX Quality and Accessibility sections — these are easy to defer during retrofit and easy to break.
-4. Visual review via `dev-browser` if available — screenshot before/after for the user to compare.
+4. Visual review through the browser ladder (`external-truth.md` — install offer applies) — screenshot before/after for the user to compare.
 
 Update DESIGN.md to reflect the post-retrofit state. The token diff between pre and post is a useful artifact for the team; export it via `/design-system diff DESIGN.md@HEAD~1 DESIGN.md`.
 

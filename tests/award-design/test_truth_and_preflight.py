@@ -151,6 +151,12 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertIn("conformance loop exited clean", self.preflight.lower())
         self.assertIn("5-loop cap", self.preflight)
 
+    def test_mcp_measurements_are_mandatory_when_connected(self):
+        """'Where the tooling offers' was a latitude hole — a connected MCP
+        makes the trace mandatory; a miss is a finding, not a gap."""
+        self.assertIn("performance trace is mandatory", self.preflight)
+        self.assertIn("a miss is a finding, not a gap", self.preflight)
+
     def test_pacing_and_quiet_layer_boxes(self):
         for box in ("**Pacing curve**", "**Quiet layer**"):
             with self.subTest(box=box):

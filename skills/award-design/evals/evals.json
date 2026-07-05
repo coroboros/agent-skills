@@ -1,6 +1,6 @@
 {
   "skill_name": "award-design",
-  "description": "Behavioural evaluation set for the award-design skill. Cases pin the mandatory 7-phase protocol: read the room (mode + Design Read + archetype + declared dials), conceive a committed anti-default universe (two-altitude rejection, rotation, signature), write it as a DESIGN.md (or adapt to and alert on a thin existing one), source the truth for heavy layers (installed skill → offer install → fetch docs), commit-and-prove before any markup, pre-flight (scanner + boxes) before ship, and a fresh-context adversarial review. Plus archetype + stack routing, review-mode audit with anti-anchoring order, scope discipline (dashboards out, single-token tweaks to design-system), and the WebGL one-subagent carve-out.",
+  "description": "Behavioural evaluation set for the award-design skill. Cases pin the mandatory 7-phase protocol: read the room (mode + Design Read + archetype + declared dials), conceive a committed anti-default universe (two-altitude rejection, rotation, signature), write it as a DESIGN.md (or adapt to and alert on a thin existing one), source the truth for heavy layers (installed skill → offer install → fetch docs), commit-and-prove before any markup, pre-flight (scanner + boxes) before ship, and a fresh-context adversarial review. Plus archetype + stack routing, review-mode audit with anti-anchoring order, scope discipline (dashboards out, single-token tweaks to design-system), the WebGL one-subagent carve-out, the scoped-run short path, and the browser conformance loop. Re-run: skill-creator flow — one with-skill subagent per case (frozen skill copy, prompt verbatim, demand a '=== PROTOCOL SELF-REPORT ===' section listing phases/artifacts/deviations), grade the self-report and artifacts against expected_output; build cases (1, 8, 10, 11) also need a human eye on the rendered artifact.",
   "evals": [
     {
       "id": 1,
@@ -63,6 +63,20 @@
       "name": "external-truth-ladder-gates-heavy-layers",
       "prompt": "Add a pinned horizontal-scroll gallery with kinetic split-text headlines to my Astro site. Use GSAP.",
       "expected_output": "Treats GSAP/ScrollTrigger/SplitText as a heavy layer and walks the Phase 3 ladder before writing any of it: checks the available-skills list for the official GSAP skills; if absent, offers the install once with the exact command (`npx skills add https://github.com/greensock/gsap-skills`); on decline or silence, fetches current GSAP docs (find-docs / ctx7 / gsap.com) and cites what was read. Declares the truth source for the layer in the Phase 3 artifact. Never writes ScrollTrigger or SplitText syntax purely from training memory — and avoids the stale tripwires (missing `gsap.registerPlugin`, Club-paywall assumptions). The existing Astro stack wins; no framework migration is proposed.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "scoped-run-on-existing-design-md",
+      "prompt": "Add a 'Field notes' journal section (three short entries) to my existing landing page — keep the spirit. The project has a DESIGN.md at the root and the stylesheet's first line carries an award-design stamp.",
+      "expected_output": "Declares the scoped run explicitly ('scoped run: Field notes section') — an undeclared shortcut is a skipped phase. Phase 0 derives and declares the archetype from the DESIGN.md and the stylesheet stamp. Phases 1–2 adopt the existing universe (alert if thin, never silently regenerate); R1 refutes the new section's FIT with the adopted universe, not the universe itself. Phase 3 gates only heavy layers the new section introduces. Phase 4 emits a design_plan scoped to the new surface, built under the existing tokens; the pacing check re-reads the whole page the section lands on. Phase 5 scans the touched paths only (the scanner takes a file list) and files out-of-scope pre-existing hits as risks, never silently fixing them; the consistency locks still read the full page. The artifacts shrink; every gate still runs.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "conformance-loop-drives-pixel-perfect-responsive",
+      "prompt": "Bento-style landing page for an AI note-taking product — hero + 4 feature tiles, compact, single page. I want it pixel-perfect on mobile AND desktop.",
+      "expected_output": "Resolves the browser ladder before Phase 4 and states the rung and presence check in the Phase 3 artifact (Chrome DevTools MCP → dev-browser → webwright; none present → offers `npm install -g dev-browser && dev-browser install` once; only a declined offer degrades to the declared code-level fallback). With tooling, runs the conformance loop per section: screenshots at 375px AND 1440px on every iteration (responsive judged per loop, never retrofitted), hunts drift against the design_plan and DESIGN.md tokens including computed font-family resolution, fixes, re-renders — exits only when both widths pass in the same iteration, capped at 5 loops with residue filed in the verdict. With the MCP connected, the performance trace is mandatory (LCP vs < 1.5s, signature at 60fps — a miss is a finding, not a gap). The pre-flight §8 boxes cite the loop's clean exit.",
       "files": []
     }
   ]

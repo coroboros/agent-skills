@@ -115,6 +115,15 @@ class TestForcingHeader(unittest.TestCase):
         self.assertRegex(header.lower(), r"override is written down",
                          "overrides must be written down and tied to the brief")
 
+    def test_no_model_choice_on_capabilities(self):
+        """Every 'when available' is a future laziness hole: capabilities
+        resolve through deterministic ladders, and the model never picks the
+        comfortable rung."""
+        header = self._header()
+        self.assertIn("The harness varies; the path never does.", header)
+        self.assertIn("first rung present wins", header)
+        self.assertIn("never picks the comfortable rung", header.lower())
+
     def test_every_phase_has_load_and_artifact(self):
         """Phases 0–5 each name their mandatory loads; phases 0–6 each end with
         a stated artifact. A phase without either is unenforceable."""
@@ -277,6 +286,10 @@ class TestPhase3ExternalTruth(unittest.TestCase):
             "Phase 3 must state the three-rung resolution ladder in order")
         self.assertIn("Phase 5 fail", phase3,
                       "an undeclared heavy-layer source must be wired to the pre-flight fail")
+
+    def test_browser_rung_is_a_phase_3_artifact(self):
+        self.assertIn("browser-tooling rung", _phase(3),
+                      "the browser rung and presence check must be a declared artifact")
 
 
 class TestPhase5Preflight(unittest.TestCase):

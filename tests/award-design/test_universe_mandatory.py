@@ -172,6 +172,15 @@ class TestCommitAndProve(unittest.TestCase):
         self.assertRegex(phase4, r"\*\*Prove\*\*")
         self.assertIn("clamp()", phase4)
         self.assertRegex(phase4.lower(), r"≤2 lines|≤ 2 lines|2 lines")
+        self.assertIn("Name the ≥3 axes", phase4,
+                      "the push-3-axes claim must be named in the plan, not vibed")
+
+    def test_foundations_pull_is_declared(self):
+        """'As each layer demands' was a latitude hole — the pull list is
+        named in the design_plan, with a stated minimum."""
+        phase4 = self.phase4
+        self.assertIn("list what was pulled in the design_plan", phase4)
+        self.assertIn("the locked craft layer at minimum", phase4)
 
     def test_claimed_equals_shown(self):
         phase4 = self.phase4
@@ -287,6 +296,12 @@ class TestWebGLOneSubagentCarveOut(unittest.TestCase):
     def test_single_subagent_only(self):
         self.assertIn("ONE subagent", self.carve)
         self.assertIn("never more than one parallel writer", self.carve.lower())
+
+    def test_delegation_is_deterministic_not_optional(self):
+        """'May go to a subagent' was a latitude hole — the path is decided by
+        the harness, never by the model's mood."""
+        self.assertIn("when the harness has subagents", self.carve)
+        self.assertIn("inline otherwise", self.carve.lower())
 
     def test_scoped_to_immersive_experimental_only(self):
         self.assertTrue("Immersive" in self.carve and "Experimental" in self.carve)

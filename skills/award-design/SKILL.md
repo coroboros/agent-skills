@@ -70,6 +70,7 @@ Design laziness is a behavioral artifact, not a knowledge gap — a model under-
 - **Load what the phase names, when it names it.** The reference loads are part of the phase — skipping one produces generic output.
 - **State artifacts out loud.** Each phase ends with a checkable artifact in the output. Committing on the page — not in your head — is what breaks the default-attractor.
 - **Gates are binary.** A gate passes or fails; "mostly" fails. Overrides exist, but an override is written down and tied to the brief, never assumed.
+- **The harness varies; the path never does.** Every capability (browser, heavy layers, docs, subagents, image tools) resolves through a deterministic ladder — first rung present wins, one user-facing install offer, and the only degradation is a declared, labeled fallback. The model never picks the comfortable rung: it resolves, states the rung, and moves.
 
 ### Routing — before Phase 0
 
@@ -146,18 +147,18 @@ Author the complete DESIGN.md (Google format) when none exists — all eight pro
 - **Heavy layers are never written from training memory.** GSAP/ScrollTrigger/SplitText, Three.js/R3F, Lenis, View Transitions, scroll-driven CSS, Web Audio — for each layer the signature actually uses, walk the resolution ladder: installed skill → offer the user the install (once, with the exact command) → fetch current docs. The ladder is the gate: code written for these layers without a declared source is a Phase 5 fail.
 - **Assets are secured now**, not improvised mid-build: run the imagery acquisition protocol (generate → seeded source → honest labeled placeholder + asset list). A named brand's real assets are searched and verified before anything is invented.
 
-**Artifact:** one truth-source line per heavy layer (layer → skill or docs consulted) + the asset list. The design_plan (Phase 4) may add assets the list missed — one declared top-up through the same acquisition protocol, before the first markup; mid-build improvisation stays forbidden.
+**Artifact:** one truth-source line per heavy layer (layer → skill or docs consulted) + the browser-tooling rung (which tool, how presence was checked) + the asset list. The design_plan (Phase 4) may add assets the list missed — one declared top-up through the same acquisition protocol, before the first markup; mid-build improvisation stays forbidden.
 
 ## Phase 4 — Commit, then build
 
-**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md`, before the first component. Pull `references/foundations.md` sections as each layer demands.
+**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md`, before the first component. From `references/foundations.md`, pull the sections the design_plan names — the type ramp, the color derivation, and the locked craft layer at minimum — and list what was pulled in the design_plan; a section that later drifts unpulled is a skipped load.
 
 **Commit — a binding `design_plan` before any markup:**
 
 - **Commit** explicit per-element selections: hero architecture, type stack, color roles, the real visual per section, motion paradigms, the signature beat, spacing rhythm, and the locked craft layer (named, not implied) — citing the Phase 0 dials where they bind (Density → spacing rhythm, Variance → grid asymmetry, Motion → the pacing ceiling), so the declared dials are spent, not decorative.
 - **Pace** the page like a score: per-section intensity (1–10) with exactly one climax — the signature — and at least one rest. A flat curve (every section within ±1) is a template, however good each section looks alone.
 - **State the mobile intent** per section: what changes below 768px beyond stacking — what gets cut, what grows, what replaces hover. Mobile is a different performance of the same universe, not a smaller screen.
-- **Prove** each load-bearing one: the `clamp()` / `max-w` that GUARANTEES the H1 lands in ≤2 lines; the named real asset for the hero; the easing + trigger for the signature; the grid spans that leave zero empty cells.
+- **Prove** each load-bearing one: the `clamp()` / `max-w` that GUARANTEES the H1 lands in ≤2 lines; the named real asset for the hero; the easing + trigger for the signature; the grid spans that leave zero empty cells. Name the ≥3 axes pushed past the generic template — named here, verifiable on the page.
 
 Then follow it exactly — drifting to a default mid-build is forbidden.
 
@@ -168,9 +169,9 @@ Then follow it exactly — drifting to a default mid-build is forbidden.
 - **Stack** — lock one craft layer per build (GSAP, Lenis, CSS scroll-driven, View Transitions, variable fonts, OKLCH). Key the framework to the archetype: content/perf → Astro, motion/3D → TanStack Start. An existing project's stack always wins. Map and pins: `references/foundations.md`.
 - **Craft floor auto-authored as you build** (`references/ship-ready-floor.md` Impose tier): semantic landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, explicit `<img>` dimensions, and the 8-state contract on every interactive element.
 - **Stamp the main stylesheet's first line:** `/* award-design · <archetype> · <palette-family> · <display>/<body> · <hero-layout> */` — the rotation ledger the next build reads (Phase 1).
-- **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) may go to ONE subagent: hand it the DESIGN.md as brief plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. No subagents on the harness → author it inline, same brief. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
+- **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) goes to ONE subagent when the harness has subagents — inline otherwise, same brief either way: the DESIGN.md plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
 
-**Per-section gate — the conformance loop (browser):** resolve the tooling through the browser ladder (`references/external-truth.md`): Chrome DevTools MCP, `dev-browser`, or `webwright`; none present → offer the install once (`npm install -g dev-browser && dev-browser install`). Only a declined offer degrades to a code-level read (which may batch into one declared end-of-phase pass, flagged in the Phase 5 verdict). With tooling, **loop until conformant**:
+**Per-section gate — the conformance loop (browser):** resolve the tooling through the browser ladder (`references/external-truth.md`): Chrome DevTools MCP, `dev-browser`, or `webwright`; none present → offer the install once (`npm install -g dev-browser && dev-browser install`). Only a declined offer degrades to a code-level read (batched into one declared end-of-phase pass, flagged in the Phase 5 verdict). With tooling, **loop until conformant**:
 
 1. Screenshot at 375px and 1440px — both widths, *every* iteration; responsive is judged per loop, never retrofitted at the end.
 2. Hunt drift against the design_plan and the DESIGN.md: computed styles trace to tokens, the hero visual loaded, computed `font-family` on display text resolves to the committed face (a silent system-font fallback is invisible in code and fatal on screen), console clean, no dead vertical zones, nothing a judge would flag in the frame.

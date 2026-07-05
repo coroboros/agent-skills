@@ -6,7 +6,7 @@ Award-grade builds live or die on library APIs that move faster than any trainin
 
 1. **Installed skill.** Check the available-skills list for a match (candidates below). Present → load it and follow it; it outranks memory and this file.
 2. **Offer the install.** No skill present and the layer is load-bearing for the signature → offer the user the install once, as one line with the exact command. Yes → install, load, follow. No, or no answer → next rung. Never stall the build on the offer.
-3. **Fetch current docs.** Resolve and read official documentation before coding: the `find-docs` or `context7-cli` skill when installed, the `ctx7` CLI, or the official URL below via web fetch. Cite what was actually read.
+3. **Fetch current docs.** Resolve and read official documentation before coding — its own mini-ladder, first present wins: the `find-docs` skill → the `context7-cli` skill / `ctx7` CLI → the official URL below via web fetch. Cite what was actually read.
 
 The rung used is stated per layer in the Phase 3 artifact; the pre-flight fails any heavy layer without a declared source. The bundled `references/ingredients/` cheats are the offline floor — read them for architecture and patterns; they never replace current docs for API signatures.
 
@@ -32,7 +32,7 @@ Rendering proof is not optional tooling — resolve it like a heavy layer, befor
 |---|---|---|---|
 | Screenshot · drive · console · traces | Chrome DevTools MCP (adds performance traces and LCP) · `dev-browser` CLI · `webwright` plugin | `npm install -g dev-browser && dev-browser install` | only a *declined* offer degrades to the code-level read + a declared gap in the verdict |
 
-The conformance loop (Phase 4) and the browser proof (pre-flight §8) ride on this rung. `dev-browser` is the sufficient default; the MCP adds measurement when connected.
+The conformance loop (Phase 4) and the browser proof (pre-flight §8) ride on this rung. State the rung and the presence check in the Phase 3 artifact. `dev-browser` is the sufficient default; a connected Chrome DevTools MCP makes its measurements *mandatory* — LCP and the signature's frame rate stop being declarable gaps (pre-flight §8).
 
 ## Stale-signature tripwires
 

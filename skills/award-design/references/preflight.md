@@ -110,7 +110,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] The conformance loop exited clean on every section — both core widths passing in the same iteration; drift left standing at the 5-loop cap is filed below, never silently accepted
 - [ ] Full-page screenshots at **375px, 768px, 1440px**, taken and read — one line per screenshot on what it showed; every universe claim visible in the pixels, not just coded
 - [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography
-- [ ] The signature interaction driven live: it fires, completes, and holds frame — where the tooling offers a performance trace, the signature holds 60fps and LCP measures against the < 1.5s target (or the measured value is declared as a gap)
+- [ ] The signature interaction driven live: it fires, completes, and holds frame — with Chrome DevTools MCP connected the performance trace is mandatory (signature at 60fps, LCP measured against < 1.5s; a miss is a finding, not a gap); with `dev-browser` only, both numbers go to declared gaps
 - [ ] Console clean at every width
 
 No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict (Tooling gaps field), each with the code-level fallback noted; the status may still read READY when everything else holds. Falsely ticking a browser box is worse than declaring the gap.
