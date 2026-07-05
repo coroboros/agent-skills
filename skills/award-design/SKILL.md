@@ -83,7 +83,7 @@ Design laziness is a behavioral artifact, not a knowledge gap — a model under-
 
 A bounded change inside a project with a healthy DESIGN.md (a new section, a component, one added page) runs every phase at the scale of the touched surface — the artifacts shrink, the gates hold:
 
-- Phase 0 → mode + a one-line read of the existing universe, deriving and declaring the archetype from the DESIGN.md or the stylesheet stamp (the scanner and the stamp box need it). Phases 1–2 → adopt the DESIGN.md and re-read it; alert if thin, never silently regenerate. R1 refutes the new surface's *fit* with the adopted universe — the universe itself is a settled fact.
+- Phase 0 → mode + a one-line read of the existing universe, deriving and declaring the archetype from the DESIGN.md or the stylesheet stamp (the scanner and the stamp box need it). Phases 1–2 → adopt the DESIGN.md and re-read it; alert if thin, never silently regenerate. A surface that genuinely extends it (a new section family) amends the DESIGN.md declaredly at Phase 2 — adoption is not freezing; only *silent* changes are banned. R1 refutes the new surface's *fit* with the adopted universe — the universe itself is a settled fact.
 - Phase 3 → gate only the heavy layers the change introduces. Phase 4 → design_plan for the new surface only, built under the existing tokens; the pacing check re-reads the whole page the surface lands on.
 - Phases 5–6 → preflight boxes and R2 scoped to the touched pages; scan the touched paths (the scanner takes a file list) and file out-of-scope pre-existing hits as risks, never fix them silently; the consistency locks still read the full page.
 
@@ -127,7 +127,7 @@ No frontend ships without a committed universe — this phase forces it.
 - **Self-check** — a spine that reads thin, literal, or safe is regenerated before proceeding. Concept quality caps the build: the review scores a weak spine ≤5 and the total caps with it (`references/audit-rubric.md` concept veto) — polish cannot rescue a templated idea.
 
 **Artifact:** spine + both rejected defaults + rotation statement + signature (loud + quiet), stated.
-**Gate (R1):** run *Review mode* in a fresh context to refute the universe before any file is written. Act on the verdict — flip, fix, or file; never a silent drop. A failed R1 → regenerate the spine, then re-run R1 with a *different* fresh reviewer: a reviewer whose own suggestion was adopted cannot clear it.
+**Gate (R1):** run *Review mode* in a fresh context to refute the universe before any file is written. Act on the verdict — flip, fix, or file; never a silent drop. A failed R1 → regenerate the spine, then re-run R1 with a *different* fresh reviewer: a reviewer whose own suggestion was adopted cannot clear it. An ON-TRACK verdict with binding fixes needs no re-run when the fixes are adopted as written — refusing one does.
 
 ## Phase 2 — Write the universe as DESIGN.md
 
@@ -169,15 +169,15 @@ Then follow it exactly — drifting to a default mid-build is forbidden.
 - **Stack** — lock one craft layer per build (GSAP, Lenis, CSS scroll-driven, View Transitions, variable fonts, OKLCH). Key the framework to the archetype: content/perf → Astro, motion/3D → TanStack Start. An existing project's stack always wins. Map and pins: `references/foundations.md`.
 - **Craft floor auto-authored as you build** (`references/ship-ready-floor.md` Impose tier): semantic landmarks, `:focus-visible`, reduced-motion, AA contrast, real imagery, explicit `<img>` dimensions, and the 8-state contract on every interactive element.
 - **Stamp the main stylesheet's first line:** `/* award-design · <archetype> · <palette-family> · <display>/<body> · <hero-layout> */` — the rotation ledger the next build reads (Phase 1).
-- **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) goes to ONE subagent when the harness has subagents — inline otherwise, same brief either way: the DESIGN.md plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
+- **WebGL / 3D — the one delegation.** An Immersive or Experimental signature that is a self-contained WebGL/R3F scene (props in, canvas out) goes to ONE subagent when the harness has subagents — inline otherwise, same brief either way: the DESIGN.md *quoted verbatim, never paraphrased from memory* (a paraphrased brief drifts), plus the matching `references/ingredients/` cheat (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`) or the installed official skill resolved in Phase 3. Integrate the returned module yourself. Never for other archetypes; never co-write a shared file; never more than one parallel writer.
 
 **Per-section gate — the conformance loop (browser):** resolve the tooling through the browser ladder (`references/external-truth.md`): Chrome DevTools MCP, `dev-browser`, or `webwright`; none present → offer the install once (`npm install -g dev-browser && dev-browser install`). Only a declined offer degrades to a code-level read (batched into one declared end-of-phase pass, flagged in the Phase 5 verdict). With tooling, **loop until conformant**:
 
-1. Screenshot at 375px and 1440px — both widths, *every* iteration; responsive is judged per loop, never retrofitted at the end.
+1. Screenshot at 375px and 1440px — both widths, *every* iteration; responsive is judged per loop, never retrofitted at the end. 375px means an *emulated device viewport*: a desktop window silently floors around 500px and verifies the wrong layout while reporting success.
 2. Hunt drift against the design_plan and the DESIGN.md: computed styles trace to tokens, the hero visual loaded, computed `font-family` on display text resolves to the committed face (a silent system-font fallback is invisible in code and fatal on screen), console clean, no dead vertical zones, nothing a judge would flag in the frame.
 3. Fix, re-render, loop. Exit only when both widths pass in the *same* iteration. Cap: 5 loops per section — drift still standing at the cap is filed in the Phase 5 verdict, never silently accepted.
 
-Fix drift before starting the next section.
+Fix drift before starting the next section. Sections whose visuals are structurally interdependent (one fixed scene framing them all) may be *authored* together — the loop still gates each section individually before it is signed off.
 
 **Artifact:** the design_plan + per-section proof.
 

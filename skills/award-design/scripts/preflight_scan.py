@@ -109,6 +109,8 @@ LINE_RULES = [
 EMDASH_RE = re.compile(r"[—–]")
 EMDASH_DENSITY = 0.01
 EMDASH_MIN_COUNT = 3
+# Pure comment lines are not visible copy — their dashes don't count.
+HTML_COMMENT_LINE = re.compile(r"^\s*<!--.*-->\s*$")
 TAG_RE = re.compile(r"<[^>]+>")
 # Page-structure rules (H1-COUNT / MAIN-LANDMARK) skip near-empty documents —
 # an SPA shell (<body><div id="root">) renders its h1/main from JS.
@@ -199,7 +201,7 @@ def scan_paths(paths, archetype="", allow=()):
     for path, text in texts.items():
         ext = path.suffix.lower()
         for line_no, line in enumerate(text.splitlines(), 1):
-            if ext in TEXT_EXTS:
+            if ext in TEXT_EXTS and not HTML_COMMENT_LINE.match(line):
                 dashes = EMDASH_RE.findall(line)
                 if dashes:
                     emdash_count += len(dashes)

@@ -4,8 +4,8 @@ Award-grade builds live or die on library APIs that move faster than any trainin
 
 ## The ladder — walk in order, stop at the first rung that resolves
 
-1. **Installed skill.** Check the available-skills list for a match (candidates below). Present → load it and follow it; it outranks memory and this file.
-2. **Offer the install.** No skill present and the layer is load-bearing for the signature → offer the user the install once, as one line with the exact command. Yes → install, load, follow. No, or no answer → next rung. Never stall the build on the offer.
+1. **Installed skill.** Check the available-skills list for a match (candidates below). Present → load it and follow it; it outranks memory and this file. A rung that is present but unusable (tool erroring, resource locked by another session) counts as absent — note why, take the next rung.
+2. **Offer the install.** No skill present and the layer is load-bearing for the signature → offer the user the install once, as one line with the exact command. Yes → install, load, follow. No, or no answer → next rung. Never stall the build on the offer. In a non-interactive run the offer is still *emitted* in the output — the user reads it later — and silence resolves it immediately.
 3. **Fetch current docs.** Resolve and read official documentation before coding — its own mini-ladder, first present wins: the `find-docs` skill → the `context7-cli` skill / `ctx7` CLI → the official URL below via web fetch. Cite what was actually read.
 
 The rung used is stated per layer in the Phase 3 artifact; the pre-flight fails any heavy layer without a declared source. The bundled `references/ingredients/` cheats are the offline floor — read them for architecture and patterns; they never replace current docs for API signatures.

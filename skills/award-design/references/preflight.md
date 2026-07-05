@@ -12,6 +12,7 @@ python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>
 
 (Path relative to this skill's root. `--archetype` applies declared archetype grammar: `editorial` and `corporate-luxury` suppress EMDASH; `brutalist` suppresses META-LABEL. The scanner skips `DESIGN.md` — the spec legitimately quotes banned phrases as prohibitions.)
 
+- The gate rides the hit report, not the shell: a piped `$?` reports the pipe's last command, not the scanner — read the exit code from a direct invocation, or trust the printed summary.
 - Every **FAIL** hit: fix it, or write a one-line justification tied to the brief into the verdict block.
 - Every **REVIEW** hit: judge it against the catalog and record the call.
 - The scanner **catches, it never clears** — a clean scan ticks no box below. It cannot see composition, hierarchy, or intent; the boxes and the R2 review carry that weight.
@@ -112,6 +113,8 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography
 - [ ] The signature interaction driven live: it fires, completes, and holds frame — with Chrome DevTools MCP connected the performance trace is mandatory (signature at 60fps, LCP measured against < 1.5s; a miss is a finding, not a gap); with `dev-browser` only, both numbers go to declared gaps
 - [ ] Console clean at every width
+
+Fixed-canvas architectures: a full-page capture renders the scene at y=0 and hides scroll-gated reveals — substitute viewport-frame captures at the key scroll positions and declare the substitution. Sub-500px widths need device *emulation* — a desktop window silently floors its width and verifies the wrong layout.
 
 No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict (Tooling gaps field), each with the code-level fallback noted; the status may still read READY when everything else holds. Falsely ticking a browser box is worse than declaring the gap.
 
