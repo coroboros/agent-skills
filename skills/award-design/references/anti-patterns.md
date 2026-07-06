@@ -112,6 +112,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Scoring/progress bars with filled background tracks as comparison visuals on marketing pages.
 - `<br>`-broken-and-italicized headlines ("for thirty<br><em>years.</em>") as a default design move.
 - The AI-nav fingerprint: wordmark hard-left, 4–5 inline text links, CTA button hard-right, 1px hairline border-bottom — the most-recognized template nav. Break at least one element (placement, container, or divider).
+- A letter-monogram glued to the spelled-out wordmark — a gilded "A" set beside "Maison Aurèle" reads as a stray character or a typo, not a mark. A letter IS text; a monogram earns its place standing alone (a favicon, a bare nav mark, a loader), never doubled against the same name it abbreviates. Either the monogram carries the brand or the wordmark does — not both, locked together.
 - Tag-beside-heading two-column section head (eyebrow left, heading right) — the templated-editorial tell; stack them.
 - Side-stripe accent border — a 2px+ colored `border-left`/`border-right` on cards or callouts; the 2018-SaaS tell.
 

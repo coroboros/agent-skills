@@ -54,6 +54,7 @@ CROSS_CUTTING = [
     "remixing.md",
     "retrofit.md",
     "ship-ready-floor.md",
+    "signature-invention.md",
 ]
 
 
