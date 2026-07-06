@@ -148,6 +148,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - `window.addEventListener('scroll')` for scroll effects — use ScrollTrigger or CSS Scroll-Driven Animations.
 - Complex flexbox percentage math — use CSS Grid.
 - Animating `width`, `height`, `top`, `left` — use `transform` and `opacity` only.
+- Unclipped animated fills and full-bleed layers. A fill / sheen / reveal inside a shaped container (a `::before` sweep on a rounded pill or card, an image wipe) that doesn't clip to the shape spills past the `border-radius` — on hover and again on the mouse-leave retract, where a static screenshot never catches it. Clip the shaped ancestor (`overflow: hidden` or `clip-path`), and prefer `translateX` / `clip-path` over `scaleX` for the fill — `scaleX` on a rounded box distorts the corners as it scales. Same rule for a full-bleed or negative-`inset` decorative layer (a hero light sweep, an oversized glow): it lives inside an `overflow: hidden` bound, or it bleeds into the adjacent section.
 - React `useState` for magnetic hover or continuous animation. Use Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle (see `premium-patterns.md` performance locks).
 - `backdrop-filter: blur()` on scrolling content. Apply blur only to fixed/sticky elements (navbars, modal overlays). Otherwise mobile Safari drops to 15–20fps.
 - Static PNG grain overlays on scrolling containers — continuous GPU repaints. Apply procedural noise (Canvas/WebGL) to fixed `pointer-events: none` layers.
