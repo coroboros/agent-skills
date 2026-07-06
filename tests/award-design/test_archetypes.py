@@ -46,6 +46,7 @@ CROSS_CUTTING = [
     "foundations.md",
     "imagery.md",
     "inspiration.md",
+    "motion-palette.md",
     "navigation-patterns.md",
     "optical-craft.md",
     "preflight.md",

@@ -19,6 +19,10 @@ A **bespoke signature** is a mechanic that could only belong to *this* world. Th
 
 **The bespoke test — binding at R1.** Could this exact interaction sit on a rival's site in the same archetype, unchanged? If yes, it is a category — regenerate it, never file it as a gap. A generic signature is a concept-stage failure with the same weight as a thin spine: the review scores it there and the total caps with it. Filing "no bespoke signature" as a known gap is the failure this file exists to stop.
 
+## The signature lives on the make-or-break surface
+
+A bespoke mechanic buried below the fold does not save the build. The hero is the first impression and the largest single driver of the score (`SKILL.md` Phase 4); the signature belongs there. A page whose hero runs a *category* medium — a scrubbed stock clip, a parallax, a plain fade — while the one bespoke moment waits in section four is a category-hero build, and R1 scores it OFF-TRACK however good the buried moment is. Two ways out, both legitimate: the hero's own medium *is* the signature (the object turns in the hero, the material answers the pointer in the hero), or the signature is pulled up so the first screen carries it. "Foreshadow it above, pay it off below" is not the same as placing it below — the payoff itself must reach the make-or-break surface, not just a hint of it.
+
 ## Deriving the mechanic — the world's verb
 
 Do not pick from a menu; derive from the spine. Ask what the world invites the user to **do**, then build the interaction around that verb.

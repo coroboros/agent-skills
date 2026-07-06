@@ -82,6 +82,10 @@ Naked arrow icons next to text read as "icon kerned next to label" — a typogra
 
 The button's *fill* is chosen for the page's register, not maxed for contrast. On a refined minimalist or luxury surface, a saturated color-block CTA — a solid ochre slab, a bright accent brick — reads louder than the page and cheapens it; a brief that says "subtle gold accents" means exactly this. The luxury CTA is a thin outline that fills on hover, a low-chroma solid at the accent's *muted* end, or near-black / near-white with the accent kept to a hairline or the trailing icon — never a saturated slab. Match the CTA's loudness to the page's restraint; the accent is punctuation, not a highlighter. (Reach for a louder solid only where the register is loud — Bold/Maximal, a Gen-Z launch.)
 
+### The immersive / luxury CTA drops the ornament
+
+The nested trailing icon (above) and a drawn underline are SaaS-and-product moves — legible affordances for a busy page. On an immersive or quiet-luxury surface they read as fuss: an arrow *and* an underline *and* a border stacked on one control is three affordances doing one job. Strip to one. The refined CTA is a word or two in a thin outline (or bare, with a hairline), and its *hover* carries the moment — and the strongest hover **echoes the page's signature gesture**, not a generic slide. If the signature rakes warm light across a black object, the CTA's hover rakes the same light across its label; if the world is ink-in-water, the fill blooms like ink. The button that moves like the world coheres; the button with a stock arrow-nudge is another site's control dropped in. Keep the fill inside the shape (`anti-patterns.md` Technical — unclipped fills), verified hover→leave (`preflight.md` §8).
+
 ## 3. Eyebrow Tags
 
 Section openers benefit from a microscopic typographic preamble — a pill-shaped tag in monospace or wide-tracked sans, signaling category before the headline lands.
