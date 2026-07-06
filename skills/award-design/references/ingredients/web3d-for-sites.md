@@ -13,6 +13,17 @@ Before any geometry, pull from `DESIGN.md` and bind to it:
 
 The discipline that separates winners: fog instead of textures, light instead of detail. Lean scenes lit well beat busy scenes.
 
+## Fidelity floor — the object must read premium
+
+The delegation's job is not "a scene renders" — it is *a scene a jury reads as premium*. A studio-lit primitive is the slop tell. When the signature is a real object (a product, a vehicle, a figure), it clears these or it is not shipped as the signature:
+
+- **Physical material, not a toy shader.** Glass/liquid: `MeshPhysicalMaterial` with `transmission`, `roughness`, `ior` (~1.5 glass), `thickness`, and `attenuationColor`/`attenuationDistance` for the tint — never a flat `MeshStandardMaterial` with an opacity hack. Metal (a cap, a bezel): `metalness: 1`, low `roughness`, a real environment to reflect. A plastic-looking cap is the tell that sinks the whole object.
+- **An HDRI environment does the lighting.** Reflections and specular life come from `<Environment>` (Drei) or an equirect `.hdr` via `RGBELoader` — not three `pointLight`s on a black void. A *dark* scene still needs an env map; that is where the edge-light and the glass depth come from. `ACESFilmicToneMapping`, sRGB output.
+- **No primitive geometry as the hero object.** A lathe/extrude/box silhouette reads as placeholder at close range (`imagery.md` silhouette test). Prefer a real `.glb` (modelled, DRACO-compressed); if hand-built, push the profile past the primitive — chamfers, real shoulders, a filleted base, a debossed label — until the silhouette is nameable as *that* product, not "a bottle shape."
+- **Grade the render into the page.** Subtle post (bloom only on genuinely emissive, vignette, grain) tuned to the DESIGN.md, so the render seats in the page's treatment like every photograph does (`imagery.md` one-treatment).
+
+**Fidelity self-check before integration:** put a frame of the scene beside a real product render of the same category and ask the `imagery.md` silhouette question — *would a stranger read this as a premium product photo, or clock it as CGI?* CGI-clocked → fix material/lighting/geometry, or drop to the real-media signature (a scroll-scrubbed real video, `signature-invention.md`). A 60fps primitive is still a fail.
+
 ## Three.js vs R3F + Drei
 
 - **R3F + Drei** — default for any React build (this skill's TanStack Start path). Declarative scene graph, `useFrame` for per-frame work, automatic disposal of objects the reconciler owns, and Drei's site-grade helpers (`<Environment>`, `<Float>`, `<Instances>`, `<Detailed>`, `<View>`, `<AdaptiveDpr>`, `<PerformanceMonitor>`). Author against this unless told otherwise.
@@ -130,6 +141,16 @@ The canvas is **client-only** — WebGL has no server render.
 - **TanStack Start** — a client component, dynamically imported so it stays out of the server bundle and the critical path.
 - **Real content lives in the DOM** — headings, copy, links, and CTAs are HTML behind or beside the canvas, never drawn inside it. The canvas is an `aria-hidden` visual layer over a fully functional page.
 
+## Interactive input-correctness floor
+
+A rotate/drag/pointer signature that fights the browser reads as broken, however good the render. Every one of these holds before it ships — this is the class of bug that has shipped:
+
+- **Kill native drag and selection on the interactive surface.** The canvas and *any* poster/fallback `<img>` under it: `draggable="false"` (the attribute, on every img), `user-select: none`, `-webkit-user-drag: none`, `-webkit-touch-callout: none`. A draggable poster under the canvas hijacks the drag and shows the browser's native ghost image — the ugliest artifact in this set.
+- **`touch-action: none`** on the interactive element so a drag rotates instead of scrolling the page on touch; `preventDefault()` on `pointerdown` / `touchstart` in the handler.
+- **The hit-area is the object, not the neighbourhood.** The listener target (canvas or an overlay) covers the *visible object* and does not bleed onto the headline or CTAs. A grab cursor that responds over the title while the object ignores the pointer is a mislaid hit-area — size and position the interactive layer to the object, and verify by dragging *on the object* and *on the title*.
+- **A designed affordance, not the native grab-hand.** The system `cursor: grab`/`grabbing` hand is a tell on a luxury surface — ship a custom cursor, a one-time hint that fades on first interaction, or a subtle rig in the DESIGN.md voice.
+- **Verified as a real user drags.** Synthetic pointer events bypass native drag-and-drop and hide the ghost bug; the Phase 4 loop drives a *real* mouse drag and a touch drag (`SKILL.md`) and confirms no native ghost, no text selection, the object (not the title) responding, smooth on both.
+
 ## Reduced motion + accessibility
 
 - **`prefers-reduced-motion`** — render a static poster frame or a still scene: no autoplay camera drift, no idle particle motion, no scroll-driven rotation. Branch at mount; if a GSAP skill drives the motion, its `matchMedia` reduced branch governs the scene too.
@@ -145,6 +166,8 @@ The canvas is **client-only** — WebGL has no server render.
 ## Defer by name
 
 If an official GSAP or R3F skill is installed, use it for the motion layer rather than re-deriving timelines and scroll wiring here — `github.com/greensock/gsap-skills` for GSAP/ScrollTrigger, the pmndrs R3F skill for scene scaffolding. This cheat is the fallback and the integration contract; a maintained skill is the current source for that library's API.
+
+Sourcing the API is not the same as *using the medium well*. A scene that imports Three.js but ships a primitive on three point-lights has consulted the docs and ignored their craft. Use the premium path the docs and Drei give you — `<Environment>`, `MeshPhysicalMaterial`, `<Instances>`, post-processing — never the first-example primitive. "Sourced but low-effort" fails the fidelity floor above, and Phase 5 judges the craft level, not the citation.
 
 ## Cross-references
 

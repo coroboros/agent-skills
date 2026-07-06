@@ -156,6 +156,8 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - Perpetual animations not memoized in their own microscopic Client Component — re-renders the parent layout 60×/second and breaks performance budget.
 - Importing a package absent from `package.json` — check first; if missing, output the install command before the import. Assumed dependencies are broken builds.
 - `<img>` hover transforms (`group-hover:scale`, `:hover { transform: scale }` on photos) — the stock image-zoom tell; motion belongs to the card, not the photo.
+- A draggable poster / `<img>` under an interactive canvas — dragging to rotate grabs the image and shows the browser's native drag-ghost (a gray box with a ghost image). Set `draggable="false"`, `user-select: none`, `-webkit-user-drag: none`, `touch-action: none` on the canvas and every underlying img (`ingredients/web3d-for-sites.md` input floor).
+- The native grab-hand cursor (`cursor: grab` / `grabbing`) as the interaction affordance on a luxury 3D or drag surface — reads as a raw dev default; ship a custom cursor or a designed one-time hint. A drag hit-area that responds over the headline while the object ignores the pointer is a mislaid interactive layer.
 
 ## UX anti-patterns disguised as creativity
 
@@ -169,6 +171,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 
 - **Generic card** (border + shadow + white background) — remove the border, use only background, or use only spacing. Cards exist when elevation communicates hierarchy.
 - **Always one filled button + one ghost button** — add tertiary text links to vary visual noise.
+- **Saturated color-block CTA on a refined page** — a solid ochre / bright-accent slab as the button on a minimalist or luxury surface reads louder than the page and cheapens it (a brief asking for "subtle gold accents" means the opposite). Match the CTA fill to the register: outline-that-fills-on-hover, a muted-chroma solid, or near-black/near-white with the accent kept to a hairline or the trailing icon (`premium-patterns.md` register-appropriate fill). A loud solid is for a loud register only.
 - **Pill-shaped "New" / "Beta" badges** — try square badges, flags, or plain text labels.
 - **Accordion FAQ sections** — try side-by-side lists, searchable help, or inline progressive disclosure.
 - **3-card carousel testimonials with dots** — replace with masonry walls, embedded social posts, or single rotating quotes.

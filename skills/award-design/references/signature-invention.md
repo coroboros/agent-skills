@@ -31,9 +31,18 @@ Do not pick from a menu; derive from the spine. Ask what the world invites the u
 
 The verb is in the spine already. If the spine is "the last light of the room," the verb is *reveal by light* — the signature is light-driven, not a scroll fade that happens to brighten. Name the verb explicitly in the Phase 1 artifact; a signature whose verb is "scroll" has not been derived.
 
-## Ambition is set before buildability
+## Ambition is set before buildability — but fidelity governs the medium
 
-Commit the signature's ambition at concept, then *source* what it needs — never trim it to what is easy. If the bespoke mechanic needs a heavy layer (WebGL/R3F, canvas, a physics lib, a scroll-scrubbed video), that routes through Phase 3 sourcing and the one WebGL delegation (`SKILL.md` Phase 4). No 3D asset available? Build the object from primitives with an HDRI environment for the glass/metal reflections, or drive a pre-rendered turntable sequence — the mechanic survives, the fidelity adapts (`production-hardening.md`). A signature downgraded to a safe reveal *because it was easier to build* is a skipped gate, not a pragmatic call.
+Commit the signature's ambition (its *memorability*) at concept, then *source* what it needs — never trim the mechanic to what is easy. But ambition is not "always build 3D": the medium is chosen for **fidelity**, and a primitive-built object is *low* fidelity. When the signature is a real product — a bottle, a watch, a shoe — ask honestly before committing:
+
+- **Can I get a premium 3D asset?** A modelled/DRACO `.glb`, or a form buildable to a convincing bar with a physical material and an HDRI environment (`ingredients/web3d-for-sites.md` fidelity floor). A lathe-turned primitive with a basic material reads as a Blender default — `imagery.md`'s silhouette test applies to 3D too: *a box-built object reads as placeholder at close range.*
+- **If not, the real product is the higher-fidelity signature.** A **scroll-scrubbed real video** of the actual object (Apple-style, `immersive-cinematic.md`), or a hand-shot turntable photo-sequence, beats a primitive 3D every time — real light on real glass over a plastic-looking mesh. Not a fallback: for a real product with no premium 3D path, it is the *right* choice, and usually the more ambitious one.
+
+The mechanic (the verb — turn, reveal) survives whichever medium; only the fidelity path changes. A signature downgraded to a safe *scroll-reveal* because the ambitious one was hard is a skipped gate — but so is a *primitive 3D shipped because it was the first idea*. R1 refutes both: the category signature, and the low-fidelity medium. A heavy layer routes through Phase 3 sourcing and the one WebGL delegation (`SKILL.md` Phase 4) — and it must clear that delegation's fidelity and input-correctness floors, not merely render.
+
+## The signature serves the identity, never the reverse
+
+A mechanic that works only by compromising the brand's defining attribute is the wrong mechanic. NOIRE is *black*; a reveal that forces the glass amber so a warm core can transmit has let the mechanic overrule the identity — the flacon is no longer noire. When making the signature work bends the brand's core (a black brand gone brown, a minimal brand gone busy, a quiet brand gone loud), reconceive it so the signature *expresses* the identity instead: warm light **rakes the surface** of a black bottle and catches its edge, rather than transmitting through it — the reveal happens *on* the identity, not against it. R1 gate: name the brand's one non-negotiable attribute, then confirm the signature protects it. Concept over mechanic — the mechanic bends to the identity, never the reverse.
 
 ## The quiet pairing and the dignified still
 

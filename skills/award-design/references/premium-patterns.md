@@ -78,6 +78,10 @@ The trailing icon nesting is documented in prose because it's a structural patte
 
 Naked arrow icons next to text read as "icon kerned next to label" — a typographic afterthought. The nested wrapper signals the icon as a discrete affordance with its own micro-state. The hover physics close the loop: the user feels the click before pressing it.
 
+### Register-appropriate fill
+
+The button's *fill* is chosen for the page's register, not maxed for contrast. On a refined minimalist or luxury surface, a saturated color-block CTA — a solid ochre slab, a bright accent brick — reads louder than the page and cheapens it; a brief that says "subtle gold accents" means exactly this. The luxury CTA is a thin outline that fills on hover, a low-chroma solid at the accent's *muted* end, or near-black / near-white with the accent kept to a hairline or the trailing icon — never a saturated slab. Match the CTA's loudness to the page's restraint; the accent is punctuation, not a highlighter. (Reach for a louder solid only where the register is loud — Bold/Maximal, a Gen-Z launch.)
+
 ## 3. Eyebrow Tags
 
 Section openers benefit from a microscopic typographic preamble — a pill-shaped tag in monospace or wide-tracked sans, signaling category before the headline lands.

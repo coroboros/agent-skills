@@ -34,7 +34,9 @@ Light cream foundation (off-white in the `#F5F2EC` to `#FAF7F0` range) with a si
 
 ### Daylight automotive — Porsche / luxury hardware profile
 
-Mid-tone backgrounds, daylight studio lighting, scroll-controlled product showcases. The hero is the object — car, watch, sneaker — rotated and lit through scroll. Cinematic camera moves over still environments rather than full-bleed video. Cartier Watches & Wonders 2025 sits at the seam between this profile and Corporate Luxury (sumptuous cream 3D pavilion, slow tasteful motion). Ideal for luxury automotive, premium hardware, watchmaking, fragrance launches.
+Mid-tone backgrounds, daylight studio lighting, scroll-controlled product showcases. The hero is the object — car, watch, sneaker, flacon — rotated and lit through scroll. Cinematic camera moves over still environments rather than full-bleed video. Cartier Watches & Wonders 2025 sits at the seam between this profile and Corporate Luxury (sumptuous cream 3D pavilion, slow tasteful motion). Ideal for luxury automotive, premium hardware, watchmaking, fragrance launches.
+
+**Fidelity governs the medium, not prestige.** "The object rotated through scroll" is a mechanic, not a mandate to hand-build 3D. Choose by honest fidelity: a modelled/DRACO `.glb` rendered to the `web3d-for-sites.md` floor (physical material, HDRI env) *or* a **scroll-scrubbed real video / turntable photo-sequence** of the actual product (the code below). For a real product with no premium 3D asset, the scrubbed real footage wins every time — real light on real glass beats a lathe-turned primitive that reads CGI. A primitive 3D shipped because it was the first idea is the fidelity trap this profile most often falls into (`signature-invention.md`).
 
 ## Typography
 
