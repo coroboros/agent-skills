@@ -171,7 +171,7 @@ class TestImageryProtocol(unittest.TestCase):
     def test_acquisition_order_generate_curated_seed_placeholder(self):
         order = self.imagery.lower()
         gen = order.find("generate it")
-        curated = order.find("curated stock")
+        curated = order.find("curated stock, chosen surgically")  # the rung-2 heading, not the intro mention
         seed = order.find("seed a real source")
         placeholder = order.find("labeled placeholder + tell the user")
         self.assertTrue(
