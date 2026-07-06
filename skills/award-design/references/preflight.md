@@ -115,7 +115,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 ## 7. Truth & assets
 
 - [ ] Every heavy layer (GSAP, Three/R3F, Lenis, View Transitions, Web Audio) cites its Phase 3 source — skill or docs, named
-- [ ] Assets follow the acquisition protocol (generate → seed → honest placeholder); no stock hotlinks `(scanner: UNSPLASH)`
+- [ ] Assets follow the acquisition protocol (generate → curated stock → seed → honest placeholder); no stock **hotlinks** — a downloaded, optimized, graded curated pick is fine, a live `images.unsplash.com` src is not `(scanner: UNSPLASH)`; curated-stock slots are flagged in the asset list to replace with commissioned/generated finals
 - [ ] Brand logos are real SVG marks (Simple Icons / devicon / official kit) with light + dark variants; logo walls are logos only
 - [ ] The rotation stamp is the stylesheet's first line (`/* award-design · … */` — format defined at Phase 4; on first contact with a project this skill didn't build, write it now from the adopted universe)
 

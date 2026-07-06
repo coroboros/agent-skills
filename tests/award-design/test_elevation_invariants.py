@@ -153,8 +153,9 @@ class TestImageryProtocol(unittest.TestCase):
     """Imagery is the largest single missing imposition. references/imagery.md
     carries the protocol; two axiomatic rejections wire it into the anti-slop
     catalog the review mode runs; the build loads the protocol and imposes a real
-    visual ambiently. The protocol reaches for generated / seeded /
-    honest-placeholder assets — never stock."""
+    visual ambiently. The protocol reaches for generated / curated-stock / seeded
+    / honest-placeholder assets — the ban is on *stock-feeling* scatter, not a
+    surgically-chosen, graded photograph."""
 
     def setUp(self):
         self.imagery = _read(REFS / "imagery.md")
@@ -167,14 +168,15 @@ class TestImageryProtocol(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.imagery, f"imagery.md missing section: {marker}")
 
-    def test_acquisition_order_is_generate_seed_placeholder(self):
+    def test_acquisition_order_generate_curated_seed_placeholder(self):
         order = self.imagery.lower()
         gen = order.find("generate it")
+        curated = order.find("curated stock")
         seed = order.find("seed a real source")
         placeholder = order.find("labeled placeholder + tell the user")
         self.assertTrue(
-            0 <= gen < seed < placeholder,
-            "acquisition order must be generate → seed → labeled placeholder",
+            0 <= gen < curated < seed < placeholder,
+            "acquisition order must be generate → curated stock → seed → labeled placeholder",
         )
 
     def test_real_logo_sources_and_variants(self):
@@ -183,9 +185,18 @@ class TestImageryProtocol(unittest.TestCase):
         self.assertIn("light and dark variants", self.imagery.lower(),
                       "logos must ship light + dark variants")
 
-    def test_protocol_never_forces_stock(self):
-        self.assertIn("stock photography is not on this list", self.imagery.lower(),
-                      "the imagery protocol must explicitly exclude stock photography")
+    def test_curated_stock_is_a_gated_fallback_not_a_free_pass(self):
+        low = self.imagery.lower()
+        self.assertIn("curated stock", low,
+                      "curated stock is an allowed rigorous fallback, ranked above seed/placeholder")
+        self.assertIn("stock-feeling", low,
+                      "the named failure is stock-feeling imagery, not a surgically-chosen graded photo")
+        self.assertIn("never hotlink", low,
+                      "curated stock is downloaded and optimized, never hotlinked")
+        self.assertTrue(
+            "commissioned or generated final" in low or "flag it in the asset list" in low,
+            "curated stock is flagged as a placeholder to replace for a real submission",
+        )
 
     def test_two_imagery_axioms_route_to_protocol(self):
         m = re.search(r"## Axiomatic rejections(.*?)(?=^## )", self.anti,

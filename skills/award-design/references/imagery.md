@@ -45,13 +45,14 @@ For a generic or unnamed brand, skip to the order below (generate / seed / place
 
 ## Acquisition priority order
 
-When the build needs an asset and none was supplied, walk the order — never skip ahead to inventing one:
+The build has to *show* the universe alive — a first-launch design the user opens to see the direction working, without having to supply finals first. So when a slot needs an asset and none was supplied, walk the order; never skip ahead to inventing one.
 
-1. **Generate it** — if an image-generation tool is available, produce a contextual asset (brief-matched subject, palette, crop).
-2. **Seed a real source** — `https://picsum.photos/seed/{context}/{w}/{h}` with a contextual seed keyed to the section, so reruns stay stable and each slot differs. Use a deterministic seed, never `random`.
-3. **Labeled placeholder + tell the user** — when neither is available, ship a placeholder sized to the final aspect ratio and emit an explicit asset list: what each slot needs, its dimensions, and where it lands. Never block the build; never fake it.
+1. **Generate it** — an image-generation tool available: produce a contextual asset (brief-matched subject, palette, crop). First choice — on-brief and rights-clean.
+2. **Curated stock, chosen surgically** — no generation tool and the slot needs real photographic immersion (a hero, a plated dish, a portrait): hand-pick from a free-license library (Pexels, Unsplash) held to the bar of a commissioned shot. Not "a stock photo" — *this* one: on-subject, on-palette (the universe's darkness, warmth, temperature), exceptional composition, negative space where the layout needs type. Reject on sight anything stock-feeling — flat studio light, smiling-team generic, mismatched temperature, the shot everyone has seen. **Download and optimize it — never hotlink** (a live `images.unsplash.com` src breaks often, reads stock, and fails the perf gate + scanner). Pass every pick through the one treatment (below), and flag it in the asset list as a placeholder to replace with a commissioned or generated final before a real award submission. A surgically-chosen, graded photograph does not read as stock; an unselected scatter does — that distinction is the whole rule.
+3. **Seed a real source** — `https://picsum.photos/seed/{context}/{w}/{h}` with a contextual seed, for secondary or background slots where curation isn't worth the effort, or when a stable deterministic image per slot matters more than subject fit. Deterministic seed, never `random`.
+4. **Labeled placeholder + tell the user** — none of the above fits: ship a placeholder sized to the final aspect ratio and emit the asset list — what each slot needs, its dimensions, where it lands. Never block the build; never fake it with a CSS-gradient illustration.
 
-Stock photography is not on this list — it tanks scores (see `anti-patterns.md` *Design failures*). The protocol reaches for generated, seeded, or honest-placeholder assets, never a stock library.
+The failure the reference names is *stock-feeling* photography — generic, unselected, ungraded, scattered across three color temperatures — which tanks scores (`anti-patterns.md` *Design failures*, `award-imperatives.md` #9). A single exceptional photograph chosen for this universe and graded into it is the opposite, and for a build the user launches to *see* the design it beats a random seed or an empty slot.
 
 ## One treatment
 

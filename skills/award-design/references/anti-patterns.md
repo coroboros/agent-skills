@@ -41,7 +41,7 @@ Anti-default is not only within a build (reject the lazy first option) — it ho
 
 - **Template / AI layouts** — judges are working professionals who recognize these instantly. Single fastest way to fail.
 - **Inconsistent systems** — polished homepage but weaker inner pages signals incomplete craft.
-- **Stock photography** — signals generic thinking and tanks scores.
+- **Stock-feeling photography** — generic, unselected, ungraded shots scattered across color temperatures signal generic thinking and tank scores. A surgically-curated, on-palette photograph passed through the one treatment is not this — see `imagery.md` acquisition order (curated stock is a rigorous fallback, downloaded and graded, flagged to replace).
 - **Desktop-first** — judges check mobile first. Usability is 30% of the score.
 - **Cookie-cutter minimalism ("blanding")** — the safe muted geometric sans default everyone adopted is being actively rejected.
 
