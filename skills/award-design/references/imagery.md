@@ -31,7 +31,7 @@ An honest labeled placeholder beats a hand-rolled CSS illustration of a UI: the 
 - Source marks from **Simple Icons** (simpleicons.org) or **devicon** (devicon.dev) — real SVG wordmarks and glyphs, never a text span styled to look like a logo.
 - Ship **light and dark variants** — a single-tone mark disappears against half the surfaces it lands on.
 - A logo wall is **logos only** — no mixed text labels, no "and 200+ more" filler. Size by visual weight, not bounding box.
-- An invented brand gets an invented mark — a simple monogram or geometric SVG glyph in the page's own style; a plain text wordmark posing as a logo reads as placeholder.
+- An invented brand gets an invented mark — a considered monogram or geometric SVG glyph in the page's own style, drawn with intent and **verified rendered in the browser**; a plain text wordmark posing as a logo, or a generic colored dot / status-tick beside the wordmark, reads as placeholder. The *same* mark drives the favicon and `icon.svg` (`ship-ready-floor.md`) — one identity across the tab and the page, never a random dot at either.
 
 ## Branded builds — acquire and verify real assets
 
@@ -57,6 +57,10 @@ The failure the reference names is *stock-feeling* photography — generic, unse
 ## One treatment
 
 Sourcing is half the job; unification is the other half. Every image on the page passes through the universe's treatment — the grade, duotone, grain, or crop language named in the DESIGN.md photography direction. Three technically good images with three different color temperatures read as stock scatter; the same three under one grade read as art direction. When assets arrive mismatched, unify in CSS (`filter`, blend modes, an overlay tint in the surface hue) rather than shipping the scatter.
+
+## Seams grade, never cut
+
+A full-bleed image or video meets its neighbour with a **graded transition**, never a hard horizontal cut into a flat band. The hero's bottom edge dissolves into the next section — a gradient `mask-image` on the media, or a scrim in the surface hue fading it into the ground — so the boundary reads as one continuous descent, not two stacked rectangles. A crisp edge where a photographed sky meets a flat near-black block is the tell: the eye catches the rectangle, and a hero that ends there "fades too brutally" into the section below. Same rule between two adjacent full-bleed images — cross-fade or share the treatment, never butt them edge-to-edge. Verify the seam in the browser at the boundary, not just section centers (`preflight.md` §8).
 
 ## Filter wiring
 

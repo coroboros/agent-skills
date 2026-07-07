@@ -46,7 +46,7 @@ The signature is the loud moment; these are what a judge notices on the return v
 
 - `::selection` styled — accent background, surface text
 - the `:focus-visible` ring designed in the accent (the floor requires it exists; making it beautiful is the detail)
-- favicon and `theme-color` drawn from the palette, never a default blue (the floor ships them; drawing them from the universe is the detail)
+- favicon and `theme-color` drawn from the palette (the favicon is the real brand mark, not a hand-doodled inline glyph or a colored dot), never a default blue (the floor ships them; drawing them from the universe is the detail)
 - `<title>` written as microcopy in the copy register, never "Home | Brand"
 - an OG image designed inside the universe, not a screenshot (the floor ships one; designing it is the detail)
 - `alt` text written in voice — accurate first, alive second

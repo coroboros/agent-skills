@@ -113,6 +113,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - `<br>`-broken-and-italicized headlines ("for thirty<br><em>years.</em>") as a default design move.
 - The AI-nav fingerprint: wordmark hard-left, 4–5 inline text links, CTA button hard-right, 1px hairline border-bottom — the most-recognized template nav. Break at least one element (placement, container, or divider).
 - A letter-monogram glued to the spelled-out wordmark — a gilded "A" set beside "Maison Aurèle" reads as a stray character or a typo, not a mark. A letter IS text; a monogram earns its place standing alone (a favicon, a bare nav mark, a loader), never doubled against the same name it abbreviates. Either the monogram carries the brand or the wordmark does — not both, locked together.
+- A decorative dot, tick, or status glyph beside the wordmark posing as the logo — a green dot, an aurora tick, a colored bullet read as a leftover UI element, not an identity. The brand mark is a designed, considered SVG/PNG glyph (or a clean typographic wordmark with no ornament), verified rendered in the browser; the *same* mark drives the favicon — a random dot at either spot is the tell (`imagery.md`).
 - Tag-beside-heading two-column section head (eyebrow left, heading right) — the templated-editorial tell; stack them.
 - Side-stripe accent border — a 2px+ colored `border-left`/`border-right` on cards or callouts; the 2018-SaaS tell.
 
