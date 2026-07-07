@@ -1,15 +1,17 @@
-"""award-design — the motion palette, reversible-scroll default, navbar settle-fix,
+"""award-design — the motion palette (content/decoration split), navbar settle-fix,
 signature-on-hero (axis 8), and immersive-CTA hardening.
 
-The NOIRE re-test surfaced the next ceiling: the build shipped fire-once IO reveals
-(a static second pass), a navbar that flashed back on every scroll-stop, a bespoke
-signature buried below the fold, and an over-ornamented CTA. These lock the fixes:
-  - a codified motion palette whose default is reversible native CSS scroll-driven,
+The NOIRE re-test surfaced the next ceiling: a navbar that flashed back on every
+scroll-stop, a bespoke signature buried below the fold, and an over-ornamented CTA;
+and adversarial deep-research corrected the motion default. These lock the fixes:
+  - a codified motion palette split by what moves — content reveals fire once and
+    persist (NN/g), decorative/scrubbed motion is reversible native CSS scroll-driven,
   - the navbar show-gate distinguishes a scroll-stop from a scroll-up,
   - the signature must land on the make-or-break surface,
   - the immersive CTA drops the ornament and echoes the signature on hover.
 
-Grounded in the MCLL technique (native `animation-timeline`, no animation library)."""
+Grounded in NN/g's scroll-fading study and a shipped premium build's native
+`animation-timeline` technique (no animation library)."""
 
 import re
 import unittest
@@ -50,52 +52,80 @@ class TestMotionPaletteFile(unittest.TestCase):
     def test_centerpiece_is_native_scroll_driven(self):
         self.assertIn("animation-timeline: view()", self.mp)
         self.assertTrue("scroll(root block)" in self.mp or "scroll()" in self.mp)
-        self.assertIn("linear both", self.mp, "the reversible fill grammar")
+        self.assertIn("linear both", self.mp, "the scrubbed fill grammar")
 
-    def test_default_model_is_reversible_not_fire_once(self):
-        self.assertIn("reversible", self.mp)
+    def test_model_splits_content_and_decoration(self):
+        # corrected model: content = fire-once + persist, decoration = reversible
+        self.assertIn("split by what moves", self.mp)
         self.assertIn("fire-once", self.mp)
-        self.assertTrue("re-arm" in self.mp, "the IO fallback re-arms, never plays once")
+        self.assertIn("persist", self.mp)
+        self.assertIn("reversible", self.mp)
+        self.assertIn("re-hide", self.mp, "re-hiding content on scroll-up is the tell")
+
+    def test_grounded_in_nng_and_cover_phase_rule(self):
+        self.assertTrue("nielsen norman" in self.mp or "nn/g" in self.mp)
+        self.assertIn("cover", self.mp)  # the cover-phase range rule for the editorial exception
+        self.assertIn("declared", self.mp)  # reversible content reveal is opt-in, not default
+
+    def test_browser_reality_progressive_enhancement(self):
+        self.assertIn("not baseline", self.mp)
+        self.assertIn("@supports", self.mp)
+        self.assertIn("animation-trigger", self.mp)  # emerging primitive, flagged not-yet-shippable
 
     def test_quantity_governed_by_restraint(self):
-        # the model is imposed; the amount of motion is not "animate everything"
         self.assertIn("imposed", self.mp)
         self.assertIn("restraint", self.mp)
 
-    def test_palette_indexes_the_known_mechanics(self):
-        for token in ("scroll-aware navbar", "scroll-scrubbed media", "reversible scroll scrub"):
+    def test_palette_table_tiers_the_mechanics(self):
+        for token in ("winner", "shipped", "technique"):
             with self.subTest(token=token):
                 self.assertIn(token, self.mp)
+        for mech in ("pinned scroll-scrubbed video", "webgl 3d scene", "view-transition morph"):
+            with self.subTest(mech=mech):
+                self.assertIn(mech, self.mp)
+
+    def test_story_leads_over_technique(self):
+        # the evidence tier measures proven-ness, never permission to win — story decides
+        self.assertIn("story leads", self.mp)
+        self.assertIn("terminal industries", self.mp)
+        self.assertIn("not whether the build wins", self.mp)
+
+    def test_signature_medium_is_archetype_dependent(self):
+        self.assertIn("medium is archetype-dependent", self.mp)
+        self.assertIn("site of the year", self.mp)  # Lando SOTY heads the WebGL winner roster
 
     def test_invention_is_grounded_and_approved(self):
         self.assertIn("inventing a new mechanic", self.mp)
         self.assertTrue("grounded" in self.mp and "approved" in self.mp)
 
 
-class TestReversibleDefaultWired(unittest.TestCase):
-    def test_imperative_three_makes_reversible_the_default(self):
+class TestModelSplitWired(unittest.TestCase):
+    def test_imperative_three_splits_the_model(self):
         imp = _read("award-imperatives.md")
-        self.assertIn("reversible", imp)
         self.assertIn("motion-palette.md", imp)
-        self.assertIn("fire-once", imp)
+        self.assertIn("fire once and persist", imp)
+        self.assertTrue("nn/g" in imp or "usability failure" in imp)
+        self.assertIn("reversible", imp)
 
-    def test_phase4_motion_is_scroll_linked(self):
+    def test_phase4_motion_splits(self):
         p4 = _phase(4).lower()
-        self.assertIn("scroll-linked", p4)
         self.assertIn("motion-palette.md", p4)
+        self.assertIn("fire once and persist", p4)
+        self.assertIn("reversible", p4)
 
     def test_skill_loads_the_palette(self):
         # loaded at Phase 3 (source) and Phase 4 (build)
         self.assertIn("motion-palette.md", _phase(3))
         self.assertIn("motion-palette.md", _phase(4))
 
-    def test_anti_pattern_names_fire_once_reveal(self):
+    def test_anti_pattern_names_rehide_on_scroll_up(self):
         ap = _read("anti-patterns.md")
-        self.assertIn("fire-once scroll reveals", ap)
+        self.assertIn("re-hide on scroll-up", ap)
+        self.assertIn("fire once and persist", ap)
 
-    def test_preflight_checks_reversible_replay(self):
+    def test_preflight_checks_the_split(self):
         pf = _read("preflight.md")
-        self.assertIn("reversible scroll motion", pf)
+        self.assertIn("content persists", pf)
 
 
 class TestNavbarSettleFix(unittest.TestCase):
