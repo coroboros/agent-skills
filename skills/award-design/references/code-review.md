@@ -1,6 +1,6 @@
 # Code-craft review — the final mechanical pass
 
-A short, deterministic code pass at Phase 5, after the pre-flight boxes and before the R2 review. The build can look pixel-perfect and still carry a finish layer that only shows in the source: raw hex where a token exists, px where the scale says rem, a native control the design step actively asked for. This pass catches that band — mechanically, so it is cheap and repeatable.
+A short, deterministic code pass at Phase 5, after the pre-flight boxes and before the R2 review. The build can look pixel-perfect and still carry a finish layer that only shows in the source: raw hex where a token exists, px where the scale says rem, a native control the design step actively asked for. This pass catches that band — mechanically, so it is cheap and repeatable. It enforces two lists: **adoption** of the modern-web baseline (`modern-web-baseline.md` — OKLCH, rem, tokens, factorization) and **rejection** of the tells (`anti-patterns.md` — native controls, `not-allowed`). Best practices to adopt, tells to ban; do not conflate them.
 
 **This gate can override the DESIGN.md.** The design-authoring step can *prescribe* the very tells the build then ships — a native select, a `not-allowed` cursor, a hardcoded color. When a DESIGN.md instruction collides with a rule here, this pass wins and the DESIGN.md line is corrected (`design-md-anatomy.md` forbids those prescriptions at the source). A gate that defers to a wrong spec is not a gate.
 

@@ -48,6 +48,7 @@ CROSS_CUTTING = [
     "imagery.md",
     "inspiration.md",
     "interaction-signatures.md",
+    "modern-web-baseline.md",
     "motion-palette.md",
     "navigation-patterns.md",
     "optical-craft.md",

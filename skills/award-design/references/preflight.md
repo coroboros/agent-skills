@@ -148,7 +148,7 @@ No browser tooling on the harness → this section's boxes convert to **declared
 
 ## 9. Code-craft review
 
-The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS/HTML. It **overrides the DESIGN.md** — a spec that prescribes a tell (a native control, a `not-allowed` cursor) is corrected, not deferred to.
+The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS/HTML — it enforces adoption of the modern-web baseline (`modern-web-baseline.md`) and bans the tells. It **overrides the DESIGN.md** — a spec that prescribes a tell (a native control, a `not-allowed` cursor) is corrected, not deferred to.
 
 - [ ] **Token-drift / SSOT** — no token value duplicated as a raw literal; no CSS custom property redeclared as a hardcoded JS constant; no token defined and never used
 - [ ] **OKLCH + rem** — opaque authored colour in `oklch()` / relative-color (translucent overlays / borders / scrims may stay `rgb(… / α)`); px only for borders, hairlines, touch-targets; spacing/type on the rem scale, no off-scale literals

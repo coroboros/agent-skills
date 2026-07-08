@@ -154,7 +154,7 @@ Author the complete DESIGN.md (Google format) when none exists — all eight pro
 
 ## Phase 4 — Commit, then build
 
-**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md` + `references/award-imperatives.md` + `references/motion-palette.md` + `references/text-effects.md` + `references/interaction-signatures.md`, before the first component. From `references/foundations.md`, pull the sections the design_plan names — the type ramp, the color derivation, and the locked craft layer at minimum — and list what was pulled in the design_plan; a section that later drifts unpulled is a skipped load.
+**Load now:** `references/anti-patterns.md` (whole file) + `references/premium-patterns.md` + `references/optical-craft.md` + `references/award-imperatives.md` + `references/motion-palette.md` + `references/text-effects.md` + `references/interaction-signatures.md` + `references/modern-web-baseline.md`, before the first component. From `references/foundations.md`, pull the sections the design_plan names — the type ramp, the color derivation, and the locked craft layer at minimum — and list what was pulled in the design_plan; a section that later drifts unpulled is a skipped load.
 
 **Commit — a binding `design_plan` before any markup:**
 
