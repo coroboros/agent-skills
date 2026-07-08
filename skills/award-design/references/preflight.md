@@ -86,7 +86,7 @@ Catalog: `ship-ready-floor.md` (Impose tier) + `foundations.md` UX Quality and A
 - [ ] WCAG AA contrast in every state — including button text vs button background (no white-on-white CTA), form placeholders, focus rings, glassmorphic surfaces
 - [ ] Non-text UI holds 3:1 — icons, input borders, accent-on-surface, focus indicators (WCAG 1.4.11), on top of the AA text checks
 - [ ] Async feedback is announced — toasts and validation errors carry `aria-live="polite"` (or `role="status"`); a silent visual toast is invisible to screen readers
-- [ ] Every color and font value resolves to a named token (`var(--…)` / `@theme`) — an inline hex mid-file is drift
+- [ ] Every color and font value resolves to a named token (`var(--…)` / `@theme`) — an inline hex mid-file is drift (the mechanical token-drift, OKLCH/rem, native-control, and cursor checks live in §9)
 - [ ] No horizontal scroll at any width 320–1920: grid image tracks use `minmax(0, 1fr)`, display headlines carry `overflow-wrap: anywhere`, page clipping uses `overflow-x: clip` (never `hidden` — it kills `position: sticky`)
 - [ ] `prefers-reduced-motion` branch exists and swaps motion for opacity `(scanner: REDUCED-MOTION)`
 - [ ] **Fill / overlay clip** — every animated fill, sheen, or reveal inside a shaped container clips to its shape (`overflow: hidden` or `clip-path` on the clip parent), and every full-bleed / negative-`inset` decorative layer clips to its bound; `scaleX` fills on rounded shapes are ruled out in favor of `translateX` / `clip-path`. Verified in the browser at §8 (hover→leave), where the spill actually shows
@@ -106,7 +106,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 
 - [ ] No broken grammar, no unclear referents, no cute-but-wrong AI phrasing — flagged strings rewritten plain
 - [ ] **Adversarial copy pass** — for every visible string ask *what does this add here, at this spot?*; a phrase, eyebrow, or stat that survives only as texture is cut. Numbered diegetic labels (`READING 01`, `01 / 03`) and atmospheric stat strips (`KP INDEX 5 · active`, `SEASON NIGHTS CLEAR 47%`, `Season 2026/27 · open`) read as registration set-dressing however in-world — cut the number or the strip unless the count is load-bearing
-- [ ] Every eyebrow passes the buyer-learn test — it names something the reader needs (category, value, place in the page); registration meta ("PROOF COPY", "No. 114", edition strings) is decoration that signals AI, unless the number IS the product's name
+- [ ] Every eyebrow passes the buyer-learn test — it names something the reader needs (category, value, place in the page) that the H1 below it does not already carry; an eyebrow that restates the headline's subject is redundant and cut; registration meta ("PROOF COPY", "No. 114", edition strings) is decoration that signals AI, unless the number IS the product's name
 - [ ] Every data visual decodes at a glance — marks self-evident in context, or named by a one-line legend; the loop screenshot is the test (a stranger can say what each mark is)
 - [ ] Numbers are real, or explicitly labeled as mock — no invented spec-precision
 - [ ] Zero lorem ipsum `(scanner: LOREM)`; zero scroll cues ("Scroll to explore", bouncing chevrons) `(scanner: SCROLL-CUE)`
@@ -131,7 +131,9 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] The signature interaction driven live: it fires, completes, and holds frame — with Chrome DevTools MCP connected the performance trace is mandatory (signature at 60fps, LCP measured against < 1.5s; a miss is a finding, not a gap; a surface with no per-frame fps readout declares the proxy — a clean trace over the animation window, compositor-only properties); with `dev-browser` only, both numbers go to declared gaps
 - [ ] **Interactive signature driven as a real user** — a pointer / drag / 3D signature driven with a real mouse drag AND a touch drag (not synthetic events, which hide the native-drag-ghost bug): the *object* responds (not the headline), no native drag-ghost, no text selection, `touch-action: none` / `draggable="false"` / `user-select: none` set on the canvas and any poster; and the render reads *premium* against a real product of its category — a primitive-on-flat-lights or a CGI-clocked object is a fidelity fail, and a mechanic that bent the brand's core identity (a NOIRE flacon gone brown) is a concept fail; and it **reads at a glance** — a stranger notices the effect without the hint text, and one so subtle it needs its own label to be found is under-tuned, not restrained `(refs: ingredients/web3d-for-sites.md, signature-invention.md)`
 - [ ] **Interactive states driven, hover→leave** — every animated control (CTA fill, nav link, card, magnetic button) driven through hover AND the mouse-leave retract (and focus→blur): the fill/sheen enters and exits inside its shape, no spill on either transition. The retract-frame spill past a `border-radius` is invisible to a static screenshot — it only shows mid-transition
-- [ ] **Section seams captured** — the transition between sections screenshotted, not only section centers: no decorative layer (a hero light sweep, an oversized glow, a negative-`inset` band) bleeds across a boundary into the next section — **and a full-bleed image or video grades into its neighbour, never a hard horizontal cut into a flat band** (a crisp rectangle edge where sky meets a flat block is the crude-transition tell; grade it with a `mask-image` or a scrim, `imagery.md`)
+- [ ] **Section seams captured** — the transition between sections screenshotted, not only section centers: no decorative layer (a hero light sweep, an oversized glow, a negative-`inset` band) bleeds across a boundary into the next section — **and a full-bleed image or video grades into its neighbour, never a hard horizontal cut into a flat band** (a crisp rectangle edge where sky meets a flat block is the crude-transition tell; grade it with a `mask-image` or a scrim, `imagery.md`). **The last seam into the footer is checked as deliberately as the first**: a full-bleed image butting a hard edge onto a flat footer band (especially a grey one) grades into the footer's own colour instead
+- [ ] **Live substrate — every element responds** — driven at every section, not just the hero: each interactive element (link, image/figure, card, nav, control) carries its low-amplitude state in one coherent vocabulary, and the page does not read inert once the hero is passed; a hover-revealed secondary (coordinate, caption) stays reachable under a touch emulation, never trapped behind a fine-pointer hover `(ref: interaction-signatures.md)`
+- [ ] **Text emphasis is legible-first** — any scroll-linked text effect emphasizes already-legible copy (dim→bright, never invisible→visible), its finished state is the CSS default, and it does not re-hide on scroll-up; a Firefox / unsupported render still shows fully legible, emphasized text `(ref: text-effects.md)`
 - [ ] **Signature text driven responsive** — the signature's own text overlay (readings, captions, kinetic lines, HUD labels) holds at every width 320–1920, mono and overlay strings included; a reading that overflows its column or clips over the hero is a fail the centered desktop frame hides
 - [ ] **Overlay menu close** — the full-screen menu, opened and closed live, carries a visible labeled `✕` (not a faint glyph beside a still-"MENU" label); `Esc` closes, focus returns to the trigger, body scroll locks (`navigation-patterns.md`)
 - [ ] **Brand mark + favicon real** — the logo is a designed SVG/PNG glyph or a clean typographic wordmark (no random dot / status-tick), the *same* mark drives the favicon / `icon.svg`, both verified rendered in the browser (`imagery.md`)
@@ -143,6 +145,16 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 Full-page captures never fire scroll-gated reveals (IntersectionObserver sees no scroll) and render fixed canvases at y=0 — scroll-verify those sections or substitute viewport-frame captures at key positions, and declare the substitution. Sub-500px widths need device *emulation* — a desktop window silently floors its width and verifies the wrong layout.
 
 No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict (Tooling gaps field), each with the code-level fallback noted; the status may still read READY when everything else holds. Falsely ticking a browser box is worse than declaring the gap.
+
+## 9. Code-craft review
+
+The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS/HTML. It **overrides the DESIGN.md** — a spec that prescribes a tell (a native control, a `not-allowed` cursor) is corrected, not deferred to.
+
+- [ ] **Token-drift / SSOT** — no token value duplicated as a raw literal; no CSS custom property redeclared as a hardcoded JS constant; no token defined and never used
+- [ ] **OKLCH + rem** — opaque authored colour in `oklch()` / relative-color (translucent overlays / borders / scrims may stay `rgb(… / α)`); px only for borders, hairlines, touch-targets; spacing/type on the rem scale, no off-scale literals
+- [ ] **Native-control + cursor lint** — zero native `<select>`/checkbox/radio without `appearance: none`; zero `cursor: not-allowed`; run against the DESIGN.md too
+- [ ] **A11y floor** — contrast computed at each rule's actual font-size (sub-4.5:1 under ~18px fails regardless of a "decorative" note); every full-screen overlay sets `inert`/`aria-hidden` on siblings and traps focus, `Esc` returns focus to the trigger
+- [ ] **JS lifecycle** — a render loop resumes only when its target is visible AND in-viewport (not on `visibilitychange` alone); every `setTimeout` guarding a visibility/`hidden` toggle is cleared by its inverse action
 
 ## Verdict block
 
@@ -157,5 +169,6 @@ Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until t
 **Counts:** eyebrows <n>/<max> · sections <n> · layout families <n> · marquees <n> · CTA intents <n>
 **Justified overrides:** <rule → one-line, brief-tied justification — or "none">
 **Tooling gaps:** <browser verification unavailable → declared — or "none">
+**Code-craft:** <N fixed · K justified · clean | issues — the §9 pass>
 **Status:** READY | NOT DONE — <blocking items>
 ```

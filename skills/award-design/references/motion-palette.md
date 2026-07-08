@@ -1,6 +1,6 @@
 # Motion Palette
 
-The codified library of proven, execution-correct motion mechanics — the recipes an award build draws from so it stops re-deriving (and re-breaking) the same interactions. Each entry is a mechanic proven in production, with the one implementation that gets it right and the gotcha that version closes. The palette is the *how*; the *what* — the one signature that carries the world — is `signature-invention.md`. Pick from the palette, or invent a mechanic, but ground it in a real reference and the story (the bespoke test), never in novelty for its own sake.
+The codified library of proven, execution-correct motion mechanics — the recipes an award build draws from so it stops re-deriving (and re-breaking) the same interactions. Each entry is a mechanic proven in production, with the one implementation that gets it right and the gotcha that version closes. The palette is the *how*; the *what* — the signature that carries the world — is `signature-invention.md`. This file is the scroll/scene/reveal vocabulary; its two siblings complete the set — `text-effects.md` for type as a motion surface, `interaction-signatures.md` for the low-amplitude hover/pointer substrate that keeps every element alive past the hero. Pick a coherent ingredient-set across the three, or invent a mechanic, but ground it in a real reference and the story (the bespoke test), never in novelty for its own sake.
 
 Load at Phase 3 (source the mechanics the signature and the motion model need) and Phase 4 (build under them).
 
@@ -12,7 +12,7 @@ So reach for a mechanic because the world needs it, never because it impresses. 
 
 ## The winning signature — one moment, medium by archetype
 
-The signature that wins is one moment; its **medium is archetype-dependent**, and grabbing the wrong medium because it is flashy is the failure. The verified 2023–2026 winners split clean:
+The signature that wins is one dominant **climax** — distributed over the page as a few section-tied echoes on a live low-amplitude substrate (`interaction-signatures.md`), never a lone hero effect on a page that dies below it. Its **medium is archetype-dependent**, and grabbing the wrong medium because it is flashy is the failure. The verified 2023–2026 winners split clean:
 
 - **Immersive / Cinematic → 3D WebGL** is the one archetype where a heavy 3D signature is the win-condition. Verified named winners: Lando Norris (Awwwards **Site of the Year 2025**), ERA, Montfort, Oryzo, Cartier W&W, Igloo Inc, EverSwap — all **Three.js + GSAP + GLSL, frequently Lenis**. No verified winner ran OGL, React-Three-Fiber, CSS-native `animation-timeline`, or the View Transitions API as its signature medium; those are craft-layer and portability tools, not the winning-signature stack. Routes through the WebGL delegation (`ingredients/web3d-for-sites.md`).
 - **The quieter archetypes win without 3D.** Minimalist on type + restraint (Terminal Industries, SOTM); Editorial on editorial craft + parallax storytelling (Siena, SOTM); Bento on tiles that demonstrate their claim (Anime.js, SOTM); Corporate Luxury on slow tasteful motion (Cartier). Their signature is the type, the restraint, the pacing — not a shader.

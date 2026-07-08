@@ -40,12 +40,14 @@ CROSS_CUTTING = [
     "audit-rubric.md",
     "award-imperatives.md",
     "brand-extraction.md",
+    "code-review.md",
     "design-md-anatomy.md",
     "exemplars.md",
     "external-truth.md",
     "foundations.md",
     "imagery.md",
     "inspiration.md",
+    "interaction-signatures.md",
     "motion-palette.md",
     "navigation-patterns.md",
     "optical-craft.md",
@@ -56,6 +58,7 @@ CROSS_CUTTING = [
     "retrofit.md",
     "ship-ready-floor.md",
     "signature-invention.md",
+    "text-effects.md",
 ]
 
 

@@ -35,6 +35,10 @@ Every vital narrative element from `/award-design` maps to one of the eight orde
 
 Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `production-hardening.md`. Full extension convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
 
+## The DESIGN.md never prescribes a tell
+
+The spec drives the build, so a tell written into the DESIGN.md ships as one — a build shipped a native `<select>` and a `not-allowed` cursor because its own Components section prescribed both. The DESIGN.md **never** specifies a native form control or a native blocked/disabled cursor: it specifies uplifted controls (`appearance: none` + a custom affordance) and a disabled treatment that keeps `cursor: default`. It authors colour in OKLCH and sizing in rem (`foundations.md`), never hardcoded literals a later scrim then duplicates. The Components section carries the **interaction substrate** — the one coherent low-amplitude hover/reveal vocabulary applied to every interactive element, and the two-or-three section-tied signature echoes (`interaction-signatures.md`) — not just the hero's beat. The Phase 5 code-craft pass (`code-review.md`) overrides this file where a line here still prescribes a tell.
+
 ## Signature beat table
 
 The signature moment is specified as choreography before it is coded — a beat table in Section 4 Layout (cross-reference `motion.*`, `scrollTriggers.*`). Every duration and ease resolves to `motion.*` tokens; a signature that cannot be written as beats is an effect waiting to happen, not a design.
