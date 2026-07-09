@@ -49,6 +49,13 @@ The pairing is the design.
 
 Serifs returned hard in 2025–2026. Burberry's switch back to serif signaled the broader shift.
 
+**The pairing is the floor; the signature is treating the display type as an image, not a picked font.** A high-contrast Didone at its default optical size — Bodoni Moda, Editorial New, Playfair — is the jury's "obvious answer done well": it clears the serif reflex but reads as font-*selection*, not art direction, and caps Typography around 8. To beat that, push the display type past a retail default:
+
+- **Optical-size (`opsz`) custom instancing** — the one axis that redraws glyph outlines for size. A variable display serif built for art direction (Fraunces exposes `opsz 9–144`, plus `SOFT` and `WONK` alternates) set with `font-variation-settings: 'opsz' 144, …` *decoupled* from `font-size` gains a contrast and refinement a static cut cannot. Highest-leverage bespoke read, zero commission.
+- **Draw the one masthead word as SVG outlines** — a single hero wordmark hand-set as paths (a custom ligature, a bespoke ampersand or numeral) reads as commissioned lettering while the body stays retail. Most of the "exclusive alphabet" read for one word of effort.
+- **Compose the type AS the image** — one display word owning the frame at 20–40vw, tight negative leading, a deliberate overlap or second layer; scale, not decoration, carries the peak (the Brody / *The Face* move).
+- **Kinetic axis on scroll as accent only** — interpolate `wght` / `opsz` / `GRAD` via `font-variation-settings` (GRAD shifts weight without reflowing), paused off-screen; never the whole idea.
+
 ## Color
 
 Background spans three families per stack:
@@ -110,11 +117,20 @@ SplitText.create(".article-headline", {
 
 Durations and easings pull from `motion.duration-*` and `motion.ease-*` extension tokens. Long-form articles benefit from `view-transition-name` on hero images for thumbnail-to-hero morphs at click.
 
+## The words — copy is composed, not poured
+
+Reading-*first* is the archetype's identity; text-*dense* is its failure mode. In a copy-heavy build the copy is designed as ruthlessly as the grid — this is where editorial most often collapses into a dev draft.
+
+- **Cut to what earns its place.** A section is not a container to fill. Four long paragraphs before the first image, rest, or turn is a wall, not a feature. Break dense passages with a pull-quote, a full-bleed, or white space; *place* the text, never pour it.
+- **The site never narrates or credits itself.** No "a feature on…", no "an essay about…", no listing the typefaces it is set in. Production copy speaks as the brand to its reader; a piece that describes its own construction reads as a portfolio draft (`anti-patterns.md`).
+- **One informative label per section.** An eyebrow, a kicker/folio, an in-world device readout, and a title that all name the same thing is ornamental redundancy — and a count costume ("first / second / third casting") dressed as a chapter label is set-dressing. Keep the one label that informs; cut or differentiate the rest.
+- **Register holds.** One copy voice per page (`preflight.md` register lock) — an editorial standfirst and a technical HUD readout are two registers; declare the mix or pick one.
+
 ## What makes it award-worthy
 
 An editorial site scores 8+ when the typographic dialogue feels intentional — every serif weight, every tracking value, every gutter resolved through the same hand. When the multi-column grid breaks for a pull quote and the break feels surprising rather than mechanical. When photography is treated, framed, and paced so the reader's eye moves through the article like a ribbon. Siena succeeds because the filmstrip slider is editorial pacing, not decoration.
 
-The archetype loses identity when serif is bolted onto a generic landing page (it reads as costume), when body measure exceeds 75 characters (reading collapses), or when image treatment is forgotten and stock photography sneaks in (signals generic thinking — single fastest way to fail per Awwwards judge feedback).
+The archetype loses identity when serif is bolted onto a generic landing page (it reads as costume), when body measure exceeds 75 characters (reading collapses), or when image treatment is forgotten and stock photography sneaks in (signals generic thinking — single fastest way to fail per Awwwards judge feedback). It also caps hard on **copy**: a page that over-writes (dense text poured before any rest or visual), narrates or credits itself, or stacks three label layers on one section reads as a dev draft — and no amount of resolved type and grid buys that back. In this archetype the copy is scored as heavily as the type.
 
 ## Ideal for
 

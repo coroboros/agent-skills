@@ -30,12 +30,12 @@ At Phase 4 the design_plan **names the interaction vocabulary** — the same way
 
 ## Hide-reveal — a secondary is earned, never static
 
-A decorative or atmospheric element sitting beside a primary — a coordinate beside the wordmark, a caption, a meta line — is **never left static**. Two exits, not three:
+A decorative or atmospheric element sitting beside a primary — a coordinate beside the wordmark, a caption, a meta line — is **never left static**. Its default exit is to cut it; the reveal is the rare exception, not the reflex.
 
-1. **Fold it into an interaction** — hidden at rest, revealed on hover with an ingredient from `text-effects.md` (a slide-in with a per-letter fill, an accent-color warm, a font-weight shift), so the detail is *earned* by attention.
-2. **Cut it** — if it adds nothing even when revealed.
+1. **Cut it** (default) — if it adds nothing even when revealed, it was set-dressing. Remove it. Most secondaries end here.
+2. **Fold it into an interaction** (rare, justified, subtle) — for the few secondaries that genuinely earn their place: hidden at rest, revealed on hover/press with a *quiet* ingredient from `text-effects.md`. This is an occasional move, never a pattern stamped on every secondary — a page that hides-and-reveals several elements reads as a gimmick. And it is **not itself a marker of award quality**: the wordmark-coordinate reveal is a small, quiet reward, not a signature; justify each use against "would cutting it lose anything?" or it does not ship.
 
-This is what converts the two static tells — a redundant always-on coordinate, a decorative directional arrow — into life. The coordinate `90°00′N` slides out from behind the wordmark on hover; the arrow appears and translates on the CTA's hover, never sits as resting decoration.
+Used sparingly, this converts a genuine secondary — a coordinate that earns a second glance — into a quiet reward. A directional arrow that only appears on a CTA's hover is the same idea: it never sits as resting decoration, and if the CTA reads without it, it is cut, not revealed.
 
 **Touch is mandatory, and content is never trapped.** The hide is a progressive enhancement for fine pointers only — `@media (hover: hover) and (pointer: fine)` gates the hidden state; a coarse pointer (touch) gets the element in a considered resting state or revealed on a deliberate press. Content is never left permanently unreachable behind a hover that a finger cannot trigger. Verify on a touch emulation, not desktop hover alone.
 
