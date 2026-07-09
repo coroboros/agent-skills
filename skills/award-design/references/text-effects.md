@@ -45,3 +45,13 @@ The strongest text signature is meaning, not motion: the key terms of a line car
 @keyframes warm { from { color: var(--ink-2); } to { color: var(--ink-1); } }
 .line .key { color: var(--accent); }                          /* semantic accent, rationed */
 ```
+
+## The craft lever — two channels, staggered (art vs a mechanical fade)
+
+A single property fading globally reads as mechanical. What makes a text effect feel *authored* — the reason Terminal Industries' copy looks like art and a plain reveal does not — is **two channels moving together, staggered per unit** (char / word / line):
+
+- **Two channels, not one.** Opacity *and* a colour pass; or weight *and* tracking; or a clip *and* a slide. Terminal's signature, confirmed by inspection, is the canonical case: each character fades in **as the accent colour** (`opacity: 0 → 1` while `color` is the lime accent), then settles **accent → base** (`lime → white`). The accent *entrance* is the craft; a plain `opacity: 0 → 1` is the fade everyone writes. A grey→black, single-channel, fire-once emphasis (what falls short) changes one property once, then sits static — correct but inert. Add the second channel, the stagger, and a persist-or-scrub, and the same copy reads alive.
+- **Staggered in reading order.** Chars/words resolve left-to-right, not all at once — at any mid-scroll frame the head is already settled while the tail is still arriving, so the eye follows the sweep.
+- **Scrubbed over a sticky pin = the sustained top-to-bottom feel.** The "continuous transformation the whole way down" is not a bigger one-shot fade — it is the effect **scrubbed to scroll over a `position: sticky` pin** (a 2–3-viewport-tall section), one headline handing to the next. Pin with CSS `sticky`, **not** ScrollTrigger's `pin`, under Lenis, to avoid smooth-scroll jank.
+
+**The stack.** Cross-engine: GSAP `SplitText` (now free; its `mask` option and `aria:"auto"` handle the split-span a11y) + `ScrollTrigger` (`scrub`, `pin:false`) + Lenis. Lighter but Firefox-gated: the pure-CSS `animation-timeline: view()` path with a per-span `animation-range` stagger (fallback = the resting emphasized state, above). A fire-once accent flash needs no library — a per-char `@keyframes color` (`pale → accent → final`) with `animation-delay: var(--stagger)` set in JS. **The through-line for all of them:** two channels + a stagger; a single-property global fade is the tell.

@@ -138,7 +138,8 @@ class TestFooterSeam(unittest.TestCase):
 class TestEyebrowRestatesH1(unittest.TestCase):
     def test_anti_pattern_and_preflight(self):
         ap = _read("anti-patterns.md")
-        self.assertIn("restates the h1 below it", ap)
+        self.assertIn("restates the h1", ap)
+        self.assertIn("the default is no kicker", ap)
 
 
 class TestMotifFiller(unittest.TestCase):

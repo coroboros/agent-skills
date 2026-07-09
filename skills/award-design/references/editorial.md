@@ -123,7 +123,7 @@ Reading-*first* is the archetype's identity; text-*dense* is its failure mode. I
 
 - **Cut to what earns its place.** A section is not a container to fill. Four long paragraphs before the first image, rest, or turn is a wall, not a feature. Break dense passages with a pull-quote, a full-bleed, or white space; *place* the text, never pour it.
 - **The site never narrates or credits itself.** No "a feature on…", no "an essay about…", no listing the typefaces it is set in. Production copy speaks as the brand to its reader; a piece that describes its own construction reads as a portfolio draft (`anti-patterns.md`).
-- **One informative label per section.** An eyebrow, a kicker/folio, an in-world device readout, and a title that all name the same thing is ornamental redundancy — and a count costume ("first / second / third casting") dressed as a chapter label is set-dressing. Keep the one label that informs; cut or differentiate the rest.
+- **Default is no kicker — the section title stands alone.** A mono all-caps eyebrow stamped above every h2 ("THE CURRENT NUMBER" over *Weathers*, "SUBSCRIBE" over *Have it sent.*) is ornamental sameness: the reader already knows where they are. A kicker ships only when it carries information the title and the section's position do not (a real category, a date). Stacking an eyebrow *and* a folio *and* a device readout on one section compounds the tell.
 - **Register holds.** One copy voice per page (`preflight.md` register lock) — an editorial standfirst and a technical HUD readout are two registers; declare the mix or pick one.
 
 ## What makes it award-worthy

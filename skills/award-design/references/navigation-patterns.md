@@ -34,6 +34,16 @@ A solid bar carrying `backdrop-filter` stutters on iOS Safari during scroll — 
 
 Detect the crossing with a **zero-size sentinel at the hero's bottom edge**, not a `scrollY` threshold. Measure the sentinel's distance to the viewport top against the bar height. This is resolution-independent — it works with a fluid `dvh` hero whose pixel height you don't know at author time, where a hard-coded `scrollY > 700` silently breaks. Solidify the bar when the sentinel reaches one bar-height from the top (the bar goes solid the instant it would otherwise straddle the hero/content seam, so light text never lands on content); drop the legibility scrim one bar-height deeper. A page with no hero forces the solid state and mounts no observer.
 
+### Surface on hover — legibility-on-demand (default)
+
+By default, **the bar takes its solid surface the instant the pointer enters it (or it gains focus, or a touch lands), and drops back to transparent on leave** — even over the hero. Hovering or tapping the nav is intent to read it; giving it its owned background on that intent guarantees legibility over any hero imagery and doubles as the nav's own substrate response (an inert bar on hover is a dead element). Gate it like the scroll surface, OR'd with a hover/focus-within state:
+
+```css
+[data-nav]:hover, [data-nav]:focus-within { background: var(--surface); color: var(--on-surface); }
+```
+
+The one exception is a bar **declared always-solid** in the DESIGN.md (a register that never runs transparent over the hero): there the surface is permanent and the hover rule is a no-op. A bar that stays transparent while the pointer sits on it — forcing the reader to squint at light-on-light links — is the tell this closes.
+
 ## The five things a competent version misses
 
 These are what separate an award header from a working one — each is a real defect the naive version ships.
