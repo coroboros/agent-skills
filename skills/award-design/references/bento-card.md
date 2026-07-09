@@ -142,3 +142,41 @@ SaaS product pages (Notion, Linear, Supabase, Vercel adjacency), feature compari
 ## Cross-references
 
 Read alongside `foundations.md` (container queries, OKLCH per-card accents, animation toolkit), `premium-patterns.md` (Doppelrand for nested card architecture, button-in-button trailing icon, eyebrow tags above cards), `anti-patterns.md` (3-equal-cards-in-a-row is axiomatic; bento fatigue is real), `audit-rubric.md` (Hierarchy 8+, Spacing 9+ are entry bars), `exemplars.md` (Apple product pages, Linear feature grid, Vercel platform features).
+
+## Effect palette — what this line's winners ship
+
+The one hard-awarded whole-site anchor is Anime.js v4 (Awwwards SOTD May 6 + Site of the Month, May 2025; Animations/Transitions 9.00). The rest of the repertoire is drawn from design-canonical feature grids — Vercel, Supabase, Linear (design-canonical, award unverified) — where bento lives as a *section*, not a whole site.
+
+**The grammar** — cohesion is a single through-line expressed differently across element classes, never one gesture stamped everywhere. Anime.js binds everything with *motion* — the button presses, the link brightens, the tile animates, the demo scrubs, all anime.js primitives. Vercel binds everything with *edge-catching light* — the same streak rides the card border, glints the CTA, frosts the nav. Button, card, and nav differ in mechanism yet obey one physics. One hover on every tile is sameness mistaken for consistency — the failure to break.
+
+**Buttons / CTA**
+- **Ghost outline + transform-press** — hairline border at a mid-neutral token (Anime.js `#625d5b` on `#252423`), background never fills; animate `transform` only — a sub-pixel mechanical press, `transition: transform 0.125s ease-out`, radius `4px`. Pick for brutalist and dev-tool grids where restraint is the brand. (Anime.js, SOTM May 2025 — live)
+- **Token-step solid / inversion** — a solid pill (`border-radius: 100px`) advances one full step through the ramp or inverts fg/bg on hover, never a translucent tint — a crisp `~0.15s` token change. Pick for premium SaaS with a disciplined color system. (Vercel/Geist, design-canonical, award unverified; corroborated by Anime.js solid-accent button — live)
+
+**Links**
+- **Underline draw** — pseudo-element underline scales `scaleX(0)→1` from the left over `~0.3s` with an expo-out ease. (single-source for the exact mechanism; the effect itself is near-universal)
+- **Neutral→foreground brighten** — muted links (`--fg-3`, Anime.js `#b4b1af`) lift to `--fg-1` on hover, `transition: all`, no underline. Pick for dense link lists, footers, in-card links. (Anime.js — live)
+
+**Cards** — the heart: one hover affordance per grid, never a universal lift; let tiles differ by content.
+- **Cursor-tracked conic border-shine** — a conic gradient in the border via `mask` + `mask-composite: intersect`; JS drives `--x/--y` (plus a `--start` angle) so a light streak rides the edge under the pointer. Pick for dark, flat panel grids. (Vercel + Supabase, design-canonical, award unverified)
+- **Spotlight expand + reveal** — hovered tile expands across its row, siblings reflow, a de-saturated preview restores to color, copy fades up — layout-aware, not a scale. Verified Codrops params: GSAP paused timeline, `ease: power2.inOut`; siblings shift `2.5vw` inward; a 12-point clip-path cross morphs open; preview scales `(dim − 5vw)/dim`. Pick for feature grids with real imagery per tile. (Vercel spotlight + Codrops technique)
+- **Border-glow bloom** — a blurred accent gradient in a pseudo-element behind the card fades `opacity 0→1` as a soft under-glow, not a hard shadow; accent = the tile's own OKLCH token. Pick for dark grounds (`--bg` ~`#0A0A0F`). (Supabase + Linear, design-canonical, award unverified)
+- **Live-demo tile (no lift at all)** — the tile is a running canvas/WebGL demo; hover or drag drives the actual animation, so the content reacts and there is no card chrome. Pick when the demo IS the product. (Anime.js — live; single-source but the anchor's core claim)
+
+The AI-default `translateY(-4px) scale(1.02)` + grey `box-shadow` on every tile is the flattening trick to break.
+
+**Nav**
+- **Transparent overlay, unchanged on scroll** — header stays fully transparent (`background: rgba(0,0,0,0)`, `backdrop-filter: none`, `border-bottom: 0`) at the top and scrolled — works over one flat ground. (Anime.js — live-verified)
+- **Transparent→frosted hairline on scroll** — gains `backdrop-filter: blur()` over a semi-opaque surface plus a same-family hairline (`rgba(255,255,255,0.06)` dark / `rgba(0,0,0,0.05)` light), never a contrasting accent line. Pick for light/product bento over shifting sections. (Apple + Vercel — documented)
+- Nav items brighten muted→foreground; no background pill.
+
+**Text**
+- **Per-char / per-word stagger — signature, gated to motion brands** — split the display headline and stagger it in only when motion IS the product; elsewhere it fights the content. (Anime.js — live; single-source by design)
+- **Tight-tracked static display** — the supporting default: sentence-case headline, weight `600`, negative tracking (Vercel `-2.4px` / `tracking-tight`), no animation beyond the section reveal. (Vercel documented + Anime.js — live)
+- **Mono eyebrow + tabular metrics** — labels and in-tile numbers in mono (Geist Mono / JetBrains Mono) with `font-variant-numeric: tabular-nums`; numbers can count-up on reveal. The per-tile register shift is the effect.
+
+**Cursor** — keep the native pointer deliberately (`body { cursor: auto }`); the grid is scan-and-click and a laggy dot fights it. A custom cursor appears only inside an interactive demo tile, never sitewide. The pointer powers surface effects — feeding `--x/--y` into border-shine or glow — rather than being dressed up. (Anime.js — live)
+
+**Loader / intro** — instant first paint; no preloader element (Anime.js ships none in the DOM — live-verified). The entrance IS the card stagger — `opacity 0→1` + a short `translateY`, `40–80ms` per tile — so the page assembles itself. A blocking curtain with a `0→100%` counter is an anti-signal here; reserve it for immersive/WebGL archetypes.
+
+**Anti-signals** — absent from every winner examined: the washed pale-tint button fill (`accent @ ~10% alpha` fading in, reads as a disabled hover); a contrasting-colored `border-bottom` under the nav (winners' borders, when present, are same-family hairlines); one universal card hover on every tile; a global custom cursor (lagging dot/ring sitewide); a per-letter kinetic headline on a non-motion brand; heavy hero parallax (substitute lag-based grid scroll); and uniform `fade-up-on-everything` with linear per-element delays.

@@ -30,7 +30,7 @@ Pitch-black canvas (`#0A0A0A` to `#1A1A2E`) with oversized Monument Grotesk disp
 
 ### Editorial portrait — Lando Norris profile
 
-Light cream foundation (off-white in the `#F5F2EC` to `#FAF7F0` range) with a single 3D figure — character bust, helmet, signature object — anchored to full-bleed photography or topographic-line backgrounds. Serif wordmark sits in the corner; one saturated accent (Lando uses lime `#CCFF00`) carries the brand voice as a single CTA. Ideal for athlete and personality portfolios, single-product showcases, founder-led launches.
+Light cream foundation (off-white in the `#F5F2EC` to `#FAF7F0` range) with a single 3D figure — character bust, helmet, signature object — anchored to full-bleed photography or topographic-line backgrounds. Serif wordmark sits in the corner; one saturated accent (Lando uses lime `#D2FF00`) carries the brand voice as a single CTA. Ideal for athlete and personality portfolios, single-product showcases, founder-led launches.
 
 ### Daylight automotive — Porsche / luxury hardware profile
 
@@ -125,3 +125,39 @@ Automotive launches, luxury brands with a sensory story, entertainment and film,
 ## Cross-references
 
 Read alongside `foundations.md` (typography, OKLCH, animation toolkit), `production-hardening.md` (cross-browser shipping, iOS as canary), `audit-rubric.md` (Awwwards judging criteria), `exemplars.md` (broader visual catalog).
+
+## Effect palette — what this line's winners ship
+
+Two live-CSS reads anchor this — Lando Norris (Awwwards Site of the Year 2025; OFF+BRAND) and Siena Film Foundation (Awwwards Site of the Month, March 2025 + Developer Award) — backed by case-study evidence from Lusion v3, Oryzo, Messenger, Cartier, Bruno Simon, and Active Theory. Recipes below are read from the winners' own CSS unless tagged otherwise.
+
+**The grammar** — one scarce saturated accent means "active" on every element class (Lando lime `#D2FF00`, muted `#B2C73A` on hover; Siena holds red for the live slider state only). One named easing family carries nearly every transition — Siena `--easeOutQuint: cubic-bezier(.23,1,.32,1)`, Lando chrome `cubic-bezier(.65,.05,0,1)` at `.75s`. One gesture grammar — inversion, or reveal-from-edge — repeats while the *mechanic* differs per class. Cohesion lives in the constants; variety lives in the mechanics. Never one hover everywhere; never a different ease per element.
+
+**Buttons / CTA**
+- **Full-token flood + text inversion** — hover jumps the background to a solid, full-saturation token and flips text/icon to the contrast token; the flood is chosen per context, not global. Lando `.f1-highlight-grid:hover { background: lime; color: black }`, schedule variant floods dark-green with lime text; Siena `.all-work-cta-w:hover { background:#000; color:#fff }` at `.5s` easeOutQuint. Pick on a photographic or dark canvas that needs one decisive state (Lando, SOTY 2025; Siena, SOTM Mar 2025).
+- **Already-solid CTA, motion-only hover** — ship the primary filled with the accent at rest, no color change on hover, only a press/scale/icon nudge. Lando `.btn-w` rests solid `#D2FF00` / `#282C20` text / `.54rem` radius with no `:hover` color rule (transform observed, implementation unverified). The strongest antidote to the pale-tint reflex — the button is already the loudest object (Lando, SOTY 2025).
+- **Masked label swap** — duplicate the label in an `overflow:clip` box; hover translates the pair so a fresh copy slides in. Siena `[data-btn=explore]` swaps `translateY(-150%)` + `translate(100%)` at `.8s`, staggered `.1s`; Lando doubles nav-link DOM text. Pick for text CTAs where motion must not shift layout (Siena, SOTM Mar 2025; Lando, SOTY 2025).
+- **Magnetic pull** — the button follows the cursor a fraction of the offset inside its bounds, snapping back on leave. Cuberto `mouse-follower` `stickDelta: 0.15` (single-source). One magnet per view, never a page of them.
+
+**Links**
+- **Adopt-the-accent recolor** — hover takes the site's one saturated accent, otherwise reserved for the CTA. Lando nav-link → `#B2C73A`, metadata → lime; Siena `.review-he` → red. The recolor reads as "alive" because that color means active everywhere else — the default for text links and metadata rows (Lando, SOTY 2025; Siena, SOTM Mar 2025).
+- **Plain underline, supporting only** — animated underline-draw is absent here: Lando rich-text links use a bare `text-decoration: underline`, Siena footer links reveal via `opacity` + an arrow rotate `-135deg`. Kinetic underline belongs to editorial; use it sparingly inside body copy.
+
+**Figures / cards**
+- **Inner scale 1.1** — the image scales to `1.1` inside a fixed frame that clips the overflow. Lando `.helmet-grid-item:hover img`; Siena `.previousnext-item:hover .full-img-w`. Amplitude is 10%, never a dead `1.03` — the default media hover (Lando, SOTY 2025; Siena, SOTM Mar 2025).
+- **Clip-path ellipse uncover** — a top-anchored elliptical mask grows to reveal media: `clip-path: ellipse(100% 120% at 50% 0%)`. The same `… at 50% 0` geometry recurs across Lando's scroll reveals, making it a whole-site shape motif (single-source for the hover trigger). Pick when the reveal itself must carry brand shape — visor curve, lens (Lando, SOTY 2025).
+- **Edge-anchored panel wipe** — a real color panel wipes in via `transform: scaleY(0→1)` from an edge, full-opacity and directional. Siena `[data-hover=bggrow]:hover:before` (single-source). The honest fill — targeted, not a fade (Siena, SOTM Mar 2025).
+
+**Nav** — `position: fixed`, `background: transparent`, no `backdrop-filter`, `border-bottom: 0 none`. The text/icon color transitions to stay legible over whatever section scrolls under it (Lando `color .75s cubic-bezier(.65,.05,0,1)`); verified on both. Winners never hang a border-bottom of any color, nor flood a frosted panel on scroll — reserve a solid nav for the corporate/SaaS archetypes (Lando, SOTY 2025; Siena, SOTM Mar 2025).
+
+**Text**
+- **Variable-font axis animation** — display type animates `font-variation-settings` (weight/width), so letters thicken and widen in place. Lando `.text-nav-link` transitions `"wght" 660, "wdth" 93` at `5.25rem` (single-source, strong signature). The hero's one signature type move — it reads bespoke because almost nobody ships it (Lando, SOTY 2025).
+- **Masked line reveal** — lines sit in `overflow: clip` boxes and translate in from below, a hard mask edge with no fade. The default headline entrance, cleaner than a per-char fade (Lando & Siena).
+- **Kinetic type as image** — letters scale, split, and morph on scroll; type *is* the hero, not a caption over one. The highest-leverage move for beating Site-of-the-Day when there is no photographic hero (Obys "Typography Principles", Awwwards SOTD; Shopify Editions, SOTD).
+
+**Cursor** — keep the OS cursor by default: the two deepest-evidence winners ship no `cursor: none` and no follower. A custom cursor must be earned by a mechanic. When justified, Cuberto `mouse-follower` state-morphing — `speed: 0.55`, `ease: "expo.out"`, `stickDelta: 0.15`, states `-hidden/-pointer/-text/-icon/-media` (Lando, SOTY 2025; Siena, SOTM Mar 2025).
+
+**Loader / intro**
+- **Brand-object assembly → reveal wipe** — the preloader builds the signature object (helmet, wordmark) while assets stream, then clip-reveals into the live hero via the top-anchored `ellipse(… at 50% 0)` hand-off mask so there is no cut. Lando Rive + GSAP intro (choreography observed, implementation unverified). Pick when the brand has one iconic object (Lando, SOTY 2025).
+- **Progress-as-narrative** — the load percentage drives a real visual (a value counting, a scene lightening, a camera pulling back) so the counter is diegetic. Active Theory boots into a full-screen WebGL intro that dissolves into navigation (numeric choreography observed, implementation unverified). Pick for shader-heavy sites where the wait is unavoidable — make it the opening shot (Active Theory, Awwwards SOTD).
+
+**Anti-signals** — absent from every winner examined: a pale/low-opacity tint fill on a primary control (`background: rgba(accent, .1)`) — winners flood full-token + invert or ship already solid, zero pale tints found; a frosted-glass nav on scroll (`backdrop-filter: blur()` + tinted panel) and a nav `border-bottom` of any color (`border-bottom: 0 none` verified on both); one universal hover for every element class (winners differentiate button ≠ card ≠ image ≠ link ≠ nav); imperceptible hover amplitude (`scale 1.02–1.03`) and a bare spinner or naked % counter that hard-cuts to the page; a different easing per element — everything routes through 2–3 named beziers.

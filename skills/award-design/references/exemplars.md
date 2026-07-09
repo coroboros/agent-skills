@@ -117,6 +117,7 @@ Dimensional depth, organic shapes, tactile textures. Post-bento, post-blanding â
 
 | Brand | URL | Signature |
 |---|---|---|
+| **Igloo Inc** *(canonical, Site of the Year 2024)* | igloo.inc | Ice-and-chromatic WebGL world, organic depth, in-engine UI |
 | Arc Browser | arc.net | Frosted pastels, radial gradients, "frosted from 2035" character |
 | Granola | granola.ai | Warm cream glass, PP Editorial New serif, premium paper feel |
 | Apple Vision Pro | apple.com/vision-pro | Spatial-UI aesthetic, depth through blur and scale |

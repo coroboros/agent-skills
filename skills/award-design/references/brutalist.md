@@ -115,7 +115,7 @@ Bind these patterns to `typography.label-mono` and `typography.label-machine` ex
 
 ## Motion
 
-Motion stays intentional, often jarring, never smooth-default.
+Motion stays intentional and splits by layer: scroll reveals ride smooth eased curves (`expo.out`, `power3` — verified across the line's winners); the jarring/step register belongs to hero text (scramble, RGB-split) and micro-toggles.
 
 - Glitch effects and RGB channel splitting on hero text
 - Kinetic type that bounces, rotates, or scrambles on hover
@@ -133,7 +133,7 @@ Motion stays intentional, often jarring, never smooth-default.
 }
 ```
 
-Durations bind to `motion.duration-*`. Easings stay step-based or absent. Smooth `cubic-bezier` curves belong to other archetypes.
+Durations bind to `motion.duration-*`. Step easings (`steps(2)`) stay on the glitch layer — hero text and micro-toggles; reveals and fills ride smooth curves (FlowFest presses its buttons on `0.25s cubic-bezier(0.625, 0.05, 0, 1)`).
 
 ## Texture
 
@@ -168,3 +168,36 @@ Creative agencies with attitude, indie tech (Gumroad, Figma Config), streetwear,
 ## Cross-references
 
 Read alongside `foundations.md` (typography systems, kinetic type, OKLCH for the saturated stack), `anti-patterns.md` (axiomatic rejections still apply — pure `#000`/`#FFF` stays out, off-blacks and off-whites are the floor), `audit-rubric.md` (typography 8+ is the entry bar in this archetype), `exemplars.md` (Gumroad, The Verge, Pitchfork, Cuberto, Balenciaga).
+
+## Effect palette — what this line's winners ship
+
+Corpus: FlowFest 2025 (Awwwards SOTD 7.36 + GSAP SotW), Eloy Benoffi (GSAP SotD + CSSDA best UI/UX/Innovation + Awwwards HM), Naked City Films (Awwwards SOTD 2026), Sui Overflow 2025 (Awwwards SOTD 7.48), Treize Grammes (Awwwards HM 2024), Joffrey Spitzer (Codrops 2026). Four read live from computed CSS; the rest from builder case studies.
+
+**The grammar** — no winner shares one hover trick; each element class earns a distinct response, and the system coheres through a single physical metaphor plus one easing family and one border/shadow/radius system. FlowFest binds every transform to `0.25s cubic-bezier(0.625,0.05,0,1)` (an Osmo expo-out) under an "objects on a table" metaphor; Sui unifies through a 2px `#000F1D` border, radius `0`, and a `background-color 0.3s` switch. When a control fills, it takes the **full saturated accent, never a pale tint**.
+
+**Buttons / CTA**
+- **Hard-shadow press** — button sits on `box-shadow: 0 4px 0 rgba(0,0,0,0.15)`; hover `transform: translateY(0.25em)` and the shadow collapses to `0` — no fill, no color change · warm-illustrated / saturated stacks where the button reads as a physical object · (FlowFest, Awwwards SOTD 2025).
+- **Full-accent structural fill** — bordered zero-radius control fills with the full accent on active, label color holds — `border: 2px solid #000F1D`, `border-radius: 0`, `background: #4DA2FF`, `background-color 0.3s` · nav pills, filter chips, segmented toggles · (Sui Overflow, Awwwards SOTD 2025) (single-source).
+
+**Links**
+- **Underline draw from the leading edge** — 2px `currentColor` pseudo-element, `transform: scaleX(0→1)` with `transform-origin: left`, text color unchanged; gate behind `@media (hover: hover) and (prefers-reduced-motion: no-preference)` · the default link treatment in every stack · (FlowFest + Sui Overflow, both Awwwards SOTD).
+- **Color dim / shift, no underline** — link shifts toward a `muted` token over `transition: color 0.35s`, no decoration · dense text menus (director lists, indexes) where underlines clutter · (Naked City, Awwwards SOTD 2026) (single-source).
+
+**Figures / cards**
+- **Rotate-tilt by parity** — cards tilt `±3°` on hover, sign alternating per `nth-child` so a grid reads like scattered paper; stickers peel in at `±5°` with scale · warm-illustrated / zine stacks · (FlowFest, Awwwards SOTD 2025) (single-source).
+- **RGB channel-split / CRT dissolve** — image dissolves into brand-tinted offset channels via a shader, then a buffered video autoplays under it · industrial/terminal stacks that already run a WebGL layer · (Naked City, Awwwards SOTD 2026) (single-source, WebGL — not CSS-inspectable). CSS-only fallback: `filter: invert(100%)` kept instant or ≤`0.2s` (DesignThinkers, observed, implementation unverified).
+
+**Nav** — all four live-read winners run the same rest state: `position: fixed`, `background: transparent`, `border-bottom: none`, `backdrop-filter: none`, text painted in the page's off-black or off-white token — the type and the fixed corner placement carry it. No winner hangs a colored border-bottom under the nav or takes a solid surface at rest; scrolled-state surface change was not captured, so treat "gains a bar on scroll" as unverified. (FlowFest + Eloy Benoffi + Naked City + Sui Overflow, 4 sites.)
+
+**Text** — the signature move is scramble/glitch, not fade.
+- **Character-diff swap** — text mutates character-by-character between two strings via the GSAP Text plugin `type: "diff"`, `0.3s`, `preserveSpaces` · location tags, status strings, hero sub-lines · (Eloy Benoffi, GSAP SotD / CSSDA) (single-source).
+- **RGB split on hero type** — display type splits into offset color channels, one moment per page — keep it to the hero, never scattered across body · (Eloy Benoffi + Naked City, ≥2 sites).
+- **Layer split** — ease the scroll reveals: masked per-char / per-line lines rise out of `overflow: hidden` on `expo.out` / `power3` / `bounce.inOut`, staged per content type (scale assembly, scrub sliders, stacked-copy ratchets). Reserve the jarring/step register for hero text and micro-toggles, not scroll reveals · (Joffrey Spitzer verified params; Treize + Eloy carry SplitText — supporting, shared across archetypes).
+
+**Cursor** — swap the bitmap or keep the default; never a lerped follower-blob. `body { cursor: url(cursor.svg) 2 0, auto }` matched to the type for terminal/glitch stacks (Eloy Benoffi, verified), or keep the OS pointer and let unstyled anchors stay browser-default blue `rgb(0,0,238)` (Naked City, verified). The `mix-blend-mode: difference` follower belongs to the smooth-agency archetype, not this one.
+
+**Loader / intro** — split by WPO budget.
+- **Stepped counter** — the number ratchets `0 → 100 in 14 steps`, `3s`, easing `steps(14)`, then a `clip-path: inset()` wipe hands off to content; the `steps()` is the brutalist tell · (Joffrey Spitzer, verified params, single-source).
+- **Near-instant first paint** — no preloader ceremony; the hero animates in on first paint · content-first festival / product / conference sites where a loader would tax WPO · (FlowFest + Sui Overflow, observed).
+
+**Anti-signals** — absent from every winner examined: a pale `color-mix(accent, white)` wash on a primary control (fills are the full accent, or the button presses); one hover rule reused across button/link/card/nav; a scrolled nav that grows a solid surface plus a different-colored border-bottom, or a `backdrop-filter: blur()` frosted bar (all four navs stay transparent, borderless, un-blurred at rest); a smooth lerped `mix-blend-mode: difference` follower cursor; pure `#000`/`#fff` (even Sui ships `#000F1D` on `#F7F7F7`); a uniform `fade-up 0.6s` on every section; rounded soft-shadow cards — radius is `0` or a committed pill, shadows are hard offset `0 4px 0`, never blurred.

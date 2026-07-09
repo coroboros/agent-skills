@@ -46,7 +46,7 @@ Elements have weight, bounce, drag. Cards stack like physical objects, menus det
 Anything goes — but with intent. The choice serves the conceptual core.
 
 - **Spatial world**: hand-drawn or pixel typefaces (Bruno's site uses hand-drawn arrows), oversized sans-serif at world UI level
-- **Generative canvas**: custom or modified typefaces designed for the site, often fluid (variable font weight tied to mouse or audio amplitude)
+- **Generative canvas**: custom or modified typefaces designed for the site, often fluid (variable font weight tied to mouse or audio amplitude — observed on the line, exact parameters unverified)
 - **Research publication**: bespoke serifs or hybrid typefaces, custom small caps, marginalia treatments — Thesephist's typography is hand-built
 - **Physical metaphor**: rounded geometric sans paired with the physics personality (heavy, bouncy, draggable type)
 
@@ -105,3 +105,28 @@ Creative developer portfolios, art institutions, experimental campaigns, design 
 ## Cross-references
 
 Read alongside `foundations.md` (WebGL framework selection, OKLCH, custom GLSL), `production-hardening.md` (heavy WebGL stacks need iOS Safari hardening), `anti-patterns.md` (experimental navigation requiring three discovery actions tanks Usability — discoverable fallback is non-negotiable), `audit-rubric.md` (Creativity 9+ is the entry bar; Accessibility cannot drop below 7), `exemplars.md` (Bruno Simon, Resn, Thesephist, Ink & Switch).
+
+## Effect palette — what this line's winners ship
+
+Corpus read live and cross-checked against case studies: Bruno Simon (Awwwards SOTM Jan 2026 + Developer Award + FWA + CSSDA), Igloo Inc (Site of the Year 2024), Lusion v3 (Site of the Year 2023), Aristide Benoist (SOTD 2018/2019/2021, 2021 scored 8.01), Obys Agency (Studio of the Year 2023), Active Theory, Resn — awarded sites anchor every recipe; Thibault Guignand's portfolio (award-unverified, Codrops-documented, May 2026) supplies the exact parameters the awarded sites never publish.
+
+**The grammar** — the interaction layer is rendered *inside* the WebGL/canvas engine, not stamped on the DOM with CSS. One substrate — Bruno's physics-and-matcap world, Igloo's ice-and-chromatic shader — renders every element class, so button ≠ link ≠ image ≠ nav can each behave differently yet read as one authored world. The lazy build inverts this: one CSS trick (a pale fill-sweep, a scrolled nav bar) cloned onto a normal DOM, which reads as sameness *and* as bolted-on. Pick the substrate first, then let each element class express it.
+
+**Buttons / CTA** —
+- **Full-token fill, never pale tint** — the surviving HTML button (contact, "view work") animates to a *solid* token with a shadow layer for depth, label inverting to the page background — never a low-alpha wash · pick when one conventional button sits in an otherwise-WebGL page · (Cuberto, Codrops *Magnetic Buttons* — documented technique, not a named winner).
+- **Magnetic pull + label-follow** — the button or its inner label translates toward the cursor with elastic easing, snapping back on leave while the custom cursor scales to wrap it; this replaces the fill entirely · the archetype's default CTA on typography/agency builds · (Obys, Studio of the Year 2023; Lusion v3, SOTY 2023; Cuberto `mouse-follower`).
+- **WebGL scramble/flowmap** — a button baked into the canvas resolves through an SDF-offset scramble or warps under a velocity flowmap, never a CSS treatment · pick inside a generative-canvas hero · (Igloo Inc, SOTY 2024).
+
+**Links** — **scramble-to-resolve decode** — characters cycle a punctuation-heavy set then settle, run *in parallel* with a clip-path wipe (not after). Verified charset `A!B@C#D$E%F&G*H?J[K]L{M}N=O+P-QRS…`, clip-path `inset(0 0% 0 0)` at `0.6s power2.out`, parent height locked via `getBoundingClientRect().height` before split to stop reflow (Guignand, single-source); Igloo does the same via SDF-texture-offset scramble, which avoids style recalculations (Igloo Inc, SOTY 2024).
+
+**Figures / cards** — **scrub-linked clip-path morph** — a preview unclips full-bleed as you scroll to page bottom: `ScrollTrigger scrub: 1`; `insetV = max(0, 20 − 20·p)`, `insetH = max(0, 40 − 40·p)` → `inset(insetV% insetH% insetV% insetH%)`; background scale `1.3 − 0.3·p`; SVG counter via `stroke-dashoffset = p·circumference`; skip auto-nav if `getVelocity() > 2000` (Guignand, single-source; the gesture is corpus-common). For image hover, a **velocity flowmap** writes cursor speed into an off-screen RG texture and splits RGB along the mouse→pixel vector — R ×1.5, G ×0.5, B ×1.8, rainbow above `uVelo > 0.01` (Guignand, single-source; the chromatic-hover family recurs on Igloo, Active Theory).
+
+**Nav** — winners mostly ship **no persistent HTML nav bar**: the menu lives in-engine (Bruno drives to sections; Igloo renders the entire UI in WebGL; Active Theory nav is in-canvas). Where an HTML nav survives it is a **transparent fixed corner** — logo + one menu word, no background fill, no border, opening a full-screen overlay rather than the bar gaining a surface (Obys; Aristide Benoist, SOTD — observed, exact CSS unverified). The scrolled-solid-bar with a contrasting `border-bottom` is a corporate pattern that never ports here; there is usually no bar to give a surface to.
+
+**Text** — **SplitText stagger scaled to element count** so a line lands tight: lines `duration 0.8 / stagger 0.08`, words `0.6 / 0.06`, letters `0.4 / 0.008`, `yPercent 110→0`, ease `cubic-bezier(0.625, 0.05, 0, 1)` (Codrops/Osmo, documented; the count-scaled reveal is universal in the corpus). Kinetic type — letters scale/split/morph on scroll, type carrying the layout instead of images — is signature for the typography stack (Obys, Studio of the Year 2023 — single named winner). Variable-font weight driven by mouse/audio amplitude is observed, implementation unverified — do not ship exact numbers.
+
+**Cursor** — **magnetic elastic follower** is the default: a dot/ring/blob trails with spring easing, then snaps onto and scales around hoverables, pulling them slightly toward it (Obys; Lusion v3, SOTY 2023; Cuberto `mouse-follower`). The equal-and-opposite move is the **deliberate no-cursor** when the mechanic *is* the pointer — Bruno Simon drives a car, so a lag-dot would fight the physics and the "click to start" + floor-tile path do the wayfinding (Bruno Simon, SOTM 2026). A meaningless bespoke cursor is worse than none.
+
+**Loader / intro** — the intro renders *in the engine* and *is* the concept booting: a real-time animation in the site's own shaders (Igloo Inc, SOTY 2024), or objects rising from the ground with a paper-unwrap sound (Bruno Simon). A required **start button doubles as the audio-unlock gate** since browsers block autoplay until interaction (Bruno Simon, single-source — a hard constraint, not a taste choice). No heavy engine → no loader; the text-first sub-stack ships instant first paint.
+
+**Anti-signals** — absent from every winner examined: the **pale/washed-out tint fill** on button hover (a 10–20% brand-alpha sweep — the single clearest tell); the **scrolled solid nav bar + contrasting `border-bottom`**; one identical hover cloned onto every element class; CSS underline-draw as the link move; generic `fade-up 20px` as the only reveal; a spinner or bare `%` counter preloader with no tie to the concept; a `mix-blend-mode` lag-dot cursor that adds no mechanic; a single `background-clip: text` gradient sold as "kinetic type."

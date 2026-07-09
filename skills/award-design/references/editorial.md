@@ -102,13 +102,13 @@ Understated, content-respectful, never competes with reading.
 
 ```javascript
 SplitText.create(".article-headline", {
-  type: "lines, words",
+  type: "lines",
   mask: "lines",
   autoSplit: true,
   onSplit(self) {
-    return gsap.from(self.words, {
-      y: 40, autoAlpha: 0, stagger: 0.05,
-      duration: 0.8, ease: "power3.out",
+    return gsap.from(self.lines, {
+      yPercent: 100, stagger: 0.1,
+      duration: 1.0, ease: "power4.out", // easeOutQuint — the winners' register; y:40 fade-ups at power3 are the AI default
       scrollTrigger: { trigger: self.elements[0], start: "top 80%" }
     });
   }
@@ -139,3 +139,39 @@ Media and publishing, fashion brands with story-driven commerce, cultural instit
 ## Cross-references
 
 Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit), `anti-patterns.md` (no `<div>`-button soup, no stock photography, no centered-hero-with-generic-headline template), `audit-rubric.md` (Typography 8+ is the entry bar in this archetype), `exemplars.md` (Anthropic, Substack, The New Yorker, Notion).
+
+## Effect palette — what this line's winners ship
+
+Corpus — Siena Film Foundation (Awwwards Site of the Month, Apr 2025), Truekind Skincare (Awwwards SOTD, Apr 2025), Anthropic (brand-site control), plus case-study reads on Bisous, Exat, Cartier 365, Dondre Green, Stefan Vitasović. Button/link/nav mechanics below are read live from the first three's CSS; motion, loaders, and text choreography come from studio case studies.
+
+**The grammar** — variety coheres because each element class runs a *different* mechanism over a shared substrate, tied by one gesture that rhymes: something rolls, swaps, or inverts. Siena reuses a named ease library — `--easeOutQuint: cubic-bezier(.23,1,.32,1)`, `--customEase: cubic-bezier(.19,1,.22,1)`, `--easeOut: cubic-bezier(.77,0,.175,1)` — quiet feedback at `~.2s`, signature moves at `.5–.8s`; Truekind converges on `cubic-bezier(.18,.71,.11,1)` at `.8–1s`. Two sites land on slow expo/quint out-eases (`~.8–1.1s`), well past the AI-default `.6s`/power2. Accent logic is ink-inversion tied to the section behind — cream ↔ black with one red for emphasis (Siena), token-swap on a single `.2s` transition (Anthropic) — never a decorative line. Cohere on easing + palette + one gesture, or on a token system + one timing + a serif voice in the chrome.
+
+**Buttons / CTA**
+- **Full-fill + ink inversion (primary/secondary).** Outline or light button fills a *solid* brand value, label flips to the opposite ink — never a pale tint. Truekind `.btn.outline:hover { background:#3b3b3b; color:#fff }`; Siena `.all-work-cta-w:hover { background:#000; color:#fff }`, nested arrow inverting the opposite way, `transition:.5s` on `--easeOutQuint`; Anthropic play button bg↔text at `.2s`. Default for the main CTA. (Siena SOTM Apr 2025; Truekind SOTD Apr 2025; Anthropic control)
+- **Two-layer kinetic label roll (signature hero CTA).** Siena `[data-btn=explore]`: SVG shape fills transparent→white, stroke flips to black, and the label *rolls* — visible copy slides `translate(100%)` out while a duplicate below rolls `translateY(-150%)` in, both recolouring to the ink, staggered `.1s`; `--duration:.8s` on `--easeOutQuint`. The loud move — fill *and* kinetic label. (Siena SOTM Apr 2025) (single-source)
+- **Kinetic marquee label.** Truekind `.btn`: static label fades to `0` while `.marquee__inner` starts scrolling on hover, `.4s`. Pick when the word itself should feel alive. (Truekind SOTD Apr 2025)
+- **Accent-token fill (persistent nav CTA).** Anthropic nav CTA fills the full clay accent (`--swatch--clay`), text via `-hover` tokens; Truekind `.navbar-cta` is a charcoal `#333` pill, `background 1s cubic-bezier(.18,.71,.11,1)`. The one neutral one-step (`cloud-light`) is reserved for secondary/code buttons — never the primary. (Anthropic control; Truekind SOTD Apr 2025)
+
+**Links**
+- **Underline drawn from origin-left.** Truekind `.link:hover:before { transform:scaleX(1); transform-origin:0 50% }`, retracting rightward when already active. A drawn line, never a snap. (Truekind SOTD Apr 2025)
+- **`text-decoration-color` fade with context-varying offset.** Anthropic holds `text-decoration-color:transparent` at rest, transitions to ink at `.2s`, `text-underline-offset` tuned per context — `.2em` nav, `.18em` dropdown, `.25em` footer. The varied offset is itself a coherence tell. (Anthropic control)
+
+**Figures / cards**
+- **Contained zoom.** Siena `.previousnext-item:hover .full-img-w { transform:scale(1.1) }` inside `overflow:hidden`. Baseline, present everywhere. (Siena SOTM Apr 2025)
+- **Focus / defocus siblings.** The hovered figure sharpens while neighbours blur and dim, so attention is *directed* — Dondre stories page, WebGL displacement. Pick for a gallery where one item should win the eye. (Dondre Green, Codrops case study)
+
+**Nav** — three verified treatments, none frosted, none with a contrasting `border-bottom`:
+- **Transparent + gradient scrim + ink-inversion by section (dark cinematic).** Siena `.nav-w`: `position:fixed`, `pointer-events:none`, no bar; legibility from a `linear-gradient(#000,#fff0)` top scrim; a section class flips ink (`.on-dark .logo { color:#000 }`). (Siena SOTM Apr 2025)
+- **Solid theme-bg bar + same-family hairline (light editorial).** Anthropic `.nav_wrap { background: theme-background }` ivory, hairline as a `border-top` in `--swatch--ivory-medium`, links set in the display serif — the chrome carries the editorial voice. (Anthropic control)
+- Winners never frost the bar or hang a contrasting-accent underline; contrast comes from ink inversion tied to the section behind.
+
+**Text** — one signature type move per site, everything else quiet entrance.
+- **Variable-font axis morph (peak).** Exat: real-time `wght`/width transition on hover, one axis at a time; a proximity glyph grid where cursor distance drives per-glyph weight `200–900`. `opsz` — the axis that redraws outlines — is the highest-leverage editorial peak; Anthropic ships `font-variation-settings:"opsz" 50` on its base `.button` in production. (Exat, Codrops case study) (single-source)
+- **Type-as-image masthead.** One display word owning the frame; Siena's vintage-poster masthead over cinematic stills is the dark-register expression. (Siena SOTM Apr 2025)
+- **Char-assemble entrance (supporting).** Stefan: chars come together, masked for glass-like parallax, `duration 1.25 + index*0.025`s, stagger `.025`s, `easeExpOut`. The rare fully-specified reveal. (Stefan Vitasović, Codrops case study)
+
+**Cursor** — the editorial default is the real system pointer: Siena, Truekind, Anthropic all ship `cursor:pointer` on interactives, `grab` on sliders, no custom sprite. When a winner touches the pointer it *does work* — a lens that unblurs text (Dondre 404) or proximity that drives glyph weight (Exat) — never a `mix-blend-mode` follower.
+
+**Loader / intro** — register split. Dark cinematic seeds the first frame: Siena's neo-romanesque stripes transition *into* the first section; Bisous's cinematic loader becomes the homepage slider; Dondre's letter-grid resolves into the hero wordmark. Light editorial paints instantly — Truekind and Anthropic ship no preloader layer; reading starts on load (observed, implementation unverified). Never a generic percentage spinner.
+
+**Anti-signals** — absent from every winner examined: a pale / low-opacity accent-tint fill on a primary control (winners fill the full token and invert the label); a frosted `backdrop-filter:blur()` bar with a contrasting-colour `border-bottom`; the `mix-blend-mode:difference` circular follower; uniform fire-once `y:30, .6s, ease-out` reveals on everything (winners run slower expo/quint eases, mask by line/word, keep panels reversible, author one scroll mechanic per story); a generic percentage-counter preloader; and the same interaction mechanism cloned across button, link, image and nav.

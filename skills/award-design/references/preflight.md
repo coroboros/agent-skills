@@ -74,6 +74,7 @@ Each is a number computed from the rendered page against a threshold. Cite the c
 | [ ] **Side-stripe ban** | zero 2px+ colored left/right accent borders on cards or callouts `(scanner: SIDE-STRIPE)` | Global — the 2018-SaaS tell |
 | [ ] **Font-family cap** | ≤ 3 families page-wide, plus at most one mono outlier `(scanner: FONT-COUNT)` | Global — more reads as collage |
 | [ ] **Motion motivated** | every animation names what it communicates (one sentence, in the design_plan or the code comment) | Global — unexplained motion is decoration |
+| [ ] **Interaction-palette distinctness** | ≥3 element classes (CTA, link, figure/card, nav) carry distinct state mechanics, each named in the design_plan from the archetype's *Effect palette*, bound by one declared grammar (easing family + accent role) | Global — one mechanic recycled across classes is the fail; distinct mechanics, one grammar (`interaction-signatures.md`) |
 
 ## 5. Craft floor
 
@@ -159,6 +160,7 @@ The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS
 - [ ] **Token-drift / SSOT** — no token value duplicated as a raw literal; no CSS custom property redeclared as a hardcoded JS constant; no token defined and never used; no token value drifting from its DESIGN.md declaration
 - [ ] **OKLCH + rem** — opaque authored colour in `oklch()` / relative-color (translucent overlays / borders / scrims may stay `rgb(… / α)`); px only for borders, hairlines, touch-targets; spacing/type on the rem scale, no off-scale literals
 - [ ] **Native-control + cursor lint** — zero native `<select>`/checkbox/radio without `appearance: none`; zero `cursor: not-allowed`; run against the DESIGN.md too
+- [ ] **State-colour commitment** — every colour in a `:hover`/`:focus`/`:active` rule resolves to a token, and a control's state colour is the committed interactive accent, never a paler wash of it (a tint on the button fill while links carry the full accent is the pale-hover fail); the nav bar carries zero `border-bottom` in any state, and its solid surface token is the page ground or the dominant primary (`navigation-patterns.md`, `interaction-signatures.md`)
 - [ ] **A11y floor** — contrast computed at each rule's actual font-size (sub-4.5:1 under ~18px fails regardless of a "decorative" note); tap targets measured at each breakpoint (a label hidden below a width can shrink a control under 24×24); every full-screen overlay sets `inert`/`aria-hidden` on siblings and traps focus, `Esc` returns focus to the trigger
 - [ ] **JS lifecycle** — a render loop resumes only when its target is visible AND in-viewport (not on `visibilitychange` alone); every `setTimeout` guarding a visibility/`hidden` toggle is cleared by its inverse action
 

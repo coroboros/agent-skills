@@ -30,6 +30,8 @@ Defaults that read well: `TOP_GUARD = 64px`, `HIDE_TOL = 8px`, `SHOW_TOL = 8px`.
 
 Transparent over the hero (light text, a top scrim for legibility over bright imagery); solid past it (owned background, dark text, an `@supports`-gated `backdrop-filter`).
 
+**The owned background is the page ground (or the dominant primary) — and the bar hangs no hairline.** The solid surface reuses the exact token the page stands on (`--bg` / `--ground`) or the declared dominant primary, so a solid bar melts into the page it serves — on a white site the bar goes white. A neutral one step off the ground (`--ground-2`, a grey nobody chose over a white page) reads as a grey strip stuck onto the design, not a surface. And the bar never takes a `border-bottom` — in the hairline color or any other — as its separation affordance, at rest, on scroll, or on hover: the opaque ground itself is the separation, plus the register's declared shadow when one exists. A different-colored line lighting up under the bar on hover is the same class of tell as the AI-nav fingerprint's divider (`anti-patterns.md` Layout).
+
 A solid bar carrying `backdrop-filter` stutters on iOS Safari during scroll — the OS re-samples the moving backdrop each frame its toolbar repositions the fixed bar. Scroll-gate it: set a `data-scrolling` flag on `<html>` while a scroll is in flight (clear it on the exact `scrollend` event, with a ~140ms debounce fallback for browsers without it) and drop the blur to a flat fill mid-scroll, easing it back at rest — `:root[data-scrolling] [data-nav-surface="solid"] { backdrop-filter: none }`.
 
 Detect the crossing with a **zero-size sentinel at the hero's bottom edge**, not a `scrollY` threshold. Measure the sentinel's distance to the viewport top against the bar height. This is resolution-independent — it works with a fluid `dvh` hero whose pixel height you don't know at author time, where a hard-coded `scrollY > 700` silently breaks. Solidify the bar when the sentinel reaches one bar-height from the top (the bar goes solid the instant it would otherwise straddle the hero/content seam, so light text never lands on content); drop the legibility scrim one bar-height deeper. A page with no hero forces the solid state and mounts no observer.
@@ -41,6 +43,8 @@ By default, **the bar takes its solid surface the instant the pointer enters it 
 ```css
 [data-nav]:hover, [data-nav]:focus-within { background: var(--surface); color: var(--on-surface); }
 ```
+
+`--surface` obeys the rule above — the page ground or the dominant primary, never a derived neutral, and no `border-bottom` comes with it.
 
 The one exception is a bar **declared always-solid** in the DESIGN.md (a register that never runs transparent over the hero): there the surface is permanent and the hover rule is a no-op. A bar that stays transparent while the pointer sits on it — forcing the reader to squint at light-on-light links — is the tell this closes.
 
@@ -103,6 +107,7 @@ if (sentinel) {
 [data-nav][data-nav-hidden="true"] { transform: translateY(-100%); }
 [data-nav]:has(:focus-visible), [data-nav][data-menu-open] { transform: translateY(0); } /* freeze revealed */
 [data-nav][data-nav-surface="transparent"] { background: transparent; color: var(--on-hero); }
+/* --surface = the page ground or the dominant primary — never a derived grey, never a border-bottom */
 [data-nav][data-nav-surface="solid"] { background: var(--surface); color: var(--on-surface); }
 @supports (backdrop-filter: blur(1px)) {
   [data-nav][data-nav-surface="solid"] { backdrop-filter: blur(20px) saturate(1.1); }

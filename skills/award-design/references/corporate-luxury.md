@@ -16,7 +16,7 @@ Built around Cartier's Geneva pavilion. Six contemplative 3D alcove universes ar
 - Generous whitespace (128–200px+ section padding) signals exclusivity, not waste
 - Custom or premium serif at display sizes is the typographic mark of the archetype
 - Color rests on neutral foundations punctuated by jewel tones, muted golds, or single deep brand color
-- Motion uses long easing curves (1–1.5s, `cubic-bezier(0.16, 1, 0.3, 1)`) — nothing rushes
+- Motion uses long easing curves (1–1.5s, easeOutQuart `cubic-bezier(0.25, 1, 0.5, 1)` — verified independently on two of the line's winners; `cubic-bezier(0.16, 1, 0.3, 1)` is the snappier alternative) — nothing rushes
 - Photography is treated and considered — every shot frames the product as object, not commodity
 
 The archetype keeps its identity across flat editorial luxury (Hermès, Aesop), cinematic 3D pavilion (Cartier WAW), dark luxury (Rolex, Bugatti), and warm neutral lifestyle (Aesop, Loro Piana). Background register is an expression choice, not a definition.
@@ -87,7 +87,7 @@ Content widths bind to `containers.luxury-page` (~1200–1280px) and `containers
 
 Long, deliberate curves. Nothing hurried.
 
-- Easing: `cubic-bezier(0.16, 1, 0.3, 1)`, duration 1–1.5s
+- Easing: easeOutQuart `cubic-bezier(0.25, 1, 0.5, 1)`, duration 1–1.5s — Delvaux ships it byte-identical across CSS and GSAP; `cubic-bezier(0.16, 1, 0.3, 1)` is the snappier alternative
 - Subtle parallax (5% maximum differential)
 - Hover: gentle opacity shifts (0.7→1) and scale 1.05 over 600–800ms
 - Image reveals: clip-path inset with long duration (0.8–1.2s)
@@ -134,3 +134,29 @@ High-end fashion, luxury hotels, fine jewelry, premium automotive, wealth manage
 ## Cross-references
 
 Read alongside `foundations.md` (typography systems, OKLCH for jewel tones, animation toolkit), `premium-patterns.md` (Doppelrand nested containers, button-in-button trailing icons, eyebrow tags), `anti-patterns.md` (no neon, no high saturation; jewel tones only), `audit-rubric.md` (Spacing 9+, Typography 9+, Motion 8+ are entry bars), `exemplars.md` (Hermès, Rolex, Aesop, Bugatti, Immersive Garden).
+
+## Effect palette — what this line's winners ship
+
+Seven award pages — Cartier (Awwwards SOTM Aug 2025), Longines (SOTD Nov 2023), Omega (SOTD Jan 2026), Son Daven (SOTD Jun 2026), Delvaux (Awwwards HM Jun 2026), Brunello Cucinelli (SOTD Jul 2026), Depo Luxe (SOTD Jul 2026). Four read at the source level (shipped CSS/JS of Son Daven, Delvaux, Brunello via its `.ai` sibling, Depo Luxe); the 3D watchmaking trio is bundle-grep plus case-study prose.
+
+**The grammar** — pick one easing and one reveal primitive, reuse both at every scale, and give each element class its own geometry. The corpus easing is easeOutQuart `cubic-bezier(0.25,1,0.5,1)` — it turns up independently on Son Daven and Delvaux (byte-identical in Delvaux's CSS var and its GSAP `CustomEase`), which makes it arguably more canonical for this line than the DNA's `cubic-bezier(0.16,1,0.3,1)` easeOutExpo (still valid, snappier tail — keep it for a Brunello-style snap). The reveal primitive is reveal-from-behind-a-clip: masked `translate` for type, `clip-path:inset()` for media and overlays. Change the axis and geometry per element, never the curve or the primitive without a brief-tied reason.
+
+**Buttons / CTA** — four verified moves, no pale-tint fill among them:
+- **Label roll-swap** — two label copies in an `overflow:hidden` clip; hover rolls both `translateY(-100%)` together, `transform .2s cubic-bezier(.65,0,.35,1)`, no color event · pick as the default primary-CTA move for editorial maisons · (Delvaux, Awwwards HM Jun 2026; Son Daven, SOTD Jun 2026 — observed, implementation unverified).
+- **Invert to the full section token** — CTA fills with the *solid* section token, geometry extended `-4px` past the label with a 2px outline in the bg colour — never `rgba(token,0.1)` · pick when one hero CTA needs weight · (Son Daven, SOTD Jun 2026).
+- **Line / stroke-draw** — draw an SVG ring, or fade a `currentColor` `:before` underline at `height:.5px` opacity 0→1 · pick over any fill when the surface is photographic or 3D · (Brunello Cucinelli, SOTD Jul 2026; Depo Luxe, SOTD Jul 2026).
+- **Spotlight-dim siblings** — hovering one list/nav item drops the others to `opacity:.2`, not itself; Depo Luxe also swaps the hovered row's metadata · pick when a nav index is the primary interaction · (Son Daven, SOTD Jun 2026; Depo Luxe, SOTD Jul 2026).
+
+**Links** — cross-fade `color 1s cubic-bezier(.65,0,.35,1)` between ink and a muted brand tone, with a 2px bullet dot fading in beside the label rather than an underline grow (Delvaux, Awwwards HM Jun 2026). Or an underline that *appears* — `currentColor` `:before`, opacity 0→1 over `.1–.2s` — instead of growing from a point (Depo Luxe, SOTD Jul 2026).
+
+**Figures / cards** — reveal with a `clip-path:inset()` wipe, `1s cubic-bezier(.25,1,.5,1)` (Delvaux, Awwwards HM Jun 2026). Hover zoom stays `scale(1.02–1.05)` over `0.8–1.5s`, guarded by `@media (hover:hover)` — never a fast 1.1× snap; Delvaux's only zoom in the whole sheet is `scale(1.02)` on a swatch (Brunello Cucinelli, SOTD Jul 2026; Delvaux).
+
+**Nav** — four verified surfaces, zero contrasting border-bottoms: the section's own colour faded in past a scroll threshold (Son Daven, SOTD Jun 2026); an opaque plate plus a same-ink `border-bottom:1px solid rgba(29,29,27,.03)` ~3% hairline (Delvaux, Awwwards HM Jun 2026); a photographic top-down gradient scrim, no fill (Brunello Cucinelli, SOTD Jul 2026); `backdrop-filter:blur(40px)` over a ≤5% tint that flips with the section (Depo Luxe, SOTD Jul 2026). Never a contrasting-accent `border-bottom`; frosted-white glass is not a default — two of the four use no blur at all.
+
+**Text** — masked per-line or per-word reveals only. SplitText lines under an `overflow:hidden` mask, sliding up behind the clip (`power4.inOut`, dur 2, `stagger .2` on Delvaux; `yPercent 250→0`, `durL 1.2s` on Son Daven). Word scatter-in from alternating `yPercent` is a warmer variation for craft brands (single-source, Son Daven, SOTD Jun 2026). Never a per-letter typewriter.
+
+**Cursor** — two poles, no page-wide blob. Native cursor + magnetic pull for editorial/e-com: elements translate toward the pointer and spring back with `elastic.out(1,0.3)`, applied to circular CTAs only — the elastic overshoot is the tell (Son Daven, SOTD Jun 2026); Delvaux ships no custom cursor at all. Or a minimal custom cursor scoped to the WebGL surface, `cursor:none` over that surface only (Brunello Cucinelli, SOTD Jul 2026; Cartier, SOTM Aug 2025). Set `grab`→`grabbing` wherever horizontal drag exists.
+
+**Loader / intro** — content-driven, no fake timers. WebGL or frame-sequence heroes gate a real-progress counter on `Promise.all([assets, scenes, fonts.ready])` and Flip the logo into the header slot (Son Daven, SOTD Jun 2026; Cartier, SOTM Aug 2025), or reveal a logo whose SVG paths fill in as the loader advances (Depo Luxe, SOTD Jul 2026). A pure-CSS editorial DOM paints instantly — the scroll reveals carry the entrance (Delvaux, Awwwards HM Jun 2026).
+
+**Anti-signals** — absent from every winner examined: a pale/washed tint fill on a CTA hover (they roll, invert to a full token, or draw a line); a contrasting-accent `border-bottom` under the scrolled nav; one uniform hover repeated across all element classes; generic fade-up-20px for everything; per-letter typewriter headlines; a fake timed spinner or fixed-duration progress bar; a large page-wide cursor blob with mix-blend-difference; frosted-white glass nav as a default; a neon or high-saturation accent (palettes stay two-tone warm-neutral or monochrome); a fast 1.1×+ image pop.
