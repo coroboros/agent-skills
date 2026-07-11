@@ -1,0 +1,63 @@
+/* award-design detector fixture — dead. Every rule below is a deliberate
+   failure the detector must catch; test_detector_logic.py parses the 1.02
+   scale as a classifier expectation. Keep the literals in sync with README.md. */
+
+* { margin: 0; box-sizing: border-box; }
+
+body {
+  background: #f7f4ef;
+  color: #26211c;
+  font-family: system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* FONT-RESOLVE: the display face does not exist — the stack silently falls to system. */
+h1, h2 {
+  font-family: "Marbre Display", sans-serif;
+  line-height: 1.1;
+}
+
+h1 { font-size: clamp(2rem, 6vw, 3.5rem); }
+h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
+
+/* NAV-BORDER: a contrasting line under the bar. */
+header nav {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #fbf9f6;
+  border-bottom: 1px solid #171310;
+}
+
+main, footer {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+section { margin-bottom: 3rem; }
+.standfirst { margin: 1rem 0 1.5rem; }
+
+a {
+  display: inline-block;
+  color: inherit;
+  text-decoration: none;
+  padding: 0.4rem 0.2rem;
+  transition: transform 0.3s ease;
+}
+
+/* HOMEOPATHIC: scale(1.02) is under the 1.04 floor — reads as no response. */
+a:hover { transform: scale(1.02); }
+
+.entry { display: block; }
+
+/* DEAD: the button carries no state rule at all, and the page ships no JS. */
+.cta {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #26211c;
+  background: #f7f4ef;
+  color: #26211c;
+  font: inherit;
+  cursor: pointer;
+}

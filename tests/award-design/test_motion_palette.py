@@ -114,8 +114,7 @@ class TestModelSplitWired(unittest.TestCase):
         self.assertIn("reversible", p4)
 
     def test_skill_loads_the_palette(self):
-        # loaded at Phase 3 (source) and Phase 4 (build)
-        self.assertIn("motion-palette.md", _phase(3))
+        # loaded at Phase 4, where the palette binds (the Phase 3 copy was dead weight)
         self.assertIn("motion-palette.md", _phase(4))
 
     def test_anti_pattern_names_rehide_on_scroll_up(self):

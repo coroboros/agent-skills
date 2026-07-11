@@ -21,7 +21,8 @@ brutalist suppresses META-LABEL (ASCII process flags are its register).
 `--allow RULE-ID` suppresses a rule for this run — each use requires a
 written justification in the pre-flight verdict.
 
-Exit codes: 0 = no FAIL findings, 1 = FAIL findings present, 2 = usage error.
+Exit codes: 0 = no FAIL findings, 1 = FAIL findings present, 2 = usage error
+or zero files scanned (a wrong path must never read as a clean build).
 """
 
 import argparse
@@ -52,10 +53,20 @@ LINE_RULES = [
      "banned AI-purple hex (#a855f7 / #8b5cf6 / #ec4899 / #6366f1)",
      re.compile(r"#(?:a855f7|8b5cf6|ec4899|6366f1)\b", re.IGNORECASE), CODE_EXTS),
     ("PURE-BW", FAIL,
-     "pure #000 / #fff (or bg-black / text-white) — use off-blacks and off-whites",
+     "pure #000 / #fff (also white/black keywords, rgb(255,255,255), oklch(1 0 0), "
+     "bg-black / text-white) — use off-blacks and off-whites",
+     # Keyword branch: only in color-bearing properties, keyword flanked so
+     # `white-space`, `whitesmoke`, and `var(--white-soft)` never match; the
+     # functional branches require a closing paren right after the channels so
+     # alpha-carrying forms (`rgb(0 0 0 / .4)` scrims) stay unmatched, matching
+     # the bg-white/5 exemption.
      re.compile(
          r"(?i)(?:color|background(?:-color)?|fill|stroke|border(?:-[a-z]+)*|outline|"
          r"box-shadow|text-shadow)\s*:\s*[^;{}\n]*#(?:000000|000|fff|ffffff)\b"
+         r"|(?:color|background(?:-color)?|fill|stroke|border(?:-[a-z]+)*)"
+         r"\s*:\s*[^;{}\n]*(?<=[\s:,])(?:white|black)(?![-\w])"
+         r"|\brgb\(\s*(?:255[\s,]+255[\s,]+255|0[\s,]+0[\s,]+0)\s*\)"
+         r"|\boklch\(\s*(?:1(?:\.0+)?|100%|0(?:\.0+)?|0%)\s+0\s+0\s*\)"
          r"|\b(?:bg|text|border|from|to|via|fill|stroke)-(?:black|white)\b(?!/)"), CODE_EXTS),
     ("H-SCREEN", FAIL,
      "h-screen / bare 100vh — use dvh units (iOS Safari URL-bar toggle breaks vh)",
@@ -70,8 +81,11 @@ LINE_RULES = [
      "colored side-stripe accent border on a card/callout — the 2018-SaaS tell",
      re.compile(r"border-(?:left|right)\s*:\s*(?:[2-9]|\d{2,})px|\bborder-[lr]-(?:2|4|8)\b"), CODE_EXTS),
     ("META-LABEL", FAIL,
-     "index meta-label (SECTION 01 / STEP 2 / PHASE 03) — name the topic, not the count",
-     re.compile(r"\b(?:SECTION|QUESTION|STAGE|STEP|PHASE|PASS)\s?0?\d\b"), TEXT_EXTS),
+     "index meta-label (SECTION 01 / Step 2 / PHASE 03) — name the topic, not the count",
+     # Upper- and title-case only: "Section 01" is a label, "see section 01"
+     # is running prose and stays unmatched.
+     re.compile(r"\b(?:SECTION|QUESTION|STAGE|STEP|PHASE|PASS"
+                r"|Section|Question|Stage|Step|Phase|Pass)\s?0?\d\b"), TEXT_EXTS),
     ("LOREM", FAIL,
      "lorem ipsum — write real draft copy",
      re.compile(r"lorem ipsum", re.IGNORECASE), TEXT_EXTS),
@@ -86,6 +100,9 @@ LINE_RULES = [
      "scroll cue (Scroll to explore, ↓) — design the affordance, don't label it",
      re.compile(r"(?i)scroll (?:to (?:explore|discover|walk)|down (?:to|for)|for more)"
                 r"|↓\s*scroll|scroll\s*↓"), TEXT_EXTS),
+    ("DEADLINK", FAIL,
+     'dead `#` link — href="#" goes nowhere; wire a real target or use a <button>',
+     re.compile(r"""href\s*=\s*(?:"#"|'#')"""), TEXT_EXTS),
     ("TRUNCATION", FAIL,
      "truncation tell (// ..., [remaining, for brevity) — the output is incomplete",
      re.compile(r"//\s*\.\.\.|/\*\s*\.\.\.\s*\*/|\[remaining |for brevity"
@@ -132,6 +149,9 @@ PAGE_MIN_WORDS = 30
 # ("Söhne, Helvetica Neue, sans-serif") counts as one family, not three.
 FONT_FAMILY_DECL = re.compile(r"font-family\s*:\s*['\"]?([^,;'\"]+)")
 FONT_COUNT_MAX = 4  # 3 families + 1 mono outlier
+
+# STAMP: Phase 4 writes the rotation ledger as the main stylesheet's first line.
+STAMP_PREFIX = "/* award-design ·"
 
 # Signals for the project-level REDUCED-MOTION rule.
 MOTION_SIGNAL = re.compile(
@@ -182,7 +202,7 @@ def iter_files(paths):
 
 
 PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
-                    "FONT-COUNT"}
+                    "FONT-COUNT", "STAMP"}
 
 
 def known_rule_ids():
@@ -291,10 +311,19 @@ def scan_paths(paths, archetype="", allow=()):
             "distinct font-family count exceeds the page-wide cap — more reads as collage",
             "project", f"{len(families)} distinct font families — cap is 3 plus one mono outlier"))
 
+    css_files = [path for path in texts if path.suffix.lower() == ".css"]
+    if ("STAMP" not in suppressed and css_files
+            and not any(texts[path].split("\n", 1)[0].startswith(STAMP_PREFIX)
+                        for path in css_files)):
+        findings.append(Finding(
+            "STAMP", REVIEW,
+            f"missing rotation stamp — no stylesheet's first line starts with `{STAMP_PREFIX}`",
+            "project", f"{len(css_files)} stylesheet(s) scanned, none opens with the stamp"))
+
     return findings, suppression_notes
 
 
-def format_report(findings, suppression_notes):
+def format_report(findings, suppression_notes, files):
     lines = []
     by_rule = {}
     for finding in findings:
@@ -313,6 +342,8 @@ def format_report(findings, suppression_notes):
     review_hits = [f for f in findings if f.severity == REVIEW]
     fail_rules = {f.rule_id for f in fail_hits}
     review_rules = {f.rule_id for f in review_hits}
+    text_files = sum(1 for path in files if path.suffix.lower() in TEXT_EXTS)
+    lines.append(f"{len(files)} files scanned ({text_files} text / {len(files) - text_files} code)")
     lines.append(
         f"Summary: {len(fail_hits)} FAIL hit(s) across {len(fail_rules)} rule(s) · "
         f"{len(review_hits)} REVIEW hit(s) across {len(review_rules)} rule(s)")
@@ -334,8 +365,11 @@ def main(argv=None):
                         help="suppress a rule for this run (repeatable; justify in the verdict)")
     args = parser.parse_args(argv)
 
-    findings, suppression_notes = scan_paths(args.paths, args.archetype, args.allow)
-    print(format_report(findings, suppression_notes))
+    files = list(iter_files(args.paths))
+    findings, suppression_notes = scan_paths(files, args.archetype, args.allow)
+    print(format_report(findings, suppression_notes, files))
+    if not files:
+        return 2
     return 1 if any(f.severity == FAIL for f in findings) else 0
 
 

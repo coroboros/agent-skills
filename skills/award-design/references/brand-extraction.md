@@ -52,7 +52,7 @@ For each item, record what you verified:
 ## Hard rules
 
 - **Only describe what you verified.** Don't hallucinate a font name because the letterforms look like Neue Haas. Mark "unknown — probably custom" if unclear.
-- **Hex values only.** Convert rgba/oklch to hex for the DESIGN.md. If the site uses alpha that can't be flattened (overlays), note it inline with the hex.
+- **Observed values in hex.** Record what the computed styles show as hex during extraction — hex is the observation format. The DESIGN.md itself authors its tokens in OKLCH (`design-md-anatomy.md`); convert at authoring time. If the site uses alpha that can't be flattened (overlays), note it inline with the hex.
 - **Semantic roles, not observations.** Write "primary CTA color" not "this color I saw on the button". DESIGN.md tokens live on after you've forgotten the source site.
 - **No hallucinated completeness.** If the site doesn't show dark mode, don't invent a dark palette. Mark "Dark mode: not observed on source; extend if target brief requires it."
 

@@ -138,14 +138,19 @@ Native-first. Browser APIs over JS libraries where possible.
 ### CSS Scroll-Driven (off main thread, guaranteed 60fps)
 
 ```css
-.organic-reveal {
-  animation: emerge linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 80%;
-}
-@keyframes emerge {
-  from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+/* Base state: fully visible — the pre-animation state lives only inside the
+   guard, so no-timeline browsers and reduced-motion users get revealed content
+   (motion-palette.md). */
+@supports (animation-timeline: view()) {
+  .organic-reveal {
+    animation: emerge linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 80%;
+  }
+  @keyframes emerge {
+    from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
 }
 ```
 
@@ -225,13 +230,13 @@ The awarded corpus carrying this DNA: Igloo Inc (SOTY 2024), Exo Ape (SOTD May 2
 **The grammar** — cohesion is one shared substrate under class-specific mechanisms. Fix one accent token, one easing table, one radius language, one display face; then vary the *mechanism* per element class — displacement for buttons, a drawn line for links, a shape morph for images, silence or glass for nav. Cyd Stumpel glues it all with `--default-duration: 1.3s`, `--default-ease: cubic-bezier(0.25,1,0.5,1)` (ease-out-quart), `--bouncy-ease: cubic-bezier(0.34,1.56,0.64,1)` for interactives. The AI failure is the inverse — one mechanism (a pale fill) copied onto every class over an ad-hoc palette.
 
 **Buttons / CTA**
-- **Accent-displacement push** — base surface barely moves; the button translates a few px and a hard, un-blurred offset shadow in the accent color appears on the opposite side, a card lifting off a colored underlayer. Cyd Stumpel `.button:hover`: `background: color-mix(in srgb, var(--color-background) 95%, var(--color-accent))` (a deliberate 5% tint), `color: var(--color-accent)`, `transform: translate(-2px, 2px)`, `box-shadow: -1px 1px 0 0 var(--color-accent)`, `64px` pill. Default button on a warm editorial ground. (Cyd Stumpel, SOTD Mar 2025; exact 1px-accent-shadow variant single-source.)
+- **Accent-displacement push** — base surface barely moves; the button translates a few px and a hard, un-blurred offset shadow in the accent color appears on the opposite side, a card lifting off a colored underlayer. Cyd Stumpel `.button:hover`: `background: color-mix(in srgb, var(--color-background) 95%, var(--color-accent))` (a deliberate 5% tint), `color: var(--color-accent)`, `transform: translate(-2px, 2px)`, `box-shadow: -1px 1px 0 0 var(--color-accent)`, `64px` pill. Default button on a warm editorial ground. The displacement is the response, the tint is set-dressing — a tint-only state with no geometry move still fails the pale-hover gate (interaction-signatures.md). (Cyd Stumpel, SOTD Mar 2025; exact 1px-accent-shadow variant single-source.)
 - **Committed same-family fill** — for a fill, swap to a defined `-hover` token one step within the brand family, never a pale pastel: Granola resolves to `--color-fill-accent-hover` / `oats-green-300 → 400`, one warm step darker. (Granola, style anchor, not a winner.)
 - **The 80% primary fill** — reserve the strong fill for the single primary submit per view: Cyd Stumpel form submit `background: color-mix(in srgb, var(--color-accent) 80%, var(--color))`. Never spray it on every button. (Cyd Stumpel, SOTD Mar 2025.)
 
 **Links**
 - **Underline draw** — a pseudo-element scaling `0→1`, not a `text-decoration` toggle: Exo Ape runs one `:hover::after { transform: scaleX(1) }` across nav, list, footer and body links (color also shifts to `--color-light-grey`). This is where the accent line belongs — on links, never as nav chrome. (Exo Ape, SOTD May 2022.)
-- **Accent wash + arrow nudge** — for inline/utility links, a 10% accent wash + a 1px lift + a diagonal arrow shove. Cyd Stumpel `.platform-link:hover`: `background: color-mix(in srgb, var(--color-accent), transparent 90%)`, `transform: translateY(-1px)`, arrow child `translate(2px, -2px)`. Arrow nudge corroborated by Arc; the 10% wash single-source. (Cyd Stumpel, SOTD Mar 2025.)
+- **Accent wash + arrow nudge** — for inline/utility links, a 10% accent wash + a 1px lift + a diagonal arrow shove. Cyd Stumpel `.platform-link:hover`: `background: color-mix(in srgb, var(--color-accent), transparent 90%)`, `transform: translateY(-1px)`, arrow child `translate(2px, -2px)`. Arrow nudge corroborated by Arc; the 10% wash single-source. Same arbitration: the lift and shove are the response, the wash is set-dressing — wash alone fails the pale-hover gate (interaction-signatures.md). (Cyd Stumpel, SOTD Mar 2025.)
 
 **Figures / cards**
 - **Border-radius morph + crossfade** — the tile's radius animates rounder while a resting graphic crossfades to the full image and the caption slides up; no accent, the geometry carries it. Cyd Stumpel `.work-thumb:hover`: `.img-container { border-radius: var(--hover-radius) }`, circle overlay `opacity 1→0` / full image `0→1`, title `translateY(0)`; timing `opacity .2s .1s ease-out, border-radius .2s .1s var(--default-ease)`. Organic-shape-native and cheaper than a WebGL displacement. (Cyd Stumpel, SOTD Mar 2025; exact recipe single-source.)

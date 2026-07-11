@@ -4,6 +4,19 @@ Phase 5 of the protocol. Runs on the built site, before the fresh-context review
 
 This file is the checklist; `anti-patterns.md` is the catalog behind it (rationale, fixes, full failure modes). When a box is unclear, read its catalog entry — never guess it away.
 
+## 0. Pre-emit critique — enters Phase 5 with it done
+
+The Phase 4 closer, scored before any box below. Six axes, 1–5, each score naming its weakest concrete instance on the page (an element, a string, a beat) — a score with no named instance is not a score:
+
+- **World** — the spine felt in layout, type, color, motion, copy. 1 = tokens on a template; 3 = coherent but expected; 5 = remove the copy and the design still says the world.
+- **Hierarchy** — the eye's path. 1 = everything equal; 3 = size-only; 5 = scale, weight, and color compound.
+- **Craft** — optical discipline. 1 = drift and magic numbers; 3 = clean but untuned; 5 = tuned per size, seams graded, states clipped.
+- **Specificity** — concrete anchors in copy and image. 1 = category words; 3 = one real anchor per fold; 5 = names, counts, places, gestures throughout.
+- **Restraint** — every prop earns its place. 1 = clutter; 3 = one questionable device; 5 = subtraction reads deliberate.
+- **Aliveness** — the substrate as *felt*. 1 = static after the hero; 3 = responses exist, some homeopathic; 5 = every element answers perceptibly, one thread carries.
+
+The lowest axis always takes one named, targeted revision before the boxes run — there is always a lowest, so this cannot be scored around. Scores append to the stamp (`· critique: W4 H3 C4 S4 R5 A3`) as the calibration ledger a later UAT reads against.
+
 ## 1. Mechanical scan (run first)
 
 ```bash
@@ -18,7 +31,11 @@ python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>
 - The scanner **catches, it never clears** — a clean scan ticks no box below. It cannot see composition, hierarchy, or intent; the boxes and the R2 review carry that weight.
 - Scanner severities don't mirror the box tiers: a REVIEW rule can feed an axiomatic box when the regex can't distinguish legitimate use (emoji in copy vs emoji as icons, a licensed unsplash asset vs a hotlink). The box is the gate; the scanner is the flashlight.
 
+- Read the `N files scanned` line before the summary: zero files scanned means the path was wrong — the run proves nothing (the scanner exits 2); rerun on the real build dir before reading any count as clean.
+
 Boxes tagged with a scanner rule below have mechanical help; the scan count feeds the box, the box still needs the honest tick.
+
+**The detector runs beside the scanner.** With a browser rung that evaluates JS, inject `assets/detector.js` into the rendered page and run `awardDetector.run({face, archetype})` — computed-style findings feed the tagged boxes below (`references/detector.md`: injection per rung, floors, tier-2 driving). Same doctrine: the detector catches, it never clears. Its `UNMEASURED: n → driven: m` accounting is binding — `m < n` on any element the design_plan names (the signature, a substrate class, the nav) converts that box to NOT DONE, never to a declared gap. Detector FAILs are fix-only: no prose override clears one.
 
 ## 2. Axiomatic boxes
 
@@ -32,7 +49,7 @@ Catalog: `anti-patterns.md` *Axiomatic rejections* (numbered 1–14). One violat
 - [ ] No 3 equal cards as the feature section
 - [ ] No emojis as UI icons `(scanner: EMOJI-UI)`
 - [ ] Signature moment present — the loud one AND the quiet second-read detail
-- [ ] Hero H1 lands in the lines the design_plan proved (≤2 committed; 3 is the absolute ceiling and takes a written override)
+- [ ] Hero H1 lands in the lines the design_plan proved (≤2 committed; 3 is the absolute ceiling and takes a written override) `(detector: H1-LINES)`
 - [ ] Zero `SECTION 01` / index meta-labels `(scanner: META-LABEL)` — Brutalist's ASCII process flags are the declared exception (`brutalist.md`)
 - [ ] No generic avatars (SVG eggs, stock "diverse team")
 - [ ] No startup-slop brand names (Acme, Nexus, SmartFlow)
@@ -83,19 +100,19 @@ Catalog: `ship-ready-floor.md` (Impose tier) + `foundations.md` UX Quality and A
 - [ ] **8-state contract** — every interactive element ships its applicable states: default, hover, focus-visible, active, disabled, loading, empty/error, success. Async surfaces carry skeletons (matching final layout), empty, and error states.
 - [ ] Custom `:focus-visible` on every interactive element — designed, never the browser-default ring, and keyboard-only: a mouse click or tap never shows an outline (style `:focus-visible`, never a `:focus` ring that fires on click); inputs take a designed focus state in the committed accent (a border/underline shift, never the OS blue); skip link present; no `outline: none` without a visible replacement `(scanner: OUTLINE-NONE)`; the ring appears instantly — never animated in
 - [ ] Semantic landmarks (`header/nav/main/footer`), exactly one `<h1>` per page, ordered headings `(scanner: H1-COUNT, MAIN-LANDMARK)`
-- [ ] Touch targets ≥ 44×44 on mobile, measured at **every** breakpoint — a control whose text label is hidden at a width (icon-only below a breakpoint) still meets the target *there*, not just at its desktop rest size; a hit area shrunk under 24×24 by a `display:none` label is a fail even when the desktop control passed; `touch-action: manipulation` on tap targets
-- [ ] WCAG AA contrast in every state — including button text vs button background (no white-on-white CTA), form placeholders, focus rings, glassmorphic surfaces
+- [ ] Touch targets ≥ 44×44 on mobile, measured at **every** breakpoint — a control whose text label is hidden at a width (icon-only below a breakpoint) still meets the target *there*, not just at its desktop rest size; a hit area shrunk under 24×24 by a `display:none` label is a fail even when the desktop control passed; `touch-action: manipulation` on tap targets `(detector: TAP-TARGET)`
+- [ ] WCAG AA contrast in every state — including button text vs button background (no white-on-white CTA), form placeholders, focus rings, glassmorphic surfaces `(detector: CONTRAST)`
 - [ ] Non-text UI holds 3:1 — icons, input borders, accent-on-surface, focus indicators (WCAG 1.4.11), on top of the AA text checks
 - [ ] Async feedback is announced — toasts and validation errors carry `aria-live="polite"` (or `role="status"`); a silent visual toast is invisible to screen readers
 - [ ] Every color and font value resolves to a named token (`var(--…)` / `@theme`) — an inline hex mid-file is drift (the mechanical token-drift, OKLCH/rem, native-control, and cursor checks live in §9)
-- [ ] No horizontal scroll at any width 320–1920: grid image tracks use `minmax(0, 1fr)`, display headlines carry `overflow-wrap: anywhere`, page clipping uses `overflow-x: clip` (never `hidden` — it kills `position: sticky`)
+- [ ] No horizontal scroll at any width 320–1920: grid image tracks use `minmax(0, 1fr)`, display headlines carry `overflow-wrap: anywhere`, page clipping uses `overflow-x: clip` (never `hidden` — it kills `position: sticky`) `(detector: H-OVERFLOW)`
 - [ ] `prefers-reduced-motion` branch exists and swaps motion for opacity `(scanner: REDUCED-MOTION)`
 - [ ] **Fill / overlay clip** — every animated fill, sheen, or reveal inside a shaped container clips to its shape (`overflow: hidden` or `clip-path` on the clip parent), and every full-bleed / negative-`inset` decorative layer clips to its bound; `scaleX` fills on rounded shapes are ruled out in favor of `translateX` / `clip-path`. Verified in the browser at §8 (hover→leave), where the spill actually shows
 - [ ] **No-JS floor** — a JS-disabled render shows every section's content: initial hidden states applied via JS-added classes only, never in base CSS; canvas/3D heroes carry a static fallback `(scanner: NOJS-HIDDEN)`
 - [ ] `min-h-[100dvh]` / `dvh` units — zero `h-screen` / bare `100vh` heroes `(scanner: H-SCREEN)`
 - [ ] Zero `window.addEventListener('scroll')` — ScrollTrigger, `useScroll`, IntersectionObserver, or CSS scroll-driven only `(scanner: SCROLL-LISTENER)`
 - [ ] Zero ScrollTrigger debug markers in shipped code `(scanner: MARKERS)`
-- [ ] Every `<img>` has explicit dimensions and an `alt` `(scanner: IMG-ALT, IMG-DIMENSIONS)`
+- [ ] Every `<img>` has explicit dimensions and an `alt` `(scanner: IMG-ALT, IMG-DIMENSIONS)` `(detector: IMG-BROKEN)`
 - [ ] **Icon discipline** — one icon family for the whole page, standardized stroke width, zero hand-rolled icon paths
 - [ ] Every imported package exists in `package.json` (or the install command was output first)
 - [ ] Zero truncation tells in shipped code — `// ...`, `[remaining`, "for brevity" `(scanner: TRUNCATION)`
@@ -117,15 +134,15 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] Numbers are real, or explicitly labeled as mock — no invented spec-precision
 - [ ] Zero lorem ipsum `(scanner: LOREM)`; zero scroll cues ("Scroll to explore", bouncing chevrons) `(scanner: SCROLL-CUE)`
 - [ ] No AI copy clichés in site copy (Elevate, Seamless, Unleash, Next-Gen, Delve)
-- [ ] Content realism holds: no identical dates across posts, no duplicate avatars across different names, no dead `#` links, the nav marks the active state
+- [ ] Content realism holds: no identical dates across posts, no duplicate avatars across different names, no dead `#` links `(scanner: DEADLINK)`, the nav marks the active state
 
 ## 7. Truth & assets
 
-- [ ] Every heavy layer (GSAP, Three/R3F, Lenis, View Transitions, Web Audio) cites its Phase 3 source — skill or docs, named
+- [ ] Every heavy layer (GSAP, Three/R3F, Lenis, View Transitions, Web Audio) cites its Phase 3 source — skill or docs, named — and carries one retrieved **freshness token** (the layer's current version, or one recently-changed API fact); a citation with no checkable token is an undeclared rung-skip, cheap to write and never fetched
 - [ ] Heavy layers are used *well*, not just cited — the WebGL scene runs a physical material + HDRI environment (never a primitive on flat lights), the motion layer uses the sourced GSAP/official-skill path; "sourced but low-effort" is a fidelity fail `(ref: ingredients/web3d-for-sites.md)`
 - [ ] Assets follow the acquisition protocol (generate → curated stock → seed → honest placeholder); no stock **hotlinks** — a downloaded, optimized, graded curated pick is fine, a live `images.unsplash.com` src is not `(scanner: UNSPLASH)`; curated-stock slots are flagged in the asset list to replace with commissioned/generated finals
 - [ ] Brand logos are real SVG marks (Simple Icons / devicon / official kit) with light + dark variants; logo walls are logos only
-- [ ] The rotation stamp is the stylesheet's first line (`/* award-design · … */` — format defined at Phase 4; on first contact with a project this skill didn't build, write it now from the adopted universe)
+- [ ] The rotation stamp is the stylesheet's first line (`/* award-design · … */` — format defined at Phase 4; on first contact with a project this skill didn't build, write it now from the adopted universe) `(scanner: STAMP)`
 - [ ] **The world is inhabited** — the asset corpus shows the world's presence in motion (its people, creatures, machines — or the moving element itself, wind through dust), not only its objects and rooms; a genuinely still register declares the exception in the verdict `(ref: anti-patterns.md)`
 
 ## 8. Browser proof
@@ -134,14 +151,14 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 
 - [ ] The conformance loop exited clean on every section — both core widths passing in the same iteration; drift left standing at the 5-loop cap is filed below, never silently accepted
 - [ ] Full-page screenshots at **375px, 768px, 1440px**, taken and read — one line per screenshot on what it showed; every universe claim visible in the pixels, not just coded — plus a fold check at 1280×800: the hero's essential content (H1, subtext, CTA) sits inside the first viewport
-- [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography
-- [ ] The signature interaction driven live: it fires, completes, and holds frame — with Chrome DevTools MCP connected the performance trace is mandatory (signature at 60fps, LCP measured against < 1.5s; a miss is a finding, not a gap; a surface with no per-frame fps readout declares the proxy — a clean trace over the animation window, compositor-only properties); with `dev-browser` only, both numbers go to declared gaps
+- [ ] Computed `font-family` on display text resolves to the committed face — a silent fallback to a system font is invisible in the code and voids the typography `(detector: FONT-RESOLVE)`
+- [ ] The signature interaction driven live: it fires, completes, and holds frame — with Chrome DevTools MCP connected the performance trace is mandatory (signature at 60fps, LCP measured against < 1.5s; a miss is a finding, not a gap; a surface with no per-frame fps readout declares the proxy — a clean trace over the animation window, compositor-only properties); with `dev-browser` only, both numbers go to declared gaps. Every measured number carries its **provenance** — the trace or tool-call reference — because a written "LCP 1.18s" is byte-identical to a measured one; a number with no provenance is an asserted number, and an asserted budget is a fail
 - [ ] **Interactive signature driven as a real user** — a pointer / drag / 3D signature driven with a real mouse drag AND a touch drag (not synthetic events, which hide the native-drag-ghost bug): the *object* responds (not the headline), no native drag-ghost, no text selection, `touch-action: none` / `draggable="false"` / `user-select: none` set on the canvas and any poster; and the render reads *premium* against a real product of its category — a primitive-on-flat-lights or a CGI-clocked object is a fidelity fail, and a mechanic that bent the brand's core identity (a NOIRE flacon gone brown) is a concept fail; and it **reads at a glance** — a stranger notices the effect without the hint text, and one so subtle it needs its own label to be found is under-tuned, not restrained `(refs: ingredients/web3d-for-sites.md, signature-invention.md)`
 - [ ] **Interactive states driven, hover→leave** — every animated control (CTA fill, nav link, card, magnetic button) driven through hover AND the mouse-leave retract (and focus→blur): the fill/sheen enters and exits inside its shape, no spill on either transition. The retract-frame spill past a `border-radius` is invisible to a static screenshot — it only shows mid-transition
 - [ ] **Section seams captured** — the transition between sections screenshotted, not only section centers: no decorative layer (a hero light sweep, an oversized glow, a negative-`inset` band) bleeds across a boundary into the next section — **and a full-bleed image or video grades into its neighbour, never a hard horizontal cut into a flat band** (a crisp rectangle edge where sky meets a flat block is the crude-transition tell; grade it with a `mask-image` or a scrim, `imagery.md`). **The last seam into the footer is checked as deliberately as the first**: a full-bleed image butting a hard edge onto a flat footer band (especially a grey one) grades into the footer's own colour instead
-- [ ] **Live substrate — every element responds, perceptibly** — driven (not code-read) at every section, not just the hero: each interactive element (the wordmark, every link, image/figure, card, nav, control, the accent word) carries a state you can *feel* in one coherent vocabulary. A ~3% image scale, a barely-there tint, or a fire-once effect that leaves a static frame is homeopathic — it reads as dead, not restrained; the response must register to a real pointer. The wordmark and the accent word are not exempt. A hover-revealed secondary stays reachable under touch emulation, never trapped behind a fine-pointer hover `(ref: interaction-signatures.md)`
+- [ ] **Live substrate — every element responds, perceptibly** — driven (not code-read) at every section, not just the hero: each interactive element (the wordmark, every link, image/figure, card, nav, control, the accent word) carries a state you can *feel* in one coherent vocabulary. A ~3% image scale, a barely-there tint, or a fire-once effect that leaves a static frame is homeopathic — it reads as dead, not restrained; the response must register to a real pointer. The wordmark and the accent word are not exempt. A hover-revealed secondary stays reachable under touch emulation, never trapped behind a fine-pointer hover `(ref: interaction-signatures.md)` `(detector: SUBSTRATE-DEAD)`
 - [ ] **One signature carries the whole scroll** — a recognizable signature behaviour recurs and builds from hero to footer, so the page reads of-a-piece; a loud hero moment over an otherwise inert body is the "dead after the hero" failure, driven and confirmed, not inferred from the code; and at least one signature element travels — persists, accumulates, or progresses across sections — entrance-only echoes are episodes, not a thread `(ref: interaction-signatures.md, signature-invention.md)`
-- [ ] **The page breathes at rest** — hands off at mid-scroll: at least one declared ambient channel still lives (a drift, a breath, a ticker), `prefers-reduced-motion`-guarded; zero motion between interactions is the embalmed page, however responsive the substrate `(ref: interaction-signatures.md)`
+- [ ] **The page breathes at rest** — hands off at mid-scroll: at least one declared ambient channel still lives (a drift, a breath, a ticker), `prefers-reduced-motion`-guarded; zero motion between interactions is the embalmed page, however responsive the substrate `(ref: interaction-signatures.md)` `(detector: IDLE-CHANNEL)`
 - [ ] **Text emphasis is legible-first** — any scroll-linked text effect emphasizes already-legible copy (dim→bright, never invisible→visible), its finished state is the CSS default, and it does not re-hide on scroll-up; a Firefox / unsupported render still shows fully legible, emphasized text `(ref: text-effects.md)`
 - [ ] **Signature text driven responsive** — the signature's own text overlay (readings, captions, kinetic lines, HUD labels) holds at every width 320–1920, mono and overlay strings included; a reading that overflows its column or clips over the hero is a fail the centered desktop frame hides
 - [ ] **Hero collision — no absolute affordance over the H1** — at 320–430px (emulated), every absolutely / fixed-positioned hero element (a signature affordance, badge, decoration, the strike / play control) is box-checked against the H1: the two do not overlap. The desktop placement is *reconsidered* for narrow widths — reflowed into the stack or below the standfirst — never left in its desktop position where it clears the headline only by whitespace luck (a clearance that depends on the H1's wrap and the font-load is a fail even when the glyphs happen to miss). Mobile reconsidered, not the desktop layout shrunk
@@ -155,16 +172,16 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 
 Full-page captures never fire scroll-gated reveals (IntersectionObserver sees no scroll) and render fixed canvases at y=0 — scroll-verify those sections or substitute viewport-frame captures at key positions, and declare the substitution. Sub-500px widths need device *emulation* — a desktop window silently floors its width and verifies the wrong layout.
 
-No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict (Tooling gaps field), each with the code-level fallback noted; the status may still read READY when everything else holds. Falsely ticking a browser box is worse than declaring the gap.
+No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict (Tooling gaps field), each with the code-level fallback noted — and the field carries the **verbatim failed probe** (the ToolSearch or `command -v` output), never a bare claim. Gaps cap the status: with this section dark the ceiling is **READY-UNVERIFIED** (the label travels verbatim into the ship message), and a design_plan that committed an interactive signature caps at **NOT DONE — unverified render**. Falsely ticking a browser box is worse than declaring the gap; declaring a gap the harness could have closed is the same fail.
 
 ## 9. Code-craft review
 
 The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS/HTML — it enforces adoption of the modern-web baseline (`modern-web-baseline.md`) and bans the tells. It **overrides the DESIGN.md** — a spec that prescribes a tell (a native control, a `not-allowed` cursor) is corrected, not deferred to.
 
-- [ ] **Token-drift / SSOT** — no token value duplicated as a raw literal; no CSS custom property redeclared as a hardcoded JS constant; no token defined and never used; no token value drifting from its DESIGN.md declaration
+- [ ] **Token-drift / SSOT** — no token value duplicated as a raw literal; no CSS custom property redeclared as a hardcoded JS constant; no token defined and never used; no token value drifting from its DESIGN.md declaration `(detector: TOKEN-CONFORM)`
 - [ ] **OKLCH + rem** — opaque authored colour in `oklch()` / relative-color (translucent overlays / borders / scrims may stay `rgb(… / α)`); px only for borders, hairlines, touch-targets; spacing/type on the rem scale, no off-scale literals
 - [ ] **Native-control + cursor lint** — zero native `<select>`/checkbox/radio without `appearance: none`; zero `cursor: not-allowed` or any special-state native cursor (`zoom-in/out`, `wait`, `progress`, `help`); zero `:focus` ring firing on mouse click (focus styling is `:focus-visible`, custom; inputs in the committed accent); run against the DESIGN.md too
-- [ ] **State-colour commitment** — every colour in a `:hover`/`:focus`/`:active` rule resolves to a token, and a control's state colour is the committed interactive accent, never a paler wash of it (a tint on the button fill while links carry the full accent is the pale-hover fail); the nav bar carries zero `border-bottom` in any state, and its solid surface token is the page ground or the dominant primary (`navigation-patterns.md`, `interaction-signatures.md`)
+- [ ] **State-colour commitment** — every colour in a `:hover`/`:focus`/`:active` rule resolves to a token, and a control's state colour is the committed interactive accent, never a paler wash of it (a tint on the button fill while links carry the full accent is the pale-hover fail); the nav bar carries zero `border-bottom` in any state, and its solid surface token is the page ground or the dominant primary (`navigation-patterns.md`, `interaction-signatures.md`) `(detector: NAV-BORDER)`
 - [ ] **A11y floor** — contrast computed at each rule's actual font-size (sub-4.5:1 under ~18px fails regardless of a "decorative" note); tap targets measured at each breakpoint (a label hidden below a width can shrink a control under 24×24, and bare text links — footer, contact, inline mailto — are measured too: a 20px-tall link fails the floor); every full-screen overlay sets `inert`/`aria-hidden` on siblings and traps focus, `Esc` returns focus to the trigger
 - [ ] **JS lifecycle** — a render loop resumes only when its target is visible AND in-viewport (not on `visibilitychange` alone); every `setTimeout` guarding a visibility/`hidden` toggle is cleared by its inverse action
 
@@ -175,12 +192,17 @@ Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until t
 ```markdown
 ## Pre-flight verdict — <build name>
 
-**Scanner:** <N> FAIL (<all fixed | K justified below>) · <M> REVIEW (judged)
+**Scanner:** <N files scanned> · <N> FAIL (<all fixed | K justified below>) · <M> REVIEW (judged)
+**Detector:** <N> FAIL (fix-only) · <M> REVIEW · UNMEASURED <n> → driven <m> — or "no JS-evaluating rung"
 **Open with:** <command — a module build needs a server; `file://` runs zero JS>
-**Boxes:** <ticked>/<total>
-**Counts:** eyebrows <n>/<max> · sections <n> · layout families <n> · marquees <n> · CTA intents <n>
+**Boxes:** <ticked>/<total> — every unticked, overridden, or gap box listed by its bold name
+**Counts:** eyebrows <n>/<max> · sections <n> · layout families <named, not counted> · marquees <n> · CTA intents <labels listed>
+**Ledger:** <sections> sections · <iterations> loops · <captures> capture refs — uniform first-try anomaly: <none | noted>
 **Justified overrides:** <rule → one-line, brief-tied justification — or "none">
-**Tooling gaps:** <browser verification unavailable → declared — or "none">
-**Code-craft:** <N fixed · K justified · clean | issues — the §9 pass>
-**Status:** READY | NOT DONE — <blocking items>
+**Suppressions:** <--allow flag or archetype suppression → justification — or "none">
+**Tooling gaps:** <verbatim failed probe → declared gaps — or "none">
+**Code-craft:** <per-check one-line counts — the §9 pass>
+**Status:** READY | READY-UNVERIFIED — <browser gates dark, label ships with the build> | NOT DONE — <blocking items>
 ```
+
+Blocking is defined, not felt: any unticked box, filed drift on a make-or-break surface, any fatal-class FAIL (scanner or detector), or `m < n` in the UNMEASURED accounting → NOT DONE. READY requires §8 evidence. Three or more justified overrides — or any override on an axiomatic box — is a named attention item handed to R2, the overrides quoted in the reviewer's input.

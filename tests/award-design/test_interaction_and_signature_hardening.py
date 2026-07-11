@@ -173,11 +173,11 @@ class TestCodeReviewGate(unittest.TestCase):
 
 
 class TestPalettesWiredIntoProtocol(unittest.TestCase):
-    def test_phase3_and_phase4_load_new_palettes(self):
-        for n in (3, 4):
-            body = _phase(n)
-            self.assertIn("references/interaction-signatures.md", body, f"phase {n}")
-            self.assertIn("references/text-effects.md", body, f"phase {n}")
+    def test_phase4_loads_new_palettes(self):
+        # Phase 4 is where the palettes bind; the Phase 3 copy was dead weight
+        body = _phase(4)
+        self.assertIn("references/interaction-signatures.md", body)
+        self.assertIn("references/text-effects.md", body)
 
     def test_motion_palette_cross_links_siblings(self):
         mp = _read("motion-palette.md")

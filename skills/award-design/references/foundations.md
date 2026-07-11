@@ -37,7 +37,7 @@ Eliminate breakpoint-based sizing. Continuous scaling across all viewports:
 
 Single file containing all weights, widths, styles — real-time animation of `font-variation-settings` on hover and scroll.
 
-**Sans-serif**: PP Neue Montreal, ABC Diatype, Inter, GT Flexa, Fragment
+**Sans-serif**: PP Neue Montreal, ABC Diatype, Inter (body/fallback only — never the display face), GT Flexa, Fragment
 **Serif display**: GT Super, GT Sectra, Editorial New
 **Extended/display**: Monument Extended, Sharp Grotesk, Druk Wide
 
@@ -222,14 +222,19 @@ Scoped transitions (Chrome 140+), React `<ViewTransition />` integration.
 ### CSS Scroll-Driven Animations (off main thread, guaranteed 60fps)
 
 ```css
-.card {
-  animation: fade-in linear forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 100%;
-}
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Decorative layers only — content reveals fire once via IntersectionObserver
+   and persist (motion-palette.md). Base state stays visible; the hidden state
+   lives only inside the guard. */
+@supports (animation-timeline: view()) {
+  .deco-layer {
+    animation: fade-in linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 100%;
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(50px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 ```
 
@@ -237,7 +242,7 @@ Scoped transitions (Chrome 140+), React `<ViewTransition />` integration.
 
 ### Signature scroll skeletons
 
-Two scroll choreographies cover most signature moments. Both are GSAP — reach for it only when the signature needs it; default to CSS Scroll-Driven Animations (above) for routine reveals. No library is mandated and no build-time `npx` step is introduced; GSAP loads at runtime only when a signature moment calls for it.
+Two scroll choreographies cover most signature moments. Both are GSAP — reach for it only when the signature needs it; default to CSS Scroll-Driven Animations (above) for routine *decorative* motion, and route content reveals to a fire-once IntersectionObserver (motion-palette.md). No library is mandated and no build-time `npx` step is introduced; GSAP loads at runtime only when a signature moment calls for it.
 
 **Sticky-stack** (panels pin and stack as you scroll):
 
@@ -605,11 +610,11 @@ Native `<select>` elements need explicit `background-color` and `color` in dark 
 
 ### prefers-reduced-motion
 
-Replace motion with opacity — never remove all animation:
+Zero the durations — never kill transforms. A `transform: none !important` wildcard destroys transform-carried *state* (the nav's `translateY(-100%)` hidden position, an open panel's resting offset); reduced motion strips transitions and keeps state, so everything still flips, it just snaps (navigation-patterns.md, interaction-signatures.md):
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  * { transition: opacity 0.2s ease !important; transform: none !important; animation-duration: 0.01ms !important; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 ```
 

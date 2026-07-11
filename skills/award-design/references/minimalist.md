@@ -89,10 +89,10 @@ Restraint extends to motion — opacity-led, never showy.
 
 ```css
 .minimal-card {
-  transition: opacity var(--duration-hover) var(--ease-standard),
-              transform var(--duration-hover) var(--ease-standard);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--duration-reveal) var(--ease-out-expo);
 }
-.minimal-card:hover { opacity: 1; transform: scale(1.02); }
+.minimal-card.is-revealed { clip-path: inset(0 0 0 0); }
 ```
 
 Durations bind to `motion.duration-*`, easings to `motion.ease-*`. The Motion atmosphere score sits at 3 by default (±2 per the brief); pushing higher means the archetype is leaning toward Editorial or Immersive, and the recommendation should be revisited.

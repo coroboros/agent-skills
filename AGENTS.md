@@ -25,9 +25,9 @@ Public collection of installable AI agent skills for Claude Code and compatible 
 
 - **Standard**: [agentskills.io](https://agentskills.io) open standard (frontmatter, folder anatomy) + Claude Code extensions for Claude Code-scoped skills.
 - **Authoring tool**: the official Anthropic `skill-creator` skill is mandatory for creating/updating skills. We do not build our own.
-- **Layout**: `skills/{name}/SKILL.md` + optional `steps/`, `templates/`, `scripts/`, `references/`. No per-skill `README.md`.
+- **Layout**: `skills/{name}/SKILL.md` + optional `steps/`, `templates/`, `scripts/`, `references/`, `assets/`. No per-skill `README.md`.
 - **Install**: `npx skills add coroboros/agent-skills --skill <name>` via [skills.sh](https://skills.sh).
-- **Runtime**: bash + Python 3 (stdlib only) for bundled scripts. Works anywhere with bash + `python3` and a filesystem. Skills ship via `npx skills add` and run without setup; the org-wide Bun preference does not apply. Some skills wrap external CLIs — each is declared in its SKILL.md.
+- **Runtime**: bash + Python 3 (stdlib only) for bundled scripts. Works anywhere with bash + `python3` and a filesystem. Skills ship via `npx skills add` and run without setup; the org-wide Bun preference does not apply. Some skills wrap external CLIs — each is declared in its SKILL.md. Browser-evaluated JS assets (under `assets/`, injected into a page by browser tooling) are payloads, not runtime scripts — dependency-free vanilla JS, no build step.
 - **Git** — branch `main`; no `CHANGELOG.md` (release notes live in the `gh release create` body only); version lives only in git tags and in `.claude-plugin/marketplace.json` `metadata.version` — there is no `package.json`, so no `pnpm version` bump. All other rules in `~/.agents/rules/git-conventions.md` apply.
 - **Security** — `cisco-ai-defense/skill-scanner` scans the `skills/` tree on every push and PR via `.github/workflows/scan-skills.yml` (policy `balanced`, fail-on `critical`). SHA-pinned to a tagged release; Dependabot auto-PRs new versions weekly.
 - **Validation** — `python3 -m unittest discover tests/` before reporting done; `scripts/sync_writing_rules.py` after editing a canonical `skill-*-rules.md` block.

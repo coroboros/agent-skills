@@ -1,10 +1,11 @@
 """award-design pre-flight scanner — the deterministic half of the Phase 5 gate.
 
 The scanner exists so the countable anti-slop tells are machine-checked instead
-of self-attested. These tests pin three contracts: a dirty build trips every
-wired rule, a clean build exits 0 with zero findings, and the rule IDs stay in
-lockstep between the script and the preflight.md checklist (drift there orphans
-either the box or the rule)."""
+of self-attested. These tests pin four contracts: a dirty build trips every
+wired rule, a clean build exits 0 with zero findings, a zero-file scan exits 2
+instead of printing a perfect summary, and the rule IDs stay in lockstep
+between the script and the preflight.md checklist (drift there orphans either
+the box or the rule)."""
 
 import contextlib
 import importlib.util
@@ -193,6 +194,101 @@ class TestSpaShellStructuralSkip(unittest.TestCase):
         ids = _rule_ids(findings)
         self.assertNotIn("H1-COUNT", ids)
         self.assertNotIn("MAIN-LANDMARK", ids)
+
+
+class TestZeroFileScan(unittest.TestCase):
+    """A scan of a wrong or empty path used to print a perfect summary and
+    exit 0 — a typo'd build directory read as a clean build. The inventory
+    line and exit code 2 close that hole."""
+
+    def test_empty_dir_exits_2_and_reports_zero_files(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                code = scan.main([tmp])
+        self.assertEqual(code, 2)
+        self.assertIn("0 files scanned (0 text / 0 code)", out.getvalue())
+
+    def test_file_count_line_in_normal_output(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            scan.main([str(FIXTURES / "clean")])
+        self.assertIn("2 files scanned (1 text / 1 code)", out.getvalue())
+
+
+class TestStampRule(unittest.TestCase):
+    """STAMP is the mechanical half of the §7 rotation-stamp box: a scanned
+    stylesheet set where no first line opens with `/* award-design ·` gets one
+    project-level REVIEW finding; a stamped set stays silent, and a build with
+    no stylesheet at all is out of the rule's reach."""
+
+    def test_missing_stamp_fires_once_as_review(self):
+        findings, _ = scan.scan_paths([str(FIXTURES / "dirty")])
+        stamp = [f for f in findings if f.rule_id == "STAMP"]
+        self.assertEqual(len(stamp), 1, "STAMP emits exactly one project finding")
+        self.assertEqual(stamp[0].severity, scan.REVIEW)
+        self.assertEqual(stamp[0].location, "project")
+        self.assertIn("missing rotation stamp", stamp[0].description)
+
+    def test_stamped_stylesheet_is_silent(self):
+        findings, _ = scan.scan_paths([str(FIXTURES / "clean")])
+        self.assertNotIn("STAMP", _rule_ids(findings))
+
+    def test_zero_css_files_skip_the_rule(self):
+        import tempfile
+        html = ('<!doctype html><html><body><main><h1>Page</h1>'
+                '<p>' + " ".join(f"w{i}" for i in range(40)) + '</p>'
+                '</main></body></html>')
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "index.html").write_text(html, encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        self.assertNotIn("STAMP", _rule_ids(findings))
+
+
+class TestExtendedRuleForms(unittest.TestCase):
+    """Audit-driven regex extensions: PURE-BW beyond hex, META-LABEL beyond
+    all-caps. The silent cases are the contract — translucent forms, hyphenated
+    tokens, and lowercase running prose must never match (false-negative bias)."""
+
+    @staticmethod
+    def _pattern(rule_id):
+        return next(rule[3] for rule in scan.LINE_RULES if rule[0] == rule_id)
+
+    def test_pure_bw_extended_forms_match(self):
+        pattern = self._pattern("PURE-BW")
+        for line in ("color: white;",
+                     "border-top: 1px solid black",
+                     "background-color: rgb(255, 255, 255);",
+                     "background: rgb(0,0,0)",
+                     "fill: oklch(1 0 0)",
+                     "stroke: oklch(0 0 0)"):
+            with self.subTest(line=line):
+                self.assertTrue(pattern.search(line), f"extended form escaped: {line}")
+
+    def test_pure_bw_ambiguous_forms_stay_silent(self):
+        pattern = self._pattern("PURE-BW")
+        for line in ("white-space: nowrap;",
+                     "color: whitesmoke;",
+                     "border: 1px solid var(--white-soft);",
+                     "background: rgb(0 0 0 / 0.4);",
+                     "color: oklch(0.98 0 0);"):
+            with self.subTest(line=line):
+                self.assertFalse(pattern.search(line), f"false positive: {line}")
+
+    def test_meta_label_title_case_caught_lowercase_prose_silent(self):
+        pattern = self._pattern("META-LABEL")
+        self.assertTrue(pattern.search("Section 01"))
+        self.assertTrue(pattern.search("Step 2"))
+        self.assertFalse(pattern.search("see section 01 for details"),
+                         "lowercase running prose is not a meta-label")
+
+    def test_deadlink_matches_bare_hash_only(self):
+        pattern = self._pattern("DEADLINK")
+        self.assertTrue(pattern.search('<a href="#">Learn more</a>'))
+        self.assertTrue(pattern.search("<a href='#'>Learn more</a>"))
+        self.assertFalse(pattern.search('<a href="#work">Work</a>'),
+                         "in-page anchors are real targets")
 
 
 class TestScannerChecklistLockstep(unittest.TestCase):

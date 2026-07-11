@@ -65,8 +65,8 @@ Canonical (validated) and extension (preserved-but-unvalidated) namespaces side 
 
 ```yaml
 colors:
-  primary: "#1a1c1e"
-  surface: "#f7f5f1"
+  primary: "oklch(22.5% 0.005 248)"
+  surface: "oklch(97.1% 0.006 85)"
 components:
   modal:
     backgroundColor: "{colors.surface}"   # canonical property token — accepted

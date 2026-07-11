@@ -168,11 +168,15 @@ class TestPreflightGateStructure(unittest.TestCase):
         m = re.search(r"## Verdict block(.*)\Z", self.preflight, re.DOTALL)
         self.assertIsNotNone(m)
         verdict = m.group(1)
-        for field in ("**Scanner:**", "**Open with:**", "**Boxes:**", "**Counts:**",
-                      "**Justified overrides:**", "**Tooling gaps:**", "**Status:**"):
+        for field in ("**Scanner:**", "**Detector:**", "**Open with:**", "**Boxes:**",
+                      "**Counts:**", "**Ledger:**", "**Justified overrides:**",
+                      "**Suppressions:**", "**Tooling gaps:**", "**Status:**"):
             with self.subTest(field=field):
                 self.assertIn(field, verdict, f"verdict block missing field: {field}")
-        self.assertIn("READY | NOT DONE", verdict)
+        # Three-status model from the enforceability audit: browserless runs cap
+        # below READY instead of converting every driven gate into a free pass.
+        self.assertIn("READY | READY-UNVERIFIED", verdict)
+        self.assertIn("NOT DONE", verdict)
 
     def test_no_js_floor_gated(self):
         """A module build opened over file:// runs zero JS — a base-CSS-hidden

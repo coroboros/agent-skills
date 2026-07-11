@@ -30,7 +30,7 @@ The 8-state contract (ship-ready floor) guarantees states exist; this table give
 
 | Archetype | Hover feel | Timing | Displacement |
 |---|---|---|---|
-| Minimalist | breath — weight or opacity shift | 150–200ms, ease-out | card scale 1.02–1.05; otherwise none |
+| Minimalist | drawn — underline draw, growing accent dot, inverting fill | fills/wipes 0.7–1s `cubic-bezier(.19,1,.22,1)`; fades 200–300ms | none — masked/clip moves, never a card scale (minimalist.md calls the 1.02 twitch dead) |
 | Brutalist | snap — instant invert or color swap | 0–80ms state snaps (glitch bursts may run ~200ms) | hard 2–4px jumps |
 | Editorial | ink — underline reveal, italic lean | 200–300ms, ease | baseline-anchored |
 | Bold / Maximal | bounce — spring overshoot | spring `stiffness: 300, damping: 15` | playful 4–8px |

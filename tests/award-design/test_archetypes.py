@@ -42,6 +42,7 @@ CROSS_CUTTING = [
     "brand-extraction.md",
     "code-review.md",
     "design-md-anatomy.md",
+    "detector.md",
     "exemplars.md",
     "external-truth.md",
     "foundations.md",

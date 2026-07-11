@@ -28,3 +28,8 @@ a:focus {
 .badge {
   font-family: "Trebuchet MS", sans-serif;
 }
+.overlay {
+  background-color: rgb(0, 0, 0);
+  color: oklch(1 0 0);
+  border-top: 1px solid white;
+}

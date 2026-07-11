@@ -47,7 +47,7 @@ The deepest lift; also the slowest. After typography and color are right, asymme
 
 ### 5. Replace generic components
 
-Now the page can carry distinctive components. Replace the generic card (`border + shadow + white background`) with one of: Doppelrand (pattern 1), Liquid Glass (pattern 9), or a flat editorial card with hairline rules. Replace the always-pill-button with a Button-in-Button (pattern 2) on the primary CTA. Add eyebrow tags (pattern 3) above section headlines. The components are loaded from `premium-patterns.md`; pick by archetype and atmosphere band.
+Now the page can carry distinctive components. Replace the generic card (`border + shadow + white background`) with one of: Doppelrand (pattern 1), Liquid Glass (pattern 9), or a flat editorial card with hairline rules. Replace the always-pill-button with a Button-in-Button (pattern 2) on the primary CTA. Add eyebrow tags (pattern 3) only above the section headlines they genuinely inform — the H1-stands-alone default holds, rationed by preflight §4/§6. The components are loaded from `premium-patterns.md`; pick by archetype and atmosphere band.
 
 ### 6. Empty / error / loading states
 

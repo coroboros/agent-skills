@@ -35,6 +35,8 @@ shadows:
   inner-highlight: "inset 0 1px 1px rgba(255, 255, 255, 0.15)"
 ```
 
+The `32px` shell radius is an example, not a default — bind both radii to the build's declared radius system (preflight §3 shape lock) so the bezel reads as a declared system, not a kit value.
+
 ### Why it works
 
 Single-radius cards read as flat tiles. Concentric radii read as physical objects with material thickness. The inner highlight simulates ambient light catching the upper edge — the eye perceives depth without explicit drop shadow. Particularly powerful in Spatial Organic (glass surfaces), Corporate Luxury (premium product cards), and Bento 2.0 (motion-engine cards).
@@ -119,7 +121,7 @@ components:
 
 ### Why it works
 
-Eyebrow tags solve the "hierarchy stutter" problem — when the first heading on a section needs to land but lacks scaffolding above it. The tag pre-frames the section ("FEATURES", "PRICING", "MANIFESTO"), so the headline arrives with weight rather than as the first word of the paragraph.
+Eyebrow tags solve the "hierarchy stutter" problem — when the first heading on a section needs to land but lacks scaffolding above it. The tag pre-frames the section ("FEATURES", "PRICING", "MANIFESTO"), so the headline arrives with weight rather than as the first word of the paragraph. Eyebrows are rationed by preflight §4 (density cap) and §6 (buyer-learn test) — the default is no kicker; only sections whose eyebrow genuinely informs carry one.
 
 ### Anti-pattern
 
@@ -251,6 +253,8 @@ Section openers benefit from a three-element rhythm:
 2. Headline (the section's primary message, 2 lines max)
 3. One CTA below — Button-in-Button pattern, never two competing CTAs in a section opener
 
+The eyebrow slot is optional and rationed by preflight §4/§6 — the default is no kicker; ship one only where it genuinely informs, and let the headline open the section everywhere else.
+
 Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96px) minimum on marketing pages, `py-32` to `py-48` (128–192px) on luxury and editorial; a cockpit-dense build (Density 7+ in the DESIGN.md) follows its calibrated tighter band instead.
 
 ## 9. Liquid Glass Refraction
@@ -374,7 +378,7 @@ One choreographed perpetual motion on a hero element keeps the page "alive" with
 
 ### Anti-pattern
 
-Three or four perpetual motions running together — pulse on the badge, typewriter in the input, shimmer on the card, orbit in the background. The eye loses anchor; the page reads as visual chaos rather than craft. One perpetual motion per fold; two only when they reinforce the same focal point.
+Three or four perpetual motions running together — pulse on the badge, typewriter in the input, shimmer on the card, orbit in the background. The eye loses anchor; the page reads as visual chaos rather than craft. One perpetual motion per fold; two only when they reinforce the same focal point. The cap binds outside Bento 2.0 grids — in a Bento grid the per-tile loop is the archetype (bento-card.md), and the cap becomes: loops share one physics and one focal hierarchy.
 
 ## 12. Navigation as a designed component
 

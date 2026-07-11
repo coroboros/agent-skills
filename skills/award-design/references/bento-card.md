@@ -66,7 +66,7 @@ Each Bento 2.0 grid mixes these tile-types. The goal is variance — never all f
 
 - **Spring physics** (Framer Motion): `type: "spring", stiffness: 100, damping: 20` for premium weight. Linear easing reads as cheap.
 - **Layout transitions**: heavy use of `layout` and `layoutId` props for re-ordering, resizing, shared element transitions.
-- **Perpetual micro-interactions**: every card carries one infinite loop (Pulse, Typewriter, Float, Carousel, Shimmer). Dashboard feels alive.
+- **Perpetual micro-interactions**: every card carries one infinite loop (Pulse, Typewriter, Float, Carousel, Shimmer). Dashboard feels alive. The loops share one physics and one focal hierarchy — two may reinforce one focal point, never compete (the premium-patterns.md one-per-fold cap applies outside the grid).
 - **Performance lock**: any perpetual motion or infinite loop MUST be memoized (`React.memo`) and isolated in its own microscopic Client Component. Re-rendering the parent layout from a perpetual animation breaks 60fps on mid-range mobile.
 - **Magnetic micro-physics** for hover: never use React `useState` for magnetic hover or continuous animation. Use exclusively Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle.
 
@@ -167,7 +167,7 @@ The AI-default `translateY(-4px) scale(1.02)` + grey `box-shadow` on every tile 
 
 **Nav**
 - **Transparent overlay, unchanged on scroll** — header stays fully transparent (`background: rgba(0,0,0,0)`, `backdrop-filter: none`, `border-bottom: 0`) at the top and scrolled — works over one flat ground. (Anime.js — live-verified)
-- **Transparent→frosted hairline on scroll** — gains `backdrop-filter: blur()` over a semi-opaque surface plus a same-family hairline (`rgba(255,255,255,0.06)` dark / `rgba(0,0,0,0.05)` light), never a contrasting accent line. Pick for light/product bento over shifting sections. (Apple + Vercel — documented)
+- **Transparent→frosted hairline on scroll** — gains `backdrop-filter: blur()` over a semi-opaque surface plus a same-family hairline (`rgba(255,255,255,0.06)` dark / `rgba(0,0,0,0.05)` light), never a contrasting accent line. Pick for light/product bento over shifting sections. This row is the ONE sanctioned exception path to the zero-nav-`border-bottom` gate — reusing it takes a written override in the design_plan citing this row; same-family at ≤5–6% alpha only, never a contrasting line. (Apple + Vercel — documented)
 - Nav items brighten muted→foreground; no background pill.
 
 **Text**
