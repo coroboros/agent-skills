@@ -46,6 +46,8 @@ Read the brief's vocabulary to set the starting dials, then apply the ±2 archet
 
 Apply to the archetype's default scores, then clamp to 1–10. Conflicting signals (a brief that is both "dense" and "airy") are a brief contradiction — surface it, never average the two. The table sets a starting point; the archetype reference and the brief's specifics refine it.
 
+**The subject's lived temperature floors the dials — restraint lowers amplitude, never the world's pulse.** The signals above read the brief's *adjectives*; the subject's *world* speaks too, and it wins on the floor: a physically intense subject — a lifting room, a stage, a service kitchen, a street race — never renders inert, whatever the archetype's resting default. Floor Motion at 5 and let colour carry real energy when the world the page depicts is loud in life; an intense world shipped at the archetype's quiet default reads as a brochure *about* the thing, not the thing — the visitor names it "this lacks life" even when every hover responds. The archetype still sets the register (a brutalist gym presses and stamps where a maximal festival bounces); the temperature is the subject's, not the archetype's.
+
 Theme (light/dark) is never a default: write one sentence of the physical scene the page inhabits ("a printed proof sheet under a north-facing window" / "a cockpit at night") until it forces the answer.
 
 ## Dial → CSS heuristics

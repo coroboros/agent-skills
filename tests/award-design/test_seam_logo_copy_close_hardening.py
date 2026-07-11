@@ -89,15 +89,18 @@ class TestResponsiveSignatureText(unittest.TestCase):
 
 
 class TestOverlayClose(unittest.TestCase):
-    def test_navigation_forces_labeled_close(self):
+    # superseded by the round-5 UAT: the close is findable because it is icon-only AND
+    # sits at the trigger's exact point — the invariant (an unmissable exit, aria-named,
+    # focus returned) survives in the new form
+    def test_navigation_forces_in_place_iconic_close(self):
         nav = _read("navigation-patterns.md")
-        self.assertIn("unmistakable, labeled close control", nav)
+        self.assertIn("the toggle is icon-only", nav)
         self.assertIn("close menu", nav)
         self.assertIn("focus returns to the trigger", nav)
 
-    def test_preflight_gates_overlay_close(self):
+    def test_preflight_gates_overlay_toggle(self):
         pf = _read("preflight.md")
-        self.assertIn("overlay menu close", pf)
+        self.assertIn("overlay menu toggle", pf)
 
 
 if __name__ == "__main__":
