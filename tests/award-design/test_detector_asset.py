@@ -27,8 +27,9 @@ MODULE_SYNTAX = re.compile(r"^(?:import\s|export\s|require\(|(?:const|let|var)\s
 # The spec-named rules; the registry may grow, never shrink below these.
 REQUIRED_IDS = {
     "FONT-RESOLVE", "SUBSTRATE-DEAD", "DEAD", "HOMEOPATHIC", "UNMEASURED-JS",
-    "CONTRAST", "UNCOMPUTABLE-BG", "NAV-BORDER", "TOKEN-CONFORM", "H1-LINES",
-    "IDLE-CHANNEL", "IMG-BROKEN", "H-OVERFLOW", "TAP-TARGET",
+    "CONTACT-GLOBAL-SQUASH", "CONTRAST", "UNCOMPUTABLE-BG", "NAV-BORDER",
+    "TOKEN-CONFORM", "H1-LINES", "IDLE-CHANNEL", "IMG-BROKEN", "H-OVERFLOW",
+    "TAP-TARGET",
 }
 
 
@@ -68,6 +69,11 @@ class TestDetectorAsset(unittest.TestCase):
         ids = {rule_id for rule_id, _, _ in _rules(self.source)}
         self.assertLessEqual(REQUIRED_IDS, ids, f"missing rules: {REQUIRED_IDS - ids}")
 
+    def test_contact_global_squash_is_fail(self):
+        """The paper-cutout squash ships as a FAIL, never a judgment note."""
+        severities = {rule_id: severity for rule_id, severity, _ in _rules(self.source)}
+        self.assertEqual("FAIL", severities.get("CONTACT-GLOBAL-SQUASH"))
+
     def test_floors_literal_exact(self):
         """FLOORS is the single source of truth — the literal must not drift."""
         self.assertIn(FLOORS_LITERAL, self.source)
@@ -96,6 +102,13 @@ class TestDetectorReference(unittest.TestCase):
 
     def test_injection_recipe_present(self):
         self.assertIn("awardDetector.run", self.md)
+
+    def test_tier2_protocols_present(self):
+        """Peak-hold, contact, drawer recount, and the touch guard are driver
+        protocols — undocumented, they never get driven."""
+        for token in ("measurePeak", "measureContact", "(hover: none)", "drawer"):
+            with self.subTest(token=token):
+                self.assertIn(token, self.md)
 
     def test_doctrine_present(self):
         self.assertIn("catches, it never clears", self.md)

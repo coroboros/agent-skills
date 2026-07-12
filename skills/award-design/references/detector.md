@@ -9,7 +9,7 @@
 | Tier | Owner | Scope |
 |---|---|---|
 | 1 — measured | `awardDetector.run()` | state-rule deltas vs floors, font resolution, contrast on solid grounds, nav border ink, token conformance, h1 wrap, ambient animations at rest, broken images, horizontal overflow, tap targets |
-| 2 — driven | you + the browser tooling | real hovers on every UNMEASURED-JS selector, then `awardDetector.measure(sel)`; scroll-up persistence; reduced-motion rerun |
+| 2 — driven | you + the browser tooling | real hovers on every UNMEASURED-JS selector, then `awardDetector.measure(sel)`; contact presses via `measureContact`; the open-drawer recount; scroll-up persistence; reduced-motion rerun; taps under touch emulation |
 | judged | you, preflight §8 | composition, desire, fidelity, copy, pacing, seams — never delegated to the detector |
 
 ## Injection — per browser rung
@@ -40,6 +40,7 @@ Box-shadow, clip-path, underline, outline, background sweep, filter, and pseudo-
 | DEAD | REVIEW | per element: pointer affordance, no state rule, zero delta, no JS to drive it |
 | HOMEOPATHIC | REVIEW | per element: state rules fire but every channel lands under the floors — imperceptible, not restrained |
 | UNMEASURED-JS | REVIEW | affordance with zero CSS delta on a scripted page — possibly JS-driven; queued for tier 2 |
+| CONTACT-GLOBAL-SQUASH | FAIL | tier 2 only, via `measureContact`: the struck object's peak response is a whole-element scale/opacity and nothing else — no secondary above a floor, no structural channel — the paper-cutout squash; `run()` never fires it |
 | CONTRAST | FAIL | WCAG ratio under 4.5:1 (3:1 at ≥24px, or bold ≥18.66px) against the composited solid ground |
 | UNCOMPUTABLE-BG | REVIEW | text over an image / gradient / media ground — never OK, never FAIL; judge it in §8 |
 | NAV-BORDER | FAIL | a bar's border-bottom draws a contrasting line (ΔL > 0.05 against its own surface) |
@@ -55,12 +56,19 @@ Box-shadow, clip-path, underline, outline, background sweep, filter, and pseudo-
 
 Every selector in `substrate.selectors.unmeasuredJs` is driven with a **real** hover through the tooling (never a synthetic event), bracketed by `measure`: call `awardDetector.measure(sel)` once at rest (stores the snapshot), drive the hover and hold it past the declared transition duration (~400ms covers most), then call it again to get the classified delta; a mid-transition read measures zero. Write the result into the verdict as `UNMEASURED: n → driven: m`. When m < n on any element the design_plan names — the signature, the substrate classes, the nav — that preflight box is **NOT DONE**, never a declared gap: the tooling was present and the work was skipped.
 
+**Peak-hold — transients that settle before a read.** A click/press response on a spring (~140ms) is back at rest before any post-drive call lands, so a single `measure` read reports zero. `measurePeak(sel, windowMs)` shares the two-call protocol: the first call stores the rest snapshot; drive the transient; the second call samples every frame for `windowMs` (default 600ms) and returns the max per-channel delta — the crest, not the residue.
+
+**Contact presses.** For every design_plan-named struck object: `measureContact(sel, { secondaries: ['<selector>', …] })` at rest stores snapshots of the object and each declared secondary and arms the peak sampler on the object's next `pointerdown`; drive a **real** click/press; call `measureContact(sel)` again to read the peak-held channels and the classification. Because the sampler starts on the press itself, tool-call latency between the click and the read never loses the transient. `GLOBAL-SQUASH` returns a ready CONTACT-GLOBAL-SQUASH finding — carry it into the verdict: the only above-floor response is a whole-element scale/opacity on the object, the paper-cutout. `LOCAL` means something beyond the squash responded (a secondary, a structural channel, a translate/color on the object) — its quality stays judgment. `CANVAS` means the object is a canvas medium: pixels are invisible to computed style, so the deformation stays judgment — drive the press and watch.
+
+**Open-drawer recount.** A closed drawer or overlay is invisible to `isRendered`, so a rest-state `run()` never censuses its links — by design. Drive the overlay open, then re-run `run()` (or `measure` each link) with it rendered: the drawer links join the substrate census and the `UNMEASURED: n → driven: m` accounting. A rest-state pass alone under-counts the nav.
+
 ## Reruns
 
 - **Per width** — rerun at 375, 768, and 1440: resize, re-inject, `run()` again. H1-LINES, TAP-TARGET, H-OVERFLOW, and CONTRAST are width-dependent; one desktop pass proves nothing about mobile.
 - **Scroll-up persistence** — scroll a content section past, scroll back, then `measure` its content elements' opacity against the rest snapshot taken before the scroll: content that re-hides on scroll-up is the motion-model FAIL (content persists, décor reverses — `motion-palette.md`). Verified in tier 2; the detector cannot scroll for you.
 - **Reduced-motion** — emulate `prefers-reduced-motion: reduce` and rerun. IDLE-CHANNEL is exempt by design: `run()` skips it there because a silent page under reduce is the guard working, not a failure.
+- **Touch emulation** — under `(hover: none)` the hover probes are void: a correctly touch-gated build hides its `:hover` rules behind `@media (hover: hover)` and would read dead. `run()` skips the substrate probe there and reports `substrate: { skipped: … }`; SUBSTRATE-DEAD never fires on that pass. The touch channel is judged by driving real taps (tier 2), never by `run()`.
 
 ## Reading the report
 
-`findings` carry `{ id, severity, box, selector, evidence }`; the box names the preflight line each finding feeds. `substrate` counts probed / ok / dead / homeopathic / unmeasuredJs with capped selector lists per class. `coverage.opaqueSheets > 0` means cross-origin stylesheets could not be probed — say so in the verdict; that coverage hole is never silent. Severity is binary. **FAIL is fix-only** — the fatal five are SUBSTRATE-DEAD, FONT-RESOLVE, NAV-BORDER (the contrasting line), CONTRAST, and content re-hide verified in tier 2. **REVIEW is judged and recorded**, never auto-cleared and never auto-failed. The report footer restates the doctrine; carry it into the verdict: the detector catches, it never clears.
+`findings` carry `{ id, severity, box, selector, evidence }`; the box names the preflight line each finding feeds. `substrate` counts probed / ok / dead / homeopathic / unmeasuredJs with capped selector lists per class — or `{ skipped }` under touch emulation. `coverage.opaqueSheets > 0` means cross-origin stylesheets could not be probed — say so in the verdict; that coverage hole is never silent. Severity is binary. **FAIL is fix-only** — the fatal five are SUBSTRATE-DEAD, FONT-RESOLVE, NAV-BORDER (the contrasting line), CONTRAST, and content re-hide verified in tier 2. **REVIEW is judged and recorded**, never auto-cleared and never auto-failed. The report footer restates the doctrine; carry it into the verdict: the detector catches, it never clears.

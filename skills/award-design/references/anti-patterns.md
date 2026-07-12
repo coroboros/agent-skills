@@ -52,6 +52,8 @@ Anti-default is not only within a build (reject the lazy first option) — it ho
 - **Tasteful competence with no spectacle** — every gate passed, nothing anyone would show a friend. On an award brief at least one passage is show-someone spectacular (a sequence, a medium moment — video, 3D, kinetic type at full scale); clean everywhere and spectacular nowhere is the structural 6.5 ceiling.
 - **The unconsidered arrival** — no loader decision on an award brief: the page just appears, neither a committed loader family with its handoff beat nor a declared instant-paint choice (`ingredients/preloaders.md`). Winners choreograph the arrival or deliberately refuse it; a build that never decided reads unfinished.
 - **The hard route cut** — a multi-route build that choreographs every scroll yet cuts between pages with no transition family (`ingredients/page-transitions.md`): the one surface where the built illusion collapses on every click.
+- **The paper cutout** — a struck or handled world-object answering with a whole-element transform: the helmet that slides rigidly, the bottle that tilts as one bitmap, the bag that squashes 5% globally. Contact reads at the contact point — a local deformation, a lagging chain, a shifting shadow (`signature-invention.md` contact locality); a rigid transform of a flat image is the dead hover of objects, whatever the photo's quality.
+- **The dead-list drawer** — a collapsed menu whose links carry no state: a bare column on a dark sheet behind the site's most theatrical click. The floor is universal — every drawer link answers in the substrate vocabulary under a staggered open; the full scene stays the register's call (`navigation-patterns.md`).
 
 ## Performance failures
 

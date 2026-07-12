@@ -169,6 +169,17 @@ If an official GSAP or R3F skill is installed, use it for the motion layer rathe
 
 Sourcing the API is not the same as *using the medium well*. A scene that imports Three.js but ships a primitive on three point-lights has consulted the docs and ignored their craft. Use the premium path the docs and Drei give you — `<Environment>`, `MeshPhysicalMaterial`, `<Instances>`, post-processing — never the first-example primitive. "Sourced but low-effort" fails the fidelity floor above, and Phase 5 judges the craft level, not the citation.
 
+## Contact rigs — the object that reacts where you touch it
+
+A press whose only response is a whole-element `scale()` reads as a paper cutout — the object moves as one rigid sticker, and the detector fails it (`CONTACT-GLOBAL-SQUASH`, `detector.md`). A contact rig deforms the object *at the impact point*. Two rigs keep real photography while gaining contact physics:
+
+- **Mesh-warp-on-photo** — a subdivided plane (`PlaneGeometry`, ~64×64 segments) textured with the REAL photograph, never a generated stand-in. On `pointerdown`, raycast the hit to UV space, pass it as a uniform, and displace vertices toward the impact point in the vertex shader — amplitude falls off with distance from the hit UV and decays on a spring. The photo dents where it is struck: material truth stays intact (`imagery.md` still governs the source image) and the surface gains physics. Keep the displacement on the GPU; the CPU only writes the hit uniform and the spring state.
+- **Depth-mapped 2.5D** — the photograph plus a depth map (shot, or estimated offline and exported as a grayscale texture) sampled in the shader: pointer position drives parallax between depth layers, and the press pushes the near layers locally around the hit point. Cheaper than a modelled mesh, and the object reads as a body with volume rather than a sticker.
+
+**Register.** The deformation obeys the archetype DNA like every other motion: easing and shading resolve from `DESIGN.md`, never a default fleshy spring. A raw register wants a hard, stepped displacement — quantized falloff, no smoothing; a couture register wants a slow, damped settle. The default spring constant is the 3D equivalent of the default ease — a tell.
+
+**Perf.** One small scene: a single plane, one texture (plus the depth map), one draw call. Poster-first LCP is unchanged — the static photograph stays the LCP paint and the rig mounts behind it on intersection, like every canvas here. `frameloop="demand"`, `invalidate()` from the pointer handlers, and the spring loop stops requesting frames once displacement falls under a visible threshold.
+
 ## Cross-references
 
 `../immersive-cinematic.md` (the archetype this scene usually serves), `../foundations.md` (WebGL toolkit, OKLCH, easing curves), `../production-hardening.md` (iOS Safari, viewport units, autoplay), `../premium-patterns.md` (procedural noise discipline, motion budget).

@@ -38,7 +38,8 @@ class TestPureCore(unittest.TestCase):
     def test_module_exports(self):
         keys = _node("Object.keys(d)")
         for name in ("FLOORS", "RULES", "srgbToOklab", "relativeLuminance",
-                     "contrastRatio", "parseTransform", "classifyDelta", "diffChannels"):
+                     "contrastRatio", "parseTransform", "classifyDelta", "diffChannels",
+                     "classifyContact", "peakChannels"):
             self.assertIn(name, keys)
 
     def test_floors_values(self):
@@ -121,6 +122,64 @@ class TestClassifyDeltaBoundaries(unittest.TestCase):
             "{transform: 'none', color: 'rgb(179, 71, 0)', opacity: '1'})})"
         )
         self.assertEqual("OK", _node(expr))
+
+
+@unittest.skipUnless(shutil.which("node"), "node not on PATH")
+class TestPeakHold(unittest.TestCase):
+    """A press transient peaks then settles; a post-settle read measures zero.
+    The peak fold keeps the crest of every channel across sampled frames — the
+    140ms spring that shipped unmeasured is caught at its crest."""
+
+    def test_fold_keeps_the_crest_of_a_settling_transient(self):
+        # per-frame diffs against rest for a press spring: rise, crest, settle
+        frames = [
+            {"scale": 1.0, "translatePx": 0, "deltaL": 0, "opacity": 0, "discrete": 0},
+            {"scale": 1.055, "translatePx": 0, "deltaL": 0, "opacity": 0.3, "discrete": 0},
+            {"scale": 1.02, "translatePx": 3, "deltaL": 0.05, "opacity": 0.1, "discrete": 0},
+            {"scale": 1.0, "translatePx": 0, "deltaL": 0, "opacity": 0, "discrete": 0},
+        ]
+        expr = f"{json.dumps(frames)}.reduce((acc, f) => d.peakChannels(acc, f), null)"
+        peak = _node(expr)
+        self.assertAlmostEqual(1.055, peak["scale"], delta=1e-9)
+        self.assertEqual(3, peak["translatePx"])
+        self.assertAlmostEqual(0.05, peak["deltaL"], delta=1e-9)
+        self.assertAlmostEqual(0.3, peak["opacity"], delta=1e-9)
+
+    def test_discrete_maxes_across_frames(self):
+        """Every frame diffs against the same rest, so a persistent structural
+        change is one delta — summing would count it once per frame."""
+        frame = {"scale": 1.0, "translatePx": 0, "deltaL": 0, "opacity": 0, "discrete": 1}
+        expr = f"{json.dumps([frame] * 3)}.reduce((acc, f) => d.peakChannels(acc, f), null)"
+        self.assertEqual(1, _node(expr)["discrete"])
+
+
+@unittest.skipUnless(shutil.which("node"), "node not on PATH")
+class TestClassifyContact(unittest.TestCase):
+    """The paper-cutout boundary: a struck object whose only above-floor
+    response is a whole-element scale/opacity is the squash; any secondary or
+    any structural channel above a floor is a local response and stays
+    judgment."""
+
+    def _classify(self, object_ch, secondaries):
+        return _node(f"d.classifyContact({json.dumps(object_ch)}, {json.dumps(secondaries)})")
+
+    def test_uniform_scale_only_is_the_squash(self):
+        # the shipped failure: scale(1.055, 0.968) on the whole element
+        self.assertEqual("GLOBAL-SQUASH", self._classify({"scale": 1.055}, []))
+
+    def test_opacity_only_is_the_squash(self):
+        self.assertEqual("GLOBAL-SQUASH", self._classify({"opacity": 0.2}, [{}]))
+
+    def test_secondary_above_floor_is_local(self):
+        self.assertEqual("LOCAL", self._classify({"scale": 1.055}, [{"translatePx": 4}]))
+
+    def test_structural_channel_on_object_is_local(self):
+        # a clip-path/shadow/pseudo change is deformation, not the rigid squash
+        self.assertEqual("LOCAL", self._classify({"scale": 1.055, "discrete": 1}, []))
+
+    def test_under_floor_response_is_none(self):
+        self.assertEqual(
+            "NONE", self._classify({"scale": 1.02, "opacity": 0.05}, [{"translatePx": 1}]))
 
 
 @unittest.skipUnless(shutil.which("node"), "node not on PATH")

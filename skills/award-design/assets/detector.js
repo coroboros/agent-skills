@@ -11,6 +11,7 @@
     { id: 'DEAD', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'HOMEOPATHIC', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'UNMEASURED-JS', severity: 'REVIEW', box: 'live-substrate' },
+    { id: 'CONTACT-GLOBAL-SQUASH', severity: 'FAIL', box: 'contact-response' },
     { id: 'CONTRAST', severity: 'FAIL', box: 'a11y-floor' },
     { id: 'UNCOMPUTABLE-BG', severity: 'REVIEW', box: 'a11y-floor' },
     { id: 'NAV-BORDER', severity: 'FAIL', box: 'nav-surface' },
@@ -30,6 +31,7 @@
   const MAX_PROBED = 400;
   const MAX_SCAN = 5000;
   const SELECTOR_CAP = 15;
+  const PEAK_WINDOW_MS = 600;
   const EPS = 1e-4;
 
   // ---------------------------------------------------------------- pure core
@@ -261,6 +263,42 @@
     };
   }
 
+  // Fold for peak-hold sampling: every frame diffs against the same rest
+  // snapshot, so discrete maxes instead of summing — a persistent clip-path
+  // change is one structural delta, not one per sampled frame.
+  function peakChannels(a, b) {
+    if (!a) return b;
+    const out = maxChannels(a, b);
+    out.discrete = Math.max(a.discrete, b.discrete);
+    return out;
+  }
+
+  // object = peak channels on the struck element; secondaries = peak channels
+  // per declared secondary. GLOBAL-SQUASH: the only above-floor response is a
+  // whole-element scale/opacity — the paper-cutout. Any secondary above a
+  // floor, or a structural/translate/color channel on the object, is LOCAL and
+  // stays judgment. Canvas media never reach this classifier.
+  function classifyContact(object, secondaries, floors) {
+    const f = Object.assign({}, FLOORS, floors || {});
+    const above = (raw) => {
+      const ch = raw || {};
+      return {
+        squash: Math.abs((ch.scale || 1) - 1) >= f.scale - 1 - EPS ||
+          (ch.opacity || 0) >= f.opacity - EPS,
+        local: (ch.translatePx || 0) >= f.translatePx - EPS ||
+          (ch.deltaL || 0) >= f.deltaL - EPS ||
+          (ch.discrete || 0) > 0
+      };
+    };
+    const obj = above(object);
+    const anySecondary = (secondaries || []).some((ch) => {
+      const a = above(ch);
+      return a.squash || a.local;
+    });
+    if (anySecondary || obj.local) return 'LOCAL';
+    return obj.squash ? 'GLOBAL-SQUASH' : 'NONE';
+  }
+
   // sample = { hasStateRule, hasAffordance, pageHasJs, channels }.
   // Channels without a floor (box-shadow, clip-path, pseudo appear/vanish) count
   // as perceptible when they change at all — they are structural, not gradual.
@@ -286,7 +324,7 @@
     return 'HOMEOPATHIC';
   }
 
-  const api = { FLOORS, RULES, srgbToOklab, relativeLuminance, contrastRatio, parseColor, parseTransform, classifyDelta, diffChannels };
+  const api = { FLOORS, RULES, srgbToOklab, relativeLuminance, contrastRatio, parseColor, parseTransform, classifyDelta, classifyContact, diffChannels, peakChannels };
 
   if (typeof window === 'undefined') {
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -821,7 +859,12 @@
     // as motion at rest.
     checkIdleChannel(findings);
     const collected = collectStateRules();
-    const substrate = probeSubstrate(collected, floors, findings);
+    // Under touch emulation the :hover probes are void — a touch-gated build
+    // hides its hover rules behind (hover: hover) and would read dead here,
+    // so SUBSTRATE-DEAD never fires on this pass. The touch channel is judged
+    // by driving real taps (tier 2), never by run().
+    const hoverNone = matchMedia('(hover: none)').matches;
+    const substrate = hoverNone ? null : probeSubstrate(collected, floors, findings);
     checkContrast(all, findings);
     checkNavBorder(all, findings);
     checkTokenConform(all, findings);
@@ -836,7 +879,9 @@
       viewport: { w: window.innerWidth, h: window.innerHeight },
       options: { face: options.face || null, archetype: options.archetype || null },
       findings,
-      substrate: {
+      substrate: hoverNone ? {
+        skipped: 'touch emulation — hover probes void; judge the touch channel by driving taps (tier 2)'
+      } : {
         probed: substrate.counts.probed,
         ok: substrate.counts.ok,
         dead: substrate.counts.dead,
@@ -850,6 +895,12 @@
     };
   }
 
+  function classifyMeasured(channels) {
+    const cls = classifyDelta({ hasStateRule: true, hasAffordance: true, channels });
+    return cls === 'HOMEOPATHIC' && channels.scale === 1 && channels.translatePx === 0 &&
+      channels.deltaL === 0 && channels.opacity === 0 ? 'DEAD' : cls;
+  }
+
   // Tier-2 helper: first call stores the rest snapshot; after the real hover is
   // driven by the tooling, the second call diffs against it.
   function measure(selector) {
@@ -861,10 +912,88 @@
       return { selector, rest: true, note: 'rest snapshot stored — drive the real hover, then call measure again' };
     }
     const channels = diffChannels(window.__adRest[selector], snapshotChannels(el));
-    const cls = classifyDelta({ hasStateRule: true, hasAffordance: true, channels });
-    return { selector, channels, classification: cls === 'HOMEOPATHIC' && channels.scale === 1 &&
-      channels.translatePx === 0 && channels.deltaL === 0 && channels.opacity === 0 ? 'DEAD' : cls };
+    return { selector, channels, classification: classifyMeasured(channels) };
   }
 
-  window.awardDetector = Object.assign({}, api, { run, measure });
+  // rAF-samples every pair against its rest snapshot for windowMs and folds
+  // the per-channel max — a transient is caught at its crest, where a
+  // post-settle read measures zero.
+  function samplePeak(pairs, windowMs) {
+    return new Promise((resolve) => {
+      const peaks = pairs.map(() => null);
+      const start = performance.now();
+      let frames = 0;
+      const tick = () => {
+        for (let i = 0; i < pairs.length; i++) {
+          peaks[i] = peakChannels(peaks[i], diffChannels(pairs[i].rest, snapshotChannels(pairs[i].el)));
+        }
+        frames++;
+        if (performance.now() - start < windowMs) requestAnimationFrame(tick);
+        else resolve({ peaks, frames });
+      };
+      requestAnimationFrame(tick);
+    });
+  }
+
+  // Tier-2 peak-hold: same two-call protocol as measure, but the second call
+  // samples over a window instead of once — for transients that settle before
+  // a single read lands (a 140 ms press spring reads zero after settle).
+  async function measurePeak(selector, windowMs) {
+    const el = document.querySelector(selector);
+    if (!el) return { selector, error: 'no element matches' };
+    window.__adRest = window.__adRest || {};
+    if (!window.__adRest[selector]) {
+      window.__adRest[selector] = snapshotChannels(el);
+      return { selector, rest: true, note: 'rest snapshot stored — drive the transient, then call measurePeak again' };
+    }
+    const result = await samplePeak([{ el, rest: window.__adRest[selector] }], windowMs || PEAK_WINDOW_MS);
+    const channels = result.peaks[0];
+    return { selector, channels, frames: result.frames, classification: classifyMeasured(channels) };
+  }
+
+  // Contact protocol: the first call stores rest snapshots for the object and
+  // each declared secondary, then arms the peak sampler on the object's next
+  // pointerdown — sampling starts the instant the real press lands, so
+  // tool-call latency between the click and the read never loses the
+  // transient. The second call reads the peaks and classifies.
+  async function measureContact(selector, options) {
+    options = options || {};
+    const el = document.querySelector(selector);
+    if (!el) return { selector, error: 'no element matches' };
+    window.__adContact = window.__adContact || {};
+    const entry = window.__adContact[selector];
+    if (!entry) {
+      const names = options.secondaries || [];
+      const pairs = [{ el, rest: snapshotChannels(el) }];
+      for (const name of names) {
+        const sec = document.querySelector(name);
+        if (!sec) return { selector, error: 'no element matches secondary "' + name + '"' };
+        pairs.push({ el: sec, rest: snapshotChannels(sec) });
+      }
+      const armed = { pairs, secondaries: names, done: null, windowMs: options.windowMs || PEAK_WINDOW_MS };
+      el.addEventListener('pointerdown', () => { armed.done = samplePeak(armed.pairs, armed.windowMs); }, { once: true });
+      window.__adContact[selector] = armed;
+      return { selector, armed: true, secondaries: names,
+        note: 'rest stored, sampler armed on pointerdown — drive a real click/press on the object, then call measureContact again' };
+    }
+    if (!entry.done) return { selector, error: 'armed but no press landed on the object — drive a real click/press, then read again' };
+    const result = await entry.done;
+    delete window.__adContact[selector];
+    const object = result.peaks[0];
+    const secondaries = entry.secondaries.map((name, i) => ({ selector: name, channels: result.peaks[i + 1] }));
+    if (el.matches('canvas') || el.querySelector('canvas')) {
+      return { selector, channels: object, secondaries, frames: result.frames, classification: 'CANVAS',
+        evidence: 'canvas medium — pixels are invisible to computed style, so the deformation stays judgment: drive the press and watch' };
+    }
+    const cls = classifyContact(object, secondaries.map((s) => s.channels));
+    const out = { selector, channels: object, secondaries, frames: result.frames, classification: cls };
+    if (cls === 'GLOBAL-SQUASH') {
+      out.finding = finding('CONTACT-GLOBAL-SQUASH', selector,
+        'peak contact response is a whole-element scale ' + object.scale.toFixed(3) + ' / opacity ' +
+        object.opacity.toFixed(2) + ' and nothing else — no secondary above a floor, no structural channel: the paper-cutout squash');
+    }
+    return out;
+  }
+
+  window.awardDetector = Object.assign({}, api, { run, measure, measurePeak, measureContact });
 })();
