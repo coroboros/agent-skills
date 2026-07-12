@@ -19,6 +19,9 @@ Extreme whitespace, 2–3 colors, typography carries everything. Single accent u
 | Brand | URL | Signature |
 |---|---|---|
 | **Terminal Industries** *(canonical, SOTM Sept 2025)* | terminal-industries.com | Cinematic golden-hour photography on cream, glass-pill nav, lime CTA |
+| Gabriel Contassot *(SOTD Apr 2024)* | gabrielcontassot.com | Monochrome #000 portfolio, text-only name-card hero, full-bleed project stills |
+| Stefan Vitasović *(SOTD Sept 2025)* | stefanvitasovic.dev | Per-char masked headline reveal, motion-led SPA gallery, Dev Award |
+| Treize Grammes *(HM Oct 2024)* | 13g.fr | Warm French branding agency, imperative headlines, Be true/strong/bold video triptych |
 | Linear | linear.app | Swiss-grid SaaS — every pixel earns its place |
 | Stripe | stripe.com | Off-white pages, deep navy text, surgical purple accents |
 | Vercel | vercel.com | Pure grayscale with a single emphasis weight shift |
@@ -44,6 +47,7 @@ Serif + sans-serif pairing, magazine grids, pull quotes, long-form reading as fi
 | Brand | URL | Signature |
 |---|---|---|
 | **Siena Film Foundation** *(canonical, SOTM April 2025)* | siena.film | Dark cinematic-poster editorial — vintage-poster type over film stills, dual-menu nav |
+| **Truekind Skincare** *(SOTD April 2025)* | truekindskincare.com | Warm-magazine editorial e-commerce — Editorial New + PP Mori, floating product stills, product-color page transitions |
 | Anthropic | anthropic.com | Terracotta on cream, Tiempos headlines, reading-first rhythm |
 | Substack | substack.com | Spectral serif, warm whites, writer-centric hierarchy |
 | Notion | notion.so | Warm grays + Lyon serif accents, block-based layout |
@@ -56,6 +60,9 @@ Organized chaos, 4–6+ colors, kinetic typography as art. Character turned to e
 | Brand | URL | Signature |
 |---|---|---|
 | **Ponpon Mania** *(canonical, SOTM Oct 2025)* | ponpon-mania.com | Bright illustrated comic — orange/pink/purple panels, sheep DJ narrative |
+| Mat Voyce *(SOTD + FWA)* | matvoyce.tv | Kinetic type-as-image — F37 Judge widths dancing on cream, per-letter roll nav |
+| Exat Typeface *(SOTD + CSSDA WOTM + FWA)* | exat.hottype.co | Type specimen as maximal — variable-font showcase, blue/red recolor, 3D line rotations |
+| Eloy Benoffi *(GSAP SOTD + CSSDA)* | eloyb.design | Glitch-maximal portfolio — ASCII flowers, random-stagger reveals, clone-storm footer |
 | Figma | figma.com | Five brand hues rotated per section, illustrated accents |
 | Duolingo | duolingo.com | Saturated greens, rounded geometry, illustrated mascots |
 | Mailchimp | mailchimp.com | Cavendish yellow, Cooper Hewitt display, playful illustration |
@@ -93,6 +100,10 @@ Quiet sophistication, custom serifs, generous whitespace. Range spans flat edito
 | Brand | URL | Signature |
 |---|---|---|
 | **Cartier WAW 2025** *(canonical, SOTM Aug 2025)* | cartier-waw-0225.dev.60fps.fr | Cinematic 3D pavilion — six contemplative alcove universes, slow tasteful motion |
+| Son Daven *(SOTD Jun 2026)* | sondaven.com/en | Argument long-scroll — KTF Metro serif, preloader→GSAP-Flip hero, magnetic circular CTAs, Carpathian photo/film |
+| Delvaux Digital Flagship *(HM Jun 2026)* | delvaux.com | Editorial maison — Genath on Atlas Grotesk, fullscreen home-slider, roll-swap/stroke CTAs, "Since 1829" |
+| Depo Luxe *(SOTD Jul 2026)* | depoluxe.xyz | Cinematic folio — monochrome #fff/#000, EB Garamond, video-preloader + SVG-logo fill, WebGL nav index |
+| Brunello Cucinelli AI *(SOTD Jul 2026)* | brunellocucinelli.ai | AI-agent maison — FreightBig/FreightText + IM Fell serifs, Socrates/Demosthenes dialogue, humanist voice |
 | Hermès | hermes.com | Orange and ivory, custom serif, considered photography |
 | Rolex | rolex.com | Dark greens and golds, editorial photography, slow pacing |
 | Aesop | aesop.com | Warm neutrals, single custom serif, product-as-still-life |
@@ -106,6 +117,7 @@ Modular asymmetric tiles, container queries, self-contained units. Product pages
 | Brand | URL | Signature |
 |---|---|---|
 | **Anime.js v4** *(canonical, SOTM May 2025)* | animejs.com | Brutalist-bento hybrid — dark base, central rainbow visualization, library demos per tile |
+| Endex *(HM Mar 2025)* | endex.ai | Editorial 12-col feature grid — dark hero, divided capability strip, product-UI cards |
 | Apple | apple.com | Canonical structural bento on product detail pages (Mac, iPhone feature grids) |
 | Notion | notion.so | Feature tiles with distinct colors and illustrations per cell |
 | Linear | linear.app | Minimalist bento with discipline, each tile self-complete |

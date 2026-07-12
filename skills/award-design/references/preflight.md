@@ -64,6 +64,18 @@ Catalog: `anti-patterns.md` *Axiomatic rejections* (numbered 1–14). One violat
 - [ ] **Emphasis lock** — in-headline emphasis uses italic or bold of the SAME family; no foreign-family word injected for visual interest.
 - [ ] **Register lock** — one copy register per page (technical mono, editorial prose, or marketing punch — not a blend), unless the DESIGN.md declares the mix.
 
+## Surface roster
+
+The seven surfaces the design_plan committed by catalog name (`award-imperatives.md` roster) — each shipped as committed, or its declared-out reason standing in the design_plan. An unconsidered surface is a gap, never a style choice.
+
+- [ ] **Loader / intro** — shipped as the committed family with its handoff beat, or declared out; the handoff verified in the browser — the fold behind the curtain or counter is already composed when it lifts (`ingredients/preloaders.md`)
+- [ ] **Navigation** — the committed pattern shipped and driven (`navigation-patterns.md`)
+- [ ] **Cursor** — the committed decision shipped: system, designed follower, or designed affordance — never a native special-state glyph (archetype Effect palette, Cursor row)
+- [ ] **Hero architecture** — the named skeleton shipped with its entrance beats (archetype Page recipe)
+- [ ] **Footer moment** — the named footer archetype shipped (`page-anatomy.md`); functional chrome only where declared
+- [ ] **Route transitions** — a multi-route build drove one real route change live: the committed family plays, back-button and scroll restoration hold (`ingredients/page-transitions.md`); a single-route build declares out
+- [ ] **Sound** — the committed channel behind its unlock gate, or declared out (`ingredients/web-audio.md`)
+
 ## 4. Countable boxes
 
 Each is a number computed from the rendered page against a threshold. Cite the count in the verdict. Every row declares its scope — **Global** runs on every archetype; **Archetype-conditional** names its suppression. Overrides exist so no ban is a dead end, but an override is written into the verdict, tied to the brief.
@@ -133,8 +145,11 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] Every data visual decodes at a glance — marks self-evident in context, or named by a one-line legend; the loop screenshot is the test (a stranger can say what each mark is); a drawn in-world object passes the same test — its whole real anatomy, in one glance (a barbell has both sleeves)
 - [ ] Numbers are real, or explicitly labeled as mock — no invented spec-precision
 - [ ] Zero lorem ipsum `(scanner: LOREM)`; zero scroll cues ("Scroll to explore", bouncing chevrons) `(scanner: SCROLL-CUE)`
-- [ ] No AI copy clichés in site copy (Elevate, Seamless, Unleash, Next-Gen, Delve)
+- [ ] No AI copy clichés in site copy (Elevate, Seamless, Unleash, Next-Gen, Delve) `(scanner: CLICHE-COPY)`
 - [ ] Content realism holds: no identical dates across posts, no duplicate avatars across different names, no dead `#` links `(scanner: DEADLINK)`, the nav marks the active state
+- [ ] **Specificity floor** — every headline and subhead carries ≥1 concrete from the build's world (a name, count, place, material, gesture, refusal); category-words-only fails (`copy-recipes.md`)
+- [ ] **Voice formula named** — the DESIGN.md names the voice formula (person, length habit, punctuation, refusals) and every visible string conforms to it
+- [ ] **No exemplar reuse** — no quoted catalog string ships verbatim `(scanner: QUOTED-EXEMPLAR)`
 
 ## 7. Truth & assets
 

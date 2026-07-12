@@ -175,3 +175,34 @@ Corpus — Siena Film Foundation (Awwwards Site of the Month, Apr 2025), Truekin
 **Loader / intro** — register split. Dark cinematic seeds the first frame: Siena's neo-romanesque stripes transition *into* the first section; Bisous's cinematic loader becomes the homepage slider; Dondre's letter-grid resolves into the hero wordmark. Light editorial paints instantly — Truekind and Anthropic ship no preloader layer; reading starts on load (observed, implementation unverified). Never a generic percentage spinner.
 
 **Anti-signals** — absent from every winner examined: a pale / low-opacity accent-tint fill on a primary control (winners fill the full token and invert the label); a frosted `backdrop-filter:blur()` bar with a contrasting-colour `border-bottom`; the `mix-blend-mode:difference` circular follower; uniform fire-once `y:30, .6s, ease-out` reveals on everything (winners run slower expo/quint eases, mask by line/word, keep panels reversible, author one scroll mechanic per story); a generic percentage-counter preloader; and the same interaction mechanism cloned across button, link, image and nav. Reversible panels carry conditions: a reversible *content* reveal stays a declared DESIGN.md choice, `cover`-phase-ranged so nothing vanishes mid-read (motion-palette.md).
+
+## Page recipe — how this line's winners build the page
+
+Corpus — Siena Film Foundation (live DOM + CSS + JS), Truekind Skincare (live SSR + Codrops), Anthropic (live control), Bisous + Stefan Vitasović + Dondre Green (media-only, Codrops).
+
+**Anatomy** — *The Reel Index* (`gated-reel`; Siena, winner-verified structure): ENTER gate + onboarding → featured-film masthead · attention (climax) → hold-and-drag filmstrip, 8 works, jury pull-quotes · proof → per-work case study · proof, rest → contact close; lateral length, not tall. *The Standfirst Stack* (`standfirst-stack`; Anthropic, winner-verified): serif-statement hero · attention → belief index · understanding → release cards · proof → mission close · close → tabular footer; even intensity, reading-first. *The Floating Editorial Scroll* (`maison-scroll`; Truekind, winner-verified sections): type-pledge hero · attention → value chapters, floating product · proof → product index · proof/close → journal teaser · rest → social-grid connect · close; float Codrops-documented, parallax (observed, implementation unverified).
+
+**Hero architectures** — *Featured-work masthead* (Siena): no `<h1>`; oversized display title over a full-bleed treated still, metadata stamp (DOCUMENTARY · 2022 · MIN.77); display face Neue Brucke, eyebrow P22 Parrish Roman (corrected — TNY appears in none of its assets); nav a `pointer-events:none` scrim; entrance = the two-layer kinetic label roll (eases winner-verified):
+
+| element | order | transform | duration | easing |
+|---|---|---|---|---|
+| headline chars, visible / duplicate | 1 (stagger .1s) | `translate(100%)` out / `translateY(-150%)` in | .8s | `--easeOutQuint` |
+| panels / stills | 2 | clip/scale reveal | `--panels-duration .9s` | `--customEase` |
+
+*Statement-serif split* (Anthropic, winner-verified): serif H1 in custom 'Anthropic Serif' (Georgia fallback) + sans standfirst. *Type-pledge + floating product* (Truekind, winner-verified fonts/H1): Editorial New over PP Mori, product floats in cream space.
+
+**Footer** — *wordmark-contact-close* (Siena, winner-verified copy): "LET'S TALK" / "EMAIL US" / lee@siena.film / "©2024. SIENA FILM FOUNDATION.". *Tabular-index* (Anthropic, winner-verified columns): ivory wrap, same-family hairline `border-top` (`--swatch--ivory-medium`), serif links (technique). *Social-grid-functional* (Truekind, winner-verified copy): "Connect With Us" / "on instagram" grid, "Website By:" credit.
+
+**Arrival** — register split per the Loader row; named handoffs (`ingredients/preloaders.md`): gate-into-fold (Siena, winner-verified copy — ENTER dismissing into the composed masthead); grid-flip-into-wordmark (Dondre, technique); loader-into-slider (Bisous, technique / media-only); instant paint (Anthropic + Truekind, observed). Route transitions (`ingredients/page-transitions.md`) rhyme with subject: product-colour flood (Truekind, technique); camera-shutter mask, Barba.js (Dondre, technique); continuous unfold (Bisous, technique / media-only).
+
+**Copy voice** — Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording. Three registers, one refusal — proof is borrowed, never claimed; the page never describes itself. Dark cinematic: impersonal curator, fragments, imperatives in chrome only. Light editorial: first-plural institution, cool mission verbs, full-stop headings. Warm magazine: reader-directed pledge, fragment headings, lowercase affectations. Apostrophes: Siena straight ', Anthropic curly ’ — copy the source glyph.
+- "BreathtakiNg cinematography" (Siena jury quote, casing [sic]) — borrowed proof, exact chars.
+- "Hold and drag to navigate the content" (Siena onboarding) — instruction as invitation.
+- "Anthropic is built on hard questions." (Anthropic) — a full stop turns a heading into a statement.
+- "Radical Transparency. Hide Nothing." (Truekind) — two fragments, one refusal.
+
+**Imagery art direction** — subject owned, never stock; one treated grade page-wide; full bleed for image, protected measure for text. Siena: film stills, desaturated high-contrast duotone lean, edge-to-edge, source light kept; substrate pure black (Webflow `var(--black)`), `#0e0e0e` secondary, cream `#faf7ef` type (corrected — #141413 appears nowhere in its assets; keep the off-black floor). Truekind: product-as-still-life in cream space, warm soft light. Anthropic: terracotta/clay on cream, illustration not photography (observed).
+
+**Spectacle menu** — *Siena hold-and-drag filmstrip*: grab the reel → stills slide, titles roll via the doubled-char label (.8s `--easeOutQuint`) → EXPLORE opens the case; payoff — a reel threaded by hand (shipped; eases winner-verified). *Truekind product-colour flood*: click a product → its background colour floods full-screen, the page resolving in it (technique).
+
+**Anti-signals** — no card-grid opener; no percentage-counter preloader; no hero carousel (lateral motion is hand-dragged or is the content); no centered-hero + twin-CTA; no poured-text wall; no self-narration; no raw stock; no mixed copy register.

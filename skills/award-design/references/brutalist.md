@@ -196,8 +196,41 @@ Corpus: FlowFest 2025 (Awwwards SOTD 7.36 + GSAP SotW), Eloy Benoffi (GSAP SotD 
 
 **Cursor** — swap the bitmap or keep the default; never a lerped follower-blob. `body { cursor: url(cursor.svg) 2 0, auto }` matched to the type for terminal/glitch stacks (Eloy Benoffi, verified), or keep the OS pointer and let unstyled anchors stay browser-default blue `rgb(0,0,238)` (Naked City, verified). The `mix-blend-mode: difference` follower belongs to the smooth-agency archetype, not this one.
 
-**Loader / intro** — split by WPO budget.
+**Loader / intro** — no winner in this line ships zero-intro instant paint; the line signs the intro's *character* (typed chat, stepped count, loader-into-navbar), never skips it.
 - **Stepped counter** — the number ratchets `0 → 100 in 14 steps`, `3s`, easing `steps(14)`, then a `clip-path: inset()` wipe hands off to content; the `steps()` is the brutalist tell · (Joffrey Spitzer, verified params, single-source).
-- **Near-instant first paint** — no preloader ceremony; the hero animates in on first paint · content-first festival / product / conference sites where a loader would tax WPO · (FlowFest + Sui Overflow, observed).
+- **Chat-cloud typing loader** — the mascot's chat cloud types `"..."` → "Hi Friends!" → "We are back..." → the hero's resident line (GSAP TextPlugin, all `ease: none`) while `.loading-screen` fades `autoAlpha: 0` over `0.3s` — corrects the prior "near-instant first paint" read: FlowFest's own `initLoader` JS ships this ~3s intro · (FlowFest, winner-verified from live Slater JS).
 
 **Anti-signals** — absent from every winner examined: a pale `color-mix(accent, white)` wash on a primary control (fills are the full accent, or the button presses); one hover rule reused across button/link/card/nav; a scrolled nav that grows a solid surface plus a different-colored border-bottom, or a `backdrop-filter: blur()` frosted bar (all four navs stay transparent, borderless, un-blurred at rest); a smooth lerped `mix-blend-mode: difference` follower cursor; pure `#000`/`#fff` (even Sui ships `#000F1D` on `#F7F7F7`); a uniform `fade-up 0.6s` on every section; rounded soft-shadow cards — radius is `0` or a committed pill, shadows are hard offset `0 4px 0`, never blurred.
+
+## Page recipe — how this line's winners build the page
+
+Corpus — FlowFest 2025 (live HTML + Slater JS), Eloy Benoffi (live + Codrops), Treize Grammes (live DOM), Sui Overflow (live, 2026 successor), Naked City Films + Joffrey Spitzer (media-only, Codrops).
+
+**Anatomy** — *The Community Scroll* (`argument-scroll`; FlowFest, winner-verified order; Sui shipped): loader → type-as-image hero + date · attention → "What is FlowFest?" · understanding → lineup · proof (climax ~40%) → what-to-expect · understanding → community band · proof → FAQ · rest → oversized invitation · close; 9 `<section>` elements live, ~24 = finer scroll beats (observed). *The Studio Index* (`studio-index`; Eloy + Treize winner-verified; Naked City technique): loader-into-navbar → identity hero, no in-fold CTA · attention → about · understanding → hover-charged work index · proof → footer-as-finale · close — peak at the bottom. *The Stepped Reel* (`studio-reel`; Joffrey, technique / single-source): counter loader → Flip showreel hero · attention → vertical case slider · proof → contact · close.
+
+**Hero architectures** — *Type-as-image slab* (FlowFest, winner-verified): the H1 is drawn — inline `<svg><path>` in `.welcome__h1` — tagline "FlowFest is back.", "Friday 8th August, Manchester, UK"; the only in-fold CTA is the nav "Buy Tickets" pill. Entrance (winner-verified, `initLoader`):
+
+| element | order | transform | duration | easing |
+|---|---|---|---|---|
+| mascot | 1 | y→0 | `"< -1"` | `cubic-default` |
+| nav-bar | 2 | `yPercent -102→0` | `"<"` | default |
+| welcome cards | 3 | y 3em→0, stagger −0.025 | 1s | `Expo.easeOut` |
+| H1 spans | 4 | `yPercent 100→0`, stagger −0.025 | 1s | `Expo.easeOut` |
+
+*Identity-tag terminal hero* (Eloy, winner-verified): corner tags `>>>based in madrid, spain` diff-swap to `>>>born in mar del plata, arg` (TextPlugin `type:"diff"`), forced-open scramble nav, no in-fold CTA.
+
+**Footer** — a designed finale, never chrome. Oversized invitation (FlowFest, winner-verified): `.footer__h2` "See you there!" + newsletter + reprised "Buy Tickets" + flanking illustrations, two-column. Footer-as-spectacle (Eloy): the clone machine, below. Contact-first activation (Treize, winner-verified): "Prenez rendez-vous avec l’un de nos associés" (curly ’, live DOM). CSS-level: reprise the primary CTA, set the page's largest type, host one interaction moment.
+
+**Arrival** — no zero-intro instant paint. Loader families: chat-cloud typing + stepped counter (the Effect palette Loader row), loader-into-navbar (Eloy, technique), scroll-driven welcome in one rAF loop (Naked City, technique) — `ingredients/preloaders.md`. FlowFest globals `staggerDefault 0.07` / `durationDefault 1.47` / `CustomEase "0.625, 0.05, 0, 1"` (winner-verified). Route transitions (`ingredients/page-transitions.md`) rhyme with the loader: Barba 2.10.3 — `initLoader` first load vs `initLoaderShort` internal fade, no chat replay (FlowFest, winner-verified); Swup + Flip menu-link→page-title morph 0.9s `expo.inOut` (Joffrey, technique / single-source).
+
+**Copy voice** — Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording. Warm-communal: first-plural, exclamatory, hot imperatives, trailing ellipses. Terminal-ironic: lowercase, `>>>` prefixes, ALL-CAPS verbs, `//` `#` fences. Both refuse corporate distance, hedging, and quiet CTAs — the button is always a verb.
+- "Webflow chat, festival vibes, good times." (FlowFest H1) — the pitch in three noun phrases.
+- "Hi Friends!" → "We are back..." (FlowFest loader) — the loader speaks in character.
+- "Reach out to Isabel at isabel@designsie.co.uk if you have any questions." (FlowFest) — a named human, a real address.
+- "##########COPY EMAIL##" (Eloy) — the CTA as terminal command.
+
+**Imagery art direction** — drawn/typographic primitives or degraded media, never stock gloss; one treatment page-wide. Illustrated-drawn (FlowFest): candid photo shuffle carousel subordinate to the SVG headline; marks are drawn SVG — rainbows, sun mascot — never emoji. ASCII/vector-only (Eloy): no photography; ASCII + drawn eye-flower SVG, `mix-blend-mode: difference` on runtime clones. Degraded-media-shader (Naked City): film stills through a CRT GLSL shader into brand-tinted RGB channels — electric blue `#0004EB` on gray `#979797`. Crop: full-bleed or hard-framed; grade: flat-saturated or high-contrast-limited.
+
+**Spectacle menu** — *Eloy clone machine*: mousemove in the footer → one CTA clones up to 200 copies (~200px steps), `mix-blend-mode: difference`, fading on `back.in(1.7)`; payoff — an unbounded interference field (technique, "Ending with a Critical Error"). *FlowFest chat-cloud reveal*: load → typed chat beats → mascot slides to rest, nav drops, cards stagger; payoff — a conversation becomes the hero (winner-verified).
+
+**Anti-signals** — no winner in this line opens on a card/bento grid; none leads with a product-shot carousel; none ships a functional link-list footer; no route transition is a generic cross-fade.

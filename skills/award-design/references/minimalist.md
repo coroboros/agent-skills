@@ -46,7 +46,7 @@ Single family with weight contrast, or geometric sans (display) paired with huma
 - **Tracking**: tight on display (`-0.02em`), neutral on body
 - **Variable-font features**: `tnum` for tabular numbers in dashboards and pricing, `ss01`–`ss04` where the typeface offers stylistic alternates
 
-The "Inter everywhere" anti-pattern lives in this archetype's failure mode — pick a face with character. Terminal Industries uses Söhne; Linear uses Inter (paired with discipline that earns it); Anthropic uses Tiempos for warmth. Inter as default H1 tells judges that no type decision was made.
+The "Inter everywhere" anti-pattern lives in this archetype's failure mode — pick a face with character. Terminal Industries uses Söhne; Linear uses Inter (paired with discipline that earns it); Anthropic uses its custom Anthropic Serif (Georgia fallback) for warmth. Inter as default H1 tells judges that no type decision was made.
 
 ## Color
 
@@ -133,10 +133,43 @@ Corpus — Terminal Industries (Awwwards SOTM Sep 2025 + CSSDA WOTD), Stefan Vit
 
 **Nav** — Float fully transparent over the hero (`position:fixed`, `background:transparent`, `pointer-events:none` on the shell, children re-enable), or frost translucent (`rgba(…,.8)` + `backdrop-filter:blur(5px)`). The nav-item indicator is a growing `5px` accent dot centered below the label (`opacity:0; scale(0)` → `scale(1.01)`, `transform 1s cubic-bezier(.075,.82,.165,1)`), not an underline — the dot itself is single-source on Terminal, the "nav ≠ the link underline" principle holds across the corpus. Winners never hang a colored `border-bottom` under a solid bar. (Terminal Industries, Awwwards SOTM 2025; frost from Stripe, reference-tier).
 
-**Text** — Per-char masked reveal is the signature: each glyph in its own `overflow:clip` wrapper (`char-wrapper+char-wrapper{margin-left:-.05em}` keeps kerning), `.char` set `opacity:0` then translated up with an *indexed* stagger under expo — Stefan runs `duration: 1.25 + index * 0.025s` per char with `easeExpOut`. Use once, on the hero headline or load-time wordmark. (Stefan Vitasović, Awwwards SOTD 2025, Codrops-verified; Terminal ships the same scaffold). Supporting: scramble/decode text with hardcoded per-index timing (Gabriel Contassot, single-source on the exact durations) and clip-path line reveals for headings where per-char would be too busy.
+**Text** — Per-char masked reveal is the signature: each glyph in its own `overflow:clip` wrapper (`char-wrapper+char-wrapper{margin-left:-.05em}` keeps kerning), `.char` set `opacity:0` then translated up with an *indexed* stagger under expo — that scaffold is Terminal's (Terminal Industries, Awwwards SOTM 2025, CSS-verified). Stefan lands the same read through masked segments positioned by `left` and `x` transforms — not per-char clip wrappers — timed `duration: 1.25 + index * 0.025s` under `easeExpOut` via Framer Motion (Stefan Vitasović, Awwwards SOTD 2025, Codrops-verified). Use once, on the hero headline or load-time wordmark. Supporting: scramble/decode text with hardcoded per-index timing (Gabriel Contassot, single-source on the exact durations) and clip-path line reveals for headings where per-char would be too busy.
 
 **Cursor** — Keep the system cursor. `cursor:pointer` on interactives, `cursor:default` elsewhere — no follower, no `cursor:none`. CSS-verified across three winners, so canon not a note. The only blend trick lives on a text/overlay element (`mix-blend-mode:difference` on an oversized label crossing light/dark sections), never a cursor follower (Gabriel Contassot, single-source).
 
 **Loader / intro** — Either instant paint that lets the per-char/clip reveals *be* the intro (observed, implementation unverified), or a `≤2.8s` minimal preloader in one of two verified forms: an accelerating 1→100 numeric counter (Gabriel Contassot, Codrops-verified), or a two-panel split-curtain (`50svh` masks) retracting to uncover the page, paired with a counter recoloring through the accent (Terminal Industries, single-source on the curtain). Never a spinner or a blocking brand-color splash.
 
 **Anti-signals** — Absent from every winner examined: a pale-tint fill on a *primary* CTA (the `5–10%` wash is quarantined to ghost buttons only — primaries move the full token); a contrasting `border-bottom` under a solid nav bar on scroll (bars float transparent or frost translucent); the same underline-slide smeared across buttons, links, and nav (winners split it — wipe/shift on buttons, draw on links, dot on nav); a custom circle-follower or magnetic-blob cursor; a blocking splash or spinner preloader; one global `fade-up 20px, .6s ease` on every section (reveals are masked/clip-path under expo with indexed timing); Tailwind's default `cubic-bezier(.4,0,.2,1) .15s` left as the site's motion identity; Inter as the display face.
+
+## Page recipe — how this line's winners build the page
+
+Corpus — Terminal Industries (live CSS+DOM), Gabriel Contassot (live DOM), Treize Grammes (live DOM), Stefan Vitasović (live + Codrops), Rogier de Boevé (media-only, Codrops).
+
+**Anatomy** — *Product-narrative scroll* (`argument-scroll`; Terminal, winner-verified order; Treize softer): hero statement · attention → logo strip · proof → stat odometer · understanding → "That's the Yard Operating System. YOS™" reveal · climax, mid-page → three benefits · understanding → executive quote · proof → contact + oversized-wordmark footer · close; rest is the void gap, seams masked, never hard cuts. *Gallery-index stack* (`gallery-stack`; Gabriel, Stefan, winner-verified): text-only name card · attention → one full-bleed project per viewport, masked reveals · proof (the first still below the fold is the climax) → bare "SCROLL UP" close. *Single-canvas monolith* (`engine-world`; Rogier, technique / single-source): one WebGL scene is the page, screens rotated on a circular path.
+
+**Hero architectures** — *Sequenced statement over cinematic still* (Terminal, winner-verified): the headline is `h2.title-sequence` (`min(5.729vw,146.667px)`, w400, lh .95) cycling four statements; the only `<h1>` waits in the footer; one CTA. (Easings verified; durations shipped.)
+
+| element | order | transform | duration | easing |
+|---|---|---|---|---|
+| curtain, `#ededed` 50svh halves | 1 | retract | ~0.8–1.2s | easeOutExpo `(.19,1,.22,1)` |
+| odometer | 2 | 1→100, gray→lime→dark-green | load-tied | linear |
+| H2 chars (`overflow:clip` wrappers) | 3 | translateY up, +0.025s/char (technique) | ~1–1.25s | same |
+| nav | 4 | opacity 0→1 | ~0.25s | `(.16,1,.3,1)` |
+
+*Text-only name card* (Gabriel, Stefan — copy winner-verified, motion shipped): oversized name `<h1>`, role line, void, scroll cue as sole affordance, no CTA. Treize's softer variant: imperative `<h1>` + subhead + warm CTA "Programmer une visio" (winner-verified copy).
+
+**Footer** — the award lever (Terminal, winner-verified): dark-green ground; the `<h1>` lives here — `.footer-title{font-size:max(4.375rem,min(4.688vw,120px))}`, line-height .95, chars de-emphasized to `#fff3`; sticky reveal — `.footer__wrapper{position:fixed;bottom:0;transform:translateY(100%)}` over a 50vh holder, a pure-black overlay darkening the outgoing page. Portfolio norm: the bare cue — "SCROLL UP" (Gabriel), "2025." (Stefan).
+
+**Arrival** — the Loader row families (`ingredients/preloaders.md`): curtain + counter recoloring into the footer's dark-green (Terminal, winner-verified); bare 1→100 counter (Gabriel, Codrops-verified); instant paint, reveals-as-intro (Treize, observed). Route transitions (`ingredients/page-transitions.md`): the route loader swaps the light curtain for `rgba(0,0,0,.7)` (winner-verified); in-page swaps ride Vue `reveal-y`, enter from `translate3d(0,100%,0)`, opacity `.6s` easeInSine + transform `1.2s` easeOutExpo (winner-verified).
+
+**Copy voice** — Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording. First-plural visionary or bare name in the hero, second-person imperative at the CTA; fragments — the line break is the punctuation; TM on the product noun; the period as weight; refuses adjective stacks and self-narration. "No exclamation" fails corpus-wide: Treize ships "Activez votre marque !".
+- "We have reinvented the future of logistics" / "through the yard." (Terminal) — vision, then the fragment turn.
+- "Powering the yards behind the  brands you know" (Terminal, double space [sic]) — proof named in the reader's world.
+- "GABRIEL CONTASSOT" / "FREELANCE DESIGN DIRECTOR" / "18.24" (Gabriel) — name, role, number: the whole hero.
+- "Awwwards Jury member since 2020." (Stefan, live DOM) — proof by dated credential, no self-praise.
+
+**Imagery art direction** — one grade per page. Cinematic (Terminal): industrial-scale subject, full-bleed horizon-anchored crop, golden-hour single warm source, amber/cream low-saturation grade — a `<canvas>` frame-sequence under an SVG gradient mask (mechanism winner-verified; grade shipped). Gallery (Gabriel, Stefan): full-bleed stills one per viewport in a single grade — Gabriel strict pure-black monochrome (winner-verified layout; grade shipped).
+
+**Spectacle menu** — *Terminal load*: curtains retract → odometer climbs gray→lime→dark-green → chars cascade over the truck photo; payoff — the intro pre-states the palette: final green = footer ground, lime = CTA (winner-verified mechanism). *Gabriel seams*: scroll a light/dark boundary → oversized label crosses under `mix-blend-mode:difference` (live CSS-verified), figures open on inverse-scale masks `scale(1.2 + track*-0.2)` (Codrops); payoff — the seam is the show.
+
+**Anti-signals** — no winner in this line opens on a card or bento grid; no hero carousel; no stacked hero CTAs; the `<h1>` is not assumed hero-bound — Terminal's is the footer statement; no second accent visible per viewport (an unspent orange token exists); no mixed-grade imagery.

@@ -47,6 +47,28 @@ ARCHETYPE_SUPPRESSIONS = {
 }
 MAX_EXCERPTS_PER_RULE = 10
 
+# QUOTED-EXEMPLAR: winner strings quoted in references/copy-recipes.md — they
+# calibrate, they never ship. Single source: every entry here must appear
+# verbatim in that file (the test suite enforces the lockstep).
+BANNED_EXEMPLARS = (
+    "Réveillez votre croissance",
+    "We have reinvented the future of logistics through the yard",
+    "Global digital design studio partnering with brands and businesses",
+    "Beauty is the symbol of the morally good",
+    "AI research and products that put safety at the frontier",
+    "We do not chase trends or produce work that looks like everyone else",
+    "Please drive around to learn more about me",
+    "A fast and flexible JavaScript library to animate the web",
+    "AI-native technology that turns manual tasks into connected missions",
+    "Exat consists of a whopping 1715 glyphs per style",
+    "The Oldest Fine Leather Goods House in the World",
+    "The yard of the future starts today",
+    "Is Your Big Idea Ready to Go Wild",
+    "Type designer & animator, working for brands globally",
+    "Hold and drag to navigate the content",
+    "Scroll to unlock the immersive film experience",
+)
+
 # Line rules: (id, severity, description, pattern, extensions).
 LINE_RULES = [
     ("AI-PURPLE", FAIL,
@@ -103,6 +125,16 @@ LINE_RULES = [
     ("DEADLINK", FAIL,
      'dead `#` link — href="#" goes nowhere; wire a real target or use a <button>',
      re.compile(r"""href\s*=\s*(?:"#"|'#')"""), TEXT_EXTS),
+    ("CLICHE-COPY", FAIL,
+     "AI copy cliché (Unleash your / Supercharge / Elevate your / where X meets Y) — "
+     "write the promise from the build's own lexicon",
+     # Phrase-level only — single common words never match (false-negative bias).
+     re.compile(r"(?i)\b(?:unleash your|supercharge|empower your|elevate your"
+                r"|built for the modern|in today['’]s digital|reimagine the way"
+                r"|next-generation|seamlessly|where \w+ meets \w+)\b"), TEXT_EXTS),
+    ("QUOTED-EXEMPLAR", FAIL,
+     "winner catalog string shipped verbatim — copy-recipes.md quotes calibrate, never ship",
+     re.compile("|".join(re.escape(s) for s in BANNED_EXEMPLARS), re.IGNORECASE), TEXT_EXTS),
     ("TRUNCATION", FAIL,
      "truncation tell (// ..., [remaining, for brevity) — the output is incomplete",
      re.compile(r"//\s*\.\.\.|/\*\s*\.\.\.\s*\*/|\[remaining |for brevity"

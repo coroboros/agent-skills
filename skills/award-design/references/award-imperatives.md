@@ -67,3 +67,19 @@ The transverse imperatives hold for every build; how the signature and the navig
 | **Corporate Luxury** | one slow tasteful reveal or hover on the hero object, long easing (`cubic-bezier(0.16,1,0.3,1)`, 1–1.5s) | quiet show-on-scroll-up header | Cartier WAW 2025 |
 | **Bento / Card** | a tile that *demonstrates* its claim (a live demo), or tiles morphing between configurations | simple top bar | Anime.js v4 |
 | **Spatial Organic** | depth and parallax layers, glass, organic motion easing | floating glass bar | Igloo Inc |
+
+## The award surface roster
+
+Every build's design_plan commits each surface below **by catalog name**, or declares it out with a brief- or archetype-canon-tied reason (cite the palette or Page-recipe row that prescribes the absence). An unconsidered surface — neither committed nor declared out — is a Phase 5 gap. The roster routes loading: when a surface is committed, load its catalog then, not before.
+
+| Surface | Catalog | Commit by name |
+|---|---|---|
+| **Loader / intro** | `ingredients/preloaders.md` + the archetype Page recipe's Arrival row | loader family + its handoff beat |
+| **Navigation** | `navigation-patterns.md` | pattern — show-on-scroll-up · overlay · declared always-on |
+| **Cursor** | the archetype Effect palette's Cursor row | system · designed follower · designed affordance |
+| **Hero architecture** | the archetype Page recipe's Hero architectures row | named skeleton + entrance beats |
+| **Footer moment** | `page-anatomy.md` Footers + the archetype Page recipe's Footer row | named footer archetype |
+| **Route transitions** | `ingredients/page-transitions.md` | family — or declared out on a single-route build |
+| **Sound** | `ingredients/web-audio.md` | channel + unlock gate — or declared out |
+
+Quiet-constraints briefs (Phase 0) outrank the roster — a legally-constrained build legitimately zeroes loader and sound; the declaration still lands in the design_plan.

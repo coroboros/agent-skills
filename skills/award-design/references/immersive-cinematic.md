@@ -9,7 +9,7 @@ The visual is the medium. Full-screen video heroes, WebGL 3D environments, and s
 **Award.** Awwwards Site of the Year 2025
 **Studio.** OFF+BRAND
 
-Webflow as foundation. WebGL-powered 3D — rotating helmet, full 3D scenes — combined with Rive motion graphics, GSAP scroll-driven cinematic sequences, full-bleed video, and lime-on-dark accents. The highest credential in this entire reference. Substitutable peer: `messenger.network` (Awwwards Developer Site of the Year 2025) — a Three.js miniature-planet experience, darker and moodier than Lando.
+Webflow as foundation. WebGL-powered 3D — rotating helmet, full 3D scenes — combined with Rive motion graphics, GSAP scroll-driven cinematic sequences, full-bleed video, and lime-on-dark accents. The highest credential in this entire reference. Substitutable peer: Messenger at `messenger.abeto.co` (Awwwards SOTD Nov 10 2025 + Developer Award, by abeto; the old `messenger.network` host now redirects off-brand) — a Three.js miniature-planet experience, darker and moodier than Lando.
 
 ## DNA — non-negotiable
 
@@ -161,3 +161,27 @@ Two live-CSS reads anchor this — Lando Norris (Awwwards Site of the Year 2025;
 - **Progress-as-narrative** — the load percentage drives a real visual (a value counting, a scene lightening, a camera pulling back) so the counter is diegetic. Active Theory boots into a full-screen WebGL intro that dissolves into navigation (numeric choreography observed, implementation unverified). Pick for shader-heavy sites where the wait is unavoidable — make it the opening shot (Active Theory, Awwwards SOTD).
 
 **Anti-signals** — absent from every winner examined: a pale/low-opacity tint fill on a primary control (`background: rgba(accent, .1)`) — winners flood full-token + invert or ship already solid, zero pale tints found; a frosted-glass nav on scroll (`backdrop-filter: blur()` + tinted panel) and a nav `border-bottom` of any color (`border-bottom: 0 none` verified on both); one universal hover for every element class (winners differentiate button ≠ card ≠ image ≠ link ≠ nav); imperceptible hover amplitude (`scale 1.02–1.03`) and a bare spinner or naked % counter that hard-cuts to the page; a different easing per element — everything routes through 2–3 named beziers.
+
+## Page recipe — how this line's winners build the page
+
+Corpus — Lando Norris (SOTY 2025, live), Siena Film Foundation (SOTM Mar 2025 + Developer Award, live), Lusion v3 (SOTD Oct 2023, live), Messenger (SOTD Nov 2025, `messenger.abeto.co` — media-only), Active Theory (live chrome; copy canvas-rendered; award unverified).
+
+**Anatomy** — *Portrait Procession* (`portrait-procession`; Lando, winner-verified; 12 sections ≈ 16.5vh): corner wordmark over a full-bleed portrait (attention) → pinned horizontal gallery (proof) → on/off split (understanding) → 3D helmet gallery (proof+spectacle, mid climax) → honours/partners (proof) → inverted valediction footer (close, second climax; bridges rest). *Gated Index* (`gated-reel`; Siena, winner-verified): splash gate (attention) → eight film cards, titles DOM-doubled ("SSaavvooyy") (proof) → thin credits (close/rest). *Studio Manifesto → Reel* (`studio-reel`; Lusion, winner-verified): statement hero over live 3D (attention) → manifesto line (understanding) → discipline-tagged 3D reel (proof) → contact footer (close). Single-scene world (Messenger, Active Theory — technique): all funnel jobs in one WebGL scene; budget-gated.
+
+**Hero architectures** — *Corner-lockup portrait* (Lando, winner-verified): `<h1>` "Lando Norris" top-left, subhead beneath, the face fills the fold; body computes `#282C20` / `#F4F4ED`, Mona Sans Variable. Beat (seed easings, observed): Loader-row brand-object assembly → `ellipse(… at 50% 0)` wipe ~0.8–1.2s → lines `translateY` in `overflow:clip`, no fade → nav color `.75s`, all on `cubic-bezier(.65,.05,0,1)`. *Statement-over-canvas* (Lusion, winner-verified copy): we-declarative over the live scene, scroll cue; Active Theory keeps the statement in-canvas. *Costumed splash gate* (Siena, winner-verified copy): oversized vintage serif "SIENA" on pure black, one ticket-stub "ENTER →".
+
+**Footer** — two modes, neither bare chrome. Valediction fold (Lando, winner-verified CSS): full-bleed helmet portrait, split-color "ALWAYS BRINGING THE FIGHT."; `.is-footer` computes `#F4F4ED` under a `#282C20` overlay, `#D2FF00` baseline — the close inverts the hero. Contact-first (Lusion, winner-verified): "Let's talk" + "Suite 2, 9 Marsh Street, Bristol, BS1 4AA, United Kingdom" + socials + newsletter. Thin costumed credits (Siena, shipped): "©2024. SIENA FILM FOUNDATION."
+
+**Arrival** — Brand-object assembly → reveal wipe (Lando, the Loader row above): the curtain unmounts — no loader/preload/curtain node survives post-load (winner-verified; "intro"-named content nodes remain). Held costumed gate (Siena ticket, Active Theory audio — winner-verified): one in-character click that unlocks sound. None/instant (Lusion, winner-verified): scroll cue + scene settle (families: `ingredients/preloaders.md`). Routes (`ingredients/page-transitions.md`) rhyme with the loader — Siena card→case study via the overlay stack (single-source); Lusion card→project as WebGL cover/morph (observed).
+
+**Copy voice** — Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording. Person tracks the subject (third-person personality, we-studio, caps catalog); label-length lines, one long declarative at most; idiomatic-warm verbs; emphatic terminal period on a fragment; refuses explanation, bullets, exclamations, hype.
+- "Always bringing the fight." (winner-verified) — a fragment with a full stop carries the close.
+- "Load Norris" (winner-verified) — the wait put in-brand; a pun where a spinner would sit.
+- "2025 Mclaren Formula 1 Driver" (winner-verified) — [sic], the DOM lowercases the "c"; a title card, not a bio.
+- "ADMIT ONE" / "004" (winner-verified) — costume lexicon plus a count.
+
+**Imagery art direction** — Lando: tight, centered, symmetric head-and-shoulders; high-key shadowless light; neutral-warm grade on cream over a topo-contour field; register flips once — hero cream, body dark olive (winner-verified palette, shipped grade). Siena: film stills in a dark high-contrast poster grade (shipped). Lusion/Messenger/Active Theory: no photography — live-rendered 3D; Lusion is light-key on a white body, only Active Theory and Messenger run dark (winner-verified). One treatment page-wide, or none.
+
+**Spectacle menu** — Footer valediction (Lando, shipped): scroll to base → the split headline resolves over the helmet portrait, palette flips cream→dark-olive → the opening face returns helmeted; replay = recontextualization. Ticket admission (Siena, gate winner-verified): "ENTER" → the index assembles → entry as ritual. Delivery loop (Messenger, technique): pilot the tiny planet → GPU-physics courier runs → agency; the site is the replay.
+
+**Anti-signals** — page-level absences across the corpus: no card-grid/bento fold — the fold is a portrait, a gate, or a live scene; no hero carousel; no stock mosaic; no functional-only footer; no visible scrollbar or boxed hero (`scrollHeight ≈ vh` on three of five, winner-verified); no explanatory hero paragraph; no unmuted autoplay without a costumed gate.

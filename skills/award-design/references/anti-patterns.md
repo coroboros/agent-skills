@@ -50,6 +50,8 @@ Anti-default is not only within a build (reject the lazy first option) — it ho
 - **The world's gestures left unplayed** — the subject has motions of its own (the three lifts, the pour, the descent) and the page never performs them: the sections aren't its chapters, the effects don't move like it. The equipment toy is not the sport — play the gestures, not only the objects.
 - **The thin landing** — six sparse sections that state and stop. Award landings are generous: chapters, editorial passages, depth a visitor can live in for a while. Thin reads empty, not minimal.
 - **Tasteful competence with no spectacle** — every gate passed, nothing anyone would show a friend. On an award brief at least one passage is show-someone spectacular (a sequence, a medium moment — video, 3D, kinetic type at full scale); clean everywhere and spectacular nowhere is the structural 6.5 ceiling.
+- **The unconsidered arrival** — no loader decision on an award brief: the page just appears, neither a committed loader family with its handoff beat nor a declared instant-paint choice (`ingredients/preloaders.md`). Winners choreograph the arrival or deliberately refuse it; a build that never decided reads unfinished.
+- **The hard route cut** — a multi-route build that choreographs every scroll yet cuts between pages with no transition family (`ingredients/page-transitions.md`): the one surface where the built illusion collapses on every click.
 
 ## Performance failures
 
@@ -99,6 +101,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 ### Layout
 
 - Centered hero with generic headline over dark image.
+- **The template footer** — link columns plus a copyright line closing an award build: the last designed moment shipped as chrome. Every winner corpus closes on a designed move (`page-anatomy.md` Footers).
 - Split-screen 50/50 hero — solid text panel beside a photo panel with a hard vertical seam. A recognized template. Override: an editorial diptych where both panels are in compositional dialogue, not just text | image.
 - 3 equal cards in a row (the "feature row" cliché).
 - Predictable symmetric layouts at every section.
@@ -127,6 +130,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 ### Content
 
 - Generic names: "John Doe", "Sarah Chen", "Jack Su" — use diverse, realistic-sounding names with cultural variety.
+- **The category headline** — a hero promise any rival could sign. Read beside the archetype's quoted winner strings it names no place, no count, no material, no refusal (`copy-recipes.md`); the fix is the concept, never a copy edit.
 - Fake round numbers: "99.99%", "10,000+", "50% faster" — use organic, messy data: `47.2%`, `+1 (312) 847-1928`, `$99.00`.
 - AI copywriting clichés: "Elevate", "Seamless", "Unleash", "Next-Gen", "Game-changer", "Delve", "Tapestry", "In the world of...", exclamation marks in success messages, "Oops!" error handling.
 - Title Case On Every Header — sentence case reads more refined.

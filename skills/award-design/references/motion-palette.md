@@ -132,3 +132,28 @@ The **winner** tag is verified on named Awwwards / FWA / CSSDA pages (roster abo
 ## Inventing a new mechanic
 
 The palette is a floor, not a ceiling. A build may invent a mechanic the palette does not carry — but invention is grounded, never conjured: it derives from the world's verb (`signature-invention.md`), it is built on a real, named technique (a documented API, a shipped reference, an official skill resolved at Phase 3), and its ambition is approved before it routes through the WebGL delegation. An invented mechanic that is really a category with a new coat of paint fails the bespoke test at R1. The palette raises the floor on execution; the story decides whether the result is a signature or a dressed-up default.
+
+## Physics of motion (technique — product-film analysis)
+
+Distilled from frame-level analysis of studio-grade product films — how any *authored sequence* (a loader exit, a hero entrance, a spectacle beat) allocates time and weight. These rules govern authored timelines; scrubbed motion above stays welded to scroll. The premise: pixels read as objects with mass, not numbers — every easing choice answers "how heavy is this element, and how much friction does it land on?"
+
+**Slow-Fast-Boom-Stop — the time allocation.** Even pacing is a tech demo; rhythm is narrative. An authored sequence splits its runtime:
+
+- **Slow trigger** (~15%) — the eye's on-ramp; establish that something is about to happen.
+- **First arrival** (~15%) — the opening visual lands at medium speed.
+- **Fast dense middle** (~40%) — the work happens here: detail, density, control.
+- **Boom** (~20%) — the one burst: the pull-back, the pop-out, the climax.
+- **Stop** (~10%) — end on a hard stop with the final frame held — never a fade-out; the fade reads as indecision, the stop as a verdict.
+
+**The easing → scenario map.** `linear` is a number; expo-out is an object.
+
+- **Expo-out (`cubic-bezier(0.16, 1, 0.3, 1)`) — the default for reveals**: card rise-ins, panel entrances, directional fades. Fast launch, long brake — the weight tell. Plain ease-out starts too soft and stops too loose.
+- **Overshoot (`cubic-bezier(0.34, 1.56, 0.64, 1)`) — toggles and arrivals**: a control that flips, a button that pops, an element announcing itself past its rest point before settling.
+- **Spring — physical settles**: geometry falling into place, a card landing with follow-through. The element *lands* rather than stops. A key entrance earns the full three-beat: a small anticipation dip, the main action, a settling follow-through — action alone reads as slideware.
+- **Ease-in-out — continuous symmetric motion only** (a cursor path, a camera drift); everywhere else it reads mechanical.
+
+**The pre-beat hold.** 300–500ms of stillness before a key result lands — give the eye its reaction time. The no-pause, full-density sequence is the amateur default: the result appears and the viewer never saw it arrive. Hold on the pending state, then let the result surface.
+
+**Focus-switch = brightness + saturation + blur together, never opacity alone.** Dimming keeps the background sharp — it never recedes. Push the non-focus layer back in real depth: drop brightness (~−50% at full focus), drop saturation (~−30%), add 4–8px of blur — the blur is the load-bearing channel. A ~150ms highlight flash on the focus target leads the eye back in.
+
+These rules time the *inside* of a beat; the archetype's restraint dial (`atmosphere-calibration.md`) still governs how many beats the page affords.
