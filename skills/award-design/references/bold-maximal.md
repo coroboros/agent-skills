@@ -152,7 +152,13 @@ Corpus of verified winners: Ponpon Mania (Awwwards SOTM 2025 + Developer Award),
 
 **Loader / intro** — Winners split on preloader vs instant paint, but never a decorative counter+curtain over a static hero. Resolve the intro into live UI — the loading bar *becomes* the navbar (Eloy Benoffi — single-source) — or make it scene one of the narrative (Ponpon Mania, SOTM). An asset-gated `0→100` counter is legitimate only when the hero genuinely ships heavy media, and the numerals should carry the concept (`steps(n)` progression; GT America, Black Messiah, Naya). Instant first paint with no full-screen counter is defensible on editorial-leaning maximal (Locomotive, SOTM).
 
+**Scroll texture** — Scroll-as-playhead chaptered physics — the page is a timeline and scroll scrubs its scenes (Ponpon Mania, winner-verified) — or oversized type running past the viewport so the overflow itself is the texture (Mat Voyce, winner-verified). The design_plan names one; on this line the carry is loud and structural, never a drifting background layer.
+
+**Idle band** — ~1 channel despite the volume: winners spend the energy on scroll and input, not on ambient churn. Commit one idle channel and let the rest of the page hold still, so the loud moves keep their contrast.
+
 **Anti-signals** — Absent from every winner examined. The pale-tint fill on a primary control — no winner washes a saturated button with `hover:bg-primary/10` (the shadcn leak); that low-opacity tint is correct *only* on a ghost/outline variant that starts transparent. A solid nav bar with a contrasting brand-colored border-bottom on scroll — on no named winner. One universal hover cloned across buttons *and* links *and* cards — winners vary mechanic by element class. Fire-once uniform `IntersectionObserver` fade-up on every section — winners scrub, reverse, and grade stagger. Kinetic type with no story, the archetype's named failure mode. A lagging-dot cursor with no state, left running on mobile.
+
+Channel calibration — this line's winners run 4–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

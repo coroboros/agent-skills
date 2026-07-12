@@ -160,7 +160,13 @@ Two live-CSS reads anchor this — Lando Norris (Awwwards Site of the Year 2025;
 - **Brand-object assembly → reveal wipe** — the preloader builds the signature object (helmet, wordmark) while assets stream, then clip-reveals into the live hero via the top-anchored `ellipse(… at 50% 0)` hand-off mask so there is no cut. Lando Rive + GSAP intro (choreography observed, implementation unverified). Pick when the brand has one iconic object (Lando, SOTY 2025).
 - **Progress-as-narrative** — the load percentage drives a real visual (a value counting, a scene lightening, a camera pulling back) so the counter is diegetic. Active Theory boots into a full-screen WebGL intro that dissolves into navigation (numeric choreography observed, implementation unverified). Pick for shader-heavy sites where the wait is unavoidable — make it the opening shot (Active Theory, Awwwards SOTD).
 
+**Scroll texture** — a pinned horizontal-track interlude that locks the viewport and pans sideways under vertical scroll (Lando, winner-verified), and the `ellipse(… at 50% 0)` seam recurring at section hand-offs so one brand shape carries the eye across every boundary. The design_plan names one — in a cinematic world the scroll carry is a camera move, never a fade schedule.
+
+**Idle band** — strong, the deepest idle register of the nine lines: Rive and canvas idles keep the world alive between inputs — Lando ships 35 Rive instances plus 21 canvas loops — with ambient audio and a live status card layered over them (Lando, winner-verified). Commit several named idle channels; a cinematic page that freezes between inputs breaks the fiction.
+
 **Anti-signals** — absent from every winner examined: a pale/low-opacity tint fill on a primary control (`background: rgba(accent, .1)`) — winners flood full-token + invert or ship already solid, zero pale tints found; a frosted-glass nav on scroll (`backdrop-filter: blur()` + tinted panel) and a nav `border-bottom` of any color (`border-bottom: 0 none` verified on both); one universal hover for every element class (winners differentiate button ≠ card ≠ image ≠ link ≠ nav); imperceptible hover amplitude (`scale 1.02–1.03`) and a bare spinner or naked % counter that hard-cuts to the page; a different easing per element — everything routes through 2–3 named beziers.
+
+Channel calibration — this line's winners run 4–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

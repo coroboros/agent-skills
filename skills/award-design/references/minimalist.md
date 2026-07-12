@@ -139,7 +139,13 @@ Corpus — Terminal Industries (Awwwards SOTM Sep 2025 + CSSDA WOTD), Stefan Vit
 
 **Loader / intro** — Either instant paint that lets the per-char/clip reveals *be* the intro (observed, implementation unverified), or a `≤2.8s` minimal preloader in one of two verified forms: an accelerating 1→100 numeric counter (Gabriel Contassot, Codrops-verified), or a two-panel split-curtain (`50svh` masks) retracting to uncover the page, paired with a counter recoloring through the accent (Terminal Industries, single-source on the curtain). Never a spinner or a blocking brand-color splash.
 
+**Scroll texture** — What carries the eye down the page between interactions: a masked figure reveal riding inverse scroll-scale (Gabriel Contassot, winner-verified), canvas frame-sequence photography scrubbed by the scrollbar, or the scroll-scrubbed per-char recolor sustained top-to-bottom — Terminal runs it the full page height, so the text substrate itself is the carry (Terminal Industries, winner-verified). The design_plan names one: the committed carry, never a hoped-for side effect of the section reveals.
+
+**Idle band** — Near-zero canon, and that IS the evidence: ~1 quiet channel across the corpus. Winners hold the page still between inputs — the life lives in the masked reveals and the scrubbed carry, not in ambient loops — so commit one quiet channel or its declared absence and let stillness read as the register, never as coverage skipped.
+
 **Anti-signals** — Absent from every winner examined: a pale-tint fill on a *primary* CTA (the `5–10%` wash is quarantined to ghost buttons only — primaries move the full token); a contrasting `border-bottom` under a solid nav bar on scroll (bars float transparent or frost translucent); the same underline-slide smeared across buttons, links, and nav (winners split it — wipe/shift on buttons, draw on links, dot on nav); a custom circle-follower or magnetic-blob cursor; a blocking splash or spinner preloader; one global `fade-up 20px, .6s ease` on every section (reveals are masked/clip-path under expo with indexed timing); Tailwind's default `cubic-bezier(.4,0,.2,1) .15s` left as the site's motion identity; Inter as the display face.
+
+Channel calibration — this line's winners run 3–4 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

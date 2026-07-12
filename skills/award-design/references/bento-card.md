@@ -179,7 +179,13 @@ The AI-default `translateY(-4px) scale(1.02)` + grey `box-shadow` on every tile 
 
 **Loader / intro** — instant first paint; no preloader element (Anime.js ships none in the DOM — live-verified). The entrance IS the card stagger — `opacity 0→1` + a short `translateY`, `40–80ms` per tile — so the page assembles itself. A blocking curtain with a `0→100%` counter is an anti-signal here; reserve it for immersive/WebGL archetypes.
 
+**Scroll texture** — pinned `100lvh` demo panels cross-fading as scroll advances, each panel holding while its demo runs before handing off (Anime.js, winner-verified), or lag-based grid scroll — columns easing at offset rates so the grid itself has drag. The design_plan names one; without a carry between tiles the grid reads as a static poster.
+
+**Idle band** — perpetual micro-loops inside the tiles: the red-dot period loop, the clockwork counter — small machines that never stop (Anime.js, winner-verified). Commit one or two; the idle life lives inside the tiles, never on the page ground.
+
 **Anti-signals** — absent from every winner examined: the washed pale-tint button fill (`accent @ ~10% alpha` fading in, reads as a disabled hover); a contrasting-colored `border-bottom` under the nav (winners' borders, when present, are same-family hairlines); one universal card hover on every tile; a global custom cursor (lagging dot/ring sitewide); a per-letter kinetic headline on a non-motion brand; heavy hero parallax (substitute lag-based grid scroll); and uniform `fade-up-on-everything` with linear per-element delays.
+
+Channel calibration — this line's winners run 3–4 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

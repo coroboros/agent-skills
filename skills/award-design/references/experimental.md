@@ -129,7 +129,13 @@ Corpus read live and cross-checked against case studies: Bruno Simon (Awwwards S
 
 **Loader / intro** — the intro renders *in the engine* and *is* the concept booting: a real-time animation in the site's own shaders (Igloo Inc, SOTY 2024), or objects rising from the ground with a paper-unwrap sound (Bruno Simon). A required **start button doubles as the audio-unlock gate** since browsers block autoplay until interaction (Bruno Simon, single-source — a hard constraint, not a taste choice). No heavy engine → no loader; the text-first sub-stack ships instant first paint.
 
+**Scroll texture** — a sliced-filmstrip scrub with a ruler-tick scrubber marking progress (Aristide Benoist, winner-verified), or a scroll-scrubbed real-time simulation — the scene assembles itself as the page advances (Igloo, shipped/case-study). The design_plan names one, rendered in-engine like everything else on this line.
+
+**Idle band** — strong: the substrate never sleeps — the physics world keeps simulating between inputs (Bruno Simon, SOTM 2026), a node-graph animates live values, a CET clock ticks in the chrome. Commit the idle channels the engine already affords; a frozen canvas is the one thing this archetype cannot show.
+
 **Anti-signals** — absent from every winner examined: the **pale/washed-out tint fill** on button hover (a 10–20% brand-alpha sweep — the single clearest tell); the **scrolled solid nav bar + contrasting `border-bottom`**; one identical hover cloned onto every element class; CSS underline-draw as the link move; generic `fade-up 20px` as the only reveal; a spinner or bare `%` counter preloader with no tie to the concept; a `mix-blend-mode` lag-dot cursor that adds no mechanic; a single `background-clip: text` gradient sold as "kinetic type."
+
+Channel calibration — this line's winners run 4–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

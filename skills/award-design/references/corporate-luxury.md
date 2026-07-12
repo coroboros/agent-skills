@@ -159,7 +159,13 @@ Seven award pages — Cartier (Awwwards SOTM Aug 2025), Longines (SOTD Nov 2023)
 
 **Loader / intro** — content-driven, no fake timers. WebGL or frame-sequence heroes gate a real-progress counter on `Promise.all([assets, scenes, fonts.ready])` and Flip the logo into the header slot (Son Daven, SOTD Jun 2026; Cartier, SOTM Aug 2025), or reveal a logo whose SVG paths fill in as the loader advances (Depo Luxe, SOTD Jul 2026). A pure-CSS editorial DOM paints instantly — the scroll reveals carry the entrance (Delvaux, Awwwards HM Jun 2026).
 
+**Scroll texture** — clip-path figure reveals riding the scroll plus `data-scroll-displace` on footage, so the film itself shifts under the reader's hand (Son Daven, winner-verified), or swiper processions moving product laterally at a measured pace (Delvaux, winner-verified). The design_plan names one — the carry stays slow and material, on the corpus easing, never a bolted-on parallax.
+
+**Idle band** — a bespoke soundscape behind a sound toggle where the brief earns it; otherwise ~1 quiet channel. Restraint is the luxury register — commit the soundscape deliberately or hold to the one quiet channel, never ambient décor.
+
 **Anti-signals** — absent from every winner examined: a pale/washed tint fill on a CTA hover (they roll, invert to a full token, or draw a line); a contrasting-accent `border-bottom` under the scrolled nav; one uniform hover repeated across all element classes; generic fade-up-20px for everything; per-letter typewriter headlines; a fake timed spinner or fixed-duration progress bar; a large page-wide cursor blob with mix-blend-difference; frosted-white glass nav as a default; a neon or high-saturation accent (palettes stay two-tone warm-neutral or monochrome); a fast 1.1×+ image pop.
+
+Channel calibration — this line's winners run 4–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

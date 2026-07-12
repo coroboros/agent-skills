@@ -257,7 +257,13 @@ The awarded corpus carrying this DNA: Igloo Inc (SOTY 2024), Exo Ape (SOTD May 2
 
 Native-API reality: scroll-driven `animation-timeline: view()`, View Transitions (Cyd Stumpel animates route changes with `::view-transition-old(...) { clip-path: inset(0 round var(--border-radius-from)) }`), `backdrop-filter`, and organic `clip-path` section edges are all verified in winners' authored CSS — real here, not aspirational.
 
+**Scroll texture** — a wordmark marquee overflowing the viewport edge and drifting under scroll (Cyd Stumpel, winner-verified), or WebGL scroll-scrub through the scene (Igloo, shipped). The design_plan names one — the organic ground still needs a directed carry down the page, never drift alone.
+
+**Idle band** — the ambient DNA itself: orbs on 15–25s drifts, snow drift, a node-graph, procedural noise — multiple channels running between inputs (multiple, winner-verified/shipped). This is the one line where several idle channels are the canon; commit them by name so the atmosphere is authored, not accidental.
+
 **Anti-signals** — absent from every winner examined: the pale/washed-out pastel tint fill sweep on buttons (Cyd's mix is a negligible 5%, carried by displacement; real fills are committed same-family tokens at 80–100%); the contrasting accent `border-bottom` under the nav on scroll (zero — Arc and Exo Ape carry none, Granola a same-family hairline, Cyd a borderless solid bar); one universal hover copied across every element class; a reflexive circle-follower cursor with magnetic-everything; a full-screen spinner or `0–100%` preloader gate; a blanket 40px+ fade-up parallax on every section; static PNG grain for depth.
+
+Channel calibration — this line's winners run 4–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

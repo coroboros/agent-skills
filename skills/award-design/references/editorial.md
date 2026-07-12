@@ -174,7 +174,13 @@ Corpus — Siena Film Foundation (Awwwards Site of the Month, Apr 2025), Truekin
 
 **Loader / intro** — register split. Dark cinematic seeds the first frame: Siena's neo-romanesque stripes transition *into* the first section; Bisous's cinematic loader becomes the homepage slider; Dondre's letter-grid resolves into the hero wordmark. Light editorial paints instantly — Truekind and Anthropic ship no preloader layer; reading starts on load (observed, implementation unverified). Never a generic percentage spinner.
 
+**Scroll texture** — floating-product parallax, layers drifting at offset rates so the objects feel suspended (Truekind, winner-verified); the hold-and-drag filmstrip, lateral motion earned by the reader's own hand (Siena, winner-verified); WebGL displacement passing over stills. The design_plan names one — the story needs a physical carry between scenes, not chapter-break fades alone.
+
+**Idle band** — thin by canon, ~1 channel: reading is the activity, so winners keep at most one quiet ambient channel alive between inputs. Commit it — or its declared absence — in the design_plan, so the stillness reads as editorial confidence rather than an unbuilt substrate.
+
 **Anti-signals** — absent from every winner examined: a pale / low-opacity accent-tint fill on a primary control (winners fill the full token and invert the label); a frosted `backdrop-filter:blur()` bar with a contrasting-colour `border-bottom`; the `mix-blend-mode:difference` circular follower; uniform fire-once `y:30, .6s, ease-out` reveals on everything (winners run slower expo/quint eases, mask by line/word, keep panels reversible, author one scroll mechanic per story); a generic percentage-counter preloader; and the same interaction mechanism cloned across button, link, image and nav. Reversible panels carry conditions: a reversible *content* reveal stays a declared DESIGN.md choice, `cover`-phase-ranged so nothing vanishes mid-read (motion-palette.md).
+
+Channel calibration — this line's winners run 3–4 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

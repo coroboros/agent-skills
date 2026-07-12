@@ -200,7 +200,13 @@ Corpus: FlowFest 2025 (Awwwards SOTD 7.36 + GSAP SotW), Eloy Benoffi (GSAP SotD 
 - **Stepped counter** — the number ratchets `0 → 100 in 14 steps`, `3s`, easing `steps(14)`, then a `clip-path: inset()` wipe hands off to content; the `steps()` is the brutalist tell · (Joffrey Spitzer, verified params, single-source).
 - **Chat-cloud typing loader** — the mascot's chat cloud types `"..."` → "Hi Friends!" → "We are back..." → the hero's resident line (GSAP TextPlugin, all `ease: none`) while `.loading-screen` fades `autoAlpha: 0` over `0.3s` — corrects the prior "near-instant first paint" read: FlowFest's own `initLoader` JS ships this ~3s intro · (FlowFest, winner-verified from live Slater JS).
 
+**Scroll texture** — scrubbed cross-section transformations, never drifting parallax: a vertical case slider whose active panel scales up under scroll (Joffrey Spitzer, technique), a CRT-shader dissolve scrubbed by scroll position (Naked City, technique), a photo-shuffle carousel dealing images as the page moves (FlowFest, winner-verified). The design_plan names one — the carry is a mechanism the scrollbar drives, not a background layer that floats.
+
+**Idle band** — 1–2 channels in the loud register: FlowFest keeps an arch drawing itself plus the mascot's idle loop running between inputs (FlowFest, winner-verified). Commit one or two idle loops in-character with the stack's physical metaphor, never a field of drifting décor.
+
 **Anti-signals** — absent from every winner examined: a pale `color-mix(accent, white)` wash on a primary control (fills are the full accent, or the button presses); one hover rule reused across button/link/card/nav; a scrolled nav that grows a solid surface plus a different-colored border-bottom, or a `backdrop-filter: blur()` frosted bar (all four navs stay transparent, borderless, un-blurred at rest); a smooth lerped `mix-blend-mode: difference` follower cursor; pure `#000`/`#fff` (even Sui ships `#000F1D` on `#F7F7F7`); a uniform `fade-up 0.6s` on every section; rounded soft-shadow cards — radius is `0` or a committed pill, shadows are hard offset `0 4px 0`, never blurred.
+
+Channel calibration — this line's winners run 3–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
 
 ## Page recipe — how this line's winners build the page
 

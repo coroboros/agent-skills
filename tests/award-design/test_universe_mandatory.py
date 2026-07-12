@@ -284,8 +284,11 @@ class TestReviewMode(unittest.TestCase):
 
 class TestWebGLOneSubagentCarveOut(unittest.TestCase):
     """The single delegation carve-out lives in Phase 4: one subagent for a
-    self-contained Immersive/Experimental WebGL/R3F scene, integrated by the
-    skill itself — never for other archetypes, never a shared file."""
+    self-contained WebGL/R3F scene, integrated by the skill itself — scoped by
+    the committed MEDIUM, not the archetype (the old 'never for other
+    archetypes' steered a brutalist arcade build away from its own playable
+    machine while signature-invention prescribed the 3D path for real objects
+    — the post-TILT round resolved that contradiction), never a shared file."""
 
     def setUp(self):
         m = re.search(r"\*\*WebGL / 3D — the one delegation\.\*\*(.*?)(?=\n- \*\*|\n\n\*\*|\n##)",
@@ -303,9 +306,12 @@ class TestWebGLOneSubagentCarveOut(unittest.TestCase):
         self.assertIn("when the harness has subagents", self.carve)
         self.assertIn("inline otherwise", self.carve.lower())
 
-    def test_scoped_to_immersive_experimental_only(self):
+    def test_medium_scoped_not_archetype_locked(self):
         self.assertTrue("Immersive" in self.carve and "Experimental" in self.carve)
-        self.assertIn("never for other archetypes", self.carve.lower())
+        self.assertIn("playable-object decision", self.carve.lower())
+        self.assertIn(
+            "never fires for a signature whose committed medium is not a scene",
+            self.carve.lower())
 
     def test_clean_boundary_and_self_integration(self):
         carve = self.carve.lower()
