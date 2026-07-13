@@ -125,6 +125,25 @@ LINE_RULES = [
     ("DEADLINK", FAIL,
      'dead `#` link — href="#" goes nowhere; wire a real target or use a <button>',
      re.compile(r"""href\s*=\s*(?:"#"|'#')"""), TEXT_EXTS),
+    ("MOVING-BG-POS", FAIL,
+     "JS-driven background-position — a per-frame repaint that pops; move a "
+     "translated layer instead (motion-palette.md, moving windows)",
+     re.compile(r"""\.style\.backgroundPosition|setProperty\(\s*['"]background-position"""),
+     CODE_EXTS),
+    ("BG-ATTACH-FIXED", REVIEW,
+     "background-attachment: fixed — the mobile banding/repaint tell; translate "
+     "a layer instead (motion-palette.md, moving windows)",
+     re.compile(r"background-attachment\s*:\s*fixed"), CODE_EXTS),
+    ("TRACKED-CLIP", REVIEW,
+     "clip-path positioned by custom property — fine when static; a pointer/rAF-"
+     "tracked var() repaints every frame (confirm the JS pairing; "
+     "motion-palette.md, moving windows)",
+     re.compile(r"clip-path\s*:[^;{}]*\bat\s+var\("), CODE_EXTS),
+    ("TRACKED-ORIGIN", REVIEW,
+     "transform-origin from a custom property — fine when static; a pointer/rAF-"
+     "tracked var() re-rasterizes the layer every frame (confirm the JS pairing; "
+     "motion-palette.md, moving windows)",
+     re.compile(r"transform-origin\s*:[^;{}]*var\("), CODE_EXTS),
     ("CLICHE-COPY", FAIL,
      "AI copy cliché (Unleash your / Supercharge / Elevate your / where X meets Y) — "
      "write the promise from the build's own lexicon",

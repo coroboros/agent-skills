@@ -33,3 +33,7 @@ a:focus {
   color: oklch(1 0 0);
   border-top: 1px solid white;
 }
+
+/* moving-window flicker tells */
+.hero-parallax { background-attachment: fixed; }
+.lens-crisp { clip-path: circle(8rem at var(--lens-x) var(--lens-y)); transform-origin: var(--lens-x) var(--lens-y); }
