@@ -10,7 +10,7 @@ Code samples in this file (CSS custom properties, animation values, scroll patte
 
 Lock the craft layer; derive the framework from the archetype; adapt to existing projects; keep hosting orthogonal.
 
-- **Locked universal craft** (every build, every framework): GSAP + Lenis + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere.
+- **Locked universal craft** (every build, every framework): GSAP + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere. Lenis is the tier norm where the archetype's palette line commits wheel smoothing — never universal: Bento's canon is native scroll, and the archetype line governs (`award-imperatives.md` #3).
 - **Framework by archetype**: Astro for content/perf archetypes (Minimalist, Editorial, Corporate-Luxury, Bento) — zero-JS by default is the LCP win; TanStack Start (React on Vite + Nitro) for motion/3D archetypes (Immersive, Experimental, Bold, Spatial-Organic) — React Three Fiber and Motion are native there. Motion (Framer) and R3F belong to the TanStack path only; on Astro, motion is GSAP + CSS scroll-driven inside islands.
 - **Existing project's stack wins** — adapt, never migrate. A content archetype whose signature is sustained interactive 3D promotes to the TanStack path (the signature outranks the perf default).
 - **Pin** the TanStack Start version (v1 RC as of mid-2026 — feature-complete, API-stable, production-capable). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
@@ -418,7 +418,7 @@ function animate() {
 | Locomotive v5 | 9.4KB | Parallax + detection |
 | Motion One | 3.8KB | Lightweight vanilla |
 
-Locked universal layer (every framework): GSAP + Lenis + CSS scroll-driven + View Transitions + variable fonts + OKLCH. Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
+Locked universal layer (every framework): GSAP + CSS scroll-driven + View Transitions + variable fonts + OKLCH; Lenis joins where the archetype's palette line commits wheel smoothing (Bento's canon is native scroll — the archetype line governs). Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
 
 ### Spring physics — canonical values
 

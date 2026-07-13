@@ -46,7 +46,7 @@ Serif + sans-serif pairing, magazine grids, pull quotes, long-form reading as fi
 
 | Brand | URL | Signature |
 |---|---|---|
-| **Siena Film Foundation** *(canonical, SOTM April 2025)* | siena.film | Dark cinematic-poster editorial — vintage-poster type over film stills, dual-menu nav |
+| **Siena Film Foundation** *(canonical, SOTM March 2025)* | siena.film | Dark cinematic-poster editorial — vintage-poster type over film stills, dual-menu nav |
 | **Truekind Skincare** *(SOTD April 2025)* | truekindskincare.com | Warm-magazine editorial e-commerce — Editorial New + PP Mori, floating product stills, product-color page transitions |
 | Anthropic | anthropic.com | Terracotta on cream, Tiempos headlines, reading-first rhythm |
 | Substack | substack.com | Spectral serif, warm whites, writer-centric hierarchy |

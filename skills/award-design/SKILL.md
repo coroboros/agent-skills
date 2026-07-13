@@ -105,7 +105,7 @@ The full protocol runs when any of these hold: no DESIGN.md, a redesign brief, a
 |-----------|------------------|-----------|-----------|
 | **Minimalist** | Terminal Industries (SOTM Sep 2025) | 2–3 colors, type carries everything | `references/minimalist.md` |
 | **Brutalist** | FlowFest 2025 (SOTD Jul 2025) | Type is the design, deliberate anti-polish | `references/brutalist.md` |
-| **Editorial** | Siena Film Foundation (SOTM Apr 2025) | Serif + sans, magazine grids, reading-first | `references/editorial.md` |
+| **Editorial** | Siena Film Foundation (SOTM Mar 2025) | Serif + sans, magazine grids, reading-first | `references/editorial.md` |
 | **Bold / Maximal** | Ponpon Mania (SOTM Oct 2025) | Organized chaos, kinetic type as art | `references/bold-maximal.md` |
 | **Immersive / Cinematic** | Lando Norris (Site of the Year 2025) | Full-screen 3D/video, scroll as narrative | `references/immersive-cinematic.md` + `references/production-hardening.md` |
 | **Experimental** | Bruno Simon (SOTM Jan 2026) | Bespoke navigation metaphor, hand-coded primitives | `references/experimental.md` |
@@ -253,7 +253,7 @@ If a single box or imperative cannot be honestly ticked, the build is not done. 
 
 ## Judging criteria
 
-Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorable Mention 6.5+; SOTD ~7.5+. What separates 8+ from 6–7: a live low-amplitude interaction substrate where every element responds — never one hero moment then a dead page, never scattered incoherent effects — carrying a distributed signature (one dominant climax plus a few section-tied echoes) rather than a single front-loaded beat (`references/interaction-signatures.md`); mobile *reconsidered* (not bolted on), complex visuals fast on mid-range devices (LCP < 1.5s), real photography, scroll as narrative, precise choreography. These are imposed as gates in `references/award-imperatives.md`, not left to taste. Strategic path: CSSDA → FWA → Awwwards; submit Feb–Apr or Sep–Nov. Full rubric: `references/audit-rubric.md`.
+Awwwards: Design 40% · Usability 30% · Creativity 20% · Content 10%. Honorable Mention 6.5+; SOTD ~7.5+. The measured record calibrates the ceiling: routine SOTD lands 7.2–7.9; 8+ is the year's handful (Lusion 8.25, Lando Norris 8.18 — Site-of-the-Year class); score against that ceiling, never against an imagined 9 — a build judged "only 7.4" sits at a real jury's SOTD line. What separates 8+ from 6–7: a live low-amplitude interaction substrate where every element responds — never one hero moment then a dead page, never scattered incoherent effects — carrying a distributed signature (one dominant climax plus a few section-tied echoes) rather than a single front-loaded beat (`references/interaction-signatures.md`); mobile *reconsidered* (not bolted on), complex visuals fast on mid-range devices (LCP < 1.5s), real photography, scroll as narrative, precise choreography. These are imposed as gates in `references/award-imperatives.md`, not left to taste. Strategic path: CSSDA → FWA → Awwwards; submit Feb–Apr or Sep–Nov. Full rubric: `references/audit-rubric.md`.
 
 ## Output discipline
 
