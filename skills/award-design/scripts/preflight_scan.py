@@ -11,6 +11,11 @@ never on a single legitimate dash; H1-COUNT / MAIN-LANDMARK skip near-empty
 documents so an SPA shell rendering from JS is not a false fail. FONT-COUNT
 is project-level: it counts distinct first families across stylesheets
 (fallback stacks count as one) and flags past 3 families + 1 mono outlier.
+COPY-LANG is per-file density: it fires only past 4 distinct + 6 total
+non-English function words in a file's visible text, so a register device
+("Maison"), a "Des Moines", or an AUX label never trips it; its month
+channel fires at 2 distinct non-English month names — date chrome is the
+cheapest bleed vector and a closed vocabulary.
 
 Usage:
     python3 preflight_scan.py <path> [<path>...] [--archetype NAME] [--allow RULE-ID]...
@@ -183,6 +188,45 @@ LINE_RULES = [
      re.compile(r"[\U0001F300-\U0001FAFF☀-⛿✀-➿]"), TEXT_EXTS),
 ]
 
+# COPY-LANG: the language law (copy-recipes.md) — copy ships in English unless
+# the brief's exact ask names another language. Function words only, each safe
+# against English prose and code tokens ("et", "pour", "con", "per", "die",
+# "mit" are excluded as collisions); the thresholds keep register devices and
+# addresses silent — false-negative bias, the §6 box holds the judgment.
+NON_ENGLISH_STOPWORDS = {
+    "French": frozenset(("les", "des", "une", "est", "dans", "avec", "vous",
+                         "nous", "votre", "notre", "cette", "sont", "chez",
+                         "aux", "très", "être", "déjà", "qui", "que", "pas")),
+    "Spanish": frozenset(("los", "las", "una", "que", "para", "pero", "porque",
+                          "nuestro", "nuestra", "también", "está", "más",
+                          "desde", "hasta", "usted")),
+    "German": frozenset(("und", "nicht", "für", "eine", "einen", "auch",
+                         "über", "sind", "wird", "durch", "sehr", "ihre",
+                         "können", "beim")),
+    "Italian": frozenset(("gli", "della", "delle", "sono", "più", "questo",
+                          "questa", "anche", "nella", "degli", "perché",
+                          "così", "tutti", "siamo")),
+}
+COPY_LANG_MIN_DISTINCT = 4
+COPY_LANG_MIN_TOTAL = 6
+# Second channel: month names — the cheapest bleed vector is data chrome
+# (French months beside English row states). Closed vocabulary, so 2 distinct
+# suffice; English-colliding forms (mars, mai, mayo, maio, november) excluded.
+NON_ENGLISH_MONTHS = frozenset((
+    "janvier", "février", "avril", "juin", "juillet", "août",
+    "septembre", "octobre", "novembre", "décembre",
+    "enero", "febrero", "marzo", "junio", "julio", "agosto",
+    "septiembre", "octubre", "noviembre", "diciembre",
+    "gennaio", "febbraio", "aprile", "giugno", "luglio", "settembre",
+    "ottobre", "dicembre",
+    "januar", "februar", "märz", "oktober", "dezember",
+    "janeiro", "fevereiro", "março", "junho", "julho", "setembro",
+    "outubro", "novembro", "dezembro"))
+COPY_LANG_MIN_MONTHS = 2
+SCRIPT_STYLE_RE = re.compile(r"<(script|style)\b.*?</\1\s*>", re.S | re.I)
+HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.S)
+WORD_RE = re.compile(r"[a-zà-öø-ÿ]+")
+
 # EMDASH is a density rule, not a per-hit rule: the pre-flight box reads
 # "≤ ~1 per 100 words of visible copy", so one legitimate dash never fails.
 # Fires only past a minimum count AND the density threshold.
@@ -253,7 +297,7 @@ def iter_files(paths):
 
 
 PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
-                    "FONT-COUNT", "STAMP"}
+                    "FONT-COUNT", "STAMP", "COPY-LANG"}
 
 
 def known_rule_ids():
@@ -307,6 +351,34 @@ def scan_paths(paths, archetype="", allow=()):
 
         if ext in TEXT_EXTS:
             text_words += len(TAG_RE.sub(" ", text).split())
+
+        # COPY-LANG — visible text only: script/style bodies and comments are
+        # stripped so code tokens never count as copy.
+        if "COPY-LANG" not in suppressed and ext in TEXT_EXTS:
+            visible = TAG_RE.sub(" ", HTML_COMMENT_RE.sub(" ", SCRIPT_STYLE_RE.sub(" ", text)))
+            tokens = WORD_RE.findall(visible.lower())
+            for language, stopwords in NON_ENGLISH_STOPWORDS.items():
+                lang_hits = [t for t in tokens if t in stopwords]
+                distinct = len(set(lang_hits))
+                if distinct >= COPY_LANG_MIN_DISTINCT and len(lang_hits) >= COPY_LANG_MIN_TOTAL:
+                    sample = ", ".join(sorted(set(lang_hits))[:6])
+                    findings.append(Finding(
+                        "COPY-LANG", FAIL,
+                        f"non-English copy ({language}) — copy ships in English unless "
+                        "the brief's exact ask names another language "
+                        "(copy-recipes.md, the language law)",
+                        str(path),
+                        f"{len(lang_hits)} hits across {distinct} {language} "
+                        f"function words: {sample}"))
+            month_hits = sorted({t for t in tokens if t in NON_ENGLISH_MONTHS})
+            if len(month_hits) >= COPY_LANG_MIN_MONTHS:
+                findings.append(Finding(
+                    "COPY-LANG", FAIL,
+                    "non-English month names — date chrome holds the page language "
+                    "(copy-recipes.md, the language law)",
+                    str(path),
+                    f"{len(month_hits)} distinct non-English months: "
+                    f"{', '.join(month_hits[:6])}"))
 
         # Per-page structural rules — full HTML documents with real content
         # only (an SPA shell renders its h1/main from JS).

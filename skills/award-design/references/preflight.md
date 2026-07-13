@@ -150,6 +150,7 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] Content realism holds: no identical dates across posts, no duplicate avatars across different names, no dead `#` links `(scanner: DEADLINK)`, the nav marks the active state
 - [ ] **Specificity floor** — every headline and subhead carries ≥1 concrete from the build's world (a name, count, place, material, gesture, refusal); category-words-only fails (`copy-recipes.md`)
 - [ ] **Voice formula named** — the DESIGN.md names the voice formula (person, length habit, punctuation, refusals) and every visible string conforms to it
+- [ ] **One copy language — English unless asked** — the page ships in a single language, English by default; only the brief's exact ask changes it (a brief *written in* French is not an ask *for* French copy); when another language is the ask it is total (nav, microcopy, errors, meta) and the DESIGN.md declares it; a non-English word survives only as a named register device, never a sentence `(scanner: COPY-LANG)` (`copy-recipes.md`)
 - [ ] **No exemplar reuse** — no quoted catalog string ships verbatim `(scanner: QUOTED-EXEMPLAR)`
 
 ## 7. Truth & assets

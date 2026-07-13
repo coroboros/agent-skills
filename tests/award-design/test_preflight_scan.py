@@ -291,6 +291,66 @@ class TestExtendedRuleForms(unittest.TestCase):
                          "in-page anchors are real targets")
 
 
+class TestCopyLangRule(unittest.TestCase):
+    """COPY-LANG is the mechanical half of the §6 language box: copy ships in
+    English unless the brief's exact ask names another language (the HALDANE
+    validation shipped French sentences inside English copy — conversation
+    bleed). Density-gated per file (≥4 distinct + ≥6 total non-English function
+    words in visible text) so a register device ("Maison Lumière"), a
+    "Des Moines", or an AUX label never fires — false-negative bias, the box
+    holds the judgment."""
+
+    @staticmethod
+    def _scan_html(body):
+        import tempfile
+        html = ('<!doctype html><html><body><main><h1>Page</h1>'
+                f'{body}<p>' + " ".join(f"w{i}" for i in range(40)) + '</p>'
+                '</main></body></html>')
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "index.html").write_text(html, encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        return findings
+
+    def test_french_sentences_fire_as_fail(self):
+        findings = self._scan_html(
+            "<p>Nous concevons des maisons avec vous — cette lumière est "
+            "votre héritage, chez nous les gestes sont déjà très anciens.</p>")
+        hits = [f for f in findings if f.rule_id == "COPY-LANG"]
+        self.assertTrue(hits, "French body copy must trip COPY-LANG")
+        self.assertEqual(hits[0].severity, scan.FAIL)
+        self.assertIn("French", hits[0].description)
+        self.assertIn("function words", hits[0].excerpt)
+
+    def test_register_devices_and_addresses_stay_silent(self):
+        findings = self._scan_html(
+            "<p>The Maison Lumière atelier keeps a Des Moines archive and a "
+            "pied-à-terre at 13 Rue de la Paix. Maison Lumière endures.</p>")
+        self.assertNotIn("COPY-LANG", _rule_ids(findings))
+
+    def test_script_tokens_never_count_as_copy(self):
+        findings = self._scan_html(
+            "<script>const les = 1, des = 2, avec = 3, vous = 4, nous = 5, "
+            "cette = 6, sont = 7;</script>")
+        self.assertNotIn("COPY-LANG", _rule_ids(findings))
+
+    def test_non_english_months_fire_without_function_words(self):
+        """The HALDANE defect verbatim: French months beside English row
+        states, zero function words — the month channel must still catch it."""
+        findings = self._scan_html(
+            "<li><span>Janvier</span><span>delivered</span></li>"
+            "<li><span>Février</span><span>delivered</span></li>"
+            "<li><span>Décembre</span><span>spoken for</span></li>")
+        hits = [f for f in findings if f.rule_id == "COPY-LANG"]
+        self.assertTrue(hits, "non-English month rows must trip COPY-LANG")
+        self.assertIn("month names", hits[0].description)
+        self.assertIn("janvier", hits[0].excerpt)
+
+    def test_single_foreign_month_stays_silent(self):
+        findings = self._scan_html(
+            "<p>The Août capsule collection arrives this autumn.</p>")
+        self.assertNotIn("COPY-LANG", _rule_ids(findings))
+
+
 class TestScannerChecklistLockstep(unittest.TestCase):
     """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule, and
     every rule the script ships is reachable from the checklist. One-sided

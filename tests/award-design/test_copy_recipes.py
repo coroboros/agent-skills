@@ -3,7 +3,7 @@ structure (copy-recipes.md), the category-headline test at review, and the §6 c
 
 The transverse dossier read 22 winners live and extracted the headline shapes, CTA
 families, specificity anchors, and voice mechanics they share. These lock the encoded
-layer: the two governing laws verbatim, the contracted section headings, the rubric's
+layer: the three governing laws verbatim, the contracted section headings, the rubric's
 category-headline test, the three §6 boxes, the CLICHE-COPY tag on the clichés box —
 and the scanner sync: every BANNED_EXEMPLARS string traces to a quote in
 copy-recipes.md, so no scanner constant orphans."""
@@ -34,6 +34,9 @@ FORMULA_LAW = ("A voice formula is structural, never lexical — its slots are f
                "words is a template.")
 CALIBRATION_LAW = ("Quoted to calibrate, never to ship — imitate the specificity "
                    "(the named place, the count, the refusal), never the wording.")
+LANGUAGE_LAW = ("Copy ships in English unless the brief's exact ask names another "
+                "language — one language, chosen once, page-wide; the brief's own "
+                "language is never the ask.")
 
 HEADINGS = (
     "# Copy Recipes",
@@ -99,6 +102,30 @@ class TestPreflightCopyFloor(unittest.TestCase):
         pf = _read("preflight.md")
         self.assertIn("no ai copy clichés in site copy (elevate, seamless, unleash, "
                       "next-gen, delve) `(scanner: cliche-copy)`", pf)
+
+
+class TestLanguageLaw(unittest.TestCase):
+    """The HALDANE validation shipped French sentences inside English copy —
+    conversation bleed: the model wrote in its working language, not the
+    deliverable's. The law: English unless the brief's exact ask names another
+    language; one language, page-wide; register devices only."""
+
+    def test_law_verbatim_in_intro(self):
+        raw = RECIPES.read_text(encoding="utf-8")
+        self.assertIn(LANGUAGE_LAW, raw)
+
+    def test_voice_mechanics_carry_the_bullet(self):
+        cr = _read("copy-recipes.md")
+        self.assertIn("**language.** english by default", cr)
+        self.assertIn("never an inheritance", cr)
+        self.assertIn("conversation bleed", cr)
+        self.assertIn("`(scanner: copy-lang)`", cr)
+
+    def test_preflight_box(self):
+        pf = _read("preflight.md")
+        self.assertIn("**one copy language — english unless asked**", pf)
+        self.assertIn("is not an ask *for* french copy", pf)
+        self.assertIn("`(scanner: copy-lang)`", pf)
 
 
 class TestExemplarSync(unittest.TestCase):
