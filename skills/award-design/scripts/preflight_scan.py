@@ -247,6 +247,11 @@ FONT_COUNT_MAX = 4  # 3 families + 1 mono outlier
 
 # STAMP: Phase 4 writes the rotation ledger as the main stylesheet's first line.
 STAMP_PREFIX = "/* award-design ·"
+# STAMP-ARCHETYPE-MISMATCH: the archetype is the second `·`-delimited stamp
+# field (`/* award-design · immersive-cinematic · <palette> · … */`). The stamp
+# is builder-written; the archetype the audit scopes by is reviewer-supplied
+# (--archetype), so a stamp whose archetype disagrees is caught, never obeyed.
+STAMP_ARCHETYPE_RE = re.compile(r"/\*\s*award-design\s*·\s*([a-z0-9-]+)")
 
 # Signals for the project-level REDUCED-MOTION rule.
 MOTION_SIGNAL = re.compile(
@@ -298,10 +303,14 @@ def iter_files(paths):
 
 PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
                     "FONT-COUNT", "STAMP", "COPY-LANG"}
+# Rules that fire only when their precondition is met (an argument passed), so
+# they are not expected on a bare dirty-fixture scan — registered for the
+# checklist lockstep, exempt from the "fires on dirty" net.
+CONDITIONAL_RULE_IDS = {"STAMP-ARCHETYPE-MISMATCH"}
 
 
 def known_rule_ids():
-    return {rule[0] for rule in LINE_RULES} | PROJECT_RULE_IDS
+    return {rule[0] for rule in LINE_RULES} | PROJECT_RULE_IDS | CONDITIONAL_RULE_IDS
 
 
 def scan_paths(paths, archetype="", allow=()):
@@ -442,6 +451,26 @@ def scan_paths(paths, archetype="", allow=()):
             "STAMP", REVIEW,
             f"missing rotation stamp — no stylesheet's first line starts with `{STAMP_PREFIX}`",
             "project", f"{len(css_files)} stylesheet(s) scanned, none opens with the stamp"))
+
+    # STAMP-ARCHETYPE-MISMATCH: only when the reviewer supplied an archetype —
+    # the stamp's own archetype field must agree, or the build applied the wrong
+    # archetype's grammar (or mis-stamped to dodge an archetype-scoped check).
+    if "STAMP-ARCHETYPE-MISMATCH" not in suppressed and archetype_key:
+        for path in css_files:
+            first_line = texts[path].split("\n", 1)[0]
+            match = STAMP_ARCHETYPE_RE.match(first_line.strip())
+            if not match:
+                continue
+            stamped = match.group(1)
+            if stamped != archetype_key:
+                findings.append(Finding(
+                    "STAMP-ARCHETYPE-MISMATCH", REVIEW,
+                    f"stamp archetype `{stamped}` disagrees with the reviewer archetype "
+                    f"`{archetype_key}` — the build applied a different archetype's grammar, "
+                    "or mis-stamped to dodge an archetype-scoped check; the reviewer "
+                    "archetype governs the audit, never the stamp",
+                    f"{path}:1", first_line.strip()[:120]))
+            break
 
     return findings, suppression_notes
 

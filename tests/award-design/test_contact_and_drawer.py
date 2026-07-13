@@ -56,10 +56,14 @@ class TestTimestampedArbitration(unittest.TestCase):
         self.assertIn("**medium arbitration anchored**", pf)
         self.assertIn("this box is never self-ticked alone", pf)
 
-    def test_scrubbed_media_exempt(self):
-        self.assertIn(
-            "displayed or scrubbed media are exempt",
-            _read("signature-invention.md"))
+    def test_single_product_exempt_but_not_a_world(self):
+        """The exemption narrowed (world-medium round): a single displayed hero
+        PRODUCT stays exempt under real-media-first, but an immersive WORLD is
+        not a product and is never exempt — the escape a scroll-verb brief used
+        to walk to ship a static-image procession."""
+        si = _read("signature-invention.md")
+        self.assertIn("a single displayed hero product", si)
+        self.assertIn("an immersive world is not a product and is never exempt", si)
 
 
 class TestContactLocality(unittest.TestCase):
