@@ -440,7 +440,8 @@
             if (!STATE_PSEUDO.test(part)) continue;
             const { carrier, trailing } = splitCarrier(part);
             const probeSelector = part.replace(/:hover|:focus-visible/g, '.' + PROBE_CLASS);
-            rules.push({ selector: part, probeSelector, carrier, trailing, css: rule.style.cssText });
+            rules.push({ selector: part, probeSelector, carrier, trailing, css: rule.style.cssText,
+              hover: /:hover/.test(part) });
           }
           continue;
         }
@@ -470,12 +471,19 @@
 
   function probeSubstrate(collected, floors, findings) {
     const pageHasJs = document.scripts.length > 0;
+    // The substrate gate measures the POINTER response ("reads dead under the
+    // pointer"). :focus-visible rules — the universal focus ring above all —
+    // are not a hover affordance; folded into one probe class they paint their
+    // outline onto every focusable element and credit it as alive (a structural
+    // discrete carries no floor). Probe hover only. A purely focus-driven element
+    // then reads UNMEASURED-JS (drive it), never a free OK from the ring.
+    const hoverRules = collected.rules.filter((r) => r.hover);
     const styleEl = document.createElement('style');
     styleEl.id = PROBE_STYLE_ID;
     // The kill rule is load-bearing: without it a transitioned property reads
     // its rest value on the immediate post-probe snapshot and every hover
     // measures zero.
-    styleEl.textContent = collected.rules.map((r) => r.probeSelector + ' { ' + r.css + ' }').join('\n') +
+    styleEl.textContent = hoverRules.map((r) => r.probeSelector + ' { ' + r.css + ' }').join('\n') +
       '\n.' + PROBE_CLASS + ', .' + PROBE_CLASS + ' *, .' + PROBE_CLASS + '::before, .' +
       PROBE_CLASS + '::after, .' + PROBE_CLASS + ' *::before, .' + PROBE_CLASS +
       ' *::after { transition: none !important; }';
@@ -484,7 +492,7 @@
     document.head.appendChild(styleEl);
 
     const candidates = new Set(document.querySelectorAll(NATIVE_INTERACTIVE));
-    for (const r of collected.rules) {
+    for (const r of hoverRules) {
       if (r.carrier === '*' || r.carrier === 'html' || r.carrier === 'body') continue;
       try { document.querySelectorAll(r.carrier).forEach((el) => candidates.add(el)); } catch (e) { /* invalid derived selector */ }
     }
@@ -498,7 +506,7 @@
       if (!el.isConnected || !isRendered(el)) continue;
       const cs = getComputedStyle(el);
       if (cs.pointerEvents === 'none') continue;
-      const matching = collected.rules.filter((r) => safeMatches(el, r.carrier));
+      const matching = hoverRules.filter((r) => safeMatches(el, r.carrier));
       const hasStateRule = matching.length > 0;
       const hasAffordance = el.matches(NATIVE_INTERACTIVE) || cs.cursor === 'pointer';
       if (!hasStateRule && !hasAffordance) continue;

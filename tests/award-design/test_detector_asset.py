@@ -81,6 +81,22 @@ class TestDetectorAsset(unittest.TestCase):
     def test_footer_doctrine_present(self):
         self.assertIn(FOOTER, self.source)
 
+    def test_substrate_probe_is_hover_only(self):
+        """The PICCARD escape: the universal :focus-visible ring, folded into
+        the hover probe, painted an outline onto every focusable element and
+        scored a scale-only "designer shrink" CTA alive on that discrete alone.
+        The substrate gate measures the pointer response — rules are tagged with
+        `hover` and the probe filters to `hoverRules`. Both must survive, or the
+        ring pollutes every measurement again."""
+        self.assertIn("hover: /:hover/.test(part)", self.source)
+        self.assertIn("const hoverRules = collected.rules.filter((r) => r.hover)", self.source)
+        # the injected probe stylesheet and the candidate/match passes all read
+        # hoverRules, never the full set — a single collected.rules leak re-pollutes
+        self.assertNotRegex(
+            self.source,
+            r"styleEl\.textContent = collected\.rules\.map",
+            "the probe stylesheet must inject hoverRules, not the focus ring")
+
 
 class TestDetectorReference(unittest.TestCase):
     @classmethod
@@ -112,6 +128,12 @@ class TestDetectorReference(unittest.TestCase):
 
     def test_doctrine_present(self):
         self.assertIn("catches, it never clears", self.md)
+
+    def test_focus_ring_exclusion_documented(self):
+        """The hover-only probe rule must be in the doctrine, or the next
+        builder reads a stale FLOORS table and expects the ring to count."""
+        self.assertIn("pointer (`:hover`) response only", self.md)
+        self.assertIn("universal focus ring", self.md)
 
 
 if __name__ == "__main__":

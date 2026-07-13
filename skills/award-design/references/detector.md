@@ -31,6 +31,8 @@
 
 Box-shadow, clip-path, underline, outline, background sweep, filter, and pseudo-element appearance have no floor — any change counts as perceptible.
 
+The substrate probe measures the **pointer (`:hover`) response only**. `:focus-visible` rules are excluded: the universal focus ring (`:focus-visible { outline }`, which every accessible build carries) would otherwise paint its outline onto every focusable element under the probe and score it alive on that structural change alone — a scale-only "designer shrink" hover reads OK because the ring, not the hover, moved. A purely focus-driven element therefore reads UNMEASURED-JS (drive it in tier 2), never a free OK from the ring. The keyboard focus affordance is a separate concern, checked by the `:focus-visible` scanner/preflight boxes, not the substrate-dead gate.
+
 ## Rules
 
 | Rule | Severity | Fires when |
