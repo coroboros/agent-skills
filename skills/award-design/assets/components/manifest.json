@@ -111,6 +111,39 @@
       "deps": [],
       "whenToUse": "Fixed film-grain + optional vignette overlay for a poster grade. Compositor-clean, pointer-events:none, low opacity. Restraint.",
       "init": "awardGrainGrade.init(root, { opacity, animate, blend, vignette, zIndex })"
+    },
+    {
+      "id": "gated-splash",
+      "file": "gated-splash.js",
+      "global": "awardGatedSplash",
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "immersive", "experimental"],
+      "tokens": ["--ad-ground", "--ad-ink", "--ad-accent", "--ad-dur-reveal", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Section form. Costumed threshold: an ENTER gate (doubles as the sound gate) over a full-viewport splash; lifts to reveal the site. Authored `hidden` so no-JS shows the page; focus-trapped while open, released on enter.",
+      "init": "awardGatedSplash.init(root, { selector, onEnter })"
+    },
+    {
+      "id": "pinned-filmstrip",
+      "file": "pinned-filmstrip.js",
+      "global": "awardFilmstrip",
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "immersive", "studio-reel"],
+      "tokens": ["--ad-ink", "--ad-accent", "--ad-font-display", "--ad-font-mono"],
+      "deps": [],
+      "whenToUse": "Section form. Hold-and-drag horizontal strip of treated stills, each with a jury pull-quote. Native overflow-x at rest; grab-drag + release momentum as enhancement; never hijacks vertical scroll.",
+      "init": "awardFilmstrip.init(root, { selector, momentum })"
+    },
+    {
+      "id": "valediction-footer",
+      "file": "valediction-footer.js",
+      "global": "awardValediction",
+      "winner": "Lando Norris",
+      "archetypes": ["editorial-dark", "immersive", "studio-reel"],
+      "tokens": ["--ad-ground", "--ad-ink", "--ad-dur-reveal", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Section form. Cinematic bookend footer: inverts the page palette once at the close, oversized wordmark rises on enter. Legible in both palette states.",
+      "init": "awardValediction.init(root, { selector, threshold })"
     }
   ]
 }
