@@ -85,6 +85,24 @@ class TestComponentContract(unittest.TestCase):
                 self.assertTrue(src.lstrip().startswith("/*"))
 
 
+class TestSkillWiring(unittest.TestCase):
+    """The library is inert unless Phase 4 tells the build to compose from it —
+    lock the composition-grammar wiring so a SKILL.md rewrite cannot silently
+    strand the components as unused files."""
+
+    def setUp(self):
+        self.skill = (REPO_ROOT / "skills" / "award-design" / "SKILL.md").read_text(encoding="utf-8")
+
+    def test_phase4_loads_the_manifest(self):
+        self.assertIn("assets/components/manifest.json", self.skill)
+
+    def test_compose_grammar_present(self):
+        self.assertIn("Compose from the component library", self.skill)
+        # the DESIGN.md -> --ad-* alias-block instruction, and compose-in-restraint
+        self.assertIn("--ad-*", self.skill)
+        self.assertIn("three-to-five", self.skill)
+
+
 class TestNoAuthoringTraces(unittest.TestCase):
     def test_no_ai_signature(self):
         for p in list(COMPONENTS.glob("*.js")) + [COMPONENTS / "README.md", MANIFEST]:
