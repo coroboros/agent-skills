@@ -1,0 +1,116 @@
+{
+  "contract": "README.md",
+  "tokens": ["--ad-accent", "--ad-ink", "--ad-ground", "--ad-ground-2", "--ad-font-display", "--ad-font-mono", "--ad-ease-signature", "--ad-ease-strike", "--ad-dur-reveal", "--ad-dur-base"],
+  "components": [
+    {
+      "id": "kinetic-reveal",
+      "file": "kinetic-reveal.js",
+      "global": "awardKineticReveal",
+      "winner": "Siena Film Foundation, Lando Norris",
+      "archetypes": ["editorial-dark", "immersive", "minimalist", "corporate-luxury"],
+      "tokens": ["--ad-dur-reveal", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Headline/statement entrance: masked line reveal, staggered. The tier's default over a per-char fade.",
+      "init": "awardKineticReveal.init(root, { selector, stagger, threshold })"
+    },
+    {
+      "id": "scrub-film",
+      "file": "scrub-film.js",
+      "global": "awardScrubFilm",
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "immersive", "experimental"],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "A film still the visitor drives — scroll or pointer maps to video currentTime. The operable-spectacle signature; never an autoplay loop.",
+      "init": "awardScrubFilm.init(root, { selector, mode, axis, range })"
+    },
+    {
+      "id": "smooth-scroll",
+      "file": "smooth-scroll.js",
+      "global": "awardSmoothScroll",
+      "winner": "Lenis (near-universal)",
+      "archetypes": ["editorial-dark", "immersive", "experimental", "spatial-organic", "corporate-luxury"],
+      "tokens": [],
+      "deps": ["Lenis", "gsap/ScrollTrigger (optional)"],
+      "whenToUse": "Smoothed-scroll foundation for scrubbed/pinned reveals. Enhances only when Lenis is present; native scroll otherwise; null instance under reduced-motion.",
+      "init": "awardSmoothScroll.init(root, { lerp, wheelMultiplier }) -> { destroy, lenis }"
+    },
+    {
+      "id": "show-on-scroll-up-nav",
+      "file": "show-on-scroll-up-nav.js",
+      "global": "awardShowNav",
+      "winner": "Siena Film Foundation, Lando Norris",
+      "archetypes": ["editorial-dark", "immersive", "minimalist", "corporate-luxury", "standfirst-stack"],
+      "tokens": ["--ad-ground", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Fixed nav: transparent over the hero, gains ground on scroll, hides on scroll-down and reveals on scroll-up.",
+      "init": "awardShowNav.init(root, { selector, threshold })"
+    },
+    {
+      "id": "magnetic-cursor",
+      "file": "magnetic-cursor.js",
+      "global": "awardMagneticCursor",
+      "winner": "Lando Norris, Cuberto",
+      "archetypes": ["immersive", "experimental", "studio-reel", "bold-maximal"],
+      "tokens": ["--ad-accent", "--ad-ink", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Earned custom cursor that does real work: magnetic snap to [data-ad-magnetic]. Fine-pointer only; native on touch and under reduced-motion. Use sparingly, never as decoration.",
+      "init": "awardMagneticCursor.init(root, { magnetSelector, ringLerp, pull, pullMax })"
+    },
+    {
+      "id": "masked-label-swap",
+      "file": "masked-label-swap.js",
+      "global": "awardLabelSwap",
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive"],
+      "tokens": ["--ad-accent", "--ad-ease-strike", "--ad-dur-base"],
+      "deps": [],
+      "whenToUse": "CTA/button label two-line wipe swap on hover/focus. Hard-edged, restrained.",
+      "init": "awardLabelSwap.init(root, { selector })"
+    },
+    {
+      "id": "accent-link",
+      "file": "accent-link.js",
+      "global": "awardAccentLink",
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "standfirst-stack", "minimalist", "corporate-luxury"],
+      "tokens": ["--ad-accent", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Inline text links: accent recolor + underline wipe on hover/focus.",
+      "init": "awardAccentLink.init(root, { selector })"
+    },
+    {
+      "id": "split-rollover",
+      "file": "split-rollover.js",
+      "global": "awardSplitRollover",
+      "winner": "Lando Norris, Cuberto",
+      "archetypes": ["editorial-dark", "immersive", "studio-reel", "minimalist"],
+      "tokens": ["--ad-dur-base", "--ad-ease-signature", "--ad-accent"],
+      "deps": [],
+      "whenToUse": "Nav links / short labels: per-character rollover on hover/focus, staggered. Keeps a clean accessible name via aria-label.",
+      "init": "awardSplitRollover.init(root, { selector, stagger })"
+    },
+    {
+      "id": "clip-reveal",
+      "file": "clip-reveal.js",
+      "global": "awardClipReveal",
+      "winner": "Siena Film Foundation, Lando Norris",
+      "archetypes": ["editorial-dark", "immersive", "minimalist", "corporate-luxury", "studio-reel"],
+      "tokens": ["--ad-dur-reveal", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Media uncover on scroll-in: animated clip-path (inset or ellipse) with a scale settle. Wrap an <img>/<video>.",
+      "init": "awardClipReveal.init(root, { selector, threshold, origin })"
+    },
+    {
+      "id": "grain-grade",
+      "file": "grain-grade.js",
+      "global": "awardGrainGrade",
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "immersive", "experimental"],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Fixed film-grain + optional vignette overlay for a poster grade. Compositor-clean, pointer-events:none, low opacity. Restraint.",
+      "init": "awardGrainGrade.init(root, { opacity, animate, blend, vignette, zIndex })"
+    }
+  ]
+}

@@ -40,11 +40,16 @@
     if (!text) return [];
     el.textContent = '';
     var words = text.split(' ');
+    // Word boxes with a real space text node BETWEEN them (not baked inside the
+    // box) so the browser breaks lines exactly as it would for normal flowing
+    // text — a space inside an inline-block is not a break opportunity, which
+    // collapses a wrapping headline onto one measured line and defeats the mask.
     var probes = words.map(function (w, i) {
       var span = document.createElement('span');
-      span.textContent = w + (i < words.length - 1 ? ' ' : '');
+      span.textContent = w;
       span.style.display = 'inline-block';
       el.appendChild(span);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
       return span;
     });
 
@@ -70,7 +75,7 @@
       line.className = 'ad-line';
       var inner = document.createElement('span');
       inner.className = 'ad-line__in';
-      inner.textContent = words.join('');
+      inner.textContent = words.join(' ');
       line.appendChild(inner);
       el.appendChild(line);
       inners.push(inner);
