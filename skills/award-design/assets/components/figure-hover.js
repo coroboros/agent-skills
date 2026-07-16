@@ -2,19 +2,22 @@
  * figure-hover — contained figure zoom with a companion cue (winner: Siena Film
  * Foundation, Truekind).
  * [data-ad-figure] wrappers (an img/video, optionally a figcaption) get .ad-fig;
- * CSS clips the wrapper and scales the media to 1.1 on hover/focus-within — a felt
- * zoom, never a 1-3% twitch — while a cue confirms the state: tint (accent scrim
- * fades in to 18%), lift (a resting 25% ground scrim fades out revealing the full
- * image), or caption (bottom mono figcaption rises from 60%). Pick the cue with
- * the attribute value: data-ad-figure="tint|lift|caption" (default tint).
- * Motion is pure CSS — the JS only injects the stylesheet and tags the wrappers.
- * The rest state is complete: coarse pointers get the caption state permanently.
- * Under reduced motion the media never scales and the cue applies instantly.
+ * the media is wrapped in its OWN clip box (.ad-fig__box) and scales to 1.1 on
+ * hover/focus-within — a felt zoom, never a 1-3% twitch — clipped at the media's
+ * box, so a flow figcaption below is never painted over (the scaled layer used
+ * to bleed across it when the clip sat on the whole figure). A cue confirms the
+ * state: tint (accent scrim to 18%), lift (a resting 25% ground scrim fades out),
+ * or caption (bottom mono figcaption rises from 60%). Pick the cue with the
+ * attribute value: data-ad-figure="tint|lift|caption" (default tint).
+ * The rest state is complete: coarse pointers get the caption state permanently,
+ * and :active flashes the zoom + cue as the tap answer. Under reduced motion the
+ * media never scales and the cue applies instantly. No-JS: a plain figure.
  *
  * Usage:  awardFigureHover.init(root, { selector })
  *   root      Element|Document  scope (default document)
  *   selector  string            wrappers to tag (default '[data-ad-figure]')
- * Returns { destroy() }. Idempotent. destroy() untags and removes the stylesheet.
+ * Returns { destroy() }. Idempotent. destroy() unwraps the media, untags, and
+ * removes the stylesheet.
  *
  * Tokens: --ad-accent, --ad-ink, --ad-ground, --ad-font-mono,
  *         --ad-dur-base (420ms), --ad-ease-signature (cubic-bezier(.16,1,.3,1)).
@@ -33,25 +36,28 @@
     var s = document.createElement('style');
     s.id = CSS_ID;
     s.textContent =
-      '.ad-fig{position:relative;overflow:hidden;}' +
-      '.ad-fig img,.ad-fig video{display:block;width:100%;transform:scale(1);' +
+      '.ad-fig{position:relative;}' +
+      // the media's own clip box — the scaled paint stops HERE, never over a caption
+      '.ad-fig__box{display:block;position:relative;overflow:hidden;}' +
+      '.ad-fig__box img,.ad-fig__box video{display:block;width:100%;transform:scale(1);' +
       'transition:transform ' + TRANSIT + ';}' +
       // 1.1 is the felt floor — anything under 1.06 reads as a twitch, not a zoom.
-      '.ad-fig:hover img,.ad-fig:hover video,' +
-      '.ad-fig:focus-within img,.ad-fig:focus-within video,' +
-      '.ad-fig:active img,.ad-fig:active video{' +
+      '.ad-fig:hover .ad-fig__box img,.ad-fig:hover .ad-fig__box video,' +
+      '.ad-fig:focus-within .ad-fig__box img,.ad-fig:focus-within .ad-fig__box video,' +
+      '.ad-fig:active .ad-fig__box img,.ad-fig:active .ad-fig__box video{' +
       'transform:scale(1.1);will-change:transform;}' +
       // the tap answer under hover:none — the press flashes the zoom + cue fast
       // enough to be felt before navigation (tap-to-open stays the action)
-      '.ad-fig:active img,.ad-fig:active video,.ad-fig:active::after{' +
-      'transition-duration:160ms;}' +
-      '.ad-fig--tint::after,.ad-fig--lift::after{content:"";position:absolute;inset:0;' +
-      'pointer-events:none;transition:opacity ' + TRANSIT + ';}' +
-      '.ad-fig--tint::after{background:' + ACCENT + ';opacity:0;}' +
-      '.ad-fig--tint:hover::after,.ad-fig--tint:focus-within::after,' +
-      '.ad-fig--tint:active::after{opacity:.18;}' +
-      '.ad-fig--lift::after{background:' + GROUND + ';opacity:.25;}' +
-      '.ad-fig--lift:hover::after,.ad-fig--lift:focus-within::after{opacity:0;}' +
+      '.ad-fig:active .ad-fig__box img,.ad-fig:active .ad-fig__box video,' +
+      '.ad-fig--tint:active .ad-fig__box::after{transition-duration:160ms;}' +
+      '.ad-fig--tint .ad-fig__box::after,.ad-fig--lift .ad-fig__box::after{' +
+      'content:"";position:absolute;inset:0;pointer-events:none;' +
+      'transition:opacity ' + TRANSIT + ';}' +
+      '.ad-fig--tint .ad-fig__box::after{background:' + ACCENT + ';opacity:0;}' +
+      '.ad-fig--tint:hover .ad-fig__box::after,.ad-fig--tint:focus-within .ad-fig__box::after,' +
+      '.ad-fig--tint:active .ad-fig__box::after{opacity:.18;}' +
+      '.ad-fig--lift .ad-fig__box::after{background:' + GROUND + ';opacity:.25;}' +
+      '.ad-fig--lift:hover .ad-fig__box::after,.ad-fig--lift:focus-within .ad-fig__box::after{opacity:0;}' +
       '.ad-fig--caption figcaption{position:absolute;left:0;right:0;bottom:0;' +
       'padding:.75rem 1rem;font-family:' + MONO + ';font-size:.75rem;' +
       'letter-spacing:.02em;color:' + INK + ';opacity:.6;transform:translateY(6px);' +
@@ -63,11 +69,11 @@
       '.ad-fig--caption figcaption{opacity:1;transform:none;}}' +
       // Reduced motion → no scale at all; the cue still applies, instantly.
       '@media (prefers-reduced-motion:reduce){' +
-      '.ad-fig img,.ad-fig video,.ad-fig--tint::after,.ad-fig--lift::after,' +
-      '.ad-fig--caption figcaption{transition:none;}' +
+      '.ad-fig__box img,.ad-fig__box video,.ad-fig--tint .ad-fig__box::after,' +
+      '.ad-fig--lift .ad-fig__box::after,.ad-fig--caption figcaption{transition:none;}' +
       '.ad-fig--caption figcaption{transform:none;}' +
-      '.ad-fig:hover img,.ad-fig:hover video,' +
-      '.ad-fig:focus-within img,.ad-fig:focus-within video{' +
+      '.ad-fig:hover .ad-fig__box img,.ad-fig:hover .ad-fig__box video,' +
+      '.ad-fig:focus-within .ad-fig__box img,.ad-fig:focus-within .ad-fig__box video{' +
       'transform:none;will-change:auto;}}';
     document.head.appendChild(s);
   }
@@ -83,11 +89,25 @@
       var cue = fig.getAttribute('data-ad-figure');
       if (cue !== 'lift' && cue !== 'caption') cue = 'tint';
       fig.classList.add('ad-fig', 'ad-fig--' + cue);
+      if (!fig.querySelector('.ad-fig__box')) {
+        var media = fig.querySelector('img,video');
+        if (media) {
+          var box = document.createElement('span');
+          box.className = 'ad-fig__box';
+          media.parentNode.insertBefore(box, media);
+          box.appendChild(media);
+        }
+      }
     });
 
     return {
       destroy: function () {
         figs.forEach(function (fig) {
+          var box = fig.querySelector('.ad-fig__box');
+          if (box) {
+            while (box.firstChild) box.parentNode.insertBefore(box.firstChild, box);
+            box.parentNode.removeChild(box);
+          }
           fig.classList.remove('ad-fig', 'ad-fig--tint', 'ad-fig--lift', 'ad-fig--caption');
         });
         var s = document.getElementById(CSS_ID);

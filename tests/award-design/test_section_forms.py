@@ -207,8 +207,13 @@ class TestCompositionFloorsWiring(unittest.TestCase):
 
     def test_phase4_text_effect_and_spectacle(self):
         self.assertIn("≥1 named text effect", self.skill)
-        self.assertIn("exactly one spectacle moment", self.skill)
+        self.assertIn("exactly one climax", self.skill)
         self.assertIn("never a restraint choice", self.skill)
+        # the MERIDIAN v2 lesson: one climax caps peaks, never vocabulary,
+        # and a committed beat is never silently cut in cleanup
+        self.assertIn("A committed beat survives to ship", self.skill)
+        self.assertIn("The desktop pointer layer is committed explicitly", self.skill)
+        self.assertIn("Optional kicker/eyebrow slots default ABSENT", self.skill)
 
     def test_phase4_non_contradiction(self):
         self.assertIn("Restraint and the floors never trade", self.skill)

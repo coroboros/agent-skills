@@ -1,6 +1,19 @@
 {
   "contract": "README.md",
-  "tokens": ["--ad-accent", "--ad-ink", "--ad-ground", "--ad-ground-2", "--ad-font-display", "--ad-font-mono", "--ad-ease-signature", "--ad-ease-strike", "--ad-dur-reveal", "--ad-dur-base", "--ad-space", "--ad-measure"],
+  "tokens": [
+    "--ad-accent",
+    "--ad-ink",
+    "--ad-ground",
+    "--ad-ground-2",
+    "--ad-font-display",
+    "--ad-font-mono",
+    "--ad-ease-signature",
+    "--ad-ease-strike",
+    "--ad-dur-reveal",
+    "--ad-dur-base",
+    "--ad-space",
+    "--ad-measure"
+  ],
   "forms": [
     {
       "id": "hero-masthead",
@@ -8,18 +21,87 @@
       "js": null,
       "global": null,
       "winner": "Siena Film Foundation, Terminal Industries",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive"],
-      "tokens": ["--ad-space", "--ad-measure", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "h1", "element": "h1", "required": true },
-        { "name": "standfirst", "element": "p", "required": false },
-        { "name": "cta-row", "element": "div", "required": false },
-        { "name": "data-strip", "element": "dl", "required": false },
-        { "name": "media", "element": "figure", "required": false }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "immersive"
       ],
-      "variants": { "media": ["right", "left", "back", "none"], "align": ["start", "center"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "h1": ["kinetic-reveal"], "standfirst": ["text-emphasis-fill"], "cta-row": ["masked-label-swap"], "media": ["clip-reveal", "scrub-film"], "data-strip": ["counter-odometer"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h1",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "standfirst",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cta-row",
+          "element": "div",
+          "required": false
+        },
+        {
+          "name": "data-strip",
+          "element": "dl",
+          "required": false
+        },
+        {
+          "name": "media",
+          "element": "figure",
+          "required": false
+        }
+      ],
+      "variants": {
+        "media": [
+          "right",
+          "left",
+          "back",
+          "none"
+        ],
+        "align": [
+          "start",
+          "center"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "h1": [
+          "kinetic-reveal"
+        ],
+        "standfirst": [
+          "text-emphasis-fill"
+        ],
+        "cta-row": [
+          "masked-label-swap"
+        ],
+        "media": [
+          "clip-reveal",
+          "scrub-film"
+        ],
+        "data-strip": [
+          "counter-odometer"
+        ]
+      },
       "whenToUse": "The statement hero: kicker/h1/standfirst/CTA row/data-strip/media, every placement owned by the form — the builder fills slots and pairs components, never writes hero layout CSS."
     },
     {
@@ -28,17 +110,76 @@
       "js": null,
       "global": null,
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "corporate-luxury", "minimalist", "standfirst-stack"],
-      "tokens": ["--ad-space", "--ad-measure", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "h2", "element": "h2", "required": true },
-        { "name": "prose", "element": "div", "required": true },
-        { "name": "spec-table", "element": "dl", "required": false },
-        { "name": "media", "element": "figure", "required": false }
+      "archetypes": [
+        "editorial-dark",
+        "corporate-luxury",
+        "minimalist",
+        "standfirst-stack"
       ],
-      "variants": { "media": ["right", "left", "none"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "h2": ["char-assemble", "kinetic-reveal"], "prose": ["text-emphasis-fill", "semantic-accent"], "spec-table": ["counter-odometer"], "media": ["clip-reveal", "image-curtain", "figure-hover"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": true
+        },
+        {
+          "name": "prose",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "spec-table",
+          "element": "dl",
+          "required": false
+        },
+        {
+          "name": "media",
+          "element": "figure",
+          "required": false
+        }
+      ],
+      "variants": {
+        "media": [
+          "right",
+          "left",
+          "none"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "h2": [
+          "char-assemble",
+          "kinetic-reveal"
+        ],
+        "prose": [
+          "text-emphasis-fill",
+          "semantic-accent"
+        ],
+        "spec-table": [
+          "counter-odometer"
+        ],
+        "media": [
+          "clip-reveal",
+          "image-curtain",
+          "figure-hover"
+        ]
+      },
       "whenToUse": "The editorial half + evidence half: heading and prose beside a figure and/or spec-table — the spec rows measure-capped at 44ch so they never sprawl."
     },
     {
@@ -47,16 +188,61 @@
       "js": null,
       "global": null,
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "studio-reel", "minimalist", "corporate-luxury"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "h2", "element": "h2", "required": true },
-        { "name": "meta", "element": "p", "required": false },
-        { "name": "actions", "element": "div", "required": false }
+      "archetypes": [
+        "editorial-dark",
+        "studio-reel",
+        "minimalist",
+        "corporate-luxury"
       ],
-      "variants": { "align": ["start", "stack"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "h2": ["char-assemble", "kinetic-reveal"], "meta": [], "actions": ["accent-link"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": true
+        },
+        {
+          "name": "meta",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "actions",
+          "element": "div",
+          "required": false
+        }
+      ],
+      "variants": {
+        "align": [
+          "start",
+          "stack"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "h2": [
+          "char-assemble",
+          "kinetic-reveal"
+        ],
+        "meta": [],
+        "actions": [
+          "accent-link"
+        ]
+      },
       "whenToUse": "The header band introducing an index/reel/archive: the meta-line is grid-placed off the heading's columns and hard-capped at 40ch — full-width sprawl has no reachable state."
     },
     {
@@ -65,15 +251,54 @@
       "js": null,
       "global": null,
       "winner": "Siena Film Foundation (typography canon)",
-      "archetypes": ["editorial-dark", "immersive", "bold-maximal", "brutalist", "studio-reel"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "mark", "element": "h2", "required": true },
-        { "name": "caption", "element": "p", "required": false }
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "bold-maximal",
+        "brutalist",
+        "studio-reel"
       ],
-      "variants": { "align": ["center", "start"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "mark": [], "caption": ["text-emphasis-fill"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "mark",
+          "element": "h2",
+          "required": true
+        },
+        {
+          "name": "caption",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "align": [
+          "center",
+          "start"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "mark": [],
+        "caption": [
+          "text-emphasis-fill"
+        ]
+      },
       "whenToUse": "The beats-SOTD statement band: giant display type carrying the image inside its letterforms (background-clip:text with a solid-ink @supports fallback). Set the media via --ad-type-image on the mark."
     },
     {
@@ -82,17 +307,64 @@
       "js": null,
       "global": null,
       "winner": "Cuberto, Lusion",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "studio-reel", "bento"],
-      "tokens": ["--ad-space", "--ad-measure", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "ask", "element": "h2", "required": true },
-        { "name": "support", "element": "p", "required": false },
-        { "name": "channels", "element": "nav", "required": true },
-        { "name": "trust", "element": "p", "required": false }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "studio-reel",
+        "bento"
       ],
-      "variants": { "density": ["airy", "standard", "dense"] },
-      "pairs": { "ask": ["kinetic-reveal"], "channels": ["accent-link", "masked-label-swap"], "trust": [] },
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "ask",
+          "element": "h2",
+          "required": true
+        },
+        {
+          "name": "support",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "channels",
+          "element": "nav",
+          "required": true
+        },
+        {
+          "name": "trust",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "ask": [
+          "kinetic-reveal"
+        ],
+        "channels": [
+          "accent-link",
+          "masked-label-swap"
+        ],
+        "trust": []
+      },
       "whenToUse": "The funnel's close: one imperative (18ch cap), decisive channel rows, a quiet trust line a full rest below — no media slot exists, so the close cannot become a mood reel."
     },
     {
@@ -101,13 +373,44 @@
       "js": null,
       "global": null,
       "winner": "Anthropic, Lusion, Depo Luxe, Truekind, Eloy Benoffi",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive", "brutalist", "spatial-organic", "experimental"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "row", "element": "a", "required": true }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "immersive",
+        "brutalist",
+        "spatial-organic",
+        "experimental"
       ],
-      "variants": { "thumb": ["none", "right"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "row": ["index-row-hover"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "row",
+          "element": "a",
+          "required": true
+        }
+      ],
+      "variants": {
+        "thumb": [
+          "none",
+          "right"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "row": [
+          "index-row-hover"
+        ]
+      },
       "whenToUse": "The row-list body under index-reel-header: index/title/meta/thumb locked to one shared grid so column edges cannot drift and the meta cannot sprawl. Rows repeat the row slot; pairs index-row-hover."
     },
     {
@@ -116,13 +419,47 @@
       "js": null,
       "global": null,
       "winner": "Anthropic, Truekind, Cyd Stumpel, Cuberto",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "standfirst-stack", "spatial-organic", "bold-maximal"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "card", "element": "a", "required": true }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "standfirst-stack",
+        "spatial-organic",
+        "bold-maximal"
       ],
-      "variants": { "cols": ["2", "3"], "rule": ["off", "on"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "card": ["figure-hover"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "card",
+          "element": "a",
+          "required": true
+        }
+      ],
+      "variants": {
+        "cols": [
+          "2",
+          "3"
+        ],
+        "rule": [
+          "off",
+          "on"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "card": [
+          "figure-hover"
+        ]
+      },
       "whenToUse": "Release/journal/blog cards in a 2-3 column grid: media 3/2, kicker/title/date at fixed rhythm; minmax(0,1fr) columns so a long title wraps instead of blowing the grid."
     },
     {
@@ -131,14 +468,44 @@
       "js": null,
       "global": null,
       "winner": "Terminal Industries, Anime.js, Lando Norris, FlowFest",
-      "archetypes": ["editorial-dark", "minimalist", "bento", "brutalist", "corporate-luxury", "immersive", "bold-maximal"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-font-mono", "--ad-dur-base", "--ad-ease-signature"],
-      "slots": [
-        { "name": "label", "element": "p", "required": false },
-        { "name": "wall", "element": "ul", "required": true }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "bento",
+        "brutalist",
+        "corporate-luxury",
+        "immersive",
+        "bold-maximal"
       ],
-      "variants": { "density": ["airy", "standard", "dense"] },
-      "pairs": { "wall": [] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "slots": [
+        {
+          "name": "label",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "wall",
+          "element": "ul",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "wall": []
+      },
       "whenToUse": "The restrained proof strip: a static wrapped wall of height-capped, quieted logos (grayscale at rest, colour on hover — the one micro-state the form owns). Never a marquee."
     },
     {
@@ -147,13 +514,42 @@
       "js": null,
       "global": null,
       "winner": "Terminal Industries, Son Daven, Anime.js",
-      "archetypes": ["editorial-dark", "minimalist", "bento", "corporate-luxury", "brutalist"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "stats", "element": "dl", "required": true }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "bento",
+        "corporate-luxury",
+        "brutalist"
       ],
-      "variants": { "align": ["start", "center"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "stats": ["counter-odometer"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "stats",
+          "element": "dl",
+          "required": true
+        }
+      ],
+      "variants": {
+        "align": [
+          "start",
+          "center"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "stats": [
+          "counter-odometer"
+        ]
+      },
       "whenToUse": "The standalone big-number strip: display-scale tabular values over mono captions, hairline-divided columns that never crowd (8ch floors). The dd carries data-ad-counter for the roll."
     },
     {
@@ -162,15 +558,49 @@
       "js": null,
       "global": null,
       "winner": "Endex, Anime.js v4",
-      "archetypes": ["bento", "minimalist", "editorial-dark"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-ground-2", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "h2", "element": "h2", "required": false },
-        { "name": "grid", "element": "div", "required": true }
+      "archetypes": [
+        "bento",
+        "minimalist",
+        "editorial-dark"
       ],
-      "variants": { "density": ["airy", "standard", "dense"] },
-      "pairs": { "grid": ["figure-hover", "counter-odometer"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-ground-2",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": false
+        },
+        {
+          "name": "grid",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "grid": [
+          "figure-hover",
+          "counter-odometer"
+        ]
+      },
       "whenToUse": "The 12-col asymmetric feature grid — cards carry REAL product-UI slices (never icons), spans 4-12 with dense backfill; the bento-fatigue correction."
     },
     {
@@ -179,16 +609,60 @@
       "js": "forms/swipe-snap-gallery.js",
       "global": "awardSwipeGallery",
       "winner": "Awwwards Mobile Excellence criterion (scored verbatim: swipe to see more, tap to enlarge); Codrops GSAP carousel canon",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "bento", "bold-maximal", "spatial-organic"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-accent", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "kicker", "element": "p", "required": false },
-        { "name": "h2", "element": "h2", "required": false },
-        { "name": "track", "element": "div", "required": true },
-        { "name": "dots", "element": "div", "required": false }
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "bento",
+        "bold-maximal",
+        "spatial-organic"
       ],
-      "variants": { "peek": ["on", "off"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "track": ["figure-hover", "clip-reveal"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": false
+        },
+        {
+          "name": "track",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "dots",
+          "element": "div",
+          "required": false
+        }
+      ],
+      "variants": {
+        "peek": [
+          "on",
+          "off"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "track": [
+          "figure-hover",
+          "clip-reveal"
+        ]
+      },
       "whenToUse": "The mobile-first image gallery: native scroll-snap track riding OS momentum (zero JS physics), next-cell peek, enhancer-fed snap dots. The scored Mobile Excellence line; pinned-filmstrip stays the desktop hold-and-drag signature.",
       "init": "awardSwipeGallery.init(root, { selector })"
     },
@@ -198,14 +672,53 @@
       "js": null,
       "global": null,
       "winner": "Gabriel Contassot, Stefan Vitasovic, Cuberto",
-      "archetypes": ["minimalist", "bold-maximal", "studio-reel", "editorial-dark", "immersive"],
-      "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
-      "slots": [
-        { "name": "media", "element": "figure", "required": true },
-        { "name": "caption", "element": "div", "required": false }
+      "archetypes": [
+        "minimalist",
+        "bold-maximal",
+        "studio-reel",
+        "editorial-dark",
+        "immersive"
       ],
-      "variants": { "caption": ["corner", "center"], "density": ["airy", "standard", "dense"] },
-      "pairs": { "media": ["clip-reveal", "image-curtain"], "caption": ["masked-label-swap", "kinetic-reveal"] },
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "media",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "caption",
+          "element": "div",
+          "required": false
+        }
+      ],
+      "variants": {
+        "caption": [
+          "corner",
+          "center"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "media": [
+          "clip-reveal",
+          "image-curtain"
+        ],
+        "caption": [
+          "masked-label-swap",
+          "kinetic-reveal"
+        ]
+      },
       "whenToUse": "One project per viewport: full-bleed media with a corner (or centered) caption over a structural contrast scrim — the gallery-stack unit; stack several for the procession."
     }
   ],
@@ -215,8 +728,16 @@
       "file": "kinetic-reveal.js",
       "global": "awardKineticReveal",
       "winner": "Siena Film Foundation, Lando Norris",
-      "archetypes": ["editorial-dark", "immersive", "minimalist", "corporate-luxury"],
-      "tokens": ["--ad-dur-reveal", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "minimalist",
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Headline/statement entrance: masked line reveal, staggered. The tier's default over a per-char fade.",
       "init": "awardKineticReveal.init(root, { selector, stagger, threshold })"
@@ -226,7 +747,11 @@
       "file": "scrub-film.js",
       "global": "awardScrubFilm",
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "immersive", "experimental"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "experimental"
+      ],
       "tokens": [],
       "deps": [],
       "whenToUse": "A film still the visitor drives — scroll or pointer maps to video currentTime. The operable-spectacle signature; never an autoplay loop.",
@@ -237,7 +762,13 @@
       "file": "pointer-parallax.js",
       "global": "awardPointerParallax",
       "winner": "Dennis Snellenberg, Wix Mouse Parallax Wonderland",
-      "archetypes": ["immersive", "bold-maximal", "studio-reel", "editorial-dark", "spatial-organic"],
+      "archetypes": [
+        "immersive",
+        "bold-maximal",
+        "studio-reel",
+        "editorial-dark",
+        "spatial-organic"
+      ],
       "tokens": [],
       "deps": [],
       "whenToUse": "Multi-layer depth under the pointer: [data-depth] layers shift a few px at differential rates (lerp 0.1, ~20px max — depth, never drift; negative depth moves opposite). Fine-pointer only; DORMANT on touch — the winner convention, depth comes from scroll there.",
@@ -248,7 +779,13 @@
       "file": "dolly-zoom.js",
       "global": "awardDollyZoom",
       "winner": "the cosmic push-in class (Apple-lineage pinned scrub; MERIDIAN v2 validation)",
-      "archetypes": ["editorial-dark", "immersive", "corporate-luxury", "experimental", "spatial-organic"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "corporate-luxury",
+        "experimental",
+        "spatial-organic"
+      ],
       "tokens": [],
       "deps": [],
       "whenToUse": "The scroll dive: a pinned full-bleed media scales toward a targeted focal point (the moon, the product, the plate) as the track scrolls — reversible, compositor-only; optional fade hand-off at the end of the travel. A spectacle-tier scroll texture.",
@@ -259,9 +796,18 @@
       "file": "smooth-scroll.js",
       "global": "awardSmoothScroll",
       "winner": "Lenis (near-universal)",
-      "archetypes": ["editorial-dark", "immersive", "minimalist", "spatial-organic", "corporate-luxury"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "minimalist",
+        "spatial-organic",
+        "corporate-luxury"
+      ],
       "tokens": [],
-      "deps": ["Lenis", "gsap/ScrollTrigger (optional)"],
+      "deps": [
+        "Lenis",
+        "gsap/ScrollTrigger (optional)"
+      ],
       "whenToUse": "Smoothed-scroll foundation for scrubbed/pinned reveals. Enhances only when Lenis is present; native scroll otherwise; null instance under reduced-motion.",
       "init": "awardSmoothScroll.init(root, { lerp, wheelMultiplier }) -> { destroy, lenis }"
     },
@@ -270,8 +816,18 @@
       "file": "show-on-scroll-up-nav.js",
       "global": "awardShowNav",
       "winner": "Siena Film Foundation, Lando Norris",
-      "archetypes": ["editorial-dark", "immersive", "minimalist", "corporate-luxury", "standfirst-stack"],
-      "tokens": ["--ad-ground", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "minimalist",
+        "corporate-luxury",
+        "standfirst-stack"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Fixed nav: transparent over the hero, gains ground on scroll, hides on scroll-down and reveals on scroll-up.",
       "init": "awardShowNav.init(root, { selector, threshold })"
@@ -281,8 +837,18 @@
       "file": "magnetic-cursor.js",
       "global": "awardMagneticCursor",
       "winner": "Lando Norris, Cuberto",
-      "archetypes": ["immersive", "experimental", "studio-reel", "bold-maximal"],
-      "tokens": ["--ad-accent", "--ad-ink", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "immersive",
+        "experimental",
+        "studio-reel",
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Earned custom cursor that does real work: magnetic snap to [data-ad-magnetic]. Fine-pointer only; native on touch and under reduced-motion. Use sparingly, never as decoration.",
       "init": "awardMagneticCursor.init(root, { magnetSelector, ringLerp, pull, pullMax })"
@@ -292,8 +858,17 @@
       "file": "masked-label-swap.js",
       "global": "awardLabelSwap",
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive"],
-      "tokens": ["--ad-accent", "--ad-ease-strike", "--ad-dur-base"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ease-strike",
+        "--ad-dur-base"
+      ],
       "deps": [],
       "whenToUse": "CTA/button label two-line wipe swap on hover/focus. Hard-edged, restrained.",
       "init": "awardLabelSwap.init(root, { selector })"
@@ -303,8 +878,17 @@
       "file": "accent-link.js",
       "global": "awardAccentLink",
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "standfirst-stack", "minimalist", "corporate-luxury"],
-      "tokens": ["--ad-accent", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "standfirst-stack",
+        "minimalist",
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Inline text links: accent recolor + underline wipe on hover/focus.",
       "init": "awardAccentLink.init(root, { selector })"
@@ -314,8 +898,17 @@
       "file": "split-rollover.js",
       "global": "awardSplitRollover",
       "winner": "Lando Norris, Cuberto",
-      "archetypes": ["editorial-dark", "immersive", "studio-reel", "minimalist"],
-      "tokens": ["--ad-dur-base", "--ad-ease-signature", "--ad-accent"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "studio-reel",
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-dur-base",
+        "--ad-ease-signature",
+        "--ad-accent"
+      ],
       "deps": [],
       "whenToUse": "Nav links / short labels: per-character rollover on hover/focus, staggered. Keeps a clean accessible name via aria-label.",
       "init": "awardSplitRollover.init(root, { selector, stagger })"
@@ -325,8 +918,17 @@
       "file": "clip-reveal.js",
       "global": "awardClipReveal",
       "winner": "Siena Film Foundation, Lando Norris",
-      "archetypes": ["editorial-dark", "immersive", "minimalist", "corporate-luxury", "studio-reel"],
-      "tokens": ["--ad-dur-reveal", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "minimalist",
+        "corporate-luxury",
+        "studio-reel"
+      ],
+      "tokens": [
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Media uncover on scroll-in: animated clip-path (inset or ellipse) with a scale settle. Wrap an <img>/<video>.",
       "init": "awardClipReveal.init(root, { selector, threshold, origin })"
@@ -336,8 +938,18 @@
       "file": "text-emphasis-fill.js",
       "global": "awardTextEmphasis",
       "winner": "Terminal Industries",
-      "archetypes": ["editorial-dark", "minimalist", "standfirst-stack", "corporate-luxury", "immersive"],
-      "tokens": ["--ad-accent", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "standfirst-stack",
+        "corporate-luxury",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "The tier's text signature, two channels: scrub (words brighten dim-to-bright as the block traverses the viewport — reversible emphasis on always-legible copy) and entrance (words arrive as accent, settle to ink, fire-once). Preserves inline markup (semantic-accent terms compose).",
       "init": "awardTextEmphasis.init(root, { selector, mode, floor, stagger })"
@@ -347,8 +959,17 @@
       "file": "semantic-accent.js",
       "global": "awardSemanticAccent",
       "winner": "Terminal Industries",
-      "archetypes": ["editorial-dark", "minimalist", "standfirst-stack", "corporate-luxury"],
-      "tokens": ["--ad-accent", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "standfirst-stack",
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Key terms marked [data-ad-term] carry the accent — colour does the reading; terms ignite on first view. Composes inside text-emphasis-fill blocks.",
       "init": "awardSemanticAccent.init(root, { selector, threshold })"
@@ -358,8 +979,16 @@
       "file": "char-assemble.js",
       "global": "awardCharAssemble",
       "winner": "Stefan Vitasović",
-      "archetypes": ["editorial-dark", "minimalist", "studio-reel", "immersive"],
-      "tokens": ["--ad-dur-reveal", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "studio-reel",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Masked per-char assemble entrance for short display headings — the richer second reveal beyond kinetic-reveal's line mask. Keeps a clean accessible name via aria-label.",
       "init": "awardCharAssemble.init(root, { selector, stagger, threshold })"
@@ -369,8 +998,16 @@
       "file": "counter-odometer.js",
       "global": "awardCounter",
       "winner": "Terminal Industries, Bruno Simon, Depo Luxe",
-      "archetypes": ["editorial-dark", "bento", "minimalist", "corporate-luxury", "brutalist"],
-      "tokens": ["--ad-dur-reveal"],
+      "archetypes": [
+        "editorial-dark",
+        "bento",
+        "minimalist",
+        "corporate-luxury",
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-dur-reveal"
+      ],
       "deps": [],
       "whenToUse": "Stat/counter roll on scroll-into-view — the markup carries the true final value (visible with no JS), tabular-nums, format-preserving (1,344 · 99.7% · +412 yr).",
       "init": "awardCounter.init(root, { selector, threshold })"
@@ -380,7 +1017,11 @@
       "file": "grain-grade.js",
       "global": "awardGrainGrade",
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "immersive", "experimental"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "experimental"
+      ],
       "tokens": [],
       "deps": [],
       "whenToUse": "Fixed film-grain + optional vignette overlay for a poster grade. Compositor-clean, pointer-events:none, low opacity. Restraint.",
@@ -391,8 +1032,24 @@
       "file": "fill-invert-cta.js",
       "global": "awardFillCta",
       "winner": "Truekind, Siena Film Foundation, Terminal Industries, Son Daven, Lando Norris, Sui",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive", "bento", "brutalist", "spatial-organic", "bold-maximal", "experimental"],
-      "tokens": ["--ad-ink", "--ad-ground", "--ad-accent", "--ad-dur-base", "--ad-ease-strike"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "immersive",
+        "bento",
+        "brutalist",
+        "spatial-organic",
+        "bold-maximal",
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-accent",
+        "--ad-dur-base",
+        "--ad-ease-strike"
+      ],
       "deps": [],
       "whenToUse": "The universal primary-CTA move: full-token flood + label inversion on hover/focus — fill (direct pole swap) or wipe (a panel rises from the bottom edge). Never a pale tint. Pairs with masked-label-swap when the label should roll too.",
       "init": "awardFillCta.init(root, { selector })"
@@ -402,8 +1059,21 @@
       "file": "figure-hover.js",
       "global": "awardFigureHover",
       "winner": "Siena Film Foundation, Truekind",
-      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "studio-reel", "bento"],
-      "tokens": ["--ad-accent", "--ad-ink", "--ad-ground", "--ad-font-mono", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "corporate-luxury",
+        "studio-reel",
+        "bento"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "The default figure response: contained zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue — tint, scrim lift, or caption rise — on hover and focus-within.",
       "init": "awardFigureHover.init(root, { selector })"
@@ -413,8 +1083,19 @@
       "file": "index-row-hover.js",
       "global": "awardIndexRows",
       "winner": "Depo Luxe, Son Daven, Terminal Industries, Siena",
-      "archetypes": ["editorial-dark", "minimalist", "studio-reel", "brutalist", "corporate-luxury"],
-      "tokens": ["--ad-accent", "--ad-ink", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "minimalist",
+        "studio-reel",
+        "brutalist",
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "The living index: hovered row lights with an accent rule and surfaced metadata while siblings dim to 45% — the spotlight list for archives, work indexes, ledgers.",
       "init": "awardIndexRows.init(root, { selector, rowSelector })"
@@ -424,8 +1105,15 @@
       "file": "focus-defocus.js",
       "global": "awardFocusDefocus",
       "winner": "Dondre Green, Son Daven",
-      "archetypes": ["editorial-dark", "studio-reel", "minimalist", "immersive"],
-      "tokens": ["--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "studio-reel",
+        "minimalist",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Gallery spotlight: the hovered item sharpens while siblings blur and dim. Fine-pointer only; keep galleries under ~10 items (blur repaints).",
       "init": "awardFocusDefocus.init(root, { selector })"
@@ -435,8 +1123,17 @@
       "file": "image-curtain.js",
       "global": "awardImageCurtain",
       "winner": "shipped canon (motion-palette: the grayscale-to-colour curtain)",
-      "archetypes": ["editorial-dark", "corporate-luxury", "studio-reel", "minimalist"],
-      "tokens": ["--ad-dur-reveal", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "corporate-luxury",
+        "studio-reel",
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-dur-reveal",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "The treated-image reveal: a clip wipe arrives grayscale, colour floods in late — two beats. Use over clip-reveal when the build's imagery is graded/archival.",
       "init": "awardImageCurtain.init(root, { selector, threshold })"
@@ -446,8 +1143,19 @@
       "file": "shader-surface.js",
       "global": "awardShaderSurface",
       "winner": "Siena Film Foundation (OGL canvas, winner-verified)",
-      "archetypes": ["editorial-dark", "immersive", "experimental", "corporate-luxury", "spatial-organic"],
-      "tokens": ["--ad-ground", "--ad-ground-2", "--ad-accent", "--ad-ink"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "experimental",
+        "corporate-luxury",
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ground-2",
+        "--ad-accent",
+        "--ad-ink"
+      ],
       "deps": [],
       "whenToUse": "The token-driven WebGL texture layer — gradient-mesh, noise-field, or pointer-ripple painted from the DESIGN.md palette. A living ground behind real DOM content, never the hero; CSS-gradient fallback, static frame under reduced-motion.",
       "init": "awardShaderSurface.init(root, { selector, mode, speed, alpha })"
@@ -457,8 +1165,22 @@
       "file": "counter-loader.js",
       "global": "awardCounterLoader",
       "winner": "Terminal Industries, Bruno Simon, Depo Luxe",
-      "archetypes": ["editorial-dark", "immersive", "experimental", "brutalist", "studio-reel"],
-      "tokens": ["--ad-ground", "--ad-ink", "--ad-accent", "--ad-font-mono", "--ad-dur-reveal", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "experimental",
+        "brutalist",
+        "studio-reel"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-mono",
+        "--ad-dur-reveal",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "The numeric counter loader: rolls with real load progress, recolors to the accent near 100, lifts as a curtain. Authored hidden — no-JS never blocks the page. Pair its handoff with the hero's entrance.",
       "init": "awardCounterLoader.init(root, { selector, minDuration, sessionOnce, onDone })"
@@ -468,8 +1190,18 @@
       "file": "curtain-transition.js",
       "global": "awardCurtain",
       "winner": "Cuberto, Terminal Industries, Truekind",
-      "archetypes": ["editorial-dark", "studio-reel", "corporate-luxury", "minimalist", "immersive"],
-      "tokens": ["--ad-ground-2", "--ad-dur-base", "--ad-ease-strike"],
+      "archetypes": [
+        "editorial-dark",
+        "studio-reel",
+        "corporate-luxury",
+        "minimalist",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-ground-2",
+        "--ad-dur-base",
+        "--ad-ease-strike"
+      ],
       "deps": [],
       "whenToUse": "The cover wipe that rhymes with the loader: play(fn) covers the viewport, runs the swap at full cover, wipes away. For section/route swaps; returns a promise; instant cut under reduced-motion.",
       "init": "awardCurtain.init(root, { zIndex, color }) -> { play(fn, opts), destroy }"
@@ -479,8 +1211,17 @@
       "file": "ambient-idle.js",
       "global": "awardAmbientIdle",
       "winner": "Terminal Industries (radial glow); premium-patterns perpetual-micro canon",
-      "archetypes": ["editorial-dark", "immersive", "bento", "corporate-luxury", "studio-reel"],
-      "tokens": ["--ad-accent", "--ad-ink"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "bento",
+        "corporate-luxury",
+        "studio-reel"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink"
+      ],
       "deps": [],
       "whenToUse": "The third channel — the page breathes at rest: glow, float, shimmer, or pulse at ambient amplitude, paused off-screen and on hidden tabs. Opt elements in via data-ad-idle.",
       "init": "awardAmbientIdle.init(root, { selector })"
@@ -490,8 +1231,16 @@
       "file": "glass-card.js",
       "global": "awardGlassCard",
       "winner": "Igloo Inc (frost panels); the Liquid Glass surface canon",
-      "archetypes": ["spatial-organic", "bento", "corporate-luxury", "immersive"],
-      "tokens": ["--ad-ground-2", "--ad-ink"],
+      "archetypes": [
+        "spatial-organic",
+        "bento",
+        "corporate-luxury",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-ground-2",
+        "--ad-ink"
+      ],
       "deps": [],
       "whenToUse": "The spatial-organic signature surface: backdrop-blur glass with the inset highlight and concentric nested radii (Doppelrand); opaque fallback keeps text readable without blur support.",
       "init": "awardGlassCard.init(root, { selector })"
@@ -501,8 +1250,17 @@
       "file": "border-glow-bloom.js",
       "global": "awardBorderGlow",
       "winner": "Supabase, Linear",
-      "archetypes": ["bento", "spatial-organic", "minimalist"],
-      "tokens": ["--ad-accent", "--ad-ink", "--ad-ground-2", "--ad-dur-base"],
+      "archetypes": [
+        "bento",
+        "spatial-organic",
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-dur-base"
+      ],
       "deps": [],
       "whenToUse": "The blurred accent under-glow that lifts a card — breathes up on hover/focus; the blur never animates, only opacity (compositor-clean).",
       "init": "awardBorderGlow.init(root, { selector })"
@@ -512,8 +1270,17 @@
       "file": "conic-border-shine.js",
       "global": "awardBorderShine",
       "winner": "Vercel, Supabase",
-      "archetypes": ["bento", "spatial-organic", "minimalist"],
-      "tokens": ["--ad-accent", "--ad-ink", "--ad-dur-base", "--ad-ease-signature"],
+      "archetypes": [
+        "bento",
+        "spatial-organic",
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "The cursor-tracked border light: an accent glow masked to the card's 1px edge follows the pointer. Fine-pointer only; the static hairline is the complete touch/rest look.",
       "init": "awardBorderShine.init(root, { selector, radius })"
@@ -523,8 +1290,15 @@
       "file": "hard-press-button.js",
       "global": "awardHardPress",
       "winner": "FlowFest, Anime.js, Sui",
-      "archetypes": ["brutalist", "bento", "bold-maximal"],
-      "tokens": ["--ad-ink", "--ad-accent"],
+      "archetypes": [
+        "brutalist",
+        "bento",
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-accent"
+      ],
       "deps": [],
       "whenToUse": "The physical press: hard offset shadow that lifts on hover and collapses on press — 125ms linear, a mechanism not a gesture. The :active press IS the tap answer.",
       "init": "awardHardPress.init(root, { selector })"
@@ -534,8 +1308,14 @@
       "file": "tilt-parity-figure.js",
       "global": "awardTiltParity",
       "winner": "FlowFest",
-      "archetypes": ["brutalist", "bold-maximal"],
-      "tokens": ["--ad-ease-strike", "--ad-dur-base"],
+      "archetypes": [
+        "brutalist",
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-ease-strike",
+        "--ad-dur-base"
+      ],
       "deps": [],
       "whenToUse": "The sticker sheet: children rest at alternating rotations (-2.5/2.5/-1 by parity) and straighten on hover — the brutalist figure identity, legible with no pointer at all.",
       "init": "awardTiltParity.init(root, { selector })"
@@ -545,7 +1325,11 @@
       "file": "scramble-decode.js",
       "global": "awardScramble",
       "winner": "Eloy Benoffi, Guignand, Igloo Inc",
-      "archetypes": ["brutalist", "experimental", "bento"],
+      "archetypes": [
+        "brutalist",
+        "experimental",
+        "bento"
+      ],
       "tokens": [],
       "deps": [],
       "whenToUse": "Short labels/links/data-chrome decode from charset noise to the true string (entrance once; hover replay variant). Never on paragraphs; mono targets keep width stable.",
@@ -556,8 +1340,14 @@
       "file": "glitch-type.js",
       "global": "awardGlitchType",
       "winner": "Eloy Benoffi, Naked City",
-      "archetypes": ["brutalist", "bold-maximal"],
-      "tokens": ["--ad-accent", "--ad-ink"],
+      "archetypes": [
+        "brutalist",
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink"
+      ],
       "deps": [],
       "whenToUse": "The RGB channel-split display heading — token-clean ghost clones clip-jitter in 600ms BURSTS every 5-9s (never continuous; bursts are punctuation), IO- and visibility-gated.",
       "init": "awardGlitchType.init(root, { selector })"
@@ -567,10 +1357,20 @@
       "file": "gated-splash.js",
       "global": "awardGatedSplash",
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "immersive", "experimental"],
-      "tokens": ["--ad-ground", "--ad-ink", "--ad-accent", "--ad-dur-reveal", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
       "deps": [],
-      "whenToUse": "Section form. Costumed threshold: an ENTER gate (doubles as the sound gate) over a full-viewport splash; lifts to reveal the site. Authored `hidden` so no-JS shows the page; focus-trapped while open, released on enter.",
+      "whenToUse": "Section form. Costumed threshold: an ENTER gate (doubles as the sound gate) over a full-viewport splash; lifts to reveal the site. Authored `hidden` so no-JS shows the page; focus-trapped while open, released on enter. Pair the enter control with fill-invert-cta or masked-label-swap — a dead ENTER hover is the first impression lost.",
       "init": "awardGatedSplash.init(root, { selector, onEnter })"
     },
     {
@@ -578,8 +1378,17 @@
       "file": "pinned-filmstrip.js",
       "global": "awardFilmstrip",
       "winner": "Siena Film Foundation",
-      "archetypes": ["editorial-dark", "immersive", "studio-reel"],
-      "tokens": ["--ad-ink", "--ad-accent", "--ad-font-display", "--ad-font-mono"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "studio-reel"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
       "deps": [],
       "whenToUse": "Section form. Hold-and-drag horizontal strip of treated stills, each with a jury pull-quote. Native overflow-x at rest; grab-drag + release momentum as enhancement; never hijacks vertical scroll.",
       "init": "awardFilmstrip.init(root, { selector, momentum })"
@@ -589,8 +1398,17 @@
       "file": "valediction-footer.js",
       "global": "awardValediction",
       "winner": "Lando Norris",
-      "archetypes": ["editorial-dark", "immersive", "studio-reel"],
-      "tokens": ["--ad-ground", "--ad-ink", "--ad-dur-reveal", "--ad-ease-signature"],
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "studio-reel"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
       "deps": [],
       "whenToUse": "Section form. Cinematic bookend footer: inverts the page palette once at the close, oversized wordmark rises on enter. Legible in both palette states.",
       "init": "awardValediction.init(root, { selector, threshold })"

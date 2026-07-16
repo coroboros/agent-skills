@@ -86,9 +86,11 @@
     /* ground-tinted scrim inside the glyphs keeps the counters legible over
        bright media; ink-solid fallback layer if --ad-type-image is unset */
     background-image:
+      /* 10% — just enough to seat the glyphs; 25% read as a dim mark against a
+         near-black ground (MERIDIAN v2 UAT: ORION lacked punch) */
       linear-gradient(
-        color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 25%, transparent),
-        color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 25%, transparent)
+        color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 10%, transparent),
+        color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 10%, transparent)
       ),
       var(--ad-type-image, linear-gradient(var(--ad-ink, oklch(96% 0 0)), var(--ad-ink, oklch(96% 0 0))));
     background-size: cover;
