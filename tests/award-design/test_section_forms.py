@@ -291,10 +291,23 @@ class TestCompositionFloorsWiring(unittest.TestCase):
     def test_phase4_motion_continuity(self):
         """The R4 motion-continuity law: never silent after the hero — the
         signature vocabulary recurs in every section, the footer closes live,
-        and reduced-motion is a legitimate static state judged on composition."""
+        and reduced-motion is a legitimate static state judged on composition.
+        MARE's UAT sharpened it: a live canvas over dead DOM is the same
+        failure in costume."""
         self.assertIn("no section goes fully static in the default render, footer included", self.skill)
-        self.assertIn("the footer closes on the live signature", self.skill)
+        self.assertIn("footer closes on the live signature", self.skill)
         self.assertIn("static-frame integrity", self.skill)
+        self.assertIn("never discharges the floor alone", self.skill)
+        self.assertIn("FELT mid-scroll", self.skill)
+
+    def test_phase4_effect_cohesion(self):
+        """MARE's UAT: a brighten-lift primary and mixed button grammars read
+        cheap — mechanics are picked from the winner-verified palette and the
+        primary verb ships at full strength. (Grammar cardinality — how many
+        effect groups a winning page runs — awaits its research verdict; only
+        the grounded invariant is pinned.)"""
+        self.assertIn("PICKED from the library's winner-verified palette", self.skill)
+        self.assertIn("never a component's weakest legal fallback", self.skill)
 
     def test_phase4_non_contradiction(self):
         self.assertIn("Restraint and the floors never trade", self.skill)
@@ -302,7 +315,8 @@ class TestCompositionFloorsWiring(unittest.TestCase):
     def test_preflight_countable_boxes(self):
         for name in ("**Text-effect commit**", "**Spectacle commit**",
                      "**Media-response coverage**", "**Form-slot integrity**",
-                     "**Motion continuity**", "**Static-frame integrity**"):
+                     "**Motion continuity**", "**Static-frame integrity**",
+                     "**Legibility floor**", "**Nav under momentum**"):
             with self.subTest(box=name):
                 self.assertIn(name, self.preflight)
 
