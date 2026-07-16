@@ -1,0 +1,185 @@
+/*
+ * hero-masthead — section form (winners: Siena Film Foundation, Terminal Industries).
+ * The form OWNS the layout: grid, per-slot type ramps, spacing rhythm, measure caps,
+ * alignment. The builder fills named slots and pairs them with interaction
+ * components (h1 → kinetic-reveal, media → clip-reveal | scrub-film, cta-row →
+ * masked-label-swap); it never writes placement CSS for this section. Linked as a
+ * plain stylesheet so the no-JS render keeps its layout. The form ships zero
+ * decoration and zero motion — character comes from tokens, content, and the
+ * paired components.
+ *
+ * Markup contract (slots in reading order; grid areas own visual placement):
+ *   <section data-ad-form="hero-masthead" data-media="right" data-align="start" data-density="standard">
+ *     <p   data-slot="kicker">…</p>          optional
+ *     <h1  data-slot="h1">…</h1>             required
+ *     <p   data-slot="standfirst">…</p>      optional
+ *     <div data-slot="cta-row">…links…</div> required
+ *     <dl  data-slot="data-strip">           optional
+ *       <div><dt>…</dt><dd>…</dd></div> …
+ *     </dl>
+ *     <figure data-slot="media"><img …></figure>  optional
+ *   </section>
+ *
+ * Variants: data-media="right|left|back|none" · data-align="start|center"
+ *          · data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-measure, --ad-ink, --ad-ground,
+ *         --ad-accent, --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="hero-masthead"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: min-content;
+  align-content: center;
+  column-gap: calc(var(--_sp) * 1.5);
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: calc(var(--_sp) * 4) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+[data-ad-form="hero-masthead"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="hero-masthead"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- text slots: column placement ------------------------------------- */
+[data-ad-form="hero-masthead"] > [data-slot="kicker"],
+[data-ad-form="hero-masthead"] > [data-slot="h1"],
+[data-ad-form="hero-masthead"] > [data-slot="standfirst"],
+[data-ad-form="hero-masthead"] > [data-slot="cta-row"],
+[data-ad-form="hero-masthead"] > [data-slot="data-strip"] {
+  grid-column: 1 / 8;
+  margin: 0;
+}
+[data-ad-form="hero-masthead"][data-media="none"] > :not([data-slot="media"]) { grid-column: 1 / 10; }
+[data-ad-form="hero-masthead"][data-align="center"] > :not([data-slot="media"]) {
+  grid-column: 3 / 11;
+  text-align: center;
+  justify-self: center;
+}
+
+/* ---- per-slot type ramps + rhythm ------------------------------------- */
+[data-ad-form="hero-masthead"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  /* the kicker belongs to the h1 below it, never to what came before */
+  margin-bottom: calc(var(--_sp) * 0.9);
+}
+[data-ad-form="hero-masthead"] > [data-slot="h1"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2.6rem, 6.5vw, 6.2rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  max-inline-size: 24ch;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="hero-masthead"] > [data-slot="standfirst"] {
+  font-size: clamp(1.05rem, 1.4vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+  /* a standfirst is a held breath, not a paragraph — cap it under the prose measure */
+  max-inline-size: min(var(--ad-measure, 62ch), 46ch);
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 80%, transparent);
+  margin-top: calc(var(--_sp) * 1.2);
+}
+[data-ad-form="hero-masthead"] > [data-slot="cta-row"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--_sp) * 0.8);
+  margin-top: calc(var(--_sp) * 2.2);
+}
+[data-ad-form="hero-masthead"][data-align="center"] > [data-slot="cta-row"] { justify-content: center; }
+
+/* the data-strip sits a full rest below the CTA row — never jammed under it —
+   and reads as an instrument line: hairline, mono labels, tabular figures */
+[data-ad-form="hero-masthead"] > [data-slot="data-strip"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--_sp) * 1.6);
+  margin-top: calc(var(--_sp) * 2.4);
+  padding-top: calc(var(--_sp) * 0.9);
+  border-top: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+  max-inline-size: var(--ad-measure, 62ch);
+}
+[data-ad-form="hero-masthead"] > [data-slot="data-strip"] dt {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 52%, transparent);
+  margin-bottom: 0.35em;
+}
+[data-ad-form="hero-masthead"] > [data-slot="data-strip"] dd {
+  margin: 0;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.95rem;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+
+/* ---- media variants ---------------------------------------------------- */
+[data-ad-form="hero-masthead"] > [data-slot="media"] {
+  grid-column: 8 / -1;
+  grid-row: 1 / span 6;
+  align-self: center;
+  margin: 0;
+}
+[data-ad-form="hero-masthead"][data-media="left"] > [data-slot="media"] { grid-column: 1 / 6; }
+[data-ad-form="hero-masthead"][data-media="left"] > :not([data-slot="media"]) { grid-column: 6 / 13; }
+[data-ad-form="hero-masthead"] > [data-slot="media"] img,
+[data-ad-form="hero-masthead"] > [data-slot="media"] video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* back variant: the media is the ground; a structural scrim guarantees the
+   text-over-image contrast the placement pass hunts for */
+[data-ad-form="hero-masthead"][data-media="back"] > [data-slot="media"] {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  grid-column: auto;
+  grid-row: auto;
+}
+[data-ad-form="hero-masthead"][data-media="back"] > [data-slot="media"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+    color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 82%, transparent) 0%,
+    color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 30%, transparent) 55%,
+    color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 55%, transparent) 100%);
+}
+[data-ad-form="hero-masthead"][data-media="back"] > :not([data-slot="media"]) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- mobile: one column, media becomes a band, rhythm holds ------------ */
+@media (max-width: 768px) {
+  [data-ad-form="hero-masthead"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="hero-masthead"] > :not([data-slot="media"]),
+  [data-ad-form="hero-masthead"][data-media="left"] > :not([data-slot="media"]),
+  [data-ad-form="hero-masthead"][data-media="none"] > :not([data-slot="media"]) {
+    grid-column: 1 / -1;
+  }
+  [data-ad-form="hero-masthead"] > [data-slot="media"],
+  [data-ad-form="hero-masthead"][data-media="left"] > [data-slot="media"] {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin-top: calc(var(--_sp) * 2);
+    max-height: 46vh;
+    overflow: hidden;
+  }
+}

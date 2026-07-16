@@ -20,6 +20,8 @@ Every component reads CSS custom properties with sensible fallbacks, so it works
 | `--ad-ease-strike` | fast attack/settle | `cubic-bezier(.7,.02,.28,1)` |
 | `--ad-dur-reveal` | reveal duration | `800ms` |
 | `--ad-dur-base` | control duration | `420ms` |
+| `--ad-space` | spacing rhythm unit (section forms) | `clamp(1.25rem, 2.5vw, 2rem)` |
+| `--ad-measure` | prose measure cap | `62ch` |
 
 A build maps its `DESIGN.md` tokens onto these once (an alias block), or sets them directly. Components never invent color/type.
 
@@ -39,3 +41,13 @@ A build maps its `DESIGN.md` tokens onto these once (an alias block), or sets th
 ## Init contract
 
 Each component exports `init(root, opts)` — idempotent, returns a `{ destroy() }` handle, scopes to `root` (default `document`), and is a no-op under `reduce` beyond applying the finished state. Components self-register nothing global except their one namespaced stylesheet (injected once, `id="ad-<component>-css"`).
+
+## Section forms (`forms/`)
+
+A section form owns what freeform builders keep getting wrong: the layout. Each form is a plain stylesheet the builder LINKS (`forms/<id>.css`) — layout must survive a dead script, so it never rides an `init()` injection — plus an optional `.js` enhancer under the normal init contract. The form's CSS owns the grid, per-slot type ramps, spacing rhythm (multiples of `--ad-space`), measure caps, and alignment; it ships zero decoration and zero motion of its own.
+
+**Slots.** The form root carries `data-ad-form="<id>"`; its direct children carry `data-slot="<name>"` in the documented reading order. Grid areas own visual placement, so source order is never load-bearing. The manifest's `forms` array lists each form's slots (name, element, required) and its `pairs` — the recommended interaction component per slot (h1 → kinetic-reveal, media → clip-reveal | scrub-film, …).
+
+**The layering law.** The form owns the box; interaction components own the slot's contents. The builder initializes interaction components on slot hooks (`awardKineticReveal.init(document, { selector: '[data-ad-form="hero-masthead"] [data-slot="h1"]' })`); a form's enhancer may toggle classes/attributes on the slot element itself but never restructures a slot's inner DOM — inner-DOM surgery (line wrapping, mask spans) is the exclusive right of interaction components. Forms never auto-init interaction components.
+
+**Variants.** `data-media` / `data-align` / `data-density` on the root, consumed by CSS attribute selectors. Variants × tokens × content × pairings keep two builds from cloning; only the placement discipline is shared. Freeform section CSS stays legal only where no form fits — declared in the design_plan with the reason.

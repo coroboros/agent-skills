@@ -1,6 +1,28 @@
 {
   "contract": "README.md",
-  "tokens": ["--ad-accent", "--ad-ink", "--ad-ground", "--ad-ground-2", "--ad-font-display", "--ad-font-mono", "--ad-ease-signature", "--ad-ease-strike", "--ad-dur-reveal", "--ad-dur-base"],
+  "tokens": ["--ad-accent", "--ad-ink", "--ad-ground", "--ad-ground-2", "--ad-font-display", "--ad-font-mono", "--ad-ease-signature", "--ad-ease-strike", "--ad-dur-reveal", "--ad-dur-base", "--ad-space", "--ad-measure"],
+  "forms": [
+    {
+      "id": "hero-masthead",
+      "css": "forms/hero-masthead.css",
+      "js": null,
+      "global": null,
+      "winner": "Siena Film Foundation, Terminal Industries",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive"],
+      "tokens": ["--ad-space", "--ad-measure", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "h1", "element": "h1", "required": true },
+        { "name": "standfirst", "element": "p", "required": false },
+        { "name": "cta-row", "element": "div", "required": true },
+        { "name": "data-strip", "element": "dl", "required": false },
+        { "name": "media", "element": "figure", "required": false }
+      ],
+      "variants": { "media": ["right", "left", "back", "none"], "align": ["start", "center"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "h1": ["kinetic-reveal"], "standfirst": ["text-emphasis-fill"], "cta-row": ["masked-label-swap"], "media": ["clip-reveal", "scrub-film"], "data-strip": ["counter-odometer"] },
+      "whenToUse": "The statement hero: kicker/h1/standfirst/CTA row/data-strip/media, every placement owned by the form — the builder fills slots and pairs components, never writes hero layout CSS."
+    }
+  ],
   "components": [
     {
       "id": "kinetic-reveal",
@@ -100,6 +122,50 @@
       "deps": [],
       "whenToUse": "Media uncover on scroll-in: animated clip-path (inset or ellipse) with a scale settle. Wrap an <img>/<video>.",
       "init": "awardClipReveal.init(root, { selector, threshold, origin })"
+    },
+    {
+      "id": "text-emphasis-fill",
+      "file": "text-emphasis-fill.js",
+      "global": "awardTextEmphasis",
+      "winner": "Terminal Industries",
+      "archetypes": ["editorial-dark", "minimalist", "standfirst-stack", "corporate-luxury", "immersive"],
+      "tokens": ["--ad-accent", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "The tier's text signature, two channels: scrub (words brighten dim-to-bright as the block traverses the viewport — reversible emphasis on always-legible copy) and entrance (words arrive as accent, settle to ink, fire-once). Preserves inline markup (semantic-accent terms compose).",
+      "init": "awardTextEmphasis.init(root, { selector, mode, floor, stagger })"
+    },
+    {
+      "id": "semantic-accent",
+      "file": "semantic-accent.js",
+      "global": "awardSemanticAccent",
+      "winner": "Terminal Industries",
+      "archetypes": ["editorial-dark", "minimalist", "standfirst-stack", "corporate-luxury"],
+      "tokens": ["--ad-accent", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Key terms marked [data-ad-term] carry the accent — colour does the reading; terms ignite on first view. Composes inside text-emphasis-fill blocks.",
+      "init": "awardSemanticAccent.init(root, { selector, threshold })"
+    },
+    {
+      "id": "char-assemble",
+      "file": "char-assemble.js",
+      "global": "awardCharAssemble",
+      "winner": "Stefan Vitasović",
+      "archetypes": ["editorial-dark", "minimalist", "studio-reel", "immersive"],
+      "tokens": ["--ad-dur-reveal", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Masked per-char assemble entrance for short display headings — the richer second reveal beyond kinetic-reveal's line mask. Keeps a clean accessible name via aria-label.",
+      "init": "awardCharAssemble.init(root, { selector, stagger, threshold })"
+    },
+    {
+      "id": "counter-odometer",
+      "file": "counter-odometer.js",
+      "global": "awardCounter",
+      "winner": "Terminal Industries, Bruno Simon, Depo Luxe",
+      "archetypes": ["editorial-dark", "bento", "minimalist", "corporate-luxury", "brutalist"],
+      "tokens": ["--ad-dur-reveal"],
+      "deps": [],
+      "whenToUse": "Stat/counter roll on scroll-into-view — the markup carries the true final value (visible with no JS), tabular-nums, format-preserving (1,344 · 99.7% · +412 yr).",
+      "init": "awardCounter.init(root, { selector, threshold })"
     },
     {
       "id": "grain-grade",
