@@ -319,7 +319,7 @@ class TestCompositionFloorsWiring(unittest.TestCase):
                      "**Media-response coverage**", "**Form-slot integrity**",
                      "**Motion continuity**", "**Static-frame integrity**",
                      "**Legibility floor**", "**Nav under momentum**",
-                     "**Primary-verb consistency**"):
+                     "**Primary-verb consistency**", "**Class-role uniformity**"):
             with self.subTest(box=name):
                 self.assertIn(name, self.preflight)
 
