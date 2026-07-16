@@ -104,6 +104,69 @@ class TestLayeringLaw(unittest.TestCase):
                 self.assertNotRegex(src, r"\binsertAdjacentHTML\b")
 
 
+RECIPES = COMPONENTS / "recipes.json"
+KNOWN_ARCHETYPES = {"editorial-dark", "minimalist", "corporate-luxury", "immersive",
+                    "bento", "brutalist", "spatial-organic", "bold-maximal", "experimental"}
+
+
+class TestRecipes(unittest.TestCase):
+    """Recipes are the layer between the palette and a deterministic page —
+    a winner's ordered section chain the model picks and fills. Lock the data's
+    integrity: the pairs vocabulary must reference real components, and a recipe
+    with two climaxes (or a fabricated archetype) is corrupted composition data."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.data = json.loads(RECIPES.read_text(encoding="utf-8"))
+        cls.recipes = cls.data["recipes"]
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        cls.component_ids = {c["id"] for c in manifest["components"]}
+
+    def test_ids_unique(self):
+        ids = [r["id"] for r in self.recipes]
+        self.assertEqual(len(ids), len(set(ids)))
+
+    def test_every_archetype_has_recipes(self):
+        covered = {r["archetype"] for r in self.recipes}
+        self.assertEqual(covered, KNOWN_ARCHETYPES)
+
+    def test_recipe_shape(self):
+        for r in self.recipes:
+            with self.subTest(recipe=r["id"]):
+                for field in ("archetype", "winner", "macrostructure", "sections",
+                              "footer", "loader", "paceNotes", "whenToUse"):
+                    self.assertIn(field, r)
+                self.assertGreaterEqual(len(r["sections"]), 2)
+
+    def test_at_most_one_climax(self):
+        for r in self.recipes:
+            with self.subTest(recipe=r["id"]):
+                self.assertLessEqual(
+                    sum(1 for s in r["sections"] if s.get("climax")), 1)
+
+    def test_sections_carry_intensity(self):
+        for r in self.recipes:
+            for s in r["sections"]:
+                with self.subTest(recipe=r["id"], role=s["role"]):
+                    self.assertIn("intensity", s)
+                    self.assertTrue(1 <= s["intensity"] <= 10)
+
+    def test_pairs_reference_real_components(self):
+        for r in self.recipes:
+            for s in r["sections"]:
+                for slot, val in s.get("pairs", {}).items():
+                    vals = val if isinstance(val, list) else [val]
+                    for v in vals:
+                        with self.subTest(recipe=r["id"], slot=slot, component=v):
+                            self.assertIn(v, self.component_ids)
+
+    def test_skill_wires_recipes(self):
+        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("assets/components/recipes.json", skill)
+        self.assertIn("Pick the recipe, then diverge inside it", skill)
+        self.assertIn("never re-sequences a winner's ordering to taste", skill)
+
+
 class TestCompositionFloorsWiring(unittest.TestCase):
     """The floors are inert unless the phases carry them — pin the phrases."""
 
