@@ -1,0 +1,357 @@
+{
+  "archetype": "immersive",
+  "revision": 2,
+  "corpus": [
+    {
+      "site": "Lando Norris",
+      "url": "landonorris.com",
+      "award": "Awwwards SOTD 2025-11 + Site of the Year 2025 (verified — awwwards.com/sites/lando-norris + Sites-of-the-Year list; OFF+BRAND, Webflow + WebGL + Rive). Exact score 8.18 and the 'Users' Choice' sub-badge not independently confirmed this run.",
+      "fit": "Editorial-portrait immersive on a Webflow DOM page: full-bleed portrait hero, a live WebGL 3D helmet (rotations) plus a discrete 'Helmets Hall of Fame' 3D gallery section, Rive motion graphics, lime-on-cream. Portrait-procession = DOM sections over a recurring 3D feature — NOT one continuous in-engine scene tracked hero-to-footer (that stronger claim is unverified; see unverified)."
+    },
+    {
+      "site": "Messenger",
+      "url": "messenger.abeto.co",
+      "award": "Awwwards SOTD 2025-11-10 (7.92) + Developer Award 8.21 (animations 9.00, responsive 8.40, WPO 8.80) (verified — awwwards.com/sites/messenger; load figures 5.7MB init / 17.5MB max via 80.lv + creativedevjobs)",
+      "fit": "Single continuous Three.js world: a tiny round planet you pilot as a mail carrier, WebSocket multiplayer. The whole page IS one operable 3D scene — no DOM-page beneath; the site is the replay."
+    },
+    {
+      "site": "Siena Film Foundation",
+      "url": "siena.film",
+      "award": "Awwwards SOTD 2025-03-18 (7.9) + Developer Award (7.51) (verified — awwwards.com/sites/siena-film-foundation, page read this run; Niccolò Miranda / Federico Valla / G-NS Studio). No SOTM badge — the earlier 'SOTM April 2025' claim is refuted; Siena was only a nominee in the March SOTM vote.",
+      "fit": "Gated-reel immersive at the editorial-dark seam: WebGL filmstrip slider with parallax depth, OGL shader-surface canvas alive behind DOM, cursor-scrubbed film stills, ticket-stub gate. Medium is scrubbed-and-driven."
+    },
+    {
+      "site": "Cartier Watches & Wonders 2025",
+      "url": "cartier-waw-0225.dev.60fps.fr",
+      "award": "Awwwards SOTD (7.64) + Awwwards SOTM 2025 + CSS Design Awards (verified — awwwards SOTD FB post + cssdesignawards.com/.../47763 + utsubo teardown; Immersive Garden + 60fps, Agency of the Year 2025)",
+      "fit": "Rooms-procession: scroll walks you through six self-contained 3D alcoves (one per watch) like a museum after hours; Web Audio (Mooders) narrative score threads them; hidden gestures reward curiosity. Three.js + GSAP + Lenis."
+    },
+    {
+      "site": "Oryzo AI",
+      "url": "oryzo.ai",
+      "award": "Awwwards SOTM April 2026 + Developer Award (7.86) + CSSDA WOTD 2026-04-09 (judge 9.22) (verified — awwwards X SOTD post + Lusion BTS blog; Lusion, vanilla Three.js + inertial physics + Z-axis camera)",
+      "fit": "Single-object-dive: one hero object (a cork coaster) rendered live in vanilla Three.js with real weight/inertia; scroll moves the camera through true Z-axis depth around and into it — the spectacle IS the continuous scroll, hero to footer."
+    },
+    {
+      "site": "ERA",
+      "url": "era (Vide Infra case study)",
+      "award": "Awwwards SOTD + FWA SOTD + CSSDA SOTD, January 2025 — triple SOTD (verified — videinfra.com/work/era case study; Vide Infra, Ljubljana). Prior 'dev Tekta' credit was a miscredit — Tekta is the real-estate client; the web build is Vide Infra's.",
+      "fit": "Chained-WebGL narrative: cursor-reactive building-silhouette splash, an interactive 3D map centerpiece (particle traffic following roads), scroll zooms the camera into architectural render detail, custom shader grade (noise, fisheye, chromatic aberration)."
+    },
+    {
+      "site": "Hubtown",
+      "url": "hubtown (Unseen Studio, awwwards.com/sites/hubtown)",
+      "award": "Awwwards SOTD June 2026 (verified — awwwards.com/sites/hubtown + awwwards Facebook SOTD post; Unseen Studio)",
+      "fit": "B2B real-estate carried by a Three.js hero (glowing 3D monolith over a dark reflective landscape) with a signature cursor mouse-reveal that uncovers detail in geometry and lighting; scroll-sequenced staged sections (type scatters and reforms)."
+    },
+    {
+      "site": "Explore Primland",
+      "url": "explore-primland (awwwards.com/sites/explore-primland)",
+      "award": "Awwwards SOTD 2026-02-04 (7.35) + Developer Award (7.05) (verified — awwwards.com/sites/explore-primland; Outpost case study, ~12,000-acre rendered terrain; also ships ambient nature audio/birdsong)",
+      "fit": "Location-flythrough: real Blue Ridge terrain rendered in Three.js with atmospheric fog; scroll drives a continuous aerial camera gliding over the landscape — a navigable world, each scroll beat advancing narrative + visuals together."
+    },
+    {
+      "site": "IVRESS",
+      "url": "ivress (Utsubo)",
+      "award": "FWA Site of the Month (May 2026) + CSS Design Awards (verified — utsubo best-threejs-2026 breakdown; Utsubo)",
+      "fit": "WebGPU cinematic scene: Three.js WebGPURenderer with WebGL fallback, shaders authored once in TSL compiling to both backends; the scene unfolds cinematically and responds to user presence."
+    },
+    {
+      "site": "Egg Hunt",
+      "url": "egg-hunt (MSI, Merci-Michel)",
+      "award": "Awwwards SOTD + Developer Award, 2023 + FWA of the Day + CSSDA Website of the Year 2023 nominee (verified — awwwards.com/sites/msi-egg-hunt + thefwa.com/cases/msi-egg-hunt + cssdesignawards.com; Merci-Michel, Paris). PRE-WINDOW (2023) — retained as the cleanest one-verb playable exemplar; Messenger (2025) and Bruno Simon (2026) carry the in-window load.",
+      "fit": "One-verb playable: click to dash between floating rocks and grab golden eggs, speed-bonus high-score chase, no tutorial/no menu — one tight loop as the whole experience."
+    },
+    {
+      "site": "Bruno Simon Portfolio (2025)",
+      "url": "bruno-simon.com",
+      "award": "Awwwards SOTM January 2026 (verified — awwwards.com/sites/bruno-simon-portfolio + SOTM list; Three.js + Cannon.js physics + spatial audio)",
+      "fit": "Playable-world: drive a small physics vehicle (Three.js + Cannon.js) through a 3D town to discover work/talks — the engine is the page; navigation-as-verb, discovery-as-proof."
+    }
+  ],
+  "story": {
+    "arcs": [
+      "Portrait-procession (Lando, SOTY-verified): corner wordmark over full-bleed portrait -> pinned horizontal gallery -> on/off editorial split -> a discrete live 3D helmet gallery ('Helmets Hall of Fame') -> honours/partners -> inverted valediction close. One person told through facets over a Webflow DOM page; a 3D helmet feature (rotations + the gallery) recurs across facets — NOT a single scene tracked hero-to-footer (that stronger claim is unverified).",
+      "Rooms-procession / museum-after-hours (Cartier, winner-verified): scroll walks the visitor through six discrete staged 3D alcoves, one per artifact, transitioned by camera not by page; a persistent Web Audio score threads the rooms so the whole scroll is one narrated walk.",
+      "Single-object-dive (Oryzo, winner-verified): one subject held in the center of a live Three.js scene; scroll drives the camera through true Z-axis depth around and into it — the entire page is one continuous camera move on one object, never leaving it.",
+      "Location-flythrough (Primland, winner-verified): scroll = a continuous aerial camera gliding over real rendered terrain with atmospheric fog; the place unfolds beneath the reader as one uninterrupted move.",
+      "Playable-world (Messenger, Bruno Simon, winner-verified; Egg Hunt 2023 pre-window): the whole page is one operable 3D scene; a single clear verb (deliver / drive / dash-and-grab) is the narrative and the proof — the site is its own replay, there is no 'after the hero' because you never leave the scene.",
+      "Gated-reel (Siena, winner-verified): a costumed threshold gate (doubles as sound unlock) -> oversized-serif masthead over a scrubbed still -> operable filmstrip of treated stills -> per-work detail -> thin costumed credits; the shader canvas and grain run unbroken beneath."
+    ],
+    "thread": "Winners pick ONE driven surface and never leave it — the single coaster object under a Z-diving camera (Oryzo, verified), the terrain the aerial camera glides over (Primland, verified), the persistent Mooders audio + camera through the six rooms (Cartier, verified), the tiny planet you pilot (Messenger, verified). The fil rouge is the medium itself, carried hero-to-footer by scroll (and, where earned, the pointer). Lando is the portrait-procession VARIANT — a 3D helmet feature recurring across DOM sections rather than one continuous in-engine scene — so its spine is softer (object-track over DOM, kept alive by Rive/canvas loops), not a never-leaving world. Cohesion is manufactured by three constants layered over the surface: one saturated accent that means 'active' on every element class (Lando lime #D2FF00, publicly corroborated; Siena red for the live state only), one named easing family (Siena --easeOutQuint cubic-bezier(.23,1,.32,1), CSS-verified; Lando's chrome bezier reported but not re-read this run), and one gesture grammar (inversion, or reveal-from-edge) that repeats while the per-class mechanic differs. The camera is the through-line: transitions between sections read as camera moves, never fades (Oryzo, Cartier, Primland).",
+    "copy": "Sparse title-cards, never paragraphs — the medium carries the story, the words punctuate it. Person tracks subject: third-person for a personality (Lando), in-character for a world (Messenger). Label-length lines, one long declarative at most, idiomatic-warm verbs, an emphatic terminal period on a fragment, and a refusal to explain (no bullets, no hype, no exclamation). Quoted to calibrate specificity, never to ship: 'Always bringing the fight.' (a fragment with a full stop carries the close), 'Load Norris' (the wait put in-brand where a spinner would sit — and the archetype's designed load state), 'It's a small planet, but someone's gotta make the deliveries.' (the world's premise in one wry line). Imitate the specificity — the named place, the count, the refusal — never the wording."
+  },
+  "spectacle_model": {
+    "hero": "The first viewport commits the DRIVEN MEDIUM: a real-time scene the visit moves through (Oryzo object, Cartier alcove, Hubtown monolith, Primland terrain), a scroll/pointer-scrubbed real sequence (Siena film still), or a full-bleed cinematic composed as the fold (Lando portrait + a live helmet feature). The commitment is legibility-in-one-beat AND aliveness-in-one-beat: the hero must read as one idea at a glance (Lando's driver-and-helmet is felt instantly) and it must already be driven — pointer-reactive or scroll-armed — because a pointer-dead, motion-dead WebGL hero is the archetype's first-impression defect (ERA's splash camera reacts to the cursor before a single scroll). The asset-heavy medium reaches the hero THROUGH a designed load state (see section_playbook 'load'), never a raw spinner.",
+    "continuation": [
+      "Lando: a 3D helmet feature recurs across the DOM page (rotations in the intro, a discrete 'Helmets Hall of Fame' gallery mid-page) rather than one continuously-tracked scene; pinned horizontal gallery (proof, ~7) -> on/off editorial split (the one rest beat, ~5) -> live 3D helmet gallery (mid PEAK, ~9) -> honours/partners with counter rolls (~6) -> valediction footer that returns the opening face helmeted (second PEAK, ~9). Rive + canvas ambient loops + ambient audio keep the page from freezing between inputs (exact instance counts and whole-scroll helmet tracking are unverified).",
+      "Oryzo: there is no 'after' — scroll is the spectacle. The camera moves through Z-depth on the one object every section; inertial physics easing keeps the object in motion between scroll ticks so it is never static. Amplitude peaks at the closest push-in; it never drops to silence.",
+      "Cartier: every section is peak-tier — scroll transitions the camera from alcove to alcove, each a fully staged 3D room; the Mooders Web Audio score plays unbroken as a narrative layer (not wallpaper); hidden gestures keep the pointer live throughout. There is no quiet section; the whole page is a sustained procession of staged moments.",
+      "Primland: the aerial camera glides continuously over terrain as you scroll — one uninterrupted flythrough; each scroll beat advances the camera and the narrative together, atmospheric fog and terrain always in motion.",
+      "ERA: chained WebGL scenes carry momentum — cursor-reactive splash camera -> interactive 3D map with particle traffic that animates on its own (living detail between inputs) -> parallax 'Road to Home' light path over a starfield -> camera zooms into architectural render detail on scroll. The scene is never a static backdrop.",
+      "Messenger / Bruno Simon: the continuation IS the whole page — one operable scene with ambient world life (other players, physics, drift); the visit sustains itself because there is nowhere to scroll to that leaves the medium."
+    ],
+    "one_climax_verdict": "REFUTED",
+    "evidence": [
+      "Oryzo: the spectacle IS the continuous scroll-driven camera Z-dive on one object — no quiet section after the hero (Lusion BTS blog: vanilla Three.js, inertial physics, Z-axis camera).",
+      "Primland: one uninterrupted scroll-driven aerial flythrough over rendered terrain for the whole page — continuation is the mechanic, not an afterthought (Outpost case study).",
+      "Cartier: six sequentially staged 3D rooms, each at spectacle amplitude, threaded by an unbroken Mooders Web Audio score — sustained multi-peak, not one-peak-then-silence (utsubo teardown: scroll room-to-room).",
+      "Messenger / Bruno Simon: the whole page is one operable 3D scene — there is no 'after the hero' to fall quiet into (SOTD/SOTM-verified; Three.js + Cannon.js).",
+      "Lando (portrait-procession variant): the sectional multi-peak read still holds — a mid-page 3D helmet gallery + a palette-returning valediction over a Rive/canvas-animated DOM page; the 'never-idle 35 Rive/21 canvas' and 'whole-scroll tracking' legs are unverified and the thesis does NOT rest on them.",
+      "The archetype codifies the counter-law: a cinematic page that freezes between inputs breaks the fiction — silence after the hero is the defining defect, not restraint. The synthesis was independently confirmed against the verified in-engine winners this run."
+    ],
+    "recommended_law": "For the immersive archetype, replace 'exactly one climax' with the SPECTACLE-SPINE law: One continuous driven medium spans hero->footer — the spectacle spine, driven every section by scroll (camera Z-dive / room-to-room / flythrough / object-track) and, where earned, by pointer, and alive between inputs (ambient scene life + optional audio score). Within that spine, CAP the amplitude PEAKS at one or two (a mid-page maximal camera/physics/reveal moment, plus an optional inverted or returning close) — peaks are still scarce. The vocabulary of continuation is NOT capped: every section keeps the medium driven. The failure mode to forbid is the reverse of the other archetypes' over-peaking — here it is SILENCE: a section where the medium goes static or purely decorative (a stack of static images fading in with a particle canvas drifting behind) is 'aucune immersion', the defect. Peaks are capped; the spine is mandatory; a still section is the sin."
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "The story shape (arc), chosen by the subject — deterministic, one branch per subject type.",
+      "rule": "Single person/personality -> portrait-procession. Single object/product -> single-object-dive. A set of discrete artifacts -> rooms-procession. A physical place -> location-flythrough. A brand idea reducible to one verb -> playable-world. A treated archive/festival -> gated-reel. Pick exactly one; do not blend two arcs.",
+      "evidence": [
+        "Lando: personality -> portrait-procession (SOTY-verified)",
+        "Oryzo: one product -> single-object-dive (winner-verified)",
+        "Cartier: six watches -> rooms-procession (winner-verified)",
+        "Primland: a resort/place -> location-flythrough (winner-verified)",
+        "Messenger/Bruno: one verb -> playable-world (winner-verified; Egg Hunt 2023 pre-window)",
+        "Siena: treated film archive -> gated-reel (winner-verified)"
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "The signature thread (fil rouge) — the ONE driven surface and the three constants layered on it.",
+      "rule": "Name the single surface the narrative rides (the 3D object / scene / terrain / planet / helmet-over-DOM) and commit to never rendering it static — no section drops the medium to silence. Bind ONE accent that means 'active' on every element class, ONE easing family of 2-3 named beziers used everywhere, ONE gesture grammar (inversion, or reveal-from-edge). Cohesion lives in these constants; variety lives in the per-class mechanic. Never one hover everywhere; never a different ease per element.",
+      "evidence": [
+        "Lando: lime accent (#D2FF00, publicly corroborated) + inversion grammar + a named chrome easing (exact bezier and idle specifics not re-read this run)",
+        "Siena: red-for-live-state + --easeOutQuint cubic-bezier(.23,1,.32,1) + reveal-from-edge (CSS-verified in an earlier run)",
+        "Oryzo: one object + one physics-inertia easing carried through every scroll tick (case-study-verified)"
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "The macrostructure — the ordered section chain that is the arc's beats.",
+      "rule": "Lay the sections as beats of the chosen arc (see section_playbook). The chain typically OPENS with a branded LOAD beat — the asset-heavy medium needs a designed first-load state (progress tied to real asset load), never a raw spinner (see section_playbook 'load'). Every subsequent section must keep the medium driven — a purely static/DOM-only section is illegal in this archetype (it is the silence defect). Rotate the section shapes against the previous stamp; never re-sequence a winner's ordering to taste.",
+      "evidence": [
+        "Lando 12 sections ~16.5vh each: portrait -> pinned gallery -> split -> 3D gallery -> honours -> valediction (SOTY-verified structure)",
+        "Cartier: gate/enter -> six alcoves in sequence (winner-verified)",
+        "Siena: gate -> masthead -> filmstrip -> detail -> credits (winner-verified)",
+        "Lando 'Load Norris' in-brand loader (copy-verified); Messenger 5.7MB init demands a designed load state (weight-verified)"
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "The momentum map — the spine mechanic + the 1-2 capped peaks + the between-input life + long-scroll wayfinding.",
+      "rule": "Assign the SPINE: pick what scroll drives every section — camera Z-dive (single-object-dive), room-to-room camera transition (rooms-procession), aerial flythrough (location-flythrough), object-track over DOM (portrait-procession), or free-roam (playable-world). Place at most TWO amplitude PEAKS (a mid-page maximal camera/physics/reveal + an optional inverted/returning close). Fill BETWEEN inputs with named idle channels (ambient scene life: particle drift, physics settle, Rive/canvas loops, optional Web Audio score) so the page never freezes. For long scroll-jacked processions/flythroughs, EXPOSE wayfinding — a room/chapter index, scene counter, or progress rail bound to scroll or active-room index, keyboard- and skip-reachable — so the visitor can orient in the non-standard scroll (see gaps: procession-wayfinding). Verdict test: if any section's only motion is decorative over a static base, the spine was not built — fix before proceeding.",
+      "evidence": [
+        "Lando: spine = a 3D helmet feature over a DOM page + Rive/canvas idles; peaks = 3D gallery + valediction (SOTY-verified structure; exact idle counts + whole-scroll tracking unverified)",
+        "Oryzo: spine = camera Z-dive; peak = closest push-in; inertia fills between ticks (case-study-verified)",
+        "Cartier: spine = room-to-room camera + unbroken audio score; every room a peak (winner-verified)",
+        "ERA: idle life = self-animating particle traffic between inputs (case-study-verified)",
+        "Cartier six discrete rooms + Primland flythrough beats need orientation in the long scroll (inferential, MEDIUM)"
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section pairing — the form and the interaction components for each role.",
+      "rule": "Pair each section role with its form + components from the section_playbook. Load -> branded-preloader (progress tied to real asset load, in-brand motif/copy; doubles as the sound-unlock gate when audio is used). Hero -> hero-masthead(media:back) or in-engine-hero or gated-splash, kinetic-reveal on h1, clip-reveal on media, shader-surface/webgl-scene ground. Continuation-spine -> dolly-zoom/scroll-camera-dive/rooms/flythrough. Proof/reel -> pinned-filmstrip, index-list+index-row-hover, full-bleed-figure procession, figure-hover. Rest -> editorial-split, char-assemble, text-emphasis-fill. Peak -> webgl-scene(delegated). Close -> valediction-footer (palette inversion) or contact-first close-panel.",
+      "evidence": [
+        "Lando recipe portrait-procession-lando: hero-masthead -> pinned-filmstrip -> editorial-split -> webgl-scene -> logo-wall+stat-band -> valediction-footer (recipes.json, SOTY-verified structure)",
+        "Siena recipe gated-reel: gated-splash -> hero-masthead(scrub-film) -> pinned-filmstrip -> editorial-split -> close-panel (recipes.json, winner-verified)"
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states — the differentiated hover/tap/focus per element class, DOM and in-scene.",
+      "rule": "Apply the element_states canon: CTA = full-token flood + label inversion (or already-solid motion-only), never a pale tint. Link = adopt-the-accent recolor. Figure = inner scale 1.1 in a clip frame + companion cue (or ellipse/edge-wipe uncover), never a 1.02-1.03 twitch. Index row = flood+invert or slide-to-expose-arrow with siblings dimmed 45-70%. Heading = variable-font axis animation only where a non-link display heading earns it; otherwise masked-line/char entrance, no generic hover. Nav = fixed/transparent/no-border/no-backdrop-filter, color transitions to stay legible. Cursor = OS default unless a mechanic earns a custom cursor that DRIVES the medium (camera or reveal). Interactive 3D MESHES answer the pointer via raycast: bounded highlight + pointer/grab affordance on hover, tap-to-act + a sub-160ms hit cue on touch, with a focusable DOM proxy for keyboard reach (element_states.scene_object). Run 4-5 distinct interaction channels (per-class states, display-type effect, cursor, idle, scroll texture); where the scene has interactive meshes, the in-scene raycast state is the channel that matters most for this archetype.",
+      "evidence": [
+        "Lando: schedule rows flood lime + invert text; nav-link -> #B2C73A; helmet-grid img scale 1.1; text-nav-link wght/wdth axis (shipped-CSS specifics not re-read this run; standard-pattern mechanics kept as recipe)",
+        "Siena: all-work-cta flood #000/#fff .5s; review-he -> red; previousnext-item img 1.1; edge panel wipe (CSS-verified in an earlier run)",
+        "Messenger/Egg Hunt/Bruno: in-scene object taps + raycast interactions carry the playable-world verb (SOTD/SOTM-verified)"
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile — the touch strategy.",
+      "rule": "Pointer/cursor-camera classes go DORMANT on touch; scroll alone drives the scene (depth comes from scroll on mobile — the winner convention). Reconsider the WebGL scene, do not drop it: lower poly, fewer concurrent channels, progressive quality, budget under ~5MB init. Press-class elements answer the tap with a 90-160ms flash floor (the fill/press IS the tap answer); interactive scene meshes answer the tap via raycast-on-tap with a sub-160ms hit cue. Galleries -> native scroll-snap swipe + tap-to-enlarge. Cross-device parity is weighted highest here — judges check mobile first and a desktop-only WebGL hero tanks Usability (30%).",
+      "evidence": [
+        "Messenger: 5.7MB init / 17.5MB max, responsive 8.4, animations 9.0 on mobile-capable Three.js (winner-verified scores)",
+        "reference: pointer-parallax/magnetic-cursor DORMANT on touch; swipe-snap-gallery is the scored Mobile Excellence line"
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy — the words over the medium.",
+      "rule": "Write title-cards, not paragraphs — the medium carries the story. Third-person for a personality, in-character for a world; label-length lines, one long declarative at most, an emphatic terminal period on a fragment, no bullets/hype/exclamations. Match the SPECIFICITY of the quoted winners (a named place, a count, a refusal), never the wording.",
+      "evidence": [
+        "Lando: 'Always bringing the fight.' / 'Load Norris' / '2025 Mclaren Formula 1 Driver' [sic] (copy-verified)",
+        "Messenger: 'It's a small planet, but someone's gotta make the deliveries.' (winner-verified)"
+      ]
+    }
+  ],
+  "section_playbook": [
+    {
+      "role": "load",
+      "forms": ["branded-preloader"],
+      "pairs": ["progress-tied-to-asset-load", "in-brand motif/copy", "kinetic-reveal (wordmark)", "sound-unlock gate (when audio)"],
+      "intensity": 4,
+      "states": "The asset-heavy medium needs a designed first-load state — a branded preloader whose progress tracks REAL asset loading (Three.js LoadingManager / preloaded bytes), not a fake timer, carrying an in-brand motif/copy where a spinner would sit and handing off to the hero with a camera/reveal transition (not a hard cut). Doubles as the sound-unlock gate when a Web Audio score is used (autoplay policy). A raw spinner is illegal in this archetype — the load screen is the first impression.",
+      "evidence": ["Lando 'Load Norris' in-brand loader (copy-verified)", "Messenger 5.7MB init / 17.5MB max demands a designed load state (weight-verified)"]
+    },
+    {
+      "role": "hero",
+      "forms": ["hero-masthead(media:back)", "MISSING:in-engine-hero", "gated-splash"],
+      "pairs": ["kinetic-reveal (h1)", "clip-reveal (media)", "shader-surface / webgl-scene (ground)", "fill-invert-cta (enter/CTA)"],
+      "intensity": 8,
+      "states": "MANDATORY: the medium is armed on the fold — pointer drives the camera or a reveal on fine-pointer (cursor-reactive camera ERA, mouse-reveal Hubtown, magnetic snap Lando); scroll commits the spine. A pointer-dead, motion-dead WebGL hero is a defect. Nav is fixed/transparent over it.",
+      "evidence": ["Lando corner-lockup portrait + live helmet feature (SOTY-verified; whole-scroll tracking unverified)", "ERA cursor-reactive splash camera (case-study-verified)", "Hubtown monolith + cursor mouse-reveal (case-study-verified)"]
+    },
+    {
+      "role": "continuation-spine",
+      "forms": ["MISSING:scroll-camera-dive", "MISSING:rooms-procession", "dolly-zoom (partial)", "webgl-scene(delegated)"],
+      "pairs": ["dolly-zoom", "smooth-scroll (Lenis/lerp foundation)", "ambient-idle (between-input life)", "procession-wayfinding (long-scroll orientation)"],
+      "intensity": 8,
+      "states": "The section(s) where scroll = camera. Reversible, compositor-driven; scroll progress maps to a camera path (position + lookAt) or a room-to-room transition. Ambient scene life runs between scroll ticks (inertia settle, particle drift). For multi-room/flythrough spines, expose a room index / progress rail / scene counter so the long scroll-jacked travel is orientable and skip-reachable. This is the role the recipes under-serve today.",
+      "evidence": ["Oryzo scroll drives camera through Z-depth on one object (case-study-verified)", "Primland aerial camera glides over terrain on scroll (case-study-verified)", "Cartier scroll transitions between six 3D rooms (winner-verified via utsubo teardown)"]
+    },
+    {
+      "role": "proof / reel",
+      "forms": ["pinned-filmstrip(component)", "index-reel-header + index-list", "full-bleed-figure (procession)"],
+      "pairs": ["figure-hover (1.1)", "index-row-hover", "text-emphasis-fill (caption)", "scrub-film (operable still)"],
+      "intensity": 7,
+      "states": "figure hover = contained zoom 1.1 + companion cue (never 1.02-1.03); index rows = flood/invert or slide-to-expose with siblings dimmed 45-70%; the mid-scroll operable spectacle is a hand-scrubbed film still (cursor x -> video.currentTime).",
+      "evidence": ["Lando pinned horizontal gallery, helmet-grid img 1.1 (SOTY-verified structure; exact CSS not re-read this run)", "Siena filmstrip + [data-videoplayer='scrub'] cursor->currentTime (winner-verified)"]
+    },
+    {
+      "role": "feature / understanding (rest)",
+      "forms": ["editorial-split", "type-as-image"],
+      "pairs": ["char-assemble (h2)", "text-emphasis-fill (prose)", "semantic-accent (terms)", "image-curtain (media)"],
+      "intensity": 5,
+      "states": "The one rest beat — but the medium behind it still moves (the shader ground / tracked object does not park). Headings enter via masked-line or per-char assemble; key terms carry the accent on first view.",
+      "evidence": ["Lando on/off editorial split as the bridge rest (SOTY-verified structure)", "Cartier evolving compositions create rhythm even in contemplative rooms (case-study-verified)"]
+    },
+    {
+      "role": "spectacle peak",
+      "forms": ["webgl-scene(delegated)", "MISSING:scroll-camera-dive (closest push-in)"],
+      "pairs": ["shader-surface", "ambient-audio-score (optional narrative layer)"],
+      "intensity": 9,
+      "states": "The one mid-page maximal moment — camera closest push-in, physics release, or reveal apex. Capped at one (plus an optional inverted close). Fully driven, not a static frame.",
+      "evidence": ["Lando mid-page live 3D helmet gallery (SOTY-verified structure, the mid-page climax)", "Oryzo closest camera push-in (case-study-verified)"]
+    },
+    {
+      "role": "close",
+      "forms": ["valediction-footer(component)", "contact-first close-panel", "in-world sign-off"],
+      "pairs": ["kinetic-reveal (wordmark)", "accent-link", "masked-label-swap"],
+      "intensity": 9,
+      "states": "Two modes, neither bare chrome: valediction that inverts the palette ONCE and returns the opening subject recontextualized (Lando — palette-inversion detail unverified), or contact-first with a real address (Lusion), or an in-world sign-off (Messenger/Bruno). The close is often the second capped peak.",
+      "evidence": ["Lando valediction returns the opening face helmeted (SOTY-verified structure; cream->dark-olive inversion detail unverified)", "Lusion 'Let's talk' + real Bristol address (winner-verified)"]
+    }
+  ],
+  "element_states": {
+    "cta": {
+      "hover": "Full-token flood + label inversion: background jumps to a solid full-saturation token and text/icon flip to the contrast token (Lando .f1-highlight-grid:hover -> lime/black; Siena .all-work-cta-w:hover -> #000/#fff at .5s easeOutQuint). OR already-solid-at-rest CTA with motion-only hover (Lando .btn-w rests solid #D2FF00, press/scale only). NEVER a pale rgba(accent,.1) tint.",
+      "tap": "The flood/press IS the tap answer — a 90-160ms flash floor to the solid state on :active (pointer-dormant on touch, so the press must carry it).",
+      "focus": "Same as hover on :focus-visible (the flood + inversion), plus a visible focus ring — the hover-revealed state must be reachable by keyboard."
+    },
+    "link": {
+      "hover": "Adopt-the-accent recolor — the link takes the site's one saturated accent otherwise reserved for the CTA (Lando nav-link -> #B2C73A, metadata -> lime; Siena .review-he -> red). Optional underline wipe or masked-label-swap for CTAs. Kinetic underline-draw is ABSENT in this tier (belongs to editorial) — body links use a bare text-decoration:underline.",
+      "tap": "Accent flash on :active (90-160ms).",
+      "focus": "Accent recolor + visible ring on :focus-visible."
+    },
+    "figure": {
+      "hover": "Inner scale to 1.1 inside a fixed clip frame + a companion cue (scrim lift, tint, or caption rise) — Lando .helmet-grid-item:hover img, Siena .previousnext-item:hover .full-img-w. OR clip-path ellipse uncover ellipse(100% 120% at 50% 0%) (Lando visor motif), OR edge-anchored panel wipe scaleY(0->1) (Siena). Amplitude is 10%, never a dead 1.02-1.03.",
+      "tap": "Tap-to-enlarge (the scored Mobile Excellence line) or caption/meta reveal on tap; the static hairline/caption is the complete rest look.",
+      "focus": "Same as hover on :focus-within — hover-revealed caption/meta reachable under keyboard and touch."
+    },
+    "index_row": {
+      "hover": "Hovered row lights (accent rule + surfaced metadata) while siblings dim to 45-70%. Mechanic differs per winner: flood the row + invert its text (Lando schedule rows lime + invert), OR hide the bullet and fade a direct-link in at .2s ease-out (Siena), OR slide the row text translate3d(1.3em,0,0) to expose the arrow (Lusion). :has() dims unhovered siblings.",
+      "tap": "Row expands or navigates on tap; the surfaced metadata that hover reveals is present in the resting DOM (reachable under touch).",
+      "focus": "Accent rule + surfaced meta on :focus-within, siblings dim — same spotlight, keyboard-driven."
+    },
+    "heading": {
+      "hover": "Rare and only on a non-link display heading: variable-font axis animation — font-variation-settings 'wght'/'wdth' thicken and widen the letters in place (Lando .text-nav-link -> wght 660, wdth 93). This is the hero's one signature type move; it reads bespoke because almost nobody ships it. No generic hover on ordinary headings.",
+      "tap": "None (dormant on touch) — the entrance reveal is the mobile expression.",
+      "focus": "None as a hover analog; the accessible name stays clean via aria-label when chars/lines are split for the entrance (masked-line reveal or char-assemble on scroll-in)."
+    },
+    "nav": {
+      "hover": "Per-link: split-rollover (per-char stagger) or adopt-the-accent recolor. The bar itself: position:fixed, background:transparent, NO backdrop-filter, border-bottom:0 none — the text/icon color transitions (Lando color .75s cubic-bezier(.65,.05,0,1)) to stay legible over whatever section scrolls under it. Never a frosted panel on scroll, never a colored border-bottom.",
+      "tap": "Menu toggle answers the tap; link taps flash the accent.",
+      "focus": "Visible focus ring on links; nav reveals on scroll-up / hides on scroll-down and is keyboard-reachable when hidden."
+    },
+    "cursor": {
+      "hover": "OS cursor by DEFAULT (the two deepest-evidence winners ship no cursor:none and no follower). An EARNED custom cursor must do real work on the medium: cursor-reactive camera giving dynamic scene angles (ERA), a mouse-reveal that uncovers geometry/lighting (Hubtown), or magnetic snap to [data-ad-magnetic] (Lando/Cuberto: speed .55, ease expo.out, stickDelta .15). The committed pointer layer lives here — a pointer-dead hero fails.",
+      "tap": "Custom cursor and all pointer-camera/reveal classes go NATIVE/dormant on touch; the tap is answered by the press-class element or the scene-mesh raycast, not the cursor.",
+      "focus": "N/A — cursor effects are pointer-only; keyboard users get the finished/revealed state without the pointer choreography."
+    },
+    "scene_object": {
+      "hover": "Raycast highlight — on fine-pointer, the ray-hit interactive mesh answers with a bounded highlight (emissive lift, outline, or scale to ~1.05) and the cursor adopts a pointer/grab affordance signalling it is actionable (Cartier hidden gestures, Bruno project objects). Non-interactive meshes never highlight.",
+      "tap": "Tap-to-act with hit feedback — the tapped mesh performs its verb (dash, grab, open, drive-to) and answers with an immediate visual/haptic-class hit cue under 160ms; on touch the raycast fires on tap, not hover (Messenger object/emoji taps, Egg Hunt click-to-dash).",
+      "focus": "Interactive meshes are reachable via a focusable DOM proxy (a control or list) so the scene's actions are not pointer-only; focus mirrors the raycast highlight."
+    }
+  },
+  "mobile_answer": "Reconsider, don't downgrade. Pointer-driven classes (cursor-camera, mouse-reveal, magnetic, pointer-parallax) go DORMANT on touch and scroll alone drives the scene — on mobile the depth and the camera move come from scroll, the winner convention. The WebGL medium is reconsidered not dropped: lower poly, fewer concurrent channels, progressive quality low->high, budget under ~5MB init (Messenger ships 5.7MB init / 17.5MB max and still scores 8.4 responsive / 9.0 animations). Press-class controls answer the tap with a 90-160ms flash floor (the fill/press is the tap answer); interactive scene meshes answer the tap via raycast-on-tap with a sub-160ms hit cue. Galleries become native scroll-snap swipe tracks with tap-to-enlarge (the scored Mobile Excellence line). Cross-device parity is weighted higher in this archetype than any other — judges check mobile first and a desktop-only WebGL hero tanks the Usability score (30%) however impressive the canvas. prefers-reduced-motion swaps scrubbed media to a static poster and freezes the scene to a legible frame.",
+  "gaps": [
+    {
+      "component": "scroll-camera-dive",
+      "seen_in": ["Oryzo AI (Lusion)", "Explore Primland", "ERA (Vide Infra)"],
+      "mechanic": "A pinned WebGL section where scroll PROGRESS drives a real camera PATH through 3D depth — Oryzo moves the camera through true Z-axis depth around/into one object; Primland glides an aerial camera over rendered terrain; ERA zooms the camera into architectural render detail on scroll. Spec: bind ScrollTrigger scrub to a camera-path timeline (position + lookAt keyframes, optional FOV), reversible, driven inside the render loop (no per-frame layout/paint); inertial easing so the subject stays in motion between scroll ticks; optional fade/dissolve hand-off at the end of the travel; degrades to a static hero frame under reduced-motion and on touch scroll-only. dolly-zoom in the manifest is the 2.5D cousin (a media element scaling toward a focal point) — this is the true-3D camera-through-a-scene spine mechanic the momentum model needs and the recipes cannot execute today.",
+      "priority": 1
+    },
+    {
+      "component": "rooms-procession",
+      "seen_in": ["Cartier Watches & Wonders 2025 (Immersive Garden)", "Hubtown (Unseen Studio)", "Shopify Editions"],
+      "mechanic": "A macrostructure/recipe where each section is a DISCRETE staged 3D scene and scroll transitions the CAMERA (cut or dissolve) from one to the next — Cartier's six self-contained alcoves 'like rooms in a museum after hours', one per artifact; a persistent audio + ambient life threads the rooms. Spec: an ordered array of staged scenes sharing one canvas + one camera rig; scroll drives inter-room transitions (camera move or curtain-transition); each room owns its lighting/composition; distinct from engine-world (single continuous scene) and portrait-procession (DOM sections over one static-framed canvas). The 'succession of staged 3D moments' arc has no recipe today.",
+      "priority": 1
+    },
+    {
+      "component": "branded-preloader",
+      "seen_in": ["Lando Norris ('Load Norris')", "Messenger (5.7MB init)", "Oryzo / Cartier / ERA (heavy Three.js scenes)"],
+      "mechanic": "A first-load screen designed as a signature beat, not a spinner — progress is tied to REAL asset loading (Three.js LoadingManager / preloaded texture + model bytes), carrying an in-brand motif or copy where a spinner would sit (Lando puts the wait in-brand: 'Load Norris'). Spec: gate the scene reveal on a progress value derived from actual load events (0->1), animate a branded progress indicator, hand off to the hero with a camera/reveal transition (not a hard cut); when audio is used the loader doubles as the sound-unlock gate (autoplay policy). The archetype is the most asset-heavy of all, so the load state is the first impression — the playbook quotes 'Load Norris' in copy but encoded no loader role until this revision. degrades to a static poster under reduced-motion.",
+      "priority": 1
+    },
+    {
+      "component": "raycast-object-state",
+      "seen_in": ["Messenger (abeto)", "Egg Hunt (Merci-Michel)", "Bruno Simon", "Cartier (hidden gestures)"],
+      "mechanic": "Per-object interaction states for discrete interactive meshes INSIDE the 3D scene — the hover/tap axis the DOM element canon omits. Spec: a raycaster maps pointer/tap to scene meshes; on fine-pointer hover of an interactive mesh, apply a bounded highlight (emissive lift / outline / scale ~1.05) and switch the cursor to a pointer/grab affordance; on tap/click, run the mesh's verb (grab / open / drive-to / dash) with an immediate sub-160ms hit cue; non-interactive meshes never respond; on touch the raycast fires on tap (no hover). Provide a focusable DOM proxy so scene actions are keyboard-reachable. element_states covers DOM classes (cta/link/figure/index_row/heading/nav) + a camera/reveal cursor but nothing for the in-scene mesh — the one hover surface most central to this archetype (now added as element_states.scene_object).",
+      "priority": 1
+    },
+    {
+      "component": "pointer-scene-reveal",
+      "seen_in": ["Hubtown (Unseen Studio)", "ERA (Vide Infra)"],
+      "mechanic": "Fine-pointer DRIVES the WebGL hero — Hubtown's cursor uncovers detail in the geometry and lighting (a reveal mask / light bound to pointer position); ERA's splash camera reacts to cursor movement giving dynamic angles. Spec: on fine-pointer, lerp a scene parameter to pointer position — either a reveal mask/spotlight over the scene, or a camera orbit/parallax offset (bounded, ~differential lerp 0.1); DORMANT on touch (scene runs on scroll alone). The manifest has pointer-parallax (DOM-layer depth) and magnetic-cursor (element snap) but NOTHING that drives the 3D medium with the pointer — this is the committed-pointer-layer law made executable for the WebGL hero.",
+      "priority": 2
+    },
+    {
+      "component": "ambient-audio-score",
+      "seen_in": ["Cartier Watches & Wonders 2025 (Mooders/Immersive Garden)", "Messenger", "Bruno Simon", "Explore Primland (ambient nature audio/birdsong, unverified)"],
+      "mechanic": "A gated ambient audio bed treated as a NARRATIVE LAYER, not wallpaper — Cartier's bespoke Mooders soundscape plays through the whole experience via Web Audio API. Spec: the arrival gate (gated-splash / enter control) doubles as the sound-unlock (browser autoplay policy blocks unmuted audio); a persistent mute toggle; WebM/Opus first with MP3 fallback; ambient bed at 0.05-0.15 volume, micro-interaction stings under 0.3s; pause on visibilitychange; silent under prefers-reduced-motion. The reference names Howler.js and mandates a sound gate but ships no component; this is the missing sensory channel that sustains momentum between visual inputs.",
+      "priority": 2
+    },
+    {
+      "component": "procession-wayfinding",
+      "seen_in": ["Cartier Watches & Wonders 2025 (six rooms)", "Explore Primland (flythrough beats)"],
+      "mechanic": "Orientation for a long scroll-jacked procession or flythrough — the spectacle-spine mandates a long driven scroll but gives it no wayfinding, and nav is specced as a fixed transparent bar only. Spec: a room/chapter index, scene counter, or progress rail bound to scroll progress (or the active room/beat index), showing where the visitor is in the non-standard scroll and offering skip/jump targets; keyboard- and skip-link-reachable. Distinct from the fixed transparent nav (top-level chrome). Evidence is inferential from Cartier's discrete six-room architecture and Primland's beat structure rather than a single cited component (MEDIUM).",
+      "priority": 2
+    },
+    {
+      "component": "playable-verb-scene",
+      "seen_in": ["Messenger (abeto)", "Egg Hunt (Merci-Michel)", "Bruno Simon", "Lacoste Ace Breaker"],
+      "mechanic": "One clear VERB the visitor performs inside the WebGL scene, replayable, no tutorial/no menu — deliver mail on a tiny planet (Messenger), click-to-dash and grab eggs (Egg Hunt), drive a car through a town (Bruno), aim/time a shot (Lacoste). Spec: a delegated one-verb loop with instant readability, optional score/high-score chase, the site-IS-the-replay close; inherently bespoke (delegated to a WebGL path) but worth a recipe slot so the composer knows the playable-world arc exists and how it collapses all funnel jobs into one operable scene. Lower priority because it is inherently hand-built, not a drop-in.",
+      "priority": 3
+    },
+    {
+      "component": "in-scene-ambient-life",
+      "seen_in": ["ERA (particle traffic)", "Jordan Breton (butterflies/wind/fire)", "Messenger (other players)"],
+      "mechanic": "Self-animating detail INSIDE the WebGL scene that keeps it alive between inputs — ERA's particle-object cars following road paths, Jordan Breton's butterflies/wind/waterfall, Messenger's other players drifting. Spec: instanced/particle ambient motion within the scene (traffic, drift, flora), IO- and visibilitychange-gated, compositor-cheap. Related to the DOM-level ambient-idle component but lives in-canvas — the between-input life that makes the spine never freeze. Priority 3 because it is scene-specific and rides the delegated WebGL path.",
+      "priority": 3
+    }
+  ],
+  "unverified": [
+    "Lando's WebGL helmet as a single continuously-tracked medium spanning hero->footer ('tracks reading position for the entire scroll, never parked'): UNVERIFIABLE and contra-indicated — public sources (itsoffbrand case study, webgpu.com showcase, metabole immersive breakdown) describe helmet ROTATIONS plus a DISCRETE 'Helmets Hall of Fame' gallery section on a Webflow DOM page; one secondary breakdown says 'tracks with your reading' but never confirms whole-page scope. Corpus now frames Lando as portrait-procession (DOM sections over a recurring 3D feature), not one continuous in-engine scene.",
+    "Lando idle-band exact counts ('35 Rive instances + 21 canvas loops'): live-DOM-only, no public source; qualitative Rive + canvas + ambient motion is supported by OFF+BRAND's service list, the exact counts are not.",
+    "Lando shipped-CSS interaction specifics — the palette-inverting valediction (cream->dark-olive, opening face returns helmeted), .btn-w transform-on-hover, the exact easing beziers, and the schedule-row / helmet-grid selectors — were not re-read from the live build this run; mechanics are standard-pattern and kept as recipe, exact values unverified. The lime accent (#D2FF00) is publicly corroborated ('lime-green typography').",
+    "Lando exact SOTD score 8.18 and the 'Users' Choice' sub-badge: SOTD + Site of the Year 2025 are confirmed (awwwards page + Sites-of-the-Year list); the precise score and Users' Choice badge were not independently read this run.",
+    "Messenger 'Developer SOTY 2025 nominee': no Site-of-the-Year-nominee badge surfaced on the awwwards page (SOTD + Developer Award only) — dropped from the award string, recorded here as unsupported.",
+    "Exact hover amplitudes, durations, and easings on Oryzo, Hubtown, Primland, ERA and IVRESS — their MECHANICS are named in case studies/reputable breakdowns, but the shipped CSS was not read this run (only Lando and Siena were CSS-inspected, in an earlier run).",
+    "Whether Messenger has any DOM scroll layer at all — it appears fully in-engine (playable scene, no page beneath), but this was not directly confirmed against the live build.",
+    "Explore Primland ambient nature audio/birdsong — reported alongside the flythrough (folded into the ambient-audio-score gap seen_in) but not independently confirmed from the shipped build this run."
+  ]
+}

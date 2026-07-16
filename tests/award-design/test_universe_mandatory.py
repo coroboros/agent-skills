@@ -224,11 +224,12 @@ class TestCommitAndProve(unittest.TestCase):
 
     def test_pacing_map_committed(self):
         """Models compose section by section — locally fine, globally flat.
-        The design_plan must pace the page like a score: one climax, one rest,
-        never a flat curve."""
+        The design_plan must pace the page like a score: at most one climax
+        (the R4 verdict — verified quiet winners run zero), one rest, never a
+        flat curve."""
         phase4 = self.phase4
         self.assertIn("**Pace**", phase4)
-        self.assertIn("exactly one climax", phase4)
+        self.assertIn("at most one climax", phase4)
         self.assertIn("at least one rest", phase4)
         self.assertIn("flat curve", phase4.lower())
 

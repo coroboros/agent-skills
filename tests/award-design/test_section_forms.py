@@ -190,6 +190,76 @@ class TestRecipes(unittest.TestCase):
         self.assertIn("the press-class elements answer the TAP", preflight)
 
 
+PLAYBOOKS = COMPONENTS / "playbooks"
+
+
+class TestPlaybooks(unittest.TestCase):
+    """Playbooks are the decision layer above recipes — each archetype's
+    winner-derived algorithm from the R4 adversarial research (researcher →
+    refuter → reviser). Lock the data: full archetype coverage, the
+    refuter-survived revision stamp, an executable ordered tree, awarded
+    corpus entries, and buildable gap orders."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.books = {p.stem: json.loads(p.read_text(encoding="utf-8"))
+                     for p in PLAYBOOKS.glob("*.json")}
+
+    def test_every_archetype_has_a_playbook(self):
+        self.assertEqual(set(self.books), KNOWN_ARCHETYPES)
+
+    def test_playbook_shape(self):
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                for field in ("archetype", "revision", "corpus", "story",
+                              "spectacle_model", "algorithm", "section_playbook",
+                              "element_states", "mobile_answer", "gaps", "unverified"):
+                    self.assertIn(field, b)
+                self.assertEqual(b["archetype"], name)
+
+    def test_adversarially_revised(self):
+        """Revision 2 is the refuter-survived state — a revision-1 playbook is
+        unrefuted research and never ships in the skill."""
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                self.assertGreaterEqual(b["revision"], 2)
+
+    def test_algorithm_is_an_ordered_executable_tree(self):
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                steps = b["algorithm"]
+                self.assertGreaterEqual(len(steps), 6)
+                self.assertEqual([s["step"] for s in steps],
+                                 list(range(1, len(steps) + 1)))
+                for s in steps:
+                    self.assertTrue(s["decide"] and s["rule"])
+
+    def test_corpus_entries_carry_awards(self):
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                self.assertGreaterEqual(len(b["corpus"]), 4)
+            for c in b["corpus"]:
+                with self.subTest(playbook=name, site=c.get("site")):
+                    self.assertTrue(c["site"] and c["award"])
+
+    def test_spectacle_verdict_recorded(self):
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                self.assertIn(b["spectacle_model"]["one_climax_verdict"],
+                              {"SUPPORTED", "REFINED", "REFUTED"})
+
+    def test_gaps_are_buildable_orders(self):
+        for name, b in self.books.items():
+            for g in b["gaps"]:
+                with self.subTest(playbook=name, gap=g.get("component")):
+                    self.assertTrue(g["component"] and g["mechanic"])
+                    self.assertIn("priority", g)
+
+    def test_skill_wires_playbooks(self):
+        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("assets/components/playbooks/<archetype>.json", skill)
+
+
 class TestCompositionFloorsWiring(unittest.TestCase):
     """The floors are inert unless the phases carry them — pin the phrases."""
 
@@ -207,20 +277,32 @@ class TestCompositionFloorsWiring(unittest.TestCase):
 
     def test_phase4_text_effect_and_spectacle(self):
         self.assertIn("≥1 named text effect", self.skill)
-        self.assertIn("exactly one climax", self.skill)
+        # the R4 sauce verdict: "exactly one" was refuted (3/6 verified winners
+        # run zero peak) — the surviving invariant is the cap plus placement
+        self.assertIn("at most one climax", self.skill)
         self.assertIn("never a restraint choice", self.skill)
-        # the MERIDIAN v2 lesson: one climax caps peaks, never vocabulary,
+        self.assertIn("declared archetype-canon citation", self.skill)
+        # the MERIDIAN v2 lesson: the cap holds peaks, never vocabulary,
         # and a committed beat is never silently cut in cleanup
         self.assertIn("A committed beat survives to ship", self.skill)
         self.assertIn("The desktop pointer layer is committed explicitly", self.skill)
         self.assertIn("Optional kicker/eyebrow slots default ABSENT", self.skill)
+
+    def test_phase4_motion_continuity(self):
+        """The R4 motion-continuity law: never silent after the hero — the
+        signature vocabulary recurs in every section, the footer closes live,
+        and reduced-motion is a legitimate static state judged on composition."""
+        self.assertIn("no section goes fully static in the default render, footer included", self.skill)
+        self.assertIn("the footer closes on the live signature", self.skill)
+        self.assertIn("static-frame integrity", self.skill)
 
     def test_phase4_non_contradiction(self):
         self.assertIn("Restraint and the floors never trade", self.skill)
 
     def test_preflight_countable_boxes(self):
         for name in ("**Text-effect commit**", "**Spectacle commit**",
-                     "**Media-response coverage**", "**Form-slot integrity**"):
+                     "**Media-response coverage**", "**Form-slot integrity**",
+                     "**Motion continuity**", "**Static-frame integrity**"):
             with self.subTest(box=name):
                 self.assertIn(name, self.preflight)
 

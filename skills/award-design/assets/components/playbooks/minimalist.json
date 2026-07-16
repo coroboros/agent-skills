@@ -1,0 +1,308 @@
+{
+  "archetype": "minimalist",
+  "revision": 2,
+  "corpus": [
+    {
+      "site": "Terminal Industries",
+      "url": "terminal-industries.com",
+      "award": "Awwwards SOTD 2025-09-03 + SOTM 2025-09 (verified — 7.68 overall, Design 7.95 / Usability 7.36 / Creativity 7.65 / Content 7.57, Developer Award 7.89 with Animations/Transitions 8.80; also CSS Design Awards). Built Vue.js/Vercel (Awwwards tags).",
+      "fit": "Canonical 2025 minimalist: a two-color light+accent system (the specific 'cream + lime' hues are UNVERIFIED this run — the Awwwards page returns no swatches), type-driven, macro-whitespace, one cinematic golden-hour truck still as hero. Highest-scored sub-dimension is Animations/Transitions 8.80 — the restraint archetype wins on motion craft, not on stillness."
+    },
+    {
+      "site": "Stefan Vitasovic — Portfolio25",
+      "url": "stefanvitasovic.dev",
+      "award": "Awwwards SOTD 2025-09-20 (verified — 7.25 overall, Developer Award 8.04, Animations/Transitions 8.80; Codrops case study 2025-03-05).",
+      "fit": "Minimalist Swiss-inspired portfolio balanced against raw experimental motion; per-char characters-to-word assemble as the repeating motion motif (Codrops calls the motifs 'repeating interactions or animations'), WebGL video grid, virtual-scroll SPA (Lethargy + a custom Virtual-scroll controller), Motion AnimatePresence page crossfade between views (opacity, .5s easeQuadInOut — Codrops-verified). Jury member since 2020."
+    },
+    {
+      "site": "Gabriel Contassot",
+      "url": "gabrielcontassot.com",
+      "award": "Awwwards SOTD 2024-04-14 (verified — CORRECTED from the prior '2024-04-08'; 7.34 overall, Developer Award 7.63; also CSS Design Awards 45335; Codrops case study 2024-04-24).",
+      "fit": "Strict dark-monochrome portfolio, type-forward and minimal (Awwwards tags: Clean, Minimal, Typography, Single page). Codrops describes a two-page 'loop': a MAIN GALLERY on the homepage → brighter detailed project views, on Astro + Taxi (SPA-like page transitions) + GSAP. The carry is scroll-driven — a clip-path inset figure reveal synced to a scroll Track that also scales the inner image. Hover states exist but are minimal; momentum is positional, not pointer-driven. (The prior 'text-only name-card hero, no image', 'zero :hover' and 'mix-blend-difference seam label' claims were refuted/unverifiable and are removed.)"
+    },
+    {
+      "site": "Treize Grammes",
+      "url": "13g.fr",
+      "award": "Awwwards Honorable Mention 2024-10-11 (verified, admissible).",
+      "fit": "Warm French branding-agency minimalist: imperative headlines, 'Be true/strong/bold' video triptych, warm CTA copy, instant-paint + reveals-as-intro, Lenis smoothing. The softer, non-spectacle end of the archetype."
+    },
+    {
+      "site": "Clou — Agency Portfolio",
+      "url": "awwwards.com/sites/clou-agency-portfolio",
+      "award": "Awwwards SOTD 2025-09-05 (verified — 7.29 overall, Developer Award 7.02; Webflow).",
+      "fit": "Two-color near-monochrome agency identity — palette VERIFIED on the award page as #101114 near-black + #ffffff (the earlier '#EDC1CB soft pink' was fabricated and is dropped, so Clou is no longer 'proof the DNA holds outside grayscale' — it is simply another verified two-color monochrome SOTD). Deep interaction mechanics not independently teardown-verified this run."
+    },
+    {
+      "site": "Pacome Pertant — Portfolio",
+      "url": "pacomepertant.com",
+      "award": "Awwwards SOTD 2026-06-09 (verified — 7.76 overall, Developer Award 7.62; the prior 'Portfolio Honors' label is NOT corroborated on the page and is dropped).",
+      "fit": "Two-color monochrome (#0a0a0a/#fafafa, verified) dark-minimalist portfolio with a 3D showreel spectacle (GSAP / Three.js / Nuxt). Awwwards feature tags confirm a mouse-trail cursor, a page transition, and a spiral-gallery→list transformation — the verified anchor for BOTH the custom-cursor and the route-transition omissions. Minimalist-palette, immersive-leaning execution — the boundary case that shows the dark-monochrome expression carrying a WebGL climax."
+    },
+    {
+      "site": "Cyd Stumpel — Portfolio 2025",
+      "url": "cydstumpel.nl",
+      "award": "Awwwards SOTD 2025-03-09 (verified — 7.22 overall; /sites/cyd-stumpel-portfolio-2025).",
+      "fit": "Minimalist creative-developer portfolio built on the newest native CSS: View Transitions API + Scroll-Driven Animations (Awwwards tags: Page transitions, View Transitions, Scroll Driven Animations). The verified anchor that the home→project-detail route transition is itself a momentum carrier, CSS-native and JS-light — added this revision to ground the route-transition omission."
+    },
+    {
+      "site": "Lando Norris (official)",
+      "url": "landonorris.com",
+      "award": "Awwwards Site of the Year 2025 (verified — OFF+BRAND, Webflow).",
+      "fit": "CROSS-ARCHETYPE (immersive, NOT minimalist) — included only as the user-cited counter-evidence for the momentum question. Editorial-portrait cream stack with lime CTA; double loud climax (mid-page 3D helmet gallery + inverted valediction footer), 'cinematic scrolling create momentum throughout.'"
+    }
+  ],
+  "story": {
+    "arcs": [
+      "Argument-scroll (Terminal, winner-verified): hero statement over cinematic still -> logo strip (proof) -> recoloring stat odometer -> the ONE mechanism reveal 'That's the Yard Operating System. YOS(TM)' (mid-page climax) -> three benefits -> executive quote -> contact + oversized-wordmark footer where the ONLY <h1> finally lands. One held promise argued beat by beat; the h1 is deferred to the close.",
+      "Gallery-stack (Gabriel, Stefan — winner-verified): a gallery/type-forward homepage where the WORK is the argument — a scramble-decode type intro assembles on load (after a numeric 1->100 preloader) into a main gallery of figures, each opening on a scroll-position masked inverse-scale reveal; home->project-detail is a page-transition SPA (Gabriel: Astro + Taxi loop; Stefan: Motion AnimatePresence crossfade), the route transition carrying momentum across views. Bare 'SCROLL UP' / '2025.' cue close. (The prior 'text-only name-card hero that withholds the image so the first still lands hardest' is refuted — Codrops describes a main image gallery on the homepage — and is removed.)",
+      "Standfirst-stack (reading-first, adjacency): even-intensity reading cadence, no spectacle spike, the voice lives in the chrome (nav, links, index rows). The Treize-softer / institution end of the archetype — used when the brief refuses spectacle."
+    ],
+    "thread": "Winners pick exactly ONE positional continuation channel and live it hero-to-footer: Terminal runs a scroll-scrubbed per-char recolor the FULL page height so the text substrate itself is the carry; Gabriel rides every figure open on a scroll-position clip-path masked inverse-scale reveal (a clip-path inset synced to a scroll Track that also scales the inner image, Codrops-verified); Stefan repeats the characters-to-word motif across sections over a persistent WebGL grid on a shared virtual-scroll engine. The constant across all element geometries is held to three things: one accent, one easing family (content reveals easeOutExpo (.19,1,.22,1) at .7-1s; color/opacity easeInSine at .2-.3s), one origin logic (everything resolves toward the accent, drawing/wiping/growing from a fixed edge). The channel is POSITIONAL (scroll-position-driven, re-firing every pass) — never a bank of IntersectionObserver fire-once reveals that read inert on the second pass. On MULTI-VIEW portfolios a second momentum carrier is the CSS-native route transition across navigations (View Transitions — Cyd Stumpel; Motion AnimatePresence — Stefan; Taxi loop — Gabriel).",
+    "copy": "First-plural visionary OR a bare name/role/number type block in the hero; second-person imperative at the CTA. Fragments — the line break is the punctuation; the period carries weight; TM sits on the product noun. Proof is named in the reader's own world ('Powering the yards behind the brands you know') or asserted as a dated credential ('Awwwards Jury member since 2020.'), never as adjective stacks or self-narration. Restraint in copy mirrors restraint in chrome: the words state, they do not perform. (Exclamation is not banned corpus-wide — Treize ships 'Activez votre marque !'.)"
+  },
+  "spectacle_model": {
+    "hero": "A COMMITTED spectacle scene, never a quiet opener — the first impression forms here. Argument-scroll hero: light split-curtain retracts + a 1->100 odometer climbs recoloring gray->accent->footer-ground (pre-stating the palette: final ground = footer, accent = CTA) + per-char headline cascade over the cinematic still + exactly one CTA (Terminal, winner-verified mechanism). Gallery-stack hero: a gallery/type-forward homepage — a scramble-decode type intro assembles on load (Gabriel durations [1.2,1.5,0.4,0.2,1,0.6,0.6], expo.out) after a numeric 1->100 preloader, over a MAIN GALLERY of figures whose first cells open on scroll-position masked inverse-scale reveals. (The earlier 'text-only, imageless, no-CTA name card that withholds the image' framing was refuted by the Codrops case study and is removed.)",
+    "continuation": [
+      "logo/proof strip — REST: quiet static wall, grayscale at rest -> color on hover is the only micro-state; intensity drops to ~4 (Terminal).",
+      "stat band — QUIET MICRO-CLIMAX: digits slide inside overflow:hidden recoloring gray->accent->ink on scroll-in; the sanctioned mid-page odometer moment (Terminal, winner-verified).",
+      "mechanism / first-figure — THE ONE LOUD CLIMAX: Terminal's 'YOS(TM)' type-as-image reveal (intensity 9); Gabriel/Stefan's first full-bleed figure on its masked inverse-scale reveal. Exactly one loud peak.",
+      "editorial chapters (benefits/about/quote) — CONTINUES QUIET: masked line/char reveals fire per section while the positional thread (scrubbed per-char recolor / masked inverse-scale / WebGL grid) runs UNDER them; text-emphasis-fill scrub brightens words as each block traverses the viewport (reversible, re-fires). Never silence.",
+      "route transition (multi-view portfolios only) — CROSS-VIEW CARRIER: home->project-detail crossfades/morphs via View Transitions (Cyd Stumpel) or Motion AnimatePresence (Stefan) or a Taxi loop (Gabriel) — the navigation itself is a momentum beat, not a hard cut.",
+      "footer — OPTIONAL SECOND QUIET PEAK: the deferred <h1> lands here on a sticky reveal over a 50vh holder, chars de-emphasized to #fff3, a pure-black overlay darkening the outgoing page (Terminal). Portfolio norm: a bare cue ('SCROLL UP' / '2025.')."
+    ],
+    "one_climax_verdict": "REFINED",
+    "evidence": [
+      "Terminal Industries: after the spectacle hero it does NOT go quiet — exactly ONE loud mid-page peak (the YOS mechanism reveal), a quiet odometer micro-climax before it, an optional second quiet peak at the deferred-h1 footer, and a scroll-scrubbed per-char recolor sustained the WHOLE page height so the substrate never rests. Animations/Transitions is its highest sub-score (8.80). The strongest verified proof of the law.",
+      "Gabriel Contassot: SOTD 2024-04-14 on a scroll-driven monochrome portfolio — the momentum is carried by a POSITIONAL channel (clip-path masked inverse-scale figure reveals synced to a scroll Track, Codrops-verified) plus an Astro+Taxi page-transition loop across views, not by fire-once entrance reveals. (Hover states exist but are minimal; the prior 'ZERO :hover' claim was refuted by the case study's own reference to a hover effect.)",
+      "Stefan Vitasovic: Codrops describes the characters-to-word motif as 'repeating interactions or animations' intentionally reused across sections, over a persistent WebGL grid, with Motion AnimatePresence crossfading between views — continuation by design. (The prior direct quote 'remains continuous via consistent scrolling mechanics and repeating motion motifs' was fabricated and is dropped; the continuity reading is inference from the verified motifs, not a quotation.)",
+      "Lando Norris (cross-archetype counter-evidence): SOTY 2025, 'cinematic scrolling create momentum throughout' with a DOUBLE loud climax (mid-page 3D helmet gallery + inverted valediction footer). Confirms peaks can be two in a procession — but even there they stay CAPPED (~2) with rest bridges between, and the momentum thread never falls to silence."
+    ],
+    "recommended_law": "Minimalist Phase-4 law: the hero is a committed spectacle scene (curtain + recoloring counter + per-char cascade over the cinematic still, OR a scramble-decoding type intro over the main gallery) — never a quiet opener. Cap LOUD peaks at ONE mid-page climax (the mechanism reveal / the first full-bleed figure / the recoloring odometer band), plus an OPTIONAL second QUIET peak where the deferred <h1> lands in the footer; a portrait-procession may run two loud peaks but no more. CROSS-CUTTING MANDATE: commit exactly one POSITIONAL continuation channel — scroll-scrubbed per-char recolor, masked inverse-scale figure reveals, or a persistent WebGL grid — and live it hero-to-footer so the page NEVER falls silent after the hero; on multi-view portfolios add a CSS-native route transition (View Transitions / AnimatePresence / Taxi) as the cross-navigation carrier. 'Peaks are capped' must not be read as 'quiet after the hero': restraint means the continuation vocabulary is QUIET (one scrubbed/masked/grid channel) rather than a second loud spectacle. The failure mode is a bank of IntersectionObserver fire-once reveals that read inert on the second scroll pass; the winning move is a scroll-position-driven channel that re-fires the whole scroll."
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "Story spine (macrostructure) from brief-declared content type",
+      "rule": "Route on the brief's declared inputs, not on a taste read: a product/SaaS brief with ONE held claim -> argument-scroll, defer the <h1> to the footer. A brief that supplies a body of visual work to show (portfolio/gallery) -> gallery-stack, gallery/type-forward homepage + route-transition SPA. A brief whose primary deliverable is reading/prose AND that explicitly forbids spectacle -> standfirst-stack, even intensity, voice-in-the-chrome. These three are decidable from stated brief facts (one-claim product vs. body-of-work vs. reading-first-no-spectacle); the gallery-vs-standfirst split keys on the explicit no-spectacle constraint, not on a subjective 'which is more editorial' judgment. Never blend two spines.",
+      "evidence": [
+        "Terminal Industries: argument-scroll, single YOS promise, h1 in the footer (winner-verified)",
+        "Gabriel Contassot / Stefan Vitasovic: gallery-stack, gallery/type-forward homepage, route-transition SPA (winner-verified)",
+        "Treize Grammes: softer reading-first argument, instant paint, reveals-as-intro (winner-verified)"
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "The signature thread (fil rouge) — the one positional continuation channel",
+      "rule": "Pick EXACTLY ONE scroll-position-driven channel that re-fires every pass and runs hero-to-footer: (a) scrubbed per-char recolor sustained full-page (type-driven builds), (b) masked inverse-scale figure reveals — a clip-path inset synced to a scroll Track that also scales the inner image (gallery builds), or (c) a persistent WebGL grid (motion-led SPAs). Hold three constants across ALL element geometries: one accent, one easing family (reveals easeOutExpo .7-1s / fades easeInSine .2-.3s), one origin logic (resolve toward the accent from a fixed edge). If two element classes share a geometry, differentiate or merge — no redundant channel. On multi-view portfolios, layer a route transition (step 4) as a second, cross-navigation carrier.",
+      "evidence": [
+        "Terminal: per-char recolor scrubbed the full page height = the text substrate is the carry (winner-verified)",
+        "Gabriel: clip-path masked inverse-scale reveals synced to a scroll Track (Codrops-verified mechanic)",
+        "Stefan: repeating characters-to-word motif over a persistent WebGL grid (Codrops-verified)"
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "Hero spectacle scene + loader hand-off",
+      "rule": "argument-scroll: split-curtain (50svh #ededed halves) retracts easeOutExpo ~.8-1.2s -> 1->100 odometer recoloring gray->accent->footer-ground (load-tied) -> per-char headline cascade in overflow:clip wrappers +0.025s/char -> nav opacity 0->1 (.25s, (.16,1,.3,1)) -> ONE CTA. gallery-stack: numeric 1->100 preloader (Gabriel 2.8s, values [1..100], fade-out slow.in ~.8s) -> scramble-decode type intro (Gabriel durations [1.2,1.5,0.4,0.2,1,0.6,0.6], expo.out) assembling over the MAIN GALLERY, whose first cells open on masked inverse-scale reveals; scroll cue as the affordance. Never a spinner, never a blocking brand-color splash. (The prior 'text-only name card, no image, no CTA' gallery hero was refuted and removed.)",
+      "evidence": [
+        "Terminal load: curtains -> odometer -> char cascade over the truck photo; intro pre-states the palette (winner-verified mechanism)",
+        "Gabriel: 2.8s numeric preloader [1..100] then scramble-decode over a main image gallery (Codrops-verified)"
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "Momentum map — peak cap + rest placement + route-transition carrier",
+      "rule": "Exactly ONE loud mid-page climax (mechanism reveal / first full-bleed figure / recoloring odometer band) at intensity 9; a portrait-procession may add a second loud peak, otherwise the only second peak is a QUIET one where the deferred h1 lands in the footer. The void gap between sections is the rest — seams masked, never hard cuts. The positional thread from step 2 runs continuously through every section including the rests. On multi-view portfolios, the home->detail navigation is a momentum beat, not a cut: crossfade/morph it with View Transitions (Cyd Stumpel), Motion AnimatePresence (Stefan, opacity .5s easeQuadInOut), or a Taxi loop (Gabriel). Never let the page fall to silence after the hero.",
+      "evidence": [
+        "Terminal: one loud peak (YOS reveal), footer h1 as second quiet peak, void gap as rest (winner-verified recipe)",
+        "Cyd Stumpel / Stefan / Pacome: route/page/view transition as a cross-view momentum carrier (winner-verified)",
+        "Lando (cross-archetype): two loud peaks (3D gallery + valediction) with rest bridges — still capped (SOTY 2025)"
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section form + interaction pairing",
+      "rule": "hero: argument-scroll -> hero-masthead(media:back, align:start) with h1->kinetic-reveal, cta-row->masked-label-swap|fill-invert-cta, media->clip-reveal|image-curtain; gallery-stack -> gallery/type-forward hero (scramble-decode type intro over a figure gallery, figures on masked inverse-scale reveals, scroll cue). logo-wall (grayscale->color hover, static, never marquee). stat-band -> counter-odometer. type-as-image for the mechanism climax -> caption text-emphasis-fill. editorial-split x3 for chapters -> h2 kinetic-reveal, prose [text-emphasis-fill scrub + semantic-accent]. close-panel -> ask kinetic-reveal, channels [accent-link, masked-label-swap]. footer oversized-wordmark (h1 sticky reveal) or bare-cue. Pick forms by role, never write hero/section layout CSS by hand.",
+      "evidence": [
+        "Terminal recipe argument-scroll: hero -> logo-strip -> stat-band -> mechanism type-as-image (climax) -> benefits editorial-split x3 -> quote -> close -> oversized-wordmark footer (winner-verified order)",
+        "Gabriel recipe gallery-stack: gallery/type-forward home -> full-bleed-figure xN (climax) -> route-transition detail views -> bare-cue (winner-verified)"
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states (desktop pointer layer)",
+      "rule": "cta: directional token-wipe inversion (:before in dark token at translate3d(0,100%,0) inside overflow:hidden pill, wipes up inverting the token pair, transform .7s (.19,1,.22,1), ink recolors .3s +.2s delay) — full-strength color the whole way; ghost buttons only may use the 5% pale-tint wash, never a primary. link: 1px :after underline draw scaleX(0) origin right -> scaleX(1) origin left, .7s expo (the one place the classic underline belongs); OR strike-through on hover guarded @media(any-hover:hover); arrow-nudge translate(2px,-2px). figure: masked reveal + contained zoom to 1.1 (felt, never a 1-3% twitch). index_row: hovered row lights accent rule + surfaces metadata, siblings dim to 45%. heading/prose: NEAR-ZERO hover (the absence IS the register) — the effect is the per-char masked ENTRANCE, not a hover. nav: growing 5px accent DOT centered below the label (opacity:0 scale(0) -> scale(1.01), transform 1s (.075,.82,.165,1)), never an underline, never a colored border-bottom under a solid bar. cursor (OPTIONAL, restraint-compatible signature): a small custom dot that scales over interactive targets, or a lightweight trailing lens — verified on Pacome Pertant (Awwwards 'Mouse trail' feature); pointer-only, dormant on touch.",
+      "evidence": [
+        "Terminal: token-wipe CTA, underline-draw link, arrow-nudge, nav accent dot (live CSS-verified prior rounds)",
+        "Pacome Pertant: mouse-trail cursor as a restraint-compatible pointer signature (Awwwards feature tag, verified)",
+        "Terminal/Depo/Son Daven: index-row spotlight, siblings dim (winner-verified prior rounds)"
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile / touch strategy",
+      "rule": "Pointer classes go DORMANT (underline draw, strike-through, nav dot, custom cursor/mouse-trail); the POSITIONAL thread (scroll-scrubbed recolor / masked inverse-scale / odometer / WebGL grid) CARRIES the mobile experience unchanged because it is scroll-position-driven, not pointer-driven. Route/view transitions survive touch: the home->detail crossfade/morph fires on tap-navigation just as on click (View Transitions / AnimatePresence are input-agnostic). Press-class elements answer the tap with a 90-160ms flash floor (:active). Image sets swap the desktop pinned/hold-drag strip for swipe-snap-gallery (native scroll-snap riding OS momentum, tap-to-enlarge). Depth on touch comes from scroll, not pointer-parallax.",
+      "evidence": [
+        "Terminal/Gabriel: the carry channels are scroll-driven so they survive touch intact (winner-verified mechanism)",
+        "Cyd Stumpel / Stefan: route/view transitions fire on tap-navigation, input-agnostic (winner-verified)",
+        "Awwwards Mobile Excellence: swipe to see more, tap to enlarge (scored criterion)"
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy pass",
+      "rule": "Hero: first-plural vision OR a bare name/role/number type block. CTA: second-person imperative. Fragments with the line break as punctuation, period as weight, TM on the product noun. Proof named in the reader's world or as a dated credential — never adjective stacks or self-narration. Match copy restraint to chrome restraint.",
+      "evidence": [
+        "Terminal: 'We have reinvented the future of logistics' / 'through the yard.'; 'Powering the yards behind the brands you know' (winner-verified)",
+        "Stefan: 'Awwwards Jury member since 2020.' as a dated credential (winner-verified)"
+      ]
+    }
+  ],
+  "section_playbook": [
+    {
+      "role": "hero",
+      "forms": ["hero-masthead(media:back, align:start) (argument-scroll)", "gallery/type-forward hero (gallery-stack — scramble-decode type intro over a figure gallery)"],
+      "pairs": ["h1: kinetic-reveal (argument) | scramble-decode type intro (gallery)", "cta-row: masked-label-swap + fill-invert-cta (argument)", "media: clip-reveal | image-curtain (argument); masked inverse-scale figure reveals (gallery)"],
+      "intensity": 8,
+      "states": "argument-scroll hero CTA MUST answer pointer (token-wipe inversion) — a pointer-dead hero is a defect; the per-char / scramble-decode entrance fires on load; on touch the entrance still plays, the CTA answers :active. (Gallery-stack hero is a figure gallery with a type intro — NOT an imageless name card; that framing was refuted.)",
+      "evidence": ["Terminal hero: sequenced statement over cinematic still + one token-wipe CTA (winner-verified)", "Gabriel: scramble-decode type intro over a main image gallery on the homepage (Codrops-verified)"]
+    },
+    {
+      "role": "proof",
+      "forms": ["logo-wall"],
+      "pairs": ["wall: static, grayscale at rest -> color on hover (the one micro-state the form owns)"],
+      "intensity": 4,
+      "states": "hover recolors a single logo; never a marquee, never autoplay motion — this is the designed REST",
+      "evidence": ["Terminal logo strip: quiet proof band between hero and stat odometer (winner-verified)"]
+    },
+    {
+      "role": "index",
+      "forms": ["index-reel-header + index-list"],
+      "pairs": ["h2: kinetic-reveal", "rows: index-row-hover", "actions: accent-link"],
+      "intensity": 5,
+      "states": "hovered row lights an accent rule + surfaces metadata while siblings dim to 45%; on touch the row is a plain tap target, no spotlight",
+      "evidence": ["Terminal/Depo/Son Daven index-row spotlight-dim (winner-verified prior rounds)"]
+    },
+    {
+      "role": "stat-band",
+      "forms": ["stat-band"],
+      "pairs": ["stat: counter-odometer (digits slide in overflow:hidden, recolor gray->accent->ink)"],
+      "intensity": 5,
+      "states": "counter rolls on scroll-into-view (positional, re-fires); markup carries the true final value with no JS; a QUIET micro-climax",
+      "evidence": ["Terminal recoloring stat odometer — the sanctioned mid-page micro-climax (winner-verified)"]
+    },
+    {
+      "role": "mechanism-climax",
+      "forms": ["type-as-image", "full-bleed-figure (gallery variant)"],
+      "pairs": ["caption: text-emphasis-fill", "media: clip-reveal | image-curtain riding inverse-scale"],
+      "intensity": 9,
+      "states": "THE one loud peak — the giant type carries the product noun / the first full-bleed figure lands; scroll-scrubbed so it re-fires on pass, not a fire-once flash",
+      "evidence": ["Terminal 'That's the Yard Operating System. YOS(TM)' reveal (winner-verified)", "Gabriel first full-bleed figure on its masked inverse-scale reveal (Codrops-verified mechanic)"]
+    },
+    {
+      "role": "feature/chapters",
+      "forms": ["editorial-split (x3, media alternating)"],
+      "pairs": ["h2: kinetic-reveal", "prose: text-emphasis-fill (scrub) + semantic-accent", "media: clip-reveal | figure-hover"],
+      "intensity": 5,
+      "states": "prose words brighten dim-to-bright as the block traverses the viewport (reversible, re-fires); [data-ad-term] key terms ignite to accent on first view; standalone headings carry NEAR-ZERO hover",
+      "evidence": ["Terminal three-benefits editorial-split with scrubbed emphasis + semantic accent (winner-verified)"]
+    },
+    {
+      "role": "close",
+      "forms": ["close-panel"],
+      "pairs": ["ask: kinetic-reveal", "channels: accent-link + masked-label-swap"],
+      "intensity": 6,
+      "states": "one imperative, decisive channel rows (accent recolor + underline wipe on hover/focus); no media slot so the close cannot become a mood reel",
+      "evidence": ["Terminal contact close before the wordmark footer (winner-verified recipe)"]
+    },
+    {
+      "role": "footer",
+      "forms": ["oversized-wordmark (argument — deferred h1)", "bare-cue (gallery — 'SCROLL UP' / '2025.')"],
+      "pairs": ["wordmark: kinetic-reveal (sticky over a 50vh holder, chars de-emphasized to #fff3, black overlay darkens outgoing page)"],
+      "intensity": 6,
+      "states": "the OPTIONAL second quiet peak — the h1 lands last on a sticky reveal; legible with no JS; portfolio close is just the bare cue",
+      "evidence": ["Terminal footer: the only <h1>, sticky reveal, the award lever (winner-verified)", "Gabriel/Stefan bare-cue close (winner-verified)"]
+    }
+  ],
+  "element_states": {
+    "cta": {
+      "hover": "directional token-wipe inversion — a :before in the dark token sits translate3d(0,100%,0) inside an overflow:hidden pill; hover wipes it up and INVERTS the token pair (accent bg/dark ink -> dark bg/accent ink), transform .7s cubic-bezier(.19,1,.22,1), ink recolors over .3s with a .2s delay. Full-strength color the whole way. (Airy-Swiss alt: full-token bg shift to a real darker/lighter step, no motion — never a transparency wash.)",
+      "tap": ":active flash 90-160ms — the wipe collapses to an instant token swap; no hover intermediary on touch",
+      "focus": ":focus-visible mirrors hover (same token inversion) with a visible ring; keyboard-reachable"
+    },
+    "link": {
+      "hover": "1px :after underline DRAW — scaleX(0) transform-origin right -> scaleX(1) flipping origin to left on hover, .7s cubic-bezier(.19,1,.22,1); OR editorial strike-through (text-decoration:line-through) guarded @media(any-hover:hover), no motion (a plausible minimal-hover pattern — NOT verified against a specific winner this run); inline arrow glyph nudges translate(2px,-2px), opacity->1, layered under the draw",
+      "tap": "no hover state on touch — link is a plain tap target; the underline/strike are @media(any-hover:hover)-gated so they never trap content behind a hover on touch",
+      "focus": ":focus-visible triggers the underline draw + accent recolor; accessible name preserved"
+    },
+    "figure": {
+      "hover": "contained zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue (tint / scrim lift / caption rise); on figures in the gallery-stack the RESTING state is already a scroll-scrubbed masked inverse-scale reveal (clip-path inset + scroll-Track-synced scale; exact amplitude UNVERIFIED this run), so hover adds the zoom on top",
+      "tap": "focus-within / tap surfaces the caption; swipe-snap-gallery cells enlarge on tap",
+      "focus": "focus-within mirrors the hover cue so keyboard users reach the caption"
+    },
+    "index_row": {
+      "hover": "hovered row lights with an accent rule and surfaces metadata while siblings dim to 45% opacity, .3-.42s under the signature easing — the spotlight list",
+      "tap": "plain tap target, no spotlight-dim on touch (the dim reads as broken without a pointer)",
+      "focus": ":focus-visible lights the row identically to hover"
+    },
+    "heading": {
+      "hover": "NEAR-ZERO by design — prose and standalone headings carry no hover across the corpus; the absence is the register. The heading's effect is the per-char / clip-path masked ENTRANCE (fire-once on first view) or the scrubbed recolor as the block traverses — not a pointer response",
+      "tap": "none — headings do not answer touch",
+      "focus": "none beyond default (headings are not interactive)"
+    },
+    "nav": {
+      "hover": "growing 5px accent DOT centered below the label (opacity:0 scale(0) -> scale(1.01), transform 1s cubic-bezier(.075,.82,.165,1)) — never an underline, never a colored border-bottom; nav links may also accent-recolor over color .3s. The nav floats fully transparent over the hero, gains ground on scroll",
+      "tap": "current-section dot shows as state, not a hover; nav reveals on scroll-up, hides on scroll-down",
+      "focus": ":focus-visible shows the dot + ring; nav order preserved"
+    },
+    "cursor": {
+      "hover": "OPTIONAL restraint-compatible pointer signature — a small custom dot that scales/animates over interactive targets, or a lightweight trailing lens/mouse-trail. Verified on Pacome Pertant (Awwwards 'Mouse trail' feature). Keep it quiet (monochrome, no color spectacle) to stay inside the archetype",
+      "tap": "no custom cursor on touch — the native pointer layer is absent, so the cursor goes fully dormant",
+      "focus": "not focus-driven; must never gate content or a11y behind cursor presence"
+    }
+  },
+  "mobile_answer": "The archetype's touch strategy is CARRY-BY-SCROLL: the entire signature thread is scroll-position-driven (scrubbed per-char recolor, masked inverse-scale figure reveals, recoloring odometer, WebGL grid), so it survives touch UNCHANGED — the momentum the user worries about disappearing on mobile is exactly the channel that persists, because none of it depends on the pointer. On multi-view portfolios the route/view transition (View Transitions / AnimatePresence / Taxi) is input-agnostic and fires on tap-navigation exactly as on click, so the cross-view momentum beat also survives. Pointer-only states (underline draw, strike-through, nav accent dot, index-row spotlight, custom cursor/mouse-trail) go dormant and are @media(any-hover:hover)-gated so no content is trapped behind a hover. Press-class elements (CTA, tappable rows) answer the tap with a 90-160ms :active flash. Image sets swap the desktop pinned/hold-drag filmstrip for swipe-snap-gallery (native scroll-snap on OS momentum, next-cell peek, tap-to-enlarge — the scored Mobile Excellence line). Depth is scroll-derived, never pointer-parallax (dormant on touch).",
+  "gaps": [
+    {
+      "component": "scrubbed-inverse-scale-figure",
+      "seen_in": ["Gabriel Contassot", "Stefan Vitasovic (video-grid variant)"],
+      "mechanic": "A scroll-POSITION-driven masked figure reveal that re-fires every pass: a clip-path inset opens from inset(100% 0 0 0) toward inset(0) WHILE the image scales inversely to scroll progress. Codrops verifies the MECHANIC verbatim — 'clip-path inset combined with a Track to sync it with the scroll that also controls the scaling of the inner image'; the exact amplitude (previously stated as scale(1.2 + track*-0.2)) is NOT in the source and is unverified — treat the numbers as illustrative. Distinct from the manifest's clip-reveal (fire-once, IntersectionObserver) and dolly-zoom (pinned scale toward a focal point) — this is the CONTINUATION carry for the gallery-stack, positional so it never reads inert on the second pass. The single most load-bearing missing mechanic for the momentum law.",
+      "priority": 1
+    },
+    {
+      "component": "route-view-transition-carrier",
+      "seen_in": ["Cyd Stumpel — Portfolio 2025", "Stefan Vitasovic", "Pacome Pertant"],
+      "mechanic": "A cross-navigation momentum carrier for multi-view portfolios: the home->project-detail transition is crossfaded/morphed instead of a hard reload. Three verified expressions: (a) native View Transitions API + Scroll-Driven Animations (Cyd Stumpel, SOTD 2025-03-09, CSS-native, JS-light); (b) Motion AnimatePresence in a shared Layout, opacity crossfade .5s easeQuadInOut (Stefan, Codrops-verified); (c) a Taxi single-page-app loop with GSAP tweens carrying the dark-home->bright-detail color shift (Gabriel, Codrops-verified). The manifest's spectacle/momentum model was single-scroll hero-to-footer and had NO slot for the inter-view transition, despite the gallery-stack portfolios being multi-view SPAs where that transition is a signature beat. Input-agnostic, so it also carries on touch.",
+      "priority": 1
+    },
+    {
+      "component": "type-forward-intro-loader",
+      "seen_in": ["Gabriel Contassot"],
+      "mechanic": "The verified loader/intro for the gallery-stack: a numeric 1->100 preloader (Gabriel 2.8s, values [1..100], 'more stylistic than functional', fade-out slow.in ~.8s) hands off to a scramble-decode type assembly (charset noise -> true string, Gabriel ScrambleText durations [1.2,1.5,0.4,0.2,1,0.6,0.6], expo.out) over the MAIN GALLERY. recipes.json still marks a 'name-card' form MISSING for the gallery-stack macrostructure — but the imageless 'text-only name card that withholds the image' framing was REFUTED (Codrops describes a main image gallery on the homepage). Build the verified pieces (numeric preloader + scramble-decode type intro over a figure gallery), NOT an imageless withholding hero.",
+      "priority": 2
+    },
+    {
+      "component": "minimal-cursor-signature",
+      "seen_in": ["Pacome Pertant"],
+      "mechanic": "A restraint-compatible custom-cursor slot the pointer layer currently lacks: a small monochrome dot that scales/animates over interactive targets, or a lightweight trailing lens/mouse-trail. Verified on Pacome Pertant (Awwwards 'Mouse trail' feature tag). Pointer-only, fully dormant on touch, must never gate content or a11y. Keep it quiet (no color spectacle) to stay inside the archetype. The manifest's element_states enumerate cta/link/figure/index_row/heading/nav and had no cursor slot.",
+      "priority": 2
+    },
+    {
+      "component": "full-page-scrub-recolor-carry",
+      "seen_in": ["Terminal Industries"],
+      "mechanic": "A per-CHAR recolor scrubbed across the FULL page height as a sustained substrate carry — not per-block. text-emphasis-fill's scrub mode brightens WORDS as each block traverses the viewport; Terminal instead runs a per-char recolor tied to global scroll progress so the reading text itself is the continuous thread hero-to-footer. Needs a global-scroll (page-progress) driver and per-char granularity as a variant/mode beyond the current per-block scrub, so the continuation channel can be the text substrate rather than a bank of section reveals. (Terminal's per-char recolor mechanic is CSS-verified across prior rounds and corroborated by the 8.80 Animations sub-score; the full-page-scrub global-driver specifics are partly single-source.)",
+      "priority": 3
+    }
+  ],
+  "unverified": [
+    "Terminal two-color palette hue names ('cream + lime', and the odometer's gray->lime->dark-green sequence) — the Awwwards page returns no swatches and the Land-book fetch 403'd across runs; the recoloring-odometer MECHANIC stays (generic gray->accent->ground), but the specific hues are unverified this run and are stated generically in the body.",
+    "Gabriel masked inverse-scale exact amplitude (scale(1.2 + track*-0.2), amplitude +-0.2) — Codrops confirms the clip-path-inset + scroll-Track-synced-scale MECHANIC but states no numbers; the amplitude figures are illustrative, not verified.",
+    "Stefan 'a:hover{text-decoration:line-through} under @media(any-hover:hover) is the WHOLE hover surface' — not in the Codrops case study and unverifiable without live CSS inspection (browser barred); kept only as a generic minimal-hover pattern, no winner attribution.",
+    "mix-blend-difference seam label crossing section boundaries — the prior priority-2 build was justified solely by Gabriel, but the cited Codrops case study never mentions mix-blend-mode or a seam label and no other source corroborates it this run; removed from the verified channels and gaps. Real technique, but no verified 2024-2026 winner anchor this run — reintroduce only with a dated teardown.",
+    "Cursor-trailing figure affordance (a pointer-trailing 'VIEW PROJECT' / 'DRAG' label over gallery images) — a probable gallery-portfolio omission evidenced by Awwwards project-page/freelance collections but pinned to no dated teardown this run; confirm before building, do not assert as verified.",
+    "Clou Agency Portfolio interaction mechanics (hover/scroll specifics) — award (SOTD 2025-09-05, 7.29 overall, Developer Award 7.02) and two-color palette (#101114 near-black + #ffffff, /sites/clou-agency-portfolio) are now VERIFIED; the earlier '#EDC1CB soft pink' was fabricated and removed. No independent motion teardown this run.",
+    "Lando Norris exact scroll mechanics (pinned scene ranges, helmet-gallery interaction params) — SOTY 2025 and the continuous-momentum + double-climax characterization are verified via the OFF+BRAND case study and the local recipe, but per-section scrub ranges were not independently teardown-verified this run.",
+    "Terminal split-curtain (two-panel 50svh retract) is single-source in local notes; the odometer, per-char cascade, token-wipe CTA, underline-draw link and nav accent dot are CSS-verified across prior rounds and corroborated by the 8.80 Animations/Transitions sub-score, but the curtain panel geometry itself was not re-verified live this run.",
+    "Pacome Pertant fit as 'minimalist' is a palette-DNA call (two-color monochrome #0a0a0a/#fafafa); its 3D showreel execution leans immersive; treated as a boundary case, not a core mechanic source (palette, mouse-trail, and page-transition features are verified on its Awwwards page)."
+  ]
+}
