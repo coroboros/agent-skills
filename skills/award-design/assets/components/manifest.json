@@ -21,6 +21,79 @@
       "variants": { "media": ["right", "left", "back", "none"], "align": ["start", "center"], "density": ["airy", "standard", "dense"] },
       "pairs": { "h1": ["kinetic-reveal"], "standfirst": ["text-emphasis-fill"], "cta-row": ["masked-label-swap"], "media": ["clip-reveal", "scrub-film"], "data-strip": ["counter-odometer"] },
       "whenToUse": "The statement hero: kicker/h1/standfirst/CTA row/data-strip/media, every placement owned by the form — the builder fills slots and pairs components, never writes hero layout CSS."
+    },
+    {
+      "id": "editorial-split",
+      "css": "forms/editorial-split.css",
+      "js": null,
+      "global": null,
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "corporate-luxury", "minimalist", "standfirst-stack"],
+      "tokens": ["--ad-space", "--ad-measure", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "h2", "element": "h2", "required": true },
+        { "name": "prose", "element": "div", "required": true },
+        { "name": "spec-table", "element": "dl", "required": false },
+        { "name": "media", "element": "figure", "required": false }
+      ],
+      "variants": { "media": ["right", "left", "none"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "h2": ["char-assemble", "kinetic-reveal"], "prose": ["text-emphasis-fill", "semantic-accent"], "spec-table": ["counter-odometer"], "media": ["clip-reveal", "image-curtain", "figure-hover"] },
+      "whenToUse": "The editorial half + evidence half: heading and prose beside a figure and/or spec-table — the spec rows measure-capped at 44ch so they never sprawl."
+    },
+    {
+      "id": "index-reel-header",
+      "css": "forms/index-reel-header.css",
+      "js": null,
+      "global": null,
+      "winner": "Siena Film Foundation",
+      "archetypes": ["editorial-dark", "studio-reel", "minimalist", "corporate-luxury"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "h2", "element": "h2", "required": true },
+        { "name": "meta", "element": "p", "required": false },
+        { "name": "actions", "element": "div", "required": false }
+      ],
+      "variants": { "align": ["start", "stack"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "h2": ["char-assemble", "kinetic-reveal"], "meta": [], "actions": ["accent-link"] },
+      "whenToUse": "The header band introducing an index/reel/archive: the meta-line is grid-placed off the heading's columns and hard-capped at 40ch — full-width sprawl has no reachable state."
+    },
+    {
+      "id": "type-as-image",
+      "css": "forms/type-as-image.css",
+      "js": null,
+      "global": null,
+      "winner": "Siena Film Foundation (typography canon)",
+      "archetypes": ["editorial-dark", "immersive", "bold-maximal", "studio-reel"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "mark", "element": "h2", "required": true },
+        { "name": "caption", "element": "p", "required": false }
+      ],
+      "variants": { "align": ["center", "start"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "mark": [], "caption": ["text-emphasis-fill"] },
+      "whenToUse": "The beats-SOTD statement band: giant display type carrying the image inside its letterforms (background-clip:text with a solid-ink @supports fallback). Set the media via --ad-type-image on the mark."
+    },
+    {
+      "id": "close-panel",
+      "css": "forms/close-panel.css",
+      "js": null,
+      "global": null,
+      "winner": "Cuberto, Lusion",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "studio-reel", "bento"],
+      "tokens": ["--ad-space", "--ad-measure", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "ask", "element": "h2", "required": true },
+        { "name": "support", "element": "p", "required": false },
+        { "name": "channels", "element": "nav", "required": true },
+        { "name": "trust", "element": "p", "required": false }
+      ],
+      "variants": { "density": ["airy", "standard", "dense"] },
+      "pairs": { "ask": ["kinetic-reveal"], "channels": ["accent-link", "masked-label-swap"], "trust": [] },
+      "whenToUse": "The funnel's close: one imperative (18ch cap), decisive channel rows, a quiet trust line a full rest below — no media slot exists, so the close cannot become a mood reel."
     }
   ],
   "components": [
@@ -177,6 +250,94 @@
       "deps": [],
       "whenToUse": "Fixed film-grain + optional vignette overlay for a poster grade. Compositor-clean, pointer-events:none, low opacity. Restraint.",
       "init": "awardGrainGrade.init(root, { opacity, animate, blend, vignette, zIndex })"
+    },
+    {
+      "id": "figure-hover",
+      "file": "figure-hover.js",
+      "global": "awardFigureHover",
+      "winner": "Siena Film Foundation, Truekind",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "studio-reel", "bento"],
+      "tokens": ["--ad-accent", "--ad-ink", "--ad-ground", "--ad-font-mono", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "The default figure response: contained zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue — tint, scrim lift, or caption rise — on hover and focus-within.",
+      "init": "awardFigureHover.init(root, { selector })"
+    },
+    {
+      "id": "index-row-hover",
+      "file": "index-row-hover.js",
+      "global": "awardIndexRows",
+      "winner": "Depo Luxe, Son Daven, Terminal Industries, Siena",
+      "archetypes": ["editorial-dark", "minimalist", "studio-reel", "brutalist", "corporate-luxury"],
+      "tokens": ["--ad-accent", "--ad-ink", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "The living index: hovered row lights with an accent rule and surfaced metadata while siblings dim to 45% — the spotlight list for archives, work indexes, ledgers.",
+      "init": "awardIndexRows.init(root, { selector, rowSelector })"
+    },
+    {
+      "id": "focus-defocus",
+      "file": "focus-defocus.js",
+      "global": "awardFocusDefocus",
+      "winner": "Dondre Green, Son Daven",
+      "archetypes": ["editorial-dark", "studio-reel", "minimalist", "immersive"],
+      "tokens": ["--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "Gallery spotlight: the hovered item sharpens while siblings blur and dim. Fine-pointer only; keep galleries under ~10 items (blur repaints).",
+      "init": "awardFocusDefocus.init(root, { selector })"
+    },
+    {
+      "id": "image-curtain",
+      "file": "image-curtain.js",
+      "global": "awardImageCurtain",
+      "winner": "shipped canon (motion-palette: the grayscale-to-colour curtain)",
+      "archetypes": ["editorial-dark", "corporate-luxury", "studio-reel", "minimalist"],
+      "tokens": ["--ad-dur-reveal", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "The treated-image reveal: a clip wipe arrives grayscale, colour floods in late — two beats. Use over clip-reveal when the build's imagery is graded/archival.",
+      "init": "awardImageCurtain.init(root, { selector, threshold })"
+    },
+    {
+      "id": "shader-surface",
+      "file": "shader-surface.js",
+      "global": "awardShaderSurface",
+      "winner": "Siena Film Foundation (OGL canvas, winner-verified)",
+      "archetypes": ["editorial-dark", "immersive", "experimental", "corporate-luxury", "spatial-organic"],
+      "tokens": ["--ad-ground", "--ad-ground-2", "--ad-accent", "--ad-ink"],
+      "deps": [],
+      "whenToUse": "The token-driven WebGL texture layer — gradient-mesh, noise-field, or pointer-ripple painted from the DESIGN.md palette. A living ground behind real DOM content, never the hero; CSS-gradient fallback, static frame under reduced-motion.",
+      "init": "awardShaderSurface.init(root, { selector, mode, speed, alpha })"
+    },
+    {
+      "id": "counter-loader",
+      "file": "counter-loader.js",
+      "global": "awardCounterLoader",
+      "winner": "Terminal Industries, Bruno Simon, Depo Luxe",
+      "archetypes": ["editorial-dark", "immersive", "experimental", "brutalist", "studio-reel"],
+      "tokens": ["--ad-ground", "--ad-ink", "--ad-accent", "--ad-font-mono", "--ad-dur-reveal", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "The numeric counter loader: rolls with real load progress, recolors to the accent near 100, lifts as a curtain. Authored hidden — no-JS never blocks the page. Pair its handoff with the hero's entrance.",
+      "init": "awardCounterLoader.init(root, { selector, minDuration, sessionOnce, onDone })"
+    },
+    {
+      "id": "curtain-transition",
+      "file": "curtain-transition.js",
+      "global": "awardCurtain",
+      "winner": "Cuberto, Terminal Industries, Truekind",
+      "archetypes": ["editorial-dark", "studio-reel", "corporate-luxury", "minimalist", "immersive"],
+      "tokens": ["--ad-ground-2", "--ad-dur-base", "--ad-ease-strike"],
+      "deps": [],
+      "whenToUse": "The cover wipe that rhymes with the loader: play(fn) covers the viewport, runs the swap at full cover, wipes away. For section/route swaps; returns a promise; instant cut under reduced-motion.",
+      "init": "awardCurtain.init(root, { zIndex, color }) -> { play(fn, opts), destroy }"
+    },
+    {
+      "id": "ambient-idle",
+      "file": "ambient-idle.js",
+      "global": "awardAmbientIdle",
+      "winner": "Terminal Industries (radial glow); premium-patterns perpetual-micro canon",
+      "archetypes": ["editorial-dark", "immersive", "bento", "corporate-luxury", "studio-reel"],
+      "tokens": ["--ad-accent", "--ad-ink"],
+      "deps": [],
+      "whenToUse": "The third channel — the page breathes at rest: glow, float, shimmer, or pulse at ambient amplitude, paused off-screen and on hidden tabs. Opt elements in via data-ad-idle.",
+      "init": "awardAmbientIdle.init(root, { selector })"
     },
     {
       "id": "gated-splash",

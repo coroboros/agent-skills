@@ -31,9 +31,11 @@ or zero files scanned (a wrong path must never read as a clean build).
 """
 
 import argparse
+import json
 import math
 import re
 import sys
+from html.parser import HTMLParser
 from pathlib import Path
 
 FAIL = "FAIL"
@@ -302,7 +304,59 @@ def iter_files(paths):
 
 
 PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
-                    "FONT-COUNT", "STAMP", "COPY-LANG"}
+                    "FONT-COUNT", "STAMP", "COPY-LANG", "FORM-SLOT"}
+
+
+# FORM-SLOT: inside a section-form root ([data-ad-form]) the form owns the
+# layout and every direct child must be a named slot — a slotless child is
+# freeform layout smuggled back inside the form, the exact defect class the
+# forms exist to kill. Slot names are validated against the library manifest's
+# forms contract when it is readable; a missing manifest skips only the
+# name check, never the direct-child check.
+VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input",
+             "link", "meta", "param", "source", "track", "wbr"}
+
+
+def _load_form_contracts():
+    manifest = Path(__file__).resolve().parent.parent / "assets" / "components" / "manifest.json"
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+        return {f["id"]: {s["name"] for s in f.get("slots", [])}
+                for f in data.get("forms", [])}
+    except (OSError, ValueError, KeyError, TypeError):
+        return {}
+
+
+class _FormSlotParser(HTMLParser):
+    """Tracks [data-ad-form] roots; flags a direct child element without
+    data-slot, and a slot name outside the form's manifest contract."""
+
+    def __init__(self, contracts):
+        super().__init__()
+        self.contracts = contracts
+        self.stack = []  # (tag, is_form_root, form_id)
+        self.violations = []  # (line, message)
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if self.stack and self.stack[-1][1]:
+            form_id = self.stack[-1][2]
+            slot = a.get("data-slot")
+            line = self.getpos()[0]
+            if slot is None:
+                self.violations.append(
+                    (line, f"<{tag}> is a direct child of [data-ad-form=\"{form_id}\"] with no data-slot"))
+            elif form_id in self.contracts and slot not in self.contracts[form_id]:
+                self.violations.append(
+                    (line, f"slot \"{slot}\" is not in the {form_id} form's contract"))
+        if tag not in VOID_TAGS:
+            self.stack.append((tag, "data-ad-form" in a, a.get("data-ad-form", "")))
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]
+                break
 # Rules that fire only when their precondition is met (an argument passed), so
 # they are not expected on a bare dirty-fixture scan — registered for the
 # checklist lockstep, exempt from the "fires on dirty" net.
@@ -335,6 +389,7 @@ def scan_paths(paths, archetype="", allow=()):
 
     project_blob = "\n".join(texts.values())
     has_focus_visible = bool(FOCUS_VISIBLE.search(project_blob))
+    form_contracts = _load_form_contracts()
 
     emdash_count = 0
     emdash_hits = []
@@ -388,6 +443,23 @@ def scan_paths(paths, archetype="", allow=()):
                     str(path),
                     f"{len(month_hits)} distinct non-English months: "
                     f"{', '.join(month_hits[:6])}"))
+
+        # FORM-SLOT — section-form roots own their layout; a slotless direct
+        # child or an uncontracted slot name is freeform smuggled inside.
+        if ("FORM-SLOT" not in suppressed and ext in {".html", ".htm"}
+                and "data-ad-form" in text):
+            parser = _FormSlotParser(form_contracts)
+            try:
+                parser.feed(text)
+            except Exception:
+                pass  # a malformed document is other rules' problem
+            for line_no, message in parser.violations:
+                findings.append(Finding(
+                    "FORM-SLOT", FAIL,
+                    "section-form slot violation — the form owns the layout; "
+                    "direct children carry data-slot from the form's contract "
+                    "(components/README.md, section forms)",
+                    f"{path}:{line_no}", message))
 
         # Per-page structural rules — full HTML documents with real content
         # only (an SPA shell renders its h1/main from JS).

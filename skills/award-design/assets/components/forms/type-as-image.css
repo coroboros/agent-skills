@@ -1,0 +1,120 @@
+/*
+ * type-as-image — section form (winners: Siena typography canon).
+ * The form OWNS the layout: full-bleed statement band, per-slot type ramps,
+ * spacing rhythm, measure caps, alignment. Its one effect is the mark: giant
+ * display type carrying the media INSIDE its letterforms via background-clip:
+ * text. The builder fills named slots and pairs them with interaction
+ * components (mark → kinetic-reveal | char-assemble); it never writes
+ * placement CSS for this section. Linked as a plain stylesheet so the no-JS
+ * render keeps its layout. Beyond the clip itself the form ships zero
+ * decoration and zero motion — character comes from tokens, content, and the
+ * paired components.
+ *
+ * Markup contract (slots in reading order):
+ *   <section data-ad-form="type-as-image" data-align="center" data-density="standard">
+ *     <p  data-slot="kicker">…</p>                                             optional
+ *     <h2 data-slot="mark" data-ad-type-image style="--ad-type-image:url(…)">ORION</h2>  required
+ *     <p  data-slot="caption">…</p>                                            optional
+ *   </section>
+ *
+ * Variants: data-align="center|start" · data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-ground, --ad-font-display,
+ *         --ad-font-mono. Per-instance: --ad-type-image (the fill media).
+ */
+
+[data-ad-form="type-as-image"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
+  min-height: 70vh;
+  min-height: 70dvh;
+  padding: calc(var(--_sp) * 4) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+[data-ad-form="type-as-image"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="type-as-image"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+[data-ad-form="type-as-image"][data-align="start"] {
+  align-items: flex-start;
+  text-align: start;
+}
+
+/* ---- per-slot type ramps + rhythm ------------------------------------- */
+[data-ad-form="type-as-image"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  margin: 0 0 calc(var(--_sp) * 0.9);
+}
+
+/* the mark at rest: solid ink — fully legible with no image and no clip
+   support; the image fill is layered on only inside the @supports gate below */
+[data-ad-form="type-as-image"] > [data-slot="mark"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(4rem, 16vw, 15rem);
+  font-weight: 650;
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin: 0;
+}
+
+[data-ad-form="type-as-image"] > [data-slot="caption"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+  max-inline-size: 40ch;
+  margin: calc(var(--_sp) * 1.2) 0 0;
+}
+
+/* ---- THE effect: media clipped inside the letterforms ------------------ */
+/* transparent color lives ONLY here, together with the background it reveals —
+   outside this gate the mark stays solid ink, so text is never invisible */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  [data-ad-form="type-as-image"] > [data-slot="mark"][data-ad-type-image] {
+    /* ground-tinted scrim inside the glyphs keeps the counters legible over
+       bright media; ink-solid fallback layer if --ad-type-image is unset */
+    background-image:
+      linear-gradient(
+        color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 25%, transparent),
+        color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 25%, transparent)
+      ),
+      var(--ad-type-image, linear-gradient(var(--ad-ink, oklch(96% 0 0)), var(--ad-ink, oklch(96% 0 0))));
+    background-size: cover;
+    background-position: center;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* ---- forced-colors / print: clipped fills don't survive — go solid ----- */
+@media (forced-colors: active), print {
+  [data-ad-form="type-as-image"] > [data-slot="mark"][data-ad-type-image] {
+    background-image: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
+}
+
+/* ---- mobile: floor drops but stays a statement, rhythm holds ----------- */
+@media (max-width: 768px) {
+  [data-ad-form="type-as-image"] {
+    padding: calc(var(--_sp) * 2) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="type-as-image"] > [data-slot="mark"] {
+    font-size: clamp(3rem, 16vw, 15rem);
+  }
+}

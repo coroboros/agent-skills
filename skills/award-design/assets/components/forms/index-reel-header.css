@@ -1,0 +1,132 @@
+/*
+ * index-reel-header — section form (winner: Siena Film Foundation's archive header).
+ * The header band that introduces an index/reel/archive section: heading, mono
+ * meta-line, optional actions. The form OWNS the layout: grid, per-slot type
+ * ramps, spacing rhythm, measure caps, alignment. It exists to kill one recurring
+ * defect — a heading with a mono meta-line stretched across the full width on an
+ * awkward shared baseline; here the meta-line is capped at 40ch, placed off the
+ * heading's columns, and seated on the h2's baseline, so it can never sprawl.
+ * The builder fills named slots and pairs them with interaction components
+ * (h2 → kinetic-reveal, actions links → accent-link); it never writes placement
+ * CSS for this section. Linked as a plain stylesheet so the no-JS render keeps
+ * its layout. The form ships zero decoration and zero motion — character comes
+ * from tokens, content, and the paired components.
+ *
+ * Markup contract (slots in reading order; grid areas own visual placement):
+ *   <header data-ad-form="index-reel-header" data-align="start" data-density="standard">
+ *     <p   data-slot="kicker">…</p>            optional
+ *     <h2  data-slot="h2">…</h2>               required
+ *     <p   data-slot="meta">…</p>              optional
+ *     <div data-slot="actions">…links…</div>   optional
+ *   </header>
+ *
+ * Variants: data-align="start|stack" (stack = meta under the h2)
+ *          · data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="index-reel-header"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: min-content;
+  column-gap: calc(var(--_sp) * 1.5);
+  /* a header leads INTO the content below it — bottom gap smaller than top,
+     so the heading belongs to what follows, not to what came before */
+  padding: calc(var(--_sp) * 3) calc(var(--_sp) * 3) calc(var(--_sp) * 1.6);
+  box-sizing: border-box;
+}
+[data-ad-form="index-reel-header"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="index-reel-header"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- text slots: column placement ------------------------------------- */
+[data-ad-form="index-reel-header"] > [data-slot="kicker"],
+[data-ad-form="index-reel-header"] > [data-slot="h2"] {
+  grid-column: 1 / 7;
+  margin: 0;
+}
+[data-ad-form="index-reel-header"] > [data-slot="meta"],
+[data-ad-form="index-reel-header"] > [data-slot="actions"] {
+  grid-column: 8 / 13;
+  margin: 0;
+}
+
+/* ---- per-slot type ramps + rhythm ------------------------------------- */
+[data-ad-form="index-reel-header"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  /* the kicker belongs to the h2 below it, never to what came before */
+  margin-bottom: calc(var(--_sp) * 0.9);
+}
+[data-ad-form="index-reel-header"] > [data-slot="h2"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+
+/* the core rule: the meta-line lives off the heading's columns, capped at 40ch,
+   and sits on the h2's baseline — it structurally cannot stretch across the band */
+[data-ad-form="index-reel-header"] > [data-slot="meta"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.7;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+  max-inline-size: 40ch;
+  align-self: end;
+  /* baseline compensation: seats the mono line on the h2's last baseline
+     instead of the bottom of its descender box */
+  padding-bottom: 0.35em;
+}
+[data-ad-form="index-reel-header"] > [data-slot="actions"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--_sp) * 0.8);
+  margin-top: calc(var(--_sp) * 0.8);
+}
+
+/* ---- stack variant: meta under the h2, actions take the baseline seat -- */
+[data-ad-form="index-reel-header"][data-align="stack"] > [data-slot="meta"] {
+  grid-column: 1 / 7;
+  align-self: auto;
+  padding-bottom: 0;
+  margin-top: calc(var(--_sp) * 0.9);
+}
+[data-ad-form="index-reel-header"][data-align="stack"] > [data-slot="actions"] {
+  align-self: end;
+  margin-top: 0;
+}
+
+/* ---- mobile: one column, meta drops below the h2, the 40ch cap holds --- */
+@media (max-width: 768px) {
+  [data-ad-form="index-reel-header"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2) calc(var(--_sp) * 1.6);
+  }
+  [data-ad-form="index-reel-header"] > [data-slot="kicker"],
+  [data-ad-form="index-reel-header"] > [data-slot="h2"],
+  [data-ad-form="index-reel-header"] > [data-slot="meta"],
+  [data-ad-form="index-reel-header"][data-align="stack"] > [data-slot="meta"],
+  [data-ad-form="index-reel-header"] > [data-slot="actions"],
+  [data-ad-form="index-reel-header"][data-align="stack"] > [data-slot="actions"] {
+    grid-column: 1 / -1;
+  }
+  [data-ad-form="index-reel-header"] > [data-slot="meta"] {
+    align-self: auto;
+    padding-bottom: 0;
+    margin-top: calc(var(--_sp) * 0.9);
+  }
+  [data-ad-form="index-reel-header"] > [data-slot="actions"],
+  [data-ad-form="index-reel-header"][data-align="stack"] > [data-slot="actions"] {
+    align-self: auto;
+    margin-top: calc(var(--_sp) * 0.8);
+  }
+}

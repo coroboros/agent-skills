@@ -1,0 +1,139 @@
+/*
+ * close-panel — section form (winners: Cuberto's contact-first close, Lusion's
+ * "Let's talk" + trust cue). The pre-footer close: the ask, made unmissable —
+ * one imperative, a short list of channels, a quiet trust line. The form OWNS
+ * the layout: grid, per-slot type ramps, spacing rhythm, measure caps,
+ * alignment. The builder fills named slots and pairs them with interaction
+ * components (ask → kinetic-reveal, channel links → accent-link |
+ * masked-label-swap); it never writes placement CSS for this section. Linked
+ * as a plain stylesheet so the no-JS render keeps its layout. The form ships
+ * zero decoration and zero motion — character comes from tokens, content, and
+ * the paired components.
+ *
+ * Markup contract (slots in reading order; grid areas own visual placement):
+ *   <section data-ad-form="close-panel" data-density="standard">
+ *     <p   data-slot="kicker">…</p>                    optional
+ *     <h2  data-slot="ask">Acquire a print.</h2>       required
+ *     <p   data-slot="support">…one short line…</p>    optional
+ *     <nav data-slot="channels">                       required
+ *       <a href="…">Arrange a visit</a>
+ *       <a href="…">The observing log</a> …
+ *     </nav>
+ *     <p   data-slot="trust">Est. 1961 · Atacama ridge · replies within a week</p>  optional
+ *   </section>
+ *
+ * Variants: data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-measure, --ad-ink, --ad-font-display,
+ *         --ad-font-mono.
+ */
+
+[data-ad-form="close-panel"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: min-content;
+  column-gap: calc(var(--_sp) * 1.5);
+  padding: calc(var(--_sp) * 5) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="close-panel"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="close-panel"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- text slots: column placement ------------------------------------- */
+[data-ad-form="close-panel"] > [data-slot="kicker"],
+[data-ad-form="close-panel"] > [data-slot="ask"],
+[data-ad-form="close-panel"] > [data-slot="support"],
+[data-ad-form="close-panel"] > [data-slot="trust"] {
+  grid-column: 1 / 8;
+  margin: 0;
+}
+
+/* ---- per-slot type ramps + rhythm ------------------------------------- */
+[data-ad-form="close-panel"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  /* the kicker belongs to the ask below it, never to what came before */
+  margin-bottom: calc(var(--_sp) * 0.9);
+}
+[data-ad-form="close-panel"] > [data-slot="ask"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2.4rem, 6vw, 5.4rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  /* one imperative, not a paragraph — the cap keeps the ask a single gesture */
+  max-inline-size: 18ch;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="close-panel"] > [data-slot="support"] {
+  font-size: 1.15rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+  max-inline-size: min(var(--ad-measure, 62ch), 44ch);
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 78%, transparent);
+  margin-top: calc(var(--_sp) * 1.2);
+}
+
+/* the trust line sits a full rest under the ask — the quiet proof, never a
+   second pitch */
+[data-ad-form="close-panel"] > [data-slot="trust"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 52%, transparent);
+  margin-top: calc(var(--_sp) * 2.4);
+}
+
+/* ---- channels: divided rows beside the ask ----------------------------- */
+[data-ad-form="close-panel"] > [data-slot="channels"] {
+  grid-column: 9 / 13;
+  grid-row: 1 / span 4;
+  align-self: center;
+}
+[data-ad-form="close-panel"] > [data-slot="channels"] > a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--_sp) * 0.8);
+  padding-block: calc(var(--_sp) * 1);
+  border-top: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  /* color inherits — hover/active character comes from the paired interaction
+     components (accent-link, masked-label-swap), never the form */
+  color: inherit;
+}
+[data-ad-form="close-panel"] > [data-slot="channels"] > a:last-child {
+  border-bottom: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+}
+[data-ad-form="close-panel"] > [data-slot="channels"] > a::after {
+  content: "→";
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+}
+
+/* ---- mobile: one column — ask, support, channels, trust last ----------- */
+@media (max-width: 768px) {
+  [data-ad-form="close-panel"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="close-panel"] > [data-slot="kicker"],
+  [data-ad-form="close-panel"] > [data-slot="ask"],
+  [data-ad-form="close-panel"] > [data-slot="support"],
+  [data-ad-form="close-panel"] > [data-slot="trust"] {
+    grid-column: 1 / -1;
+  }
+  [data-ad-form="close-panel"] > [data-slot="channels"] {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    margin-top: calc(var(--_sp) * 2.2);
+  }
+}
