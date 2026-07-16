@@ -504,7 +504,7 @@ AVIF > WebP > JPEG via `<picture>`. AVIF ~50% smaller than JPEG. Font loading: `
 
 ### Targets
 
-LCP < 1.5s · CLS < 0.05 · INP < 100ms · Total weight < 3MB · 60fps sustained
+LCP < 1.5s · CLS < 0.05 · INP < 100ms · ≥55fps sustained · critical path lean, heavy assets streamed — no byte cap, signature fidelity never traded (`award-imperatives.md` #7)
 
 ## UX Quality
 

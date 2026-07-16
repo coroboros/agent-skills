@@ -45,7 +45,7 @@ Native semantics first — the **first rule of ARIA**: a role on a `<div>`-as-bu
 
 ## Performance
 
-Animate only the GPU-composited set (above); offscreen work goes behind `content-visibility: auto` and IntersectionObserver-gated lazy-load + dynamic import of heavy layers; images ship the AVIF > WebP > JPEG `<picture>` cascade; fonts preload + `font-display: swap` (reference article §5.4; `foundations.md`). The budget this skill holds — **LCP < 1.5s · CLS < 0.05 · INP < 100ms**, < 3 MB, 60fps — is a deliberate **award-grade stretch**, tighter than Google's official "good" Core Web Vitals floor (LCP ≤ 2.5s · INP ≤ 200ms · CLS ≤ 0.1 at p75, web.dev/vitals). State it as the studio target it is, never as "Google's baseline." Deeper: the `web-perf` skill.
+Animate only the GPU-composited set (above); offscreen work goes behind `content-visibility: auto` and IntersectionObserver-gated lazy-load + dynamic import of heavy layers; images ship the AVIF > WebP > JPEG `<picture>` cascade; fonts preload + `font-display: swap` (reference article §5.4; `foundations.md`). The budget this skill holds — **LCP < 1.5s · CLS < 0.05 · INP < 100ms**, ≥55fps — is a deliberate **award-grade stretch**, tighter than Google's official "good" Core Web Vitals floor (LCP ≤ 2.5s · INP ≤ 200ms · CLS ≤ 0.1 at p75, web.dev/vitals); total transfer carries **no cap** — weight is phased instead (critical-path lean, heavy assets streamed behind a designed loader, `award-imperatives.md` #7), the model measured winners actually ship. State the stretch as the studio target it is, never as "Google's baseline." Deeper: the `web-perf` skill.
 
 ## React builds
 

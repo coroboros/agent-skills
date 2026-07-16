@@ -57,7 +57,7 @@ Anti-default is not only within a build (reject the lazy first option) — it ho
 
 ## Performance failures
 
-- LCP > 2s, total weight > 3MB, animation dropping below 60fps.
+- An uncovered blank canvas at arrival, layout shift, frames > 50ms through the signature — or a signature asset shipped visibly degraded to honour a byte budget (no jury publishes one; `award-imperatives.md` #7).
 - Videos loaded without lazy loading, 20+ font file requests.
 - Images loaded twice due to poor `<picture>` implementation.
 - Award-winner targets: **LCP < 1.5s**, **CLS < 0.05**, **INP < 100ms**.
