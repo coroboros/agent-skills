@@ -120,6 +120,17 @@
       "init": "awardScrubFilm.init(root, { selector, mode, axis, range })"
     },
     {
+      "id": "dolly-zoom",
+      "file": "dolly-zoom.js",
+      "global": "awardDollyZoom",
+      "winner": "the cosmic push-in class (Apple-lineage pinned scrub; MERIDIAN v2 validation)",
+      "archetypes": ["editorial-dark", "immersive", "corporate-luxury", "experimental", "spatial-organic"],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The scroll dive: a pinned full-bleed media scales toward a targeted focal point (the moon, the product, the plate) as the track scrolls — reversible, compositor-only; optional fade hand-off at the end of the travel. A spectacle-tier scroll texture.",
+      "init": "awardDollyZoom.init(root, { selector })"
+    },
+    {
       "id": "smooth-scroll",
       "file": "smooth-scroll.js",
       "global": "awardSmoothScroll",
