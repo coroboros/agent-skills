@@ -1,0 +1,98 @@
+/*
+ * stat-band — section form (winners: Terminal Industries odometer band, Son
+ * Daven financials, Anime.js bundle stats). The standalone big-number strip:
+ * 2–5 figures at display scale, each captioned by a quiet mono label. The
+ * form OWNS the layout: row behavior, per-slot type ramps, spacing rhythm,
+ * the hairline rules between stats. The builder fills the one slot and pairs
+ * the values with an interaction component (dd → counter-odometer via the
+ * data-ad-counter attribute in the markup — the form does not own the roll);
+ * it never writes placement CSS for this section. Linked as a plain
+ * stylesheet so the no-JS render keeps its layout. The form ships zero
+ * decoration and zero motion — character comes from tokens, content, and the
+ * paired components.
+ *
+ * Markup contract (slots in reading order):
+ *   <div data-ad-form="stat-band" data-align="start" data-density="standard">
+ *     <dl data-slot="stats">                     required
+ *       <div><dt>Plates archived</dt><dd data-ad-counter>412</dd></div>
+ *       … 2–5 <div><dt/><dd/></div> pairs …
+ *     </dl>
+ *   </div>
+ *   Repetition lives inside the single "stats" slot — every stat is an
+ *   identical <div><dt/><dd/></div> pair; a data-slot name never repeats
+ *   across siblings.
+ *
+ * Variants: data-align="start|center" · data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-font-display,
+ *         --ad-font-mono.
+ */
+
+[data-ad-form="stat-band"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  padding: calc(var(--_sp) * 3) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="stat-band"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="stat-band"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- stats row ---------------------------------------------------------- */
+[data-ad-form="stat-band"] > [data-slot="stats"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--_sp) * 3);
+  margin: 0;
+}
+[data-ad-form="stat-band"][data-align="center"] > [data-slot="stats"] { justify-content: center; }
+
+/* each stat: value first visually — column-reverse swaps display order while
+   dt/dd keep definition-list source order; the min-inline-size keeps the row
+   from crowding */
+[data-ad-form="stat-band"] > [data-slot="stats"] > div {
+  display: flex;
+  flex-direction: column-reverse;
+  min-inline-size: 8ch;
+}
+/* hairline rule between stats — never before the first */
+[data-ad-form="stat-band"] > [data-slot="stats"] > div:not(:first-child) {
+  border-left: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+  padding-left: calc(var(--_sp) * 1.2);
+}
+
+/* ---- per-slot type ramps ------------------------------------------------ */
+[data-ad-form="stat-band"] > [data-slot="stats"] dd {
+  margin: 0;
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="stat-band"] > [data-slot="stats"] dt {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 52%, transparent);
+  /* under column-reverse this margin lands between the value and its label */
+  margin-top: calc(var(--_sp) * 0.6);
+  max-inline-size: 18ch;
+}
+
+/* ---- mobile: two per row ------------------------------------------------ */
+@media (max-width: 768px) {
+  [data-ad-form="stat-band"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="stat-band"] > [data-slot="stats"] {
+    gap: calc(var(--_sp) * 2);
+  }
+  [data-ad-form="stat-band"] > [data-slot="stats"] > div {
+    flex-basis: 40%;
+  }
+  /* two per row → odd stats start rows; a rule at a wrap edge reads as a bug */
+  [data-ad-form="stat-band"] > [data-slot="stats"] > div:nth-child(odd) {
+    border-left: 0;
+    padding-left: 0;
+  }
+}

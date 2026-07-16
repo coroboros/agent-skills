@@ -1,0 +1,130 @@
+/*
+ * feature-card-grid — section form (winners: Endex 12-col editorial feature grid,
+ * Anime.js toolbox + modules bento). The bento-fatigue correction: every card
+ * carries a REAL product-UI slice, never an icon on a gradient tile, and cards of
+ * different spans coexist on one row — asymmetry is the point. The form OWNS the
+ * layout: 12-col dense grid, per-slot type ramps, spacing rhythm, measure caps.
+ * The builder fills named slots and pairs them with interaction components
+ * (h2 → kinetic-reveal, card media → figure-hover); it never writes placement
+ * CSS for this section. Linked as a plain stylesheet so the no-JS render keeps
+ * its layout. The form ships zero decoration and zero motion — character comes
+ * from tokens, content, and the paired components.
+ *
+ * Markup contract (slots in reading order; every card repeats the same hooks):
+ *   <section data-ad-form="feature-card-grid" data-density="standard">
+ *     <p   data-slot="kicker">…</p>                    optional
+ *     <h2  data-slot="h2">…</h2>                       optional
+ *     <div data-slot="grid">                           required
+ *       <article data-card data-span="6">              repeated; span 4|5|6|7|8|12 (default 6)
+ *         <figure data-card-media><img …></figure>     the real UI slice / visual
+ *         <h3 data-card-title>…</h3>
+ *         <p  data-card-body>…</p>                     optional
+ *       </article>
+ *       … more <article data-card> …
+ *     </div>
+ *   </section>
+ *
+ * Variants: data-density="airy|standard|dense" · per-card data-span="4|5|6|7|8|12"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-ground, --ad-ground-2,
+ *         --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="feature-card-grid"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  padding: calc(var(--_sp) * 4) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="feature-card-grid"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="feature-card-grid"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- header slots: per-slot type ramps + rhythm ------------------------ */
+[data-ad-form="feature-card-grid"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  /* the kicker belongs to the h2 below it, never to what came before */
+  margin: 0 0 calc(var(--_sp) * 0.9);
+}
+[data-ad-form="feature-card-grid"] > [data-slot="h2"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  max-inline-size: 20ch;
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin: 0;
+}
+
+/* ---- the grid: 12-col, dense flow -------------------------------------- */
+[data-ad-form="feature-card-grid"] > [data-slot="grid"] {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  /* dense flow backfills the holes asymmetric spans leave — mixed-span rows, no gaps */
+  grid-auto-flow: dense;
+  gap: calc(var(--_sp) * 1.5);
+}
+[data-ad-form="feature-card-grid"] > * + [data-slot="grid"] {
+  margin-top: calc(var(--_sp) * 2.4);
+}
+
+/* ---- cards -------------------------------------------------------------- */
+[data-ad-form="feature-card-grid"] > [data-slot="grid"] > [data-card] {
+  --_span: 6;
+  grid-column: span var(--_span);
+  background: color-mix(in oklch, var(--ad-ground-2, oklch(18% 0.01 260)) 60%, var(--ad-ground, oklch(14% 0.01 260)));
+  border: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 10%, transparent);
+  border-radius: 6px;
+  padding: calc(var(--_sp) * 1.4);
+}
+[data-ad-form="feature-card-grid"] [data-card][data-span="4"]  { --_span: 4; }
+[data-ad-form="feature-card-grid"] [data-card][data-span="5"]  { --_span: 5; }
+[data-ad-form="feature-card-grid"] [data-card][data-span="6"]  { --_span: 6; }
+[data-ad-form="feature-card-grid"] [data-card][data-span="7"]  { --_span: 7; }
+[data-ad-form="feature-card-grid"] [data-card][data-span="8"]  { --_span: 8; }
+[data-ad-form="feature-card-grid"] [data-card][data-span="12"] { --_span: 12; }
+
+/* ---- card anatomy -------------------------------------------------------- */
+[data-ad-form="feature-card-grid"] [data-card-media] {
+  margin: 0 0 var(--_sp);
+  aspect-ratio: 16 / 10;
+  border-radius: 4px;
+  overflow: hidden;
+}
+[data-ad-form="feature-card-grid"] [data-card-media] img,
+[data-ad-form="feature-card-grid"] [data-card-media] video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+[data-ad-form="feature-card-grid"] [data-card-title] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: 1.15rem;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin: 0;
+}
+[data-ad-form="feature-card-grid"] [data-card-body] {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-wrap: pretty;
+  max-inline-size: 38ch;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 72%, transparent);
+  margin: calc(var(--_sp) * 0.5) 0 0;
+}
+
+/* ---- mobile: one column, rhythm holds ----------------------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="feature-card-grid"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="feature-card-grid"] > [data-slot="grid"] > [data-card] {
+    grid-column: 1 / -1;
+  }
+}

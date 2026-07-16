@@ -94,6 +94,100 @@
       "variants": { "density": ["airy", "standard", "dense"] },
       "pairs": { "ask": ["kinetic-reveal"], "channels": ["accent-link", "masked-label-swap"], "trust": [] },
       "whenToUse": "The funnel's close: one imperative (18ch cap), decisive channel rows, a quiet trust line a full rest below — no media slot exists, so the close cannot become a mood reel."
+    },
+    {
+      "id": "index-list",
+      "css": "forms/index-list.css",
+      "js": null,
+      "global": null,
+      "winner": "Anthropic, Lusion, Depo Luxe, Truekind, Eloy Benoffi",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive", "brutalist", "spatial-organic", "experimental"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "row", "element": "a", "required": true }
+      ],
+      "variants": { "thumb": ["none", "right"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "row": ["index-row-hover"] },
+      "whenToUse": "The row-list body under index-reel-header: index/title/meta/thumb locked to one shared grid so column edges cannot drift and the meta cannot sprawl. Rows repeat the row slot; pairs index-row-hover."
+    },
+    {
+      "id": "card-list",
+      "css": "forms/card-list.css",
+      "js": null,
+      "global": null,
+      "winner": "Anthropic, Truekind, Cyd Stumpel, Cuberto",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "standfirst-stack", "spatial-organic", "bold-maximal"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "card", "element": "a", "required": true }
+      ],
+      "variants": { "cols": ["2", "3"], "rule": ["off", "on"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "card": ["figure-hover"] },
+      "whenToUse": "Release/journal/blog cards in a 2-3 column grid: media 3/2, kicker/title/date at fixed rhythm; minmax(0,1fr) columns so a long title wraps instead of blowing the grid."
+    },
+    {
+      "id": "logo-wall",
+      "css": "forms/logo-wall.css",
+      "js": null,
+      "global": null,
+      "winner": "Terminal Industries, Anime.js, Lando Norris, FlowFest",
+      "archetypes": ["editorial-dark", "minimalist", "bento", "brutalist", "corporate-luxury", "immersive", "bold-maximal"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-font-mono", "--ad-dur-base", "--ad-ease-signature"],
+      "slots": [
+        { "name": "label", "element": "p", "required": false },
+        { "name": "wall", "element": "ul", "required": true }
+      ],
+      "variants": { "density": ["airy", "standard", "dense"] },
+      "pairs": { "wall": [] },
+      "whenToUse": "The restrained proof strip: a static wrapped wall of height-capped, quieted logos (grayscale at rest, colour on hover — the one micro-state the form owns). Never a marquee."
+    },
+    {
+      "id": "stat-band",
+      "css": "forms/stat-band.css",
+      "js": null,
+      "global": null,
+      "winner": "Terminal Industries, Son Daven, Anime.js",
+      "archetypes": ["editorial-dark", "minimalist", "bento", "corporate-luxury", "brutalist"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "stats", "element": "dl", "required": true }
+      ],
+      "variants": { "align": ["start", "center"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "stats": ["counter-odometer"] },
+      "whenToUse": "The standalone big-number strip: display-scale tabular values over mono captions, hairline-divided columns that never crowd (8ch floors). The dd carries data-ad-counter for the roll."
+    },
+    {
+      "id": "feature-card-grid",
+      "css": "forms/feature-card-grid.css",
+      "js": null,
+      "global": null,
+      "winner": "Endex, Anime.js v4",
+      "archetypes": ["bento", "minimalist", "editorial-dark"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-ground-2", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "h2", "element": "h2", "required": false },
+        { "name": "grid", "element": "div", "required": true }
+      ],
+      "variants": { "density": ["airy", "standard", "dense"] },
+      "pairs": { "grid": ["figure-hover", "counter-odometer"] },
+      "whenToUse": "The 12-col asymmetric feature grid — cards carry REAL product-UI slices (never icons), spans 4-12 with dense backfill; the bento-fatigue correction."
+    },
+    {
+      "id": "full-bleed-figure",
+      "css": "forms/full-bleed-figure.css",
+      "js": null,
+      "global": null,
+      "winner": "Gabriel Contassot, Stefan Vitasovic, Cuberto",
+      "archetypes": ["minimalist", "bold-maximal", "studio-reel", "editorial-dark", "immersive"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "media", "element": "figure", "required": true },
+        { "name": "caption", "element": "div", "required": false }
+      ],
+      "variants": { "caption": ["corner", "center"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "media": ["clip-reveal", "image-curtain"], "caption": ["masked-label-swap", "kinetic-reveal"] },
+      "whenToUse": "One project per viewport: full-bleed media with a corner (or centered) caption over a structural contrast scrim — the gallery-stack unit; stack several for the procession."
     }
   ],
   "components": [

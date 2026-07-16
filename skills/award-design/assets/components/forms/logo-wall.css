@@ -1,0 +1,102 @@
+/*
+ * logo-wall — section form (winners: Terminal Industries logo strip, Anime.js
+ * sponsors, Lando honours, FlowFest community band). The restrained proof
+ * strip: a quiet label, then a static wrapped wall of logos. The form OWNS the
+ * layout: rhythm, gaps, logo sizing, alignment. The builder fills named slots;
+ * it never writes placement CSS for this section. Linked as a plain stylesheet
+ * so the no-JS render keeps its layout. The form ships zero decoration and —
+ * one exception — zero motion: logos rest quiet (dimmed, grayscale) and wake
+ * to full color on li hover/focus-within. That micro-state is layout-adjacent
+ * chrome the form MAY own, matching the winners' quiet walls. NO marquee —
+ * the marquee cap is a preflight rule; the static wrapped wall is the winner
+ * default.
+ *
+ * Markup contract (slots in reading order):
+ *   <div data-ad-form="logo-wall" data-density="standard">
+ *     <p  data-slot="label">Trusted by</p>       optional
+ *     <ul data-slot="wall">                      required
+ *       <li><img alt="Acme" src="…"></li>        one <li> per logo,
+ *       <li><svg …>…</svg></li> …                img or inline svg
+ *     </ul>
+ *   </div>
+ *   Repetition lives inside the single "wall" slot — every logo is an
+ *   identical <li>; a data-slot name never repeats across siblings.
+ *
+ * Variants: data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-dur-base,
+ *         --ad-ease-signature, --ad-font-mono.
+ */
+
+[data-ad-form="logo-wall"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  padding: calc(var(--_sp) * 2.5) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="logo-wall"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="logo-wall"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- label: quiet mono line, never full-width -------------------------- */
+[data-ad-form="logo-wall"] > [data-slot="label"] {
+  margin: 0 0 calc(var(--_sp) * 1.2);
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 50%, transparent);
+  max-inline-size: 30ch;
+}
+
+/* ---- wall: static wrapped row ------------------------------------------ */
+[data-ad-form="logo-wall"] > [data-slot="wall"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: calc(var(--_sp) * 2.5);
+  row-gap: calc(var(--_sp) * 1.5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+[data-ad-form="logo-wall"] > [data-slot="wall"] li {
+  margin: 0;
+  padding: 0;
+}
+[data-ad-form="logo-wall"] > [data-slot="wall"] li img,
+[data-ad-form="logo-wall"] > [data-slot="wall"] li svg {
+  display: block;
+  max-height: 28px;
+  width: auto;
+  /* quiet at rest — the wall is proof, not a pitch */
+  opacity: 0.55;
+  filter: grayscale(1);
+  transition:
+    opacity var(--ad-dur-base, 420ms) var(--ad-ease-signature, cubic-bezier(.16, 1, .3, 1)),
+    filter var(--ad-dur-base, 420ms) var(--ad-ease-signature, cubic-bezier(.16, 1, .3, 1));
+}
+[data-ad-form="logo-wall"] > [data-slot="wall"] li:hover img,
+[data-ad-form="logo-wall"] > [data-slot="wall"] li:hover svg,
+[data-ad-form="logo-wall"] > [data-slot="wall"] li:focus-within img,
+[data-ad-form="logo-wall"] > [data-slot="wall"] li:focus-within svg {
+  opacity: 1;
+  filter: none;
+}
+
+/* ---- reduce: the wake becomes instant ----------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  [data-ad-form="logo-wall"] > [data-slot="wall"] li img,
+  [data-ad-form="logo-wall"] > [data-slot="wall"] li svg {
+    transition: none;
+  }
+}
+
+/* ---- mobile: tighter cap, same wall ------------------------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="logo-wall"] {
+    padding: calc(var(--_sp) * 2.5) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="logo-wall"] > [data-slot="wall"] li img,
+  [data-ad-form="logo-wall"] > [data-slot="wall"] li svg {
+    max-height: 22px;
+  }
+}

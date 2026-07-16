@@ -67,14 +67,21 @@ class TestFormStylesheets(unittest.TestCase):
 
     def test_no_js_floor_no_hidden_slots(self):
         """Forms are plain linked stylesheets precisely so a dead script keeps
-        the layout — a form that hides content at rest reintroduces the
-        blackout the packaging was chosen to prevent."""
+        the layout — a SLOT hidden at rest reintroduces the blackout the
+        packaging was chosen to prevent. Sub-parts (a [data-row-thumb] excluded
+        by a variant, an index number dropped on mobile) may legitimately hide;
+        the slot element itself never does."""
+        import re
         for f in _forms():
             css = (COMPONENTS / f["css"]).read_text(encoding="utf-8")
             with self.subTest(form=f["id"]):
-                self.assertNotRegex(css, r"display:\s*none")
                 self.assertNotRegex(css, r"visibility:\s*hidden")
                 self.assertNotRegex(css, r"opacity:\s*0(?![.\d])")
+                for m in re.finditer(r"([^{}]+)\{[^{}]*display:\s*none", css):
+                    # the final compound of the selector must not be the slot itself
+                    last = m.group(1).strip().split(",")[-1].split()[-1]
+                    self.assertNotIn("data-slot=", last,
+                                     f"{f['id']}: a slot element is hidden: {m.group(1).strip()[:80]}")
 
     def test_forms_ship_zero_motion(self):
         """Character comes from paired interaction components; a form that
