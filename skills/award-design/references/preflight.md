@@ -112,6 +112,7 @@ Each is a number computed from the rendered page against a threshold. Cite the c
 | [ ] **Font-family cap** | ≤ 3 families page-wide, plus at most one mono outlier `(scanner: FONT-COUNT)` | Global — more reads as collage |
 | [ ] **Motion motivated** | every animation names what it communicates (one sentence, in the design_plan or the code comment) | Global — unexplained motion is decoration |
 | [ ] **Interaction-palette distinctness** | ≥3 element classes (CTA, link, figure/card, nav) carry distinct state mechanics, each named in the design_plan from the archetype's *Effect palette*, bound by one declared grammar (easing family + accent role) | Global — one mechanic recycled across classes is the fail; distinct mechanics, one grammar (`interaction-signatures.md`) |
+| [ ] **Primary-verb consistency** | the primary CTA carries one full-strength winner-cited treatment (flood + inversion, label roll-swap, token-wipe, line-draw), identical on every primary instance; zero bare-brightness, lone-lift, or pale-tint primary hovers; every interactive nav element (wordmark included) responds to pointer AND focus | Global — the brighten+lift is the documented product-UI default the jury scores against; peer buttons differ by emphasis hierarchy, never lineage |
 
 ## 5. Craft floor
 

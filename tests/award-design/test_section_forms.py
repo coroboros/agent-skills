@@ -301,13 +301,15 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         self.assertIn("FELT mid-scroll", self.skill)
 
     def test_phase4_effect_cohesion(self):
-        """MARE's UAT: a brighten-lift primary and mixed button grammars read
-        cheap — mechanics are picked from the winner-verified palette and the
-        primary verb ships at full strength. (Grammar cardinality — how many
-        effect groups a winning page runs — awaits its research verdict; only
-        the grounded invariant is pinned.)"""
+        """MARE's UAT + the effect-grammar adversarial verdict: no numeric
+        family cap is evidenced (winners run 2-5, mode 4) — the cap is on
+        LINEAGES, exactly one; the primary verb is one full-strength treatment
+        repeated verbatim, and the product-UI default hovers are banned as the
+        primary."""
         self.assertIn("PICKED from the library's winner-verified palette", self.skill)
-        self.assertIn("never a component's weakest legal fallback", self.skill)
+        self.assertIn("The cap is on lineages, never on families", self.skill)
+        self.assertIn("repeated verbatim on every primary instance", self.skill)
+        self.assertIn("legal only on a ghost/tertiary", self.skill)
 
     def test_phase4_non_contradiction(self):
         self.assertIn("Restraint and the floors never trade", self.skill)
@@ -316,7 +318,8 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         for name in ("**Text-effect commit**", "**Spectacle commit**",
                      "**Media-response coverage**", "**Form-slot integrity**",
                      "**Motion continuity**", "**Static-frame integrity**",
-                     "**Legibility floor**", "**Nav under momentum**"):
+                     "**Legibility floor**", "**Nav under momentum**",
+                     "**Primary-verb consistency**"):
             with self.subTest(box=name):
                 self.assertIn(name, self.preflight)
 
