@@ -28,6 +28,11 @@
  * Perf: currentTime is a decode, not a transform — seeks are rAF-throttled, skipped
  * while a prior seek is in flight and when the target moves less than one frame, and
  * paused when the frame is off-screen (IntersectionObserver) or the tab is hidden.
+ *
+ * Serving: scrubbing needs HTTP Range support. On a server without it (python -m
+ * http.server, some static hosts) the video reports empty seekable ranges and
+ * currentTime writes no-op — the component self-heals by pulling the source into
+ * an in-memory blob, which is always fully seekable.
  */
 (function (global) {
   'use strict';
@@ -44,7 +49,7 @@
     s.textContent =
       '[data-ad-scrub]{position:relative;overflow:hidden;}' +
       '[data-ad-scrub] video{display:block;width:100%;height:100%;object-fit:cover;}' +
-      '[data-ad-scrub-pin]{position:sticky;top:0;height:100vh;}';
+      '[data-ad-scrub-pin]{position:sticky;top:0;height:100vh;height:100dvh;}';
     document.head.appendChild(s);
   }
 
@@ -70,11 +75,42 @@
       video.setAttribute('playsinline', '');
       video.pause();
       if (!video.getAttribute('preload')) video.preload = 'auto';
+      ensureSeekable(video);
       var track = el.closest ? el.closest('[data-ad-scrub-track]') : null;
       return {
         el: el, video: video, mode: mode, axis: axis, range: range,
         track: track, inView: false, target: 0, applied: -1
       };
+    }
+
+    // A server without HTTP Range support (python -m http.server, some static
+    // hosts) leaves the video's seekable ranges empty even when fully buffered —
+    // currentTime writes silently no-op and the scrub is dead. Self-heal: pull
+    // the source into an in-memory blob, which is always fully seekable.
+    function ensureSeekable(video) {
+      var check = function () {
+        if (video.__adBlobbed) return;
+        var d = video.duration;
+        var dead = !video.seekable.length ||
+          (d && isFinite(d) && video.seekable.end(video.seekable.length - 1) < d * 0.5);
+        if (!dead || typeof global.fetch !== 'function') return;
+        video.__adBlobbed = true;
+        var src = video.currentSrc || video.src;
+        if (!src || src.indexOf('blob:') === 0) return;
+        global.fetch(src)
+          .then(function (r) { return r.blob(); })
+          .then(function (b) {
+            var t = video.currentTime;
+            video.src = URL.createObjectURL(b);
+            video.load();
+            video.addEventListener('loadedmetadata', function () {
+              try { video.currentTime = t; } catch (e) { /* not seekable yet */ }
+            }, { once: true });
+          })
+          .catch(function () { video.__adBlobbed = false; });
+      };
+      if (video.readyState >= 1) check();
+      else video.addEventListener('loadedmetadata', check, { once: true });
     }
 
     // Progress 0..1 of this unit given the current scroll position.
