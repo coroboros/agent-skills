@@ -1412,6 +1412,86 @@
       "deps": [],
       "whenToUse": "Section form. Cinematic bookend footer: inverts the page palette once at the close, oversized wordmark rises on enter. Legible in both palette states.",
       "init": "awardValediction.init(root, { selector, threshold })"
+    },
+    {
+      "id": "scroll-camera-dive",
+      "file": "scroll-camera-dive.js",
+      "global": "awardScrollCameraDive",
+      "winner": "Oryzo AI by Lusion (camera through true Z-depth around and into one object), Explore Primland (aerial camera over terrain), ERA by Vide Infra (scroll-zoom into architectural detail)",
+      "archetypes": [
+        "immersive",
+        "experimental",
+        "spatial-organic"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The true-3D camera dive: scroll progress scrubs a real camera PATH — position + lookAt (+ optional FOV) keyframes, linearly interpolated, inertially eased so the subject keeps moving between ticks, reversible. Hand it a Three.js-compatible camera, an engine-agnostic onUpdate(state), or both — it never imports Three. Optional fade hand-off dissolves the pinned frame over the last of the travel; static final frame under reduced-motion. Reach for this when the depth is a genuine 3D scene; dolly-zoom is the 2.5D DOM cousin — a pinned media scaled toward a focal point.",
+      "init": "awardScrollCameraDive.init(root, { keyframes, camera, onUpdate, travel, ease, fadeLast }) -> { destroy }"
+    },
+    {
+      "id": "branded-preloader",
+      "file": "branded-preloader.js",
+      "global": "awardBrandedPreloader",
+      "winner": "Lando Norris (\"Load Norris\" in-brand loader), Messenger (5.7MB Three.js init gate), Oryzo / Cartier / ERA (heavy WebGL scenes)",
+      "archetypes": [
+        "immersive",
+        "experimental",
+        "editorial-dark",
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ground-2",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-font-mono",
+        "--ad-dur-reveal",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The immersive archetype's designed first-load state: progress tied to REAL asset loading (opts.assets counted, a Three.js LoadingManager-like { onProgress } adapter, document.fonts.ready — all combinable), a builder-authored brand mark where a spinner would sit, a reveal hand-off to the hero — a raw spinner is the archetype's first-impression defect. Shown progress is the slower of real load and a time-eased floor, so a fast load reads as a designed beat, never a flash. Optionally becomes the ENTER / sound-unlock gate (autoplay policy needs a user gesture; onComplete reports userGesture). Rhymes with curtain-transition — the exit reveal is the same cover-and-hand-off grammar as the curtain's wipe; pair the hand-off with the hero's entrance. Authored hidden — no-JS never blocks the page.",
+      "init": "awardBrandedPreloader.init(root, { selector, assets, track, fonts, min, enter, onComplete }) -> { destroy }"
+    },
+    {
+      "id": "raycast-object-state",
+      "file": "raycast-object-state.js",
+      "global": "awardRaycastObjectState",
+      "winner": "Messenger by abeto, Egg Hunt by Merci-Michel, Bruno Simon",
+      "archetypes": [
+        "immersive",
+        "experimental",
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-font-mono",
+        "--ad-dur-base"
+      ],
+      "deps": [],
+      "whenToUse": "Per-object hover/tap/hit states for interactive meshes INSIDE a WebGL scene — the axis the DOM-element canon omits. Wire opts.hitTest to your raycaster; the scene paints its own visual per state: an emissive lift or a thin outline on 'hover', scale ≈1.05 with a snap on 'hit', flat on 'rest'. Non-interactive meshes return null and never light. Fine pointer gets hover + a pointer cursor; touch fires the raycast on the tap (no hover); opts.proxies renders keyboard-reachable focusable buttons for every scene action. Under reduced-motion the state machine still runs — swap animated highlights for instant state swaps.",
+      "init": "awardRaycastObjectState.init(root, { hitTest, onState, onActivate, cueMs, proxies })"
+    },
+    {
+      "id": "rooms-procession",
+      "file": "rooms-procession.js",
+      "global": "awardRoomsProcession",
+      "winner": "Cartier Watches & Wonders 2025 (Immersive Garden + 60fps), Hubtown (Unseen Studio)",
+      "archetypes": [
+        "immersive",
+        "corporate-luxury",
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The staged-rooms spine: an ordered array of discrete 3D scenes sharing one canvas + one camera rig, scroll transitioning the camera room-to-room 'like a museum after hours' (one alcove per artifact). The rig owns only the scroll -> room-index/progress/transition math and emits it via callbacks + the bubbling `ad:room` event; the delegated scene owns all rendering. Reduced-motion snaps to a discrete slideshow. Distinct from engine-world (one continuous scene) and portrait-procession (DOM over a static-framed canvas).",
+      "init": "awardRoomsProcession.init(root, { onRoom, onProgress, onTransition, window, ease })"
     }
   ]
 }

@@ -1257,6 +1257,103 @@
       "loader": "none/instant",
       "paceNotes": "no hero headline — the dense index is the page (proof-by-density); climax is on click; the view toggle is within-page (no route curtain)",
       "whenToUse": "studio/agency index where density is the argument and there is no marketing hero — the index itself is the fold"
+    },
+    {
+      "id": "immersive-rooms-procession",
+      "archetype": "immersive",
+      "winner": "Cartier Watches & Wonders 2025 (Immersive Garden + 60fps); Hubtown (Unseen Studio)",
+      "macrostructure": "rooms-procession",
+      "sections": [
+        {
+          "role": "load",
+          "form": "branded-preloader(component)",
+          "pairs": {
+            "wordmark": "kinetic-reveal",
+            "enter": "fill-invert-cta"
+          },
+          "intensity": 4
+        },
+        {
+          "role": "atrium",
+          "form": "rooms-procession(component) (establishing alcove, one shared canvas + camera rig)",
+          "pairs": {
+            "h1": "kinetic-reveal",
+            "ground": "shader-surface",
+            "transition": "curtain-transition",
+            "ambient": "ambient-idle"
+          },
+          "intensity": 8
+        },
+        {
+          "role": "artifact-room",
+          "media": "back",
+          "form": "rooms-procession(component) + webgl-scene(delegated) (staged alcove — the first artifact)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "caption": "text-emphasis-fill"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "artifact-room",
+          "media": "back",
+          "form": "rooms-procession(component) + webgl-scene(delegated) (staged alcove — reframed lighting)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "h2": "char-assemble",
+            "media": "scrub-film"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "artifact-room",
+          "media": "back",
+          "form": "rooms-procession(component) + webgl-scene(delegated) (staged alcove — spec detail)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "spec-table": "counter-odometer"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "artifact-room",
+          "media": "back",
+          "form": "rooms-procession(component) + webgl-scene(delegated) (staged alcove — heritage note)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "caption": "masked-label-swap",
+            "ground": "shader-surface"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "centerpiece-room",
+          "media": "back",
+          "form": "rooms-procession(component) (closest push-in — the camera dwells)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "ground": "shader-surface"
+          },
+          "intensity": 9,
+          "climax": true
+        },
+        {
+          "role": "valediction",
+          "form": "valediction-footer(component)",
+          "pairs": {
+            "wordmark": "kinetic-reveal",
+            "channels": [
+              "accent-link",
+              "masked-label-swap"
+            ]
+          },
+          "intensity": 8
+        }
+      ],
+      "footer": "valediction-fold (the valediction-footer component is the footer; the museum lights come up — palette inverts once at the close)",
+      "loader": "branded-preloader(component) (progress tied to real Three.js asset load; hands off to the atrium with a camera move, not a hard cut; doubles as the Web Audio sound-unlock gate)",
+      "paceNotes": "Cartier W&W 2025 (Immersive Garden + 60fps, SOTD + SOTM + CSSDA): six self-contained 3D alcoves 'like rooms in a museum after hours', one watch per room, scroll transitioning the CAMERA room-to-room (never a page fade); a persistent Mooders Web Audio score threads the rooms unbroken as a narrative layer, and hidden gestures (raycast-object-state) keep the pointer live throughout. Every room sits at spectacle amplitude — no quiet section (the silence defect); the one capped peak is the centerpiece closest push-in; the valediction inverts the palette once. Expose a room index / progress rail bound to the active-room index for the long scroll-jacked procession (procession-wayfinding), keyboard- and skip-reachable. Requires a WebGL path; rooms-procession owns the scroll->room math, the delegated scene owns rendering.",
+      "whenToUse": "A set of discrete artifacts (a collection, a product line, a capsule, a chaptered archive) told as a museum-after-hours walk — each artifact its own staged 3D room sharing one canvas + camera rig, scroll transitioning room-to-room, an optional ambient audio score threading them. Pick over portrait-procession when the subject is a set of objects rather than one person, and over engine-world when the rooms are discrete staged scenes rather than one continuous space. Requires a WebGL path."
     }
   ]
 }
