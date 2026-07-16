@@ -14,7 +14,7 @@
         { "name": "kicker", "element": "p", "required": false },
         { "name": "h1", "element": "h1", "required": true },
         { "name": "standfirst", "element": "p", "required": false },
-        { "name": "cta-row", "element": "div", "required": true },
+        { "name": "cta-row", "element": "div", "required": false },
         { "name": "data-strip", "element": "dl", "required": false },
         { "name": "media", "element": "figure", "required": false }
       ],
@@ -65,7 +65,7 @@
       "js": null,
       "global": null,
       "winner": "Siena Film Foundation (typography canon)",
-      "archetypes": ["editorial-dark", "immersive", "bold-maximal", "studio-reel"],
+      "archetypes": ["editorial-dark", "immersive", "bold-maximal", "brutalist", "studio-reel"],
       "tokens": ["--ad-space", "--ad-ink", "--ad-ground", "--ad-font-display", "--ad-font-mono"],
       "slots": [
         { "name": "kicker", "element": "p", "required": false },
@@ -124,7 +124,7 @@
       "file": "smooth-scroll.js",
       "global": "awardSmoothScroll",
       "winner": "Lenis (near-universal)",
-      "archetypes": ["editorial-dark", "immersive", "experimental", "spatial-organic", "corporate-luxury"],
+      "archetypes": ["editorial-dark", "immersive", "minimalist", "spatial-organic", "corporate-luxury"],
       "tokens": [],
       "deps": ["Lenis", "gsap/ScrollTrigger (optional)"],
       "whenToUse": "Smoothed-scroll foundation for scrubbed/pinned reveals. Enhances only when Lenis is present; native scroll otherwise; null instance under reduced-motion.",
@@ -250,6 +250,17 @@
       "deps": [],
       "whenToUse": "Fixed film-grain + optional vignette overlay for a poster grade. Compositor-clean, pointer-events:none, low opacity. Restraint.",
       "init": "awardGrainGrade.init(root, { opacity, animate, blend, vignette, zIndex })"
+    },
+    {
+      "id": "fill-invert-cta",
+      "file": "fill-invert-cta.js",
+      "global": "awardFillCta",
+      "winner": "Truekind, Siena Film Foundation, Terminal Industries, Son Daven, Lando Norris, Sui",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "immersive", "bento", "brutalist", "spatial-organic", "bold-maximal", "experimental"],
+      "tokens": ["--ad-ink", "--ad-ground", "--ad-accent", "--ad-dur-base", "--ad-ease-strike"],
+      "deps": [],
+      "whenToUse": "The universal primary-CTA move: full-token flood + label inversion on hover/focus — fill (direct pole swap) or wipe (a panel rises from the bottom edge). Never a pale tint. Pairs with masked-label-swap when the label should roll too.",
+      "init": "awardFillCta.init(root, { selector })"
     },
     {
       "id": "figure-hover",
