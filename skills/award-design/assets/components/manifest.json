@@ -174,6 +174,25 @@
       "whenToUse": "The 12-col asymmetric feature grid — cards carry REAL product-UI slices (never icons), spans 4-12 with dense backfill; the bento-fatigue correction."
     },
     {
+      "id": "swipe-snap-gallery",
+      "css": "forms/swipe-snap-gallery.css",
+      "js": "forms/swipe-snap-gallery.js",
+      "global": "awardSwipeGallery",
+      "winner": "Awwwards Mobile Excellence criterion (scored verbatim: swipe to see more, tap to enlarge); Codrops GSAP carousel canon",
+      "archetypes": ["editorial-dark", "minimalist", "corporate-luxury", "bento", "bold-maximal", "spatial-organic"],
+      "tokens": ["--ad-space", "--ad-ink", "--ad-accent", "--ad-font-display", "--ad-font-mono"],
+      "slots": [
+        { "name": "kicker", "element": "p", "required": false },
+        { "name": "h2", "element": "h2", "required": false },
+        { "name": "track", "element": "div", "required": true },
+        { "name": "dots", "element": "div", "required": false }
+      ],
+      "variants": { "peek": ["on", "off"], "density": ["airy", "standard", "dense"] },
+      "pairs": { "track": ["figure-hover", "clip-reveal"] },
+      "whenToUse": "The mobile-first image gallery: native scroll-snap track riding OS momentum (zero JS physics), next-cell peek, enhancer-fed snap dots. The scored Mobile Excellence line; pinned-filmstrip stays the desktop hold-and-drag signature.",
+      "init": "awardSwipeGallery.init(root, { selector })"
+    },
+    {
       "id": "full-bleed-figure",
       "css": "forms/full-bleed-figure.css",
       "js": null,
@@ -212,6 +231,17 @@
       "deps": [],
       "whenToUse": "A film still the visitor drives — scroll or pointer maps to video currentTime. The operable-spectacle signature; never an autoplay loop.",
       "init": "awardScrubFilm.init(root, { selector, mode, axis, range })"
+    },
+    {
+      "id": "pointer-parallax",
+      "file": "pointer-parallax.js",
+      "global": "awardPointerParallax",
+      "winner": "Dennis Snellenberg, Wix Mouse Parallax Wonderland",
+      "archetypes": ["immersive", "bold-maximal", "studio-reel", "editorial-dark", "spatial-organic"],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Multi-layer depth under the pointer: [data-depth] layers shift a few px at differential rates (lerp 0.1, ~20px max — depth, never drift; negative depth moves opposite). Fine-pointer only; DORMANT on touch — the winner convention, depth comes from scroll there.",
+      "init": "awardPointerParallax.init(root, { selector, maxShift, lerp })"
     },
     {
       "id": "dolly-zoom",
@@ -454,6 +484,83 @@
       "deps": [],
       "whenToUse": "The third channel — the page breathes at rest: glow, float, shimmer, or pulse at ambient amplitude, paused off-screen and on hidden tabs. Opt elements in via data-ad-idle.",
       "init": "awardAmbientIdle.init(root, { selector })"
+    },
+    {
+      "id": "glass-card",
+      "file": "glass-card.js",
+      "global": "awardGlassCard",
+      "winner": "Igloo Inc (frost panels); the Liquid Glass surface canon",
+      "archetypes": ["spatial-organic", "bento", "corporate-luxury", "immersive"],
+      "tokens": ["--ad-ground-2", "--ad-ink"],
+      "deps": [],
+      "whenToUse": "The spatial-organic signature surface: backdrop-blur glass with the inset highlight and concentric nested radii (Doppelrand); opaque fallback keeps text readable without blur support.",
+      "init": "awardGlassCard.init(root, { selector })"
+    },
+    {
+      "id": "border-glow-bloom",
+      "file": "border-glow-bloom.js",
+      "global": "awardBorderGlow",
+      "winner": "Supabase, Linear",
+      "archetypes": ["bento", "spatial-organic", "minimalist"],
+      "tokens": ["--ad-accent", "--ad-ink", "--ad-ground-2", "--ad-dur-base"],
+      "deps": [],
+      "whenToUse": "The blurred accent under-glow that lifts a card — breathes up on hover/focus; the blur never animates, only opacity (compositor-clean).",
+      "init": "awardBorderGlow.init(root, { selector })"
+    },
+    {
+      "id": "conic-border-shine",
+      "file": "conic-border-shine.js",
+      "global": "awardBorderShine",
+      "winner": "Vercel, Supabase",
+      "archetypes": ["bento", "spatial-organic", "minimalist"],
+      "tokens": ["--ad-accent", "--ad-ink", "--ad-dur-base", "--ad-ease-signature"],
+      "deps": [],
+      "whenToUse": "The cursor-tracked border light: an accent glow masked to the card's 1px edge follows the pointer. Fine-pointer only; the static hairline is the complete touch/rest look.",
+      "init": "awardBorderShine.init(root, { selector, radius })"
+    },
+    {
+      "id": "hard-press-button",
+      "file": "hard-press-button.js",
+      "global": "awardHardPress",
+      "winner": "FlowFest, Anime.js, Sui",
+      "archetypes": ["brutalist", "bento", "bold-maximal"],
+      "tokens": ["--ad-ink", "--ad-accent"],
+      "deps": [],
+      "whenToUse": "The physical press: hard offset shadow that lifts on hover and collapses on press — 125ms linear, a mechanism not a gesture. The :active press IS the tap answer.",
+      "init": "awardHardPress.init(root, { selector })"
+    },
+    {
+      "id": "tilt-parity-figure",
+      "file": "tilt-parity-figure.js",
+      "global": "awardTiltParity",
+      "winner": "FlowFest",
+      "archetypes": ["brutalist", "bold-maximal"],
+      "tokens": ["--ad-ease-strike", "--ad-dur-base"],
+      "deps": [],
+      "whenToUse": "The sticker sheet: children rest at alternating rotations (-2.5/2.5/-1 by parity) and straighten on hover — the brutalist figure identity, legible with no pointer at all.",
+      "init": "awardTiltParity.init(root, { selector })"
+    },
+    {
+      "id": "scramble-decode",
+      "file": "scramble-decode.js",
+      "global": "awardScramble",
+      "winner": "Eloy Benoffi, Guignand, Igloo Inc",
+      "archetypes": ["brutalist", "experimental", "bento"],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Short labels/links/data-chrome decode from charset noise to the true string (entrance once; hover replay variant). Never on paragraphs; mono targets keep width stable.",
+      "init": "awardScramble.init(root, { selector, charset, tick })"
+    },
+    {
+      "id": "glitch-type",
+      "file": "glitch-type.js",
+      "global": "awardGlitchType",
+      "winner": "Eloy Benoffi, Naked City",
+      "archetypes": ["brutalist", "bold-maximal"],
+      "tokens": ["--ad-accent", "--ad-ink"],
+      "deps": [],
+      "whenToUse": "The RGB channel-split display heading — token-clean ghost clones clip-jitter in 600ms BURSTS every 5-9s (never continuous; bursts are punctuation), IO- and visibility-gated.",
+      "init": "awardGlitchType.init(root, { selector })"
     },
     {
       "id": "gated-splash",

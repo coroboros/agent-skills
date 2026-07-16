@@ -32,6 +32,10 @@
       '.ad-swap__in{display:block;position:relative;will-change:transform;' +
         'transition:transform var(--ad-dur-base,420ms) var(--ad-ease-strike,cubic-bezier(.7,.02,.28,1));}' +
       '.ad-swap__b{position:absolute;left:0;top:100%;}' +
+      // the tap answer under hover:none — a press floods the label toward the
+      // accent (the wipe's travel cannot complete inside a ~150ms tap)
+      '[data-ad-swap]:active{color:var(--ad-accent,oklch(62% 0.2 25));' +
+      'transition:color 90ms linear;}' +
       '@media (prefers-reduced-motion:reduce){.ad-swap__in{transition:none;}}';
     document.head.appendChild(s);
   }

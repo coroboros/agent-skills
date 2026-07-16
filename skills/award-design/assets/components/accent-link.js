@@ -33,9 +33,11 @@
       '.ad-link::after{content:"";position:absolute;left:0;right:0;bottom:-0.1em;height:1px;' +
       'background:' + ACCENT + ';transform:scaleX(0);transform-origin:right center;' +
       'transition:transform ' + TRANSIT + ';}' +
-      '.ad-link:hover,.ad-link:focus-visible{color:' + ACCENT + ';}' +
-      '.ad-link:hover::after,.ad-link:focus-visible::after{transform:scaleX(1);' +
+      '.ad-link:hover,.ad-link:focus-visible,.ad-link:active{color:' + ACCENT + ';}' +
+      '.ad-link:hover::after,.ad-link:focus-visible::after,.ad-link:active::after{transform:scaleX(1);' +
       'transform-origin:left center;}' +
+      // the tap answer under hover:none — :active attacks fast enough for a press
+      '.ad-link:active,.ad-link:active::after{transition-duration:90ms;}' +
       // Reduced motion → the state still applies on hover/focus, just instantly.
       '@media (prefers-reduced-motion:reduce){' +
       '.ad-link,.ad-link::after{transition:none;}}';

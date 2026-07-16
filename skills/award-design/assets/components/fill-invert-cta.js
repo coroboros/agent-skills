@@ -36,17 +36,22 @@
       'transition:color var(--ad-dur-base,420ms) var(--ad-ease-strike,cubic-bezier(.7,.02,.28,1)),' +
       'background-color var(--ad-dur-base,420ms) var(--ad-ease-strike,cubic-bezier(.7,.02,.28,1));}' +
       // fill mechanic: direct pole swap
-      '.ad-cta--fill:hover,.ad-cta--fill:focus-visible{' +
+      '.ad-cta--fill:hover,.ad-cta--fill:focus-visible,.ad-cta--fill:active{' +
       'background-color:var(--ad-ink,oklch(96% 0 0));color:var(--ad-ground,oklch(14% 0.01 260));}' +
-      '.ad-cta--fill.ad-cta--accent:hover,.ad-cta--fill.ad-cta--accent:focus-visible{' +
+      '.ad-cta--fill.ad-cta--accent:hover,.ad-cta--fill.ad-cta--accent:focus-visible,' +
+      '.ad-cta--fill.ad-cta--accent:active{' +
       'background-color:var(--ad-accent,oklch(62% 0.2 25));}' +
+      // the tap answer: :active fires during a ~150ms touch press, so the flood
+      // attacks fast enough to be felt before the finger lifts (hover:none floor)
+      '.ad-cta:active,.ad-cta:active::before{transition-duration:90ms;}' +
       // wipe mechanic: a full-token panel rises from the bottom edge
       '.ad-cta--wipe::before{content:"";position:absolute;inset:0;z-index:-1;' +
       'background:var(--ad-ink,oklch(96% 0 0));transform:translateY(101%);' +
       'transition:transform var(--ad-dur-base,420ms) var(--ad-ease-strike,cubic-bezier(.7,.02,.28,1));}' +
       '.ad-cta--wipe.ad-cta--accent::before{background:var(--ad-accent,oklch(62% 0.2 25));}' +
-      '.ad-cta--wipe:hover,.ad-cta--wipe:focus-visible{color:var(--ad-ground,oklch(14% 0.01 260));}' +
-      '.ad-cta--wipe:hover::before,.ad-cta--wipe:focus-visible::before{transform:translateY(0);}' +
+      '.ad-cta--wipe:hover,.ad-cta--wipe:focus-visible,.ad-cta--wipe:active{color:var(--ad-ground,oklch(14% 0.01 260));}' +
+      '.ad-cta--wipe:hover::before,.ad-cta--wipe:focus-visible::before,' +
+      '.ad-cta--wipe:active::before{transform:translateY(0);}' +
       '@media (prefers-reduced-motion:reduce){' +
       '.ad-cta{transition:none;}' +
       '.ad-cta--wipe::before{transition:none;}}';

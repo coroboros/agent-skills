@@ -38,12 +38,18 @@
       'transition:transform ' + TRANSIT + ';}' +
       // 1.1 is the felt floor — anything under 1.06 reads as a twitch, not a zoom.
       '.ad-fig:hover img,.ad-fig:hover video,' +
-      '.ad-fig:focus-within img,.ad-fig:focus-within video{' +
+      '.ad-fig:focus-within img,.ad-fig:focus-within video,' +
+      '.ad-fig:active img,.ad-fig:active video{' +
       'transform:scale(1.1);will-change:transform;}' +
+      // the tap answer under hover:none — the press flashes the zoom + cue fast
+      // enough to be felt before navigation (tap-to-open stays the action)
+      '.ad-fig:active img,.ad-fig:active video,.ad-fig:active::after{' +
+      'transition-duration:160ms;}' +
       '.ad-fig--tint::after,.ad-fig--lift::after{content:"";position:absolute;inset:0;' +
       'pointer-events:none;transition:opacity ' + TRANSIT + ';}' +
       '.ad-fig--tint::after{background:' + ACCENT + ';opacity:0;}' +
-      '.ad-fig--tint:hover::after,.ad-fig--tint:focus-within::after{opacity:.18;}' +
+      '.ad-fig--tint:hover::after,.ad-fig--tint:focus-within::after,' +
+      '.ad-fig--tint:active::after{opacity:.18;}' +
       '.ad-fig--lift::after{background:' + GROUND + ';opacity:.25;}' +
       '.ad-fig--lift:hover::after,.ad-fig--lift:focus-within::after{opacity:0;}' +
       '.ad-fig--caption figcaption{position:absolute;left:0;right:0;bottom:0;' +

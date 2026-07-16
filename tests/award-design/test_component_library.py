@@ -66,8 +66,15 @@ class TestComponentContract(unittest.TestCase):
                 self.assertIn("destroy", src)
 
     def test_has_reduced_motion_path(self):
+        """Every component that MOVES declares a reduced-motion path. A pure
+        surface (glass-card) ships no motion primitive — demanding a dead
+        @media block there would violate the no-dead-code rule."""
+        motion = ("transition", "animation", "@keyframes", ".animate(",
+                  "requestAnimationFrame")
         for c in self.components:
             src = (COMPONENTS / c["file"]).read_text(encoding="utf-8")
+            if not any(m in src for m in motion):
+                continue
             with self.subTest(component=c["id"]):
                 self.assertIn("prefers-reduced-motion", src)
 

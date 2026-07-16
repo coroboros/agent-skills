@@ -78,8 +78,12 @@ class TestFormStylesheets(unittest.TestCase):
                 self.assertNotRegex(css, r"visibility:\s*hidden")
                 self.assertNotRegex(css, r"opacity:\s*0(?![.\d])")
                 for m in re.finditer(r"([^{}]+)\{[^{}]*display:\s*none", css):
-                    # the final compound of the selector must not be the slot itself
+                    # the final compound of the selector must not be the slot
+                    # itself — a pseudo-element on a slot (::-webkit-scrollbar)
+                    # hides chrome, not content
                     last = m.group(1).strip().split(",")[-1].split()[-1]
+                    if "::" in last:
+                        continue
                     self.assertNotIn("data-slot=", last,
                                      f"{f['id']}: a slot element is hidden: {m.group(1).strip()[:80]}")
 
@@ -172,6 +176,18 @@ class TestRecipes(unittest.TestCase):
         self.assertIn("assets/components/recipes.json", skill)
         self.assertIn("Pick the recipe, then diverge inside it", skill)
         self.assertIn("never re-sequences a winner's ordering to taste", skill)
+
+    def test_skill_carries_the_mobile_commit(self):
+        """The R-D research's load-bearing finding: winners let pointer classes
+        go DORMANT on touch, and the tap-flash on press-class elements is the
+        floor — a hover-only substrate reads dead under hover:none."""
+        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("The mobile commit", skill)
+        self.assertIn("go DORMANT", skill)
+        self.assertIn("answer the TAP", skill)
+        self.assertIn("an honest dormant state is a winner answer", skill)
+        preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
+        self.assertIn("the press-class elements answer the TAP", preflight)
 
 
 class TestCompositionFloorsWiring(unittest.TestCase):
