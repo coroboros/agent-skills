@@ -720,6 +720,72 @@
         ]
       },
       "whenToUse": "One project per viewport: full-bleed media with a corner (or centered) caption over a structural contrast scrim — the gallery-stack unit; stack several for the procession."
+    },
+    {
+      "id": "name-card",
+      "css": "forms/name-card.css",
+      "js": null,
+      "global": null,
+      "winner": "Gabriel Contassot, Stefan Vitasovic",
+      "archetypes": [
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "h1",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "role",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "meta",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cue",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "align": [
+          "start",
+          "center"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "h1": [
+          "char-assemble",
+          "kinetic-reveal"
+        ],
+        "role": [
+          "kinetic-reveal"
+        ],
+        "meta": [
+          "scramble-decode"
+        ],
+        "cue": [
+          "masked-label-swap"
+        ]
+      },
+      "whenToUse": "The gallery-stack's opening slot: a type-forward name card — the name as the fold's whole argument, a role line, mono meta + scroll cue pinned to the bottom edge. Layout only; takes no position on what follows the fold."
     }
   ],
   "components": [
@@ -1492,6 +1558,85 @@
       "deps": [],
       "whenToUse": "The staged-rooms spine: an ordered array of discrete 3D scenes sharing one canvas + one camera rig, scroll transitioning the camera room-to-room 'like a museum after hours' (one alcove per artifact). The rig owns only the scroll -> room-index/progress/transition math and emits it via callbacks + the bubbling `ad:room` event; the delegated scene owns all rendering. Reduced-motion snaps to a discrete slideshow. Distinct from engine-world (one continuous scene) and portrait-procession (DOM over a static-framed canvas).",
       "init": "awardRoomsProcession.init(root, { onRoom, onProgress, onTransition, window, ease })"
+    },
+    {
+      "id": "scrubbed-inverse-scale-figure",
+      "file": "scrubbed-inverse-scale-figure.js",
+      "global": "awardInverseScaleFigure",
+      "winner": "Gabriel Contassot; Stefan Vitasovic (video-grid variant)",
+      "archetypes": [
+        "minimalist"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The gallery-stack's continuation carry: a clip-path inset opens bottom-up WHILE the media scales inversely to scroll progress — welded to scroll position, re-fires every pass both directions. Distinct from clip-reveal (fire-once) and dolly-zoom (pinned focal scale).",
+      "init": "awardInverseScaleFigure.init(root, { selector, amplitude, origin })"
+    },
+    {
+      "id": "route-view-transition-carrier",
+      "file": "route-view-transition-carrier.js",
+      "global": "awardRouteCarrier",
+      "winner": "Cyd Stumpel — Portfolio 2025; Stefan Vitasovic; Pacome Pertant",
+      "archetypes": [
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-route-dur",
+        "--ad-route-ease"
+      ],
+      "deps": [],
+      "whenToUse": "Multi-view portfolio momentum carrier: the home→project-detail swap crossfades/morphs instead of hard-cutting — native View Transitions when available (shared view-transition-name elements morph), WAAPI container crossfade otherwise. Imperative: call go(fn) around the swap; input-agnostic so it carries on touch.",
+      "init": "awardRouteCarrier.init(root, { container }) → { go(fn, { timeout }), destroy() }"
+    },
+    {
+      "id": "type-forward-intro-loader",
+      "file": "type-forward-intro-loader.js",
+      "global": "awardTypeIntroLoader",
+      "winner": "Gabriel Contassot",
+      "archetypes": [
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-font-mono",
+        "--ad-space",
+        "--ad-dur-reveal"
+      ],
+      "deps": [],
+      "whenToUse": "The gallery-stack loader/intro: a stylistic linear 1→100 count (2.8s), an ~.8s slow-in fade, then a scramble-decode type assembly over the main gallery (per-element durations cycling Gabriel's verified list, expo-out locks). Distinct from counter-loader's honest load-gated roll + curtain wipe.",
+      "init": "awardTypeIntroLoader.init(root, { selector, decodeSelector, duration, charset, sessionOnce, onDone })"
+    },
+    {
+      "id": "minimal-cursor-signature",
+      "file": "minimal-cursor-signature.js",
+      "global": "awardMinimalCursor",
+      "winner": "Pacome Pertant",
+      "archetypes": [
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-ink"
+      ],
+      "deps": [],
+      "whenToUse": "The restraint-compatible cursor slot: a small monochrome ink dot (mode 'dot' — replaces the native cursor, grows over interactive targets, compresses on press) or a lightweight decaying mouse trail behind the native cursor (mode 'trail'). Reads --ad-ink only — no color spectacle; fully dormant on touch and reduced-motion; never gates content or a11y.",
+      "init": "awardMinimalCursor.init(root, { mode, targetSelector, lerp })"
+    },
+    {
+      "id": "full-page-scrub-recolor-carry",
+      "file": "full-page-scrub-recolor-carry.js",
+      "global": "awardPageRecolor",
+      "winner": "Terminal Industries",
+      "archetypes": [
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The sustained substrate carry: every char of the opted-in blocks joins one document-ordered sequence brightened dim→ink by GLOBAL page progress — the reading text is the continuous thread hero-to-footer. Distinct from text-emphasis-fill (per-word, per-block viewport scrub). Reversible; the 0.45 dim floor keeps copy legible.",
+      "init": "awardPageRecolor.init(root, { selector, floor, lead })"
     }
   ]
 }

@@ -275,7 +275,7 @@
       "sections": [
         {
           "role": "name-card",
-          "form": "MISSING:name-card",
+          "form": "name-card",
           "pairs": {
             "h1": "char-assemble"
           },
@@ -287,7 +287,8 @@
           "pairs": {
             "media": [
               "clip-reveal",
-              "image-curtain"
+              "image-curtain",
+              "scrubbed-inverse-scale-figure"
             ],
             "caption": "masked-label-swap"
           },
