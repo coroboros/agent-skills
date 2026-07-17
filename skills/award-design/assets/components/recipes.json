@@ -931,7 +931,7 @@
         },
         {
           "role": "lineup",
-          "form": "MISSING:lineup-grid",
+          "form": "lineup-grid",
           "pairs": {
             "rows": "index-row-hover",
             "card": "figure-hover"
@@ -956,7 +956,7 @@
         },
         {
           "role": "faq",
-          "form": "MISSING:faq-accordion",
+          "form": "faq-accordion",
           "pairs": {},
           "intensity": 4
         },
@@ -974,7 +974,7 @@
         }
       ],
       "footer": "CTA-reprise (oversized invitation + newsletter + reprised primary CTA)",
-      "loader": "MISSING:chat-cloud-loader (chat-cloud typing beats + stepped counter, in character)",
+      "loader": "chat-cloud-loader",
       "paceNotes": "climax ~40% at the lineup (proof); FAQ is the rest before the oversized invitation close; no zero-intro instant paint — the loader speaks in character",
       "whenToUse": "event / festival / conference with a lineup-as-proof and a warm-communal in-character voice"
     },
@@ -1022,7 +1022,7 @@
         }
       ],
       "footer": "footer-spectacle (the loudest interaction lands last)",
-      "loader": "MISSING:loader-into-navbar (progress-becomes-UI — the loading bar grows into the navbar)",
+      "loader": "loader-into-navbar",
       "paceNotes": "peak at the bottom — the footer-as-finale is the climax; even build through identity hero, about, and the hover-charged work index; no in-fold CTA",
       "whenToUse": "brutalist/terminal studio index where the footer is the spectacle finale and the work index carries the proof"
     },

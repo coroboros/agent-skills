@@ -786,6 +786,99 @@
         ]
       },
       "whenToUse": "The gallery-stack's opening slot: a type-forward name card — the name as the fold's whole argument, a role line, mono meta + scroll cue pinned to the bottom edge. Layout only; takes no position on what follows the fold."
+    },
+    {
+      "id": "faq-accordion",
+      "css": "forms/faq-accordion.css",
+      "js": "forms/faq-accordion.js",
+      "global": "awardFaqAccordion",
+      "winner": "FlowFest 2025 (SOTD-verified order; boundary-adjacent)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "slots": [
+        {
+          "name": "item",
+          "element": "details",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {},
+      "whenToUse": "The designed rest before the close: divided native details/summary rows (mono index, +/− state marker, measure-capped answer) — fully operable with zero script, rows answer :active on touch by construction. The optional enhancer eases the disclosure and stands aside under reduced motion."
+    },
+    {
+      "id": "lineup-grid",
+      "css": "forms/lineup-grid.css",
+      "js": null,
+      "global": null,
+      "winner": "FlowFest 2025 (SOTD-verified order; boundary-adjacent)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": false
+        },
+        {
+          "name": "cards",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "rows",
+          "element": "div",
+          "required": false
+        }
+      ],
+      "variants": {
+        "cards": [
+          "2",
+          "3",
+          "4"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "h2": [
+          "kinetic-reveal"
+        ],
+        "cards": [
+          "figure-hover",
+          "tilt-parity-figure"
+        ],
+        "rows": [
+          "index-row-hover"
+        ]
+      },
+      "whenToUse": "The argument spine's proof peak (~40%): the index+card hybrid — a headliner tier of 3/4 media cards over the full bill as divided index rows. The card frame fill survives a paired component's clip wrapper by construction. Layout only; interaction is the paired components' job."
     }
   ],
   "components": [
@@ -1637,6 +1730,85 @@
       "deps": [],
       "whenToUse": "The sustained substrate carry: every char of the opted-in blocks joins one document-ordered sequence brightened dim→ink by GLOBAL page progress — the reading text is the continuous thread hero-to-footer. Distinct from text-emphasis-fill (per-word, per-block viewport scrub). Reversible; the 0.45 dim floor keeps copy legible.",
       "init": "awardPageRecolor.init(root, { selector, floor, lead })"
+    },
+    {
+      "id": "chat-cloud-loader",
+      "file": "chat-cloud-loader.js",
+      "global": "awardChatCloudLoader",
+      "winner": "FlowFest 2025 (boundary-adjacent; beat params illustrative — the pattern is the verified part)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ground-2",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The argument spine's in-character loader: a mascot's chat cloud types successive beats at a flat cadence (the ease:none tell) with an optional linear stepped count, holds the hero's resident line until the real load, fades 0.3s, then the nav drops (−102%→0) and the welcome cards stagger. The loader SIGNS its character — never a bare counter.",
+      "init": "awardChatCloudLoader.init(root, { selector, beats, heroLine, charMs, holdMs, nav, stagger, sessionOnce, onDone })"
+    },
+    {
+      "id": "stepped-counter-loader",
+      "file": "stepped-counter-loader.js",
+      "global": "awardSteppedCounterLoader",
+      "winner": "Joffrey Spitzer (technique, award-unverified)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The studio-reel loader: the number RATCHETS 0→100 in n discrete jumps (steps(14), ~3s — the jump is the brutalist tell vs counter-loader's smooth roll), gates the last step on the real load, then a clip-path inset() wipe; optionally the full-bleed plate FLIPs into the showreel element so the watched image becomes the hero's media.",
+      "init": "awardSteppedCounterLoader.init(root, { selector, steps, minDuration, flipTo, sessionOnce, onDone })"
+    },
+    {
+      "id": "loader-into-navbar",
+      "file": "loader-into-navbar.js",
+      "global": "awardLoaderIntoNavbar",
+      "winner": "Eloy Benoffi (bar winner-verified; becomes-navbar single-source)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-navload-bar",
+        "--ad-dur-base",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The studio-index loader: progress-becomes-UI. The nav element ITSELF is the loading bar — it rides up to a thin sliver at the viewport top, an accent fill tracks the real load, then the bar grows into the navbar (the nav drops to full height, content fades up). Single-source: the watched element becomes furniture. The nav is authored visible; the page behind stays painted (pre-composed fold).",
+      "init": "awardLoaderIntoNavbar.init(root, { selector, minDuration, sessionOnce, onDone })"
+    },
+    {
+      "id": "crt-dissolve-figure",
+      "file": "crt-dissolve-figure.js",
+      "global": "awardCrtDissolve",
+      "winner": "Naked City Films (winner-verified via Codrops; shader numbers illustrative — WebGL-internal on the winner)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-crt-dur"
+      ],
+      "deps": [],
+      "whenToUse": "The restraint-register figure treatment: on hover/focus a raw-WebGL CRT shader dissolves the still into accent-tinted offset R/G/B channels (scanlines, row jitter, noise dissolve), then the buffered video underneath autoplays once the transition completes; leaving reverses and pauses. Tap toggles on touch. No WebGL → the spec's invert(100%) flash ≤0.2s then the video. Distinct from glitch-type (CSS heading split) and figure-hover (contained zoom).",
+      "init": "awardCrtDissolve.init(root, { selector })"
     }
   ]
 }
