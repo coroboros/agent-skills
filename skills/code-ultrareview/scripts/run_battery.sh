@@ -5,7 +5,7 @@
 # deterministic CLIs per the dispatch matrix below, captures raw outputs,
 # and invokes battery_ingest.py to emit canonical findings as JSONL.
 #
-# Try order per tool: npx wrapper → uvx wrapper → PATH binary → graceful skip.
+# Try order per tool: project-declared binary → PATH binary → graceful skip.
 # Missing tools emit `WARN: <tool> not found — install: <cmd>` to stderr and
 # land in <output-dir>/tools-skipped.json. The battery NEVER auto-installs.
 #
@@ -32,13 +32,13 @@ DRY_RUN=0
 
 # shellcheck disable=SC2034
 BATTERY_TABLE=(
-  "knip|npm i -D knip (or use npx — zero-install)|simplification (JS/TS dead code)"
-  "jscpd|npm i -D jscpd (or use npx — zero-install)|simplification (duplication)"
-  "markdownlint-cli2|npm i -D markdownlint-cli2 (or use npx — zero-install)|documentation (Markdown lint)"
-  "api-extractor|npm i -D @microsoft/api-extractor (or use npx — zero-install)|design-api (TS public surface)"
-  "lizard|pipx install lizard (or use uvx — zero-install)|simplification (cyclomatic complexity)"
-  "vulture|pipx install vulture (or use uvx — zero-install)|simplification (dead Python code)"
-  "semgrep|pipx install semgrep (or use uvx — zero-install)|correctness + performance (patterns)"
+  "knip|pnpm add -D knip|simplification (JS/TS dead code)"
+  "jscpd|pnpm add -D jscpd|simplification (duplication)"
+  "markdownlint-cli2|pnpm add -D markdownlint-cli2|documentation (Markdown lint)"
+  "api-extractor|pnpm add -D @microsoft/api-extractor|design-api (TS public surface)"
+  "lizard|install lizard on PATH|simplification (cyclomatic complexity)"
+  "vulture|install vulture on PATH|simplification (dead Python code)"
+  "semgrep|install semgrep on PATH|correctness + performance (patterns)"
   "vale|brew install vale (Go binary, no Python wrapper)|documentation (prose lint)"
   "oasdiff|brew install oasdiff|design-api (OpenAPI breaking changes)"
   "atlas|brew install ariga/tap/atlas|design-api (DB migration lint)"
@@ -268,11 +268,25 @@ mark_dispatched() {
 }
 
 # Tool runners. Each writes raw output to $OUTPUT_DIR/raw/<tool>.<ext>.
-# Try order: npx → uvx → PATH binary → mark_skipped.
+# JavaScript tools prefer the repository's declared node_modules binary;
+# every tool may fall back to an already-installed PATH command.
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
-# npx invocations use `-y` to skip interactive install prompts.
+resolve_tool() {
+  local tool="$1"
+  local project_bin="$REPO/node_modules/.bin/$tool"
+  case "$tool" in
+    knip|jscpd|markdownlint-cli2|api-extractor)
+      if [[ -x "$project_bin" ]]; then
+        printf '%s\n' "$project_bin"
+        return 0
+      fi
+      ;;
+  esac
+  command -v "$tool" 2>/dev/null
+}
+
 _capture() {
   # Args: <out-file> <stderr-file> -- <cmd...>
   local out="$1" err="$2"; shift 2
@@ -283,13 +297,9 @@ _capture() {
 run_knip() {
   local out="$OUTPUT_DIR/raw/knip.json"
   local err="$OUTPUT_DIR/raw/knip.stderr"
-  if have_cmd npx; then
-    _capture "$out" "$err" -- npx -y knip --reporter json --no-progress
-    mark_dispatched knip
-    return 0
-  fi
-  if have_cmd knip; then
-    _capture "$out" "$err" -- knip --reporter json --no-progress
+  local cmd
+  if cmd="$(resolve_tool knip)"; then
+    _capture "$out" "$err" -- "$cmd" --reporter json --no-progress
     mark_dispatched knip
     return 0
   fi
@@ -312,17 +322,9 @@ run_jscpd() {
     mark_skipped jscpd "no relevant files in diff"
     return 0
   fi
-  if have_cmd npx; then
-    _capture "$out" "$err" -- npx -y jscpd --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "${code_files[@]}"
-    # jscpd writes to <output>/jscpd-report.json — copy if found.
-    if [[ -f "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" ]]; then
-      cp "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" "$out"
-    fi
-    mark_dispatched jscpd
-    return 0
-  fi
-  if have_cmd jscpd; then
-    _capture "$out" "$err" -- jscpd --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "${code_files[@]}"
+  local cmd
+  if cmd="$(resolve_tool jscpd)"; then
+    _capture "$out" "$err" -- "$cmd" --silent --reporters json --output "$OUTPUT_DIR/raw/jscpd_out" "${code_files[@]}"
     if [[ -f "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" ]]; then
       cp "$OUTPUT_DIR/raw/jscpd_out/jscpd-report.json" "$out"
     fi
@@ -345,13 +347,9 @@ run_markdownlint() {
   if [[ ${#md_files[@]} -eq 0 ]]; then
     md_files=("**/*.md")
   fi
-  if have_cmd npx; then
-    _capture "$out" "$err" -- npx -y markdownlint-cli2 --output "$out" "${md_files[@]}"
-    mark_dispatched markdownlint-cli2
-    return 0
-  fi
-  if have_cmd markdownlint-cli2; then
-    _capture "$out" "$err" -- markdownlint-cli2 --output "$out" "${md_files[@]}"
+  local cmd
+  if cmd="$(resolve_tool markdownlint-cli2)"; then
+    _capture "$out" "$err" -- "$cmd" --output "$out" "${md_files[@]}"
     mark_dispatched markdownlint-cli2
     return 0
   fi
@@ -361,13 +359,9 @@ run_markdownlint() {
 run_api_extractor() {
   local out="$OUTPUT_DIR/raw/api-extractor.txt"
   local err="$OUTPUT_DIR/raw/api-extractor.stderr"
-  if have_cmd npx; then
-    _capture "$out" "$err" -- npx -y @microsoft/api-extractor run --local --verbose
-    mark_dispatched api-extractor
-    return 0
-  fi
-  if have_cmd api-extractor; then
-    _capture "$out" "$err" -- api-extractor run --local --verbose
+  local cmd
+  if cmd="$(resolve_tool api-extractor)"; then
+    _capture "$out" "$err" -- "$cmd" run --local --verbose
     mark_dispatched api-extractor
     return 0
   fi
@@ -378,15 +372,9 @@ run_lizard() {
   local out="$OUTPUT_DIR/raw/lizard.csv"
   local err="$OUTPUT_DIR/raw/lizard.stderr"
   local target="$REPO"
-  if have_cmd uvx; then
-    _capture "$out" "$err" -- uvx lizard --csv "$target"
-    # Rename .csv → .txt so battery_ingest picks it up by stem.
-    [[ -f "$out" ]] && mv "$out" "$OUTPUT_DIR/raw/lizard.txt"
-    mark_dispatched lizard
-    return 0
-  fi
-  if have_cmd lizard; then
-    _capture "$out" "$err" -- lizard --csv "$target"
+  local cmd
+  if cmd="$(resolve_tool lizard)"; then
+    _capture "$out" "$err" -- "$cmd" --csv "$target"
     [[ -f "$out" ]] && mv "$out" "$OUTPUT_DIR/raw/lizard.txt"
     mark_dispatched lizard
     return 0
@@ -397,13 +385,9 @@ run_lizard() {
 run_vulture() {
   local out="$OUTPUT_DIR/raw/vulture.txt"
   local err="$OUTPUT_DIR/raw/vulture.stderr"
-  if have_cmd uvx; then
-    _capture "$out" "$err" -- uvx vulture "$REPO"
-    mark_dispatched vulture
-    return 0
-  fi
-  if have_cmd vulture; then
-    _capture "$out" "$err" -- vulture "$REPO"
+  local cmd
+  if cmd="$(resolve_tool vulture)"; then
+    _capture "$out" "$err" -- "$cmd" "$REPO"
     mark_dispatched vulture
     return 0
   fi
@@ -436,13 +420,9 @@ run_semgrep() {
     mark_skipped semgrep "no relevant files in diff"
     return 0
   fi
-  if have_cmd uvx; then
-    _capture "$out" "$err" -- uvx semgrep --json --quiet "${configs[@]}" "${code_files[@]}"
-    mark_dispatched semgrep
-    return 0
-  fi
-  if have_cmd semgrep; then
-    _capture "$out" "$err" -- semgrep --json --quiet "${configs[@]}" "${code_files[@]}"
+  local cmd
+  if cmd="$(resolve_tool semgrep)"; then
+    _capture "$out" "$err" -- "$cmd" --json --quiet "${configs[@]}" "${code_files[@]}"
     mark_dispatched semgrep
     return 0
   fi
@@ -626,15 +606,9 @@ for tool in tools:
     decisions[tool] = want
 
 def avail(tool):
-    if tool in ("knip","jscpd","markdownlint-cli2","api-extractor"):
-        if shutil.which("npx"): return "npx"
-        if shutil.which(tool): return "path"
-        return None
-    if tool in ("lizard","vulture","semgrep"):
-        if shutil.which("uvx"): return "uvx"
-        if shutil.which(tool): return "path"
-        return None
-    # Path-only tools.
+    project_bin = os.path.join(repo, "node_modules", ".bin", tool)
+    if tool in ("knip", "jscpd", "markdownlint-cli2", "api-extractor") and os.access(project_bin, os.X_OK):
+        return "project"
     return "path" if shutil.which(tool) else None
 
 dispatched = []

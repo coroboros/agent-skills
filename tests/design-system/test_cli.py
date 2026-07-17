@@ -1,8 +1,8 @@
 """Tests for skills/design-system/scripts/{audit,diff,export}.sh.
 
 Strategy: argument-validation and missing-file branches run unconditionally.
-For exit-code propagation and stderr handling we stub `npx` in a fake-bin
-directory and prepend it to PATH so the script's `command -v npx` succeeds
+For exit-code propagation and stderr handling we stub `designmd` in a fake-bin
+directory and prepend it to PATH so the script's availability check succeeds
 and the stub's exit code/stderr is what gets propagated. That keeps the
 tests deterministic and free of network/install side-effects.
 """
@@ -88,11 +88,11 @@ class TestAuditUsage(_TmpMixin, unittest.TestCase):
 
 
 class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
-    """Stub npx so the script's npx-detected branch runs deterministically."""
+    """Stub designmd so the CLI branch runs deterministically."""
 
     def test_cli_exit_0_reports_status_ok(self):
         # `lint` exit 0 = no errors; script must exit 0 and emit status=ok.
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\necho \'{"summary":{"errors":0}}\'\nexit 0\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{"summary":{"errors":0}}\'\nexit 0\n')
         design = self._design_md()
         r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 0)
@@ -104,7 +104,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
 
     def test_cli_exit_1_propagated_as_lint_errors(self):
         # `lint` exit 1 = errors found, valid run; script must exit 1 with status=ok.
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\necho \'{"summary":{"errors":3}}\'\nexit 1\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{"summary":{"errors":3}}\'\nexit 1\n')
         design = self._design_md()
         r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -116,7 +116,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         # rc > 1 = real CLI failure; script must report cli-failed and propagate stderr file.
         _make_stub(
             self.fake_bin,
-            "npx",
+            "designmd",
             '#!/bin/sh\necho boom >&2\nexit 7\n',
         )
         design = self._design_md()
@@ -128,6 +128,18 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         stderr_path = kv.get("stderr", "")
         self.assertTrue(stderr_path)
         self.assertIn("boom", Path(stderr_path).read_text())
+
+    def test_missing_cli_fails_without_runtime_resolution(self):
+        design = self._design_md()
+        r = _run("audit.sh", str(design))
+        self.assertEqual(r.returncode, 1)
+        self.assertEqual(_result_kv(r.stdout).get("status"), "designmd-missing")
+
+    def test_wrappers_do_not_invoke_runtime_package_resolvers(self):
+        for name in ("audit.sh", "diff.sh", "export.sh"):
+            text = (SCRIPTS / name).read_text(encoding="utf-8")
+            self.assertNotIn("npx", text)
+            self.assertNotIn("@latest", text)
 
 
 # ---------- diff.sh ----------
@@ -161,7 +173,7 @@ class TestDiffUsage(_TmpMixin, unittest.TestCase):
 
 class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
     def test_no_regression_exit_0(self):
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
         before, after = self._design_md("before.md"), self._design_md("after.md")
         r = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 0)
@@ -171,7 +183,7 @@ class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("exit-code"), "0")
 
     def test_regression_exit_1_propagated(self):
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\necho \'{}\'\nexit 1\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 1\n')
         before, after = self._design_md("before.md"), self._design_md("after.md")
         r = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -180,7 +192,7 @@ class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("regression"), "true")
 
     def test_cli_failure_reports_stderr(self):
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\necho diff-boom >&2\nexit 4\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho diff-boom >&2\nexit 4\n')
         before, after = self._design_md("before.md"), self._design_md("after.md")
         r = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -237,7 +249,7 @@ class TestExportUsage(_TmpMixin, unittest.TestCase):
 class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
     def test_success_emits_full_schema(self):
         # Stub writes to stdout, which the script redirects into the output file.
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\nprintf "tokens-go-here"\nexit 0\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\nprintf "tokens-go-here"\nexit 0\n')
         design = self._design_md()
         r = _run("export.sh", "tailwind", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 0)
@@ -251,7 +263,7 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(Path(out).read_text(), "tokens-go-here")
 
     def test_explicit_output_path_honoured(self):
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\nprintf "x"\nexit 0\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\nprintf "x"\nexit 0\n')
         design = self._design_md()
         explicit = self.tmp / "tokens.json"
         r = _run("export.sh", "dtcg", str(design), str(explicit), fake_bin=self.fake_bin)
@@ -261,7 +273,7 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertTrue(explicit.exists())
 
     def test_cli_failure_reports_stderr(self):
-        _make_stub(self.fake_bin, "npx", '#!/bin/sh\necho export-boom >&2\nexit 5\n')
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho export-boom >&2\nexit 5\n')
         design = self._design_md()
         r = _run("export.sh", "tailwind", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)

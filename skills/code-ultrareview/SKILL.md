@@ -1,6 +1,6 @@
 ---
 name: code-ultrareview
-description: Eight-axis judgment code review for the current diff — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance (+ Coherence on metadata changes). Five-phase pipeline scope → deterministic tool battery (npx/uvx-preferred, zero-install for the JS + Python majority) → 8 parallel LLM axis reviewers → Haiku validators on sub-80 findings (verbatim rubric, ≥80 threshold) → synthesis with no-silent-drop + Conventional Comments JSONL. Every report closes with "What I did NOT check" (security → /security-review, runtime perf, flaky detection). Opt-in flags `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`. Public-skill posture — zero auto-install, graceful skip on missing native tools. Invoke before a commit or PR — "review my changes", "deep review", "did I miss anything", "check before I commit", "audit this PR", "drift / gaps / blind spots".
+description: Eight-axis judgment code review for the current diff — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance (+ Coherence on metadata changes). Five-phase pipeline scope → deterministic tool battery (project-declared or installed PATH tools; no runtime package resolution) → 8 parallel LLM axis reviewers → Haiku validators on sub-80 findings (verbatim rubric, ≥80 threshold) → synthesis with no-silent-drop + Conventional Comments JSONL. Every report closes with "What I did NOT check" (security → /security-review, runtime perf, flaky detection). Opt-in flags `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`. Public-skill posture — zero auto-install, explicit skip on missing tools. Invoke before a commit or PR — "review my changes", "deep review", "did I miss anything", "check before I commit", "audit this PR", "drift / gaps / blind spots".
 when_to_use: 'User-invoked before commit or PR; runs the full 8-axis fan-out — no tiers. Defers security to /security-review (link in every report); defers runtime performance and benchmarks (explicit non-goal). Distinct from Anthropic''s remote /ultrareview command.'
 argument-hint: "[-b <ref>] [--repo-kind <kind>] [--reconcile <input>] [--verify-build] [--mutation-test] [--apply-safe] [--include-prose] [--axes <list>] [--preflight] [-s] [-S]"
 license: MIT
@@ -119,7 +119,7 @@ The output also feeds the report header lines `Repo: <kind>`, `Base: <ref>`, `Fi
 
 ### Phase 2 — Tool battery
 
-Runs `scripts/run_battery.sh`. Deterministic CLIs feed `tool-findings.jsonl` tagged by axis with `confidence: 100`. Tools dispatch per `scope.json["languages"]`: npx-wrapped (`knip` / `jscpd` / `markdownlint-cli2` / `@microsoft/api-extractor`) and uvx-wrapped (`lizard` / `vulture` / `semgrep` / `vale`) tools wrap zero-install; native binaries (`oasdiff` / `atlas` / Go `deadcode` `gocyclo` `dupl` / `cargo-machete`) fall back to PATH. Bundled `references/perf-rules/` carries the universal N+1 and sync-I/O semgrep rules. Per-tool axis routing lives in `scripts/battery_ingest.py`. Full Tool → Axis → Install table in `README.md`.
+Runs `scripts/run_battery.sh`. Deterministic CLIs feed `tool-findings.jsonl` tagged by axis with `confidence: 100`. Tools dispatch per `scope.json["languages"]`. JavaScript tools (`knip` / `jscpd` / `markdownlint-cli2` / `@microsoft/api-extractor`) prefer the repository's `node_modules/.bin`, then `PATH`; Python and native tools use `PATH`. The battery never invokes a package resolver. Bundled `references/perf-rules/` carries the universal N+1 and sync-I/O semgrep rules. Per-tool axis routing lives in `scripts/battery_ingest.py`. Full Tool → Axis → Install table in `README.md`.
 
 **Graceful skip.** Missing tools emit `WARN: <tool> not found — install: <command>` to stderr and append to `scope.json["tools_skipped"]`; the skill continues. The battery NEVER auto-installs — no `brew`, `cargo`, `go`, `pip`, or `npm` install runs.
 
@@ -187,7 +187,7 @@ The closing "What I did NOT check" section always names these — explicit user-
 ## Graceful degradation
 
 - **No CLAUDE.md / no `.claude/rules`** — Style axis runs without baseline; the report says `Style axis: skipped — no rules baseline found`.
-- **No `npx` / no `uvx`** — every wrappable tool skips; only PATH binaries run.
+- **No project or PATH binary** — the affected tool skips explicitly; the LLM axis still runs with reduced deterministic coverage.
 - **Missing native binary** (`oasdiff`, `atlas`, `cargo-machete`, Go tools) — emits to stderr + `scope.json["tools_skipped"]`. The relevant axis loses its tool input but still runs LLM judgment.
 - **Unresolvable base** — fail loud with the resolver's hint line. Do not guess.
 - **Unknown repo_kind** — axes run with their `unknown` branch (no specialization).
@@ -207,7 +207,7 @@ The four opt-in flags layer orthogonally on the always-on pipeline: mutation tes
 ## What this skill is NOT
 
 - **Not a security audit.** Defers to `/security-review`. The closing section makes this explicit on every report.
-- **Not a linter or formatter.** The deterministic tool battery (npx/uvx-wrapped CLIs) handles linting and dead-code detection. The skill layers LLM judgment on top of those signals.
+- **Not a linter or formatter.** The deterministic tool battery handles linting and dead-code detection through declared or installed CLIs. The skill layers LLM judgment on top of those signals.
 - **Not Anthropic's remote `/ultrareview`.** Distinct surface — this skill runs in-session on the user's subscription; `/ultrareview` runs in a remote sandbox and bills per run.
 - **Not a fix tool.** Report-only by default. `--apply-safe` covers three surgical writers; everything else routes to `/apex` or `/oneshot`.
 
@@ -220,6 +220,6 @@ The four opt-in flags layer orthogonally on the always-on pipeline: mutation tes
 ## Gotchas
 
 1. **Sub-80 findings can be dropped instead of surfaced in `### ⚠️ Unverified`.** The A2 contract (`scripts/synthesis_core.py:apply_a2`) is no-silent-drop. The model sometimes treats a sub-80 score as a rejection signal and omits the finding entirely. Fix: scan the `### ⚠️ Unverified` section explicitly on every report; compare finding count to axis output to catch drops.
-2. **First-run `npx` / `uvx` downloads add latency.** Cold start adds ~5s per tool the first time the battery touches it; subsequent runs are fast (cached at `~/.npm/_npx` / `~/.cache/uv`). The README install table documents this so users don't fear repeated downloads.
+2. **Missing CLIs reduce deterministic coverage.** The battery records each skipped tool in `scope.json["tools_skipped"]` and the final report. Install or declare the tool through the environment's maintenance path before relying on that axis's automated evidence.
 3. **Coherence activates silently on metadata changes.** A single `package.json` touch triggers the 9th subagent automatically. Watch for the `Coherence axis: active` line in the report header — it tells you the axis ran without you asking.
 4. **`--reconcile @auto` skips silently on malformed planning artifacts.** A forge or apex file with broken YAML frontmatter (unclosed `---`, tab indentation, unquoted colons) is dropped from the auto-detect list. Verify with `head -20 ~/.agents/output/{project}/forge/forge-*.md` before relying on `@auto`.

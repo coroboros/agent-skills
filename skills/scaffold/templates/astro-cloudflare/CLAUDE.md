@@ -11,7 +11,7 @@ See @README.md for project overview and @package.json for available scripts.
 ## UI
 - Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
 - If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
-- Otherwise validate directly: `npx @google/design.md lint DESIGN.md`
+- Otherwise validate directly with the installed CLI: `designmd lint DESIGN.md`
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
 - Tailwind utilities mapped to DESIGN.md tokens via `tailwind.config.ts`
 - CSS custom properties in `src/styles/global.css`

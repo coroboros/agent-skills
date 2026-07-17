@@ -7,7 +7,7 @@ Condensed reference for the Google DESIGN.md open standard. Read this when autho
 
 - **Canonical source**: [github.com/google-labs-code/design.md](https://github.com/google-labs-code/design.md) — `docs/spec.md`
 - **Version**: `alpha` (v0.1.x) — format may still change
-- **Live spec via CLI**: `npx @google/design.md spec` — always reflects the installed CLI version
+- **Live spec via CLI**: `designmd spec` — reflects the installed CLI version
 - **This file is a snapshot** — see the header comment above for the synchronization date and the refresh procedure. Treat the CLI + canonical source as authoritative when they diverge.
 
 A DESIGN.md has two layers. YAML frontmatter holds **normative** design tokens; the markdown body holds **contextual** prose that explains when and why to apply them. Prose may use descriptive names ("Midnight Forest Green") that correspond to systematic token names (`primary`).
@@ -181,8 +181,8 @@ Same behavior — preserved but unvalidated.
 
 DESIGN.md tokens are inspired by the [W3C Design Token Format](https://www.designtokens.org/) — specifically the concept of typed token groups and the `{path.to.token}` reference syntax. They convert cleanly to other formats:
 
-- **Tailwind theme config** — `npx @google/design.md export --format tailwind DESIGN.md`
-- **DTCG tokens.json** (W3C Design Tokens Community Group) — `npx @google/design.md export --format dtcg DESIGN.md`
+- **Tailwind theme config** — `designmd export --format tailwind DESIGN.md`
+- **DTCG tokens.json** (W3C Design Tokens Community Group) — `designmd export --format dtcg DESIGN.md`
 - **Figma variables** — via the DTCG output and the Tokens Studio plugin
 - **Style Dictionary** — via the DTCG output
 

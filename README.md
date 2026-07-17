@@ -350,17 +350,17 @@ Eight-axis judgment code review at full strength, in-session — every axis run,
 
 **Tool battery — tool → axis**
 
-`npx` / `uvx` wrappers are zero-install (cached after first run); native binaries are PATH-only, skipped gracefully when absent. Run `/code-ultrareview --preflight` for the exact list on the repo plus install commands for the missing ones.
+The battery uses project-declared binaries first, then installed `PATH` commands. It never resolves packages at runtime; missing tools are skipped explicitly. Run `/code-ultrareview --preflight` for the exact list on the repo plus install commands for the missing ones.
 
-| Tool | Axis | Wrapper |
-|------|------|---------|
-| `knip` | Simplification (JS/TS dead code) | `npx` |
-| `jscpd` | Simplification (cross-language duplication) | `npx` |
-| `markdownlint-cli2` | Documentation (Markdown lint) | `npx` |
-| `api-extractor` | Design/API (TS public surface) | `npx` |
-| `lizard` | Simplification (cyclomatic complexity) | `uvx` |
-| `vulture` | Simplification (dead Python code) | `uvx` |
-| `semgrep` | Correctness + Performance (perf-rules) | `uvx` |
+| Tool | Axis | Source |
+|------|------|--------|
+| `knip` | Simplification (JS/TS dead code) | project / PATH |
+| `jscpd` | Simplification (cross-language duplication) | project / PATH |
+| `markdownlint-cli2` | Documentation (Markdown lint) | project / PATH |
+| `api-extractor` | Design/API (TS public surface) | project / PATH |
+| `lizard` | Simplification (cyclomatic complexity) | PATH |
+| `vulture` | Simplification (dead Python code) | PATH |
+| `semgrep` | Correctness + Performance (perf-rules) | PATH |
 | `vale` | Documentation (prose lint) | native |
 | `oasdiff` | Design/API (OpenAPI breaking changes) | native |
 | `atlas` | Design/API (DB migration lint) | native |
@@ -461,7 +461,7 @@ Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://
 
 **Requirements**
 
-- `npx` (for the `@google/design.md` CLI wrapped by `audit`, `diff`, `export`, `spec`). Missing → subcommands fall back to manual validation against the bundled spec.
+- `designmd` (the installed `@google/design.md` CLI wrapped by `audit`, `diff`, `export`, `spec`). Missing → subcommands fall back to manual validation against the bundled spec without resolving a package at runtime.
 
 **Usage**
 

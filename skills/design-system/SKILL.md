@@ -13,7 +13,7 @@ paths:
   - DESIGN.md
   - tailwind.config.*
 license: MIT
-allowed-tools: Read Write Edit Grep Glob Bash(npx *) Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
+allowed-tools: Read Write Edit Grep Glob Bash(designmd *) Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
 metadata:
   author: coroboros
   sources:
@@ -120,15 +120,15 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 The canonical `@google/design.md` CLI powers the `audit`, `diff`, `export`, and `spec` subcommands. Each subcommand wraps one CLI invocation with richer UX (fix proposals, git-awareness, human-readable reports). Raw invocations:
 
 ```bash
-npx @google/design.md lint DESIGN.md                    # validate
-npx @google/design.md diff before.md after.md           # regression check (exit 1 on regression)
-npx @google/design.md export --format tailwind DESIGN.md
-npx @google/design.md spec --rules                      # emit spec + lint rules
+designmd lint DESIGN.md                    # validate
+designmd diff before.md after.md           # regression check (exit 1 on regression)
+designmd export --format tailwind DESIGN.md
+designmd spec --rules                      # emit spec + lint rules
 ```
 
 Eight linting rules: `broken-ref` (error), `missing-primary`, `contrast-ratio`, `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. Full table with severity, interpretation, and fix strategies: `references/cli-reference.md`.
 
-Every subcommand verifies CLI availability first (`command -v npx` + a dry `--help` probe). When unavailable or offline: fall back to manual validation against `references/design-md-spec.md`. The skill still enforces the spec without the CLI — it loses only the deterministic check.
+Every subcommand verifies CLI availability first (`command -v designmd` + a dry `--help` probe). When unavailable: fall back to manual validation against `references/design-md-spec.md`. The skill still enforces the spec without the CLI — it loses only the deterministic check and never downloads a package during agent work.
 
 ## Framework behavior
 

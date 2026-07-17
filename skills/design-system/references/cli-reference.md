@@ -3,13 +3,13 @@
 The canonical validator for DESIGN.md files. Read this before running the CLI or interpreting its output.
 
 - **Package**: [`@google/design.md`](https://github.com/google-labs-code/design.md/tree/main/packages/cli)
-- **Invocation**: `npx @google/design.md <command>` (zero-install) or install first (`pnpm add @google/design.md` / `npm install @google/design.md` / `bun add @google/design.md`) and run `design.md <command>`
+- **Invocation**: `designmd <command>` from an installed `@google/design.md` package. Do not resolve the package during agent work.
 - **Status**: alpha — commands, flags, and rules may change between releases
 
 Before running, verify availability:
 
 ```bash
-command -v npx && npx @google/design.md --help
+command -v designmd && designmd --help
 ```
 
 If unavailable (offline, restricted environment), fall back to manual validation against `references/design-md-spec.md`.
@@ -21,9 +21,9 @@ All commands accept a file path or `-` for stdin. Output defaults to JSON.
 ### `lint` — validate a DESIGN.md
 
 ```bash
-npx @google/design.md lint DESIGN.md
-npx @google/design.md lint --format json DESIGN.md
-cat DESIGN.md | npx @google/design.md lint -
+designmd lint DESIGN.md
+designmd lint --format json DESIGN.md
+cat DESIGN.md | designmd lint -
 ```
 
 | Option | Type | Default | Description |
@@ -31,7 +31,7 @@ cat DESIGN.md | npx @google/design.md lint -
 | `file` | positional | required | Path to DESIGN.md (or `-` for stdin) |
 | `--format` | `json` | `json` | Output format |
 
-**Exit codes**: `0` when the lint reports zero errors (warnings and info findings are allowed). `1` when one or more errors are present. `1` also when the CLI itself fails (bad input, malformed YAML). Direct CI gate: `npx @google/design.md lint DESIGN.md || exit 1`. The `scripts/audit.sh` wrapper preserves this exit semantics.
+**Exit codes**: `0` when the lint reports zero errors (warnings and info findings are allowed). `1` when one or more errors are present. `1` also when the CLI itself fails (bad input, malformed YAML). Direct CI gate: `designmd lint DESIGN.md || exit 1`. The `scripts/audit.sh` wrapper preserves this exit semantics.
 
 Output shape:
 
@@ -51,7 +51,7 @@ Output shape:
 ### `diff` — detect regressions between versions
 
 ```bash
-npx @google/design.md diff DESIGN.md DESIGN-v2.md
+designmd diff DESIGN.md DESIGN-v2.md
 ```
 
 | Option | Type | Default | Description |
@@ -60,13 +60,13 @@ npx @google/design.md diff DESIGN.md DESIGN-v2.md
 | `after` | positional | required | "After" DESIGN.md |
 | `--format` | `json` | `json` | Output format |
 
-Reports added/removed/modified tokens per group and sets `regression: true` if the "after" file has more errors or warnings than the "before" file. **Exit codes**: `0` when there's no regression, `1` on regression (usable as a CI gate: `npx @google/design.md diff main.md head.md || exit 1`). The `scripts/diff.sh` wrapper preserves this exit semantics.
+Reports added/removed/modified tokens per group and sets `regression: true` if the "after" file has more errors or warnings than the "before" file. **Exit codes**: `0` when there's no regression, `1` on regression (usable as a CI gate: `designmd diff main.md head.md || exit 1`). The `scripts/diff.sh` wrapper preserves this exit semantics.
 
 ### `export` — convert to other token formats
 
 ```bash
-npx @google/design.md export --format tailwind DESIGN.md > tailwind.theme.json
-npx @google/design.md export --format dtcg DESIGN.md > tokens.json
+designmd export --format tailwind DESIGN.md > tailwind.theme.json
+designmd export --format dtcg DESIGN.md > tokens.json
 ```
 
 | Option | Type | Default | Description |
@@ -81,9 +81,9 @@ npx @google/design.md export --format dtcg DESIGN.md > tokens.json
 Useful for injecting the canonical spec into agent prompts — keeps agents aligned with the exact CLI version.
 
 ```bash
-npx @google/design.md spec
-npx @google/design.md spec --rules
-npx @google/design.md spec --rules-only --format json
+designmd spec
+designmd spec --rules
+designmd spec --rules-only --format json
 ```
 
 | Option | Type | Default | Description |
@@ -142,32 +142,32 @@ console.log(report.summary);        // { errors, warnings, info }
 console.log(report.designSystem);   // Parsed DesignSystemState
 ```
 
-Use this when embedding validation in a custom tool or CI script rather than shelling out to `npx`.
+Use this when embedding validation in a custom tool or CI script rather than shelling out to `designmd`.
 
 ## Recipes
 
 **Pre-commit gate.** Block commits that introduce broken token references:
 
 ```bash
-npx @google/design.md lint DESIGN.md || exit 1
+designmd lint DESIGN.md || exit 1
 ```
 
 **Release gate.** Fail a PR if a token regression is introduced against the base branch:
 
 ```bash
-npx @google/design.md diff origin/main:DESIGN.md DESIGN.md || exit 1
+designmd diff origin/main:DESIGN.md DESIGN.md || exit 1
 ```
 
 **Tailwind pipeline.** Regenerate theme config after any DESIGN.md edit:
 
 ```bash
-npx @google/design.md export --format tailwind DESIGN.md > tailwind.theme.json
+designmd export --format tailwind DESIGN.md > tailwind.theme.json
 ```
 
 **Agent prompt injection.** Keep agents aligned with the installed spec version:
 
 ```bash
-npx @google/design.md spec --rules > .claude/context/design-md-spec.md
+designmd spec --rules > .claude/context/design-md-spec.md
 ```
 
 ### GitHub Actions gate
@@ -191,12 +191,12 @@ jobs:
         with:
           node-version: 22
       - name: Lint DESIGN.md
-        run: npx -y @google/design.md@latest lint DESIGN.md
+        run: designmd lint DESIGN.md
       - name: Diff against base branch
         run: |
           git fetch origin ${{ github.base_ref }} --depth=1
           git show origin/${{ github.base_ref }}:DESIGN.md > /tmp/DESIGN.base.md
-          npx -y @google/design.md@latest diff /tmp/DESIGN.base.md DESIGN.md
+          designmd diff /tmp/DESIGN.base.md DESIGN.md
 ```
 
 The `lint` step fails on `broken-ref` errors. The `diff` step fails when the PR introduces a regression (more errors or warnings than the base). Combine both for a full safety gate on any DESIGN.md-touching PR.
@@ -209,7 +209,7 @@ Block local commits that leave the DESIGN.md broken:
 # .git/hooks/pre-commit (chmod +x)
 #!/usr/bin/env bash
 if git diff --cached --name-only | grep -q '^DESIGN\.md$'; then
-  npx -y @google/design.md@latest lint DESIGN.md || {
+  designmd lint DESIGN.md || {
     echo "DESIGN.md has errors — fix before committing."
     exit 1
   }

@@ -369,14 +369,13 @@ class TestMutationDryRun(unittest.TestCase):
         # No JS/TS, no Python, no JVM → final fallback WARN should fire.
         self.assertIn("no JS/TS, Python, or JVM languages detected", r.stderr)
 
-    def test_python_without_mutmut_or_uvx_skips(self):
-        """When neither mutmut nor uvx is on PATH, the Python branch skips."""
+    def test_python_without_mutmut_skips(self):
+        """When mutmut is absent from PATH, the Python branch skips."""
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             scope = _write_scope(repo, languages=["python"], files=["x.py"])
             out_dir = repo / "out"; out_dir.mkdir()
-            # Reset PATH inside the script via a wrapper so mutmut/uvx
-            # are guaranteed-not-found. /bin keeps bash itself reachable.
+            # Reset PATH inside the script so mutmut is guaranteed absent.
             r = subprocess.run(
                 [
                     "bash", "-c",
@@ -386,8 +385,19 @@ class TestMutationDryRun(unittest.TestCase):
                 capture_output=True, text=True, timeout=10,
             )
             self.assertEqual(r.returncode, 0, r.stderr)
-            # /usr/bin + /bin typically ship neither uvx nor mutmut.
+            # /usr/bin + /bin typically ship no mutmut.
             self.assertIn("mutmut", r.stderr)
+
+    def test_mutation_source_has_no_runtime_package_resolver(self):
+        text = RUN_MUTATION.read_text(encoding="utf-8")
+        self.assertNotRegex(text, r"\bnpx\b")
+        self.assertNotRegex(text, r"\buvx\b")
+
+    def test_mutation_timeout_is_portable(self):
+        text = RUN_MUTATION.read_text(encoding="utf-8")
+        self.assertIn("run_with_timeout", text)
+        self.assertIn("subprocess.run", text)
+        self.assertNotRegex(text, r'(^|\s)timeout "\$TIMEOUT"')
 
     def test_javascript_without_config_skips(self):
         """JS/TS dispatch requires a stryker config or @stryker-mutator/core in package.json."""

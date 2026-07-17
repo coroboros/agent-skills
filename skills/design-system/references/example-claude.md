@@ -211,7 +211,7 @@ Always pill-shaped (`rounded.full`). Used for tags, filters, and categories. Act
 - **Do** keep Terracotta exclusive to primary CTAs, active link states, and focus rings — at most one Terracotta element per viewport
 - **Do** cap serif weight at 500 — Copernicus at 600+ fights the warm palette
 - **Do** use surface tint progression for elevation (Parchment → container → container-high) — never add shadows on a parchment background
-- **Do** run `npx @google/design.md lint DESIGN.md` before committing — catch broken token references and contrast violations before review
+- **Do** run `designmd lint DESIGN.md` before committing — catch broken token references and contrast violations before review
 - **Don't** use pure white (`#ffffff`) as a background — the Parchment base is part of the brand; pure white breaks the warmth
 - **Don't** use shadows for elevation — surface color does the work
 - **Don't** use more than one font weight per typography role — serif stays at 500, sans stays at 400 for body

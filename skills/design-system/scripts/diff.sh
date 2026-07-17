@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# diff.sh — wrap `npx @google/design.md diff` for the /design-system diff subcommand.
+# diff.sh — wrap `designmd diff` for the /design-system diff subcommand.
 # Emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file.
 
 set -euo pipefail
@@ -24,8 +24,8 @@ if [[ ! -f "$after" ]]; then
   exit 1
 fi
 
-if ! command -v npx >/dev/null 2>&1; then
-  echo "RESULT: status=npx-missing"
+if ! command -v designmd >/dev/null 2>&1; then
+  echo "RESULT: status=designmd-missing"
   exit 1
 fi
 
@@ -34,7 +34,7 @@ stderr_tmp="$(mktemp -t design-diff-stderr-XXXXXX).log"
 
 # `diff` exits 1 on regression, 0 on no regression. Both are successful CLI runs.
 set +e
-npx -y @google/design.md@latest diff "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
+designmd diff "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 

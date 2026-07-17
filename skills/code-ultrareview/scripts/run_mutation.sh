@@ -2,9 +2,9 @@
 # Phase 2 extension — mutation testing (gated by --mutation-test).
 #
 # Per-language dispatch:
-#   JS/TS  → npx stryker run               (when stryker.conf.* or @stryker-mutator
+#   JS/TS  → project/PATH stryker run       (when stryker.conf.* or @stryker-mutator
 #                                            present)
-#   Python → uvx mutmut run --paths-to-mutate=<changed-py-files>
+#   Python → PATH mutmut run --paths-to-mutate=<changed-py-files>
 #   JVM    → mvn org.pitest:pitest-maven:mutationCoverage  (when pom.xml present)
 #
 # Surviving mutants route to the Tests axis as 🟠 Medium with confidence 100
@@ -125,6 +125,31 @@ has_lang() {
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
 
+resolve_tool() {
+  local tool="$1"
+  local project_bin="$REPO/node_modules/.bin/$tool"
+  if [[ -x "$project_bin" ]]; then
+    printf '%s\n' "$project_bin"
+    return 0
+  fi
+  command -v "$tool" 2>/dev/null
+}
+
+run_with_timeout() {
+  local seconds="$1"
+  shift
+  python3 - "$seconds" "$@" <<'PY'
+import subprocess
+import sys
+
+try:
+    completed = subprocess.run(sys.argv[2:], timeout=int(sys.argv[1]))
+except subprocess.TimeoutExpired:
+    raise SystemExit(124)
+raise SystemExit(completed.returncode)
+PY
+}
+
 emit_warn() {
   echo "WARN: $1" >&2
 }
@@ -152,11 +177,12 @@ run_stryker() {
   fi
 
   if [[ "$has_config" -eq 0 ]]; then
-    emit_warn "stryker: no stryker config and no @stryker-mutator/core in package.json — install: npm i -D @stryker-mutator/core (or use npx)"
+    emit_warn "stryker: no stryker config and no @stryker-mutator/core in package.json — install: pnpm add -D @stryker-mutator/core"
     return 0
   fi
-  if ! have_cmd npx; then
-    emit_warn "stryker: npx not on PATH — install Node + npm to enable npx"
+  local stryker_cmd
+  if ! stryker_cmd="$(resolve_tool stryker)"; then
+    emit_warn "stryker: project/PATH binary missing — install: pnpm add -D @stryker-mutator/core"
     return 0
   fi
 
@@ -176,11 +202,11 @@ run_stryker() {
   if [[ ${#mutate_args[@]} -gt 0 ]]; then
     (
       cd "$REPO" && \
-      timeout "$TIMEOUT" npx -y stryker run --mutate "$(IFS=,; echo "${mutate_args[*]}")"
+      run_with_timeout "$TIMEOUT" "$stryker_cmd" run --mutate "$(IFS=,; echo "${mutate_args[*]}")"
     ) >"$raw" 2>"$err" || true
   else
     (
-      cd "$REPO" && timeout "$TIMEOUT" npx -y stryker run
+      cd "$REPO" && run_with_timeout "$TIMEOUT" "$stryker_cmd" run
     ) >"$raw" 2>"$err" || true
   fi
 
@@ -230,8 +256,8 @@ PY
 }
 
 run_mutmut() {
-  if ! have_cmd uvx && ! have_cmd mutmut; then
-    emit_warn "mutmut: not on PATH — install: pipx install mutmut (or use uvx — zero-install)"
+  if ! have_cmd mutmut; then
+    emit_warn "mutmut: not on PATH — install mutmut before running the review"
     return 0
   fi
 
@@ -253,13 +279,10 @@ run_mutmut() {
   paths="$(IFS=,; echo "${py_args[*]}")"
 
   local mutmut_cmd=(mutmut)
-  if have_cmd uvx; then
-    mutmut_cmd=(uvx mutmut)
-  fi
 
   (
     cd "$REPO" && \
-    timeout "$TIMEOUT" "${mutmut_cmd[@]}" run --paths-to-mutate="$paths"
+    run_with_timeout "$TIMEOUT" "${mutmut_cmd[@]}" run --paths-to-mutate="$paths"
   ) >"$raw" 2>"$err" || true
 
   # `mutmut results` lists surviving mutants by ID; `mutmut show <id>` gives
@@ -335,7 +358,7 @@ run_pitest() {
   local err="$OUTPUT_DIR/raw/pitest.stderr"
 
   (
-    cd "$REPO" && timeout "$TIMEOUT" \
+    cd "$REPO" && run_with_timeout "$TIMEOUT" \
       mvn -q -B org.pitest:pitest-maven:mutationCoverage
   ) >"$raw" 2>"$err" || true
 

@@ -35,7 +35,7 @@ The script exits `0` when the lint has zero errors, `1` when errors are present 
    bash "$SKILL_DIR"/scripts/audit.sh <path>
    ```
    The script emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file. Parse `RESULT: json=<tmp-path>` and `Read` that file to get `findings[]` and `summary`.
-3. **Handle CLI unavailability.** If `RESULT: status=npx-missing`, fall back to manual validation against `references/design-md-spec.md` — without a parser we can only check structural invariants (YAML present, eight sections in canonical order, no duplicate headings). Report what was checked and what was not.
+3. **Handle CLI unavailability.** If `RESULT: status=designmd-missing`, fall back to manual validation against `references/design-md-spec.md` — without a parser we can only check structural invariants (YAML present, eight sections in canonical order, no duplicate headings). Report what was checked and what was not.
 4. **Compose the report** using the template below.
 5. **Save** under `~/.agents/output/{project}/design-system/audit/report.md` if `-s`.
 6. **Return summary line** to the user: `✅ clean` or `⚠️ <n> warnings (acceptable)` or `❌ <n> errors — fix before shipping`.

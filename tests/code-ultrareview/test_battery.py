@@ -254,29 +254,27 @@ class TestDispatchPerTrigger(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Wrapper availability — npx/uvx preferred when present.
+# Tool resolution — project binaries first, then PATH; resolvers are ignored.
 # ---------------------------------------------------------------------------
 
 
-class TestWrapperPreference(unittest.TestCase):
-    """AC: JS/TS repo + zero global tools but npx present → knip/jscpd/markdownlint
-    execute via npx, no WARN for these three."""
+class TestToolResolution(unittest.TestCase):
+    """The battery never downloads a missing tool during a review."""
 
-    def test_npx_only_dispatches_js_tools_via_npx(self):
+    def test_npx_only_does_not_dispatch_js_tools(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
             scope = tdp / "scope.json"
             _write_scope(scope, repo_kind="app", languages=["typescript"],
                          files_touched_list=["src/foo.ts", "README.md"])
             bin_dir = tdp / "bin"
-            _make_shim(bin_dir, "npx")  # only npx — no uvx, no native binaries
+            _make_shim(bin_dir, "npx")
             plan = _run_dry(scope, tdp, bin_dir)
-            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            skipped = _skipped_tools(plan)
             for tool in ("knip", "jscpd", "markdownlint-cli2"):
-                self.assertEqual(dispatched.get(tool), "npx",
-                                 f"{tool} must dispatch via npx, got {dispatched.get(tool)!r}")
+                self.assertIn(tool, skipped)
 
-    def test_uvx_only_dispatches_python_tools_via_uvx(self):
+    def test_uvx_only_does_not_dispatch_python_tools(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
             scope = tdp / "scope.json"
@@ -285,10 +283,47 @@ class TestWrapperPreference(unittest.TestCase):
             bin_dir = tdp / "bin"
             _make_shim(bin_dir, "uvx")
             plan = _run_dry(scope, tdp, bin_dir)
-            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            skipped = _skipped_tools(plan)
             for tool in ("lizard", "vulture", "semgrep"):
-                self.assertEqual(dispatched.get(tool), "uvx",
-                                 f"{tool} must dispatch via uvx, got {dispatched.get(tool)!r}")
+                self.assertIn(tool, skipped)
+
+    def test_project_binary_precedes_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(scope, repo_kind="app", languages=["typescript"],
+                         files_touched_list=["src/foo.ts"])
+            _make_shim(tdp / "node_modules" / ".bin", "knip")
+            path_bin = tdp / "path-bin"
+            _make_shim(path_bin, "knip")
+            plan = _run_dry(scope, tdp, path_bin)
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            self.assertEqual(dispatched.get("knip"), "project")
+
+    def test_path_binary_dispatches(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(scope, repo_kind="python", languages=["python"],
+                         files_touched_list=["src/foo.py"])
+            bin_dir = tdp / "bin"
+            _make_shim(bin_dir, "vulture")
+            plan = _run_dry(scope, tdp, bin_dir)
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            self.assertEqual(dispatched.get("vulture"), "path")
+
+    def test_source_has_no_runtime_package_resolver(self):
+        text = SCRIPT.read_text(encoding="utf-8")
+        self.assertNotRegex(text, r"\bnpx\b")
+        self.assertNotRegex(text, r"\buvx\b")
+
+    def test_project_binary_resolution_is_limited_to_javascript_tools(self):
+        text = SCRIPT.read_text(encoding="utf-8")
+        resolver = text.split("resolve_tool() {", 1)[1].split("\n}", 1)[0]
+        for tool in ("knip", "jscpd", "markdownlint-cli2", "api-extractor"):
+            self.assertIn(tool, resolver)
+        for tool in ("lizard", "vulture", "semgrep"):
+            self.assertNotIn(tool, resolver)
 
 
 # ---------------------------------------------------------------------------

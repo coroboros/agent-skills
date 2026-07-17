@@ -21,17 +21,17 @@ Emit the canonical DESIGN.md format specification — always reflects the instal
 | `--json` | Machine-readable JSON instead of markdown |
 | `-o <path>` | Write to file (default: stdout) |
 
-All flags pass through to the underlying `npx @google/design.md spec` invocation.
+All flags pass through to the underlying `designmd spec` invocation.
 
 ## Workflow
 
 No script needed — this is a one-liner pass-through:
 
 ```bash
-npx -y @google/design.md@latest spec <flags> > <output>
+designmd spec <flags> > <output>
 ```
 
-1. **Verify CLI availability**: `command -v npx` + a dry `npx @google/design.md --help`. Fail early with an install suggestion if unavailable.
+1. **Verify CLI availability**: `command -v designmd` + a dry `designmd --help`. Fail early with an install suggestion if unavailable.
 2. **Compose the command** from flags.
 3. **Invoke** and capture stdout.
 4. **Write or print** based on `-o`.
@@ -46,7 +46,7 @@ npx -y @google/design.md@latest spec <flags> > <output>
 # subsequent agent invocations see the always-fresh spec
 ```
 
-Refresh this file when the upstream CLI version bumps (`@google/design.md@latest` vs the version that produced the file).
+Refresh this file when the installed upstream CLI version changes.
 
 **Local reference refresh.** The skill ships `references/design-md-spec.md` as a concise handcrafted reference. For the raw authoritative version, `/design-system spec` beats reading the repo. Keep the local concise version for quick model reads (it's linked from `SKILL.md`); use the CLI-emitted one when you need the full normative text.
 
@@ -64,4 +64,4 @@ Refresh this file when the upstream CLI version bumps (`@google/design.md@latest
 ## Edge cases
 
 - **Offline / CLI unavailable**: fall back to `references/design-md-spec.md` and mention it may lag behind the latest CLI version.
-- **Old CLI installed**: `npx @google/design.md@latest` always fetches the latest on first run. If the cached version is pinned and stale, the emitted spec won't reflect recent rule additions — flag this to the user.
+- **Old CLI installed**: if the installed binary is stale, the emitted spec will not reflect recent rule additions. Flag the maintenance gap instead of downloading an update during agent work.

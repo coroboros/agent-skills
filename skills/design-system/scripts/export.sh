@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# export.sh — wrap `npx @google/design.md export` for the /design-system export subcommand.
+# export.sh — wrap `designmd export` for the /design-system export subcommand.
 # Emits `RESULT: key=value` lines. If no output path is given, writes to a temp file
 # and reports its location (the skill decides where to move it).
 
@@ -27,8 +27,8 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-if ! command -v npx >/dev/null 2>&1; then
-  echo "RESULT: status=npx-missing"
+if ! command -v designmd >/dev/null 2>&1; then
+  echo "RESULT: status=designmd-missing"
   exit 1
 fi
 
@@ -38,7 +38,7 @@ fi
 
 stderr_tmp="$(mktemp -t design-export-stderr-XXXXXX).log"
 
-if ! npx -y @google/design.md@latest export --format "$format" "$path" >"$out" 2>"$stderr_tmp"; then
+if ! designmd export --format "$format" "$path" >"$out" 2>"$stderr_tmp"; then
   echo "RESULT: status=cli-failed"
   echo "RESULT: stderr=$stderr_tmp"
   exit 1

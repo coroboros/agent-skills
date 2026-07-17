@@ -58,7 +58,7 @@ Routes mutation-tool findings into the Phase 2 tool-findings stream so the Tests
 | Field | Value |
 |-------|-------|
 | Entry point | `scripts/run_mutation.sh` |
-| Per-language tools | `npx stryker run` (JS/TS) · `uvx mutmut run` (Python) · `mvn org.pitest:pitest-maven:mutationCoverage` (JVM) |
+| Per-language tools | project/PATH `stryker run` (JS/TS) · PATH `mutmut run` (Python) · `mvn org.pitest:pitest-maven:mutationCoverage` (JVM) |
 | Output axis | `tests` |
 | Severity | `Medium` (🟠) |
 | Confidence | `100` (deterministic — skips Phase 4) |
@@ -68,8 +68,8 @@ Routes mutation-tool findings into the Phase 2 tool-findings stream so the Tests
 
 `run_mutation.sh` reads `scope.json["languages"]` and `scope.json["files_touched_list"]`:
 
-- **JS/TS** — runs only when a stryker config file (`stryker.{conf,config}.{js,mjs,json}`) exists OR `@stryker-mutator/core` appears in `package.json`. `npx` invocation. Mutate scope = changed `.ts/.tsx/.js/.jsx/.mjs/.cjs` files from the diff.
-- **Python** — runs when `mutmut` is on PATH or `uvx` is available. Mutate scope = changed `.py` files from the diff. Skips when no changed Python files are in scope.
+- **JS/TS** — runs only when a stryker config file (`stryker.{conf,config}.{js,mjs,json}`) exists OR `@stryker-mutator/core` appears in `package.json`, and resolves `stryker` from `node_modules/.bin` then `PATH`. Mutate scope = changed `.ts/.tsx/.js/.jsx/.mjs/.cjs` files from the diff.
+- **Python** — runs when `mutmut` is on `PATH`. Mutate scope = changed `.py` files from the diff. Skips when no changed Python files are in scope.
 - **JVM** — runs when `pom.xml` exists AND `mvn` is on PATH. Gradle / standalone pitest are deferred; the script logs an install hint.
 
 ### Tool-output parsing

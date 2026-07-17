@@ -103,7 +103,7 @@ The CLI's `diff` command sets `regression: true` when the "after" file has more 
 
 **Release gate.** Wire into CI:
 ```bash
-npx @google/design.md diff origin/main:DESIGN.md DESIGN.md || exit 1
+designmd diff origin/main:DESIGN.md DESIGN.md || exit 1
 ```
 The skill's `diff` wraps this with a human-readable summary — useful locally, the raw CLI is better for CI.
 
