@@ -119,6 +119,8 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 
 The canonical `@google/design.md` CLI powers the `audit`, `diff`, `export`, and `spec` subcommands. Each subcommand wraps one CLI invocation with richer UX (fix proposals, git-awareness, human-readable reports). Raw invocations:
 
+Install it as a direct project dependency with the project's package manager (for example, `npm install --save-dev @google/design.md`) or provide `designmd` on `PATH`. The wrappers search upward from the target `DESIGN.md` for the nearest matching declaration and its local or workspace-hoisted `node_modules/.bin/designmd` before falling back to `PATH`.
+
 ```bash
 designmd lint DESIGN.md                    # validate
 designmd diff before.md after.md           # regression check (exit 1 on regression)
@@ -128,7 +130,7 @@ designmd spec --rules                      # emit spec + lint rules
 
 Eight linting rules: `broken-ref` (error), `missing-primary`, `contrast-ratio`, `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`. Full table with severity, interpretation, and fix strategies: `references/cli-reference.md`.
 
-Every subcommand verifies CLI availability first (`command -v designmd` + a dry `--help` probe). When unavailable: fall back to manual validation against `references/design-md-spec.md`. The skill still enforces the spec without the CLI — it loses only the deterministic check and never downloads a package during agent work.
+Every CLI-backed subcommand resolves a directly declared project `designmd` first, then checks `PATH`. When unavailable, the wrapper returns `RESULT: status=designmd-missing` and never downloads a package. `audit` and `diff` may continue with the documented manual structural checks; `export` and the live `spec` remain unavailable until the CLI is installed.
 
 ## Framework behavior
 

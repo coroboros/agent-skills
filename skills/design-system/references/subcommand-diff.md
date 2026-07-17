@@ -103,7 +103,10 @@ The CLI's `diff` command sets `regression: true` when the "after" file has more 
 
 **Release gate.** Wire into CI:
 ```bash
-designmd diff origin/main:DESIGN.md DESIGN.md || exit 1
+base_file="$(mktemp)"
+trap 'rm -f "$base_file"' EXIT
+git show origin/main:DESIGN.md > "$base_file"
+designmd diff "$base_file" DESIGN.md
 ```
 The skill's `diff` wraps this with a human-readable summary — useful locally, the raw CLI is better for CI.
 
@@ -112,3 +115,4 @@ The skill's `diff` wraps this with a human-readable summary — useful locally, 
 - **`<before>` not tracked by git** (git-aware mode): surface the error, ask the user to provide an explicit `<before>` path.
 - **Identical files**: report `✅ no regression` with empty change lists; suggest no action.
 - **Brand-new file** (no `<before>` in git): suggest running `audit` on the new file instead of `diff`.
+- **CLI unavailable**: the wrapper returns `RESULT: status=designmd-missing`; run the documented manual structural comparison and state that token-level regression detection was not available.

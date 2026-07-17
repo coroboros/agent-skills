@@ -5,6 +5,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=resolve-designmd.sh
+source "$SCRIPT_DIR/resolve-designmd.sh"
+
 usage() {
   echo "usage: export.sh <tailwind|dtcg> <path-to-design-md> [output-file]" >&2
   exit 2
@@ -27,7 +31,7 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-if ! command -v designmd >/dev/null 2>&1; then
+if ! DESIGNMD="$(resolve_designmd "$path")"; then
   echo "RESULT: status=designmd-missing"
   exit 1
 fi
@@ -38,7 +42,7 @@ fi
 
 stderr_tmp="$(mktemp -t design-export-stderr-XXXXXX).log"
 
-if ! designmd export --format "$format" "$path" >"$out" 2>"$stderr_tmp"; then
+if ! "$DESIGNMD" export --format "$format" "$path" >"$out" 2>"$stderr_tmp"; then
   echo "RESULT: status=cli-failed"
   echo "RESULT: stderr=$stderr_tmp"
   exit 1

@@ -25,13 +25,13 @@ All flags pass through to the underlying `designmd spec` invocation.
 
 ## Workflow
 
-No script needed — this is a one-liner pass-through:
+Use the bundled resolver so a project-local dependency works without adding `node_modules/.bin` to `PATH`:
 
 ```bash
-designmd spec <flags> > <output>
+bash "$SKILL_DIR/scripts/spec.sh" <flags> > <output>
 ```
 
-1. **Verify CLI availability**: `command -v designmd` + a dry `designmd --help`. Fail early with an install suggestion if unavailable.
+1. **Resolve CLI availability**: nearest directly declared project `node_modules/.bin/designmd`, then `PATH`. If unavailable, return `designmd-missing` and suggest adding `@google/design.md` with the project's package manager.
 2. **Compose the command** from flags.
 3. **Invoke** and capture stdout.
 4. **Write or print** based on `-o`.
@@ -63,5 +63,5 @@ Refresh this file when the installed upstream CLI version changes.
 
 ## Edge cases
 
-- **Offline / CLI unavailable**: fall back to `references/design-md-spec.md` and mention it may lag behind the latest CLI version.
+- **Offline / CLI unavailable**: the wrapper returns `designmd-missing`. Use `references/design-md-spec.md` only as bundled authoring guidance; do not present it as live CLI output.
 - **Old CLI installed**: if the installed binary is stale, the emitted spec will not reflect recent rule additions. Flag the maintenance gap instead of downloading an update during agent work.

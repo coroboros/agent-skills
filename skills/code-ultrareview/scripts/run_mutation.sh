@@ -23,8 +23,6 @@
 
 set -uo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
 SCOPE=""
 OUTPUT_DIR=""
 REPO="."
@@ -67,6 +65,11 @@ fi
 
 if [[ ! -r "$SCOPE" ]]; then
   echo "ERROR: scope.json not readable: $SCOPE" >&2
+  exit 2
+fi
+
+if [[ ! "$TIMEOUT" =~ ^[1-9][0-9]*$ ]]; then
+  echo "ERROR: timeout must be a positive integer: $TIMEOUT" >&2
   exit 2
 fi
 
@@ -128,7 +131,20 @@ have_cmd() { command -v "$1" >/dev/null 2>&1; }
 resolve_tool() {
   local tool="$1"
   local project_bin="$REPO/node_modules/.bin/$tool"
-  if [[ -x "$project_bin" ]]; then
+  if [[ "$tool" == "stryker" && -x "$project_bin" && -f "$REPO/package.json" ]] \
+    && python3 - "$REPO/package.json" <<'PY' >/dev/null 2>&1
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    package_json = json.load(handle)
+declared = any(
+    "@stryker-mutator/core" in (package_json.get(field) or {})
+    for field in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies")
+)
+raise SystemExit(0 if declared else 1)
+PY
+  then
     printf '%s\n' "$project_bin"
     return 0
   fi
@@ -139,14 +155,29 @@ run_with_timeout() {
   local seconds="$1"
   shift
   python3 - "$seconds" "$@" <<'PY'
+import os
+import signal
 import subprocess
 import sys
 
+process = subprocess.Popen(sys.argv[2:], start_new_session=True)
 try:
-    completed = subprocess.run(sys.argv[2:], timeout=int(sys.argv[1]))
+    return_code = process.wait(timeout=int(sys.argv[1]))
 except subprocess.TimeoutExpired:
-    raise SystemExit(124)
-raise SystemExit(completed.returncode)
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+    except ProcessLookupError:
+        pass
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait()
+    return_code = 124
+raise SystemExit(return_code)
 PY
 }
 
@@ -177,12 +208,12 @@ run_stryker() {
   fi
 
   if [[ "$has_config" -eq 0 ]]; then
-    emit_warn "stryker: no stryker config and no @stryker-mutator/core in package.json — install: pnpm add -D @stryker-mutator/core"
+    emit_warn "stryker: no stryker config and no @stryker-mutator/core in package.json — install: npm install --save-dev @stryker-mutator/core (or equivalent project package-manager command)"
     return 0
   fi
   local stryker_cmd
   if ! stryker_cmd="$(resolve_tool stryker)"; then
-    emit_warn "stryker: project/PATH binary missing — install: pnpm add -D @stryker-mutator/core"
+    emit_warn "stryker: project/PATH binary missing — install: npm install --save-dev @stryker-mutator/core (or equivalent project package-manager command)"
     return 0
   fi
 
@@ -257,7 +288,7 @@ PY
 
 run_mutmut() {
   if ! have_cmd mutmut; then
-    emit_warn "mutmut: not on PATH — install mutmut before running the review"
+    emit_warn "mutmut: not on PATH — install: pipx install mutmut"
     return 0
   fi
 

@@ -5,7 +5,7 @@
 # deterministic CLIs per the dispatch matrix below, captures raw outputs,
 # and invokes battery_ingest.py to emit canonical findings as JSONL.
 #
-# Try order per tool: project-declared binary → PATH binary → graceful skip.
+# Try order per tool: directly declared project binary → PATH binary → graceful skip.
 # Missing tools emit `WARN: <tool> not found — install: <cmd>` to stderr and
 # land in <output-dir>/tools-skipped.json. The battery NEVER auto-installs.
 #
@@ -32,13 +32,13 @@ DRY_RUN=0
 
 # shellcheck disable=SC2034
 BATTERY_TABLE=(
-  "knip|pnpm add -D knip|simplification (JS/TS dead code)"
-  "jscpd|pnpm add -D jscpd|simplification (duplication)"
-  "markdownlint-cli2|pnpm add -D markdownlint-cli2|documentation (Markdown lint)"
-  "api-extractor|pnpm add -D @microsoft/api-extractor|design-api (TS public surface)"
-  "lizard|install lizard on PATH|simplification (cyclomatic complexity)"
-  "vulture|install vulture on PATH|simplification (dead Python code)"
-  "semgrep|install semgrep on PATH|correctness + performance (patterns)"
+  "knip|npm install --save-dev knip (or equivalent project package-manager command)|simplification (JS/TS dead code)"
+  "jscpd|npm install --save-dev jscpd (or equivalent project package-manager command)|simplification (duplication)"
+  "markdownlint-cli2|npm install --save-dev markdownlint-cli2 (or equivalent project package-manager command)|documentation (Markdown lint)"
+  "api-extractor|npm install --save-dev @microsoft/api-extractor (or equivalent project package-manager command)|design-api (TS public surface)"
+  "lizard|pipx install lizard|simplification (cyclomatic complexity)"
+  "vulture|pipx install vulture|simplification (dead Python code)"
+  "semgrep|pipx install semgrep|correctness + performance (patterns)"
   "vale|brew install vale (Go binary, no Python wrapper)|documentation (prose lint)"
   "oasdiff|brew install oasdiff|design-api (OpenAPI breaking changes)"
   "atlas|brew install ariga/tap/atlas|design-api (DB migration lint)"
@@ -268,7 +268,7 @@ mark_dispatched() {
 }
 
 # Tool runners. Each writes raw output to $OUTPUT_DIR/raw/<tool>.<ext>.
-# JavaScript tools prefer the repository's declared node_modules binary;
+# JavaScript tools prefer a directly declared repository dependency;
 # every tool may fall back to an already-installed PATH command.
 
 have_cmd() { command -v "$1" >/dev/null 2>&1; }
@@ -276,14 +276,30 @@ have_cmd() { command -v "$1" >/dev/null 2>&1; }
 resolve_tool() {
   local tool="$1"
   local project_bin="$REPO/node_modules/.bin/$tool"
+  local package=""
   case "$tool" in
-    knip|jscpd|markdownlint-cli2|api-extractor)
-      if [[ -x "$project_bin" ]]; then
-        printf '%s\n' "$project_bin"
-        return 0
-      fi
-      ;;
+    knip) package="knip" ;;
+    jscpd) package="jscpd" ;;
+    markdownlint-cli2) package="markdownlint-cli2" ;;
+    api-extractor) package="@microsoft/api-extractor" ;;
   esac
+  if [[ -n "$package" && -x "$project_bin" && -f "$REPO/package.json" ]] \
+    && python3 - "$REPO/package.json" "$package" <<'PY' >/dev/null 2>&1
+import json
+import sys
+
+with open(sys.argv[1], encoding="utf-8") as handle:
+    package_json = json.load(handle)
+declared = any(
+    sys.argv[2] in (package_json.get(field) or {})
+    for field in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies")
+)
+raise SystemExit(0 if declared else 1)
+PY
+  then
+    printf '%s\n' "$project_bin"
+    return 0
+  fi
   command -v "$tool" 2>/dev/null
 }
 
@@ -607,7 +623,23 @@ for tool in tools:
 
 def avail(tool):
     project_bin = os.path.join(repo, "node_modules", ".bin", tool)
-    if tool in ("knip", "jscpd", "markdownlint-cli2", "api-extractor") and os.access(project_bin, os.X_OK):
+    package_names = {
+        "knip": "knip",
+        "jscpd": "jscpd",
+        "markdownlint-cli2": "markdownlint-cli2",
+        "api-extractor": "@microsoft/api-extractor",
+    }
+    package_json = {}
+    try:
+        with open(os.path.join(repo, "package.json"), encoding="utf-8") as handle:
+            package_json = json.load(handle)
+    except (OSError, json.JSONDecodeError):
+        pass
+    declared = any(
+        package_names.get(tool) in (package_json.get(field) or {})
+        for field in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies")
+    )
+    if tool in package_names and declared and os.access(project_bin, os.X_OK):
         return "project"
     return "path" if shutil.which(tool) else None
 

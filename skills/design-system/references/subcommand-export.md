@@ -121,5 +121,6 @@ After `export`, if the output is DTCG JSON:
 
 - **Format typo** (`export twilwind`): script returns `RESULT: status=invalid-format`. Suggest the two valid options.
 - **Source missing**: `RESULT: status=file-not-found`. Suggest `/design-system init` to bootstrap.
+- **CLI unavailable**: `RESULT: status=designmd-missing`. Stop and provide the project-dependency or `PATH` installation guidance; no equivalent export can be produced from the bundled prose reference.
 - **Output path writable?** If `-o <path>` points to a non-writable directory, the script surfaces the shell error. Report it verbatim.
 - **Empty DESIGN.md** (no tokens): the CLI still produces a valid but minimal output file. Surface a warning that the export is mostly empty and suggest running `/design-system audit` to see what's missing.

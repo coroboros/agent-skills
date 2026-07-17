@@ -1,4 +1,4 @@
-"""Tests for skills/design-system/scripts/{audit,diff,export}.sh.
+"""Tests for skills/design-system/scripts/{audit,diff,export,spec}.sh.
 
 Strategy: argument-validation and missing-file branches run unconditionally.
 For exit-code propagation and stderr handling we stub `designmd` in a fake-bin
@@ -24,7 +24,12 @@ def _make_stub(bin_dir: Path, name: str, body: str) -> None:
     p.chmod(p.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
 
 
-def _run(script_name: str, *args: str, fake_bin: Path | None = None):
+def _run(
+    script_name: str,
+    *args: str,
+    fake_bin: Path | None = None,
+    cwd: Path | None = None,
+):
     env = os.environ.copy()
     base_path = "/usr/bin:/bin:/usr/sbin:/sbin"
     env["PATH"] = f"{fake_bin}:{base_path}" if fake_bin else base_path
@@ -33,6 +38,7 @@ def _run(script_name: str, *args: str, fake_bin: Path | None = None):
         capture_output=True,
         text=True,
         env=env,
+        cwd=cwd,
         timeout=30,
     )
 
@@ -135,8 +141,63 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertEqual(_result_kv(r.stdout).get("status"), "designmd-missing")
 
+    def test_project_local_cli_precedes_path(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(local_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.1.1"}}\n',
+            encoding="utf-8",
+        )
+        _make_stub(self.fake_bin, "designmd", "#!/bin/sh\nexit 9\n")
+        project_dir = self.tmp / "apps" / "web"
+        project_dir.mkdir(parents=True)
+        design = project_dir / "DESIGN.md"
+        design.write_text("# DESIGN\n")
+
+        r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(_result_kv(r.stdout).get("status"), "ok")
+
+    def test_undeclared_project_binary_does_not_shadow_path(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(local_bin, "designmd", "#!/bin/sh\nexit 9\n")
+        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        design = self._design_md()
+
+        r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(_result_kv(r.stdout).get("status"), "ok")
+
+    def test_declared_workspace_dependency_can_use_hoisted_binary(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(local_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        project_dir = self.tmp / "packages" / "web"
+        project_dir.mkdir(parents=True)
+        (project_dir / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.1.1"}}\n',
+            encoding="utf-8",
+        )
+        design = project_dir / "DESIGN.md"
+        design.write_text("# DESIGN\n")
+
+        r = _run("audit.sh", str(design))
+
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(_result_kv(r.stdout).get("status"), "ok")
+
     def test_wrappers_do_not_invoke_runtime_package_resolvers(self):
-        for name in ("audit.sh", "diff.sh", "export.sh"):
+        for name in (
+            "audit.sh",
+            "diff.sh",
+            "export.sh",
+            "spec.sh",
+            "resolve-designmd.sh",
+        ):
             text = (SCRIPTS / name).read_text(encoding="utf-8")
             self.assertNotIn("npx", text)
             self.assertNotIn("@latest", text)
@@ -280,6 +341,30 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         kv = _result_kv(r.stdout)
         self.assertEqual(kv.get("status"), "cli-failed")
         self.assertIn("export-boom", Path(kv["stderr"]).read_text())
+
+
+# ---------- spec.sh ----------
+
+
+class TestSpecCliResolution(_TmpMixin, unittest.TestCase):
+    def test_missing_cli_reports_designmd_missing(self):
+        r = _run("spec.sh", cwd=self.tmp)
+        self.assertEqual(r.returncode, 1)
+        self.assertEqual(_result_kv(r.stdout).get("status"), "designmd-missing")
+
+    def test_project_local_cli_receives_flags(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(local_bin, "designmd", '#!/bin/sh\nprintf "%s\\n" "$*"\n')
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.1.1"}}\n',
+            encoding="utf-8",
+        )
+
+        r = _run("spec.sh", "--rules", cwd=self.tmp)
+
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertEqual(r.stdout.strip(), "spec --rules")
 
 
 if __name__ == "__main__":

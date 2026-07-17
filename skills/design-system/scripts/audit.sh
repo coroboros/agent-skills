@@ -5,6 +5,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=resolve-designmd.sh
+source "$SCRIPT_DIR/resolve-designmd.sh"
+
 usage() {
   echo "usage: audit.sh <path-to-design-md>" >&2
   exit 2
@@ -19,7 +23,7 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-if ! command -v designmd >/dev/null 2>&1; then
+if ! DESIGNMD="$(resolve_designmd "$path")"; then
   echo "RESULT: status=designmd-missing"
   exit 1
 fi
@@ -30,7 +34,7 @@ stderr_tmp="$(mktemp -t design-audit-stderr-XXXXXX).log"
 # `lint` exits 1 on findings but still writes valid JSON; only exits >1 are real
 # failures.
 set +e
-designmd lint "$path" >"$json_tmp" 2>"$stderr_tmp"
+"$DESIGNMD" lint "$path" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 

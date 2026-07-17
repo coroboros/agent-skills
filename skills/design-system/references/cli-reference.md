@@ -3,10 +3,11 @@
 The canonical validator for DESIGN.md files. Read this before running the CLI or interpreting its output.
 
 - **Package**: [`@google/design.md`](https://github.com/google-labs-code/design.md/tree/main/packages/cli)
-- **Invocation**: `designmd <command>` from an installed `@google/design.md` package. Do not resolve the package during agent work.
+- **Installation**: add `@google/design.md` directly to the project with its package manager (for example, `npm install --save-dev @google/design.md`) or install it so `designmd` is on `PATH`
+- **Invocation**: `designmd <command>`. The bundled wrappers prefer the nearest matching project declaration and its local or workspace-hoisted `node_modules/.bin/designmd`, then `PATH`. Do not resolve the package during agent work.
 - **Status**: alpha — commands, flags, and rules may change between releases
 
-Before running, verify availability:
+Before running directly, verify availability:
 
 ```bash
 command -v designmd && designmd --help
@@ -155,7 +156,10 @@ designmd lint DESIGN.md || exit 1
 **Release gate.** Fail a PR if a token regression is introduced against the base branch:
 
 ```bash
-designmd diff origin/main:DESIGN.md DESIGN.md || exit 1
+base_file="$(mktemp)"
+trap 'rm -f "$base_file"' EXIT
+git show origin/main:DESIGN.md > "$base_file"
+designmd diff "$base_file" DESIGN.md
 ```
 
 **Tailwind pipeline.** Regenerate theme config after any DESIGN.md edit:
@@ -190,13 +194,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+      - run: npm ci
       - name: Lint DESIGN.md
-        run: designmd lint DESIGN.md
+        run: ./node_modules/.bin/designmd lint DESIGN.md
       - name: Diff against base branch
         run: |
           git fetch origin ${{ github.base_ref }} --depth=1
           git show origin/${{ github.base_ref }}:DESIGN.md > /tmp/DESIGN.base.md
-          designmd diff /tmp/DESIGN.base.md DESIGN.md
+          ./node_modules/.bin/designmd diff /tmp/DESIGN.base.md DESIGN.md
 ```
 
 The `lint` step fails on `broken-ref` errors. The `diff` step fails when the PR introduces a regression (more errors or warnings than the base). Combine both for a full safety gate on any DESIGN.md-touching PR.

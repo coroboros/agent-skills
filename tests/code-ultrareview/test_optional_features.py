@@ -33,6 +33,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -396,8 +397,81 @@ class TestMutationDryRun(unittest.TestCase):
     def test_mutation_timeout_is_portable(self):
         text = RUN_MUTATION.read_text(encoding="utf-8")
         self.assertIn("run_with_timeout", text)
-        self.assertIn("subprocess.run", text)
+        self.assertIn("subprocess.Popen", text)
+        self.assertIn("start_new_session=True", text)
+        self.assertIn("os.killpg", text)
         self.assertNotRegex(text, r'(^|\s)timeout "\$TIMEOUT"')
+
+    def test_mutation_timeout_interrupts_slow_project_tool(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["javascript"], files=["x.js"])
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "devDependencies": {"@stryker-mutator/core": "1.0.0"},
+                }),
+                encoding="utf-8",
+            )
+            tool = repo / "node_modules" / ".bin" / "stryker"
+            tool.parent.mkdir(parents=True)
+            sentinel = repo / "child-completed"
+            child = repo / "child.py"
+            child.write_text(
+                "import pathlib, time\n"
+                "time.sleep(1.5)\n"
+                f"pathlib.Path({str(sentinel)!r}).write_text('alive')\n",
+                encoding="utf-8",
+            )
+            tool.write_text(
+                "#!/usr/bin/env python3\n"
+                "import subprocess, sys, time\n"
+                f"subprocess.Popen([sys.executable, {str(child)!r}])\n"
+                "time.sleep(10)\n",
+                encoding="utf-8",
+            )
+            tool.chmod(0o755)
+
+            r = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--timeout", "1",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("run failed or timed out", r.stderr)
+            time.sleep(2)
+            self.assertFalse(sentinel.exists(), "timeout left a child process running")
+
+    def test_mutation_rejects_invalid_timeout(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["javascript"], files=["x.js"])
+            out_dir = repo / "out"
+
+            r = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--timeout", "never",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            self.assertEqual(r.returncode, 2)
+            self.assertIn("timeout must be a positive integer", r.stderr)
 
     def test_javascript_without_config_skips(self):
         """JS/TS dispatch requires a stryker config or @stryker-mutator/core in package.json."""

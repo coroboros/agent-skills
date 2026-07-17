@@ -350,7 +350,7 @@ Eight-axis judgment code review at full strength, in-session — every axis run,
 
 **Tool battery — tool → axis**
 
-The battery uses project-declared binaries first, then installed `PATH` commands. It never resolves packages at runtime; missing tools are skipped explicitly. Run `/code-ultrareview --preflight` for the exact list on the repo plus install commands for the missing ones.
+The battery uses directly declared project binaries first, then installed `PATH` commands. It never resolves packages at runtime; missing tools are skipped explicitly. JavaScript tools are best added as project dev dependencies; Python tools can be isolated with `pipx`. Run `/code-ultrareview --preflight` for the exact list on the repo plus installation guidance for the missing ones.
 
 | Tool | Axis | Source |
 |------|------|--------|
@@ -461,7 +461,7 @@ Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://
 
 **Requirements**
 
-- `designmd` (the installed `@google/design.md` CLI wrapped by `audit`, `diff`, `export`, `spec`). Missing → subcommands fall back to manual validation against the bundled spec without resolving a package at runtime.
+- `@google/design.md` as a directly declared project dependency (for example, `npm install --save-dev @google/design.md`) or a preinstalled `designmd` on `PATH`. Wrappers prefer the nearest declared project binary and support workspace-hoisted installs. Missing → wrappers return `designmd-missing`; `audit` and `diff` can continue with documented manual structural checks, while `export` and the live `spec` require the CLI.
 
 **Usage**
 

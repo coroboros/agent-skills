@@ -122,8 +122,6 @@ class TestDispatchPerLanguage(unittest.TestCase):
             bin_dir = tdp / "bin"
             for tool in ALL_TOOLS:
                 _make_shim(bin_dir, tool)
-            _make_shim(bin_dir, "npx")
-            _make_shim(bin_dir, "uvx")
             plan = _run_dry(scope, tdp, bin_dir)
             wanted = _wanted_tools(plan)
             self.assertIn("knip", wanted)
@@ -142,8 +140,6 @@ class TestDispatchPerLanguage(unittest.TestCase):
             bin_dir = tdp / "bin"
             for tool in ALL_TOOLS:
                 _make_shim(bin_dir, tool)
-            _make_shim(bin_dir, "npx")
-            _make_shim(bin_dir, "uvx")
             plan = _run_dry(scope, tdp, bin_dir)
             wanted = _wanted_tools(plan)
             self.assertIn("lizard", wanted)
@@ -162,8 +158,6 @@ class TestDispatchPerLanguage(unittest.TestCase):
             bin_dir = tdp / "bin"
             for tool in ALL_TOOLS:
                 _make_shim(bin_dir, tool)
-            _make_shim(bin_dir, "npx")
-            _make_shim(bin_dir, "uvx")
             plan = _run_dry(scope, tdp, bin_dir)
             wanted = _wanted_tools(plan)
             self.assertIn("deadcode", wanted)
@@ -182,8 +176,6 @@ class TestDispatchPerLanguage(unittest.TestCase):
             bin_dir = tdp / "bin"
             for tool in ALL_TOOLS:
                 _make_shim(bin_dir, tool)
-            _make_shim(bin_dir, "npx")
-            _make_shim(bin_dir, "uvx")
             plan = _run_dry(scope, tdp, bin_dir)
             wanted = _wanted_tools(plan)
             self.assertIn("cargo-machete", wanted)
@@ -199,8 +191,6 @@ class TestDispatchPerTrigger(unittest.TestCase):
     def _shim_all(self, bin_dir: Path) -> None:
         for tool in ALL_TOOLS:
             _make_shim(bin_dir, tool)
-        _make_shim(bin_dir, "npx")
-        _make_shim(bin_dir, "uvx")
 
     def test_api_extractor_only_when_config_present(self):
         with tempfile.TemporaryDirectory() as td:
@@ -294,11 +284,29 @@ class TestToolResolution(unittest.TestCase):
             _write_scope(scope, repo_kind="app", languages=["typescript"],
                          files_touched_list=["src/foo.ts"])
             _make_shim(tdp / "node_modules" / ".bin", "knip")
+            (tdp / "package.json").write_text(
+                '{"devDependencies":{"knip":"1.0.0"}}\n', encoding="utf-8"
+            )
             path_bin = tdp / "path-bin"
             _make_shim(path_bin, "knip")
             plan = _run_dry(scope, tdp, path_bin)
             dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
             self.assertEqual(dispatched.get("knip"), "project")
+
+    def test_undeclared_project_binary_does_not_shadow_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(scope, repo_kind="app", languages=["typescript"],
+                         files_touched_list=["src/foo.ts"])
+            _make_shim(tdp / "node_modules" / ".bin", "knip")
+            path_bin = tdp / "path-bin"
+            _make_shim(path_bin, "knip")
+
+            plan = _run_dry(scope, tdp, path_bin)
+
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            self.assertEqual(dispatched.get("knip"), "path")
 
     def test_path_binary_dispatches(self):
         with tempfile.TemporaryDirectory() as td:
@@ -527,7 +535,7 @@ class TestPreflight(unittest.TestCase):
             _write_scope(scope, languages=["python"],
                          files_touched_list=["src/foo.py"])
             bin_dir = tdp / "bin"
-            _make_shim(bin_dir, "uvx")
+            bin_dir.mkdir()
             env = os.environ.copy()
             env["PATH"] = f"{bin_dir}:/usr/bin:/bin"
             r = subprocess.run(

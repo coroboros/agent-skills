@@ -4,6 +4,10 @@
 
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=resolve-designmd.sh
+source "$SCRIPT_DIR/resolve-designmd.sh"
+
 usage() {
   echo "usage: diff.sh <before> <after>" >&2
   exit 2
@@ -24,7 +28,7 @@ if [[ ! -f "$after" ]]; then
   exit 1
 fi
 
-if ! command -v designmd >/dev/null 2>&1; then
+if ! DESIGNMD="$(resolve_designmd "$after")"; then
   echo "RESULT: status=designmd-missing"
   exit 1
 fi
@@ -34,7 +38,7 @@ stderr_tmp="$(mktemp -t design-diff-stderr-XXXXXX).log"
 
 # `diff` exits 1 on regression, 0 on no regression. Both are successful CLI runs.
 set +e
-designmd diff "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
+"$DESIGNMD" diff "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 
