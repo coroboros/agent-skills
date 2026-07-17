@@ -53,11 +53,15 @@ class TestFormStylesheets(unittest.TestCase):
                     self.assertIn(f'[data-slot="{slot["name"]}"]', css)
 
     def test_declared_tokens_are_read(self):
+        # The read surface is the form's declared files: motion tokens may live
+        # in the optional js enhancer (faq-accordion), never unread.
         for f in _forms():
-            css = (COMPONENTS / f["css"]).read_text(encoding="utf-8")
+            surface = (COMPONENTS / f["css"]).read_text(encoding="utf-8")
+            if f.get("js"):
+                surface += (COMPONENTS / f["js"]).read_text(encoding="utf-8")
             for token in f["tokens"]:
                 with self.subTest(form=f["id"], token=token):
-                    self.assertIn(token, css)
+                    self.assertIn(token, surface)
 
     def test_form_root_selector_present(self):
         for f in _forms():
