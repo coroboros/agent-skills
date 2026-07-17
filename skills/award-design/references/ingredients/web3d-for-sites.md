@@ -133,6 +133,17 @@ A continuously animating scene (idle particle drift) uses `frameloop="always"` i
 
 **LCP** — a hydrating canvas is never the LCP element and must not block it. Ship a **poster-first** hero: render a static image (a frame of the scene, AVIF) as the real LCP paint, then mount and crossfade the canvas in after hydration on viewport intersection. The DOM heading paints immediately; the WebGL arrives second. This is how shader-heavy sites still hit LCP ~1.3s.
 
+## Two-tier texture streaming — the hold-gate
+
+A scroll journey that closes in on a textured surface faces a fork with one tier: load the fine texture up front (arrival gates blow) or load the coarse one only (the close frames render soft — a fidelity-floor violation the user reads instantly). Stream two tiers and gate the camera:
+
+- **Base tier through the tracked `LoadingManager`** — a ~2k color map the branded loader counts; arrival stays instant and the wide framing reads sharp on it.
+- **Fine tier after `ready`** — the 8k color + displacement maps load through a *separate, untracked* `TextureLoader` on `requestIdleCallback`, fine-pointer + wide viewports only (at touch pixel density the base tier is indistinguishable — never spend the bytes).
+- **Atomic swap, off the hot path** — pre-upload with `renderer.initTexture()` so the GPU decode never lands on an animation frame; swap material maps (and re-tessellate the geometry if displacement joins, e.g. 96→192 segments) during a calm early phase of the journey, never mid-peak.
+- **The camera hold-gate** — until the swap, camera progress is clamped: `pCam = min(progress, HOLD + (1 − HOLD) · gateT)`, where `HOLD` is the deepest point at which the base tier still reads sharp and `gateT` eases 0→1 once the fine tier lands. The scrollbar stays honest; only the camera's depth waits, and the inertial lerp absorbs the catch-up. Fidelity never chases the scroll — the scroll waits for fidelity.
+
+Verify on a throttled network: drive to the deepest frame and screenshot the **compositor** (`preserveDrawingBuffer: false` makes canvas readback lie — a black probe on a rendering scene). The close-up must never show the base tier.
+
 ## SSR / island boundary
 
 The canvas is **client-only** — WebGL has no server render.

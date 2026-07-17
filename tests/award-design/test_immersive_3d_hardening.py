@@ -82,6 +82,18 @@ class TestAxis2FidelityFloor(unittest.TestCase):
         self.assertTrue("physical material" in pf and "hdri" in pf,
                         "preflight §7 must gate the WebGL scene's material + HDRI fidelity")
 
+    def test_two_tier_streaming_hold_gate(self):
+        self.assertIn("two-tier texture streaming", self.low)
+        for token in ("hold-gate", "inittexture", "requestidlecallback",
+                      "min(progress", "loadingmanager"):
+            with self.subTest(token=token):
+                self.assertIn(token, self.low)
+        self.assertIn("the scroll waits for fidelity", self.low)
+
+    def test_streaming_verify_probes_the_compositor(self):
+        self.assertIn("preservedrawingbuffer", self.low)
+        self.assertIn("compositor", self.low)
+
 
 class TestAxis3InputCorrectness(unittest.TestCase):
     def setUp(self):
