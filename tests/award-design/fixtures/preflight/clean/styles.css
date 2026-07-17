@@ -15,15 +15,14 @@ a:focus-visible {
 .hero {
   min-height: 100dvh;
 }
+/* closed-world: build CSS carries no keyframe blocks — ambient motion is a
+   library component; a transition on a JS-added class is the legal reveal idiom */
 .reveal {
-  animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-@keyframes rise {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @media (prefers-reduced-motion: reduce) {
   .reveal {
-    animation: none;
+    transition: none;
   }
 }

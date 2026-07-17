@@ -52,7 +52,7 @@
     s.id = CSS_ID;
     s.textContent =
       '[data-ad-camera-dive]{position:relative;display:block;}' +
-      '.ad-camera-dive__frame{position:sticky;top:0;height:100vh;height:100dvh;' +
+      '.ad-camera-dive__frame{position:sticky;top:0;height:100dvh;' +
       'overflow:hidden;will-change:transform,opacity;}' +
       '.ad-camera-dive__frame>canvas,.ad-camera-dive__frame>img,' +
       '.ad-camera-dive__frame>video{display:block;width:100%;height:100%;}';

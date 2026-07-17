@@ -35,7 +35,6 @@
   grid-auto-rows: min-content;
   align-content: center;
   column-gap: calc(var(--_sp) * 1.5);
-  min-height: 100vh;
   min-height: 100dvh;
   padding: calc(var(--_sp) * 4) calc(var(--_sp) * 3);
   box-sizing: border-box;

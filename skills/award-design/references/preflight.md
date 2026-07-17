@@ -171,6 +171,8 @@ Re-read **every visible string** on the page — headlines, subheads, eyebrows, 
 - [ ] Brand logos are real SVG marks (Simple Icons / devicon / official kit) with light + dark variants; logo walls are logos only
 - [ ] The rotation stamp is the stylesheet's first line (`/* award-design · … */` — format defined at Phase 4; on first contact with a project this skill didn't build, write it now from the adopted universe) `(scanner: STAMP)`; its archetype field agrees with the reviewer-supplied archetype — the audit scopes by the archetype the reviewer derived from the brief (passed to `--archetype` / `run({archetype})`), never by the builder-written stamp, and a disagreement is flagged, not obeyed `(scanner: STAMP-ARCHETYPE-MISMATCH)`
 - [ ] **The world is inhabited** — the asset corpus shows the world's presence in motion (its people, creatures, machines — or the moving element itself, wind through dust), not only its objects and rooms; a genuinely still register declares the exception in the verdict `(ref: anti-patterns.md)`
+- [ ] **Asset curation — campaign-grade, the second gate** — every ledger row's four curation axes verified at 1:1 native pixels (background control · styling/props · lighting-vs-DA · subject match), the print-ad verdict held (all four pass + zero incidental elements), and the **orphan sweep** run: every binary in the shipped asset dir traces to a provenance-ledger row in the closed class set (reference-scene · client-pack · licensed-media · `generated` on atmospheric/secondary only) — an orphan file, an unresolvable license, or a hero/product/campaign-class row outside its three legal classes is a FAIL; axis verdicts are attestations, so the reviewer eyeballs every hero-class asset at 1:1 `(ref: imagery.md — Provenance)`
+- [ ] **Provenance diff — shipped vs committed, both directions** — (table→page) every covered row's library id is present in the shipped code by its fingerprint (component file included, `data-ad-form` root, scene module) with its committed parameters, or a declared design_plan amendment stands; (page→table) every rendered element the detector census and the section list surface resolves to its table row — an element with no row, or whose row's id the shipped code does not use, has **no library provenance = FAIL, no override** (the cheap-CTA default and the restyled primary, caught mechanically); shipped files partition as library-verbatim / vendor / build-authored, an edited library copy is a FAIL on sight — **a defect found inside a library copy is shipped verbatim + a justified `--allow` note + a defect order, never a silent edit** — and build-authored JS/CSS beyond the legal-wiring letter (HTML assembly · head-hardening inline script · token sheet · layout CSS from tokens · init/config wiring · data-as-opts) is machinery: engine/scene authoring, shader strings, hand rAF loops, canvas draws, input-drive listeners, observer machines, per-frame style writes, CSS behavior `(scanner: CW-LIB-EDIT, CW-ENGINE, CW-SHADER, CW-RAF-LOOP, CW-CANVAS-DRAW, CW-INPUT-DRIVE, CW-OBSERVER, CW-STYLE-DRIVE, CW-CSS-BEHAVIOR)`
 
 ## 8. Browser proof
 
@@ -221,6 +223,19 @@ The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS
 - [ ] **A11y floor** — contrast computed at each rule's actual font-size (sub-4.5:1 under ~18px fails regardless of a "decorative" note); tap targets measured at each breakpoint (a label hidden below a width can shrink a control under 24×24, and bare text links — footer, contact, inline mailto — are measured too: a 20px-tall link fails the floor); every full-screen overlay sets `inert`/`aria-hidden` on siblings and traps focus, `Esc` returns focus to the trigger
 - [ ] **JS lifecycle** — a render loop resumes only when its target is visible AND in-viewport (not on `visibilitychange` alone); every `setTimeout` guarding a visibility/`hidden` toggle is cleared by its inverse action
 
+## BLOCKED builds — the stop's terminal artifact
+
+A build BLOCKED at the Phase 1 medium binding or the Phase 4 mapping table never reaches this pre-flight: the verdict block below never runs on it. Its terminal artifact is the BLOCKED report — and BLOCKED is a stop, not a corpse: the design bank (DESIGN.md + design_plan + mapping table + gap orders) is the deliverable, specifying exactly what the library must grow.
+
+```markdown
+## BLOCKED — <build name> (stop-on-gap)
+**Stopped at:** Phase 1 | Phase 4 commit | mid-build §<section> (backstop — planning defect: <one line>)
+**Design bank:** DESIGN.md ✓ · design_plan + mapping table ✓ (<n> rows: <c> covered · <w> wiring · <b> BLOCKED) · R1 verdict ✓
+**Gap orders:** <n> filed → gap-orders.json (ledger grammar) + GAPS.md
+**Build files written:** none | <list — mid-build backstop only; evidence, never product>
+**Adjudication:** pending — every order verified against the manifest before merge; a covered "gap" reclassifies this run FAIL — false gap
+```
+
 ## Verdict block
 
 Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until the listed items clear.
@@ -234,6 +249,7 @@ Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until t
 **Boxes:** <ticked>/<total> — every unticked, overridden, or gap box listed by its bold name
 **Counts:** eyebrows <n>/<max> · sections <n> · layout families <named, not counted> · marquees <n> · CTA intents <labels listed> · text effects <n≥1 named> · spectacle <1 named> · media coverage <n>/<n>
 **Ledger:** <sections> sections · <iterations> loops · <captures> capture refs · placement rows <n>/<captures> — uniform first-try anomaly: <none | noted>
+**Provenance:** mapping rows <n> (<c> covered · <w> wiring · 0 BLOCKED) · fingerprints <n>/<n> · census resolved <n>/<n> · asset-ledger rows <n> · orphans 0
 **Justified overrides:** <rule → one-line, brief-tied justification — or "none">
 **Suppressions:** <--allow flag or archetype suppression → justification — or "none">
 **Tooling gaps:** <verbatim failed probe → declared gaps — or "none">

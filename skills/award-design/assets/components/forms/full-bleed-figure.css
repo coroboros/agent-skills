@@ -29,7 +29,6 @@
 [data-ad-form="full-bleed-figure"] {
   --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
   position: relative;
-  min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
   box-sizing: border-box;

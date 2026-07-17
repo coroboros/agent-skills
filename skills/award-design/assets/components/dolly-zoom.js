@@ -40,7 +40,7 @@
     s.id = CSS_ID;
     s.textContent =
       '[data-ad-dolly-track]{position:relative;}' +
-      '[data-ad-dolly]{position:sticky;top:0;height:100vh;height:100dvh;overflow:hidden;}' +
+      '[data-ad-dolly]{position:sticky;top:0;height:100dvh;overflow:hidden;}' +
       '[data-ad-dolly]>img,[data-ad-dolly]>video,[data-ad-dolly]>picture img{' +
       'display:block;width:100%;height:100%;object-fit:cover;will-change:transform;}';
     document.head.appendChild(s);

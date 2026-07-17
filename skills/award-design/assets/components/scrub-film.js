@@ -49,7 +49,7 @@
     s.textContent =
       '[data-ad-scrub]{position:relative;overflow:hidden;}' +
       '[data-ad-scrub] video{display:block;width:100%;height:100%;object-fit:cover;}' +
-      '[data-ad-scrub-pin]{position:sticky;top:0;height:100vh;height:100dvh;}';
+      '[data-ad-scrub-pin]{position:sticky;top:0;height:100dvh;}';
     document.head.appendChild(s);
   }
 

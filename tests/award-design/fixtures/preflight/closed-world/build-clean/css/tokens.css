@@ -1,0 +1,5 @@
+:root {
+  --ink: oklch(24% 0.04 260);
+  --surface: oklch(96.5% 0.014 232);
+  --space: clamp(1.25rem, 2.5vw, 2rem);
+}
