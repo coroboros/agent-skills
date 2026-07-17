@@ -34,6 +34,7 @@ import argparse
 import json
 import math
 import re
+import struct
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -148,6 +149,283 @@ def _classify_provenance(path, text, lib_index):
         return CLASS_VENDOR, []
     return CLASS_BUILD, []
 
+# ── Tooling gates — static proxies (REVIEW-only: a proxy never FAILs on a guess) ──
+# EASE-OVERSHOOT: the page runs ONE declared motion register (decelerating-
+# mechanical, playful-elastic, or cinematic — the effect-grammar verdict). The
+# scanner cannot read the DESIGN.md (excluded), so it names every overshoot/
+# elastic curve in build-authored code for the reviewer to judge against the
+# declared register. Provenance-gated like the CW rules: the library's own
+# easing tokens never re-litigate the library.
+EASE_RULE_ID = "EASE-OVERSHOOT"
+EASE_EXTS = CW_JS_EXTS | CW_CSS_EXTS
+CUBIC_BEZIER_RE = re.compile(
+    r"cubic-bezier\(\s*(-?\d*\.?\d+)\s*,\s*(-?\d*\.?\d+)\s*,"
+    r"\s*(-?\d*\.?\d+)\s*,\s*(-?\d*\.?\d+)\s*\)")
+# Closed vocabulary: GSAP's spring-family eases + the framer-motion spring type.
+SPRING_TOKEN_RE = re.compile(
+    r"\b(?:elastic|back|bounce)\.(?:inOut|in|out)\b|\btype:\s*['\"]spring['\"]")
+EASE_DESCRIPTION = (
+    "overshoot/elastic easing in build code — the page declares ONE motion register; "
+    "the scanner cannot read the DESIGN.md, so judge each named curve against the "
+    "declared register (interaction-signatures.md)")
+
+
+def _bezier_character(y1, y2):
+    over = y1 > 1 or y2 > 1
+    under = y1 < 0 or y2 < 0
+    if over and under:
+        return "elastic (winds up, then overshoots)"
+    if over:
+        return "overshoot (travels past the target before settling)"
+    return "anticipation (pulls back before the travel)"
+
+
+# IMG-NATIVE-RES: shipped-dims-vs-layout — the CALDERA defect (1280×720 frames
+# rendered up to 2880×1800 device px behind a self-graded asset table). Rendered
+# width is unknowable without a browser, so the floor rides layout signals — a
+# `sizes` attribute (slot computed at the 1920 audit ceiling), cover-fit CSS,
+# a full-bleed form / hero context, fetchpriority="high", or a numbered scrub
+# sequence — and every finding carries px measured from the file header
+# (PNG IHDR / JPEG SOF / GIF / WebP VP8·VP8L·VP8X; AVIF is skipped: ISOBMFF
+# box-walking exceeds stdlib parsing and builds ship a same-dims WebP/JPEG
+# sibling that carries the number), so the §7 asset-fidelity box reads machine
+# numbers, never the builder's own table. Unresolvable refs and JSX-side images
+# escape (false-negative bias).
+IMG_RULE_ID = "IMG-NATIVE-RES"
+IMG_FULL_BLEED_FLOOR = 1920  # 1.0× CSS px at the widest audited width (320–1920)
+IMG_SEQUENCE_MIN = 12
+IMG_RASTER_EXTS = {".png", ".jpg", ".jpeg", ".webp", ".gif", ".avif"}
+IMG_REF_SUFFIX = r"\.(?:png|jpe?g|webp|gif|avif)"
+IMG_CSS_URL_RE = re.compile(
+    r"url\(\s*['\"]?([^'\")]+" + IMG_REF_SUFFIX + r")['\"]?\s*\)", re.IGNORECASE)
+IMG_JS_DIR_RE = re.compile(r"['\"]([\w./-]*/)['\"]")
+IMG_VARIANT_SUFFIX_RE = re.compile(r"[-_@](?:\d{2,4}w?|\d+x|[1248]k)$", re.IGNORECASE)
+IMG_SEQ_NAME_RE = re.compile(r"^(.*?)(\d{2,})$")
+IMG_COVER_RE = re.compile(r"\bcover\b|\b100vw\b")
+IMG_HERO_HINT_RE = re.compile(r"hero|full-bleed|cover|bleed")
+IMG_SIZES_MEDIA_RE = re.compile(r"\(\s*max-width\s*:\s*(\d+)px\s*\)")
+IMG_DESCRIPTION = (
+    "shipped image resolution under its layout floor — px measured from file "
+    "headers, never the builder's table; a static scan cannot know rendered px, "
+    "so the §7 asset-fidelity box judges the measured number (imagery.md — "
+    "Native resolution or nothing)")
+
+
+def _image_dims(path):
+    """(width, height) from the file header, or None (AVIF, truncated, unknown)."""
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    try:
+        if data[:8] == b"\x89PNG\r\n\x1a\n":
+            return struct.unpack(">II", data[16:24])
+        if data[:6] in (b"GIF87a", b"GIF89a"):
+            return struct.unpack("<HH", data[6:10])
+        if data[:2] == b"\xff\xd8":
+            i = 2
+            while i < len(data) - 9:
+                if data[i] != 0xFF:
+                    i += 1
+                    continue
+                marker = data[i + 1]
+                if marker in (0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                              0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF):
+                    h, w = struct.unpack(">HH", data[i + 5:i + 9])
+                    return (w, h)
+                if marker in (0xD8, 0x01) or 0xD0 <= marker <= 0xD7:
+                    i += 2
+                    continue
+                i += 2 + struct.unpack(">H", data[i + 2:i + 4])[0]
+        if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+            fmt = data[12:16]
+            if fmt == b"VP8X":
+                return (int.from_bytes(data[24:27], "little") + 1,
+                        int.from_bytes(data[27:30], "little") + 1)
+            if fmt == b"VP8 ":
+                return (struct.unpack("<H", data[26:28])[0] & 0x3FFF,
+                        struct.unpack("<H", data[28:30])[0] & 0x3FFF)
+            if fmt == b"VP8L":
+                b0, b1, b2, b3 = data[21:25]
+                return (1 + (((b1 & 0x3F) << 8) | b0),
+                        1 + (((b3 & 0x0F) << 10) | (b2 << 2) | ((b1 & 0xC0) >> 6)))
+    except (struct.error, IndexError):
+        return None
+    return None
+
+
+def _sizes_floor(sizes):
+    """Largest slot a `sizes` attribute commits, in CSS px at the 1920 ceiling."""
+    floor = 0.0
+    for entry in sizes.split(","):
+        entry = entry.strip()
+        media = IMG_SIZES_MEDIA_RE.search(entry)
+        cap = min(int(media.group(1)), IMG_FULL_BLEED_FLOOR) if media else IMG_FULL_BLEED_FLOOR
+        vw = re.search(r"(\d+(?:\.\d+)?)vw\s*$", entry)
+        px = re.search(r"(\d+(?:\.\d+)?)px\s*$", entry)
+        if vw:
+            floor = max(floor, float(vw.group(1)) / 100 * cap)
+        elif px:
+            floor = max(floor, float(px.group(1)))
+    return min(int(round(floor)), IMG_FULL_BLEED_FLOOR)
+
+
+def _srcset_refs(srcset):
+    if not srcset:
+        return []
+    return [entry.strip().split()[0] for entry in srcset.split(",") if entry.strip()]
+
+
+class _ImageRefParser(HTMLParser):
+    """Collects <img>/<source> refs with their layout floor: a `sizes` slot, or
+    the full-bleed floor when the tag sits in a full-bleed form / hero-classed
+    ancestor or carries fetchpriority="high"."""
+
+    def __init__(self):
+        super().__init__()
+        self.stack = []  # (tag, context_is_full_bleed)
+        self.refs = []   # (ref, line, floor, signal)
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        heroish = (bool(IMG_HERO_HINT_RE.search(a.get("class") or ""))
+                   or "full-bleed" in (a.get("data-ad-form") or ""))
+        context = heroish or (bool(self.stack) and self.stack[-1][1])
+        if tag in ("img", "source"):
+            floor, signal = 0, ""
+            sizes = a.get("sizes")
+            if sizes:
+                floor = _sizes_floor(sizes)
+                signal = f'sizes="{sizes}"'
+            if not floor and (context or a.get("fetchpriority") == "high"):
+                floor = IMG_FULL_BLEED_FLOOR
+                signal = ("fetchpriority=high hero" if a.get("fetchpriority") == "high"
+                          else "full-bleed/hero context")
+            line = self.getpos()[0]
+            src = a.get("src")
+            for ref in _srcset_refs(a.get("srcset") or "") + ([src] if src else []):
+                if re.search(IMG_REF_SUFFIX + r"$", ref.split("?")[0], re.IGNORECASE):
+                    self.refs.append((ref, line, floor, signal))
+        if tag not in VOID_TAGS:
+            self.stack.append((tag, context))
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i][0] == tag:
+                del self.stack[i:]
+                break
+
+
+def _css_image_refs(text):
+    """url() refs with the full-bleed floor when the enclosing block cover-fits."""
+    refs = []
+    for match in IMG_CSS_URL_RE.finditer(text):
+        start = text.rfind("{", 0, match.start())
+        end = text.find("}", match.end())
+        block = text[max(start, 0):end if end != -1 else len(text)]
+        floor = IMG_FULL_BLEED_FLOOR if IMG_COVER_RE.search(block) else 0
+        line = text.count("\n", 0, match.start()) + 1
+        refs.append((match.group(1), line, floor, "cover-fit block" if floor else ""))
+    return refs
+
+
+def _resolve_candidate(ref, base_file, roots, want_dir):
+    ref = ref.split("?", 1)[0].split("#", 1)[0]
+    if not ref or re.match(r"^(?:[a-z][\w+.-]*:)?//", ref) or ref.startswith("data:"):
+        return None
+    candidates = []
+    if ref.startswith("/"):
+        candidates += [root / ref.lstrip("/") for root in roots]
+    else:
+        candidates.append(base_file.parent / ref)
+        candidates += [root / ref for root in roots]
+    for cand in candidates:
+        try:
+            if (cand.is_dir() if want_dir else cand.is_file()):
+                return cand.resolve()
+        except OSError:
+            continue
+    return None
+
+
+def _sequence_groups(dirpath):
+    """Numbered raster groups (≥ IMG_SEQUENCE_MIN files) under a referenced dir —
+    the scrub-sequence signal; the numbering guard keeps a generic './' literal
+    from sweeping a whole asset tree."""
+    groups = {}
+    for path in sorted(dirpath.rglob("*")):
+        if path.is_file() and path.suffix.lower() in IMG_RASTER_EXTS:
+            match = IMG_SEQ_NAME_RE.match(path.stem)
+            if match:
+                groups.setdefault((path.parent, match.group(1)), []).append(path)
+    return {key: paths for key, paths in groups.items() if len(paths) >= IMG_SEQUENCE_MIN}
+
+
+def _img_native_res_findings(texts, classes, roots):
+    findings = []
+    groups = {}     # (file, stem) → {floor, signal, loc, paths}
+    seq_seen = set()      # resolved dirs already walked
+    seq_emitted = set()   # (parent, prefix) groups already reported
+    for path, text in sorted(texts.items()):
+        if classes.get(path) != CLASS_BUILD:
+            continue
+        ext = path.suffix.lower()
+        refs = []
+        if ext in {".html", ".htm"}:
+            parser = _ImageRefParser()
+            try:
+                parser.feed(text)
+            except Exception:
+                pass  # a malformed document is other rules' problem
+            refs = parser.refs
+        elif ext in {".css", ".scss"}:
+            refs = _css_image_refs(text)
+        if ext in {".html", ".htm", ".js", ".mjs"}:
+            for match in IMG_JS_DIR_RE.finditer(text):
+                seq_dir = _resolve_candidate(match.group(1), path, roots, want_dir=True)
+                if seq_dir is None or seq_dir in seq_seen:
+                    continue
+                seq_seen.add(seq_dir)
+                line = text.count("\n", 0, match.start()) + 1
+                for (parent, prefix), frames in sorted(_sequence_groups(seq_dir).items()):
+                    if (parent, prefix) in seq_emitted:
+                        continue
+                    seq_emitted.add((parent, prefix))
+                    dims = [d for d in (_image_dims(p) for p in frames) if d]
+                    if not dims:
+                        continue
+                    width, height = max(dims)
+                    if width < IMG_FULL_BLEED_FLOOR:
+                        findings.append(Finding(
+                            IMG_RULE_ID, REVIEW, IMG_DESCRIPTION, f"{path}:{line}",
+                            f"{len(frames)}-frame scrub sequence {parent}: largest frame "
+                            f"{width}×{height} px < floor {IMG_FULL_BLEED_FLOOR} px "
+                            "(scrub surfaces render full-bleed; §7 holds rendered ≤ shipped)"))
+        for ref, line, floor, signal in refs:
+            key = (path, IMG_VARIANT_SUFFIX_RE.sub("", Path(ref.split("?")[0]).stem))
+            group = groups.setdefault(
+                key, {"floor": 0, "signal": "", "loc": f"{path}:{line}", "paths": set()})
+            if floor > group["floor"]:
+                group["floor"], group["signal"] = floor, signal
+            resolved = _resolve_candidate(ref, path, roots, want_dir=False)
+            if resolved:
+                group["paths"].add(resolved)
+    for group in sorted(groups.values(), key=lambda g: g["loc"]):
+        if not group["floor"] or not group["paths"]:
+            continue
+        dims = [(d, p) for p in sorted(group["paths"]) if (d := _image_dims(p))]
+        if not dims:
+            continue
+        (width, height), best = max(dims, key=lambda t: t[0][0])
+        if width < group["floor"]:
+            findings.append(Finding(
+                IMG_RULE_ID, REVIEW, IMG_DESCRIPTION, group["loc"],
+                f"largest shipped variant {width}×{height} px ({best.name}, "
+                f"{len(dims)} variant(s) measured) < layout floor {group['floor']} px "
+                f"({group['signal']})"))
+    return findings
+
+
 ARCHETYPE_SUPPRESSIONS = {
     "editorial": {"EMDASH"},
     "corporate-luxury": {"EMDASH"},
@@ -245,8 +523,16 @@ LINE_RULES = [
     ("ROLE-RESTYLE", FAIL,
      "build CSS styles a library component role (.ad-* / .is-primary) — the role's "
      "treatment comes from its library instance, page-wide; a section or form never "
-     "redefines it (class-role uniformity)",
-     re.compile(r"\.(?:ad-[a-z][\w-]*|is-primary)\b[^{}]*\{"), {".css", ".scss"}),
+     "redefines it, in class, attribute-substring, or selector-list form "
+     "(class-role uniformity)",
+     # Three branches: role class with the brace on the line; role class on a
+     # selector-list line (trailing comma — CALDERA's `.is-primary:hover,`);
+     # attribute-substring selection of a role class ([class*="ad-"]). `\\?`
+     # tolerates the CSS-escaped hyphen dodge (.ad\-cta); the lookbehind keeps
+     # [class*="grad-"] and [class*="-ad-"] silent.
+     re.compile(r"\.(?:ad\\?-[a-z][\w\\-]*|is\\?-primary)\b[^{}]*(?:\{|,\s*$)"
+                r"|\[\s*class\s*[~^$*|]?=\s*['\"]?(?<![\w-])(?:ad-|is-primary)"),
+     {".css", ".scss"}),
     ("BG-ATTACH-FIXED", REVIEW,
      "background-attachment: fixed — the mobile banding/repaint tell; translate "
      "a layer instead (motion-palette.md, moving windows)",
@@ -489,7 +775,7 @@ CONDITIONAL_RULE_IDS = {"STAMP-ARCHETYPE-MISMATCH"}
 
 def known_rule_ids():
     return ({rule[0] for rule in LINE_RULES} | PROJECT_RULE_IDS | CONDITIONAL_RULE_IDS
-            | CW_RULE_IDS)
+            | CW_RULE_IDS | {EASE_RULE_ID, IMG_RULE_ID})
 
 
 def scan_paths(paths, archetype="", allow=()):
@@ -505,6 +791,11 @@ def scan_paths(paths, archetype="", allow=()):
 
     findings = []
     files = list(iter_files(paths))
+    # Roots anchor root-relative and directory refs (IMG-NATIVE-RES); a bare
+    # file list (test invocations) falls back to the files' own parents.
+    dir_roots = [Path(raw) for raw in paths if Path(raw).is_dir()]
+    if not dir_roots:
+        dir_roots = sorted({path.parent for path in files})
     texts = {}
     for path in files:
         try:
@@ -572,6 +863,19 @@ def scan_paths(paths, archetype="", allow=()):
                         findings.append(Finding(
                             rule_id, FAIL, description,
                             f"{path}:{line_no}", line.strip()[:120]))
+                if EASE_RULE_ID not in suppressed and ext in EASE_EXTS:
+                    for match in CUBIC_BEZIER_RE.finditer(line):
+                        y1, y2 = float(match.group(2)), float(match.group(4))
+                        if not (0.0 <= y1 <= 1.0 and 0.0 <= y2 <= 1.0):
+                            findings.append(Finding(
+                                EASE_RULE_ID, REVIEW, EASE_DESCRIPTION,
+                                f"{path}:{line_no}",
+                                f"{match.group(0)} — {_bezier_character(y1, y2)}"))
+                    for match in SPRING_TOKEN_RE.finditer(line):
+                        findings.append(Finding(
+                            EASE_RULE_ID, REVIEW, EASE_DESCRIPTION,
+                            f"{path}:{line_no}",
+                            f"`{match.group(0)}` — spring/elastic token"))
 
         if ext in TEXT_EXTS:
             text_words += len(TAG_RE.sub(" ", text).split())
@@ -643,6 +947,10 @@ def scan_paths(paths, archetype="", allow=()):
                        "above ~1/100 reads as AI prose")
         for location, excerpt in emdash_hits:
             findings.append(Finding("EMDASH", FAIL, description, location, excerpt))
+
+    # IMG-NATIVE-RES — dims-vs-layout, measured from headers (REVIEW-only proxy).
+    if IMG_RULE_ID not in suppressed:
+        findings.extend(_img_native_res_findings(texts, classes, dir_roots))
 
     # Project-level rules.
     motion_signals = len(MOTION_SIGNAL.findall(project_blob))
@@ -750,7 +1058,9 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     files = list(iter_files(args.paths))
-    findings, suppression_notes = scan_paths(files, args.archetype, args.allow)
+    # scan_paths gets the raw paths, not the file list — directory roots anchor
+    # root-relative image refs (IMG-NATIVE-RES); it re-derives the same files.
+    findings, suppression_notes = scan_paths(args.paths, args.archetype, args.allow)
     print(format_report(findings, suppression_notes, files))
     if not files:
         return 2

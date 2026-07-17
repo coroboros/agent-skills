@@ -1,0 +1,7 @@
+/* award-design · corporate-luxury · sable · Canela/Söhne · split-hero · line-draw · nav:minimal-bar · footer:functional */
+[class*="ad-"] { transition-duration: 0s; }
+[class^="ad-cta"] span { letter-spacing: 0.02em; }
+[class~="is-primary"] { filter: brightness(1.08); }
+.section .ad-cta--fill,
+.rail .custom-btn { transform: translateY(-1px); }
+.ad\-cta--line { opacity: 0.9; }

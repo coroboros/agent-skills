@@ -1,0 +1,7 @@
+/* award-design · corporate-luxury · sable · Canela/Söhne · split-hero · line-draw · nav:minimal-bar · footer:functional */
+:root { --ad-space: 1.5rem; --ad-ink: oklch(96% 0 0); }
+[data-ad-form="close-panel"] { --ad-measure: 58ch; }
+[data-ad-form="editorial-split"] > [data-slot="media"] { margin-block: 2rem; }
+.brand-ad-unit { padding: 1rem; }
+[class*="grad-"] { background-position: center; }
+[class*="-ad-"] { isolation: isolate; }
