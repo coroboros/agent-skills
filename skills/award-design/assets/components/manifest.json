@@ -1928,6 +1928,122 @@
       "deps": [],
       "whenToUse": "The dead-middle fix: a décor layer welded to GLOBAL scroll behind the prose — SVG paths that stroke-draw/undraw with page progress (scrub:0), a field whose children pluck out in random order on a heavily lagged catch-up (scrub 8, each 0.1, bounce.inOut, to opacity 0), and title rows sheared by cycling power curves (yPercent -300, scrub 0.6). Positional by construction: every channel re-fires on every pass and reverses. Distinct from dolly-zoom (pinned push) and shader-surface (WebGL ground).",
       "init": "awardScrubbedDecorDraw.init(root, { scrub })"
+    },
+    {
+      "id": "hover-preview-video",
+      "file": "hover-preview-video.js",
+      "global": "awardHoverPreviewVideo",
+      "winner": "Bloom ('Hover listing archives' / marquee-over-preview); Awwwards catalog canon: 'Video Hover Preview', 'Project hover preview' (Olivier Gillaizeau), Bittercreek.Studio index hover",
+      "archetypes": [
+        "editorial-dark",
+        "minimalist"
+      ],
+      "tokens": [
+        "--ad-ground-2",
+        "--ad-ink",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The production-house index reveal: hovering a project row surfaces its MUTED FOOTAGE in one cursor-attached floating layer (lerped toward the pointer), an optional marquee title gliding over the frame — the video sibling of index-hover-preview, for archetypes whose content IS a body of film work. Touch: inline posters, first tap plays in place, a tap on a playing row navigates (rows can opt into poster-only). Reduced motion: the layer still appears and follows (snapped), footage never plays.",
+      "init": "awardHoverPreviewVideo.init(root, { selector, rowSelector, lerp })"
+    },
+    {
+      "id": "fullscreen-vertical-reel",
+      "file": "fullscreen-vertical-reel.js",
+      "global": "awardFullscreenVerticalReel",
+      "winner": "Bisous (single fully verified instance; shares studio Beaucoup. with Bloom — a legal resolution, not broad canon)",
+      "archetypes": [
+        "editorial-dark"
+      ],
+      "tokens": [
+        "--ad-accent"
+      ],
+      "deps": [],
+      "whenToUse": "The full-screen vertical slider that IS the whole home: one full-bleed treated work per panel, infinite in BOTH directions (modular wrap — no start, no end), wheel/drag/touch-swipe driving one eased virtual offset, release velocity projected into the same ease. Titles composed as studio-name + client-name are authored panel content. Keyboard steps panel by panel; focus into a panel snaps it into view. Reduced motion / no JS: static stacked panels, native scroll.",
+      "init": "awardFullscreenVerticalReel.init(root, { selector, ease, fling })"
+    },
+    {
+      "id": "drag-scrub-video",
+      "file": "drag-scrub-video.js",
+      "global": "awardDragScrubVideo",
+      "winner": "KAI Design Dept. (Codrops-verified core: video.currentTime = sec; inertia unverified — opt-in only); Siena Film Foundation (still-scrub cousin via scrub-film)",
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-accent"
+      ],
+      "deps": [],
+      "whenToUse": "Grab-drag over a whole video SECTION maps pointer/touch delta to currentTime — extends scrub-film's scroll/pointer-position modes with a drag verb, horizontal or vertical. Ships the cross-browser scrub encoding recipe (H.264 baseline, -g 12) in its header; native drag ghost suppressed; touch keeps the cross-axis page pan (touch-action per axis); arrows step the footage for keyboards. Pair with cursor-verb-label for the DRAG affordance. Reduced motion: static poster, nothing binds.",
+      "init": "awardDragScrubVideo.init(root, { selector, axis, gain, momentum })"
+    },
+    {
+      "id": "cursor-verb-label",
+      "file": "cursor-verb-label.js",
+      "global": "awardCursorVerbLabel",
+      "winner": "Awwwards cursor-resource canon ('Customize your mouse cursor', 'Hovers, Cursors and Cute Interactions', 'Drag, Gestures & Other Interactions') — canon-documented, not single-winner-verified",
+      "archetypes": [
+        "editorial-dark"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The visual teacher for the operable verb: over a field declaring data-ad-cursor-verb the cursor morphs to its verb label ('DRAG', 'HOLD', 'VIEW', a play glyph), trailing the pointer, retracting on exit — field-scoped, never page-level pointer chrome (do not run on the same field as magnetic-cursor). Touch: a persistent verb hint chip inside the field, never a dead surface. Reduced motion: full stand-aside — the build's onboarding copy alone.",
+      "init": "awardCursorVerbLabel.init(root, { selector, lerp })"
+    },
+    {
+      "id": "flicker-reveal",
+      "file": "flicker-reveal.js",
+      "global": "awardFlickerReveal",
+      "winner": "Bisous",
+      "archetypes": [
+        "editorial-dark"
+      ],
+      "tokens": [
+        "--ad-dur-reveal"
+      ],
+      "deps": [],
+      "whenToUse": "Stochastic per-letter opacity settle — every letter on its own randomized delay, duration, and mid-flight dips before resting at 1, echoing a 3D render's imperfection / film grain on type. Opacity ONLY: not kinetic-reveal's mask, not char-assemble's positional stagger, not scramble's charset noise. Entrance-once on headings/captions; data-ad-flicker-hover re-fires a short dip-and-settle on menu links. aria-label preserves the accessible name; reduced motion never splits — instant full opacity.",
+      "init": "awardFlickerReveal.init(root, { selector, spread, threshold })"
+    },
+    {
+      "id": "stacked-card-scroll",
+      "file": "stacked-card-scroll.js",
+      "global": "awardStackedCardScroll",
+      "winner": "Bloom",
+      "archetypes": [
+        "editorial-dark"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The pinned deck that peels: each card pins on a NATIVE sticky (no scroll hijack), the next rises over it, and the covered card scales/lifts/dims in proportion to the cover — a pure function of scroll position, reversible by construction, for re-spending hero momentum in the proof/services band. Distinct from card-list (static grid). Under 768px: the documented simple stack. Reduced motion / no JS: a flat stacked list.",
+      "init": "awardStackedCardScroll.init(root, { selector, scale, dim })"
+    },
+    {
+      "id": "continuous-work-transition",
+      "file": "continuous-work-transition.js",
+      "global": "awardContinuousWorkTransition",
+      "winner": "Bisous",
+      "archetypes": [
+        "editorial-dark"
+      ],
+      "tokens": [
+        "--ad-cwt-dur",
+        "--ad-cwt-ease",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The curtain-LESS work-to-work seam: go(fn) names the outgoing figure, runs the swap inside a View Transition, names the incoming figure — the pair morphs geometry under a cross-dissolve with NO cover phase ('fluid and almost imperceptible'), the opposite of curtain-transition's wipe and distinct from route-view-transition-carrier's whole-view crossfade. The imposed ladder is short: reduced motion OR no View Transitions → an instant cut, never a fade-to-ground.",
+      "init": "awardContinuousWorkTransition.init(root, { selector }) -> { go(fn, opts), destroy }"
     }
   ]
 }
