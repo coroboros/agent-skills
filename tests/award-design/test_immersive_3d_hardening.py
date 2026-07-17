@@ -109,6 +109,10 @@ class TestSequenceFidelityFloor(unittest.TestCase):
         self.assertIn("zero winner precedent", img)
         self.assertIn("animate the full-resolution still live", img)
         self.assertIn("Treatment never buys back resolution", img)
+        # Two floors, two measured corpora (imposed-register verdict): the scrub
+        # keeps device-px parity; stills hold CSS-px parity + no visible softness.
+        self.assertIn("two floors", img)
+        self.assertIn("Static full-bleed photography: ≥ 1.0× of CSS pixels", img)
 
     def test_preflight_asset_fidelity_box(self):
         pf = _read("preflight.md")

@@ -259,6 +259,20 @@ class TestPlaybooks(unittest.TestCase):
         skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("assets/components/playbooks/<archetype>.json", skill)
 
+    def test_variation_axes_present(self):
+        """CALDERA postmortem: two same-archetype builds shipped isomorphic
+        skeletons. R-sameness corpus (21 artifacts, 5 serial studios): the
+        skeleton is one legal costume; the device kit + content archetype +
+        close rotate — a playbook without the variation clause reads as THE
+        skeleton and reproduces the monoculture."""
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                self.assertGreaterEqual(b["revision"], 3)
+                v = b.get("variation", "")
+                self.assertIn("one legal costume", v)
+                self.assertIn("never reused across builds", v)
+                self.assertIn("zero winner precedent", v)
+
 
 class TestCompositionFloorsWiring(unittest.TestCase):
     """The floors are inert unless the phases carry them — pin the phrases."""
@@ -342,6 +356,50 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         self.assertIn("source px → shipped px → rendered device px at the asset's worst moment", self.rubric)
         self.assertIn("no capture can clear this row", self.rubric)
         self.assertIn("it never spends fidelity", self.rubric)
+
+
+class TestImposedVerdicts(unittest.TestCase):
+    """CALDERA postmortem: the builder treated corpus verdicts as improvable
+    defaults ('I know a better way'). The imposed register converts them to
+    non-negotiable rows, each gate-carried, with one narrow written override."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        cls.preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
+        cls.interactions = (SKILL_DIR / "references" / "interaction-signatures.md").read_text(encoding="utf-8")
+        cls.navpat = (SKILL_DIR / "references" / "navigation-patterns.md").read_text(encoding="utf-8")
+
+    def test_register_exists_with_override_protocol(self):
+        self.assertIn("### The imposed verdicts — never negotiated", self.skill)
+        self.assertIn('OVERRIDE: <verdict> — "<the clause>"', self.skill)
+        self.assertIn("No override exists for nav flicker or sub-CSS assets", self.skill)
+
+    def test_verdict_rows_present(self):
+        for token in ("dense and moving",
+                      "zero hide/show flips under scroll jitter",
+                      "sources, never the engine",
+                      "One library treatment per role, page-wide",
+                      "One motion register page-wide",
+                      "Structure is story-native"):
+            with self.subTest(verdict=token):
+                self.assertIn(token, self.skill)
+
+    def test_story_native_law_in_phase1(self):
+        self.assertIn("**Structure is story-native.**", self.skill)
+        self.assertIn("story reason", self.skill)
+        self.assertIn("never reused across builds — the clearest law in the data", self.skill)
+
+    def test_motion_register_amendment(self):
+        # R-imposed live measurement: a SOTD winner runs 9 timing tokens across
+        # 4 curve families, all one register — the cap moved from family to register.
+        self.assertIn("motion register + accent role", self.preflight)
+        self.assertIn("What no winner does is cross registers", self.interactions)
+        self.assertIn("all decelerating-mechanical", self.skill)
+
+    def test_nav_winner_norm(self):
+        self.assertIn("**The winner norm is not hiding at all.**", self.navpat)
+        self.assertIn("zero visible hide/show flips under scroll jitter", self.navpat)
 
 
 if __name__ == "__main__":

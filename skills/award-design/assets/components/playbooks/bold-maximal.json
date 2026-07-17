@@ -1,338 +1,459 @@
 {
-  "archetype": "bold-maximal",
-  "revision": 2,
-  "corpus": [
-    {
-      "site": "Ponpon Mania",
-      "url": "ponpon-mania.com",
-      "award": "Awwwards Site of the Month 2025-10 + Developer Award; in the running for GSAP Site of the Year 2025 (verified — awwwards.com/sites/ponpon-mania + Codrops case study 2025-10-07). Canonical.",
-      "fit": "The bright-illustrated maximal reference: sheep-DJ interactive comic, OGL WebGL + Nuxt + GSAP + Matter.js (About page), physics micro-interactions, scroll-as-playhead chaptered scenes, elastic SplitText. Codrops names no Lenis — the prior Lenis attribution is dropped. Re-derived here for the after-hero momentum flow, not re-encoded."
-    },
-    {
-      "site": "Warhol Arts",
-      "url": "warhol-arts.com (awwwards.com/sites/warhol-arts)",
-      "award": "Awwwards Site of the Day 2025-04 (7.37) (verified — awwwards SOTD + Codrops case study 2025-04-01). Studio: BL/S® / Serhii Polyvanyi.",
-      "fit": "Pop-art digital playground — Webflow + GSAP, warm-orange #FB4E2B multi-tone palette, SplitText scale hero (single-hue array, not a multi-hue cycle), cursor-driven type-scale sections, footer cursor image-trail. The clearest fresh in-window proof that a maximal page keeps every section moving via page-wide scroll reveals plus mask-fill, with two section-local cursor channels."
-    },
-    {
-      "site": "DICH™ Fashion",
-      "url": "dich-fashion.webflow.io (awwwards.com/sites/dichtm-fashion)",
-      "award": "Awwwards Site of the Day 2025-06-09 + Developer Award + PRO (verified — awwwards SOTD + Codrops case study 2025-06-02). Studio: DICH™ (Design Independent Creative House).",
-      "fit": "Futuristic-fashion warm-maximal — Webflow + GSAP + Spline + Unicorn Studio, per-section color-temperature chapters, 3D cursor-follower + scroll-driven orbital stone, persistent coordinate HUD, scramble section-nav, footer canvas brightness reveal. The section-color-rotation expression of the archetype (the SATURATED-register color rotation — see the section-accent-rotation gap, which rests on this single winner)."
-    },
-    {
-      "site": "Exat (Hot Type specimen)",
-      "url": "exat.hottype.co (awwwards.com/sites/exat-typeface)",
-      "award": "Awwwards Site of the Day + FWA of the Day (thefwa.com/cases/exat-typeface-p2) + CSSDA Website of the Month (cssdesignawards.com/wotm/exat-typeface/47246, scored 8.83, Best UI at CSSDA Website of the Year 2025) — all three awards verified this run. Studio: Studio Size & RISE2 Studio for Hot Type. Codrops case study 2026-04-10.",
-      "fit": "Type-specimen maximal — GSAP + ScrollTrigger + SplitText + Lenis + variable fonts, cursor-proximity glyph field (7 rings, wght 200->900, blue->red), design-space hover-morph, 3D X-axis line rotations. The archetype's mid-page-climax case: the specimen glyph grid is the peak, not the hero."
-    },
-    {
-      "site": "21 TSI",
-      "url": "21tsi.com (awwwards.com/sites/21-tsi)",
-      "award": "Awwwards Site of the Day 2025-04-12 (7.38) + CSSDA Website of the Day + FWA of the Day (verified — awwwards + thefwa.com/cases/21-tsi + Codrops case study 2025-07-21). Studios: type8 studio + DEPARTMENT Maison de Création.",
-      "fit": "Kinetic-sports maximal on a strictly monochromatic grade (Codrops) — OGL WebGL + Anime.js + Locomotive Scroll, morphing section transitions, cursor-distortion, sound. Maximal on the MOTION/kinetic-type axis, NOT the saturated-color register; a BOUNDARY member proving the constant-choreographed-motion floor. A purist reading files it under kinetic/brutalist — kept only as a floor witness, never as saturated-color canon."
-    },
-    {
-      "site": "Mat Voyce",
-      "url": "matvoyce.tv (awwwards.com/sites/mat-voyce)",
-      "award": "Awwwards Site of the Day + FWA Site of the Day + Webby honouree + Awwwards Site of the Month nominee (Jan 2025) (verified this run via Awwwards/FWA + Uncommon studio writeup). A GSAP Site of the Year 2025 nomination is claimed in the studio writeup but unconfirmed at the GSAP award body — see unverified. Kinetic-type artist (FT, Pepsi, UEFA, Nike). Studio: Uncommon.",
-      "fit": "Kinetic type-as-image — F37 Judge variable widths dancing on cream #FFFEF8, per-letter roll nav, oversized type animated past the viewport as the whole interface. The type-portfolio expression; the overflow is the texture."
-    },
-    {
-      "site": "Eloy Benoffi",
-      "url": "eloyb.design (awwwards.com/sites/eloyb-design)",
-      "award": "Awwwards Honorable Mention (awwwards.com/sites/eloyb-design) + GSAP Site of the Day + CSSDA (Best UI / Best UX / Best Innovation / Special Kudos) (verified this run — Awwwards HM page + Codrops case study 2025-10-15). Glitch/brutalist-maximal folio.",
-      "fit": "Glitch-maximal portfolio — ASCII-flower décor, graded random-stagger reveals (from:'random'), loader-becomes-navbar, closing connect-CTA clone-storm. The archetype's climax-at-the-close case and the from:'random' stagger tell."
-    },
-    {
-      "site": "Cuberto",
-      "url": "cuberto.com (awwwards.com/sites/cuberto)",
-      "award": "Awwwards Site of the Day (awwwards.com/sites/cuberto — Jun 22 2018, 7.37; confirmed this run). The Developer Award is NOT shown on the award page, and the 2018 SOTD sits outside the 2024-2026 window; the live-CSS CTA amplitudes cited in element_states are carried-verified from a prior run's live-CSS read, not re-fetched this run — see unverified. Studio: Cuberto.",
-      "fit": "Bold agency statement — rising-dome-fill CTA, skewed text-roll links, contextual state cursor, all on one expo-out family (cubic-bezier .16,1,.3,1). The per-element-class interaction canon and the two-engine mid-scroll (fire-once reveals + scrubbed décor). Kept for the interaction canon; the award and amplitudes are the file's weakest-verified — treat as reference, not fresh proof."
-    }
-  ],
-  "story": {
-    "arcs": [
-      "Chaptered world you OPERATE (Ponpon, winner-verified): cover-is-scene-one -> chapter-select (record-collection metaphor) -> panel scenes with camera moves + physics -> About rest. The scroll is a playhead; the narrative is spatial, not linear. Story = 'here is a world you play through', and the reader consumes AND drives it.",
-      "Pop-culture playground tour (Warhol Arts, winner-verified): SplitText wordmark hero -> named-icon sections (Elvis / Monroe), each with its own signature cursor or scroll effect -> ticket-modal CTA -> footer image-trail finale. Story = 'each screen is a different Warhol canvas', the through-line is pop-art motion, not one narrative.",
-      "Sensory chapters by color-temperature (DICH, winner-verified): preloader-as-mood-gate -> section-color-rotation chapters, each its own visual temperature -> orbital-stone + monster 3D companions carry the through-line -> footer word-reveal. Story = 'walk a poetic-futuristic runway', told in color chapters not paragraphs.",
-      "Specimen that performs itself (Exat, winner-verified): self-naming glyph-grid hero -> About (one clause) -> type-tester (operable proof) -> specimen glyph grid CLIMAX -> capability sections quiet -> Get-Exat reprise. Story = 'the typeface is a living system you touch', proof-by-operation.",
-      "Agency statement, work up front (Cuberto, reference): declarative pitch hero -> featured projects CLIMAX (proof) -> services -> blog rest -> contact reprise. The line's only true funnel; the motion argues, the copy labels."
-    ],
-    "thread": "The signature thread is a SINGLE motion metaphor forged in the hero and reused as the page's grammar, not a color. Ponpon = scroll-is-a-playhead / physics-you-shove; Warhol = pop-art canvases that react to the cursor; DICH = color-temperature chapters + a 3D companion that follows you; Exat = distance-from-cursor drives type; Cuberto = one expo-out curve resolving every fill/roll/cursor. Winners bind visibly different mechanics (button fill, link roll, figure zoom, cursor state) to ONE shared law — one easing family + one color rule + one loud/quiet hierarchy per element class — so density reads as choreography, not noise. Re-fire the same metaphor hero->close: Ponpon's physics is still live at the About close; Warhol re-fires its cursor-reaction metaphor at both the Elvis section and the footer trail (two section-local instances, not one persistent channel, with page-wide scroll reveals filling the gaps); Cuberto's curve resolves the contact-reprise fill.",
-    "copy": "The motion argues; the copy labels. One-clause heroes, caps micro-labels, attitude lists over credentials, warm imperatives at CTAs, '->' on acquisition CTAs, zero feature-benefit padding. Winner quotes calibrate specificity (imitate the refusal-to-explain, never the wording): Exat 'strikes a balance between form and function, neutrality and character' (one clause does all the explaining); Cuberto 'Digital design & development agency' (the whole pitch in four words); Eloy 'maximalist, little monster, a latinx baddie, kitsch, brat' (attitude list, zero credentials); compliance chrome stays in character ('Hey you [sparkle] this site uses cookies', lowercase accept/decline). Self-narration ('we craft immersive experiences') is the tell that kills the score even when craft is high — the copy names, the motion does the arguing."
+ "archetype": "bold-maximal",
+ "revision": 3,
+ "corpus": [
+  {
+   "site": "Ponpon Mania",
+   "url": "ponpon-mania.com",
+   "award": "Awwwards Site of the Month 2025-10 + Developer Award; in the running for GSAP Site of the Year 2025 (verified — awwwards.com/sites/ponpon-mania + Codrops case study 2025-10-07). Canonical.",
+   "fit": "The bright-illustrated maximal reference: sheep-DJ interactive comic, OGL WebGL + Nuxt + GSAP + Matter.js (About page), physics micro-interactions, scroll-as-playhead chaptered scenes, elastic SplitText. Codrops names no Lenis — the prior Lenis attribution is dropped. Re-derived here for the after-hero momentum flow, not re-encoded."
   },
-  "spectacle_model": {
-    "hero": "The hero fires the first-impression spectacle hard (verdict forms in ~50ms and halos the rest of the score), rendering the thread as reusable motion vocabulary: Ponpon cover = live physics + character intro; Warhol = SplitText scale 0->1 with a warm single-hue array (#FB4E2B ×7 + a lighter #FFE5D5 final char — NOT a multi-hue color-cycle), back.out, 0.1s stagger, post-preloader; DICH = preloader-mood-gate handing into color-chapter one; Exat = the cursor-proximity glyph grid itself. But in THIS archetype the hero is NOT necessarily where the single climax sits — see continuation.",
-    "continuation": [
-      "Warhol Arts (winner-verified, SOTD 2025-04): after the hero EVERY section moves — Elvis = cursor-x maps font-size 1.375->2.875em (power3.out 0.3s, return 0.4s); Monroe = scroll-triggered split text; page-wide = per-char rotation reveals (-45deg, back.out(2), 0.03s stagger, top 85%); mask-fill words (width 100->0, scrub:1); footer = cursor image-trail (spawn scale 0->1, brightness/contrast 300%->100%, opacity 1->0 over 0.4s). Two SECTION-LOCAL cursor channels (Elvis-section type + footer trail); the no-silence floor is carried by the page-wide scroll reveals + mask-fill, not the cursor channels.",
-      "DICH Fashion (winner-verified, SOTD 2025-06): persistent coordinate HUD (rAF, zero-padded 4-digit) + scramble section-nav run the whole scroll; three cursor-trail variants swap by section (landing 'minimal hypnotic', case 'denser electric', transitions 'barely-there glimmer'); a 3D monster follows the cursor and a scroll-driven orbital stone carries gravity; each section shifts color-temperature; a 40s marquee frame loops; footer canvas reveals 'DICH' on hover via brightness sampling. Input + scroll + idle channels, all sections, all the way down.",
-      "Ponpon Mania (winner-verified, SOTM 2025-10): cover physics (mask deform on proximity, balloon collision, cloud repulsion radius=2 strength=1.5) -> chapter-select drag/scroll/snap -> panel scenes (elastic.out, i*1.6 stagger, 1-2 random flashes, flash duration 0.4/flashes) -> About scroll-driven WebGL camera (position mapped to scroll progress) + velocity feedback (velocity*0.01) + kinetic type (x 100%, skewX random +-25, rotation 5, elastic.out(0.7,0.7), 0.06s stagger, reverses on scroll-back) -> varied per-transition WebGL shader mixes. The chaptered scenes read as near-EQUAL peaks (like Bruno Simon's driving) — the case that most stresses the one-climax cap.",
-      "Exat (winner-verified, SOTD+FWA+CSSDA WOTM): hero glyph grid (7-ring cursor proximity, wght 200->900, #0000cb->#FF0B00) -> design-space hover-morph (weights/widths interpolate live) -> scroll-stacked panels with sine-wave numerals responsive to SCROLL SPEED -> 3D X-axis full-rotation line entrances (deployed sparingly as punctuation). The single CLIMAX is the mid-page specimen glyph grid, NOT the hero; the hero merely opens the same mechanic.",
-      "Cuberto (reference, SOTD 2018): hero -> featured projects CLIMAX (~30% down, proof) -> services quiet -> blog rest -> contact reprise. Two engines run through the prose zone the whole time: content reveals fire once (IntersectionObserver {once:true}) while a separate scrubbed decor channel keeps running underneath (scrub:true). Climax early, vocabulary continuous after.",
-      "Eloy Benoffi (winner-verified, Awwwards HM): even-motion build through identity hero -> about -> hover-charged work index -> the single CLIMAX is the closing connect-CTA clone-storm (the 'CLICK TO CONNECT' button spawns duplicates on pointer travel, colliding through mix-blend-mode:difference, exit back.in(1.7)). Peak deferred to the page's contact close; the page never rests below the maximal floor before it."
-    ],
-    "one_climax_verdict": "REFINED",
-    "evidence": [
-      "SUPPORTED as a peak-count cap: across the verified corpus no winner stacks a second spectacle EQUAL to its signature moment — Exat deploys the 3D line-rotation 'sparingly to punctuate', Ponpon reserves color for 'key moments', Cuberto has one featured-projects proof peak. One signature moment + restraint is the observed pattern across the corpus, not a measured juror rubric.",
-      "REFUTED as 'one wow then quiet': ZERO bold-maximal winners go silent after the hero. Warhol moves every section via page-wide scroll reveals + mask-fill (with two section-local cursor channels); DICH runs HUD + trail + 3D companion + color-rotation continuously; Ponpon's physics is live from cover to About close. A quiet section here reads not as 'the site died' but as a betrayal of the maximalist premise itself.",
-      "ARCHETYPE-SPECIFIC REFINEMENT 1 — the single peak is NOT hero-bound: Exat's climax is the mid-page specimen grid, Eloy's is the closing connect-CTA clone-storm, Cuberto's is ~30% down. The hero still fires hard for first-impression, but the narrative places the peak where the payoff logic wants it (specimen grid, lineup, finale). This is the archetype's departure from the hero-peak default.",
-      "ARCHETYPE-SPECIFIC REFINEMENT 2 — this archetype carries a very high continuation floor: winners run multiple always-on channels (per-class hover states + display-type effects + cursor field/trail + one idle channel + scroll texture). The floor is not micro (as it is for editorial/B2B) — it is dense-but-graded, sitting just below the peak. The specific '4-5 channels' count is a corpus-derived heuristic, not a scored rubric — see unverified.",
-      "Ponpon's chaptered scenes are the boundary case that most stresses the cap — like Bruno Simon's continuous driving, the panel scenes read as near-equal repeating peaks rather than one-peak-then-sub-peak. The cap holds only because each scene is the SAME mechanic re-fired, not a new competing spectacle."
-    ],
-    "recommended_law": "Bold-Maximal Spectacle-Momentum Law (a synthesized heuristic — the peak-count cap is a corpus observation; the channel-floor count is extrapolated, see unverified). Fire ONE signature spectacle (peak count capped at one) and place it where the payoff logic wants it — the hero for first-impression-led builds (Warhol, Ponpon cover), but freely mid-page (Exat specimen grid, Cuberto featured projects) or at the close (Eloy connect-CTA clone-storm) when the narrative earns it; the hero must still fire hard regardless, because ~50ms + halo. Then NEVER fall below the maximal floor: 4-5 continuous channels — per-element-class hover states, one display-type effect, one cursor field OR trail, one idle channel, one scroll texture — all bound to ONE easing family + ONE color rule + ONE loud/quiet hierarchy per element class, so density reads as choreography not noise. The continuation floor here runs dense-but-graded (never micro, never zero) — among the highest observed across the corpus, an extrapolation not a measured cross-archetype ranking; a silent section betrays the premise. The peak re-fires the SAME mechanic rather than introducing a competing second spectacle. Degrade the peak to a strong static/composed frame under reduced-motion; keep the transform/opacity/scroll channels alive; kill cursor fields to static grids on touch."
+  {
+   "site": "Warhol Arts",
+   "url": "warhol-arts.com (awwwards.com/sites/warhol-arts)",
+   "award": "Awwwards Site of the Day 2025-04 (7.37) (verified — awwwards SOTD + Codrops case study 2025-04-01). Studio: BL/S® / Serhii Polyvanyi.",
+   "fit": "Pop-art digital playground — Webflow + GSAP, warm-orange #FB4E2B multi-tone palette, SplitText scale hero (single-hue array, not a multi-hue cycle), cursor-driven type-scale sections, footer cursor image-trail. The clearest fresh in-window proof that a maximal page keeps every section moving via page-wide scroll reveals plus mask-fill, with two section-local cursor channels."
   },
-  "algorithm": [
-    {
-      "step": 1,
-      "decide": "Name the ONE motion metaphor (the fil rouge) before any layout — a mechanic-concept bound to a single input, not a palette.",
-      "rule": "Pick a single primary driver the whole page obeys — one input mapped to one verb: scroll-position-is-a-playhead (Ponpon), cursor-distance-drives-type (Exat), cursor-position-reshapes-canvases (Warhol), section-enter-rotates-color (DICH), one-expo-curve-resolves-every-transition (Cuberto). Executable check: enumerate every planned mechanic and confirm each binds to that SAME primary input (or, for the curve-driven case, the same easing family); any mechanic bound to a different primary input is décor, not signature — cap décor at one secondary channel. Everything downstream reuses THIS input.",
-      "evidence": [
-        "Exat: distance-from-cursor is the entire grammar, opened in the hero and re-fired at the specimen grid",
-        "Ponpon: scroll-is-a-playhead binds physics, type, camera, and nav to one comic/DJ metaphor",
-        "Cuberto: four mechanics (dome fill, skewed roll, scaling underline, contextual cursor) all on cubic-bezier(.16,1,.3,1)"
-      ]
-    },
-    {
-      "step": 2,
-      "decide": "Forge the signature thread AS reusable vocabulary + commit ONE easing family and ONE color rule.",
-      "rule": "Choose one easing camp and never mix: elastic/back.out (Warhol back.out(2), Ponpon elastic.out(0.7,0.7)) OR expo-out (Cuberto cubic-bezier .16,1,.3,1) — not both. Color rule is binary: SATURATED register = 4-6 hues, each with a fixed role OR rotated one-per-section (DICH — sourced to a SINGLE corpus winner, see the section-accent-rotation gap; also Figma); KINETIC register = restrained palette where the TYPE motion is the maximalism (Mat Voyce cream, 21 TSI B&W, Exat blue->red 2-hue). Most of the corpus lives in the kinetic register — do not treat per-section color rotation as the default. Fills resolve to FULL role colors, never tints. Background register is an expression choice, not a definition.",
-      "evidence": [
-        "DICH: 'each section had its own visual temperature' — per-section color rotation is the identity (one winner)",
-        "Warhol: single warm #FB4E2B multi-tone; hero SplitText array is #FB4E2B ×7 + one lighter #FFE5D5 (single hue, not a cycle)",
-        "Cuberto live CSS: fills flood full role color (#ce1352), never hover:bg/10 tint"
-      ]
-    },
-    {
-      "step": 3,
-      "decide": "Choose the macrostructure by brief-fit and rotate against the last stamp.",
-      "rule": "Three winner-verified shells: chapter-world (Ponpon — cover-is-scene-one -> chapter-select -> operable scenes -> About; requires a WebGL/physics path); specimen-tour (Exat — self-naming hero -> About -> type-tester -> specimen-grid CLIMAX -> capability sections -> reprise); argument-scroll (Cuberto — pitch hero -> featured-projects CLIMAX -> services -> blog rest -> contact reprise; Warhol/DICH are the playground variant: hero -> named/color chapters -> modal/word-reveal CTA -> spectacle footer). Pick one shell; never re-sequence a winner's ordering, diverge inside it via variants/content; do not reuse the same shell as the last stamp.",
-      "evidence": [
-        "Ponpon: the cover IS scene one — no separate hero; DOM h1 is a 9px credit",
-        "Exat: climax deferred to the mid-page specimen grid",
-        "Cuberto: climax early at featured projects; Eloy compresses the same funnel to one scroll with a closing connect-CTA climax"
-      ]
-    },
-    {
-      "step": 4,
-      "decide": "Map the momentum: place the ONE peak, then set each section's channel count.",
-      "rule": "Place exactly ONE peak (hero / mid-page / close per macrostructure). Assign each section a count of always-on channels drawn from {per-class hover states, one display-type effect, one cursor field OR trail, one idle channel, one scroll texture}: the peak runs 4-5 simultaneously; every non-peak section runs at least 2 and at most (peak count minus 1); no section runs 0. Peak re-fires the SAME mechanic amplified; it never introduces a competing second spectacle. Intensity ladder example (Cuberto): hero 7 -> featured-projects 9 (climax) -> services 5 -> blog 4 -> close 6, with the scrubbed decor channel running under all of them. For multi-route builds, add the page-transition as one channel (see the page-transition gap).",
-      "evidence": [
-        "Warhol: every section moves (page-wide scroll reveals + mask-fill) + two section-local cursor channels; nothing rests to silence",
-        "Cuberto: fire-once reveals {once:true} PLUS a scrubbed decor channel {scrub:true} run together through the prose zone",
-        "Exat: sine-wave numerals + cursor field run continuously; the 3D line-rotation is spent 'sparingly'"
-      ]
-    },
-    {
-      "step": 5,
-      "decide": "Pair each section's slots with interaction components + assign one full-amplitude hover per element class.",
-      "rule": "Per section: hero display slot -> characterful SplitText (color-cycle/random-skew-elastic, NOT the monochrome line mask); figure grids -> contained zoom 1.1 + companion cue with from:'random' graded stagger; index/chapter rows -> spotlight (hovered lights, siblings dim 45%); the one spectacle section -> the signature mechanic (cursor-proximity typefield / operable specimen / physics scene / clone-storm). Assign each element class exactly ONE full-amplitude (100%) hover mechanic (CTA != link != figure != nav); every other instance of that class reuses the SAME easing family at 40-60% of the signature's transform distance AND duration.",
-      "evidence": [
-        "Eloy: graded random-stagger (power3.in/power2.in/power1.in rows, scale 1.75->1.25->1, from:'random', randomized transform-origin)",
-        "Ponpon: chapter covers snap-to-place; panel ponpons bounce elastic with i*1.6 stagger + flashes",
-        "Cuberto: dome-fill CTA loud, scaling-underline link quiet — same expo family, different amplitude"
-      ]
-    },
-    {
-      "step": 6,
-      "decide": "Set the per-element-class interaction states (hover / tap / focus) with amplitudes.",
-      "rule": "CTA: hover = full-token flood or rising-dome-fill + label inversion (Cuberto dome 0.5s cubic-bezier(.4,0,0,1), leading edge border-radius 50% 50% 0 0; solid variant = darker-same-hue shift, never paler), OR magnetic pull (label/button translates toward the cursor within a proximity radius, elastic-settle on leave — a distinct mechanic; commit one signature per build); tap = press/flash 90-160ms; focus-visible = mirror hover. LINK: hover LOUD = skewed text-roll (translateY -105% + skewY 0<->7deg, 1.2s cubic-bezier(.19,1,.22,1)) on nav/overlay labels; hover QUIET = scaleX(0->1) underline (1s .16,1,.3,1) on utility/footer; tap = instant color swap. FIGURE: hover = zoom 1.1 (felt, never 1-3% twitch) + tint/scrim/caption-rise; tap = enlarge or caption reveal. INDEX_ROW: hover = accent rule + surfaced meta, siblings dim to 45%. HEADING: hover ONLY on interactive headings (Exat design-space morph, Warhol Elvis cursor-font-size) — NEVER on prose/numbers; entrance = characterful SplitText. NAV: transparent fixed bar that NEVER solidifies to an opaque brand-border bar; per-char roll or scramble on links; menu-open = full-viewport curtain. CURSOR: custom pointer chrome on pointer:fine only (see element_states.cursor).",
-      "evidence": [
-        "Cuberto live CSS: dome-fill CTA, skewY 7deg link peel, scaling underline, contextual cursor — all one expo family",
-        "Warhol: Elvis cursor-x -> font-size 1.375->2.875em (power3.out 0.3s); footer cursor image-trail",
-        "DICH: scramble section-nav + three section-swapped cursor variants; Mat Voyce: per-letter roll nav; nav never solidifies (Ponpon transparent after scroll)"
-      ]
-    },
-    {
-      "step": 7,
-      "decide": "Set the mobile / touch answer — dormant pointer classes, live press + scroll.",
-      "rule": "Cursor fields degrade to STATIC grids on touch (Exat explicit: 'touch devices receive static grid versions'); cursor trails/parallax and the custom cursor chrome go dormant/hidden. Press-class elements answer the tap with a flash floor 90-160ms. Depth that came from the pointer now comes from SCROLL. Swap the desktop hold-and-drag gallery for a native scroll-snap swipe track (tap-to-enlarge). Kinetic type keeps its scroll-driven channel; the peak degrades to a strong composed frame, never a sub-30fps render. Any audio stays muted until an explicit gesture (see the sound-channel gap).",
-      "evidence": [
-        "Exat: static glyph grid on touch — the pointer field has no touch analogue, so it freezes composed",
-        "DICH: coordinate HUD disabled <768px",
-        "Ponpon: chapter drag works on touch; the physics micro-interactions gate on pointer proximity"
-      ]
-    },
-    {
-      "step": 8,
-      "decide": "Write the copy last — labels, not narration.",
-      "rule": "One-clause hero, caps micro-labels, attitude list over credentials, warm imperative at the CTA, '->' on acquisition CTAs, compliance chrome in character. Refuse feature-benefit paragraphs — the motion argues, the copy labels. Self-narration ('we craft immersive experiences') is a scored defect even under high craft.",
-      "evidence": [
-        "Exat: one clause carries the whole positioning; Cuberto: four-word pitch",
-        "Eloy: attitude list, zero credentials",
-        "Cuberto: cookie banner stays lowercase and in-character"
-      ]
-    }
-  ],
-  "section_playbook": [
-    {
-      "role": "loader / preloader",
-      "forms": ["mood-gate preloader (DICH Lottie)", "loader-bar-becomes-navbar (Eloy)", "cover-as-scene-one (Ponpon — no separate loader)"],
-      "pairs": ["Lottie mood animation", "progress-bar morph into fixed nav", "first-scene WebGL warm-up"],
-      "intensity": 7,
-      "states": "Engineered first-impression channel feeding the ~50ms verdict: DICH After-Effects->Lottie mood-gate; Eloy's loader bar scales down and BECOMES the navbar; Ponpon opens directly on cover-scene-one. Hand off into the hero's entrance SplitText once fonts/assets are ready. Reduced-motion: skip the animated gate, paint a static branded frame, reveal on first paint; never add perceived latency past asset-ready without the mood payoff.",
-      "evidence": ["DICH: Lottie mood-gate preloader (After Effects -> Lottie, Codrops 2025-06-02)", "Eloy: loader bar scales down and becomes the navbar (Codrops 2025-10-15)", "Ponpon: cover IS scene one, no separate loader"]
-    },
-    {
-      "role": "hero",
-      "forms": ["type-as-image (self-naming wordmark)", "chapter-cover (MISSING — Ponpon cover-is-scene-one over live WebGL)", "hero-masthead media=none/back (declarative pitch, Cuberto)"],
-      "pairs": ["characterful SplitText (color-cycle / random-skew-elastic)", "cursor-proximity-typefield (Exat, when the hero IS the mechanic)", "shader-surface / physics ground (Ponpon)"],
-      "intensity": 8,
-      "states": "Pointer layer MUST be live (a pointer-dead maximal hero is a defect): hero type reacts to cursor (Warhol Elvis-style scale, Exat proximity) or physics reacts to proximity (Ponpon). Entrance SplitText fires once after the loader hand-off.",
-      "evidence": ["Warhol: SplitText scale 0->1 + warm single-hue array (#FB4E2B ×7 + #FFE5D5), back.out, 0.1s stagger", "Exat: cursor-proximity glyph grid is the hero", "Ponpon: cover physics — mask deform, balloon collision, cloud repulsion"]
-    },
-    {
-      "role": "proof / featured",
-      "forms": ["full-bleed-figure (xN, Cuberto)", "card-list", "feature grids"],
-      "pairs": ["figure-hover (zoom 1.1 + cue)", "clip-reveal / image-curtain", "masked-label-swap caption", "graded random-stagger reveal (from:'random')"],
-      "intensity": 9,
-      "states": "This is often the CLIMAX (Cuberto ~30%). Figures answer hover with contained zoom + companion cue; reveals are graded/random, never uniform fade-up. Under a scrubbed decor channel running the whole zone.",
-      "evidence": ["Cuberto: featured projects are the climax; scrubbed decor runs under {scrub:true}", "Eloy: graded random-stagger (rows power3/2/1.in, scale steps, from:'random')"]
-    },
-    {
-      "role": "index / chapter-select",
-      "forms": ["index-reel-header + index-list", "chapter-select (MISSING — Ponpon record-collection)"],
-      "pairs": ["index-row-hover (spotlight, siblings 45%)", "snap-to-place navigation"],
-      "intensity": 5,
-      "states": "Hovered row lights accent + surfaces meta; siblings dim. Chapter tiles snap-to-place on drag/scroll/click. Rows are the living index, never a static list.",
-      "evidence": ["Ponpon: chapters as album covers, drag/scroll/click, snap-to-place", "index-row-hover canon (Depo Luxe, Son Daven, Terminal)"]
-    },
-    {
-      "role": "spectacle / specimen",
-      "forms": ["specimen-grid (MISSING — Exat)", "type-tester (MISSING — Exat)", "webgl-scene(delegated) (Ponpon panel scenes)"],
-      "pairs": ["cursor-proximity-typefield (MISSING)", "scroll-speed-oscillator numerals", "3D X-axis line rotation on enter", "physics (Matter.js)"],
-      "intensity": 9,
-      "states": "The operable centrepiece. Cursor drives type by distance (7 rings, wght 200->900, blue->red); type-tester sliders write axis vars live; scroll velocity oscillates numerals; lines rotate on a full X-axis as they enter (sparingly). On touch: static grid.",
-      "evidence": ["Exat: cursor-proximity glyph field + type tester + sine-wave numerals + 3D line rotation", "Ponpon: scroll-as-playhead WebGL camera + velocity feedback"]
-    },
-    {
-      "role": "chapters / capability",
-      "forms": ["editorial-split (xN)", "section-color-rotation chapters (MISSING — DICH per-temperature)"],
-      "pairs": ["char-assemble / kinetic-reveal h2", "text-emphasis-fill + semantic-accent prose", "figure-hover media", "scroll-driven 3D companion"],
-      "intensity": 6,
-      "states": "Each chapter shifts color-temperature; a 3D companion (monster/stone) follows the cursor or scroll through them; headings assemble on enter. Quiets after the peak but stays above the maximal floor.",
-      "evidence": ["DICH: per-section visual temperature; monster cursor-follower + scroll-driven orbital stone", "Warhol: Elvis/Monroe named sections each own a signature effect"]
-    },
-    {
-      "role": "close / CTA-reprise",
-      "forms": ["close-panel", "modal-CTA (Warhol ticket)", "CTA-reprise (Exat Get-Exat)"],
-      "pairs": ["kinetic-reveal ask", "fill-invert-cta / masked-label-swap channels", "accent-link"],
-      "intensity": 6,
-      "states": "One imperative + decisive channel rows; the CTA answers hover with a full flood + inversion. '->' on acquisition asks. No media slot — the close cannot become a mood reel.",
-      "evidence": ["Cuberto: 'Have an idea? Tell us' + dual real addresses", "Exat: 'Get Exat ->' + credits"]
-    },
-    {
-      "role": "footer",
-      "forms": ["footer-spectacle (Eloy connect-CTA clone-storm)", "contact-first (Cuberto)", "canvas-word-reveal (DICH)", "kinetic social roll (Mat Voyce)"],
-      "pairs": ["cursor-spawn-trail (MISSING — Warhol/DICH)", "clone-storm (MISSING — Eloy connect-CTA)", "canvas-brightness-reveal (MISSING — DICH)"],
-      "intensity": 9,
-      "states": "A designed moment, never bare chrome — often the deferred CLIMAX. Cursor spawns image/particle trail; hidden word reveals on hover via brightness sampling; the loudest interaction can land last.",
-      "evidence": ["Eloy: connect-CTA ('CLICK TO CONNECT') clone-storm at the page close, mix-blend-mode:difference, back.in(1.7) exit", "Warhol: footer cursor image-trail (brightness/contrast 300->100%)", "DICH: footer canvas reveals 'DICH' on hover"]
-    }
-  ],
-  "element_states": {
-    "cta": {
-      "hover": "Full-token flood or rising-dome-fill + label inversion — Cuberto pill (border-radius:1000px, overflow:hidden) holds a fill parked at translateY(101%) with a domed leading edge (border-radius:50% 50% 0 0) that rises + flattens, transition transform 0.5s cubic-bezier(.4,0,0,1); solid variant floods a full token (0.5s Power3.easeOut, retract 0.4s) and inverts the icon. Solid-brand builds shift DARKER same-hue (never paler tint). Pair a label swap-slide synced to the fill. SECOND committed option = MAGNETIC pull: the button (or its label) translates toward the cursor within a proximity radius on mousemove and elastic-settles back on leave — a distinct mechanic from the fill; commit ONE signature per build. (Cuberto dome-fill + magnetic amplitudes are carried-verified from a prior live-CSS read, not re-fetched this run — see unverified.)",
-      "tap": "The fill IS the tap answer on touch (press-driven), or a hard-press offset-shadow collapse at 125ms; flash floor 90-160ms. Magnetic pull is a no-op on touch (no pointer to attract to).",
-      "focus": "focus-visible mirrors hover exactly (full flood + inversion) — the fill is reachable by keyboard."
-    },
-    "link": {
-      "hover": "LOUD (nav/overlay labels): skewed text-roll — label + duplicate in a clipped box translate -105% while each layer resolves skewY(0deg)<->skewY(7deg), transition transform 1.2s cubic-bezier(.19,1,.22,1); the 7deg skew lifts it above a plain vertical roll. QUIET (utility/footer): pseudo-element underline scaleX(0->1), transition 1s cubic-bezier(.16,1,.3,1). Per-char rollover (split-rollover) is the nav variant.",
-      "tap": "Instant accent color swap (no roll on touch); underline snaps to full.",
-      "focus": "Underline wipe + accent recolor on focus-visible; roll on nav links keeps an accessible name via aria-label."
-    },
-    "figure": {
-      "hover": "Contained zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue — tint, scrim lift, or caption rise; on dense grids the spotlight variant sharpens the hovered figure while siblings blur/dim (focus-defocus, keep galleries <~10 items).",
-      "tap": "Tap-to-enlarge (Awwwards Mobile Excellence line) or caption reveal; the zoom does not fire on touch.",
-      "focus": "focus-within triggers the same zoom + cue so keyboard users reach the caption."
-    },
-    "index_row": {
-      "hover": "Hovered row lights with an accent rule + surfaced metadata while siblings dim to 45% (index-row-hover spotlight); chapter tiles add snap-to-place feedback.",
-      "tap": "Row highlights on tap-active; meta stays visible (no hover-only content trapped).",
-      "focus": "Same spotlight on focus-visible; the row is a real <a> so focus order is preserved."
-    },
-    "heading": {
-      "hover": "ONLY on interactive headings — Exat design-space names morph specimen weight/width live; Warhol Elvis maps cursor-x to font-size (1.375->2.875em, power3.out 0.3s, return 0.4s). NEVER on prose, body copy, or numbers.",
-      "tap": "No hover analogue on touch — heading rests at its composed static frame.",
-      "focus": "Entrance is the state that matters: characterful SplitText (color-cycle back.out / random-skew elastic.out(0.7,0.7)), fired once on enter, reversible on scroll-back in the specimen register."
-    },
-    "nav": {
-      "hover": "Per-char rollover (split-rollover, staggered) or scramble-decode on section-nav links (DICH); the bar itself is position:fixed and transparent through scroll — background rgba(0,0,0,0), backdrop-filter:none, no border — at the top AND after scrolling, so the maximal canvas reads through.",
-      "tap": "Menu toggle drops a full-viewport curtain; links answer with an instant color swap; the bar never solidifies to an opaque brand-border bar.",
-      "focus": "Links keep a clean accessible name (aria-label) under the per-char split; focus-visible shows the accent state; menu is focus-trapped while open."
-    },
-    "cursor": {
-      "hover": "Custom pointer chrome (pointer:fine ONLY) — a lerped/lagging dot or ring (lerp ~0.1-0.2 toward the real pointer position) that morphs by CONTEXT: it grows and surfaces a label ('VIEW' / 'DRAG' / 'OPEN') over media and drag zones, shrinks to a dot over text, and can swap shape/color per section (DICH runs three variants: landing minimal-hypnotic, case denser-electric, transitions barely-there glimmer). Cuberto morphs to a labelled contextual state over media; Warhol/Exat drive type from the same pointer position. This is the archetype's defining hover affordance — the pointer chrome is a first-class element, not only a trail/field channel.",
-      "tap": "No custom cursor on touch (pointer:coarse) — the chrome is hidden entirely; the affordance it signalled degrades to the tap/press answer of the underlying element.",
-      "focus": "Cursor chrome is decorative and never carries keyboard focus (the element's own focus-visible does). Any label the cursor surfaces on hover must also be reachable without the pointer — no hover-only content trapped behind the cursor state."
-    }
+  {
+   "site": "DICH™ Fashion",
+   "url": "dich-fashion.webflow.io (awwwards.com/sites/dichtm-fashion)",
+   "award": "Awwwards Site of the Day 2025-06-09 + Developer Award + PRO (verified — awwwards SOTD + Codrops case study 2025-06-02). Studio: DICH™ (Design Independent Creative House).",
+   "fit": "Futuristic-fashion warm-maximal — Webflow + GSAP + Spline + Unicorn Studio, per-section color-temperature chapters, 3D cursor-follower + scroll-driven orbital stone, persistent coordinate HUD, scramble section-nav, footer canvas brightness reveal. The section-color-rotation expression of the archetype (the SATURATED-register color rotation — see the section-accent-rotation gap, which rests on this single winner)."
   },
-  "mobile_answer": "Pointer classes go dormant, press + scroll carry the load. Cursor FIELDS freeze to static composed grids (Exat 'touch devices receive static grid versions'); cursor TRAILS, pointer-parallax, and the custom cursor chrome go dormant/hidden; the coordinate HUD hides <768px (DICH). Press-class elements answer the tap with a flash/press floor 90-160ms; the CTA fill or hard-press offset-shadow IS the tap answer (magnetic pull is a no-op). Depth that came from the pointer now comes from SCROLL — kinetic type keeps its scroll-driven channel so the maximal floor survives. Swap the desktop hold-and-drag/proximity gallery for a native scroll-snap swipe track with tap-to-enlarge (the scored Mobile Excellence line). Any audio stays muted until an explicit gesture and behind a persistent toggle. The single peak degrades to a strong composed static frame, never a sub-30fps render — jurors test on real devices and 'sites that break on iPhone lose immediately'.",
-  "gaps": [
-    {
-      "component": "cursor-proximity-typefield",
-      "seen_in": ["Exat (SOTD+FWA+CSSDA WOTM)"],
-      "mechanic": "A grid of glyphs/words where each unit's variable-font axis + color is driven by Euclidean distance from the cursor to its center. 7 concentric distance rings map to font-weight 200->900 and a hex-lerped color (e.g. #0000cb outer -> #FF0B00 inner); viewport-gated rAF loop (~16ms), promoted layers, no per-frame layout. Touch fallback = static composed grid. This is the archetype's signature mid-page spectacle and powers the currently-MISSING specimen-grid recipe form. No manifest component drives per-unit variable-font axes by pointer distance.",
-      "priority": 1
-    },
-    {
-      "component": "custom-contextual-cursor",
-      "seen_in": ["DICH Fashion (SOTD+Dev, three section-swapped variants)", "Warhol Arts (SOTD, cursor-driven type)", "Cuberto (contextual state cursor — carried-verified)"],
-      "mechanic": "The pointer chrome itself as a first-class element (distinct from the trail/field channels): a lerped/lagging dot or ring (lerp ~0.1-0.2 toward the real pointer) that morphs by context — grows + surfaces a label over media/drag zones, shrinks over text, swaps shape/color per section. pointer:fine only; hidden on touch. The archetype's defining hover affordance had no state row before revision 2 (now added to element_states.cursor); flagged here because no manifest component ships the contextual pointer chrome.",
-      "priority": 1
-    },
-    {
-      "component": "section-accent-rotation",
-      "seen_in": ["DICH Fashion (SOTD+Dev — SINGLE corpus winner)", "Figma (per-section brand hues)"],
-      "mechanic": "The SATURATED-register per-section color rotation, NOT the archetype's universal color rule — it rests on ONE corpus winner (DICH) plus Figma; the other seven corpus sites are B&W, single-hue, 2-hue, or cream monochrome. The single-accent token contract (--ad-accent) cannot express it: a form/token pattern where each section claims its own accent (and optional ground) from a rotation array, driven by an IntersectionObserver that swaps --ad-accent (and companion CSS vars) as each section enters, so components inherit the section's color world with no per-component change. Optional per-section 'visual temperature' (warm/cool ground). Needed ONLY for the saturated / warm-maximal register — do not apply it to kinetic-register builds.",
-      "priority": 2
-    },
-    {
-      "component": "page-transition-choreography",
-      "seen_in": ["Ponpon Mania (SOTM — per-transition WebGL shader mixes, confirmed this run)", "Mat Voyce (SOTD+FWA — seamless page transitions)", "21 TSI (SOTD — morphing section transitions)"],
-      "mechanic": "A between-view spectacle channel the scroll-within-page momentum model does not cover: on route/view change, blend the outgoing and incoming scenes through a custom shader mix driven by a GSAP tween (Ponpon renders previous+next WebGL pages and mixes in real time), or a morphing curtain/wipe (21 TSI). For multi-route maximal sites the transition is peak-adjacent — add it as one channel in the momentum floor for multi-view builds. Touch/reduced-motion: degrade to a fast crossfade or instant cut, never a sub-30fps blocking blend. The momentum model was scroll-within-page only; it had no between-view grammar.",
-      "priority": 2
-    },
-    {
-      "component": "kinetic-splittext-maximal",
-      "seen_in": ["Warhol Arts (SOTD)", "Ponpon Mania (SOTM)"],
-      "mechanic": "A characterful SplitText entrance distinct from the tier's monochrome line/char masks (kinetic-reveal, char-assemble): per-char scale 0->1 with a warm single-hue array (Warhol #FB4E2B ×7 + #FFE5D5, back.out, 0.1s stagger — a single-hue reveal, NOT a multi-hue cycle) OR per-char enter from x:100% with skewX random(-25,25) + rotation 5 + elastic.out(0.7,0.7) + 0.06s stagger (Ponpon), reversible on scroll-back. Keeps an accessible name via aria-label. The archetype's display-type signature; our current SplitText components are monochrome and non-characterful.",
-      "priority": 2
-    },
-    {
-      "component": "cursor-spawn-trail",
-      "seen_in": ["Warhol Arts (SOTD, footer)", "DICH Fashion (SOTD, pixel tracer)", "Eloy Benoffi (connect-CTA clone-storm, adjacent)"],
-      "mechanic": "A maximalist cursor/idle channel: images or particles spawn at the cursor position as it moves (throttled by travel distance), each spawn tweens scale 0->1 + a filter decay (brightness/contrast 300%->100%) then opacity 1->0 over ~0.4s with a delay; z-index recycling prevents stacking. Eloy's variant is a contact/connect-CTA clone-storm (the 'CLICK TO CONNECT' button spawns 2 clones per 200px of pointer travel, up to 200, mix-blend-mode:difference, staggered enter/exit back.in(1.7)) at the page close — NOT a hero CTA. Fine-pointer only; dormant on touch. Our ambient-idle does not do cursor-spawn trails; this is a footer/idle spectacle channel.",
-      "priority": 2
-    },
-    {
-      "component": "type-tester",
-      "seen_in": ["Exat (SOTD+FWA+CSSDA WOTM)"],
-      "mechanic": "An operable specimen widget: sliders write live CSS custom properties (--ff/--fs/--fw/--lh/--ls) onto a preview block so the visitor drives the type. Already flagged MISSING:type-tester in recipes.json (specimen-tour-exat) but has no component. The operable-proof beat in the specimen-tour macrostructure; pairs beside cursor-proximity-typefield.",
-      "priority": 3
-    },
-    {
-      "component": "scroll-speed-oscillator",
-      "seen_in": ["Exat (SOTD+FWA+CSSDA WOTM)", "Ponpon Mania (SOTM, velocity feedback + shader mixes)", "21 TSI (SOTD, velocity/inertia distortion on media)"],
-      "mechanic": "A décor channel driven by scroll VELOCITY (not position). TYPE variant: large numerals/glyphs oscillate in a sine-wave whose amplitude tracks scroll speed (Exat); or a rendered object's position gets a velocity*0.01 feedback nudge (Ponpon). MEDIA variant: the same scroll-velocity signal drives RGB-shift/displacement distortion on imagery/surfaces (21 TSI cursor-distortion + WebGL displacement; Ponpon per-transition shader mixes) — a distinct channel from the position-bound scrubbed reveals, applied to surfaces not just type. Compositor-only, viewport-gated. Our scrubbed channels bind to scroll POSITION; none read velocity.",
-      "priority": 3
-    },
-    {
-      "component": "sound-channel + mute affordance",
-      "seen_in": ["21 TSI (SOTD+FWA+CSSDA — boundary corpus member)"],
-      "mechanic": "An opt-in audio channel for sensory-maximal builds: muted by default, a single persistent mute/sound toggle (fixed, always reachable), UI/interaction SFX and/or an ambient bed unlocked on first user gesture (browsers block autoplay). Reduced-motion / data-saver / touch: audio stays off until explicitly enabled; the toggle state persists across the session. A real Awwwards channel for maximal builds, but sourced to a SINGLE boundary corpus member (21 TSI) — thin evidence; ship only when the brief sells sensory maximalism.",
-      "priority": 3
-    }
+  {
+   "site": "Exat (Hot Type specimen)",
+   "url": "exat.hottype.co (awwwards.com/sites/exat-typeface)",
+   "award": "Awwwards Site of the Day + FWA of the Day (thefwa.com/cases/exat-typeface-p2) + CSSDA Website of the Month (cssdesignawards.com/wotm/exat-typeface/47246, scored 8.83, Best UI at CSSDA Website of the Year 2025) — all three awards verified this run. Studio: Studio Size & RISE2 Studio for Hot Type. Codrops case study 2026-04-10.",
+   "fit": "Type-specimen maximal — GSAP + ScrollTrigger + SplitText + Lenis + variable fonts, cursor-proximity glyph field (7 rings, wght 200->900, blue->red), design-space hover-morph, 3D X-axis line rotations. The archetype's mid-page-climax case: the specimen glyph grid is the peak, not the hero."
+  },
+  {
+   "site": "21 TSI",
+   "url": "21tsi.com (awwwards.com/sites/21-tsi)",
+   "award": "Awwwards Site of the Day 2025-04-12 (7.38) + CSSDA Website of the Day + FWA of the Day (verified — awwwards + thefwa.com/cases/21-tsi + Codrops case study 2025-07-21). Studios: type8 studio + DEPARTMENT Maison de Création.",
+   "fit": "Kinetic-sports maximal on a strictly monochromatic grade (Codrops) — OGL WebGL + Anime.js + Locomotive Scroll, morphing section transitions, cursor-distortion, sound. Maximal on the MOTION/kinetic-type axis, NOT the saturated-color register; a BOUNDARY member proving the constant-choreographed-motion floor. A purist reading files it under kinetic/brutalist — kept only as a floor witness, never as saturated-color canon."
+  },
+  {
+   "site": "Mat Voyce",
+   "url": "matvoyce.tv (awwwards.com/sites/mat-voyce)",
+   "award": "Awwwards Site of the Day + FWA Site of the Day + Webby honouree + Awwwards Site of the Month nominee (Jan 2025) (verified this run via Awwwards/FWA + Uncommon studio writeup). A GSAP Site of the Year 2025 nomination is claimed in the studio writeup but unconfirmed at the GSAP award body — see unverified. Kinetic-type artist (FT, Pepsi, UEFA, Nike). Studio: Uncommon.",
+   "fit": "Kinetic type-as-image — F37 Judge variable widths dancing on cream #FFFEF8, per-letter roll nav, oversized type animated past the viewport as the whole interface. The type-portfolio expression; the overflow is the texture."
+  },
+  {
+   "site": "Eloy Benoffi",
+   "url": "eloyb.design (awwwards.com/sites/eloyb-design)",
+   "award": "Awwwards Honorable Mention (awwwards.com/sites/eloyb-design) + GSAP Site of the Day + CSSDA (Best UI / Best UX / Best Innovation / Special Kudos) (verified this run — Awwwards HM page + Codrops case study 2025-10-15). Glitch/brutalist-maximal folio.",
+   "fit": "Glitch-maximal portfolio — ASCII-flower décor, graded random-stagger reveals (from:'random'), loader-becomes-navbar, closing connect-CTA clone-storm. The archetype's climax-at-the-close case and the from:'random' stagger tell."
+  },
+  {
+   "site": "Cuberto",
+   "url": "cuberto.com (awwwards.com/sites/cuberto)",
+   "award": "Awwwards Site of the Day (awwwards.com/sites/cuberto — Jun 22 2018, 7.37; confirmed this run). The Developer Award is NOT shown on the award page, and the 2018 SOTD sits outside the 2024-2026 window; the live-CSS CTA amplitudes cited in element_states are carried-verified from a prior run's live-CSS read, not re-fetched this run — see unverified. Studio: Cuberto.",
+   "fit": "Bold agency statement — rising-dome-fill CTA, skewed text-roll links, contextual state cursor, all on one expo-out family (cubic-bezier .16,1,.3,1). The per-element-class interaction canon and the two-engine mid-scroll (fire-once reveals + scrubbed décor). Kept for the interaction canon; the award and amplitudes are the file's weakest-verified — treat as reference, not fresh proof."
+  }
+ ],
+ "story": {
+  "arcs": [
+   "Chaptered world you OPERATE (Ponpon, winner-verified): cover-is-scene-one -> chapter-select (record-collection metaphor) -> panel scenes with camera moves + physics -> About rest. The scroll is a playhead; the narrative is spatial, not linear. Story = 'here is a world you play through', and the reader consumes AND drives it.",
+   "Pop-culture playground tour (Warhol Arts, winner-verified): SplitText wordmark hero -> named-icon sections (Elvis / Monroe), each with its own signature cursor or scroll effect -> ticket-modal CTA -> footer image-trail finale. Story = 'each screen is a different Warhol canvas', the through-line is pop-art motion, not one narrative.",
+   "Sensory chapters by color-temperature (DICH, winner-verified): preloader-as-mood-gate -> section-color-rotation chapters, each its own visual temperature -> orbital-stone + monster 3D companions carry the through-line -> footer word-reveal. Story = 'walk a poetic-futuristic runway', told in color chapters not paragraphs.",
+   "Specimen that performs itself (Exat, winner-verified): self-naming glyph-grid hero -> About (one clause) -> type-tester (operable proof) -> specimen glyph grid CLIMAX -> capability sections quiet -> Get-Exat reprise. Story = 'the typeface is a living system you touch', proof-by-operation.",
+   "Agency statement, work up front (Cuberto, reference): declarative pitch hero -> featured projects CLIMAX (proof) -> services -> blog rest -> contact reprise. The line's only true funnel; the motion argues, the copy labels."
   ],
-  "unverified": [
-    "Cuberto is the file's weakest-verified entry: cuberto.com's own Awwwards Site of the Day is real but dates to Jun 22 2018 (7.37 — outside the 2024-2026 window), and the Developer Award is NOT shown on the award page (awwwards.com/sites/cuberto). Multiple other cuberto entries are Nominee/Honorable Mention. Every Cuberto-specific amplitude in element_states.cta (dome-fill timings, expo curve, magnetic pull) and the custom-cursor spec is carried-verified from a prior run's live-CSS read, not re-fetched this run — load-bearing for the CTA + cursor state canon.",
-    "Mat Voyce: Awwwards Site of the Day + FWA Site of the Day + Webby honouree + Awwwards Site of the Month nominee (Jan 2025) are confirmed this run. The 'GSAP Site of the Year 2025 nominee' claim appears only in the Uncommon studio writeup and is NOT confirmed at the GSAP award body — treat as studio-claimed, not award-verified. F37 Judge / cream #FFFEF8 are design micro-details, not independently confirmed.",
-    "The Bold-Maximal Spectacle-Momentum Law is a synthesized design heuristic, not an award-body measurement. The peak-count-of-one cap IS a corpus observation (no verified winner stacks a second spectacle equal to its signature moment). But the specific '4-5 continuous channels' count and the 'among the highest continuation floor of any archetype' ranking are extrapolations across the corpus, not measured against a scored juror rubric. Defensible as design theory; do not present with the certainty of award-body fact.",
-    "The '4-6 colors per section' / per-section color rotation is NOT the archetype's universal color rule — it rests on a SINGLE corpus winner (DICH) plus a hand-wave to Figma. The other seven corpus sites are B&W (Ponpon mostly monochrome, 21 TSI strictly monochromatic), single-hue warm (Warhol #FB4E2B), 2-hue (Exat blue->red), cream monochrome (Mat Voyce), or glitch/brutalist (Eloy). Filed as a saturated-register expression (see the section-accent-rotation gap, downgraded to priority 2), not archetype canon.",
-    "21 TSI is a BOUNDARY member: strictly monochromatic (Codrops), kinetic-maximal on the motion axis, not the saturated-color register. Included only as a witness that the constant-motion floor holds outside saturated color; a purist reading files it under kinetic/brutalist. Not saturated-color canon.",
-    "Exat's exact Awwwards SOTD month is not pinned this run, but all three awards are confirmed (Awwwards SOTD page live, FWA case at thefwa.com/cases/exat-typeface-p2, CSSDA Website of the Month at cssdesignawards.com/wotm/exat-typeface/47246, scored 8.83); the earlier over-hedge on Exat's awards is resolved.",
-    "Nite Riot (BL/S®, Awwwards SOTD 7.64, 'minimalism gets a wild side', Difference blend mode, B&W) was evaluated and EXCLUDED from the core corpus — its restrained B&W palette makes it a weak bold-maximal fit (closer to brutalist-kinetic); noted here as an adjacent case, not evidence.",
-    "Jam the Chaos (Elvis Mao, SITCON 2026, Three.js/GSAP/Astro, 'rhythm in chaos', vote 9.1) is an Awwwards NOMINEE (2026-06-27), not yet a SOTD/SOTM/HM winner at time of research — excluded from the corpus per the award-verification bar; a strong future candidate if it wins.",
-    "DICH/Warhol per-button CTA hover states were not documented in their Codrops case studies (which focused on cursor/scroll/loader mechanics); the CTA element_states are grounded in Cuberto's carried-verified live-CSS canon + the fill-invert-cta manifest canon, not in DICH/Warhol button teardowns. Magnetic-CTA-hover is likewise Cuberto-sourced and inherits that carried-verified status."
-  ]
+  "thread": "The signature thread is a SINGLE motion metaphor forged in the hero and reused as the page's grammar, not a color. Ponpon = scroll-is-a-playhead / physics-you-shove; Warhol = pop-art canvases that react to the cursor; DICH = color-temperature chapters + a 3D companion that follows you; Exat = distance-from-cursor drives type; Cuberto = one expo-out curve resolving every fill/roll/cursor. Winners bind visibly different mechanics (button fill, link roll, figure zoom, cursor state) to ONE shared law — one easing family + one color rule + one loud/quiet hierarchy per element class — so density reads as choreography, not noise. Re-fire the same metaphor hero->close: Ponpon's physics is still live at the About close; Warhol re-fires its cursor-reaction metaphor at both the Elvis section and the footer trail (two section-local instances, not one persistent channel, with page-wide scroll reveals filling the gaps); Cuberto's curve resolves the contact-reprise fill.",
+  "copy": "The motion argues; the copy labels. One-clause heroes, caps micro-labels, attitude lists over credentials, warm imperatives at CTAs, '->' on acquisition CTAs, zero feature-benefit padding. Winner quotes calibrate specificity (imitate the refusal-to-explain, never the wording): Exat 'strikes a balance between form and function, neutrality and character' (one clause does all the explaining); Cuberto 'Digital design & development agency' (the whole pitch in four words); Eloy 'maximalist, little monster, a latinx baddie, kitsch, brat' (attitude list, zero credentials); compliance chrome stays in character ('Hey you [sparkle] this site uses cookies', lowercase accept/decline). Self-narration ('we craft immersive experiences') is the tell that kills the score even when craft is high — the copy names, the motion does the arguing."
+ },
+ "spectacle_model": {
+  "hero": "The hero fires the first-impression spectacle hard (verdict forms in ~50ms and halos the rest of the score), rendering the thread as reusable motion vocabulary: Ponpon cover = live physics + character intro; Warhol = SplitText scale 0->1 with a warm single-hue array (#FB4E2B ×7 + a lighter #FFE5D5 final char — NOT a multi-hue color-cycle), back.out, 0.1s stagger, post-preloader; DICH = preloader-mood-gate handing into color-chapter one; Exat = the cursor-proximity glyph grid itself. But in THIS archetype the hero is NOT necessarily where the single climax sits — see continuation.",
+  "continuation": [
+   "Warhol Arts (winner-verified, SOTD 2025-04): after the hero EVERY section moves — Elvis = cursor-x maps font-size 1.375->2.875em (power3.out 0.3s, return 0.4s); Monroe = scroll-triggered split text; page-wide = per-char rotation reveals (-45deg, back.out(2), 0.03s stagger, top 85%); mask-fill words (width 100->0, scrub:1); footer = cursor image-trail (spawn scale 0->1, brightness/contrast 300%->100%, opacity 1->0 over 0.4s). Two SECTION-LOCAL cursor channels (Elvis-section type + footer trail); the no-silence floor is carried by the page-wide scroll reveals + mask-fill, not the cursor channels.",
+   "DICH Fashion (winner-verified, SOTD 2025-06): persistent coordinate HUD (rAF, zero-padded 4-digit) + scramble section-nav run the whole scroll; three cursor-trail variants swap by section (landing 'minimal hypnotic', case 'denser electric', transitions 'barely-there glimmer'); a 3D monster follows the cursor and a scroll-driven orbital stone carries gravity; each section shifts color-temperature; a 40s marquee frame loops; footer canvas reveals 'DICH' on hover via brightness sampling. Input + scroll + idle channels, all sections, all the way down.",
+   "Ponpon Mania (winner-verified, SOTM 2025-10): cover physics (mask deform on proximity, balloon collision, cloud repulsion radius=2 strength=1.5) -> chapter-select drag/scroll/snap -> panel scenes (elastic.out, i*1.6 stagger, 1-2 random flashes, flash duration 0.4/flashes) -> About scroll-driven WebGL camera (position mapped to scroll progress) + velocity feedback (velocity*0.01) + kinetic type (x 100%, skewX random +-25, rotation 5, elastic.out(0.7,0.7), 0.06s stagger, reverses on scroll-back) -> varied per-transition WebGL shader mixes. The chaptered scenes read as near-EQUAL peaks (like Bruno Simon's driving) — the case that most stresses the one-climax cap.",
+   "Exat (winner-verified, SOTD+FWA+CSSDA WOTM): hero glyph grid (7-ring cursor proximity, wght 200->900, #0000cb->#FF0B00) -> design-space hover-morph (weights/widths interpolate live) -> scroll-stacked panels with sine-wave numerals responsive to SCROLL SPEED -> 3D X-axis full-rotation line entrances (deployed sparingly as punctuation). The single CLIMAX is the mid-page specimen glyph grid, NOT the hero; the hero merely opens the same mechanic.",
+   "Cuberto (reference, SOTD 2018): hero -> featured projects CLIMAX (~30% down, proof) -> services quiet -> blog rest -> contact reprise. Two engines run through the prose zone the whole time: content reveals fire once (IntersectionObserver {once:true}) while a separate scrubbed decor channel keeps running underneath (scrub:true). Climax early, vocabulary continuous after.",
+   "Eloy Benoffi (winner-verified, Awwwards HM): even-motion build through identity hero -> about -> hover-charged work index -> the single CLIMAX is the closing connect-CTA clone-storm (the 'CLICK TO CONNECT' button spawns duplicates on pointer travel, colliding through mix-blend-mode:difference, exit back.in(1.7)). Peak deferred to the page's contact close; the page never rests below the maximal floor before it."
+  ],
+  "one_climax_verdict": "REFINED",
+  "evidence": [
+   "SUPPORTED as a peak-count cap: across the verified corpus no winner stacks a second spectacle EQUAL to its signature moment — Exat deploys the 3D line-rotation 'sparingly to punctuate', Ponpon reserves color for 'key moments', Cuberto has one featured-projects proof peak. One signature moment + restraint is the observed pattern across the corpus, not a measured juror rubric.",
+   "REFUTED as 'one wow then quiet': ZERO bold-maximal winners go silent after the hero. Warhol moves every section via page-wide scroll reveals + mask-fill (with two section-local cursor channels); DICH runs HUD + trail + 3D companion + color-rotation continuously; Ponpon's physics is live from cover to About close. A quiet section here reads not as 'the site died' but as a betrayal of the maximalist premise itself.",
+   "ARCHETYPE-SPECIFIC REFINEMENT 1 — the single peak is NOT hero-bound: Exat's climax is the mid-page specimen grid, Eloy's is the closing connect-CTA clone-storm, Cuberto's is ~30% down. The hero still fires hard for first-impression, but the narrative places the peak where the payoff logic wants it (specimen grid, lineup, finale). This is the archetype's departure from the hero-peak default.",
+   "ARCHETYPE-SPECIFIC REFINEMENT 2 — this archetype carries a very high continuation floor: winners run multiple always-on channels (per-class hover states + display-type effects + cursor field/trail + one idle channel + scroll texture). The floor is not micro (as it is for editorial/B2B) — it is dense-but-graded, sitting just below the peak. The specific '4-5 channels' count is a corpus-derived heuristic, not a scored rubric — see unverified.",
+   "Ponpon's chaptered scenes are the boundary case that most stresses the cap — like Bruno Simon's continuous driving, the panel scenes read as near-equal repeating peaks rather than one-peak-then-sub-peak. The cap holds only because each scene is the SAME mechanic re-fired, not a new competing spectacle."
+  ],
+  "recommended_law": "Bold-Maximal Spectacle-Momentum Law (a synthesized heuristic — the peak-count cap is a corpus observation; the channel-floor count is extrapolated, see unverified). Fire ONE signature spectacle (peak count capped at one) and place it where the payoff logic wants it — the hero for first-impression-led builds (Warhol, Ponpon cover), but freely mid-page (Exat specimen grid, Cuberto featured projects) or at the close (Eloy connect-CTA clone-storm) when the narrative earns it; the hero must still fire hard regardless, because ~50ms + halo. Then NEVER fall below the maximal floor: 4-5 continuous channels — per-element-class hover states, one display-type effect, one cursor field OR trail, one idle channel, one scroll texture — all bound to ONE easing family + ONE color rule + ONE loud/quiet hierarchy per element class, so density reads as choreography not noise. The continuation floor here runs dense-but-graded (never micro, never zero) — among the highest observed across the corpus, an extrapolation not a measured cross-archetype ranking; a silent section betrays the premise. The peak re-fires the SAME mechanic rather than introducing a competing second spectacle. Degrade the peak to a strong static/composed frame under reduced-motion; keep the transform/opacity/scroll channels alive; kill cursor fields to static grids on touch."
+ },
+ "algorithm": [
+  {
+   "step": 1,
+   "decide": "Name the ONE motion metaphor (the fil rouge) before any layout — a mechanic-concept bound to a single input, not a palette.",
+   "rule": "Pick a single primary driver the whole page obeys — one input mapped to one verb: scroll-position-is-a-playhead (Ponpon), cursor-distance-drives-type (Exat), cursor-position-reshapes-canvases (Warhol), section-enter-rotates-color (DICH), one-expo-curve-resolves-every-transition (Cuberto). Executable check: enumerate every planned mechanic and confirm each binds to that SAME primary input (or, for the curve-driven case, the same easing family); any mechanic bound to a different primary input is décor, not signature — cap décor at one secondary channel. Everything downstream reuses THIS input.",
+   "evidence": [
+    "Exat: distance-from-cursor is the entire grammar, opened in the hero and re-fired at the specimen grid",
+    "Ponpon: scroll-is-a-playhead binds physics, type, camera, and nav to one comic/DJ metaphor",
+    "Cuberto: four mechanics (dome fill, skewed roll, scaling underline, contextual cursor) all on cubic-bezier(.16,1,.3,1)"
+   ]
+  },
+  {
+   "step": 2,
+   "decide": "Forge the signature thread AS reusable vocabulary + commit ONE easing family and ONE color rule.",
+   "rule": "Choose one easing camp and never mix: elastic/back.out (Warhol back.out(2), Ponpon elastic.out(0.7,0.7)) OR expo-out (Cuberto cubic-bezier .16,1,.3,1) — not both. Color rule is binary: SATURATED register = 4-6 hues, each with a fixed role OR rotated one-per-section (DICH — sourced to a SINGLE corpus winner, see the section-accent-rotation gap; also Figma); KINETIC register = restrained palette where the TYPE motion is the maximalism (Mat Voyce cream, 21 TSI B&W, Exat blue->red 2-hue). Most of the corpus lives in the kinetic register — do not treat per-section color rotation as the default. Fills resolve to FULL role colors, never tints. Background register is an expression choice, not a definition.",
+   "evidence": [
+    "DICH: 'each section had its own visual temperature' — per-section color rotation is the identity (one winner)",
+    "Warhol: single warm #FB4E2B multi-tone; hero SplitText array is #FB4E2B ×7 + one lighter #FFE5D5 (single hue, not a cycle)",
+    "Cuberto live CSS: fills flood full role color (#ce1352), never hover:bg/10 tint"
+   ]
+  },
+  {
+   "step": 3,
+   "decide": "Choose the macrostructure by brief-fit and rotate against the last stamp.",
+   "rule": "Three winner-verified shells: chapter-world (Ponpon — cover-is-scene-one -> chapter-select -> operable scenes -> About; requires a WebGL/physics path); specimen-tour (Exat — self-naming hero -> About -> type-tester -> specimen-grid CLIMAX -> capability sections -> reprise); argument-scroll (Cuberto — pitch hero -> featured-projects CLIMAX -> services -> blog rest -> contact reprise; Warhol/DICH are the playground variant: hero -> named/color chapters -> modal/word-reveal CTA -> spectacle footer). Pick one shell; never re-sequence a winner's ordering, diverge inside it via variants/content; do not reuse the same shell as the last stamp.",
+   "evidence": [
+    "Ponpon: the cover IS scene one — no separate hero; DOM h1 is a 9px credit",
+    "Exat: climax deferred to the mid-page specimen grid",
+    "Cuberto: climax early at featured projects; Eloy compresses the same funnel to one scroll with a closing connect-CTA climax"
+   ]
+  },
+  {
+   "step": 4,
+   "decide": "Map the momentum: place the ONE peak, then set each section's channel count.",
+   "rule": "Place exactly ONE peak (hero / mid-page / close per macrostructure). Assign each section a count of always-on channels drawn from {per-class hover states, one display-type effect, one cursor field OR trail, one idle channel, one scroll texture}: the peak runs 4-5 simultaneously; every non-peak section runs at least 2 and at most (peak count minus 1); no section runs 0. Peak re-fires the SAME mechanic amplified; it never introduces a competing second spectacle. Intensity ladder example (Cuberto): hero 7 -> featured-projects 9 (climax) -> services 5 -> blog 4 -> close 6, with the scrubbed decor channel running under all of them. For multi-route builds, add the page-transition as one channel (see the page-transition gap).",
+   "evidence": [
+    "Warhol: every section moves (page-wide scroll reveals + mask-fill) + two section-local cursor channels; nothing rests to silence",
+    "Cuberto: fire-once reveals {once:true} PLUS a scrubbed decor channel {scrub:true} run together through the prose zone",
+    "Exat: sine-wave numerals + cursor field run continuously; the 3D line-rotation is spent 'sparingly'"
+   ]
+  },
+  {
+   "step": 5,
+   "decide": "Pair each section's slots with interaction components + assign one full-amplitude hover per element class.",
+   "rule": "Per section: hero display slot -> characterful SplitText (color-cycle/random-skew-elastic, NOT the monochrome line mask); figure grids -> contained zoom 1.1 + companion cue with from:'random' graded stagger; index/chapter rows -> spotlight (hovered lights, siblings dim 45%); the one spectacle section -> the signature mechanic (cursor-proximity typefield / operable specimen / physics scene / clone-storm). Assign each element class exactly ONE full-amplitude (100%) hover mechanic (CTA != link != figure != nav); every other instance of that class reuses the SAME easing family at 40-60% of the signature's transform distance AND duration.",
+   "evidence": [
+    "Eloy: graded random-stagger (power3.in/power2.in/power1.in rows, scale 1.75->1.25->1, from:'random', randomized transform-origin)",
+    "Ponpon: chapter covers snap-to-place; panel ponpons bounce elastic with i*1.6 stagger + flashes",
+    "Cuberto: dome-fill CTA loud, scaling-underline link quiet — same expo family, different amplitude"
+   ]
+  },
+  {
+   "step": 6,
+   "decide": "Set the per-element-class interaction states (hover / tap / focus) with amplitudes.",
+   "rule": "CTA: hover = full-token flood or rising-dome-fill + label inversion (Cuberto dome 0.5s cubic-bezier(.4,0,0,1), leading edge border-radius 50% 50% 0 0; solid variant = darker-same-hue shift, never paler), OR magnetic pull (label/button translates toward the cursor within a proximity radius, elastic-settle on leave — a distinct mechanic; commit one signature per build); tap = press/flash 90-160ms; focus-visible = mirror hover. LINK: hover LOUD = skewed text-roll (translateY -105% + skewY 0<->7deg, 1.2s cubic-bezier(.19,1,.22,1)) on nav/overlay labels; hover QUIET = scaleX(0->1) underline (1s .16,1,.3,1) on utility/footer; tap = instant color swap. FIGURE: hover = zoom 1.1 (felt, never 1-3% twitch) + tint/scrim/caption-rise; tap = enlarge or caption reveal. INDEX_ROW: hover = accent rule + surfaced meta, siblings dim to 45%. HEADING: hover ONLY on interactive headings (Exat design-space morph, Warhol Elvis cursor-font-size) — NEVER on prose/numbers; entrance = characterful SplitText. NAV: transparent fixed bar that NEVER solidifies to an opaque brand-border bar; per-char roll or scramble on links; menu-open = full-viewport curtain. CURSOR: custom pointer chrome on pointer:fine only (see element_states.cursor).",
+   "evidence": [
+    "Cuberto live CSS: dome-fill CTA, skewY 7deg link peel, scaling underline, contextual cursor — all one expo family",
+    "Warhol: Elvis cursor-x -> font-size 1.375->2.875em (power3.out 0.3s); footer cursor image-trail",
+    "DICH: scramble section-nav + three section-swapped cursor variants; Mat Voyce: per-letter roll nav; nav never solidifies (Ponpon transparent after scroll)"
+   ]
+  },
+  {
+   "step": 7,
+   "decide": "Set the mobile / touch answer — dormant pointer classes, live press + scroll.",
+   "rule": "Cursor fields degrade to STATIC grids on touch (Exat explicit: 'touch devices receive static grid versions'); cursor trails/parallax and the custom cursor chrome go dormant/hidden. Press-class elements answer the tap with a flash floor 90-160ms. Depth that came from the pointer now comes from SCROLL. Swap the desktop hold-and-drag gallery for a native scroll-snap swipe track (tap-to-enlarge). Kinetic type keeps its scroll-driven channel; the peak degrades to a strong composed frame, never a sub-30fps render. Any audio stays muted until an explicit gesture (see the sound-channel gap).",
+   "evidence": [
+    "Exat: static glyph grid on touch — the pointer field has no touch analogue, so it freezes composed",
+    "DICH: coordinate HUD disabled <768px",
+    "Ponpon: chapter drag works on touch; the physics micro-interactions gate on pointer proximity"
+   ]
+  },
+  {
+   "step": 8,
+   "decide": "Write the copy last — labels, not narration.",
+   "rule": "One-clause hero, caps micro-labels, attitude list over credentials, warm imperative at the CTA, '->' on acquisition CTAs, compliance chrome in character. Refuse feature-benefit paragraphs — the motion argues, the copy labels. Self-narration ('we craft immersive experiences') is a scored defect even under high craft.",
+   "evidence": [
+    "Exat: one clause carries the whole positioning; Cuberto: four-word pitch",
+    "Eloy: attitude list, zero credentials",
+    "Cuberto: cookie banner stays lowercase and in-character"
+   ]
+  }
+ ],
+ "section_playbook": [
+  {
+   "role": "loader / preloader",
+   "forms": [
+    "mood-gate preloader (DICH Lottie)",
+    "loader-bar-becomes-navbar (Eloy)",
+    "cover-as-scene-one (Ponpon — no separate loader)"
+   ],
+   "pairs": [
+    "Lottie mood animation",
+    "progress-bar morph into fixed nav",
+    "first-scene WebGL warm-up"
+   ],
+   "intensity": 7,
+   "states": "Engineered first-impression channel feeding the ~50ms verdict: DICH After-Effects->Lottie mood-gate; Eloy's loader bar scales down and BECOMES the navbar; Ponpon opens directly on cover-scene-one. Hand off into the hero's entrance SplitText once fonts/assets are ready. Reduced-motion: skip the animated gate, paint a static branded frame, reveal on first paint; never add perceived latency past asset-ready without the mood payoff.",
+   "evidence": [
+    "DICH: Lottie mood-gate preloader (After Effects -> Lottie, Codrops 2025-06-02)",
+    "Eloy: loader bar scales down and becomes the navbar (Codrops 2025-10-15)",
+    "Ponpon: cover IS scene one, no separate loader"
+   ]
+  },
+  {
+   "role": "hero",
+   "forms": [
+    "type-as-image (self-naming wordmark)",
+    "chapter-cover (MISSING — Ponpon cover-is-scene-one over live WebGL)",
+    "hero-masthead media=none/back (declarative pitch, Cuberto)"
+   ],
+   "pairs": [
+    "characterful SplitText (color-cycle / random-skew-elastic)",
+    "cursor-proximity-typefield (Exat, when the hero IS the mechanic)",
+    "shader-surface / physics ground (Ponpon)"
+   ],
+   "intensity": 8,
+   "states": "Pointer layer MUST be live (a pointer-dead maximal hero is a defect): hero type reacts to cursor (Warhol Elvis-style scale, Exat proximity) or physics reacts to proximity (Ponpon). Entrance SplitText fires once after the loader hand-off.",
+   "evidence": [
+    "Warhol: SplitText scale 0->1 + warm single-hue array (#FB4E2B ×7 + #FFE5D5), back.out, 0.1s stagger",
+    "Exat: cursor-proximity glyph grid is the hero",
+    "Ponpon: cover physics — mask deform, balloon collision, cloud repulsion"
+   ]
+  },
+  {
+   "role": "proof / featured",
+   "forms": [
+    "full-bleed-figure (xN, Cuberto)",
+    "card-list",
+    "feature grids"
+   ],
+   "pairs": [
+    "figure-hover (zoom 1.1 + cue)",
+    "clip-reveal / image-curtain",
+    "masked-label-swap caption",
+    "graded random-stagger reveal (from:'random')"
+   ],
+   "intensity": 9,
+   "states": "This is often the CLIMAX (Cuberto ~30%). Figures answer hover with contained zoom + companion cue; reveals are graded/random, never uniform fade-up. Under a scrubbed decor channel running the whole zone.",
+   "evidence": [
+    "Cuberto: featured projects are the climax; scrubbed decor runs under {scrub:true}",
+    "Eloy: graded random-stagger (rows power3/2/1.in, scale steps, from:'random')"
+   ]
+  },
+  {
+   "role": "index / chapter-select",
+   "forms": [
+    "index-reel-header + index-list",
+    "chapter-select (MISSING — Ponpon record-collection)"
+   ],
+   "pairs": [
+    "index-row-hover (spotlight, siblings 45%)",
+    "snap-to-place navigation"
+   ],
+   "intensity": 5,
+   "states": "Hovered row lights accent + surfaces meta; siblings dim. Chapter tiles snap-to-place on drag/scroll/click. Rows are the living index, never a static list.",
+   "evidence": [
+    "Ponpon: chapters as album covers, drag/scroll/click, snap-to-place",
+    "index-row-hover canon (Depo Luxe, Son Daven, Terminal)"
+   ]
+  },
+  {
+   "role": "spectacle / specimen",
+   "forms": [
+    "specimen-grid (MISSING — Exat)",
+    "type-tester (MISSING — Exat)",
+    "webgl-scene(delegated) (Ponpon panel scenes)"
+   ],
+   "pairs": [
+    "cursor-proximity-typefield (MISSING)",
+    "scroll-speed-oscillator numerals",
+    "3D X-axis line rotation on enter",
+    "physics (Matter.js)"
+   ],
+   "intensity": 9,
+   "states": "The operable centrepiece. Cursor drives type by distance (7 rings, wght 200->900, blue->red); type-tester sliders write axis vars live; scroll velocity oscillates numerals; lines rotate on a full X-axis as they enter (sparingly). On touch: static grid.",
+   "evidence": [
+    "Exat: cursor-proximity glyph field + type tester + sine-wave numerals + 3D line rotation",
+    "Ponpon: scroll-as-playhead WebGL camera + velocity feedback"
+   ]
+  },
+  {
+   "role": "chapters / capability",
+   "forms": [
+    "editorial-split (xN)",
+    "section-color-rotation chapters (MISSING — DICH per-temperature)"
+   ],
+   "pairs": [
+    "char-assemble / kinetic-reveal h2",
+    "text-emphasis-fill + semantic-accent prose",
+    "figure-hover media",
+    "scroll-driven 3D companion"
+   ],
+   "intensity": 6,
+   "states": "Each chapter shifts color-temperature; a 3D companion (monster/stone) follows the cursor or scroll through them; headings assemble on enter. Quiets after the peak but stays above the maximal floor.",
+   "evidence": [
+    "DICH: per-section visual temperature; monster cursor-follower + scroll-driven orbital stone",
+    "Warhol: Elvis/Monroe named sections each own a signature effect"
+   ]
+  },
+  {
+   "role": "close / CTA-reprise",
+   "forms": [
+    "close-panel",
+    "modal-CTA (Warhol ticket)",
+    "CTA-reprise (Exat Get-Exat)"
+   ],
+   "pairs": [
+    "kinetic-reveal ask",
+    "fill-invert-cta / masked-label-swap channels",
+    "accent-link"
+   ],
+   "intensity": 6,
+   "states": "One imperative + decisive channel rows; the CTA answers hover with a full flood + inversion. '->' on acquisition asks. No media slot — the close cannot become a mood reel.",
+   "evidence": [
+    "Cuberto: 'Have an idea? Tell us' + dual real addresses",
+    "Exat: 'Get Exat ->' + credits"
+   ]
+  },
+  {
+   "role": "footer",
+   "forms": [
+    "footer-spectacle (Eloy connect-CTA clone-storm)",
+    "contact-first (Cuberto)",
+    "canvas-word-reveal (DICH)",
+    "kinetic social roll (Mat Voyce)"
+   ],
+   "pairs": [
+    "cursor-spawn-trail (MISSING — Warhol/DICH)",
+    "clone-storm (MISSING — Eloy connect-CTA)",
+    "canvas-brightness-reveal (MISSING — DICH)"
+   ],
+   "intensity": 9,
+   "states": "A designed moment, never bare chrome — often the deferred CLIMAX. Cursor spawns image/particle trail; hidden word reveals on hover via brightness sampling; the loudest interaction can land last.",
+   "evidence": [
+    "Eloy: connect-CTA ('CLICK TO CONNECT') clone-storm at the page close, mix-blend-mode:difference, back.in(1.7) exit",
+    "Warhol: footer cursor image-trail (brightness/contrast 300->100%)",
+    "DICH: footer canvas reveals 'DICH' on hover"
+   ]
+  }
+ ],
+ "element_states": {
+  "cta": {
+   "hover": "Full-token flood or rising-dome-fill + label inversion — Cuberto pill (border-radius:1000px, overflow:hidden) holds a fill parked at translateY(101%) with a domed leading edge (border-radius:50% 50% 0 0) that rises + flattens, transition transform 0.5s cubic-bezier(.4,0,0,1); solid variant floods a full token (0.5s Power3.easeOut, retract 0.4s) and inverts the icon. Solid-brand builds shift DARKER same-hue (never paler tint). Pair a label swap-slide synced to the fill. SECOND committed option = MAGNETIC pull: the button (or its label) translates toward the cursor within a proximity radius on mousemove and elastic-settles back on leave — a distinct mechanic from the fill; commit ONE signature per build. (Cuberto dome-fill + magnetic amplitudes are carried-verified from a prior live-CSS read, not re-fetched this run — see unverified.)",
+   "tap": "The fill IS the tap answer on touch (press-driven), or a hard-press offset-shadow collapse at 125ms; flash floor 90-160ms. Magnetic pull is a no-op on touch (no pointer to attract to).",
+   "focus": "focus-visible mirrors hover exactly (full flood + inversion) — the fill is reachable by keyboard."
+  },
+  "link": {
+   "hover": "LOUD (nav/overlay labels): skewed text-roll — label + duplicate in a clipped box translate -105% while each layer resolves skewY(0deg)<->skewY(7deg), transition transform 1.2s cubic-bezier(.19,1,.22,1); the 7deg skew lifts it above a plain vertical roll. QUIET (utility/footer): pseudo-element underline scaleX(0->1), transition 1s cubic-bezier(.16,1,.3,1). Per-char rollover (split-rollover) is the nav variant.",
+   "tap": "Instant accent color swap (no roll on touch); underline snaps to full.",
+   "focus": "Underline wipe + accent recolor on focus-visible; roll on nav links keeps an accessible name via aria-label."
+  },
+  "figure": {
+   "hover": "Contained zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue — tint, scrim lift, or caption rise; on dense grids the spotlight variant sharpens the hovered figure while siblings blur/dim (focus-defocus, keep galleries <~10 items).",
+   "tap": "Tap-to-enlarge (Awwwards Mobile Excellence line) or caption reveal; the zoom does not fire on touch.",
+   "focus": "focus-within triggers the same zoom + cue so keyboard users reach the caption."
+  },
+  "index_row": {
+   "hover": "Hovered row lights with an accent rule + surfaced metadata while siblings dim to 45% (index-row-hover spotlight); chapter tiles add snap-to-place feedback.",
+   "tap": "Row highlights on tap-active; meta stays visible (no hover-only content trapped).",
+   "focus": "Same spotlight on focus-visible; the row is a real <a> so focus order is preserved."
+  },
+  "heading": {
+   "hover": "ONLY on interactive headings — Exat design-space names morph specimen weight/width live; Warhol Elvis maps cursor-x to font-size (1.375->2.875em, power3.out 0.3s, return 0.4s). NEVER on prose, body copy, or numbers.",
+   "tap": "No hover analogue on touch — heading rests at its composed static frame.",
+   "focus": "Entrance is the state that matters: characterful SplitText (color-cycle back.out / random-skew elastic.out(0.7,0.7)), fired once on enter, reversible on scroll-back in the specimen register."
+  },
+  "nav": {
+   "hover": "Per-char rollover (split-rollover, staggered) or scramble-decode on section-nav links (DICH); the bar itself is position:fixed and transparent through scroll — background rgba(0,0,0,0), backdrop-filter:none, no border — at the top AND after scrolling, so the maximal canvas reads through.",
+   "tap": "Menu toggle drops a full-viewport curtain; links answer with an instant color swap; the bar never solidifies to an opaque brand-border bar.",
+   "focus": "Links keep a clean accessible name (aria-label) under the per-char split; focus-visible shows the accent state; menu is focus-trapped while open."
+  },
+  "cursor": {
+   "hover": "Custom pointer chrome (pointer:fine ONLY) — a lerped/lagging dot or ring (lerp ~0.1-0.2 toward the real pointer position) that morphs by CONTEXT: it grows and surfaces a label ('VIEW' / 'DRAG' / 'OPEN') over media and drag zones, shrinks to a dot over text, and can swap shape/color per section (DICH runs three variants: landing minimal-hypnotic, case denser-electric, transitions barely-there glimmer). Cuberto morphs to a labelled contextual state over media; Warhol/Exat drive type from the same pointer position. This is the archetype's defining hover affordance — the pointer chrome is a first-class element, not only a trail/field channel.",
+   "tap": "No custom cursor on touch (pointer:coarse) — the chrome is hidden entirely; the affordance it signalled degrades to the tap/press answer of the underlying element.",
+   "focus": "Cursor chrome is decorative and never carries keyboard focus (the element's own focus-visible does). Any label the cursor surfaces on hover must also be reachable without the pointer — no hover-only content trapped behind the cursor state."
+  }
+ },
+ "mobile_answer": "Pointer classes go dormant, press + scroll carry the load. Cursor FIELDS freeze to static composed grids (Exat 'touch devices receive static grid versions'); cursor TRAILS, pointer-parallax, and the custom cursor chrome go dormant/hidden; the coordinate HUD hides <768px (DICH). Press-class elements answer the tap with a flash/press floor 90-160ms; the CTA fill or hard-press offset-shadow IS the tap answer (magnetic pull is a no-op). Depth that came from the pointer now comes from SCROLL — kinetic type keeps its scroll-driven channel so the maximal floor survives. Swap the desktop hold-and-drag/proximity gallery for a native scroll-snap swipe track with tap-to-enlarge (the scored Mobile Excellence line). Any audio stays muted until an explicit gesture and behind a persistent toggle. The single peak degrades to a strong composed static frame, never a sub-30fps render — jurors test on real devices and 'sites that break on iPhone lose immediately'.",
+ "gaps": [
+  {
+   "component": "cursor-proximity-typefield",
+   "seen_in": [
+    "Exat (SOTD+FWA+CSSDA WOTM)"
+   ],
+   "mechanic": "A grid of glyphs/words where each unit's variable-font axis + color is driven by Euclidean distance from the cursor to its center. 7 concentric distance rings map to font-weight 200->900 and a hex-lerped color (e.g. #0000cb outer -> #FF0B00 inner); viewport-gated rAF loop (~16ms), promoted layers, no per-frame layout. Touch fallback = static composed grid. This is the archetype's signature mid-page spectacle and powers the currently-MISSING specimen-grid recipe form. No manifest component drives per-unit variable-font axes by pointer distance.",
+   "priority": 1
+  },
+  {
+   "component": "custom-contextual-cursor",
+   "seen_in": [
+    "DICH Fashion (SOTD+Dev, three section-swapped variants)",
+    "Warhol Arts (SOTD, cursor-driven type)",
+    "Cuberto (contextual state cursor — carried-verified)"
+   ],
+   "mechanic": "The pointer chrome itself as a first-class element (distinct from the trail/field channels): a lerped/lagging dot or ring (lerp ~0.1-0.2 toward the real pointer) that morphs by context — grows + surfaces a label over media/drag zones, shrinks over text, swaps shape/color per section. pointer:fine only; hidden on touch. The archetype's defining hover affordance had no state row before revision 2 (now added to element_states.cursor); flagged here because no manifest component ships the contextual pointer chrome.",
+   "priority": 1
+  },
+  {
+   "component": "section-accent-rotation",
+   "seen_in": [
+    "DICH Fashion (SOTD+Dev — SINGLE corpus winner)",
+    "Figma (per-section brand hues)"
+   ],
+   "mechanic": "The SATURATED-register per-section color rotation, NOT the archetype's universal color rule — it rests on ONE corpus winner (DICH) plus Figma; the other seven corpus sites are B&W, single-hue, 2-hue, or cream monochrome. The single-accent token contract (--ad-accent) cannot express it: a form/token pattern where each section claims its own accent (and optional ground) from a rotation array, driven by an IntersectionObserver that swaps --ad-accent (and companion CSS vars) as each section enters, so components inherit the section's color world with no per-component change. Optional per-section 'visual temperature' (warm/cool ground). Needed ONLY for the saturated / warm-maximal register — do not apply it to kinetic-register builds.",
+   "priority": 2
+  },
+  {
+   "component": "page-transition-choreography",
+   "seen_in": [
+    "Ponpon Mania (SOTM — per-transition WebGL shader mixes, confirmed this run)",
+    "Mat Voyce (SOTD+FWA — seamless page transitions)",
+    "21 TSI (SOTD — morphing section transitions)"
+   ],
+   "mechanic": "A between-view spectacle channel the scroll-within-page momentum model does not cover: on route/view change, blend the outgoing and incoming scenes through a custom shader mix driven by a GSAP tween (Ponpon renders previous+next WebGL pages and mixes in real time), or a morphing curtain/wipe (21 TSI). For multi-route maximal sites the transition is peak-adjacent — add it as one channel in the momentum floor for multi-view builds. Touch/reduced-motion: degrade to a fast crossfade or instant cut, never a sub-30fps blocking blend. The momentum model was scroll-within-page only; it had no between-view grammar.",
+   "priority": 2
+  },
+  {
+   "component": "kinetic-splittext-maximal",
+   "seen_in": [
+    "Warhol Arts (SOTD)",
+    "Ponpon Mania (SOTM)"
+   ],
+   "mechanic": "A characterful SplitText entrance distinct from the tier's monochrome line/char masks (kinetic-reveal, char-assemble): per-char scale 0->1 with a warm single-hue array (Warhol #FB4E2B ×7 + #FFE5D5, back.out, 0.1s stagger — a single-hue reveal, NOT a multi-hue cycle) OR per-char enter from x:100% with skewX random(-25,25) + rotation 5 + elastic.out(0.7,0.7) + 0.06s stagger (Ponpon), reversible on scroll-back. Keeps an accessible name via aria-label. The archetype's display-type signature; our current SplitText components are monochrome and non-characterful.",
+   "priority": 2
+  },
+  {
+   "component": "cursor-spawn-trail",
+   "seen_in": [
+    "Warhol Arts (SOTD, footer)",
+    "DICH Fashion (SOTD, pixel tracer)",
+    "Eloy Benoffi (connect-CTA clone-storm, adjacent)"
+   ],
+   "mechanic": "A maximalist cursor/idle channel: images or particles spawn at the cursor position as it moves (throttled by travel distance), each spawn tweens scale 0->1 + a filter decay (brightness/contrast 300%->100%) then opacity 1->0 over ~0.4s with a delay; z-index recycling prevents stacking. Eloy's variant is a contact/connect-CTA clone-storm (the 'CLICK TO CONNECT' button spawns 2 clones per 200px of pointer travel, up to 200, mix-blend-mode:difference, staggered enter/exit back.in(1.7)) at the page close — NOT a hero CTA. Fine-pointer only; dormant on touch. Our ambient-idle does not do cursor-spawn trails; this is a footer/idle spectacle channel.",
+   "priority": 2
+  },
+  {
+   "component": "type-tester",
+   "seen_in": [
+    "Exat (SOTD+FWA+CSSDA WOTM)"
+   ],
+   "mechanic": "An operable specimen widget: sliders write live CSS custom properties (--ff/--fs/--fw/--lh/--ls) onto a preview block so the visitor drives the type. Already flagged MISSING:type-tester in recipes.json (specimen-tour-exat) but has no component. The operable-proof beat in the specimen-tour macrostructure; pairs beside cursor-proximity-typefield.",
+   "priority": 3
+  },
+  {
+   "component": "scroll-speed-oscillator",
+   "seen_in": [
+    "Exat (SOTD+FWA+CSSDA WOTM)",
+    "Ponpon Mania (SOTM, velocity feedback + shader mixes)",
+    "21 TSI (SOTD, velocity/inertia distortion on media)"
+   ],
+   "mechanic": "A décor channel driven by scroll VELOCITY (not position). TYPE variant: large numerals/glyphs oscillate in a sine-wave whose amplitude tracks scroll speed (Exat); or a rendered object's position gets a velocity*0.01 feedback nudge (Ponpon). MEDIA variant: the same scroll-velocity signal drives RGB-shift/displacement distortion on imagery/surfaces (21 TSI cursor-distortion + WebGL displacement; Ponpon per-transition shader mixes) — a distinct channel from the position-bound scrubbed reveals, applied to surfaces not just type. Compositor-only, viewport-gated. Our scrubbed channels bind to scroll POSITION; none read velocity.",
+   "priority": 3
+  },
+  {
+   "component": "sound-channel + mute affordance",
+   "seen_in": [
+    "21 TSI (SOTD+FWA+CSSDA — boundary corpus member)"
+   ],
+   "mechanic": "An opt-in audio channel for sensory-maximal builds: muted by default, a single persistent mute/sound toggle (fixed, always reachable), UI/interaction SFX and/or an ambient bed unlocked on first user gesture (browsers block autoplay). Reduced-motion / data-saver / touch: audio stays off until explicitly enabled; the toggle state persists across the session. A real Awwwards channel for maximal builds, but sourced to a SINGLE boundary corpus member (21 TSI) — thin evidence; ship only when the brief sells sensory maximalism.",
+   "priority": 3
+  }
+ ],
+ "unverified": [
+  "Cuberto is the file's weakest-verified entry: cuberto.com's own Awwwards Site of the Day is real but dates to Jun 22 2018 (7.37 — outside the 2024-2026 window), and the Developer Award is NOT shown on the award page (awwwards.com/sites/cuberto). Multiple other cuberto entries are Nominee/Honorable Mention. Every Cuberto-specific amplitude in element_states.cta (dome-fill timings, expo curve, magnetic pull) and the custom-cursor spec is carried-verified from a prior run's live-CSS read, not re-fetched this run — load-bearing for the CTA + cursor state canon.",
+  "Mat Voyce: Awwwards Site of the Day + FWA Site of the Day + Webby honouree + Awwwards Site of the Month nominee (Jan 2025) are confirmed this run. The 'GSAP Site of the Year 2025 nominee' claim appears only in the Uncommon studio writeup and is NOT confirmed at the GSAP award body — treat as studio-claimed, not award-verified. F37 Judge / cream #FFFEF8 are design micro-details, not independently confirmed.",
+  "The Bold-Maximal Spectacle-Momentum Law is a synthesized design heuristic, not an award-body measurement. The peak-count-of-one cap IS a corpus observation (no verified winner stacks a second spectacle equal to its signature moment). But the specific '4-5 continuous channels' count and the 'among the highest continuation floor of any archetype' ranking are extrapolations across the corpus, not measured against a scored juror rubric. Defensible as design theory; do not present with the certainty of award-body fact.",
+  "The '4-6 colors per section' / per-section color rotation is NOT the archetype's universal color rule — it rests on a SINGLE corpus winner (DICH) plus a hand-wave to Figma. The other seven corpus sites are B&W (Ponpon mostly monochrome, 21 TSI strictly monochromatic), single-hue warm (Warhol #FB4E2B), 2-hue (Exat blue->red), cream monochrome (Mat Voyce), or glitch/brutalist (Eloy). Filed as a saturated-register expression (see the section-accent-rotation gap, downgraded to priority 2), not archetype canon.",
+  "21 TSI is a BOUNDARY member: strictly monochromatic (Codrops), kinetic-maximal on the motion axis, not the saturated-color register. Included only as a witness that the constant-motion floor holds outside saturated color; a purist reading files it under kinetic/brutalist. Not saturated-color canon.",
+  "Exat's exact Awwwards SOTD month is not pinned this run, but all three awards are confirmed (Awwwards SOTD page live, FWA case at thefwa.com/cases/exat-typeface-p2, CSSDA Website of the Month at cssdesignawards.com/wotm/exat-typeface/47246, scored 8.83); the earlier over-hedge on Exat's awards is resolved.",
+  "Nite Riot (BL/S®, Awwwards SOTD 7.64, 'minimalism gets a wild side', Difference blend mode, B&W) was evaluated and EXCLUDED from the core corpus — its restrained B&W palette makes it a weak bold-maximal fit (closer to brutalist-kinetic); noted here as an adjacent case, not evidence.",
+  "Jam the Chaos (Elvis Mao, SITCON 2026, Three.js/GSAP/Astro, 'rhythm in chaos', vote 9.1) is an Awwwards NOMINEE (2026-06-27), not yet a SOTD/SOTM/HM winner at time of research — excluded from the corpus per the award-verification bar; a strong future candidate if it wins.",
+  "DICH/Warhol per-button CTA hover states were not documented in their Codrops case studies (which focused on cursor/scroll/loader mechanics); the CTA element_states are grounded in Cuberto's carried-verified live-CSS canon + the fill-invert-cta manifest canon, not in DICH/Warhol button teardowns. Magnetic-CTA-hover is likewise Cuberto-sourced and inherits that carried-verified status."
+ ],
+ "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent."
 }

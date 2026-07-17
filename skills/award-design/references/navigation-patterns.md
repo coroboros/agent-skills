@@ -24,6 +24,8 @@ Fixed-position bar. One `passive`, rAF-coalesced scroll handler; **direction fro
 
 Defaults that read well: `TOP_GUARD = 64px`, `HIDE_TOL = 8px`, `SHOW_TOL = 8px`. Expose them as CSS custom properties so the values live in one place.
 
+**The winner norm is not hiding at all.** None of seven live-probed SOTD winners (2026 sample) hides its nav on scroll direction — a minimal persistent bar, or no persistent nav, everywhere. A quiet persistent bar is the first choice; show-on-scroll-up is the opt-in for content-dense pages whose bar would fight the reading. Whichever is chosen, the outcome gate binds: **zero visible hide/show flips under scroll jitter** (preflight §8 — instrumented, any mechanism), and no client constraint ever justifies flicker.
+
 **Hidden = `translateY(-100%)`, shown = `translateY(0)`.** Transform and paint only — never animate `height` / `top` / `display`, which trigger layout and cost you CLS. Transition ~300–400ms on a decelerating ease (`cubic-bezier(0.16, 1, 0.3, 1)`), matching the imperative's window.
 
 ## Surface — the hero crossing

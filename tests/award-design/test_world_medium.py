@@ -77,7 +77,10 @@ class TestMediumDecisionUngated(unittest.TestCase):
     def test_skill_medium_decision_extended(self):
         s = _skill()
         self.assertIn("the brief commits an immersive world", s)
-        self.assertIn("rendered or scrubbed and driven, never displayed", s)
+        # Amended 2026-07-17 (imposed-register verdict): film loops joined the driven
+        # set — the ban is on displayed stills, not on any specific driven mechanism.
+        self.assertIn("rendered, scrubbed, or looping real footage — never displayed stills", s)
+        self.assertIn("cinematic film loop", s)
 
     def test_delegation_trigger_ungated_from_object(self):
         s = _skill()
