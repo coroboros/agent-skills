@@ -3,14 +3,23 @@
  * reveals-on-scroll-up (winner: Siena Film Foundation, Lando Norris). Past a scroll
  * threshold the bar gains a translucent, backdrop-blurred --ad-ground; scrolling down
  * hides it (translateY(-100%)), scrolling up brings it back, and it is always shown at
- * the very top. One passive scroll listener, scrollY read once per rAF frame; transform
- * and background only. The hidden/grounded state lives in JS-toggled classes, so a dead
+ * the very top. Direction comes from ACCUMULATORS, never a raw per-frame delta
+ * (navigation-patterns.md): cumulative down-travel past HIDE_TOL hides, cumulative
+ * up-travel past SHOW_TOL shows, a direction change resets the opposite accumulator,
+ * and dy == 0 (scroll-stop, smooth-scroll settle) holds the current state — so
+ * sub-tolerance jitter and inertial settles produce zero hide/show flips.
+ * One passive scroll listener, scrollY read once per rAF frame; transform and
+ * background only. The hidden/grounded state lives in JS-toggled classes, so a dead
  * script or no-JS render leaves a normal, fully-visible fixed nav.
  *
- * Usage:  awardShowNav.init(root, { selector, threshold })
+ * Usage:  awardShowNav.init(root, { selector, threshold, hideTol, showTol })
  *   root      Element|Document  scope (default document)
  *   selector  string            the nav to drive (default '[data-ad-nav]')
- *   threshold px scrolled        ground + hide/show engage past this (default 80)
+ *   threshold px                 top guard: ground + hide/show engage past this
+ *   hideTol   px                 cumulative down-travel before hiding
+ *   showTol   px                 cumulative up-travel before showing
+ * Each numeric option falls back to a CSS custom property on :root, then a default:
+ *   --ad-nav-top-guard (64) · --ad-nav-hide-tol (8) · --ad-nav-show-tol (8)
  * Returns { destroy() }. Idempotent. Reduced-motion never auto-hides (ground still applies).
  *
  * Tokens: --ad-ground (oklch(14% 0.01 260)), --ad-dur-base (420ms),
@@ -49,11 +58,23 @@
     document.head.appendChild(s);
   }
 
+  function cssNumber(name) {
+    if (!global.getComputedStyle || !document.documentElement) return NaN;
+    return parseFloat(global.getComputedStyle(document.documentElement).getPropertyValue(name));
+  }
+  function setting(optValue, cssProp, fallback) {
+    if (optValue != null) return optValue;
+    var fromCss = cssNumber(cssProp);
+    return isNaN(fromCss) ? fallback : fromCss;
+  }
+
   function init(root, opts) {
     root = root || document;
     opts = opts || {};
     var selector = opts.selector || '[data-ad-nav]';
-    var threshold = opts.threshold != null ? opts.threshold : 80;
+    var threshold = setting(opts.threshold, '--ad-nav-top-guard', 64);
+    var hideTol = setting(opts.hideTol, '--ad-nav-hide-tol', 8);
+    var showTol = setting(opts.showTol, '--ad-nav-show-tol', 8);
     injectCss();
 
     var navs = Array.prototype.slice.call(root.querySelectorAll(selector))
@@ -66,14 +87,27 @@
     }
 
     var lastY = scrollTop();
+    var downAcc = 0;
+    var upAcc = 0;
+    var hidden = false;
     var ticking = false;
     var rafId = 0;
     var destroyed = false;
 
     function apply(y) {
+      var dy = y - lastY;
+      if (y <= threshold) {
+        downAcc = 0; upAcc = 0; hidden = false;           // top zone: always shown
+      } else if (dy > 0) {
+        upAcc = 0; downAcc += dy;                          // downward intent accumulates
+        if (downAcc > hideTol) hidden = true;
+      } else if (dy < 0) {
+        downAcc = 0; upAcc -= dy;                          // upward intent accumulates
+        if (upAcc > showTol) hidden = false;
+      }
+      // dy == 0 — a scroll-stop or smooth-scroll settle frame: hold the current state.
+      if (reduce()) hidden = false;
       var scrolled = y > threshold;
-      // Hide only while scrolling down past the threshold; the top zone always shows.
-      var hidden = !reduce() && y > threshold && y > lastY;
       navs.forEach(function (nav) {
         nav.classList.toggle('is-scrolled', scrolled);
         nav.classList.toggle('is-hidden', hidden);

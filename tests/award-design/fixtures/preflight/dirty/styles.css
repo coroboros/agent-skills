@@ -37,3 +37,6 @@ a:focus {
 /* moving-window flicker tells */
 .hero-parallax { background-attachment: fixed; }
 .lens-crisp { clip-path: circle(8rem at var(--lens-x) var(--lens-y)); transform-origin: var(--lens-x) var(--lens-y); }
+
+/* class-role drift: build CSS re-styling a library component role */
+.ad-cta--fill.is-primary:hover { background: #d97016; }

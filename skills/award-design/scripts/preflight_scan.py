@@ -137,6 +137,15 @@ LINE_RULES = [
      "translated layer instead (motion-palette.md, moving windows)",
      re.compile(r"""\.style\.backgroundPosition|setProperty\(\s*['"]background-position"""),
      CODE_EXTS),
+    # Library components inject their CSS from JS strings and form stylesheets ship
+    # zero decoration, so any .css file that SELECTS a component role class is build
+    # CSS re-styling a role the library already owns — the class-role drift that put
+    # two hover verbs on one primary label (CALDERA close vs arrival).
+    ("ROLE-RESTYLE", FAIL,
+     "build CSS styles a library component role (.ad-* / .is-primary) — the role's "
+     "treatment comes from its library instance, page-wide; a section or form never "
+     "redefines it (class-role uniformity)",
+     re.compile(r"\.(?:ad-[a-z][\w-]*|is-primary)\b[^{}]*\{"), {".css", ".scss"}),
     ("BG-ATTACH-FIXED", REVIEW,
      "background-attachment: fixed — the mobile banding/repaint tell; translate "
      "a layer instead (motion-palette.md, moving windows)",

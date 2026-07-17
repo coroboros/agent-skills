@@ -79,6 +79,38 @@ class TestNavigationPatternsReference(unittest.TestCase):
                       "reads are rAF-coalesced, not throttled")
 
 
+class TestNavComponentImplementsTheAccumulator(unittest.TestCase):
+    """The library component must implement the machine navigation-patterns.md
+    prescribes. MARE and CALDERA both shipped nav flicker from the same root: the
+    component tested the raw per-frame delta while the reference prescribed
+    accumulators — a reference/component contradiction no test drove. Harness
+    evidence (2026-07-17): raw delta = 19 hide/show flips under ±3px jitter;
+    accumulator = 0 flips, 1 transition per genuine intent."""
+
+    def setUp(self):
+        comp = SKILL_DIR / "assets" / "components" / "show-on-scroll-up-nav.js"
+        self.src = comp.read_text(encoding="utf-8")
+
+    def test_direction_from_accumulators_never_raw_delta(self):
+        self.assertIn("downAcc", self.src)
+        self.assertIn("upAcc", self.src)
+        self.assertNotIn("y > lastY", self.src,
+                         "raw-delta direction test — the flicker root MARE and CALDERA shipped")
+
+    def test_direction_change_resets_the_opposite_accumulator(self):
+        self.assertRegex(self.src, r"upAcc\s*=\s*0;\s*downAcc\s*\+=")
+        self.assertRegex(self.src, r"downAcc\s*=\s*0;\s*upAcc\s*-?=")
+
+    def test_dy_zero_holds_state(self):
+        self.assertIn("dy == 0", self.src)
+        self.assertIn("hold", self.src.lower())
+
+    def test_tolerances_exposed_as_css_custom_properties(self):
+        for prop in ("--ad-nav-top-guard", "--ad-nav-hide-tol", "--ad-nav-show-tol"):
+            with self.subTest(prop=prop):
+                self.assertIn(prop, self.src)
+
+
 class TestOverflowClipDiscipline(unittest.TestCase):
     def test_anti_pattern_tell_present(self):
         ap = _read("anti-patterns.md").lower()
