@@ -26,6 +26,16 @@ Never hand-roll a fake product UI out of divs, borders, and gradients to simulat
 
 An honest labeled placeholder beats a hand-rolled CSS illustration of a UI: the placeholder tells the user exactly what to supply; the fake screenshot pretends the work is done.
 
+## Native resolution or nothing — the fidelity floor
+
+Soft pixels read as broken before anything else on the page is judged — a real photograph upscaled past its pixels is the fake-div of resolution. The floor, measured against the winner corpus (Apple's current scrub tier is 3600×2100 — *supersampled* above desktop retina; the 7.9-scoring film site ships 1920–3900px textures; the one 2×-upscaled winner ever measured scored 7.3, the SOTD floor):
+
+- **Signature and full-bleed surfaces: delivered pixels ≥ device pixels at the asset's worst moment** — deepest scrub zoom, largest cover-fit, hover scale included. The ratio is `rendered device px / shipped source px`, computed, never eyeballed. ≤1.0 or the surface fails.
+- **Below 1.0× of CSS pixels: disqualifying anywhere** — no measured winner ships a hero asset narrower than the viewport's CSS width.
+- **A scrubbed sequence is real frames or it is not a sequence.** Every frame is a distinct real sample — a footage frame, a render frame, a drawn frame; 30fps extraction from real video is the corpus norm (winner sequences: 89–1,182 frames per section). Baking synthetic in-betweens from a handful of stills has **zero winner precedent** — holding only stills, animate the full-resolution still live (transform/WebGL push — the Siena route, every source pixel preserved) and never bake it down.
+- **Treatment never buys back resolution on full-bleed photography.** Grain, grade, and compression texture sit on top of full-res sources, not in place of them; the documented ~2× survivals are dark-field product isolation and stylized non-photographic render — never a full-bleed photograph.
+- **Emitting below a source you hold is negligence, not optimization.** The phased budget (`award-imperatives.md` #7) streams heavy tiers behind the loader precisely so fidelity is never traded to bytes — a 6000px original in the working directory and a 1280px derivative on the wire is the exact trade it bans.
+
 ## Real brand logos
 
 - Source marks from **Simple Icons** (simpleicons.org) or **devicon** (devicon.dev) — real SVG wordmarks and glyphs, never a text span styled to look like a logo.

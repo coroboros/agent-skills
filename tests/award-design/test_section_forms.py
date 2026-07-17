@@ -336,6 +336,13 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         self.assertIn("regenerates its own placement ledger", self.rubric)
         self.assertIn("the verdict is comparative or it is nothing", self.rubric)
 
+    def test_rubric_asset_fidelity_audit(self):
+        self.assertIn("**The asset-fidelity audit — measured from files, before any composition verdict.**",
+                      self.rubric)
+        self.assertIn("source px → shipped px → rendered device px at the asset's worst moment", self.rubric)
+        self.assertIn("no capture can clear this row", self.rubric)
+        self.assertIn("it never spends fidelity", self.rubric)
+
 
 if __name__ == "__main__":
     unittest.main()

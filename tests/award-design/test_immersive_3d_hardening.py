@@ -95,6 +95,41 @@ class TestAxis2FidelityFloor(unittest.TestCase):
         self.assertIn("compositor", self.low)
 
 
+class TestSequenceFidelityFloor(unittest.TestCase):
+    """CALDERA postmortem: 62 frames baked from 4 stills at 1280x720, cover-drawn on
+    2880x1800 device px. Corpus-measured floor (r4 medium-floor verdict): winners ship
+    distinct real frames at >= device pixels on the signature surface; the one 2x
+    upscale ever measured scored 7.3, the SOTD floor; synthetic in-betweens from
+    stills have zero precedent."""
+
+    def test_imagery_carries_the_floor(self):
+        img = _read("imagery.md")
+        self.assertIn("## Native resolution or nothing", img)
+        self.assertIn("delivered pixels ≥ device pixels", img)
+        self.assertIn("zero winner precedent", img)
+        self.assertIn("animate the full-resolution still live", img)
+        self.assertIn("Treatment never buys back resolution", img)
+
+    def test_preflight_asset_fidelity_box(self):
+        pf = _read("preflight.md")
+        self.assertIn("**Asset fidelity — measured, one row per signature asset**", pf)
+        self.assertIn("rendered device px at the worst moment", pf)
+
+    def test_phase1_wires_floor_and_source_clause(self):
+        p1 = _phase(1)
+        self.assertIn("sequence-fidelity floor", p1)
+        self.assertIn("constrains SOURCES, never the engine", p1)
+
+    def test_immersive_playbook_carries_the_floor(self):
+        import json
+        pb = SKILL_DIR / "assets" / "components" / "playbooks" / "immersive.json"
+        d = json.loads(pb.read_text(encoding="utf-8"))
+        self.assertGreaterEqual(d["revision"], 3)
+        hero = d["spectacle_model"]["hero"]
+        self.assertIn("sequence-fidelity floor", hero)
+        self.assertIn("ZERO winner precedent", hero)
+
+
 class TestAxis3InputCorrectness(unittest.TestCase):
     def setUp(self):
         self.web3d = _read("ingredients/web3d-for-sites.md").lower()
