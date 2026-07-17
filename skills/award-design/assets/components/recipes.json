@@ -632,7 +632,7 @@
         },
         {
           "role": "demo-panels",
-          "form": "MISSING:pinned-demo-panels",
+          "form": "pinned-demo-panels",
           "pairs": {
             "copy": "text-emphasis-fill"
           },
@@ -690,7 +690,7 @@
         },
         {
           "role": "capability-strip",
-          "form": "MISSING:divided-strip",
+          "form": "divided-capability-strip",
           "pairs": {},
           "intensity": 5
         },

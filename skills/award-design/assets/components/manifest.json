@@ -939,6 +939,89 @@
         ]
       },
       "whenToUse": "The studio-index hero: corner identity tags in terminal mono framing one giant identity slab, and structurally NO CTA slot — the withheld CTA defers activation to the footer finale (footer-clone-machine). The bundled enhancer char-diff swaps any tag declaring data-tag-swap (TextPlugin type:'diff' 0.3s analog, flat clock, text-only mutation); the nav above pairs with scramble-decode. Layout survives a dead script; reduced motion keeps the authored line."
+    },
+    {
+      "id": "pinned-demo-panels",
+      "css": "forms/pinned-demo-panels.css",
+      "js": "forms/pinned-demo-panels.js",
+      "global": "awardPinnedDemoPanels",
+      "winner": "Anime.js v4 (the specimen-tour peak; panel count not re-verifiable this run — static markup surfaced 6 feature blocks)",
+      "archetypes": [
+        "bento"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "panels",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "stage": [
+          "right",
+          "left",
+          "back"
+        ]
+      },
+      "pairs": {
+        "panels": [
+          "live-demo-tile",
+          "text-emphasis-fill"
+        ]
+      },
+      "whenToUse": "The specimen-tour peak: N viewport panels of scroll runway under enhancer-pinned copy/demo layers — NATIVE scroll scrubs each panel's cross-fade as a pure function of position, the demo layer runs THAT panel's claim (mount live-demo-tile in [data-panel-demo] so the peak replays), boundary parks swap fixed for absolute so the layer never overlays neighboring sections, and the active panel's data-panel-accent publishes page-wide as --ad-pdp-accent. Reduced motion / no JS: stacked static panels, every band legible.",
+      "init": "awardPinnedDemoPanels.init(root, { selector, fade })"
+    },
+    {
+      "id": "divided-capability-strip",
+      "css": "forms/divided-capability-strip.css",
+      "js": "forms/divided-capability-strip.js",
+      "global": "awardDividedCapabilityStrip",
+      "winner": "Endex (divide-x capability strip, marquee on mobile — winner-verified award; the recipes ref MISSING:divided-strip and this playbook-gap name are one mechanic)",
+      "archetypes": [
+        "bento"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cells",
+          "element": "ul",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "cells": [
+          "text-emphasis-fill"
+        ]
+      },
+      "whenToUse": "The understanding-layer band between hero and the proof grid: 3-5 capability cells in one row divided by hairline rules (the divide-x tell), capability COPY — distinct from stat-band (no big numbers) and logo-wall (words, not logos). Under 768px the static answer is a native pan; the enhancer promotes it to a continuous marquee (one WAAPI transform loop over enhancer-owned clones, constant px/s tempo, IO + hidden-tab paused). Reduced motion: the pannable strip stands.",
+      "init": "awardDividedCapabilityStrip.init(root, { selector, speed })"
     }
   ],
   "components": [
@@ -2044,6 +2127,71 @@
       "deps": [],
       "whenToUse": "The curtain-LESS work-to-work seam: go(fn) names the outgoing figure, runs the swap inside a View Transition, names the incoming figure — the pair morphs geometry under a cross-dissolve with NO cover phase ('fluid and almost imperceptible'), the opposite of curtain-transition's wipe and distinct from route-view-transition-carrier's whole-view crossfade. The imposed ladder is short: reduced motion OR no View Transitions → an instant cut, never a fade-to-ground.",
       "init": "awardContinuousWorkTransition.init(root, { selector }) -> { go(fn, opts), destroy }"
+    },
+    {
+      "id": "live-demo-tile",
+      "file": "live-demo-tile.js",
+      "global": "awardLiveDemoTile",
+      "winner": "Anime.js v4 (SOTD 2025-05-06 7.62 + Dev Award — every tile a running capability demo); Endex (awarded artifact's product-UI tiles; live site unconfirmed this run); Attio (product-UI tiles, design-canonical)",
+      "archetypes": [
+        "bento"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-font-mono"
+      ],
+      "deps": [],
+      "whenToUse": "The bento DNA 'every tile shows its claim' made executable: the tile's content is a RUNNING canvas demo the builder supplies as a draw function — a working micro-demo of the actual claim, never a faked recording — with no card chrome or lift at all. Drives: auto (period loop), hover (pointer eases the timeline), drag (delta scrubs it; arrows step it; a tile-scoped DRAG cursor chip on fine pointers), scroll (viewport traversal — a pure scroll function). One gated rAF per tile; tokens re-resolve at ~2Hz so a page recolor reaches a mounted demo. Reduced motion / no JS: the authored poster stands.",
+      "init": "awardLiveDemoTile.init(root, { selector, demos })"
+    },
+    {
+      "id": "perpetual-tile-machines",
+      "file": "perpetual-tile-machines.js",
+      "global": "awardPerpetualTileMachines",
+      "winner": "Anime.js v4 (red-dot period loop, clockwork counter); Vercel/Supabase/Linear five tile-types (design-canonical — a strong default, not award law)",
+      "archetypes": [
+        "bento"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink"
+      ],
+      "deps": [],
+      "whenToUse": "The five structured content machines that keep a bento grid alive at rest — distinct from ambient-idle's unstructured glow/float/shimmer/pulse. Mode enum via data-ad-machine: list (FLIP auto-sort, last item promotes to top), command (typewriter cycling prompts, blinking caret, processing shimmer), status (breathing badge; a chip pops on an overshoot spring, holds 3s, vanishes), stream (gapless −50% glide, linear infinite), focus (staggered highlight + float-in toolbar). All loops authored paused, IO-run per tile, hidden-tab paused; the command machine pins the accessible name. Reduced motion / no JS: nothing starts, the authored tile stands.",
+      "init": "awardPerpetualTileMachines.init(root, { selector })"
+    },
+    {
+      "id": "section-scale-momentum",
+      "file": "section-scale-momentum.js",
+      "global": "awardSectionScaleMomentum",
+      "winner": "Sui ('Gradient transition' + 'Interactive footer' submission-highlighted captures; amplitudes inferred from the archetype canon, not measured this run)",
+      "archetypes": [
+        "bento"
+      ],
+      "tokens": [
+        "--ad-accent"
+      ],
+      "deps": [],
+      "whenToUse": "Momentum at SECTION scale — the co-equal channel beside the per-tile loops. Sections declaring data-ad-ssm-bg morph the page ground continuously with scroll (color-mix in oklab through three custom props; a pure function of the viewport center walking the section midpoints, reversible by construction). A footer declaring data-ad-ssm-footer becomes a live surface: a pointer-tracked accent glow plus opt-in [data-ssm-rise] children scrubbing with the footer's own arrival ratio. One self-parking rAF. Reduced motion: each section takes its declared color as a STATIC ground; no glow, no rise.",
+      "init": "awardSectionScaleMomentum.init(root, { target, selector, footerSelector })"
+    },
+    {
+      "id": "spotlight-expand-tile",
+      "file": "spotlight-expand-tile.js",
+      "global": "awardSpotlightExpandTile",
+      "winner": "Vercel spotlight (design-canonical); Apple highlights scrub (shipped-canonical); Codrops technique (verified params: ~2.5vw sibling shift, 12-point clip-path cross, (dim−5vw)/dim preview scale, power2.inOut)",
+      "archetypes": [
+        "bento"
+      ],
+      "tokens": [
+        "--ad-dur-base",
+        "--ad-spot-ease"
+      ],
+      "deps": [],
+      "whenToUse": "The layout-AWARE row expand — not a contained zoom, not a lift: the hovered tile's oversized preview opens through a 12-point clip-path cross across its row, measured row siblings lean away ~2.5vw, the de-saturated preview restores to color, copy fades up. Transform/clip-path/filter/opacity only — the grid never reflows. Fine pointers hover/focus; coarse pointers keep the complete color surface at rest and the first tap expands (pre-tap state decides; the second tap navigates; Escape collapses). Reduced motion / no JS: the authored grid stands in full color.",
+      "init": "awardSpotlightExpandTile.init(root, { selector, grow })"
     }
   ]
 }
