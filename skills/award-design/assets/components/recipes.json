@@ -986,7 +986,7 @@
       "sections": [
         {
           "role": "identity-hero",
-          "form": "MISSING:identity-terminal-hero",
+          "form": "identity-terminal-hero",
           "pairs": {
             "tags": "split-rollover"
           },
@@ -1021,7 +1021,7 @@
           "climax": true
         }
       ],
-      "footer": "footer-spectacle (the loudest interaction lands last)",
+      "footer": "footer-spectacle (footer-clone-machine — the loudest interaction lands last)",
       "loader": "loader-into-navbar",
       "paceNotes": "peak at the bottom — the footer-as-finale is the climax; even build through identity hero, about, and the hover-charged work index; no in-fold CTA",
       "whenToUse": "brutalist/terminal studio index where the footer is the spectacle finale and the work index carries the proof"

@@ -879,6 +879,66 @@
         ]
       },
       "whenToUse": "The argument spine's proof peak (~40%): the index+card hybrid — a headliner tier of 3/4 media cards over the full bill as divided index rows. The card frame fill survives a paired component's clip wrapper by construction. Layout only; interaction is the paired components' job."
+    },
+    {
+      "id": "identity-terminal-hero",
+      "css": "forms/identity-terminal-hero.css",
+      "js": "forms/identity-terminal-hero.js",
+      "global": "awardIdentityTerminalHero",
+      "winner": "Eloy Benoffi, Treize Grammes (Codrops-verified)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "tag",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "identity",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "meta",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "corner": [
+          "tl",
+          "tr",
+          "bl",
+          "br"
+        ],
+        "align": [
+          "low",
+          "center"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "tag": [
+          "split-rollover"
+        ],
+        "identity": [
+          "kinetic-reveal",
+          "glitch-type"
+        ]
+      },
+      "whenToUse": "The studio-index hero: corner identity tags in terminal mono framing one giant identity slab, and structurally NO CTA slot — the withheld CTA defers activation to the footer finale (footer-clone-machine). The bundled enhancer char-diff swaps any tag declaring data-tag-swap (TextPlugin type:'diff' 0.3s analog, flat clock, text-only mutation); the nav above pairs with scramble-decode. Layout survives a dead script; reduced motion keeps the authored line."
     }
   ],
   "components": [
@@ -968,7 +1028,7 @@
         "gsap/ScrollTrigger (optional)"
       ],
       "whenToUse": "Smoothed-scroll foundation for scrubbed/pinned reveals. Enhances only when Lenis is present; native scroll otherwise; null instance under reduced-motion.",
-      "init": "awardSmoothScroll.init(root, { lerp, wheelMultiplier }) -> { destroy, lenis }"
+      "init": "awardSmoothScroll.init(root, { lerp, wheelMultiplier, anchors, anchorOffset, homeSelector }) -> { destroy, lenis }"
     },
     {
       "id": "show-on-scroll-up-nav",
@@ -1809,6 +1869,65 @@
       "deps": [],
       "whenToUse": "The restraint-register figure treatment: on hover/focus a raw-WebGL CRT shader dissolves the still into accent-tinted offset R/G/B channels (scanlines, row jitter, noise dissolve), then the buffered video underneath autoplays once the transition completes; leaving reverses and pauses. Tap toggles on touch. No WebGL → the spec's invert(100%) flash ≤0.2s then the video. Distinct from glitch-type (CSS heading split) and figure-hover (contained zoom).",
       "init": "awardCrtDissolve.init(root, { selector })"
+    },
+    {
+      "id": "continuous-idle-carry",
+      "file": "continuous-idle-carry.js",
+      "global": "awardContinuousIdleCarry",
+      "winner": "Eloy Benoffi (maximalist register); Naked City Films (restraint register — 'movement without chaos'); FlowFest 2025 (loud register, boundary-adjacent; params reference-carried); velocity-skew coupling = the documented Osmo winner variant",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The never-silent carry, amplitude per brief: a marquee band whose speed AND skew couple to scroll velocity (skew = velocity/-300 clamped, easing back to 0; ='constant' is the tamer fixed band), ONE in-character idle element cursor-lerped on fine pointers with a time-driven bob on touch, and a restraint drift that keeps sections subtly moving on one perpetual loop. Distinct from ambient-idle (glow/float décor) — this renders the archetype's own metaphor in-character. Handle exposes pause/resume for the WCAG 2.2.2 control.",
+      "init": "awardContinuousIdleCarry.init(root, { speed, skewMax, idleAmp, driftAmp })"
+    },
+    {
+      "id": "footer-clone-machine",
+      "file": "footer-clone-machine.js",
+      "global": "awardFooterCloneMachine",
+      "winner": "Eloy Benoffi (Codrops-verified to the number — the best-sourced mechanic in the brutalist corpus)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The studio-index deferred peak: mousemove inside the footer clones the primary CTA up to 200 copies at random ~200px-step offsets under mix-blend-mode:difference; mouseleave exits them opacity 0 / scale 0.6 / 0.2s / back.in(1.7) / stagger 0.4 from random. The loudest interaction lands LAST — the hero's withheld CTA activates here. Fine-pointer only; touch and reduced motion keep the authored static reprised CTA. The field clips its own storm.",
+      "init": "awardFooterCloneMachine.init(root, { selector, ctaSelector, max, step, travel })"
+    },
+    {
+      "id": "index-hover-preview",
+      "file": "index-hover-preview.js",
+      "global": "awardIndexHoverPreview",
+      "winner": "Awwwards 'index module' canon (Olivier Gillaizeau, Kirschberg nominee entries) — canon-documented, not single-winner-verified this run",
+      "archetypes": [
+        "brutalist",
+        "minimalist",
+        "editorial-dark"
+      ],
+      "tokens": [
+        "--ad-ground-2",
+        "--ad-dur-base",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The canonical studio-index hover: hovering a project row surfaces its thumbnail in ONE cursor-attached floating layer (lerped toward the pointer) — this surfaces the WORK, where index-row-hover lights the ROW; the two compose. Coarse pointers get the documented fallback: inline images revealed as rows center under scroll. Reduced motion keeps coverage, drops amplitude (snap, no trail, no fade).",
+      "init": "awardIndexHoverPreview.init(root, { selector, rowSelector, lerp })"
+    },
+    {
+      "id": "scrubbed-decor-draw",
+      "file": "scrubbed-decor-draw.js",
+      "global": "awardScrubbedDecorDraw",
+      "winner": "Eloy Benoffi (flower-pluck + sheared title rows, Codrops-verified to the number); FlowFest 2025 (rainbow-arch draw, reference-carried, boundary-adjacent)",
+      "archetypes": [
+        "brutalist"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The dead-middle fix: a décor layer welded to GLOBAL scroll behind the prose — SVG paths that stroke-draw/undraw with page progress (scrub:0), a field whose children pluck out in random order on a heavily lagged catch-up (scrub 8, each 0.1, bounce.inOut, to opacity 0), and title rows sheared by cycling power curves (yPercent -300, scrub 0.6). Positional by construction: every channel re-fires on every pass and reverses. Distinct from dolly-zoom (pinned push) and shader-surface (WebGL ground).",
+      "init": "awardScrubbedDecorDraw.init(root, { scrub })"
     }
   ]
 }
