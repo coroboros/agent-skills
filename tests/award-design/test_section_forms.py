@@ -401,6 +401,25 @@ class TestImposedVerdicts(unittest.TestCase):
         self.assertIn("**The winner norm is not hiding at all.**", self.navpat)
         self.assertIn("zero visible hide/show flips under scroll jitter", self.navpat)
 
+    def test_loophole_closures(self):
+        """Red-team round (2026-07-17): a lazy builder defeats prose gates through
+        self-defined predicates, self-graded evidence, and escape hatches. Pin the
+        closures for the four BREAKS-class findings."""
+        # #1/#2 — the Siena route never satisfies the immersive hero; re-scope
+        # needs evidence + the user.
+        self.assertIn("never the immersive hero-medium verdict", self.skill)
+        self.assertIn("the re-scope is not the builder's call", self.skill)
+        # #3 — asset numbers carry provenance; the builder cannot narrow the class.
+        self.assertIn("a dimension with no provenance is an asserted number", self.preflight)
+        self.assertIn("**Signature asset = every full-bleed surface and every scrubbed/zoomed surface**",
+                      self.preflight)
+        # #5 — the OVERRIDE form is re-adjudicated, not self-satisfied.
+        self.assertIn("Every OVERRIDE line is a standing refutation target", self.skill)
+        # #4 — probe order is fixed; a chosen-to-fail probe is the escape, not a gap.
+        self.assertIn("ToolSearch for the browser MCP is the mandatory first probe", self.preflight)
+        # #6 — the instrumented count is the pass, the mechanism is the implementation.
+        self.assertIn("the recorded zero-flip count is the pass", self.preflight)
+
 
 if __name__ == "__main__":
     unittest.main()
