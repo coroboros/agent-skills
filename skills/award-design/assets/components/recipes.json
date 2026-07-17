@@ -866,7 +866,7 @@
       "sections": [
         {
           "role": "cover",
-          "form": "MISSING:chapter-cover",
+          "form": "chapter-cover",
           "pairs": {
             "wordmark": "char-assemble",
             "ground": "shader-surface"
@@ -875,7 +875,7 @@
         },
         {
           "role": "chapter-select",
-          "form": "MISSING:chapter-select",
+          "form": "chapter-select",
           "pairs": {
             "rows": "index-row-hover"
           },
@@ -899,7 +899,7 @@
         }
       ],
       "footer": "bare-cue (minimal legal chrome)",
-      "loader": "MISSING:narrative-scene-one-loader (read-now hands the live cover into the reader)",
+      "loader": "narrative-scene-one-loader (read-now hands the live cover into the reader)",
       "paceNotes": "the cover is scene one (no separate hero); climax at the chaptered panel scenes with camera moves + physics; About is the rest/close; scroll is a playhead. Requires a WebGL path",
       "whenToUse": "story brand / comic / exhibition where the page is a chaptered world you operate"
     },

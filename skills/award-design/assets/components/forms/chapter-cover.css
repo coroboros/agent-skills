@@ -1,0 +1,132 @@
+/*
+ * chapter-cover — section form (winner: Ponpon Mania — SOTM 2025-10 + Dev
+ * Award; already flagged MISSING:chapter-cover in recipes.json,
+ * chapter-world-ponpon's cover role). The cover-is-scene-one hero: no
+ * separate loader screen, no marketing masthead — the page OPENS on the
+ * story's first scene. A full-viewport stage whose ground slot is the live
+ * scene (poster plate + WebGL/shader/physics mount) clipped to the section,
+ * with the wordmark stack and the read-now affordance composed over it. The
+ * form owns placement only; the scene, the wordmark's entrance and the
+ * warm-up/handoff are the paired components' job (ground → shader-surface,
+ * wordmark → char-assemble / kinetic-splittext-maximal, read-cue →
+ * narrative-scene-one-loader). Zero decoration, zero motion — a dead script
+ * leaves a legible poster cover with a working anchor cue.
+ *
+ * Markup contract (slots in reading order):
+ *   <section data-ad-form="chapter-cover" data-align="center">
+ *     <figure data-slot="ground">                        required
+ *       <img data-ad-scene-poster src="…" alt="…">       the standing plate
+ *       <div data-ad-scene-live>…canvas mount…</div>     the live scene
+ *     </figure>
+ *     <p  data-slot="kicker">…</p>                       optional
+ *     <h1 data-slot="wordmark">…</h1>                    required
+ *     <p  data-slot="standfirst">…</p>                   optional
+ *     <div data-slot="read-cue"><a data-ad-read-now href="#reader">…</a></div>  required
+ *   </section>
+ *
+ * Variants: data-align="center|start" — centered cover vs corner-anchored.
+ * Enhancer: none — the arrival behavior is narrative-scene-one-loader's
+ * contract, initialized by the builder on this form's hooks.
+ * Tokens: --ad-space, --ad-measure, --ad-ink, --ad-ground,
+ *         --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="chapter-cover"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  justify-items: center;
+  padding: calc(var(--_sp) * 3);
+  box-sizing: border-box;
+  overflow: hidden; /* the scene ground never paints over neighboring sections */
+  background: var(--ad-ground, oklch(14% 0.01 260));
+  color: var(--ad-ink, oklch(96% 0 0));
+  text-align: center;
+}
+
+/* ---- the scene ground: full-bleed under the stack ------------------------ */
+[data-ad-form="chapter-cover"] > [data-slot="ground"] {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  overflow: hidden;
+}
+[data-ad-form="chapter-cover"] > [data-slot="ground"] img,
+[data-ad-form="chapter-cover"] > [data-slot="ground"] video,
+[data-ad-form="chapter-cover"] > [data-slot="ground"] canvas,
+[data-ad-form="chapter-cover"] > [data-slot="ground"] > div {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+/* the poster plate rides above the live mount until the loader lifts it */
+[data-ad-form="chapter-cover"] [data-ad-scene-poster] { z-index: 1; }
+
+/* ---- the stack: composed over the scene ---------------------------------- */
+[data-ad-form="chapter-cover"] > [data-slot="kicker"],
+[data-ad-form="chapter-cover"] > [data-slot="wordmark"],
+[data-ad-form="chapter-cover"] > [data-slot="standfirst"],
+[data-ad-form="chapter-cover"] > [data-slot="read-cue"] {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+}
+[data-ad-form="chapter-cover"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-block-end: calc(var(--_sp) * 0.8);
+}
+[data-ad-form="chapter-cover"] > [data-slot="wordmark"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(3rem, 11vw, 8.5rem);
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+[data-ad-form="chapter-cover"] > [data-slot="standfirst"] {
+  font-size: clamp(1rem, 1.6vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: pretty;
+  max-inline-size: min(var(--ad-measure, 62ch), 44ch);
+  margin-block-start: calc(var(--_sp) * 1.2);
+}
+[data-ad-form="chapter-cover"] > [data-slot="read-cue"] {
+  margin-block-start: calc(var(--_sp) * 2);
+  display: flex;
+  align-items: center;
+  gap: calc(var(--_sp) * 0.6);
+}
+[data-ad-form="chapter-cover"] > [data-slot="read-cue"] a,
+[data-ad-form="chapter-cover"] > [data-slot="read-cue"] button {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: inherit;
+}
+
+/* ---- corner-anchored variant --------------------------------------------- */
+[data-ad-form="chapter-cover"][data-align="start"] {
+  align-content: end;
+  justify-items: start;
+  text-align: left;
+}
+
+/* ---- mobile --------------------------------------------------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="chapter-cover"] {
+    padding: calc(var(--_sp) * 2) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="chapter-cover"] > [data-slot="wordmark"] {
+    font-size: clamp(2.6rem, 14vw, 4.5rem);
+  }
+}

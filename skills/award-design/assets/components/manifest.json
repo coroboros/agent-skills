@@ -1022,6 +1022,117 @@
       },
       "whenToUse": "The understanding-layer band between hero and the proof grid: 3-5 capability cells in one row divided by hairline rules (the divide-x tell), capability COPY — distinct from stat-band (no big numbers) and logo-wall (words, not logos). Under 768px the static answer is a native pan; the enhancer promotes it to a continuous marquee (one WAAPI transform loop over enhancer-owned clones, constant px/s tempo, IO + hidden-tab paused). Reduced motion: the pannable strip stands.",
       "init": "awardDividedCapabilityStrip.init(root, { selector, speed })"
+    },
+    {
+      "id": "chapter-cover",
+      "css": "forms/chapter-cover.css",
+      "js": null,
+      "global": null,
+      "winner": "Ponpon Mania (SOTM 2025-10 + Dev Award — the cover IS scene one; already flagged MISSING:chapter-cover in recipes.json, chapter-world-ponpon cover role)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "ground",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "wordmark",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "standfirst",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "read-cue",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "align": [
+          "center",
+          "start"
+        ]
+      },
+      "pairs": {
+        "ground": [
+          "shader-surface"
+        ],
+        "wordmark": [
+          "char-assemble",
+          "kinetic-splittext-maximal"
+        ],
+        "read-cue": [
+          "narrative-scene-one-loader"
+        ]
+      },
+      "whenToUse": "The cover-is-scene-one hero for chaptered story worlds: a full-viewport stage (100svh) whose ground slot is the live scene — poster plate above the WebGL/shader mount, both clipped full-bleed — with kicker/wordmark/standfirst/read-cue composed over it. Layout only: the scene, the wordmark's entrance and the warm-up/handoff belong to the paired components. A dead script leaves a legible poster cover with a working anchor cue."
+    },
+    {
+      "id": "chapter-select",
+      "css": "forms/chapter-select.css",
+      "js": "forms/chapter-select.js",
+      "global": "awardChapterSelect",
+      "winner": "Ponpon Mania (SOTM 2025-10 + Dev Award — chapters as album covers, 'drag/scroll/click, snap-to-place'; already flagged MISSING:chapter-select in recipes.json, chapter-world-ponpon chapter-select role)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": false
+        },
+        {
+          "name": "rows",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "rows": [
+          "index-row-hover"
+        ]
+      },
+      "whenToUse": "The record-collection chapter index: square album-cover tiles (real links) in one edge-bleed rail, native CSS scroll-snap with snap-align center (snap-to-place with zero script — pan, snap and click all survive a dead script). The enhancer adds what a mouse cannot do natively: grab-drag with the snap released only for the drag's duration and a centered settle on release, drag-click suppression (click stays click, drag stays drag), and nearest-center marking (data-cs-active + aria-current) so paired components read the picked-up record. Touch keeps the native pan + snap untouched.",
+      "init": "awardChapterSelect.init(root, { selector })"
     }
   ],
   "components": [
@@ -2192,6 +2303,97 @@
       "deps": [],
       "whenToUse": "The layout-AWARE row expand — not a contained zoom, not a lift: the hovered tile's oversized preview opens through a 12-point clip-path cross across its row, measured row siblings lean away ~2.5vw, the de-saturated preview restores to color, copy fades up. Transform/clip-path/filter/opacity only — the grid never reflows. Fine pointers hover/focus; coarse pointers keep the complete color surface at rest and the first tap expands (pre-tap state decides; the second tap navigates; Escape collapses). Reduced motion / no JS: the authored grid stands in full color.",
       "init": "awardSpotlightExpandTile.init(root, { selector, grow })"
+    },
+    {
+      "id": "cursor-proximity-typefield",
+      "file": "cursor-proximity-typefield.js",
+      "global": "awardCursorProximityTypefield",
+      "winner": "Exat (exat.hottype.co — Awwwards SOTD + FWA of the Day + CSSDA Website of the Month 8.83, all three verified; the 7-ring count, wght 200->900 sweep and hot->cold lerp are the winner's values, token-mapped here)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-tf-hot",
+        "--ad-tf-cold",
+        "--ad-tf-cell",
+        "--ad-tf-snap"
+      ],
+      "deps": [],
+      "whenToUse": "The archetype's signature operable spectacle: a grid of glyphs (the component splits) or authored word units where each unit's font-weight and color are driven by the cursor's Euclidean distance — 7 quantized rings, wght 900 inner -> 200 outer, hot->cold color-mix between token poles. Every style lives in per-ring CSS (JS writes one data attribute per ring transition), centers are cached and re-measured in one batched pass, the field is contained so the loop never causes page-wide layout. Touch AND reduce: the static composed grid, never split — the winner's own answer. Powers the specimen-grid form (rung 5B).",
+      "init": "awardCursorProximityTypefield.init(root, { selector, radius })"
+    },
+    {
+      "id": "cursor-spawn-trail",
+      "file": "cursor-spawn-trail.js",
+      "global": "awardCursorSpawnTrail",
+      "winner": "Warhol Arts (SOTD 2025-04 — footer cursor image-trail; the brightness/contrast 300->100% decay and ~0.4s fade are winner-verified, the travel step default is illustrative); DICH Fashion (SOTD+Dev 2025-06 — pixel tracer)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ease-signature",
+        "--ad-cst-size"
+      ],
+      "deps": [],
+      "whenToUse": "The maximalist spawn channel for the section that earns it (Warhol runs it in the footer only): images (authored pool, cycled in order) or accent pixels (no pool — the DICH tracer) spawn at the cursor throttled by travel distance, each playing scale 0->1 + filter decay then the fade, on a recycled node pool with z recycling. The host is clipped while live (JS-applied — the full-bleed overlay law); the layer is aria-hidden + pointer-events:none so content is never gated. Dormant on touch and under reduce. NOT the Eloy connect-CTA clone-storm — that is footer-clone-machine.",
+      "init": "awardCursorSpawnTrail.init(root, { selector, step, pool })"
+    },
+    {
+      "id": "custom-contextual-cursor",
+      "file": "custom-contextual-cursor.js",
+      "global": "awardContextualCursor",
+      "winner": "DICH Fashion (SOTD+Dev 2025-06 — three section-swapped variants: landing minimal-hypnotic, case denser-electric, transitions barely-there glimmer); Cuberto (contextual labelled state over media — carried-verified); Warhol Arts (SOTD 2025-04, cursor-driven type from the same pointer)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-ground",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The pointer chrome as a first-class element: a tight dot plus a lagging ring (lerp 0.16 — the winner's ~0.1-0.2 window) that morphs by context — grows + surfaces the declared label over [data-ad-cursor-zone] (the dot collapses so the label stays legible), modest grow over links, shrinks over prose, compresses on press — and swaps its costume per [data-ad-cursor-variant] section (calm/electric/glimmer, the DICH three). Fine-pointer only, torn down live when the pointer class flips; decorative (aria-hidden, pointer-events:none), zones must keep their own visible affordance. One cursor component per page, ever — minimal-cursor-signature is the quiet-register slot, cursor-verb-label the field-scoped verb teacher.",
+      "init": "awardContextualCursor.init(root, { lerp, textSelector, linkSelector })"
+    },
+    {
+      "id": "kinetic-splittext-maximal",
+      "file": "kinetic-splittext-maximal.js",
+      "global": "awardKineticSplittextMaximal",
+      "winner": "Warhol Arts (SOTD 2025-04 — scale 0->1, single-hue array #FB4E2B ×7 + #FFE5D5, back.out, 0.1s stagger, all verified; per-char duration illustrative); Ponpon Mania (SOTM 2025-10 — x:100% + skewX random(-25,25) + rotation 5 + elastic.out(0.7,0.7) + 0.06s stagger, reversible on scroll-back, all verified)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ksm-hue",
+        "--ad-ksm-pop",
+        "--ad-dur-reveal"
+      ],
+      "deps": [],
+      "whenToUse": "The characterful display-type entrance, distinct from the tier's monochrome masks (kinetic-reveal, char-assemble): mode 'scale' = Warhol's per-char scale on back.out with the 8-char single-hue cycle (the eighth char pops light — NOT a multi-hue cycle), fire-once; mode 'elastic' = Ponpon's skewed elastic enter (a CSS linear() sampling of elastic.out(0.7,0.7), overshoot-bezier fallback, GSAP never required), REVERSIBLE — leaving the viewport rewinds the run so re-entry replays. The elastic mode IS the playful-elastic register: one register page-wide stays the law. aria-label preserved; reduce never splits.",
+      "init": "awardKineticSplittextMaximal.init(root, { selector, threshold })"
+    },
+    {
+      "id": "narrative-scene-one-loader",
+      "file": "narrative-scene-one-loader.js",
+      "global": "awardNarrativeSceneOneLoader",
+      "winner": "Ponpon Mania (SOTM 2025-10 + Dev Award — 'cover-as-scene-one, no separate loader' is the verified corpus fact; the recipes ref reads 'read-now hands the live cover into the reader')",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The chapter-world arrival: NOT an overlay gate — the visitor lands ON scene one. The cover's poster stands from first paint, the live ground warms under it (opts.ready — tie it to the engine's real asset manager; default window load), then the poster crossfades away and the READ-NOW cue rises; activating it is the in-character handoff into the reader (onRead mounts the entrance choreography). Scroll is never locked, there is no rAF, a failed warm-up never strands the cover, and no minimum hold ever adds latency past asset-ready. Reduce: the poster IS the scene, the cue is immediate, the jump instant. Pairs with the chapter-cover form's hooks; gated-splash remains the consent-gate move.",
+      "init": "awardNarrativeSceneOneLoader.init(root, { selector, ready, target, onRead })"
     }
   ]
 }
