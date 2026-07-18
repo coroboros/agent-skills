@@ -1,401 +1,408 @@
 {
- "archetype": "bento",
- "revision": 3,
- "corpus": [
-  {
-   "site": "Anime.js v4",
-   "url": "animejs.com",
-   "award": "Awwwards SOTD 2025-05-06 (7.62) + Developer Award (7.84, Animations/Transitions 9.00) — verified awwwards.com/sites/anime-js. Julian Garnier, no studio. CORRECTION (rev2): the prior 'Site of the Month May 2025' and 'Product Honors' claims were refuted and verified false this run — the site's Awwwards page lists ONLY SOTD + DEV AWARD; SOTM May 2025 went to 'Navigate'. Neither embellishment earned its '(verified)' tag.",
-   "fit": "The one hard-awarded WHOLE-SITE bento: modular asymmetric grid of self-contained feature cards, each demoing one capability (scroll scrubber, modular core, animator's toolbox, layout-morph). Every tile IS a running demo — the structure documents the product. Brutalist palette over bento structure; the demo is the product."
-  },
-  {
-   "site": "Endex",
-   "url": "endex.ai",
-   "award": "Awwwards Honorable Mention 2025-03-24 (verified — awwwards.com/sites/endex; 'AI Built For Excel'; authors Together (Pro) + Will Beeching, 15/17 jury votes). Community avg 6.5-10 across axes.",
-   "fit": "Editorial capability grid — the bento-fatigue correction: dark hero, divided capability strip, feature cards carrying concrete proof rather than an icon-and-label stamp; climax is diffuse and the grid carries the proof. CAVEAT (rev2): live endex.ai this run is copy-led hero -> enterprise carousel -> value triad -> testimonials -> a TEXT feature list 'Built for Power Teams' with GENERIC ICONS (Excel logo, cells.svg) and NO visible 12-col product-UI bento above or below the fold. The 'real product-UI slices, never icons' reading describes the 16-month-old awarded artifact or is inferred (product-UI could be JS/video-gated from WebFetch) — treated as ONE proof register, not archetype law."
-  },
-  {
-   "site": "Sui",
-   "url": "sui.io",
-   "award": "Awwwards SOTD 2026-06-23 (7.38; Animations/Transitions 7.40) (verified — awwwards.com/sites/sui). New brand + site by HOLOGRAPHIK + AKKA Studio + Sui Foundation Design (rev2 credit fix — prior revision named only Sui Foundation Design and dropped the two lead studios).",
-   "fit": "Fresh hard SOTD carried by card grids: 'The Sui Stack' section decomposes the platform into 6 modular tiles (Sui/Walrus/Seal/Nautilus/DeepBook/SuiNS) rendered as CUSTOM ILLUSTRATIONS (a blockchain has no product-UI to slice), four expandable industry cards (institutions/AI/DeFi/gaming), and a 4-tile CTA hub. Ships an intro loader + 0% counter, a scroll-driven gradient section transition, and an interactive footer. These are the submission's OWN highlighted design captures (rev2: NOT jury or user commentary — the prior 'jury praised' framing was refuted)."
-  },
-  {
-   "site": "Attio",
-   "url": "attio.com",
-   "award": "Awwwards Honorable Mention 2021-04-06 (verified — awwwards.com/sites/attio; microinteractions/UI-design emphasis). NOTE: award is for an earlier design; the current attio.com bento feature grid is design-canonical, not the awarded artifact.",
-   "fit": "Product card-grid CRM: the current site is a canonical modern bento — feature tiles each showing a live slice of the CRM UI (pipelines, records, automations), border-hairline surfaces, per-card micro-motion. Included for the operable product-UI-in-tile canon; treat the FRESH award weight as the 2021 HM only."
-  },
-  {
-   "site": "Vercel (platform + Vercel Ship 2025)",
-   "url": "vercel.com",
-   "award": "Vercel Ship 2025 = Awwwards Honorable Mention 2025-05-22 (verified — awwwards.com/sites/vercel-ship-2025, event microsite). The platform feature grids are design-canonical, whole-site award unverified.",
-   "fit": "Design-canonical monochromatic bento SECTION: platform-feature grid with the cursor-tracked conic border-shine (light streak rides the 1px card edge under the pointer) and token-step solid CTA. The 'edge-catching light' binder — same streak on card border, CTA glint, nav frost. Section-level, not whole-site; the edge-light binder is attributed to the vercel.com platform grid, NOT the awarded event microsite."
-  },
-  {
-   "site": "Linear",
-   "url": "linear.app",
-   "award": "Design-canonical, whole-site award unverified. Cited across award-jury commentary and SaaS-design roundups as the reference minimalist bento; closes on an oversized-wordmark reprise (shipped).",
-   "fit": "Design-canonical disciplined bento SECTION: minimalist feature grid, gradient/atmospheric variant, border-glow bloom on dark grounds, tight-tracked static display type. The restraint pole of the archetype — content-first, motion restrained."
-  },
-  {
-   "site": "Supabase",
-   "url": "supabase.com",
-   "award": "Design-canonical, whole-site award unverified. The dark-bento border-glow canon cited in the reference effect palette.",
-   "fit": "Design-canonical dark bento SECTION: flat panel grid on ~#0A0A0F ground, per-tile OKLCH accent, blurred accent gradient behind the card fades opacity 0->1 as a soft under-glow (border-glow bloom), cursor-tracked conic border-shine on the hairline. The 'border-glow' binder."
-  },
-  {
-   "site": "Apple (MacBook Air / iPhone highlights)",
-   "url": "apple.com",
-   "award": "Design-canonical, not an Awwwards submission. The canonical bento on product-detail pages ('Get the highlights.' tile grid).",
-   "fit": "Design-canonical structural-pure bento: 6-tile 'highlights' grid, six claims in one screen, a different photographic/render background per cell to differentiate while the radius+gutter rhythm holds; tiles scrub into place after the fold. The origin of the SaaS bento lineage. Copy 'M5. The chip that zips.' verified verbatim on apple.com/macbook-air/."
-  }
- ],
- "story": {
-  "arcs": [
-   "Specimen-tour (Anime.js, winner-verified): left-copy/right-demo hero [attention] -> toolbox card grid, one capability per tile [understanding] -> pinned 100lvh demo panels over a persistent fixed demo layer [proof, the one designed peak] -> modules bento + '24.50 KB' bundle-stat tile [proof] -> sponsors logo-wall [rest] -> get-started close -> newsletter footer; 12-16 viewport-heights. The product demonstrates ITSELF, one capability per tile; the grid IS the documentation.",
-   "Capability-grid / editorial (Endex, winner-verified award; Vercel/Linear shipped): dark hero [attention] -> divided capability strip (divide-x, marquee on mobile) [understanding] -> feature grid whose cards carry concrete proof — product-UI slices where a UI exists, else custom illustrations/diagrams [proof, diffuse climax] -> CTA close -> compact footer [rest]. Proof-by-showing, not by icon-and-label; the bento-fatigue correction — editorial over the saturated tile wall. CAVEAT: live endex.ai this run shows a text feature list with icons, not a product-UI bento — the product-UI reading is from the awarded artifact / inferred.",
-   "Highlights-bento + deep-dive (Apple, shipped; Sui, winner-verified): render/claim hero [attention] -> 'Get the highlights' N-tile bento, all claims in one screen [understanding] -> per-theme full-bleed long-form or audience-segmented expandable cards [proof] -> CTA tile hub -> mega-footer [close]; climax diffuse. Sui's variant decomposes the PRODUCT into a stack of tiles, then segments the audience into expandable cards.",
-   "Structural-pure decomposition (Sui, winner-verified): the platform is broken into named modular tiles ('The Sui Stack' — 6 components) rendered as custom illustrations, each tile a self-contained unit of the whole; the story is 'here is the system, decomposed so you can hold it.'"
+  "archetype": "bento",
+  "revision": 4,
+  "corpus": [
+    {
+      "site": "Anime.js v4",
+      "url": "animejs.com",
+      "award": "Awwwards SOTD 2025-05-06 (7.62) + Developer Award (7.84, Animations/Transitions 9.00) — verified awwwards.com/sites/anime-js. Julian Garnier, no studio. CORRECTION (rev2): the prior 'Site of the Month May 2025' and 'Product Honors' claims were refuted and verified false this run — the site's Awwwards page lists ONLY SOTD + DEV AWARD; SOTM May 2025 went to 'Navigate'. Neither embellishment earned its '(verified)' tag.",
+      "fit": "The one hard-awarded WHOLE-SITE bento: modular asymmetric grid of self-contained feature cards, each demoing one capability (scroll scrubber, modular core, animator's toolbox, layout-morph). Every tile IS a running demo — the structure documents the product. Brutalist palette over bento structure; the demo is the product."
+    },
+    {
+      "site": "Endex",
+      "url": "endex.ai",
+      "award": "Awwwards Honorable Mention 2025-03-24 (verified — awwwards.com/sites/endex; 'AI Built For Excel'; authors Together (Pro) + Will Beeching, 15/17 jury votes). Community avg 6.5-10 across axes.",
+      "fit": "Editorial capability grid — the bento-fatigue correction: dark hero, divided capability strip, feature cards carrying concrete proof rather than an icon-and-label stamp; climax is diffuse and the grid carries the proof. CAVEAT (rev2): live endex.ai this run is copy-led hero -> enterprise carousel -> value triad -> testimonials -> a TEXT feature list 'Built for Power Teams' with GENERIC ICONS (Excel logo, cells.svg) and NO visible 12-col product-UI bento above or below the fold. The 'real product-UI slices, never icons' reading describes the 16-month-old awarded artifact or is inferred (product-UI could be JS/video-gated from WebFetch) — treated as ONE proof register, not archetype law."
+    },
+    {
+      "site": "Sui",
+      "url": "sui.io",
+      "award": "Awwwards SOTD 2026-06-23 (7.38; Animations/Transitions 7.40) (verified — awwwards.com/sites/sui). New brand + site by HOLOGRAPHIK + AKKA Studio + Sui Foundation Design (rev2 credit fix — prior revision named only Sui Foundation Design and dropped the two lead studios).",
+      "fit": "Fresh hard SOTD carried by card grids: 'The Sui Stack' section decomposes the platform into 6 modular tiles (Sui/Walrus/Seal/Nautilus/DeepBook/SuiNS) rendered as CUSTOM ILLUSTRATIONS (a blockchain has no product-UI to slice), four expandable industry cards (institutions/AI/DeFi/gaming), and a 4-tile CTA hub. Ships an intro loader + 0% counter, a scroll-driven gradient section transition, and an interactive footer. These are the submission's OWN highlighted design captures (rev2: NOT jury or user commentary — the prior 'jury praised' framing was refuted)."
+    },
+    {
+      "site": "Attio",
+      "url": "attio.com",
+      "award": "Awwwards Honorable Mention 2021-04-06 (verified — awwwards.com/sites/attio; microinteractions/UI-design emphasis). NOTE: award is for an earlier design; the current attio.com bento feature grid is design-canonical, not the awarded artifact.",
+      "fit": "Product card-grid CRM: the current site is a canonical modern bento — feature tiles each showing a live slice of the CRM UI (pipelines, records, automations), border-hairline surfaces, per-card micro-motion. Included for the operable product-UI-in-tile canon; treat the FRESH award weight as the 2021 HM only."
+    },
+    {
+      "site": "Vercel (platform + Vercel Ship 2025)",
+      "url": "vercel.com",
+      "award": "Vercel Ship 2025 = Awwwards Honorable Mention 2025-05-22 (verified — awwwards.com/sites/vercel-ship-2025, event microsite). The platform feature grids are design-canonical, whole-site award unverified.",
+      "fit": "Design-canonical monochromatic bento SECTION: platform-feature grid with the cursor-tracked conic border-shine (light streak rides the 1px card edge under the pointer) and token-step solid CTA. The 'edge-catching light' binder — same streak on card border, CTA glint, nav frost. Section-level, not whole-site; the edge-light binder is attributed to the vercel.com platform grid, NOT the awarded event microsite."
+    },
+    {
+      "site": "Linear",
+      "url": "linear.app",
+      "award": "Design-canonical, whole-site award unverified. Cited across award-jury commentary and SaaS-design roundups as the reference minimalist bento; closes on an oversized-wordmark reprise (shipped).",
+      "fit": "Design-canonical disciplined bento SECTION: minimalist feature grid, gradient/atmospheric variant, border-glow bloom on dark grounds, tight-tracked static display type. The restraint pole of the archetype — content-first, motion restrained."
+    },
+    {
+      "site": "Supabase",
+      "url": "supabase.com",
+      "award": "Design-canonical, whole-site award unverified. The dark-bento border-glow canon cited in the reference effect palette.",
+      "fit": "Design-canonical dark bento SECTION: flat panel grid on ~#0A0A0F ground, per-tile OKLCH accent, blurred accent gradient behind the card fades opacity 0->1 as a soft under-glow (border-glow bloom), cursor-tracked conic border-shine on the hairline. The 'border-glow' binder."
+    },
+    {
+      "site": "Apple (MacBook Air / iPhone highlights)",
+      "url": "apple.com",
+      "award": "Design-canonical, not an Awwwards submission. The canonical bento on product-detail pages ('Get the highlights.' tile grid).",
+      "fit": "Design-canonical structural-pure bento: 6-tile 'highlights' grid, six claims in one screen, a different photographic/render background per cell to differentiate while the radius+gutter rhythm holds; tiles scrub into place after the fold. The origin of the SaaS bento lineage. Copy 'M5. The chip that zips.' verified verbatim on apple.com/macbook-air/."
+    }
   ],
-  "thread": "Winners choose ONE binder physics and express it differently across every element class — the fil rouge is a single aliveness vocabulary, never one hover stamped on every tile. Anime.js binds everything with MOTION (the button presses, the link brightens, the tile animates, the demo scrubs, the footer link fill-swipes — all anime.js primitives, one engine); Vercel binds with EDGE-CATCHING LIGHT (the same streak rides the card border, glints the CTA, frosts the nav); Supabase binds with BORDER-GLOW (the blurred accent under-glow on card, the tinted CTA, the panel bloom). Button, card, and nav differ in MECHANISM yet obey ONE physics. The thread is carried hero-to-footer by TWO co-equal momentum channels, not by one repeated spectacle: (1) PER-TILE LIFE — tiles run infinite micro-loops (the red-dot period pulse, the clockwork counter, a typewriter cycle, an auto-sorting list, a gapless data carousel) so the grid rarely goes fully silent; and (2) SECTION-SCALE devices — a scroll-driven gradient transition that morphs color between sections and an interactive footer (both are Sui SOTD's own highlighted captures). Per-tile loops are ONE channel, not THE channel — a fresh winner sustains momentum at section scale too. Cohesion = one binder + consistent corner radii + equal gutters + one accent-per-tile role; variety = each tile its own register (one mono metric, one display line, one live canvas or custom illustration). One hover on every tile is sameness mistaken for consistency — the flattening tell this archetype exists to break.",
-  "copy": "Product-as-subject declaratives plus second-person imperatives; never 'we' in headlines. Hero = a noun phrase or <=7-word category claim; each tile's copy names ONE capability and the tile SHOWS it — via a live demo, a product-UI slice, or a custom illustration/diagram; the words describe, the tile proves (a label-only tile that never shows its claim is the archetype's defining failure). Section heads 2-6 words; mono eyebrows + tabular in-tile metrics that can count-up on reveal. Terminal period on fragment headlines is the house tic; zero exclamation; refuses hype adjectives, states the capability and stops. Quoted to calibrate SPECIFICITY (the named count, the category, the refusal), never to ship: 'All-in-one animation engine.' (Anime.js — category in four words, the period is the animated red dot), 'AI Built For Excel' (Endex — the wedge in four), 'Build full stack' (Sui — the imperative names the job), 'M5. The chip that zips.' (Apple — a spec turned into rhyme, verified verbatim), 'Get the highlights.' (Apple — the bento's own section head is an imperative)."
- },
- "spectacle_model": {
-  "hero": "The first viewport commits COPY-LED CLARITY WITH ONE LIVE ANCHOR — not a full-bleed spectacle. Bento heroes open with a <=7-word category claim and pair it with ONE living element: a right-side operable demo (Anime.js left-copy/right-demo split, the demo already animating), a dark statement + dual-CTA over an armed ground (Endex), or a claim over a card-preview/stack (Sui 'Build full stack'). The commitment is DUAL: legible-in-one-beat (the claim reads instantly) AND alive-in-one-beat (the anchor demo/tile is already running, pointer- or autoplay-armed). Critically, the bento hero is NOT where the archetype spends its spectacle — there is no card-grid fold; the grid is a mid-page proof layer, so the hero under-commits deliberately and the aliveness is distributed downstream into the tiles and section-scale devices.",
-  "continuation": [
-   "Anime.js: hero (headline chars stagger + red-dot period color/scale LOOP + 'the web' word-swap LOOP — these ARE the intro, ~7) -> toolbox card grid, each tile a perpetual micro-demo (~5) -> a run of PINNED 100lvh demo panels over a persistent position:fixed demo layer, copy cross-fading at opacity:0->1, page-wide --hex-current-* recolor per section, the demo running the heading's claim while you drag/scrub it (the ONE designed PEAK, ~9, interactive+looping so it REPLAYS) -> modules bento with counter-roll stat tiles (~6) -> sponsors logo-wall (the one REST, ~4) -> get-started close (~6) -> footer with instant fill-swipe link hovers. The tiles run continuously as the idle band. NOTE: static markup this run surfaced 6 feature blocks, not 8 — exact panel count and CSS amplitudes are not re-executable via WebFetch.",
-   "Endex: hero -> divided capability strip -> feature grid -> CTA close. Award-verified climax is DIFFUSE — there is no single peak; the grid carries even, sustained proof. The prior 'live product-UI slices building a model' read is NOT confirmed on the current live site (text feature list + icons this run) — kept as the awarded-artifact reading, not re-verified.",
-   "Sui: intro loader + 0% counter -> hero 'Build full stack' -> partner logo carousel -> value triad ('Ownable by design' / 'Verifiable by default' / 'Business ready') -> 'The Sui Stack' 6-tile card grid (custom illustrations) with hover interactions -> builder/user benefit split -> four EXPANDABLE industry cards (institutions/AI/DeFi/gaming) that open on interaction -> 4-tile CTA hub -> interactive footer. Momentum sustained by the scroll-driven gradient section transition + per-tile hover + the expand mechanic + the live footer; no silent stretch. All submission-highlighted captures (not jury commentary).",
-   "Apple: render hero -> 'Get the highlights.' 6-tile bento that SCRUBS into place after the fold (each tile reveals on scroll) -> per-theme full-bleed long-form deep-dives. Climax diffuse; the tiles' scroll-reveal + the per-cell photography carry it.",
-   "Vercel / Supabase / Linear (design-canonical): the feature grid is a mid-page SECTION where every tile carries a perpetual micro-interaction (intelligent-list auto-sort, command-input typewriter, live-status breathing badge, wide-data-stream carousel, focus-mode highlight) — the 'alive dashboard' that never rests; the cursor-tracked border-shine/glow adds a second pointer channel on fine-pointer."
+  "story": {
+    "arcs": [
+      "Specimen-tour (Anime.js, winner-verified): left-copy/right-demo hero [attention] -> toolbox card grid, one capability per tile [understanding] -> pinned 100lvh demo panels over a persistent fixed demo layer [proof, the one designed peak] -> modules bento + '24.50 KB' bundle-stat tile [proof] -> sponsors logo-wall [rest] -> get-started close -> newsletter footer; 12-16 viewport-heights. The product demonstrates ITSELF, one capability per tile; the grid IS the documentation.",
+      "Capability-grid / editorial (Endex, winner-verified award; Vercel/Linear shipped): dark hero [attention] -> divided capability strip (divide-x, marquee on mobile) [understanding] -> feature grid whose cards carry concrete proof — product-UI slices where a UI exists, else custom illustrations/diagrams [proof, diffuse climax] -> CTA close -> compact footer [rest]. Proof-by-showing, not by icon-and-label; the bento-fatigue correction — editorial over the saturated tile wall. CAVEAT: live endex.ai this run shows a text feature list with icons, not a product-UI bento — the product-UI reading is from the awarded artifact / inferred.",
+      "Highlights-bento + deep-dive (Apple, shipped; Sui, winner-verified): render/claim hero [attention] -> 'Get the highlights' N-tile bento, all claims in one screen [understanding] -> per-theme full-bleed long-form or audience-segmented expandable cards [proof] -> CTA tile hub -> mega-footer [close]; climax diffuse. Sui's variant decomposes the PRODUCT into a stack of tiles, then segments the audience into expandable cards.",
+      "Structural-pure decomposition (Sui, winner-verified): the platform is broken into named modular tiles ('The Sui Stack' — 6 components) rendered as custom illustrations, each tile a self-contained unit of the whole; the story is 'here is the system, decomposed so you can hold it.'"
+    ],
+    "thread": "Winners choose ONE binder physics and express it differently across every element class — the fil rouge is a single aliveness vocabulary, never one hover stamped on every tile. Anime.js binds everything with MOTION (the button presses, the link brightens, the tile animates, the demo scrubs, the footer link fill-swipes — all anime.js primitives, one engine); Vercel binds with EDGE-CATCHING LIGHT (the same streak rides the card border, glints the CTA, frosts the nav); Supabase binds with BORDER-GLOW (the blurred accent under-glow on card, the tinted CTA, the panel bloom). Button, card, and nav differ in MECHANISM yet obey ONE physics. The thread is carried hero-to-footer by TWO co-equal momentum channels, not by one repeated spectacle: (1) PER-TILE LIFE — tiles run infinite micro-loops (the red-dot period pulse, the clockwork counter, a typewriter cycle, an auto-sorting list, a gapless data carousel) so the grid rarely goes fully silent; and (2) SECTION-SCALE devices — a scroll-driven gradient transition that morphs color between sections and an interactive footer (both are Sui SOTD's own highlighted captures). Per-tile loops are ONE channel, not THE channel — a fresh winner sustains momentum at section scale too. Cohesion = one binder + consistent corner radii + equal gutters + one accent-per-tile role; variety = each tile its own register (one mono metric, one display line, one live canvas or custom illustration). One hover on every tile is sameness mistaken for consistency — the flattening tell this archetype exists to break.",
+    "copy": "Product-as-subject declaratives plus second-person imperatives; never 'we' in headlines. Hero = a noun phrase or <=7-word category claim; each tile's copy names ONE capability and the tile SHOWS it — via a live demo, a product-UI slice, or a custom illustration/diagram; the words describe, the tile proves (a label-only tile that never shows its claim is the archetype's defining failure). Section heads 2-6 words; mono eyebrows + tabular in-tile metrics that can count-up on reveal. Terminal period on fragment headlines is the house tic; zero exclamation; refuses hype adjectives, states the capability and stops. Quoted to calibrate SPECIFICITY (the named count, the category, the refusal), never to ship: 'All-in-one animation engine.' (Anime.js — category in four words, the period is the animated red dot), 'AI Built For Excel' (Endex — the wedge in four), 'Build full stack' (Sui — the imperative names the job), 'M5. The chip that zips.' (Apple — a spec turned into rhyme, verified verbatim), 'Get the highlights.' (Apple — the bento's own section head is an imperative)."
+  },
+  "spectacle_model": {
+    "hero": "The first viewport commits COPY-LED CLARITY WITH ONE LIVE ANCHOR — not a full-bleed spectacle. Bento heroes open with a <=7-word category claim and pair it with ONE living element: a right-side operable demo (Anime.js left-copy/right-demo split, the demo already animating), a dark statement + dual-CTA over an armed ground (Endex), or a claim over a card-preview/stack (Sui 'Build full stack'). The commitment is DUAL: legible-in-one-beat (the claim reads instantly) AND alive-in-one-beat (the anchor demo/tile is already running, pointer- or autoplay-armed). Critically, the bento hero is NOT where the archetype spends its spectacle — there is no card-grid fold; the grid is a mid-page proof layer, so the hero under-commits deliberately and the aliveness is distributed downstream into the tiles and section-scale devices.",
+    "continuation": [
+      "Anime.js: hero (headline chars stagger + red-dot period color/scale LOOP + 'the web' word-swap LOOP — these ARE the intro, ~7) -> toolbox card grid, each tile a perpetual micro-demo (~5) -> a run of PINNED 100lvh demo panels over a persistent position:fixed demo layer, copy cross-fading at opacity:0->1, page-wide --hex-current-* recolor per section, the demo running the heading's claim while you drag/scrub it (the ONE designed PEAK, ~9, interactive+looping so it REPLAYS) -> modules bento with counter-roll stat tiles (~6) -> sponsors logo-wall (the one REST, ~4) -> get-started close (~6) -> footer with instant fill-swipe link hovers. The tiles run continuously as the idle band. NOTE: static markup this run surfaced 6 feature blocks, not 8 — exact panel count and CSS amplitudes are not re-executable via WebFetch.",
+      "Endex: hero -> divided capability strip -> feature grid -> CTA close. Award-verified climax is DIFFUSE — there is no single peak; the grid carries even, sustained proof. The prior 'live product-UI slices building a model' read is NOT confirmed on the current live site (text feature list + icons this run) — kept as the awarded-artifact reading, not re-verified.",
+      "Sui: intro loader + 0% counter -> hero 'Build full stack' -> partner logo carousel -> value triad ('Ownable by design' / 'Verifiable by default' / 'Business ready') -> 'The Sui Stack' 6-tile card grid (custom illustrations) with hover interactions -> builder/user benefit split -> four EXPANDABLE industry cards (institutions/AI/DeFi/gaming) that open on interaction -> 4-tile CTA hub -> interactive footer. Momentum sustained by the scroll-driven gradient section transition + per-tile hover + the expand mechanic + the live footer; no silent stretch. All submission-highlighted captures (not jury commentary).",
+      "Apple: render hero -> 'Get the highlights.' 6-tile bento that SCRUBS into place after the fold (each tile reveals on scroll) -> per-theme full-bleed long-form deep-dives. Climax diffuse; the tiles' scroll-reveal + the per-cell photography carry it.",
+      "Vercel / Supabase / Linear (design-canonical): the feature grid is a mid-page SECTION where every tile carries a perpetual micro-interaction (intelligent-list auto-sort, command-input typewriter, live-status breathing badge, wide-data-stream carousel, focus-mode highlight) — the 'alive dashboard' that never rests; the cursor-tracked border-shine/glow adds a second pointer channel on fine-pointer."
+    ],
+    "one_climax_verdict": "REFINED",
+    "evidence": [
+      "Anime.js: ONE designed peak (the pinned demo reel) is real and capped — but it sits over a spine of perpetual per-tile micro-loops (red-dot period pulse + clockwork counter, observed in a prior winner read, not re-executed this run) that run hero-to-footer, and the peak itself is interactive+looping so it REPLAYS rather than spending once (winner-verified structure).",
+      "Endex: NO single climax at all — 'climax is diffuse, the feature grid carries the proof; even build' (winner-verified award). The archetype ran an award-winning page with zero spectacle peak, sustained by the grid rather than one hero wow.",
+      "Sui: the aliveness is distributed across the Sui Stack tiles + expandable industry cards + a scroll-driven gradient section transition + an interactive footer — the submission's own highlighted captures, not a hero wow (winner-verified SOTD).",
+      "Distributed-aliveness is the OBSERVED winning pattern, not an axiom: Anime.js runs perpetual per-tile loops, Endex a diffuse grid proof, Sui a mix of per-tile hover + section-scale gradient transition + interactive footer. NOTE (rev2): the prior 'every tile MUST carry one infinite loop or it is THE defect / one wow is structurally impossible' framing is an internal reference generalized mainly from Anime.js — NOT published award-canon. Published 'Bento 2.0' sources define the trend as exaggerated corner rounding (12-32px) + container-query self-aware tiles + subtle 'alive' micro-interaction, not a mandatory five-loop law. Kept as a strong default, downgraded from law.",
+      "Direct refute of the strong 'one wow then silence' reading: the bento hero deliberately UNDER-commits (no card-grid fold, the grid is mid-page proof) — the spectacle is not front-loaded into a hero at all, so the user's contention (momentum continues, never silence) holds, but the framing is inverted for this archetype: there is often no single hero wow to be quiet after."
+    ],
+    "recommended_law": "For the bento archetype, REFINE 'exactly one climax' to a DISTRIBUTED-ALIVENESS law: momentum is spread across many small carriers, not spent in one hero peak. Two carrier channels, either or both: (1) PER-TILE LOOPS — most proof tiles carry one infinite micro-loop (pulse / typewriter / float / gapless-carousel / auto-sort / breathing-badge), memoized and isolated; (2) SECTION-SCALE devices — a scroll-driven gradient transition that morphs color between sections and/or an interactive footer (Sui SOTD ships both). On top of the carriers, place AT MOST ONE designed spectacle PEAK — a pinned demo reel (Anime.js), a spotlight-expand, or a scrub-into-place highlights reveal (Apple) — interactive+looping so it replays rather than spends. DIFFUSE climax (no single peak) is legal and common (Endex, Sui) — the peak is OPTIONAL. The weakness to avoid is the DEAD GRID: proof tiles whose ONLY animation is a single-run on-scroll reveal that then holds static, with no section-scale momentum either — the 'bento fatigue' tile-wall. DECIDABLE CHECK (mechanical, not taste): for each proof tile, does it carry any animation that is infinite/looping OR interaction-driven (hover/drag/scroll-scrub) rather than only a one-shot reveal? If ZERO proof tiles do AND the page carries no section-scale momentum device, the aliveness channel is unbuilt — fix before proceeding. The binder physics (one motion/light/glow vocabulary) must span every element class; one universal card hover on every tile is the flattening tell. Perf lock is part of the law: every perpetual loop MUST be React.memo-isolated in its own micro-component and drive continuous/pointer motion via useMotionValue/useTransform (never useState) or it drops below 60fps on mid-range mobile — aliveness that stutters scores worse than a static grid. NOTE: the specific five-machine loop set is a corpus-generalized pattern (mainly Anime.js) plus an internal reference, not published award-canon — treat it as a strong default, not an inviolable rule."
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "The story shape (arc), chosen by what the product IS — deterministic, one branch per product type.",
+      "rule": "A developer tool / library / API where the artifact can run itself -> specimen-tour (one capability per pinned/demo tile). A SaaS/AI product with real product-UI to show -> capability-grid (editorial, real UI slices where a UI exists). A platform decomposable into named modules -> structural-pure decomposition (a stack of named component tiles, custom illustrations when there is no UI to slice). A product with N discrete highlights -> highlights-bento (all claims in one screen + deep-dive). Pick exactly one; never blend two arcs. NEVER open on a card-grid fold — the grid is always a mid-page proof layer; the anchors open copy-led.",
+      "evidence": [
+        "Anime.js: a library that animates -> specimen-tour, every tile a live demo (winner-verified)",
+        "Endex: an AI product -> capability-grid (winner-verified award; live-site currently a text feature list, product-UI not confirmed this run)",
+        "Sui: a platform of named modules -> structural decomposition ('The Sui Stack' 6 tiles as custom illustrations) (winner-verified)",
+        "Apple: N hardware highlights -> highlights-bento ('Get the highlights.') (shipped-canonical)"
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "The signature thread (fil rouge) — the ONE binder physics + the grid constants.",
+      "rule": "Name the single binder the whole page obeys: MOTION (all effects are one animation engine's primitives — Anime.js), EDGE-LIGHT (a streak rides borders, glints CTAs, frosts nav — Vercel), or BORDER-GLOW (a blurred accent under-glow on cards + tinted CTA — Supabase). Express it DIFFERENTLY per element class — button, card, link, nav each get their own mechanism obeying the one physics; never one hover on every tile. Lock the grid constants: consistent corner radii across the grid (12-20px structural, up to 32px for the rounded 'Bento 2.0' look — verified trend range), equal gutters (12-24px), grid-auto-flow:dense to backfill gaps by reordering placement (reduces holes — it does NOT guarantee zero empty cells when items cannot fit), container-query-sized tiles where a tile must adapt its internal layout to its span (verified Bento 2.0 technique), one accent role per tile (OKLCH from a single brand token so saturation/lightness hold across hue rotation). Each tile keeps its own typographic register (one mono metric, one display line) so variance signals each tile is its own world.",
+      "evidence": [
+        "Anime.js: motion binder — button transform-press + link brighten + tile animate + demo scrub, all anime.js (winner-verified)",
+        "Vercel: edge-light binder — conic border-shine on card + CTA glint + nav frost (design-canonical)",
+        "Supabase: border-glow binder — blurred accent under-glow, per-tile OKLCH (design-canonical)",
+        "Bento 2.0 trend sources: exaggerated corner rounding (12-32px) + container-query self-aware tiles (verified 2025-2026 trend definition)"
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "The macrostructure — the ordered section chain (attention -> understanding -> proof -> close).",
+      "rule": "Lay the beats: optional intro loader (a 0-100% counter curtain is award-viable here — Sui SOTD ships one) -> copy-led hero [attention] -> a light understanding layer (toolbox grid / divided capability strip / value triad) -> the feature/module card grid [proof — the archetype's heart] -> optional deep-dive or expandable-card segment -> CTA close (tile hub or close-panel) -> footer. The card grid is ALWAYS mid-page, never the fold. Vary card spans dramatically (1x1, 2x1, 2x2, 3x1) — never uniform 3-equal-cards-in-a-row (the axiomatic cliche). 2025 winners lean editorial over the saturated tile wall (the bento-fatigue correction). Rotate section shapes against the previous stamp; never re-sequence a winner's order to taste.",
+      "evidence": [
+        "Anime.js: hero -> toolbox grid -> pinned demo panels -> modules bento -> sponsors -> get-started -> footer (winner-verified)",
+        "Endex: hero -> capability strip -> feature grid -> CTA close -> footer (winner-verified)",
+        "Sui: intro loader -> hero -> logos -> value triad -> Sui Stack grid -> benefit split -> expandable industry cards -> CTA hub -> interactive footer (winner-verified)"
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "The momentum map — the distributed-aliveness carriers + at most one capped peak.",
+      "rule": "Assign the ALIVENESS CARRIERS (either or both channels). Channel 1 — PER-TILE LOOPS: prefer giving MOST proof tiles one infinite micro-loop from the set — Intelligent-List (auto-sort via layoutId), Command-Input (typewriter cycling prompts + blinking cursor), Live-Status (breathing badge, overshoot-spring pop, hold 3s, vanish), Wide-Data-Stream (gapless x:0%->-100% carousel), Focus-Mode (staggered highlight + float-in toolbar). Loops share ONE physics and ONE focal hierarchy — two may reinforce one focal point, never compete. Channel 2 — SECTION-SCALE: a scroll-driven gradient transition morphing color between sections and/or an interactive footer (Sui SOTD ships both). Then place AT MOST ONE designed PEAK: the pinned 100lvh demo reel (specimen-tour), a spotlight-expand tile moment, or a scrub-into-place highlights reveal — make it interactive+looping so it replays. DIFFUSE-climax (no peak) is legal and common (Endex, Sui). DECIDABLE CHECK (mechanical, not taste): for each proof tile flag whether it carries any infinite/looping OR interaction-driven animation (hover/drag/scroll-scrub) versus only a single-run on-scroll reveal; if ZERO proof tiles carry the former AND no section-scale momentum device is present, the aliveness channel is unbuilt — fix before proceeding. PERF LOCK: each loop must be memoized (React.memo) and isolated in its own micro Client Component; magnetic/continuous hover uses useMotionValue/useTransform outside the React render cycle, never useState — a perpetual loop that re-renders the parent breaks 60fps on mid-range mobile.",
+      "evidence": [
+        "Anime.js: per-tile loops (red-dot period + clockwork counter) + one pinned demo-reel peak (winner-verified structure; exact loop CSS not re-executed this run)",
+        "Endex: diffuse — grid carries the proof, no single peak (winner-verified award; live-site product-UI motion not confirmed this run)",
+        "Sui: distributed — per-tile hover + section-scale gradient transition + interactive footer (winner-verified SOTD, submission-highlighted captures)"
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section pairing — the form and interaction components per role.",
+      "rule": "Hero -> hero-masthead(media:right for the live-demo anchor | media:none for a statement hero), kinetic-reveal on h1, text-emphasis-fill on standfirst, scrub-film or a live-demo tile on media, masked-label-swap/fill-invert-cta on the CTA row. Understanding -> feature-card-grid(toolbox) or divided-strip (Endex capability strip). Proof/grid -> feature-card-grid (spans 4-12 with dense backfill) carrying CONCRETE proof tiles — product-UI slices where a UI exists, live demos, OR custom illustrations/diagrams (Sui) — not a generic icon-and-label stamp; figure-hover on passive tiles, counter-odometer on stat tiles, and the missing live/expand components (see gaps). Peak -> pinned-demo-panels. Deep-dive -> editorial-split or expandable-card. Close -> close-panel with fill-invert-cta + masked-label-swap, or a CTA tile hub. Footer -> tabular-index (product variant: sponsor-first + instant fill-swipe link hovers + newsletter) or an interactive footer (Sui SOTD). Loader -> OPTIONAL: an intro loader with a 0-100% progress counter is award-viable here (Sui SOTD ships an intro loader + 0% counter, submission-highlighted); OR none, letting the card stagger be the entrance. Do NOT treat the loader as an anti-signal — the prior 'zero preloader / counter curtain is an anti-signal' rule was refuted by this archetype's freshest verified winner.",
+      "evidence": [
+        "recipes.json specimen-tour-animejs: hero-masthead -> feature-card-grid -> pinned-demo-panels -> feature-card-grid -> logo-wall -> close-panel (winner-verified)",
+        "recipes.json capability-grid-endex: hero-masthead(media:none) -> divided-strip -> feature-card-grid -> close-panel (winner-verified)",
+        "Sui: intro loader + 0% counter is award-viable, not an anti-signal (winner-verified, submission-highlighted)"
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states — the differentiated hover/tap/focus per element class.",
+      "rule": "Apply element_states: CTA = full-token flood + label inversion (fill-invert-cta), OR ghost-outline sub-pixel transform-press (Anime.js, transform only, ~0.125s, radius 4px, background never fills), OR token-step solid/inversion (Vercel) — NEVER a pale ~10% tint (reads as disabled). CARD = ONE affordance per grid, never a universal lift: cursor-tracked conic border-shine (dark flat grids), spotlight-expand+row-reflow with grayscale->color restore (imagery grids), border-glow bloom (dark grounds, opacity 0->1, blur never animates), OR live-demo reaction (no chrome at all — the tile IS the demo); default figure-hover = contained zoom 1.1 (felt, never a 1-3% twitch) + companion cue. LINK = underline draw scaleX(0->1) from left ~0.3s expo-out, OR neutral->foreground brighten (muted --fg-3 to --fg-1), no background pill. INDEX ROW / EXPANDABLE = hovered row lights accent rule + surfaced metadata while siblings dim to ~45% (index-row-hover), or the card expands on interaction. HEADING = NOTHING on hover (headings/paragraphs/metrics get zero hover — winner-verified across the corpus); entrance = kinetic-reveal line mask, or per-char/word stagger ONLY on motion brands (Anime.js), else tight-tracked static display; metrics count-up on reveal. NAV = items brighten muted->foreground (no pill); the bar is transparent overlay unchanged on scroll over one flat ground (Anime.js), OR transparent->frosted same-family hairline on scroll over shifting sections (Apple/Vercel/Sui). CURSOR = keep the native pointer (body{cursor:auto}) — the grid is scan-and-click; a custom cursor appears ONLY inside a live-demo tile, never sitewide; the pointer POWERS surface effects (feeds --x/--y into border-shine/glow) rather than being dressed up. Run 3-4 distinct interaction channels (per-class states, display-type effect, cursor into surfaces, idle tile loops, scroll texture) — the archetype's channel band.",
+      "evidence": [
+        "Anime.js: ghost-outline transform-press CTA (~#625d5b on ~#252423, transform 0.125s), neutral->fg link brighten (~#b4b1af -> #fff), transparent nav unchanged on scroll, native pointer, footer link mono-fill on hover (observed in a prior winner read, not re-executed this run)",
+        "Vercel/Supabase: conic border-shine (mask-composite:intersect, JS drives --x/--y) + border-glow bloom (design-canonical)",
+        "reference: 'the AI-default translateY(-4px) scale(1.02) + grey box-shadow on every tile is the flattening trick to break'; 'headings, paragraphs and metrics get nothing on hover' (winner-verified across corpus)"
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile — the touch strategy.",
+      "rule": "Pointer-driven card classes go DORMANT on touch: conic-border-shine, spotlight-expand, magnetic pull, 3D tilt all off (no cursor to track) — the static hairline/rest look is the COMPLETE touch appearance. Press-class elements answer the tap: the CTA fill-invert or hard-press :active collapse IS the tap answer, 90-160ms flash floor. Proof tiles that navigate on tap SHOULD answer with a brief :active depress (scale ~0.98 or opacity dip, 90-160ms) before the route change — the tactile tap-acknowledgment Awwwards Mobile Excellence rewards; a tile that navigates with no press feedback reads unresponsive. Crucially, the PERPETUAL TILE LOOPS CONTINUE on mobile (they are autonomous, not pointer-driven), and section-scale momentum (scroll-driven gradient transition) is scroll-driven so it also survives touch — the 'alive' quality holds because it runs on loops and scroll, not hover; this is why bento keeps its identity on mobile where hover-only archetypes go dead. Grid reflows to 1-col stack or 2-col (spans collapse); the divided capability strip becomes a MARQUEE on mobile (Endex); any horizontal card track becomes a native scroll-snap swipe with next-cell peek + tap-to-enlarge (swipe-snap-gallery — the scored Mobile Excellence line). PERF is the hard gate: memoize/isolate every loop or the grid stutters below 60fps on mid-range mobile — a stuttering alive-grid scores worse than a static one.",
+      "evidence": [
+        "Endex: divided capability strip -> marquee on mobile (winner-verified)",
+        "reference: conic-border-shine/spotlight are fine-pointer only, 'the static hairline is the complete touch/rest look'; perpetual loops must be React.memo-isolated for 60fps on mid-range mobile (design-canonical)",
+        "reference: swipe-snap-gallery is the scored Awwwards Mobile Excellence line (swipe to see more, tap to enlarge); tile :active depress is the reasoned tap-acknowledgment gap (not winner-isolated this run)"
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy — the words in and around the tiles.",
+      "rule": "Product-as-subject declaratives + second-person imperatives; never 'we' in headlines. Hero = noun phrase or <=7-word category claim; each tile names ONE capability and the tile SHOWS it — via a live demo, a product-UI slice, or a custom illustration/diagram (a bare label-and-describe tile that never shows its claim is the failure the archetype exists to avoid). Section heads 2-6 words; mono eyebrows; tabular in-tile metrics that count-up on reveal. Terminal period on fragment headlines; zero exclamation; refuse hype adjectives. Match the SPECIFICITY of the quoted winners (the count, the category, the refusal), never the wording.",
+      "evidence": [
+        "Anime.js: 'All-in-one animation engine.' (winner-verified)",
+        "Endex: 'AI Built For Excel' / 'Hire your AI Excel Agent' (winner-verified)",
+        "Sui: 'Build full stack' / 'Ownable by design' / 'Verifiable by default' (winner-verified)",
+        "Apple: 'Get the highlights.' / 'M5. The chip that zips.' (shipped-canonical, verified verbatim)"
+      ]
+    }
   ],
-  "one_climax_verdict": "REFINED",
-  "evidence": [
-   "Anime.js: ONE designed peak (the pinned demo reel) is real and capped — but it sits over a spine of perpetual per-tile micro-loops (red-dot period pulse + clockwork counter, observed in a prior winner read, not re-executed this run) that run hero-to-footer, and the peak itself is interactive+looping so it REPLAYS rather than spending once (winner-verified structure).",
-   "Endex: NO single climax at all — 'climax is diffuse, the feature grid carries the proof; even build' (winner-verified award). The archetype ran an award-winning page with zero spectacle peak, sustained by the grid rather than one hero wow.",
-   "Sui: the aliveness is distributed across the Sui Stack tiles + expandable industry cards + a scroll-driven gradient section transition + an interactive footer — the submission's own highlighted captures, not a hero wow (winner-verified SOTD).",
-   "Distributed-aliveness is the OBSERVED winning pattern, not an axiom: Anime.js runs perpetual per-tile loops, Endex a diffuse grid proof, Sui a mix of per-tile hover + section-scale gradient transition + interactive footer. NOTE (rev2): the prior 'every tile MUST carry one infinite loop or it is THE defect / one wow is structurally impossible' framing is an internal reference generalized mainly from Anime.js — NOT published award-canon. Published 'Bento 2.0' sources define the trend as exaggerated corner rounding (12-32px) + container-query self-aware tiles + subtle 'alive' micro-interaction, not a mandatory five-loop law. Kept as a strong default, downgraded from law.",
-   "Direct refute of the strong 'one wow then silence' reading: the bento hero deliberately UNDER-commits (no card-grid fold, the grid is mid-page proof) — the spectacle is not front-loaded into a hero at all, so the user's contention (momentum continues, never silence) holds, but the framing is inverted for this archetype: there is often no single hero wow to be quiet after."
+  "section_playbook": [
+    {
+      "role": "hero",
+      "forms": [
+        "hero-masthead(media:right — live-demo anchor)",
+        "hero-masthead(media:none — statement)"
+      ],
+      "pairs": [
+        "kinetic-reveal (h1)",
+        "text-emphasis-fill (standfirst)",
+        "masked-label-swap / fill-invert-cta (cta-row)",
+        "scrub-film or live-demo-tile (media)"
+      ],
+      "intensity": 7,
+      "states": "MANDATORY: copy-led, <=7-word claim reads in one beat AND one live anchor is already running (right-side demo animating, or the headline's own micro-loop — Anime.js red-dot period pulse + word-swap). NO card-grid fold. Nav transparent over the hero. On motion brands only, the h1 may per-char stagger; elsewhere kinetic line-mask. An optional intro loader may precede the hero (Sui SOTD).",
+      "evidence": [
+        "Anime.js left-copy/right-demo split, char stagger + red-dot period loop as the intro (winner-verified)",
+        "Endex centered statement + dual-CTA over an armed dark ground (winner-verified)",
+        "Sui 'Build full stack' claim over card-preview, preceded by an intro loader (winner-verified)"
+      ]
+    },
+    {
+      "role": "understanding (toolbox / capability strip / value triad)",
+      "forms": [
+        "feature-card-grid(toolbox)",
+        "divided-strip",
+        "stat-band / value triad"
+      ],
+      "pairs": [
+        "figure-hover",
+        "text-emphasis-fill",
+        "counter-odometer"
+      ],
+      "intensity": 5,
+      "states": "A light layer between hero and the proof grid: a small toolbox card grid (each tile a perpetual micro-demo), Endex's divide-x capability strip (marquee on mobile), or a 3-item value triad. Low amplitude — it sets up the grid, it is not the grid.",
+      "evidence": [
+        "Anime.js toolbox grid before the pinned panels (winner-verified)",
+        "Endex divided capability strip, divide-x -> marquee mobile (winner-verified)",
+        "Sui value triad 'Ownable/Verifiable/Business ready' (winner-verified)"
+      ]
+    },
+    {
+      "role": "proof (the feature / module card grid — the heart)",
+      "forms": [
+        "feature-card-grid (concrete proof tiles — UI slices, live demos, or custom illustrations)"
+      ],
+      "pairs": [
+        "figure-hover (passive tiles)",
+        "counter-odometer (stat tiles)",
+        "conic-border-shine / border-glow-bloom (fine-pointer)",
+        "live-demo-tile",
+        "perpetual-tile-machines"
+      ],
+      "intensity": 7,
+      "states": "MOST proof tiles carry an aliveness carrier — an infinite micro-loop (pulse/typewriter/carousel/auto-sort/breathing-badge), OR section-scale gradient/interactive-footer momentum around the grid. Cards carry CONCRETE proof — product-UI slices where a UI exists, live demos, or custom illustrations/diagrams (Sui, a blockchain with no UI to slice) — not a generic icon-and-label stamp; spans vary 4-12 with grid-auto-flow:dense (backfills gaps by reordering; not a zero-empty-cell guarantee). ONE hover affordance for the grid (border-shine OR spotlight-expand OR glow OR live-demo reaction), never a universal lift. Proof tiles whose only motion is a single-run on-scroll reveal, with no section-scale momentum either = the dead-grid weakness.",
+      "evidence": [
+        "Endex feature grid, diffuse climax (winner-verified award; live-site product-UI motion not confirmed this run)",
+        "Sui 'The Sui Stack' 6 modular tiles as custom illustrations, hover interactions (winner-verified)",
+        "reference Bento 2.0 five tile-loop types (corpus-generalized pattern, not external award-canon)"
+      ]
+    },
+    {
+      "role": "peak (optional — one designed spectacle)",
+      "forms": [
+        "pinned-demo-panels",
+        "spotlight-expand-tile"
+      ],
+      "pairs": [
+        "text-emphasis-fill (cross-fading copy)"
+      ],
+      "intensity": 9,
+      "states": "OPTIONAL and capped at one. Specimen-tour: pinned 100lvh panels over a persistent position:fixed demo layer, copy cross-fading opacity 0->1, page-wide recolor per section, the demo running the heading's claim and DRIVEN by drag/scroll-scrub so it replays. Or a spotlight-expand: hovered tile expands across its row, siblings reflow, grayscale->color restore, copy fades up. Many winners OMIT this (diffuse climax) — do not force it.",
+      "evidence": [
+        "Anime.js pinned feature-section{height:100lvh} panels, persistent demo, --hex-current recolor (winner-verified structure; exact panel count not re-executed this run)",
+        "Vercel spotlight-expand + Codrops technique: paused GSAP timeline, ease power2.inOut, siblings shift 2.5vw, 12-point clip cross morph, preview scale (dim-5vw)/dim (design-canonical + Codrops params)"
+      ]
+    },
+    {
+      "role": "deep-dive / audience-segment (optional)",
+      "forms": [
+        "editorial-split",
+        "expandable-card"
+      ],
+      "pairs": [
+        "char-assemble (h2)",
+        "text-emphasis-fill + semantic-accent (prose)",
+        "index-row-hover"
+      ],
+      "intensity": 6,
+      "states": "Per-theme full-bleed long-form (Apple) or audience-segmented EXPANDABLE cards that open on interaction (Sui institutions/AI/DeFi/gaming). The expandable is a distinct mechanic from figure-hover — the card grows and reveals content in place, corner radius maintained.",
+      "evidence": [
+        "Sui four expandable industry cards (winner-verified)",
+        "Apple per-theme full-bleed deep-dives after the highlights bento (shipped-canonical)"
+      ]
+    },
+    {
+      "role": "close (CTA)",
+      "forms": [
+        "close-panel",
+        "CTA tile hub (4-tile)"
+      ],
+      "pairs": [
+        "kinetic-reveal (ask)",
+        "fill-invert-cta + masked-label-swap (channels)"
+      ],
+      "intensity": 6,
+      "states": "One imperative + decisive channel rows, or a 4-tile CTA hub (Sui build/code/earn/community). CTA fill-invert on hover/tap, never a pale tint. No media slot — the close cannot become a mood reel.",
+      "evidence": [
+        "Anime.js get-started close (winner-verified)",
+        "Sui 4-tile CTA hub build/code/earn/community (winner-verified)",
+        "Endex single CTA close (winner-verified)"
+      ]
+    },
+    {
+      "role": "footer",
+      "forms": [
+        "tabular-index (product variant)",
+        "interactive-footer (Sui SOTD)",
+        "oversized-wordmark reprise (Linear-shipped)"
+      ],
+      "pairs": [
+        "accent-link",
+        "masked-label-swap"
+      ],
+      "intensity": 4,
+      "states": "Functional link-column chrome; the designed moment is a wordmark reprise, newsletter capture, or a live INTERACTIVE footer (Sui SOTD ships one, submission-highlighted — a reactive footer is award-viable here, not just a link column). Anime.js: sponsor-first block + instant fill-swipe link hovers (color:var(--hex-current-1);background:var(--hex-current-7), transition-duration:0s, arrow nudge translate(.125rem)) + newsletter. The one designed micro-cue in the footer, not spectacle.",
+      "evidence": [
+        "Anime.js sponsor-first footer, instant fill-swipe hovers, arrow nudge .125rem (observed in a prior winner read, not re-executed this run)",
+        "Sui interactive footer (winner-verified, submission-highlighted)",
+        "Linear oversized-wordmark reprise (shipped-canonical)"
+      ]
+    }
   ],
-  "recommended_law": "For the bento archetype, REFINE 'exactly one climax' to a DISTRIBUTED-ALIVENESS law: momentum is spread across many small carriers, not spent in one hero peak. Two carrier channels, either or both: (1) PER-TILE LOOPS — most proof tiles carry one infinite micro-loop (pulse / typewriter / float / gapless-carousel / auto-sort / breathing-badge), memoized and isolated; (2) SECTION-SCALE devices — a scroll-driven gradient transition that morphs color between sections and/or an interactive footer (Sui SOTD ships both). On top of the carriers, place AT MOST ONE designed spectacle PEAK — a pinned demo reel (Anime.js), a spotlight-expand, or a scrub-into-place highlights reveal (Apple) — interactive+looping so it replays rather than spends. DIFFUSE climax (no single peak) is legal and common (Endex, Sui) — the peak is OPTIONAL. The weakness to avoid is the DEAD GRID: proof tiles whose ONLY animation is a single-run on-scroll reveal that then holds static, with no section-scale momentum either — the 'bento fatigue' tile-wall. DECIDABLE CHECK (mechanical, not taste): for each proof tile, does it carry any animation that is infinite/looping OR interaction-driven (hover/drag/scroll-scrub) rather than only a one-shot reveal? If ZERO proof tiles do AND the page carries no section-scale momentum device, the aliveness channel is unbuilt — fix before proceeding. The binder physics (one motion/light/glow vocabulary) must span every element class; one universal card hover on every tile is the flattening tell. Perf lock is part of the law: every perpetual loop MUST be React.memo-isolated in its own micro-component and drive continuous/pointer motion via useMotionValue/useTransform (never useState) or it drops below 60fps on mid-range mobile — aliveness that stutters scores worse than a static grid. NOTE: the specific five-machine loop set is a corpus-generalized pattern (mainly Anime.js) plus an internal reference, not published award-canon — treat it as a strong default, not an inviolable rule."
- },
- "algorithm": [
-  {
-   "step": 1,
-   "decide": "The story shape (arc), chosen by what the product IS — deterministic, one branch per product type.",
-   "rule": "A developer tool / library / API where the artifact can run itself -> specimen-tour (one capability per pinned/demo tile). A SaaS/AI product with real product-UI to show -> capability-grid (editorial, real UI slices where a UI exists). A platform decomposable into named modules -> structural-pure decomposition (a stack of named component tiles, custom illustrations when there is no UI to slice). A product with N discrete highlights -> highlights-bento (all claims in one screen + deep-dive). Pick exactly one; never blend two arcs. NEVER open on a card-grid fold — the grid is always a mid-page proof layer; the anchors open copy-led.",
-   "evidence": [
-    "Anime.js: a library that animates -> specimen-tour, every tile a live demo (winner-verified)",
-    "Endex: an AI product -> capability-grid (winner-verified award; live-site currently a text feature list, product-UI not confirmed this run)",
-    "Sui: a platform of named modules -> structural decomposition ('The Sui Stack' 6 tiles as custom illustrations) (winner-verified)",
-    "Apple: N hardware highlights -> highlights-bento ('Get the highlights.') (shipped-canonical)"
-   ]
+  "element_states": {
+    "cta": {
+      "hover": "Full-token flood + label inversion (fill-invert-cta — direct pole swap or a panel wiping up from the bottom edge), ~0.15s token change; OR ghost-outline sub-pixel transform-press (Anime.js: hairline mid-neutral border, background NEVER fills, transform only, transition:transform 0.125s ease-out, radius 4px); OR token-step solid/inversion (Vercel — a solid pill advances one full ramp step or inverts fg/bg). NEVER a pale ~10% accent tint (reads as a disabled hover).",
+      "tap": "The :active press IS the answer — hard-press offset-shadow collapse or the fill flood, 90-160ms flash floor; on touch the fill/press replaces hover entirely.",
+      "focus": "Same visual as hover on :focus-visible, plus a same-family ring; reachable in tab order."
+    },
+    "link": {
+      "hover": "Underline draw — pseudo-element scaleX(0->1) from the left ~0.3s expo-out; OR neutral->foreground brighten (muted --fg-3 lifts to --fg-1, Anime.js ~#b4b1af->#fff), no background pill.",
+      "tap": "Brief accent/brighten flash, ~120ms; in footers the instant fill-swipe (transition-duration:0s) doubles as the tap cue.",
+      "focus": "Underline + accent recolor on :focus-visible (accent-link)."
+    },
+    "figure": {
+      "hover": "ONE affordance per grid, never a universal lift. Default figure-hover = contained inner zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue (tint / scrim lift / caption rise). Alternatives by grid type: cursor-tracked conic border-shine (dark flat panels, JS drives --x/--y into a mask-composite:intersect edge), spotlight-expand+row-reflow with grayscale->color restore (imagery grids), border-glow bloom (dark grounds, opacity 0->1, blur never animates), or live-demo reaction (no chrome — the tile IS the running demo, hover/drag drives the actual animation).",
+      "tap": "Card is a link — tap navigates after a brief :active depress (scale ~0.98 / opacity dip, 90-160ms); the pointer-tracked border-shine/spotlight go DORMANT on touch, the static hairline is the complete rest/touch look. Live-demo tiles answer drag/tap directly.",
+      "focus": "focus-within lifts the same cue the hover uses (caption/scrim/glow), so keyboard reaches hover-revealed content."
+    },
+    "index_row": {
+      "hover": "Hovered row lights an accent rule + surfaces metadata while siblings dim to ~45% (index-row-hover — the spotlight list); OR the row/card EXPANDS in place revealing content, corner radius held (Sui expandable industry cards).",
+      "tap": "Expand-in-place or navigate; on touch the expand answers the tap (no dim-siblings hover state).",
+      "focus": "Same accent-lift/expand on :focus-visible; siblings' dim is skipped under reduced-motion (instant final state)."
+    },
+    "heading": {
+      "hover": "NOTHING — headings, paragraphs and in-tile metrics get zero hover response (winner-verified across the corpus). Hover life lives on links/nav/cards, never on type.",
+      "tap": "N/A (non-interactive text).",
+      "focus": "N/A. Entrance instead: kinetic-reveal masked line, per-char/word stagger ONLY on motion brands (Anime.js), else tight-tracked static display; metrics count-up on reveal (counter-odometer)."
+    },
+    "nav": {
+      "hover": "Items brighten muted->foreground, no background pill (split-rollover per-char on motion brands is optional).",
+      "tap": "Brief brighten flash on touch.",
+      "focus": "Brighten + same-family ring. Bar behavior: transparent overlay UNCHANGED on scroll over one flat ground (Anime.js), OR transparent->frosted same-family hairline (<=5-6% alpha, never a contrasting line) on scroll over shifting sections (Apple/Vercel/Sui) — the sanctioned exception to the zero-nav-border gate."
+    }
   },
-  {
-   "step": 2,
-   "decide": "The signature thread (fil rouge) — the ONE binder physics + the grid constants.",
-   "rule": "Name the single binder the whole page obeys: MOTION (all effects are one animation engine's primitives — Anime.js), EDGE-LIGHT (a streak rides borders, glints CTAs, frosts nav — Vercel), or BORDER-GLOW (a blurred accent under-glow on cards + tinted CTA — Supabase). Express it DIFFERENTLY per element class — button, card, link, nav each get their own mechanism obeying the one physics; never one hover on every tile. Lock the grid constants: consistent corner radii across the grid (12-20px structural, up to 32px for the rounded 'Bento 2.0' look — verified trend range), equal gutters (12-24px), grid-auto-flow:dense to backfill gaps by reordering placement (reduces holes — it does NOT guarantee zero empty cells when items cannot fit), container-query-sized tiles where a tile must adapt its internal layout to its span (verified Bento 2.0 technique), one accent role per tile (OKLCH from a single brand token so saturation/lightness hold across hue rotation). Each tile keeps its own typographic register (one mono metric, one display line) so variance signals each tile is its own world.",
-   "evidence": [
-    "Anime.js: motion binder — button transform-press + link brighten + tile animate + demo scrub, all anime.js (winner-verified)",
-    "Vercel: edge-light binder — conic border-shine on card + CTA glint + nav frost (design-canonical)",
-    "Supabase: border-glow binder — blurred accent under-glow, per-tile OKLCH (design-canonical)",
-    "Bento 2.0 trend sources: exaggerated corner rounding (12-32px) + container-query self-aware tiles (verified 2025-2026 trend definition)"
-   ]
-  },
-  {
-   "step": 3,
-   "decide": "The macrostructure — the ordered section chain (attention -> understanding -> proof -> close).",
-   "rule": "Lay the beats: optional intro loader (a 0-100% counter curtain is award-viable here — Sui SOTD ships one) -> copy-led hero [attention] -> a light understanding layer (toolbox grid / divided capability strip / value triad) -> the feature/module card grid [proof — the archetype's heart] -> optional deep-dive or expandable-card segment -> CTA close (tile hub or close-panel) -> footer. The card grid is ALWAYS mid-page, never the fold. Vary card spans dramatically (1x1, 2x1, 2x2, 3x1) — never uniform 3-equal-cards-in-a-row (the axiomatic cliche). 2025 winners lean editorial over the saturated tile wall (the bento-fatigue correction). Rotate section shapes against the previous stamp; never re-sequence a winner's order to taste.",
-   "evidence": [
-    "Anime.js: hero -> toolbox grid -> pinned demo panels -> modules bento -> sponsors -> get-started -> footer (winner-verified)",
-    "Endex: hero -> capability strip -> feature grid -> CTA close -> footer (winner-verified)",
-    "Sui: intro loader -> hero -> logos -> value triad -> Sui Stack grid -> benefit split -> expandable industry cards -> CTA hub -> interactive footer (winner-verified)"
-   ]
-  },
-  {
-   "step": 4,
-   "decide": "The momentum map — the distributed-aliveness carriers + at most one capped peak.",
-   "rule": "Assign the ALIVENESS CARRIERS (either or both channels). Channel 1 — PER-TILE LOOPS: prefer giving MOST proof tiles one infinite micro-loop from the set — Intelligent-List (auto-sort via layoutId), Command-Input (typewriter cycling prompts + blinking cursor), Live-Status (breathing badge, overshoot-spring pop, hold 3s, vanish), Wide-Data-Stream (gapless x:0%->-100% carousel), Focus-Mode (staggered highlight + float-in toolbar). Loops share ONE physics and ONE focal hierarchy — two may reinforce one focal point, never compete. Channel 2 — SECTION-SCALE: a scroll-driven gradient transition morphing color between sections and/or an interactive footer (Sui SOTD ships both). Then place AT MOST ONE designed PEAK: the pinned 100lvh demo reel (specimen-tour), a spotlight-expand tile moment, or a scrub-into-place highlights reveal — make it interactive+looping so it replays. DIFFUSE-climax (no peak) is legal and common (Endex, Sui). DECIDABLE CHECK (mechanical, not taste): for each proof tile flag whether it carries any infinite/looping OR interaction-driven animation (hover/drag/scroll-scrub) versus only a single-run on-scroll reveal; if ZERO proof tiles carry the former AND no section-scale momentum device is present, the aliveness channel is unbuilt — fix before proceeding. PERF LOCK: each loop must be memoized (React.memo) and isolated in its own micro Client Component; magnetic/continuous hover uses useMotionValue/useTransform outside the React render cycle, never useState — a perpetual loop that re-renders the parent breaks 60fps on mid-range mobile.",
-   "evidence": [
-    "Anime.js: per-tile loops (red-dot period + clockwork counter) + one pinned demo-reel peak (winner-verified structure; exact loop CSS not re-executed this run)",
-    "Endex: diffuse — grid carries the proof, no single peak (winner-verified award; live-site product-UI motion not confirmed this run)",
-    "Sui: distributed — per-tile hover + section-scale gradient transition + interactive footer (winner-verified SOTD, submission-highlighted captures)"
-   ]
-  },
-  {
-   "step": 5,
-   "decide": "Per-section pairing — the form and interaction components per role.",
-   "rule": "Hero -> hero-masthead(media:right for the live-demo anchor | media:none for a statement hero), kinetic-reveal on h1, text-emphasis-fill on standfirst, scrub-film or a live-demo tile on media, masked-label-swap/fill-invert-cta on the CTA row. Understanding -> feature-card-grid(toolbox) or MISSING:divided-strip (Endex capability strip). Proof/grid -> feature-card-grid (spans 4-12 with dense backfill) carrying CONCRETE proof tiles — product-UI slices where a UI exists, live demos, OR custom illustrations/diagrams (Sui) — not a generic icon-and-label stamp; figure-hover on passive tiles, counter-odometer on stat tiles, and the missing live/expand components (see gaps). Peak -> MISSING:pinned-demo-panels. Deep-dive -> editorial-split or MISSING:expandable-card. Close -> close-panel with fill-invert-cta + masked-label-swap, or a CTA tile hub. Footer -> tabular-index (product variant: sponsor-first + instant fill-swipe link hovers + newsletter) or an interactive footer (Sui SOTD). Loader -> OPTIONAL: an intro loader with a 0-100% progress counter is award-viable here (Sui SOTD ships an intro loader + 0% counter, submission-highlighted); OR none, letting the card stagger be the entrance. Do NOT treat the loader as an anti-signal — the prior 'zero preloader / counter curtain is an anti-signal' rule was refuted by this archetype's freshest verified winner.",
-   "evidence": [
-    "recipes.json specimen-tour-animejs: hero-masthead -> feature-card-grid -> MISSING:pinned-demo-panels -> feature-card-grid -> logo-wall -> close-panel (winner-verified)",
-    "recipes.json capability-grid-endex: hero-masthead(media:none) -> MISSING:divided-strip -> feature-card-grid -> close-panel (winner-verified)",
-    "Sui: intro loader + 0% counter is award-viable, not an anti-signal (winner-verified, submission-highlighted)"
-   ]
-  },
-  {
-   "step": 6,
-   "decide": "Per-element interaction states — the differentiated hover/tap/focus per element class.",
-   "rule": "Apply element_states: CTA = full-token flood + label inversion (fill-invert-cta), OR ghost-outline sub-pixel transform-press (Anime.js, transform only, ~0.125s, radius 4px, background never fills), OR token-step solid/inversion (Vercel) — NEVER a pale ~10% tint (reads as disabled). CARD = ONE affordance per grid, never a universal lift: cursor-tracked conic border-shine (dark flat grids), spotlight-expand+row-reflow with grayscale->color restore (imagery grids), border-glow bloom (dark grounds, opacity 0->1, blur never animates), OR live-demo reaction (no chrome at all — the tile IS the demo); default figure-hover = contained zoom 1.1 (felt, never a 1-3% twitch) + companion cue. LINK = underline draw scaleX(0->1) from left ~0.3s expo-out, OR neutral->foreground brighten (muted --fg-3 to --fg-1), no background pill. INDEX ROW / EXPANDABLE = hovered row lights accent rule + surfaced metadata while siblings dim to ~45% (index-row-hover), or the card expands on interaction. HEADING = NOTHING on hover (headings/paragraphs/metrics get zero hover — winner-verified across the corpus); entrance = kinetic-reveal line mask, or per-char/word stagger ONLY on motion brands (Anime.js), else tight-tracked static display; metrics count-up on reveal. NAV = items brighten muted->foreground (no pill); the bar is transparent overlay unchanged on scroll over one flat ground (Anime.js), OR transparent->frosted same-family hairline on scroll over shifting sections (Apple/Vercel/Sui). CURSOR = keep the native pointer (body{cursor:auto}) — the grid is scan-and-click; a custom cursor appears ONLY inside a live-demo tile, never sitewide; the pointer POWERS surface effects (feeds --x/--y into border-shine/glow) rather than being dressed up. Run 3-4 distinct interaction channels (per-class states, display-type effect, cursor into surfaces, idle tile loops, scroll texture) — the archetype's channel band.",
-   "evidence": [
-    "Anime.js: ghost-outline transform-press CTA (~#625d5b on ~#252423, transform 0.125s), neutral->fg link brighten (~#b4b1af -> #fff), transparent nav unchanged on scroll, native pointer, footer link mono-fill on hover (observed in a prior winner read, not re-executed this run)",
-    "Vercel/Supabase: conic border-shine (mask-composite:intersect, JS drives --x/--y) + border-glow bloom (design-canonical)",
-    "reference: 'the AI-default translateY(-4px) scale(1.02) + grey box-shadow on every tile is the flattening trick to break'; 'headings, paragraphs and metrics get nothing on hover' (winner-verified across corpus)"
-   ]
-  },
-  {
-   "step": 7,
-   "decide": "Mobile — the touch strategy.",
-   "rule": "Pointer-driven card classes go DORMANT on touch: conic-border-shine, spotlight-expand, magnetic pull, 3D tilt all off (no cursor to track) — the static hairline/rest look is the COMPLETE touch appearance. Press-class elements answer the tap: the CTA fill-invert or hard-press :active collapse IS the tap answer, 90-160ms flash floor. Proof tiles that navigate on tap SHOULD answer with a brief :active depress (scale ~0.98 or opacity dip, 90-160ms) before the route change — the tactile tap-acknowledgment Awwwards Mobile Excellence rewards; a tile that navigates with no press feedback reads unresponsive. Crucially, the PERPETUAL TILE LOOPS CONTINUE on mobile (they are autonomous, not pointer-driven), and section-scale momentum (scroll-driven gradient transition) is scroll-driven so it also survives touch — the 'alive' quality holds because it runs on loops and scroll, not hover; this is why bento keeps its identity on mobile where hover-only archetypes go dead. Grid reflows to 1-col stack or 2-col (spans collapse); the divided capability strip becomes a MARQUEE on mobile (Endex); any horizontal card track becomes a native scroll-snap swipe with next-cell peek + tap-to-enlarge (swipe-snap-gallery — the scored Mobile Excellence line). PERF is the hard gate: memoize/isolate every loop or the grid stutters below 60fps on mid-range mobile — a stuttering alive-grid scores worse than a static one.",
-   "evidence": [
-    "Endex: divided capability strip -> marquee on mobile (winner-verified)",
-    "reference: conic-border-shine/spotlight are fine-pointer only, 'the static hairline is the complete touch/rest look'; perpetual loops must be React.memo-isolated for 60fps on mid-range mobile (design-canonical)",
-    "reference: swipe-snap-gallery is the scored Awwwards Mobile Excellence line (swipe to see more, tap to enlarge); tile :active depress is the reasoned tap-acknowledgment gap (not winner-isolated this run)"
-   ]
-  },
-  {
-   "step": 8,
-   "decide": "Copy — the words in and around the tiles.",
-   "rule": "Product-as-subject declaratives + second-person imperatives; never 'we' in headlines. Hero = noun phrase or <=7-word category claim; each tile names ONE capability and the tile SHOWS it — via a live demo, a product-UI slice, or a custom illustration/diagram (a bare label-and-describe tile that never shows its claim is the failure the archetype exists to avoid). Section heads 2-6 words; mono eyebrows; tabular in-tile metrics that count-up on reveal. Terminal period on fragment headlines; zero exclamation; refuse hype adjectives. Match the SPECIFICITY of the quoted winners (the count, the category, the refusal), never the wording.",
-   "evidence": [
-    "Anime.js: 'All-in-one animation engine.' (winner-verified)",
-    "Endex: 'AI Built For Excel' / 'Hire your AI Excel Agent' (winner-verified)",
-    "Sui: 'Build full stack' / 'Ownable by design' / 'Verifiable by default' (winner-verified)",
-    "Apple: 'Get the highlights.' / 'M5. The chip that zips.' (shipped-canonical, verified verbatim)"
-   ]
-  }
- ],
- "section_playbook": [
-  {
-   "role": "hero",
-   "forms": [
-    "hero-masthead(media:right — live-demo anchor)",
-    "hero-masthead(media:none — statement)"
-   ],
-   "pairs": [
-    "kinetic-reveal (h1)",
-    "text-emphasis-fill (standfirst)",
-    "masked-label-swap / fill-invert-cta (cta-row)",
-    "scrub-film or MISSING:live-demo-tile (media)"
-   ],
-   "intensity": 7,
-   "states": "MANDATORY: copy-led, <=7-word claim reads in one beat AND one live anchor is already running (right-side demo animating, or the headline's own micro-loop — Anime.js red-dot period pulse + word-swap). NO card-grid fold. Nav transparent over the hero. On motion brands only, the h1 may per-char stagger; elsewhere kinetic line-mask. An optional intro loader may precede the hero (Sui SOTD).",
-   "evidence": [
-    "Anime.js left-copy/right-demo split, char stagger + red-dot period loop as the intro (winner-verified)",
-    "Endex centered statement + dual-CTA over an armed dark ground (winner-verified)",
-    "Sui 'Build full stack' claim over card-preview, preceded by an intro loader (winner-verified)"
-   ]
-  },
-  {
-   "role": "understanding (toolbox / capability strip / value triad)",
-   "forms": [
-    "feature-card-grid(toolbox)",
-    "MISSING:divided-strip",
-    "stat-band / value triad"
-   ],
-   "pairs": [
-    "figure-hover",
-    "text-emphasis-fill",
-    "counter-odometer"
-   ],
-   "intensity": 5,
-   "states": "A light layer between hero and the proof grid: a small toolbox card grid (each tile a perpetual micro-demo), Endex's divide-x capability strip (marquee on mobile), or a 3-item value triad. Low amplitude — it sets up the grid, it is not the grid.",
-   "evidence": [
-    "Anime.js toolbox grid before the pinned panels (winner-verified)",
-    "Endex divided capability strip, divide-x -> marquee mobile (winner-verified)",
-    "Sui value triad 'Ownable/Verifiable/Business ready' (winner-verified)"
-   ]
-  },
-  {
-   "role": "proof (the feature / module card grid — the heart)",
-   "forms": [
-    "feature-card-grid (concrete proof tiles — UI slices, live demos, or custom illustrations)"
-   ],
-   "pairs": [
-    "figure-hover (passive tiles)",
-    "counter-odometer (stat tiles)",
-    "conic-border-shine / border-glow-bloom (fine-pointer)",
-    "MISSING:live-demo-tile",
-    "MISSING:perpetual-tile-machines"
-   ],
-   "intensity": 7,
-   "states": "MOST proof tiles carry an aliveness carrier — an infinite micro-loop (pulse/typewriter/carousel/auto-sort/breathing-badge), OR section-scale gradient/interactive-footer momentum around the grid. Cards carry CONCRETE proof — product-UI slices where a UI exists, live demos, or custom illustrations/diagrams (Sui, a blockchain with no UI to slice) — not a generic icon-and-label stamp; spans vary 4-12 with grid-auto-flow:dense (backfills gaps by reordering; not a zero-empty-cell guarantee). ONE hover affordance for the grid (border-shine OR spotlight-expand OR glow OR live-demo reaction), never a universal lift. Proof tiles whose only motion is a single-run on-scroll reveal, with no section-scale momentum either = the dead-grid weakness.",
-   "evidence": [
-    "Endex feature grid, diffuse climax (winner-verified award; live-site product-UI motion not confirmed this run)",
-    "Sui 'The Sui Stack' 6 modular tiles as custom illustrations, hover interactions (winner-verified)",
-    "reference Bento 2.0 five tile-loop types (corpus-generalized pattern, not external award-canon)"
-   ]
-  },
-  {
-   "role": "peak (optional — one designed spectacle)",
-   "forms": [
-    "MISSING:pinned-demo-panels",
-    "MISSING:spotlight-expand-tile"
-   ],
-   "pairs": [
-    "text-emphasis-fill (cross-fading copy)"
-   ],
-   "intensity": 9,
-   "states": "OPTIONAL and capped at one. Specimen-tour: pinned 100lvh panels over a persistent position:fixed demo layer, copy cross-fading opacity 0->1, page-wide recolor per section, the demo running the heading's claim and DRIVEN by drag/scroll-scrub so it replays. Or a spotlight-expand: hovered tile expands across its row, siblings reflow, grayscale->color restore, copy fades up. Many winners OMIT this (diffuse climax) — do not force it.",
-   "evidence": [
-    "Anime.js pinned feature-section{height:100lvh} panels, persistent demo, --hex-current recolor (winner-verified structure; exact panel count not re-executed this run)",
-    "Vercel spotlight-expand + Codrops technique: paused GSAP timeline, ease power2.inOut, siblings shift 2.5vw, 12-point clip cross morph, preview scale (dim-5vw)/dim (design-canonical + Codrops params)"
-   ]
-  },
-  {
-   "role": "deep-dive / audience-segment (optional)",
-   "forms": [
-    "editorial-split",
-    "MISSING:expandable-card"
-   ],
-   "pairs": [
-    "char-assemble (h2)",
-    "text-emphasis-fill + semantic-accent (prose)",
-    "index-row-hover"
-   ],
-   "intensity": 6,
-   "states": "Per-theme full-bleed long-form (Apple) or audience-segmented EXPANDABLE cards that open on interaction (Sui institutions/AI/DeFi/gaming). The expandable is a distinct mechanic from figure-hover — the card grows and reveals content in place, corner radius maintained.",
-   "evidence": [
-    "Sui four expandable industry cards (winner-verified)",
-    "Apple per-theme full-bleed deep-dives after the highlights bento (shipped-canonical)"
-   ]
-  },
-  {
-   "role": "close (CTA)",
-   "forms": [
-    "close-panel",
-    "CTA tile hub (4-tile)"
-   ],
-   "pairs": [
-    "kinetic-reveal (ask)",
-    "fill-invert-cta + masked-label-swap (channels)"
-   ],
-   "intensity": 6,
-   "states": "One imperative + decisive channel rows, or a 4-tile CTA hub (Sui build/code/earn/community). CTA fill-invert on hover/tap, never a pale tint. No media slot — the close cannot become a mood reel.",
-   "evidence": [
-    "Anime.js get-started close (winner-verified)",
-    "Sui 4-tile CTA hub build/code/earn/community (winner-verified)",
-    "Endex single CTA close (winner-verified)"
-   ]
-  },
-  {
-   "role": "footer",
-   "forms": [
-    "tabular-index (product variant)",
-    "interactive-footer (Sui SOTD)",
-    "oversized-wordmark reprise (Linear-shipped)"
-   ],
-   "pairs": [
-    "accent-link",
-    "masked-label-swap"
-   ],
-   "intensity": 4,
-   "states": "Functional link-column chrome; the designed moment is a wordmark reprise, newsletter capture, or a live INTERACTIVE footer (Sui SOTD ships one, submission-highlighted — a reactive footer is award-viable here, not just a link column). Anime.js: sponsor-first block + instant fill-swipe link hovers (color:var(--hex-current-1);background:var(--hex-current-7), transition-duration:0s, arrow nudge translate(.125rem)) + newsletter. The one designed micro-cue in the footer, not spectacle.",
-   "evidence": [
-    "Anime.js sponsor-first footer, instant fill-swipe hovers, arrow nudge .125rem (observed in a prior winner read, not re-executed this run)",
-    "Sui interactive footer (winner-verified, submission-highlighted)",
-    "Linear oversized-wordmark reprise (shipped-canonical)"
-   ]
-  }
- ],
- "element_states": {
-  "cta": {
-   "hover": "Full-token flood + label inversion (fill-invert-cta — direct pole swap or a panel wiping up from the bottom edge), ~0.15s token change; OR ghost-outline sub-pixel transform-press (Anime.js: hairline mid-neutral border, background NEVER fills, transform only, transition:transform 0.125s ease-out, radius 4px); OR token-step solid/inversion (Vercel — a solid pill advances one full ramp step or inverts fg/bg). NEVER a pale ~10% accent tint (reads as a disabled hover).",
-   "tap": "The :active press IS the answer — hard-press offset-shadow collapse or the fill flood, 90-160ms flash floor; on touch the fill/press replaces hover entirely.",
-   "focus": "Same visual as hover on :focus-visible, plus a same-family ring; reachable in tab order."
-  },
-  "link": {
-   "hover": "Underline draw — pseudo-element scaleX(0->1) from the left ~0.3s expo-out; OR neutral->foreground brighten (muted --fg-3 lifts to --fg-1, Anime.js ~#b4b1af->#fff), no background pill.",
-   "tap": "Brief accent/brighten flash, ~120ms; in footers the instant fill-swipe (transition-duration:0s) doubles as the tap cue.",
-   "focus": "Underline + accent recolor on :focus-visible (accent-link)."
-  },
-  "figure": {
-   "hover": "ONE affordance per grid, never a universal lift. Default figure-hover = contained inner zoom to 1.1 (felt, never a 1-3% twitch) + a companion cue (tint / scrim lift / caption rise). Alternatives by grid type: cursor-tracked conic border-shine (dark flat panels, JS drives --x/--y into a mask-composite:intersect edge), spotlight-expand+row-reflow with grayscale->color restore (imagery grids), border-glow bloom (dark grounds, opacity 0->1, blur never animates), or live-demo reaction (no chrome — the tile IS the running demo, hover/drag drives the actual animation).",
-   "tap": "Card is a link — tap navigates after a brief :active depress (scale ~0.98 / opacity dip, 90-160ms); the pointer-tracked border-shine/spotlight go DORMANT on touch, the static hairline is the complete rest/touch look. Live-demo tiles answer drag/tap directly.",
-   "focus": "focus-within lifts the same cue the hover uses (caption/scrim/glow), so keyboard reaches hover-revealed content."
-  },
-  "index_row": {
-   "hover": "Hovered row lights an accent rule + surfaces metadata while siblings dim to ~45% (index-row-hover — the spotlight list); OR the row/card EXPANDS in place revealing content, corner radius held (Sui expandable industry cards).",
-   "tap": "Expand-in-place or navigate; on touch the expand answers the tap (no dim-siblings hover state).",
-   "focus": "Same accent-lift/expand on :focus-visible; siblings' dim is skipped under reduced-motion (instant final state)."
-  },
-  "heading": {
-   "hover": "NOTHING — headings, paragraphs and in-tile metrics get zero hover response (winner-verified across the corpus). Hover life lives on links/nav/cards, never on type.",
-   "tap": "N/A (non-interactive text).",
-   "focus": "N/A. Entrance instead: kinetic-reveal masked line, per-char/word stagger ONLY on motion brands (Anime.js), else tight-tracked static display; metrics count-up on reveal (counter-odometer)."
-  },
-  "nav": {
-   "hover": "Items brighten muted->foreground, no background pill (split-rollover per-char on motion brands is optional).",
-   "tap": "Brief brighten flash on touch.",
-   "focus": "Brighten + same-family ring. Bar behavior: transparent overlay UNCHANGED on scroll over one flat ground (Anime.js), OR transparent->frosted same-family hairline (<=5-6% alpha, never a contrasting line) on scroll over shifting sections (Apple/Vercel/Sui) — the sanctioned exception to the zero-nav-border gate."
-  }
- },
- "mobile_answer": "Bento holds its identity on touch better than any hover-dependent archetype because its aliveness is AUTONOMOUS LOOPS + SCROLL-DRIVEN section devices, not hover. Strategy: (1) pointer-driven card classes go DORMANT — conic-border-shine, spotlight-expand, magnetic pull, 3D tilt all off; the static hairline/rest surface is the complete touch appearance. (2) press-class elements answer the tap — CTA fill-invert or hard-press :active collapse IS the tap answer, 90-160ms flash floor; proof tiles that navigate on tap also get a brief :active depress (scale ~0.98 / opacity dip, 90-160ms) before the route change — the tactile tap-acknowledgment Awwwards Mobile Excellence rewards, and a tile that navigates with no press feedback reads unresponsive. (3) the PERPETUAL PER-TILE LOOPS CONTINUE (pulse/typewriter/carousel/breathing-badge are not pointer-driven) and the scroll-driven gradient section transition survives touch, so the grid stays alive — this is the archetype's mobile advantage, but it makes PERF the hard gate: every loop must be React.memo-isolated in its own micro Client Component and use useMotionValue/useTransform (never useState) or the grid drops below 60fps on mid-range mobile and scores worse than a static one. (4) grid reflows to 1-col stack or 2-col (spans collapse via grid-auto-flow:dense); the divided capability strip becomes a MARQUEE (Endex); any horizontal card track becomes a native scroll-snap swipe with next-cell peek + tap-to-enlarge (swipe-snap-gallery — the scored Awwwards Mobile Excellence line). Cross-device parity is weighted heavily — a desktop-only alive-grid that goes static on mobile fails Usability.",
- "gaps": [
-  {
-   "component": "live-demo-tile",
-   "seen_in": [
-    "Anime.js v4 (winner)",
-    "Endex (winner — awarded artifact; live-site product-UI not confirmed this run)",
-    "Attio (product-UI tiles)"
-   ],
-   "mechanic": "A tile whose CONTENT is a running canvas/JS/product-UI demo, not a passive image — hover/drag/scroll drives the ACTUAL animation and there is no card chrome or lift at all (the tile reacts because the demo reacts). The archetype's defining DNA ('every tile shows its claim') has NO executable component today — figure-hover only does a passive contained-zoom on an image, and feature-card-grid only pairs figure-hover/counter-odometer. Needs: a slot that mounts an operable demo (canvas or real UI slice), a custom cursor scoped ONLY inside the tile, drag+scroll-scrub input driving the demo's own timeline, IntersectionObserver+visibilitychange pause, memoized/isolated render, and a static poster fallback under reduced-motion / no-JS. This is the #1 gap — the DNA is unbuildable without it.",
-   "priority": 1
-  },
-  {
-   "component": "pinned-demo-panels",
-   "seen_in": [
-    "Anime.js v4 (winner — already flagged MISSING in recipes.json)"
-   ],
-   "mechanic": "The specimen-tour peak: N pinned sections each height:100lvh over a persistent position:fixed demo layer; as scroll advances, the copy for each panel cross-fades at opacity 0->1 while the fixed demo runs THAT panel's claim, plus a page-wide --hex-current-* recolor per section. Native scroll (no smoother — the tier reads native scroll). The demo is drag/scroll-scrub interactive so the peak REPLAYS rather than spends once. Recipes already name 'MISSING:pinned-demo-panels' and 'MISSING:divided-strip' — the archetype's one designed spectacle mechanic has no component. Needs: scroll-progress -> panel index + copy cross-fade + demo-layer handoff + per-section token recolor, reduced-motion = stacked static panels. NOTE: exact panel count (prior '8') not re-verifiable via WebFetch; static markup surfaced 6 feature blocks this run.",
-   "priority": 2
-  },
-  {
-   "component": "spotlight-expand-tile",
-   "seen_in": [
-    "Vercel spotlight (design-canonical)",
-    "Apple highlights scrub (shipped-canonical)",
-    "Codrops technique (params verified)"
-   ],
-   "mechanic": "A layout-AWARE expand (not a scale): the hovered tile expands across its row, siblings reflow inward, a de-saturated preview restores to color, and copy fades up. Verified Codrops params: paused GSAP timeline, ease power2.inOut; siblings shift ~2.5vw inward; a 12-point clip-path cross morphs open; preview scales (dim - 5vw)/dim. feature-card-grid only pairs figure-hover (contained zoom) — the row-reflow expand and the audience-segment expandable-card (Sui) are unbuildable today. Needs: a grid-aware expand that reflows siblings, grayscale->color restore, and a tap-to-expand equivalent for touch (pointer hover dormant).",
-   "priority": 3
-  },
-  {
-   "component": "perpetual-tile-machines",
-   "seen_in": [
-    "Anime.js v4 (winner — red-dot period loop, clockwork counter)",
-    "Vercel/Supabase/Linear (design-canonical Bento five tile-types)"
-   ],
-   "mechanic": "The five structured tile idle-loops that make the grid 'alive' — Intelligent-List (auto-sort via layoutId), Command-Input (typewriter cycling prompts + blinking cursor + processing shimmer), Live-Status (breathing badge, overshoot-spring pop, hold 3s, vanish), Wide-Data-Stream (gapless x:0%->-100% carousel), Focus-Mode (staggered highlight + float-in toolbar). ambient-idle only covers unstructured glow/float/shimmer/pulse — the structured content-machines that carry the distributed-aliveness pattern have no components. Each must ship memoized+isolated (React.memo) with visibilitychange/IO pause. Needs 5 small machines, or one parameterized loop-tile with a mode enum. NOTE: the five-machine set is a corpus-generalized pattern (mainly Anime.js) + internal reference, not external award-canon — build as a strong default, not a mandatory law.",
-   "priority": 4
-  },
-  {
-   "component": "divided-capability-strip",
-   "seen_in": [
-    "Endex (winner — divide-x strip, marquee on mobile)"
-   ],
-   "mechanic": "The understanding-layer band between hero and the proof grid: a horizontally divided strip (CSS divide-x rules) of 3-5 capability cells at desktop that becomes a continuous MARQUEE on mobile. Recipes name 'MISSING:divided-strip'. Distinct from stat-band (no big numbers) and logo-wall (capability copy, not logos). Needs: divide-x desktop layout + mobile marquee transform + reduced-motion static.",
-   "priority": 5
-  },
-  {
-   "component": "section-scale-momentum",
-   "seen_in": [
-    "Sui (winner — 'Gradient transition' + 'Interactive footer' submission-highlighted captures)"
-   ],
-   "mechanic": "Momentum carried at SECTION scale rather than per-tile — the co-equal second momentum channel the prior revision under-weighted. (a) A scroll-driven GRADIENT TRANSITION that morphs the page/section background color continuously as sections advance (full-width, tied to scroll progress). (b) An INTERACTIVE FOOTER that reacts to pointer/scroll (a live surface, not a static link column). The prior playbook modeled post-hero energy almost entirely as per-tile loops; Sui SOTD sustains momentum with these section-level devices. Needs: a scroll-progress -> background-gradient interpolation (reduced-motion = static end color) and a reactive footer surface. Distinct from per-tile loops.",
-   "priority": 6
-  }
- ],
- "unverified": [
-  "Attio, Clay, Vercel-Workflow Awwwards awards are real but OLD (2021, 2019, 2022) — their FRESH (2024-2026) award weight is nil; the current attio.com/vercel.com bento sections are design-canonical, not the awarded artifacts. Weighted accordingly in the corpus.",
-  "Vercel / Linear / Supabase / Apple bento are DESIGN-CANONICAL (cited in the reference effect palette and SaaS-design roundups) but carry NO verified whole-site Awwwards/FWA/CSSDA award as a bento; the conic-border-shine, border-glow-bloom, and five-tile-loop mechanics attributed to them are shipped/observed, not award-jury-verified.",
-  "Exact durations/easings for Sui's Sui-Stack hover, expandable-industry-card open, gradient-section-transition, and interactive-footer were not read from the served bundle this run — the submission-highlighted captures confirm the interactions exist, but amplitudes are inferred from the archetype canon, not measured. (Author credit corrected to HOLOGRAPHIK + AKKA Studio + Sui Foundation Design this run.)",
-  "The Superfiles '10 premium bento interaction strategies' catalog (breath scale 1.02 spring 300/20, micro-haptic scale 0.95, magnetic pull, tilt) supplied amplitudes but named only Apple/VisionOS/iOS as sources — used as mechanics reference, not as award-grounded evidence.",
-  "Anime.js pinned-panel count and per-tile loop CSS: prior revision tagged '8 panels' + exact hex/durations as 'winner-verified CSS'; downgraded this run to 'observed in a prior read, not re-executed' — static markup surfaced only 6 feature blocks this run and WebFetch cannot run the site's JS, so the exact count and CSS amplitudes are unconfirmed.",
-  "Endex 'real product-UI slices, never icons': REFUTED as archetype law — live endex.ai this run shows a copy-led hero -> enterprise carousel -> value triad -> testimonials -> a TEXT feature list ('Built for Power Teams') with generic icons and NO visible product-UI bento grid. The product-UI-slices reading describes the 16-month-old awarded artifact or is inferred (product-UI could be JS/video-gated). Softened to ONE proof register alongside live demos and custom illustrations, not a 'never icons' law.",
-  "'Bento 2.0' as a five-machine perpetual-loop law: REFUTED as external award-canon — published Bento 2.0 sources (orbix.studio, desinance.com, designshack) define the trend as exaggerated corner rounding (12-32px) + container-query self-aware tiles + subtle 'alive' micro-interaction, NOT a mandatory five-loop law or 'one wow is structurally impossible'. The five named machines are a corpus-generalized pattern (mainly Anime.js) plus an internal reference; kept as a strong default, downgraded from law. The verified Bento 2.0 grid constants (corner rounding + container queries) were folded into step 2.",
-  "Anime.js 'Site of the Month May 2025' + 'Product Honors': REFUTED and verified false this run — the site's Awwwards page (awwwards.com/sites/anime-js) lists ONLY SOTD (2025-05-06, 7.62) + DEV AWARD (7.84, Anim 9.00). SOTM May 2025 went to 'Navigate'; 'Product Honors' is not an Awwwards category. Corrected in the corpus award string.",
-  "Sui 'jury praised hover interactions / gradient transitions / interactive footer': REFUTED — these are the submission's OWN highlighted design captures on the Awwwards page (Intro loader / Gradient transition / Hover interactions / Custom illustrations / Interactive footer), not jury or user commentary. Reworded to 'submission-highlighted' throughout."
- ],
- "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent."
+  "mobile_answer": "Bento holds its identity on touch better than any hover-dependent archetype because its aliveness is AUTONOMOUS LOOPS + SCROLL-DRIVEN section devices, not hover. Strategy: (1) pointer-driven card classes go DORMANT — conic-border-shine, spotlight-expand, magnetic pull, 3D tilt all off; the static hairline/rest surface is the complete touch appearance. (2) press-class elements answer the tap — CTA fill-invert or hard-press :active collapse IS the tap answer, 90-160ms flash floor; proof tiles that navigate on tap also get a brief :active depress (scale ~0.98 / opacity dip, 90-160ms) before the route change — the tactile tap-acknowledgment Awwwards Mobile Excellence rewards, and a tile that navigates with no press feedback reads unresponsive. (3) the PERPETUAL PER-TILE LOOPS CONTINUE (pulse/typewriter/carousel/breathing-badge are not pointer-driven) and the scroll-driven gradient section transition survives touch, so the grid stays alive — this is the archetype's mobile advantage, but it makes PERF the hard gate: every loop must be React.memo-isolated in its own micro Client Component and use useMotionValue/useTransform (never useState) or the grid drops below 60fps on mid-range mobile and scores worse than a static one. (4) grid reflows to 1-col stack or 2-col (spans collapse via grid-auto-flow:dense); the divided capability strip becomes a MARQUEE (Endex); any horizontal card track becomes a native scroll-snap swipe with next-cell peek + tap-to-enlarge (swipe-snap-gallery — the scored Awwwards Mobile Excellence line). Cross-device parity is weighted heavily — a desktop-only alive-grid that goes static on mobile fails Usability.",
+  "gaps": [
+    {
+      "component": "live-demo-tile",
+      "seen_in": [
+        "Anime.js v4 (winner)",
+        "Endex (winner — awarded artifact; live-site product-UI not confirmed this run)",
+        "Attio (product-UI tiles)"
+      ],
+      "mechanic": "A tile whose CONTENT is a running canvas/JS/product-UI demo, not a passive image — hover/drag/scroll drives the ACTUAL animation and there is no card chrome or lift at all (the tile reacts because the demo reacts). The archetype's defining DNA ('every tile shows its claim') has NO executable component today — figure-hover only does a passive contained-zoom on an image, and feature-card-grid only pairs figure-hover/counter-odometer. Needs: a slot that mounts an operable demo (canvas or real UI slice), a custom cursor scoped ONLY inside the tile, drag+scroll-scrub input driving the demo's own timeline, IntersectionObserver+visibilitychange pause, memoized/isolated render, and a static poster fallback under reduced-motion / no-JS. This is the #1 gap — the DNA is unbuildable without it.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "pinned-demo-panels",
+      "seen_in": [
+        "Anime.js v4 (winner — already flagged MISSING in recipes.json)"
+      ],
+      "mechanic": "The specimen-tour peak: N pinned sections each height:100lvh over a persistent position:fixed demo layer; as scroll advances, the copy for each panel cross-fades at opacity 0->1 while the fixed demo runs THAT panel's claim, plus a page-wide --hex-current-* recolor per section. Native scroll (no smoother — the tier reads native scroll). The demo is drag/scroll-scrub interactive so the peak REPLAYS rather than spends once. Recipes already name 'pinned-demo-panels' and 'divided-strip' — the archetype's one designed spectacle mechanic has no component. Needs: scroll-progress -> panel index + copy cross-fade + demo-layer handoff + per-section token recolor, reduced-motion = stacked static panels. NOTE: exact panel count (prior '8') not re-verifiable via WebFetch; static markup surfaced 6 feature blocks this run.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "spotlight-expand-tile",
+      "seen_in": [
+        "Vercel spotlight (design-canonical)",
+        "Apple highlights scrub (shipped-canonical)",
+        "Codrops technique (params verified)"
+      ],
+      "mechanic": "A layout-AWARE expand (not a scale): the hovered tile expands across its row, siblings reflow inward, a de-saturated preview restores to color, and copy fades up. Verified Codrops params: paused GSAP timeline, ease power2.inOut; siblings shift ~2.5vw inward; a 12-point clip-path cross morphs open; preview scales (dim - 5vw)/dim. feature-card-grid only pairs figure-hover (contained zoom) — the row-reflow expand and the audience-segment expandable-card (Sui) are unbuildable today. Needs: a grid-aware expand that reflows siblings, grayscale->color restore, and a tap-to-expand equivalent for touch (pointer hover dormant).",
+      "priority": 3,
+      "status": "merged"
+    },
+    {
+      "component": "perpetual-tile-machines",
+      "seen_in": [
+        "Anime.js v4 (winner — red-dot period loop, clockwork counter)",
+        "Vercel/Supabase/Linear (design-canonical Bento five tile-types)"
+      ],
+      "mechanic": "The five structured tile idle-loops that make the grid 'alive' — Intelligent-List (auto-sort via layoutId), Command-Input (typewriter cycling prompts + blinking cursor + processing shimmer), Live-Status (breathing badge, overshoot-spring pop, hold 3s, vanish), Wide-Data-Stream (gapless x:0%->-100% carousel), Focus-Mode (staggered highlight + float-in toolbar). ambient-idle only covers unstructured glow/float/shimmer/pulse — the structured content-machines that carry the distributed-aliveness pattern have no components. Each must ship memoized+isolated (React.memo) with visibilitychange/IO pause. Needs 5 small machines, or one parameterized loop-tile with a mode enum. NOTE: the five-machine set is a corpus-generalized pattern (mainly Anime.js) + internal reference, not external award-canon — build as a strong default, not a mandatory law.",
+      "priority": 4,
+      "status": "merged"
+    },
+    {
+      "component": "divided-capability-strip",
+      "seen_in": [
+        "Endex (winner — divide-x strip, marquee on mobile)"
+      ],
+      "mechanic": "The understanding-layer band between hero and the proof grid: a horizontally divided strip (CSS divide-x rules) of 3-5 capability cells at desktop that becomes a continuous MARQUEE on mobile. Recipes name 'divided-strip'. Distinct from stat-band (no big numbers) and logo-wall (capability copy, not logos). Needs: divide-x desktop layout + mobile marquee transform + reduced-motion static.",
+      "priority": 5,
+      "status": "merged"
+    },
+    {
+      "component": "section-scale-momentum",
+      "seen_in": [
+        "Sui (winner — 'Gradient transition' + 'Interactive footer' submission-highlighted captures)"
+      ],
+      "mechanic": "Momentum carried at SECTION scale rather than per-tile — the co-equal second momentum channel the prior revision under-weighted. (a) A scroll-driven GRADIENT TRANSITION that morphs the page/section background color continuously as sections advance (full-width, tied to scroll progress). (b) An INTERACTIVE FOOTER that reacts to pointer/scroll (a live surface, not a static link column). The prior playbook modeled post-hero energy almost entirely as per-tile loops; Sui SOTD sustains momentum with these section-level devices. Needs: a scroll-progress -> background-gradient interpolation (reduced-motion = static end color) and a reactive footer surface. Distinct from per-tile loops.",
+      "priority": 6,
+      "status": "merged"
+    }
+  ],
+  "unverified": [
+    "Attio, Clay, Vercel-Workflow Awwwards awards are real but OLD (2021, 2019, 2022) — their FRESH (2024-2026) award weight is nil; the current attio.com/vercel.com bento sections are design-canonical, not the awarded artifacts. Weighted accordingly in the corpus.",
+    "Vercel / Linear / Supabase / Apple bento are DESIGN-CANONICAL (cited in the reference effect palette and SaaS-design roundups) but carry NO verified whole-site Awwwards/FWA/CSSDA award as a bento; the conic-border-shine, border-glow-bloom, and five-tile-loop mechanics attributed to them are shipped/observed, not award-jury-verified.",
+    "Exact durations/easings for Sui's Sui-Stack hover, expandable-industry-card open, gradient-section-transition, and interactive-footer were not read from the served bundle this run — the submission-highlighted captures confirm the interactions exist, but amplitudes are inferred from the archetype canon, not measured. (Author credit corrected to HOLOGRAPHIK + AKKA Studio + Sui Foundation Design this run.)",
+    "The Superfiles '10 premium bento interaction strategies' catalog (breath scale 1.02 spring 300/20, micro-haptic scale 0.95, magnetic pull, tilt) supplied amplitudes but named only Apple/VisionOS/iOS as sources — used as mechanics reference, not as award-grounded evidence.",
+    "Anime.js pinned-panel count and per-tile loop CSS: prior revision tagged '8 panels' + exact hex/durations as 'winner-verified CSS'; downgraded this run to 'observed in a prior read, not re-executed' — static markup surfaced only 6 feature blocks this run and WebFetch cannot run the site's JS, so the exact count and CSS amplitudes are unconfirmed.",
+    "Endex 'real product-UI slices, never icons': REFUTED as archetype law — live endex.ai this run shows a copy-led hero -> enterprise carousel -> value triad -> testimonials -> a TEXT feature list ('Built for Power Teams') with generic icons and NO visible product-UI bento grid. The product-UI-slices reading describes the 16-month-old awarded artifact or is inferred (product-UI could be JS/video-gated). Softened to ONE proof register alongside live demos and custom illustrations, not a 'never icons' law.",
+    "'Bento 2.0' as a five-machine perpetual-loop law: REFUTED as external award-canon — published Bento 2.0 sources (orbix.studio, desinance.com, designshack) define the trend as exaggerated corner rounding (12-32px) + container-query self-aware tiles + subtle 'alive' micro-interaction, NOT a mandatory five-loop law or 'one wow is structurally impossible'. The five named machines are a corpus-generalized pattern (mainly Anime.js) plus an internal reference; kept as a strong default, downgraded from law. The verified Bento 2.0 grid constants (corner rounding + container queries) were folded into step 2.",
+    "Anime.js 'Site of the Month May 2025' + 'Product Honors': REFUTED and verified false this run — the site's Awwwards page (awwwards.com/sites/anime-js) lists ONLY SOTD (2025-05-06, 7.62) + DEV AWARD (7.84, Anim 9.00). SOTM May 2025 went to 'Navigate'; 'Product Honors' is not an Awwwards category. Corrected in the corpus award string.",
+    "Sui 'jury praised hover interactions / gradient transitions / interactive footer': REFUTED — these are the submission's OWN highlighted design captures on the Awwwards page (Intro loader / Gradient transition / Hover interactions / Custom illustrations / Interactive footer), not jury or user commentary. Reworded to 'submission-highlighted' throughout."
+  ],
+  "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent.",
+  "gaps_note": "All orders closed July 2026 (completeness program) — entries kept as the winner-cited mechanic-spec grammar; per-entry status carries the resolution. For a builder every entry is library-covered: compose, never author."
 }

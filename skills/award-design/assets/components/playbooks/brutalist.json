@@ -1,377 +1,386 @@
 {
- "archetype": "brutalist",
- "revision": 3,
- "corpus": [
-  {
-   "site": "Eloy Benoffi — Portfolio",
-   "url": "eloyb.design",
-   "award": "Awwwards Honorable Mention + GSAP Site of the Day + CSSDA Best UI / Best UX / Best Innovation / Special Kudos (verified this run via Codrops case study 2025-10-15, titled 'From Blank Canvas to Mayhem: … Brutalist, Glitchy Portfolio')",
-   "fit": "CANONICAL brutalist anchor — the one corpus member an external source explicitly calls brutalist, and the primary source for the continuous-carry momentum model. Industrial/terminal glitch: ASCII flowers, ALL-CAPS/>>>-prefixed terminal copy, char-diff identity tags, forced-open scramble nav, scramble-on-hover labels, loader-into-navbar. The single spectacle peak is DEFERRED to the footer clone machine (up to 200 mix-blend-difference clones) while a scrubbed flower-pluck field and different-speed title rows carry the whole scroll continuously. The studio-index / peak-at-the-bottom exemplar. Its full mechanic set is the best-sourced in the corpus — every param below is Codrops-confirmed to the number."
-  },
-  {
-   "site": "Naked City Films",
-   "url": "nakedcityfilms.com",
-   "award": "Awwwards SOTD 2026-01-23 (verified this run — 7.34 overall; Design 7.51 / Usability 6.99 / Creativity 7.43 / Content 7.50; Dev Award 7.49; stack Nuxt/Vue + custom Canvas3)",
-   "fit": "Brutalist-FOUNDATION degraded-media-shader (SavoirFaire©): monochromatic electric blue #0004EB on gray #979797, Codrops names a section 'Brutalist Influence as a Foundation', heavy blocks, scale-as-emphasis, large-scale type. A single rAF loop drives smooth scroll + Three.js + entrance + page transitions so no section is ever fully motionless. CRT-shader dissolve on film thumbnails into brand-tinted RGB channels then buffered video on hover. IMPORTANT (correction from revision 1): the designers frame the build as 'restraint paired with intensity … movement without chaos', NOT loud-at-rest — this is the RESTRAINED register of continuous motion, the counterweight to Eloy's maximalism. 'Refuses to stand still' is the article's title hook, not its design thesis."
-  },
-  {
-   "site": "Sui Overflow 2025",
-   "url": "overflow.sui.io (2025 edition)",
-   "award": "Awwwards SOTD 2025-04-15 + Dev Award (verified this run — 7.48 overall; Design 7.64 / Usability 7.19 / Creativity 7.73 / Content 7.24; Dev Award 7.14; by Holographik)",
-   "fit": "Industrial-monochrome brutalist: stark #000F1D on #F7F7F7, structural fill on nav pills / filter chips (label colour holds on fill — never a pale tint). The clean two-tone terminal expression that proves the DNA holds without illustration. The award and palette are verified this run; the CSS-level interaction params (2px border, radius 0, background-color 0.3s, Lenis 1.1.14) are carried from a prior reference read, NOT re-inspected — the live URL now serves Overflow 2026 so the awarded build can't be re-hit."
-  },
-  {
-   "site": "FlowFest 2025",
-   "url": "flowfest.co.uk",
-   "award": "Awwwards SOTD 2025-07-29 (verified this run — 7.36 overall; Design 7.47 / Usability 7.19 / Creativity 7.51 / Content 7.16; Animations/Transitions 8.20 top dev sub-score; built by Osmo — Dennis Snellenberg + Ilja van Eck)",
-   "fit": "BOUNDARY / brutalist-ADJACENT — reclassified in revision 2. Awwwards tags it 'Art & Illustration, Events, Animation, Colorful, Illustration, Microinteractions' — 'brutalist' is ABSENT; no external source (Osmo, Webflow, Awwwards) calls it brutalist and Osmo's own framing is 'delightful animation / FlowFest fun'. A warm-illustrated colorful Webflow site whose brutalist-ADJACENT grammar (hard-press radius-0 buttons, drawn-SVG type-as-image H1 slab, chunky display, tilt-parity sticker cards, a ~75px/s marquee, a cursor-tracked mascot idle loop) is reusable technique for the argument-scroll spine, but it is NOT proof of a brutalist law. Its idle-band params live in Slater/GSAP JS and were not re-read this run (see unverified). Sits at the LOUD end of the continuous-carry model — one register among two, not the norm."
-  },
-  {
-   "site": "Treize Grammes",
-   "url": "13g.fr",
-   "award": "Awwwards Honorable Mention 2024-10-11 (verified this run — by Thomas Carré + 13G; tags Animation / Portfolio / Scrolling / Microinteractions / Design Agencies, not brutalist)",
-   "fit": "Warm French branding-agency brutalist EDGE (soft-fit, disclosed): bold activation concept, imperative headlines, terminal-adjacent identity hero (studio-index), Lenis smoothing, contact-first close ('Prenez rendez-vous avec l'un de nos associés'). The softer, non-glitch end of the terminal-identity expression; a supporting corpus member for the studio-index arc, hedged not hidden."
-  },
-  {
-   "site": "Anime.js v4",
-   "url": "animejs.com",
-   "award": "Awwwards SOTD 2025-05-06 (verified this run — 7.62 overall; Design 7.63 / Usability 7.51 / Creativity 7.75 / Content 7.63; Dev Award 7.84) + SOTM May 2025 (per reference, not re-verified this run)",
-   "fit": "BOUNDARY member — industrial-monochrome bento-brutalist hybrid (#252423 dark / #DAD5D0 light), library-demo tiles, scroll-scrubber spectacle. Serves the Bento archetype better but carries the brutalist monochrome DNA at SOTD tier; included for expression breadth, not as a core arc source."
-  },
-  {
-   "site": "Joffrey Spitzer — Portfolio",
-   "url": "joffreyspitzer.com",
-   "award": "Codrops case study 2026-02-18 (TECHNIQUE SOURCE — reputable case study; no Awwwards/CSSDA/FWA win verified this run — do NOT count as an awarded winner)",
-   "fit": "Minimalist-with-brutalist-edge Astro + GSAP + Lenis + Three.js + Swup: a stepped-counter loader (steps(14) 0→100, the brutalist tell) that Flips into the showreel, a brutalist vertical case slider whose active panel scales up under scroll. The studio-reel / stepped-reel mechanics source; award status unverified so it grounds technique only."
-  }
- ],
- "story": {
-  "arcs": [
-   "The Studio Index / studio-index (Eloy winner-verified brutalist; Treize supporting; Naked City restrained-register technique): loader-into-navbar (progress becomes UI) or char-diff identity terminal hero, NO in-fold CTA → about → hover-charged work index (proof) → footer-as-finale where the single spectacle peak lands LAST (Eloy's clone machine). Peak at the bottom; the index carries the middle. The archetype's PRIMARY spine — the one grounded in a source that explicitly calls the site brutalist.",
-   "The Community Scroll / argument-scroll (FlowFest, boundary-ADJACENT technique from a colorful-illustration SOTD): in-character chat-cloud loader → drawn-SVG type-as-image hero + date → 'What is FlowFest?' understanding → LINEUP (proof, the capped spectacle peak ~40%) → what-to-expect → community band (logo wall) → FAQ (the designed rest) → oversized-invitation reprise close. A warm-communal host invites you in; the proof is the lineup; the footer reprises the CTA at the largest type on the page. ~9 <section>s live, ~24 finer scroll beats. Reusable spine, but its grounding member is not tagged brutalist — treat as adjacent technique, not canon.",
-   "The Stepped Reel / studio-reel (Joffrey, technique / single-source, award-unverified): stepped-counter loader (steps(14), the brutalist tell) → Flip showreel hero → vertical case slider whose active panel scales up under scroll → contact close. Scroll is a playhead through a scrubbed cross-section."
+  "archetype": "brutalist",
+  "revision": 4,
+  "corpus": [
+    {
+      "site": "Eloy Benoffi — Portfolio",
+      "url": "eloyb.design",
+      "award": "Awwwards Honorable Mention + GSAP Site of the Day + CSSDA Best UI / Best UX / Best Innovation / Special Kudos (verified this run via Codrops case study 2025-10-15, titled 'From Blank Canvas to Mayhem: … Brutalist, Glitchy Portfolio')",
+      "fit": "CANONICAL brutalist anchor — the one corpus member an external source explicitly calls brutalist, and the primary source for the continuous-carry momentum model. Industrial/terminal glitch: ASCII flowers, ALL-CAPS/>>>-prefixed terminal copy, char-diff identity tags, forced-open scramble nav, scramble-on-hover labels, loader-into-navbar. The single spectacle peak is DEFERRED to the footer clone machine (up to 200 mix-blend-difference clones) while a scrubbed flower-pluck field and different-speed title rows carry the whole scroll continuously. The studio-index / peak-at-the-bottom exemplar. Its full mechanic set is the best-sourced in the corpus — every param below is Codrops-confirmed to the number."
+    },
+    {
+      "site": "Naked City Films",
+      "url": "nakedcityfilms.com",
+      "award": "Awwwards SOTD 2026-01-23 (verified this run — 7.34 overall; Design 7.51 / Usability 6.99 / Creativity 7.43 / Content 7.50; Dev Award 7.49; stack Nuxt/Vue + custom Canvas3)",
+      "fit": "Brutalist-FOUNDATION degraded-media-shader (SavoirFaire©): monochromatic electric blue #0004EB on gray #979797, Codrops names a section 'Brutalist Influence as a Foundation', heavy blocks, scale-as-emphasis, large-scale type. A single rAF loop drives smooth scroll + Three.js + entrance + page transitions so no section is ever fully motionless. CRT-shader dissolve on film thumbnails into brand-tinted RGB channels then buffered video on hover. IMPORTANT (correction from revision 1): the designers frame the build as 'restraint paired with intensity … movement without chaos', NOT loud-at-rest — this is the RESTRAINED register of continuous motion, the counterweight to Eloy's maximalism. 'Refuses to stand still' is the article's title hook, not its design thesis."
+    },
+    {
+      "site": "Sui Overflow 2025",
+      "url": "overflow.sui.io (2025 edition)",
+      "award": "Awwwards SOTD 2025-04-15 + Dev Award (verified this run — 7.48 overall; Design 7.64 / Usability 7.19 / Creativity 7.73 / Content 7.24; Dev Award 7.14; by Holographik)",
+      "fit": "Industrial-monochrome brutalist: stark #000F1D on #F7F7F7, structural fill on nav pills / filter chips (label colour holds on fill — never a pale tint). The clean two-tone terminal expression that proves the DNA holds without illustration. The award and palette are verified this run; the CSS-level interaction params (2px border, radius 0, background-color 0.3s, Lenis 1.1.14) are carried from a prior reference read, NOT re-inspected — the live URL now serves Overflow 2026 so the awarded build can't be re-hit."
+    },
+    {
+      "site": "FlowFest 2025",
+      "url": "flowfest.co.uk",
+      "award": "Awwwards SOTD 2025-07-29 (verified this run — 7.36 overall; Design 7.47 / Usability 7.19 / Creativity 7.51 / Content 7.16; Animations/Transitions 8.20 top dev sub-score; built by Osmo — Dennis Snellenberg + Ilja van Eck)",
+      "fit": "BOUNDARY / brutalist-ADJACENT — reclassified in revision 2. Awwwards tags it 'Art & Illustration, Events, Animation, Colorful, Illustration, Microinteractions' — 'brutalist' is ABSENT; no external source (Osmo, Webflow, Awwwards) calls it brutalist and Osmo's own framing is 'delightful animation / FlowFest fun'. A warm-illustrated colorful Webflow site whose brutalist-ADJACENT grammar (hard-press radius-0 buttons, drawn-SVG type-as-image H1 slab, chunky display, tilt-parity sticker cards, a ~75px/s marquee, a cursor-tracked mascot idle loop) is reusable technique for the argument-scroll spine, but it is NOT proof of a brutalist law. Its idle-band params live in Slater/GSAP JS and were not re-read this run (see unverified). Sits at the LOUD end of the continuous-carry model — one register among two, not the norm."
+    },
+    {
+      "site": "Treize Grammes",
+      "url": "13g.fr",
+      "award": "Awwwards Honorable Mention 2024-10-11 (verified this run — by Thomas Carré + 13G; tags Animation / Portfolio / Scrolling / Microinteractions / Design Agencies, not brutalist)",
+      "fit": "Warm French branding-agency brutalist EDGE (soft-fit, disclosed): bold activation concept, imperative headlines, terminal-adjacent identity hero (studio-index), Lenis smoothing, contact-first close ('Prenez rendez-vous avec l'un de nos associés'). The softer, non-glitch end of the terminal-identity expression; a supporting corpus member for the studio-index arc, hedged not hidden."
+    },
+    {
+      "site": "Anime.js v4",
+      "url": "animejs.com",
+      "award": "Awwwards SOTD 2025-05-06 (verified this run — 7.62 overall; Design 7.63 / Usability 7.51 / Creativity 7.75 / Content 7.63; Dev Award 7.84) + SOTM May 2025 (per reference, not re-verified this run)",
+      "fit": "BOUNDARY member — industrial-monochrome bento-brutalist hybrid (#252423 dark / #DAD5D0 light), library-demo tiles, scroll-scrubber spectacle. Serves the Bento archetype better but carries the brutalist monochrome DNA at SOTD tier; included for expression breadth, not as a core arc source."
+    },
+    {
+      "site": "Joffrey Spitzer — Portfolio",
+      "url": "joffreyspitzer.com",
+      "award": "Codrops case study 2026-02-18 (TECHNIQUE SOURCE — reputable case study; no Awwwards/CSSDA/FWA win verified this run — do NOT count as an awarded winner)",
+      "fit": "Minimalist-with-brutalist-edge Astro + GSAP + Lenis + Three.js + Swup: a stepped-counter loader (steps(14) 0→100, the brutalist tell) that Flips into the showreel, a brutalist vertical case slider whose active panel scales up under scroll. The studio-reel / stepped-reel mechanics source; award status unverified so it grounds technique only."
+    }
   ],
-  "thread": "The brutalist fil rouge is CONTINUOUS motion at rest — the page never collapses into a bank of fire-once IntersectionObserver reveals with dead silence between them. This is the archetype's divergence from minimalist, but the AMPLITUDE of that continuous motion is a PER-BRIEF CHOICE, NOT universally loud (correction from revision 1): it spans the MAXIMALIST register (Eloy runs a scrubbed flower-pluck field scrub:8 + different-speed title rows yPercent -300 scrub:0.6 that shear the whole scroll, plus scramble-on-hover on every labeled element — the site titles itself 'Mayhem') and the RESTRAINED register (Naked City runs a single rAF loop that keeps every section subtly moving, framed by its makers as 'restraint paired with intensity … movement without chaos', explicitly NOT loud-at-rest). The brutalist-adjacent FlowFest sits at the loud end with a ~75px/s marquee + cursor-tracked mascot idle loop + a self-drawing DrawSVG arch, but it is a colorful-illustration BOUNDARY member, not the law's proof. The carry holds three constants across all element geometries: ONE physical metaphor (objects-on-a-table / terminal-runtime / CRT-film / print-shop), ONE easing family (scroll reveals ride expo.out/power3; the jarring steps(n) register is reserved for hero type + micro-toggles), and ONE border/shadow/radius system (Sui 2px #000F1D + radius 0 + structural fill; FlowFest hard offset shadow 0 4px 0 that collapses on press). When a control fills it takes the FULL saturated accent, never a pale color-mix tint. The failure mode ('the dead middle') is a bank of fire-once reveals with nothing running between them; the winning move welds one décor layer to the scrollbar and keeps one idle loop alive in-character — at whatever amplitude the brief's register calls for. Do not force a loud marquee onto a restraint brief.",
-  "copy": "Two registers, both refusing corporate distance; the button is ALWAYS a verb. Terminal-ironic (Eloy, the canonical brutalist source): lowercase, >>> prefixes, ALL-CAPS verbs, // and # fences — '>>>based in madrid, spain'; '##########COPY EMAIL##' (the CTA as a terminal command). Warm-communal (FlowFest, boundary-adjacent): first-plural, exclamatory, hot imperatives, trailing ellipses, a named human and a real address — 'Hi Friends!' → 'We are back...' (the loader speaks in character); 'Webflow chat, festival vibes, good times.' (H1 = the pitch in three noun phrases); 'Reach out to Isabel at isabel@designsie.co.uk...'. Quoted to CALIBRATE, never to ship: imitate the specificity (the named place, the count, the refusal), never the wording. Indexed ASCII flags ([ MANIFEST 04 ]) and process strings (REV 2.6) are legitimate brutalist grammar, not meta-label noise."
- },
- "spectacle_model": {
-  "hero": "A COMMITTED in-character scene, never a quiet opener — no genuine brutalist winner ships zero-intro instant paint. A loader that SIGNS its character (char-diff identity tags that swap '>>>based in madrid, spain' → '>>>born in mar del plata, arg' via TextPlugin type:'diff' 0.3s and loader-into-navbar where the progress bar grows into the nav — Eloy, winner-verified; OR a chat-cloud typed beats 'Hi Friends!'→'We are back...' — FlowFest, boundary-adjacent; OR a stepped counter steps(14) 0→100 — Joffrey, technique) hands off to a type-as-image or identity reveal: char-diff identity tags (Eloy) or a drawn inline-SVG <path> H1 slab whose spans rise yPercent 100→0 stagger −0.025 Expo.easeOut (FlowFest, params reference-carried not re-read this run). The first impression forms in this scene; the only in-fold CTA is the nav pill (argument) or none at all (studio-index).",
-  "continuation": [
-   "what-is / about (understanding) — masked line/char reveals fire ONCE while the CONTINUOUS idle carry runs UNDER them at the brief's register amplitude: maximalist = scrubbed flower-pluck scrub:8 + different-speed title rows yPercent -300 scrub:0.6 (Eloy, winner-verified) or marquee + mascot idle loop tracking the cursor (FlowFest, boundary-adjacent, params reference-carried); restraint = a single perpetual rAF loop keeping sections subtly in motion (Naked City). CONTINUES — never a hard silence, but not necessarily loud.",
-   "lineup / work-index (proof) — for argument-scroll THIS is the capped spectacle peak (FlowFest lineup ~40%, intensity 9): index-row-hover rows + tilt-parity ±3° sticker cards + scramble-on-hover labels. For studio-index the index is the hover-charged build (spotlight-dim + optional hover image-preview) that ESCALATES toward the footer, not itself the peak (Eloy).",
-   "what-to-expect / community band (understanding/rest) — quieter editorial-split + a static logo wall (grayscale→colour hover, the one micro-state that form owns); the idle carry is still audible but the section rests relative to the peak. Never a hard silence.",
-   "FAQ (the designed rest) — an accordion, the lowest-intensity beat before the close; the scrubbed décor layer still runs the full page height welded to the scrollbar.",
-   "footer — CTA-reprise oversized invitation at the page's LARGEST type + reprised primary CTA + flanking illustrations (FlowFest, boundary-adjacent), OR footer-clone-machine where the single spectacle peak lands LAST — mousemove clones the CTA up to 200 copies (~200px steps), mix-blend-mode:difference, exit opacity 0 / scale 0.6 / dur 0.2 / ease back.in(1.7), stagger {amount:0.4, from:'random'} (Eloy, winner-verified to the number). The palette holds; the carry persists to the last frame."
+  "story": {
+    "arcs": [
+      "The Studio Index / studio-index (Eloy winner-verified brutalist; Treize supporting; Naked City restrained-register technique): loader-into-navbar (progress becomes UI) or char-diff identity terminal hero, NO in-fold CTA → about → hover-charged work index (proof) → footer-as-finale where the single spectacle peak lands LAST (Eloy's clone machine). Peak at the bottom; the index carries the middle. The archetype's PRIMARY spine — the one grounded in a source that explicitly calls the site brutalist.",
+      "The Community Scroll / argument-scroll (FlowFest, boundary-ADJACENT technique from a colorful-illustration SOTD): in-character chat-cloud loader → drawn-SVG type-as-image hero + date → 'What is FlowFest?' understanding → LINEUP (proof, the capped spectacle peak ~40%) → what-to-expect → community band (logo wall) → FAQ (the designed rest) → oversized-invitation reprise close. A warm-communal host invites you in; the proof is the lineup; the footer reprises the CTA at the largest type on the page. ~9 <section>s live, ~24 finer scroll beats. Reusable spine, but its grounding member is not tagged brutalist — treat as adjacent technique, not canon.",
+      "The Stepped Reel / studio-reel (Joffrey, technique / single-source, award-unverified): stepped-counter loader (steps(14), the brutalist tell) → Flip showreel hero → vertical case slider whose active panel scales up under scroll → contact close. Scroll is a playhead through a scrubbed cross-section."
+    ],
+    "thread": "The brutalist fil rouge is CONTINUOUS motion at rest — the page never collapses into a bank of fire-once IntersectionObserver reveals with dead silence between them. This is the archetype's divergence from minimalist, but the AMPLITUDE of that continuous motion is a PER-BRIEF CHOICE, NOT universally loud (correction from revision 1): it spans the MAXIMALIST register (Eloy runs a scrubbed flower-pluck field scrub:8 + different-speed title rows yPercent -300 scrub:0.6 that shear the whole scroll, plus scramble-on-hover on every labeled element — the site titles itself 'Mayhem') and the RESTRAINED register (Naked City runs a single rAF loop that keeps every section subtly moving, framed by its makers as 'restraint paired with intensity … movement without chaos', explicitly NOT loud-at-rest). The brutalist-adjacent FlowFest sits at the loud end with a ~75px/s marquee + cursor-tracked mascot idle loop + a self-drawing DrawSVG arch, but it is a colorful-illustration BOUNDARY member, not the law's proof. The carry holds three constants across all element geometries: ONE physical metaphor (objects-on-a-table / terminal-runtime / CRT-film / print-shop), ONE easing family (scroll reveals ride expo.out/power3; the jarring steps(n) register is reserved for hero type + micro-toggles), and ONE border/shadow/radius system (Sui 2px #000F1D + radius 0 + structural fill; FlowFest hard offset shadow 0 4px 0 that collapses on press). When a control fills it takes the FULL saturated accent, never a pale color-mix tint. The failure mode ('the dead middle') is a bank of fire-once reveals with nothing running between them; the winning move welds one décor layer to the scrollbar and keeps one idle loop alive in-character — at whatever amplitude the brief's register calls for. Do not force a loud marquee onto a restraint brief.",
+    "copy": "Two registers, both refusing corporate distance; the button is ALWAYS a verb. Terminal-ironic (Eloy, the canonical brutalist source): lowercase, >>> prefixes, ALL-CAPS verbs, // and # fences — '>>>based in madrid, spain'; '##########COPY EMAIL##' (the CTA as a terminal command). Warm-communal (FlowFest, boundary-adjacent): first-plural, exclamatory, hot imperatives, trailing ellipses, a named human and a real address — 'Hi Friends!' → 'We are back...' (the loader speaks in character); 'Webflow chat, festival vibes, good times.' (H1 = the pitch in three noun phrases); 'Reach out to Isabel at isabel@designsie.co.uk...'. Quoted to CALIBRATE, never to ship: imitate the specificity (the named place, the count, the refusal), never the wording. Indexed ASCII flags ([ MANIFEST 04 ]) and process strings (REV 2.6) are legitimate brutalist grammar, not meta-label noise."
+  },
+  "spectacle_model": {
+    "hero": "A COMMITTED in-character scene, never a quiet opener — no genuine brutalist winner ships zero-intro instant paint. A loader that SIGNS its character (char-diff identity tags that swap '>>>based in madrid, spain' → '>>>born in mar del plata, arg' via TextPlugin type:'diff' 0.3s and loader-into-navbar where the progress bar grows into the nav — Eloy, winner-verified; OR a chat-cloud typed beats 'Hi Friends!'→'We are back...' — FlowFest, boundary-adjacent; OR a stepped counter steps(14) 0→100 — Joffrey, technique) hands off to a type-as-image or identity reveal: char-diff identity tags (Eloy) or a drawn inline-SVG <path> H1 slab whose spans rise yPercent 100→0 stagger −0.025 Expo.easeOut (FlowFest, params reference-carried not re-read this run). The first impression forms in this scene; the only in-fold CTA is the nav pill (argument) or none at all (studio-index).",
+    "continuation": [
+      "what-is / about (understanding) — masked line/char reveals fire ONCE while the CONTINUOUS idle carry runs UNDER them at the brief's register amplitude: maximalist = scrubbed flower-pluck scrub:8 + different-speed title rows yPercent -300 scrub:0.6 (Eloy, winner-verified) or marquee + mascot idle loop tracking the cursor (FlowFest, boundary-adjacent, params reference-carried); restraint = a single perpetual rAF loop keeping sections subtly in motion (Naked City). CONTINUES — never a hard silence, but not necessarily loud.",
+      "lineup / work-index (proof) — for argument-scroll THIS is the capped spectacle peak (FlowFest lineup ~40%, intensity 9): index-row-hover rows + tilt-parity ±3° sticker cards + scramble-on-hover labels. For studio-index the index is the hover-charged build (spotlight-dim + optional hover image-preview) that ESCALATES toward the footer, not itself the peak (Eloy).",
+      "what-to-expect / community band (understanding/rest) — quieter editorial-split + a static logo wall (grayscale→colour hover, the one micro-state that form owns); the idle carry is still audible but the section rests relative to the peak. Never a hard silence.",
+      "FAQ (the designed rest) — an accordion, the lowest-intensity beat before the close; the scrubbed décor layer still runs the full page height welded to the scrollbar.",
+      "footer — CTA-reprise oversized invitation at the page's LARGEST type + reprised primary CTA + flanking illustrations (FlowFest, boundary-adjacent), OR footer-clone-machine where the single spectacle peak lands LAST — mousemove clones the CTA up to 200 copies (~200px steps), mix-blend-mode:difference, exit opacity 0 / scale 0.6 / dur 0.2 / ease back.in(1.7), stagger {amount:0.4, from:'random'} (Eloy, winner-verified to the number). The palette holds; the carry persists to the last frame."
+    ],
+    "one_climax_verdict": "REFINED",
+    "evidence": [
+      "Eloy Benoffi (HM + GSAP SOTD + CSSDA, the canonical brutalist anchor): DEFERS the single spectacle peak to the footer clone machine while a scrubbed flower-pluck field (scrub:8) and different-speed title rows (yPercent -300, scrub:0.6) shear the entire scroll — the carry is continuous and the ONE spectacle lands at the bottom, not the hero. Every param is Codrops-confirmed to the number; the best-sourced block in the corpus.",
+      "Naked City Films (SOTD 2026-01-23): a single rAF loop binds smooth scroll + Three.js render + element-entry + page transitions so no section is fully motionless — BUT the makers frame this as 'restraint paired with intensity … movement without chaos', the RESTRAINED register, not loud-at-rest. The CRT-shader dissolve on the film grid is the operable peak. Continuous ≠ loud.",
+      "FlowFest (SOTD 2025-07-29, boundary-ADJACENT — Awwwards-tagged Colorful/Illustration, not brutalist): sits at the LOUD end of the carry (marquee + mascot idle loop + self-drawing arch) but is a colorful-illustration site, not a brutalist winner, and its idle-band params were not re-read this run. Usable technique for the loud register, NOT law-proof.",
+      "The peak COUNT caps at one spectacle across the genuine-fit members — Eloy stacks no second peak equal to the footer clone machine. Refinement, not inversion: one spectacle peak capped, continuous carry between it — amplitude per brief (maximalist ↔ restrained), NOT universally loud. Revision 1's absolute 'one wow then quiet describes ZERO brutalist winners' is dropped as unfalsifiable and contradicted by Naked City's restraint framing."
+    ],
+    "recommended_law": "Brutalist Phase-4 law (revision 2): the hero commits an IN-CHARACTER scene (a loader that SIGNS its character — identity-terminal char-diff / chat-cloud typed beats / stepped counter / loader-into-navbar — handing into a type-as-image or identity reveal); no zero-intro instant paint. Cap the spectacle peak at ONE and place it at the PROOF (work-index / lineup ~40%) or the FOOTER (clone-machine / oversized reprise) — rarely the hero (the hero is a committed scene at sub-peak intensity ~8). Between and around it, run a CONTINUOUS idle carry hero→footer so the page never becomes a bank of fire-once reveals with dead silence — at minimum ONE scrubbed décor field welded to global scroll, plus (register-dependent) a marquee and one in-character idle loop. CRITICAL CORRECTION from revision 1: the carry's amplitude is a PER-BRIEF CHOICE, not universally loud — the maximalist register (Eloy 'Mayhem': scrubbed pluck + sheared title rows + scramble) and the restrained register (Naked City: a single perpetual rAF loop framed as 'movement without chaos') are BOTH award-winning; do not force a loud marquee onto a restraint brief. When a marquee IS in register, couple its speed + skew to scroll velocity (the documented Osmo winner variant) rather than a fixed px/s. The divergence from minimalist is that the continuous motion renders the archetype's physical metaphor IN-CHARACTER, not that it is loud. The failure mode is the 'dead middle'; a second spectacle peak equal to the first dilutes."
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "Story spine (macrostructure) from brief type",
+      "rule": "Studio / portfolio / agency where the work IS the argument → studio-index (The Studio Index, the PRIMARY brutalist spine): terminal-ironic voice, loader-into-navbar or identity-terminal hero, NO in-fold CTA, footer-as-finale peak. Event / festival / conference / product-with-a-lineup → argument-scroll (The Community Scroll): warm-communal voice, in-character loader, proof = the lineup (~40% peak), oversized reprise-CTA close — note this spine's grounding member (FlowFest) is a colorful-illustration boundary site, so keep its warmth from tipping the palette out of the brutalist system. Reel / showreel showcase → studio-reel (The Stepped Reel): stepped-counter loader → Flip showreel → scrubbed case slider → contact close. Deterministic by brief type; never blend two spines.",
+      "evidence": [
+        "Eloy Benoffi / Treize: studio-index, no in-fold CTA, footer-as-finale (Eloy winner-verified brutalist; Treize supporting HM)",
+        "FlowFest: argument-scroll, chat-cloud loader, lineup as the proof peak, oversized-invitation reprise close (SOTD verified; brutalist-ADJACENT — reusable spine, not canon)",
+        "Joffrey Spitzer: studio-reel, stepped counter → Flip showreel → vertical case slider (Codrops technique, award-unverified)"
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "Physical metaphor + the CONTINUOUS idle carry (the fil rouge)",
+      "rule": "Pick ONE physical metaphor and commit a CONTINUOUS idle carry that renders it. Minimum viable carry = ONE scrubbed décor field welded to GLOBAL scroll (DrawSVG line-draw scrub:0 / pixel-field pluck scrub:8). Then set amplitude by the brief's register: LOUD/maximalist brief → add a marquee band AND one in-character idle loop (cursor-tracked mascot / self-drawing mark / shuffling carousel); RESTRAINT brief → keep the carry to the single scrubbed field plus subtle perpetual motion (a single rAF loop), no marquee. When a marquee IS in register, couple its speed and skew to scroll velocity (proxy skew via gsap.quickSetter, ScrollTrigger onUpdate, velocity/−300 clamp, ease back to 0) rather than a fixed px/s — the velocity-reactive marquee is the documented Osmo winner variant and it survives touch as a scroll-driven channel; a constant px/s band is the tamer fallback. Hold three constants across ALL element geometries: (a) one accent, full-saturated on fill — never a color-mix(accent,white) tint; (b) one easing family — bind scroll reveals to expo.out/power3 and RESERVE the jarring steps(n) register for hero type + micro-toggles only; (c) one border/shadow/radius system — either 2px near-black border + radius 0 + structural background-color fill (Sui), or hard offset shadow 0 4px 0 that collapses on press (FlowFest), or the warm round-button variant where the TYPE does the brutalist work. Channel-collision rule (deterministic, replaces the old taste call): each element class owns a distinct (trigger × property) pair; if two classes would animate the SAME property on the SAME trigger, reassign one to a different trigger (scroll-scrub / hover / idle) or a different property (transform / opacity / filter) so no two classes share a (trigger, property) pair.",
+      "evidence": [
+        "Eloy: scrubbed flower-pluck scrub:8 + title rows yPercent -300 scrub:0.6, terminal-runtime metaphor (Codrops-verified to the number — canonical brutalist source)",
+        "Naked City: restraint register — a single rAF loop is the whole carry, no marquee ('movement without chaos', Codrops-verified)",
+        "Velocity-coupled marquee variant: gsap.quickSetter proxy skew + ScrollTrigger onUpdate + velocity/−300 clamp (GSAP 'skew on scroll velocity' + 'Velocity Image Marquee' reference demos; Osmo house technique — the FlowFest studio)",
+        "Sui: 2px #000F1D border, radius 0, full-accent structural fill (award verified; CSS params reference-carried, see unverified)"
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "Hero scene + in-character loader hand-off",
+      "rule": "No zero-intro instant paint — the loader SIGNS its character. Loader family by macrostructure: loader-into-navbar (studio-index — the progress bar grows into the nav) or char-diff identity tags (Eloy, winner-verified); chat-cloud typed beats (argument — TextPlugin ease:none, '...' → 'Hi Friends!' → hero line while .loading-screen fades autoAlpha:0 0.3s; FlowFest, boundary-adjacent, params reference-carried); stepped counter steps(14) 0→100 then a clip-path inset wipe (studio-reel, the steps() is the tell; Joffrey technique). Hand off to a type-as-image or identity reveal: char-diff identity tags TextPlugin type:'diff' 0.3s (Eloy), or a drawn inline-SVG <path> H1 slab, spans yPercent 100→0 stagger −0.025 Expo.easeOut (FlowFest, reference-carried). One in-fold CTA (nav pill) for argument; none for studio-index. Then nav drops (yPercent −102→0) and welcome cards stagger. Author the loader hidden so no-JS never blocks the page.",
+      "evidence": [
+        "Eloy: loader-into-navbar + char-diff identity tags, forced-open scramble nav, no in-fold CTA (Codrops-verified brutalist)",
+        "FlowFest initLoader: chat-cloud typed beats → mascot slides → nav drops → cards stagger → H1 spans rise (mechanics reference-carried, not re-read this run — boundary-adjacent)",
+        "Joffrey: steps(14) counter → Flip into the showreel (Codrops technique)"
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "Momentum map — peak cap + placement + never-silent floor",
+      "rule": "Cap the spectacle peak at ONE. Place it at the PROOF (lineup ~40%, argument-scroll, intensity 9) or the FOOTER (clone-machine, studio-index) — rarely the hero (the hero is a committed scene at intensity ~8, sub-peak). Everywhere else the CONTINUOUS idle carry runs at the brief's register amplitude — the scrubbed décor field welded to the full page height, plus (loud register only) a marquee and in-character idle loop. FAQ / community band are the designed RESTS (carry still audible, never a hard silence). A second spectacle peak equal to the first dilutes. Amplitude is set in step 2 by register; this step only fixes the peak count and placement.",
+      "evidence": [
+        "Eloy: the ONE spectacle peak deferred to the footer clone machine; scrubbed carry runs the whole scroll (Codrops-verified brutalist)",
+        "FlowFest: one spectacle peak at the lineup ~40%; hero scene sub-peak; carry continuous; oversized reprise close (SOTD verified; boundary-adjacent)",
+        "Naked City: single rAF loop keeps every section moving at the RESTRAINT register — 'movement without chaos' (Codrops-verified)"
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section form + interaction pairing",
+      "rule": "For roles whose form EXISTS, pick by role. For roles whose form is flagged MISSING in `gaps` (lineup-grid, faq-accordion, identity-terminal-hero, footer-clone-machine, chat-cloud-loader, index-hover-preview), AUTHOR the component FIRST from its `gaps` mechanic spec, then pick it — do NOT hand-improvise ad-hoc section layout. Role → form map: hero → type-as-image (drawn-SVG H1 slab) OR identity-terminal-hero (author from gaps), caption text-emphasis-fill. what-is/about → editorial-split, h2 char-assemble, prose text-emphasis-fill + semantic-accent. lineup (proof peak) → lineup-grid (author from gaps), rows index-row-hover + cards tilt-parity-figure + labels scramble-decode. work-index (studio-index proof) → index-list, rows spotlight-dim + optional index-hover-preview (author from gaps). community → logo-wall (grayscale→colour hover). FAQ → faq-accordion (author from gaps, the rest). close → close-panel (argument: reprised CTA at largest type) OR footer-clone-machine (author from gaps, studio-index deferred peak). footer → CTA-reprise oversized-wordmark / footer-spectacle. Weld the scrubbed décor layer behind ALL of it.",
+      "evidence": [
+        "Eloy recipe: identity hero → about → work-index → footer-spectacle clone machine (winner-verified brutalist order)",
+        "FlowFest recipe: hero type-as-image → what-is editorial-split → lineup (peak) → what-to-expect → community logo-wall → FAQ → oversized invitation close (SOTD verified order; boundary-adjacent)"
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states (desktop pointer layer)",
+      "rule": "cta: hard-shadow press (box-shadow 0 4px 0 rgba(0,0,0,.15) → translateY(0.25em), shadow collapses to 0, ~0.25s — no fill, no colour change) OR full-accent structural fill (border 2px solid, radius 0, background→FULL accent, label colour holds, background-color 0.3s) — never a pale tint. link: underline draw from the leading edge (2px currentColor pseudo, scaleX 0→1, transform-origin:left, text colour unchanged, gated @media(hover:hover) and prefers-reduced-motion:no-preference) OR colour dim/shift no-underline over color 0.35s for dense text menus (director lists / indexes). figure: rotate-tilt by parity (±3° alternating per nth-child; stickers peel ±5° with scale) OR RGB channel-split / CRT dissolve into brand-tinted offset channels then buffered video (WebGL, Naked City). index_row: spotlight-dim (hovered row lights an accent rule + surfaces metadata, siblings dim to ~45%) PLUS one of — (a) hover image-preview: a project thumbnail, optionally cursor-attached, reveals on row hover (the canonical Awwwards 'index module' interaction); or (b) scramble-decode on the row label in the terminal expression (a symbol charset shuffled on a short interval — exact charset/interval NOT source-confirmed, treat as illustrative). heading: NEAR-ZERO hover — the effect is the ENTRANCE (type-as-image draw / char-diff / masked per-char rise); RGB split is ONE moment on the hero type only; scramble runs on LABELED elements only, never on prose or headings. nav: transparent + border-bottom:none + backdrop-filter:none at rest, text in the off-black/off-white token (all live-read winners); per-char rollover OR scramble on labels; the nav pill answers with hard-press. cursor: swap the bitmap (body{cursor:url(cursor.svg) 2 0,auto}, matched to the type — Eloy) OR keep the OS pointer with unstyled anchors browser-default blue (Naked City); NEVER a lerped mix-blend-difference follower-blob (that belongs to the smooth-agency archetype).",
+      "evidence": [
+        "Eloy: scramble-on-hover labels, char-diff location tags (type:'diff' 0.3s), custom bitmap cursor (Codrops-verified brutalist); Naked City: CRT dissolve figures, OS pointer + default-blue anchors (winner-verified)",
+        "Index hover image-preview: Awwwards 'index module' documentation + nominee entries (Olivier Gillaizeau, Kirschberg) — canon-documented, not tied to a specific brutalist SOTD this run",
+        "Sui: full-accent structural fill on nav pills / chips, 2px #000F1D border, radius 0 (award verified; CSS params reference-carried)",
+        "FlowFest: hard-press CTA, underline-draw link, tilt-parity ±3° cards, transparent nav (SOTD verified; boundary-adjacent)"
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile / touch strategy",
+      "rule": "Pointer classes go DORMANT: underline draw, tilt straighten, scramble-on-hover, per-char rollover, RGB-split hover, CRT dissolve, hover image-preview, the custom bitmap cursor (→ OS pointer), and the cursor-tracked mascot idle loop. The CONTINUOUS idle carry SURVIVES touch through its scroll-driven channels — the marquee runs (velocity-coupled or constant), the scrubbed décor field plucks/shuffles by scroll position, the case slider scrubs, the rAF loop keeps rendering — because none of those depend on the pointer; the mascot cursor-track degrades to a time- or scroll-driven idle fallback. For hover image-preview, the documented mobile fallback flips the index vertical and reveals each row's image when the row centers under scroll. Press-class elements (hard-press buttons, full-accent chips, nav pills) answer the tap with a 90–160ms :active flash — the :active press IS the tap answer. Image sets swap any desktop hold-drag strip for swipe-snap-gallery (native scroll-snap on OS momentum, tap-to-enlarge). Under prefers-reduced-motion: finished states instantly, décor static, marquee paused, scramble → final string, glitch/CRT → static frame, steps counter → instant.",
+      "evidence": [
+        "Eloy / Naked City: the scrubbed décor / rAF loop are scroll-driven so they carry mobile unchanged; hover-only states are the ones that go dormant (mechanics verified)",
+        "Index hover-preview mobile fallback: flip the index vertical, reveal the image when the row centers under scroll (Awwwards index-module documentation)",
+        "hard-press-button: the :active press is the tap answer (component contract)",
+        "Awwwards Mobile Excellence: swipe to see more, tap to enlarge (scored criterion)"
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy pass",
+      "rule": "Terminal-ironic (studio/dev, the canonical brutalist voice): lowercase, >>> prefixes, ALL-CAPS verbs, // and # fences; the CTA is a terminal command. Warm-communal (festival/event): first-plural, exclamatory, hot imperatives, trailing ellipses, a named human + a real address; the loader speaks in character. Both refuse corporate distance and hedging — the button is ALWAYS a verb. Indexed ASCII flags ([ MANIFEST 04 ]) and process strings (REV 2.6) are legitimate grammar. Imitate the specificity (the named place, the count, the refusal), never the wording.",
+      "evidence": [
+        "Eloy: '>>>based in madrid, spain'; '##########COPY EMAIL##' (Codrops-verified brutalist)",
+        "FlowFest: 'Hi Friends!' → 'We are back...' (loader in character); 'Webflow chat, festival vibes, good times.'; named human + real address (SOTD verified; boundary-adjacent voice)"
+      ]
+    }
   ],
-  "one_climax_verdict": "REFINED",
-  "evidence": [
-   "Eloy Benoffi (HM + GSAP SOTD + CSSDA, the canonical brutalist anchor): DEFERS the single spectacle peak to the footer clone machine while a scrubbed flower-pluck field (scrub:8) and different-speed title rows (yPercent -300, scrub:0.6) shear the entire scroll — the carry is continuous and the ONE spectacle lands at the bottom, not the hero. Every param is Codrops-confirmed to the number; the best-sourced block in the corpus.",
-   "Naked City Films (SOTD 2026-01-23): a single rAF loop binds smooth scroll + Three.js render + element-entry + page transitions so no section is fully motionless — BUT the makers frame this as 'restraint paired with intensity … movement without chaos', the RESTRAINED register, not loud-at-rest. The CRT-shader dissolve on the film grid is the operable peak. Continuous ≠ loud.",
-   "FlowFest (SOTD 2025-07-29, boundary-ADJACENT — Awwwards-tagged Colorful/Illustration, not brutalist): sits at the LOUD end of the carry (marquee + mascot idle loop + self-drawing arch) but is a colorful-illustration site, not a brutalist winner, and its idle-band params were not re-read this run. Usable technique for the loud register, NOT law-proof.",
-   "The peak COUNT caps at one spectacle across the genuine-fit members — Eloy stacks no second peak equal to the footer clone machine. Refinement, not inversion: one spectacle peak capped, continuous carry between it — amplitude per brief (maximalist ↔ restrained), NOT universally loud. Revision 1's absolute 'one wow then quiet describes ZERO brutalist winners' is dropped as unfalsifiable and contradicted by Naked City's restraint framing."
+  "section_playbook": [
+    {
+      "role": "hero",
+      "forms": [
+        "identity-terminal-hero (MISSING form — char-diff corner tags, no in-fold CTA; author from gaps)",
+        "type-as-image (drawn-SVG H1 slab)"
+      ],
+      "pairs": [
+        "mark: char-diff identity tags (TextPlugin type:'diff' 0.3s) | drawn inline-SVG <path>, spans rise yPercent 100→0 stagger −0.025 Expo.easeOut",
+        "caption/tags: text-emphasis-fill | char-diff swap",
+        "loader hand-off: loader-into-navbar | chat-cloud-loader | stepped counter-loader"
+      ],
+      "intensity": 8,
+      "states": "the hero is a committed IN-CHARACTER scene, not a quiet opener; the one in-fold CTA (nav pill) answers with hard-press for argument, none for studio-index; on touch the entrance still plays and the pill answers :active; no zero-intro instant paint",
+      "evidence": [
+        "Eloy: loader-into-navbar + char-diff identity tags, no in-fold CTA (Codrops-verified brutalist)",
+        "FlowFest: chat-cloud loader → mascot slides → nav drops → cards stagger → drawn H1 spans rise (SOTD verified; boundary-adjacent, params reference-carried)"
+      ]
+    },
+    {
+      "role": "understanding (what-is / about)",
+      "forms": [
+        "editorial-split"
+      ],
+      "pairs": [
+        "h2: char-assemble",
+        "prose: text-emphasis-fill + semantic-accent"
+      ],
+      "intensity": 5,
+      "states": "masked reveals fire ONCE while the CONTINUOUS idle carry runs under at the brief's register (scrubbed pluck/arch décor always; marquee + mascot loop only in the loud register); standalone headings carry NEAR-ZERO hover; the section rests relative to the peak but is never silent",
+      "evidence": [
+        "Eloy: scrubbed flower-pluck + sheared title rows carry the about section (Codrops-verified brutalist)",
+        "Naked City: rAF loop keeps the section subtly moving at the restraint register (Codrops-verified)"
+      ]
+    },
+    {
+      "role": "proof (lineup / work-index)",
+      "forms": [
+        "lineup-grid (MISSING form — index+card hybrid; author from gaps)",
+        "index-list (studio-index)"
+      ],
+      "pairs": [
+        "rows: index-row-hover (spotlight-dim) + optional index-hover-preview (MISSING form; author from gaps) OR scramble-decode label",
+        "cards: tilt-parity-figure (±3°)",
+        "h2: kinetic-reveal"
+      ],
+      "intensity": 9,
+      "states": "for argument-scroll THIS is the capped spectacle peak (~40%): rows spotlight-dim + labels scramble on hover, sticker cards straighten on hover; for studio-index the index ESCALATES toward the footer instead of peaking here, with hover image-preview or scramble as the row state; on touch rows are plain tap targets (preview flips to scroll-centered reveal) and cards rest at their parity tilt",
+      "evidence": [
+        "Eloy hover-charged work index building to the footer (Codrops-verified brutalist)",
+        "FlowFest lineup peak ~40% with tilt-parity cards + index rows (SOTD verified; boundary-adjacent)",
+        "Index hover image-preview: Awwwards index-module documentation (canon, not single-winner-verified)"
+      ]
+    },
+    {
+      "role": "community band / rest",
+      "forms": [
+        "logo-wall",
+        "editorial-split (what-to-expect)"
+      ],
+      "pairs": [
+        "wall: static, grayscale→colour on hover (the one micro-state the form owns)"
+      ],
+      "intensity": 5,
+      "states": "designed rest — a static wall (never a marquee); the CONTINUOUS idle carry is still audible behind it; hover recolors a single logo; on touch the wall is static",
+      "evidence": [
+        "FlowFest community band + what-to-expect between the lineup peak and the FAQ rest (SOTD verified order; boundary-adjacent)"
+      ]
+    },
+    {
+      "role": "FAQ (the designed rest)",
+      "forms": [
+        "faq-accordion (MISSING form; author from gaps)"
+      ],
+      "pairs": [],
+      "intensity": 4,
+      "states": "the lowest-intensity beat before the close; the scrubbed décor layer still runs the full page height welded to the scrollbar; rows answer :active on touch",
+      "evidence": [
+        "FlowFest FAQ as the rest before the oversized-invitation close (SOTD verified order; boundary-adjacent)"
+      ]
+    },
+    {
+      "role": "close / footer",
+      "forms": [
+        "close-panel + CTA-reprise oversized-wordmark (argument)",
+        "footer-clone-machine (MISSING component — studio-index deferred peak; author from gaps)"
+      ],
+      "pairs": [
+        "ask: kinetic-reveal",
+        "channels: accent-link + masked-label-swap (argument)",
+        "clone-field: mousemove clones ×200 @~200px, mix-blend difference, exit opacity 0 / scale 0.6 / dur 0.2 / back.in(1.7), stagger amount 0.4 from random (studio-index)"
+      ],
+      "intensity": 9,
+      "states": "argument: the footer is the page's LARGEST type + reprised primary CTA + flanking illustrations; studio-index: the single spectacle peak lands HERE (clone machine); the palette holds and the carry persists to the last frame; on touch the clone-field is dormant, the reprised CTA answers :active",
+      "evidence": [
+        "Eloy footer clone machine ×200 mix-blend-difference clones as the finale — every param Codrops-verified to the number (winner-verified brutalist)",
+        "FlowFest oversized invitation + reprised 'Buy Tickets' + flanking illustrations (SOTD verified; boundary-adjacent)"
+      ]
+    }
   ],
-  "recommended_law": "Brutalist Phase-4 law (revision 2): the hero commits an IN-CHARACTER scene (a loader that SIGNS its character — identity-terminal char-diff / chat-cloud typed beats / stepped counter / loader-into-navbar — handing into a type-as-image or identity reveal); no zero-intro instant paint. Cap the spectacle peak at ONE and place it at the PROOF (work-index / lineup ~40%) or the FOOTER (clone-machine / oversized reprise) — rarely the hero (the hero is a committed scene at sub-peak intensity ~8). Between and around it, run a CONTINUOUS idle carry hero→footer so the page never becomes a bank of fire-once reveals with dead silence — at minimum ONE scrubbed décor field welded to global scroll, plus (register-dependent) a marquee and one in-character idle loop. CRITICAL CORRECTION from revision 1: the carry's amplitude is a PER-BRIEF CHOICE, not universally loud — the maximalist register (Eloy 'Mayhem': scrubbed pluck + sheared title rows + scramble) and the restrained register (Naked City: a single perpetual rAF loop framed as 'movement without chaos') are BOTH award-winning; do not force a loud marquee onto a restraint brief. When a marquee IS in register, couple its speed + skew to scroll velocity (the documented Osmo winner variant) rather than a fixed px/s. The divergence from minimalist is that the continuous motion renders the archetype's physical metaphor IN-CHARACTER, not that it is loud. The failure mode is the 'dead middle'; a second spectacle peak equal to the first dilutes."
- },
- "algorithm": [
-  {
-   "step": 1,
-   "decide": "Story spine (macrostructure) from brief type",
-   "rule": "Studio / portfolio / agency where the work IS the argument → studio-index (The Studio Index, the PRIMARY brutalist spine): terminal-ironic voice, loader-into-navbar or identity-terminal hero, NO in-fold CTA, footer-as-finale peak. Event / festival / conference / product-with-a-lineup → argument-scroll (The Community Scroll): warm-communal voice, in-character loader, proof = the lineup (~40% peak), oversized reprise-CTA close — note this spine's grounding member (FlowFest) is a colorful-illustration boundary site, so keep its warmth from tipping the palette out of the brutalist system. Reel / showreel showcase → studio-reel (The Stepped Reel): stepped-counter loader → Flip showreel → scrubbed case slider → contact close. Deterministic by brief type; never blend two spines.",
-   "evidence": [
-    "Eloy Benoffi / Treize: studio-index, no in-fold CTA, footer-as-finale (Eloy winner-verified brutalist; Treize supporting HM)",
-    "FlowFest: argument-scroll, chat-cloud loader, lineup as the proof peak, oversized-invitation reprise close (SOTD verified; brutalist-ADJACENT — reusable spine, not canon)",
-    "Joffrey Spitzer: studio-reel, stepped counter → Flip showreel → vertical case slider (Codrops technique, award-unverified)"
-   ]
+  "element_states": {
+    "cta": {
+      "hover": "hard-shadow press — button rests on box-shadow 0 4px 0 rgba(0,0,0,.15); hover translateY(0.25em) collapses the shadow to 0, NO fill and NO colour change (FlowFest, ~0.25s) — the button reads as a physical object lifting. OR full-accent structural fill — border 2px solid near-black, radius 0, background floods the FULL saturated accent while the label colour holds, background-color 0.3s (Sui). NEVER a pale color-mix(accent,white) wash.",
+      "tap": ":active IS the answer — the hard-shadow collapses / the accent floods on press, 90–160ms; no hover intermediary on touch",
+      "focus": ":focus-visible mirrors hover (shadow collapse / accent fill) with a visible ring; keyboard-reachable"
+    },
+    "link": {
+      "hover": "underline draw from the leading edge — a 2px currentColor pseudo-element, transform scaleX(0)→scaleX(1) with transform-origin:left, text colour unchanged; gated @media(hover:hover) and prefers-reduced-motion:no-preference. OR (dense text menus — director lists, indexes) colour dim/shift toward a muted token over color 0.35s, no decoration.",
+      "tap": "no hover state on touch — plain tap target; the underline/dim are @media(hover:hover)-gated so no content is trapped behind a hover",
+      "focus": ":focus-visible triggers the underline draw (or colour shift) + preserves the accessible name"
+    },
+    "figure": {
+      "hover": "rotate-tilt by parity — cards rest at alternating ±3° (sign per nth-child) so the grid reads like scattered paper and STRAIGHTEN on hover; stickers peel in at ±5° with scale. OR RGB channel-split / CRT dissolve — a shader dissolves the still into brand-tinted offset R/G/B channels, then a buffered video autoplays under it after the transition completes (Naked City, WebGL). CSS-only fallback: filter:invert(100%) kept instant or ≤0.2s.",
+      "tap": "figure straightens / the CRT figure reveals its video on tap; swipe-snap-gallery cells enlarge on tap",
+      "focus": "focus-within mirrors the hover (straighten / reveal) so keyboard users reach the state"
+    },
+    "index_row": {
+      "hover": "spotlight-dim — the hovered row lights with an accent rule and surfaces its metadata while siblings dim to ~45%. PLUS one of: (a) hover image-preview — a project thumbnail, optionally cursor-attached (lerped toward the pointer), reveals on row hover; the canonical Awwwards 'index module' interaction (a list of links each with an image that reveals on hover), documented across award portfolios (Olivier Gillaizeau, Kirschberg). (b) scramble-decode on the row label in the terminal expression — a symbol charset shuffled on a short interval (~100ms); the exact charset and interval are NOT source-confirmed (the Codrops study does not detail them), so treat the specific params as illustrative, not fact.",
+      "tap": "plain tap target — no spotlight-dim, no scramble on touch (both read as broken without a pointer); for the hover-preview variant, the mobile fallback flips the index vertical and reveals each row's image when the row centers under scroll",
+      "focus": ":focus-visible lights the row identically to hover (and reveals the preview image for the image variant)"
+    },
+    "heading": {
+      "hover": "NEAR-ZERO by design — display type and prose carry no hover; the heading's effect is the ENTRANCE (type-as-image draw / char-diff swap / masked per-char rise). RGB channel-split is ONE moment on the HERO type only, never scattered across body; scramble runs on LABELED elements only, never on prose or headings",
+      "tap": "none — headings do not answer touch",
+      "focus": "none beyond default (headings are not interactive)"
+    },
+    "nav": {
+      "hover": "the nav rests transparent — background:transparent, border-bottom:none, backdrop-filter:none, text in the page's off-black/off-white token (all live-read winners; no colored border-bottom, no frosted bar). Link hover: per-char rollover (split-rollover) OR scramble on the label; the primary nav pill answers with hard-press",
+      "tap": "nav pills answer :active; nav reveals on scroll-up, hides on scroll-down (scrolled-state surface change unverified across the corpus)",
+      "focus": ":focus-visible shows the rollover/scramble + ring; nav order preserved"
+    }
   },
-  {
-   "step": 2,
-   "decide": "Physical metaphor + the CONTINUOUS idle carry (the fil rouge)",
-   "rule": "Pick ONE physical metaphor and commit a CONTINUOUS idle carry that renders it. Minimum viable carry = ONE scrubbed décor field welded to GLOBAL scroll (DrawSVG line-draw scrub:0 / pixel-field pluck scrub:8). Then set amplitude by the brief's register: LOUD/maximalist brief → add a marquee band AND one in-character idle loop (cursor-tracked mascot / self-drawing mark / shuffling carousel); RESTRAINT brief → keep the carry to the single scrubbed field plus subtle perpetual motion (a single rAF loop), no marquee. When a marquee IS in register, couple its speed and skew to scroll velocity (proxy skew via gsap.quickSetter, ScrollTrigger onUpdate, velocity/−300 clamp, ease back to 0) rather than a fixed px/s — the velocity-reactive marquee is the documented Osmo winner variant and it survives touch as a scroll-driven channel; a constant px/s band is the tamer fallback. Hold three constants across ALL element geometries: (a) one accent, full-saturated on fill — never a color-mix(accent,white) tint; (b) one easing family — bind scroll reveals to expo.out/power3 and RESERVE the jarring steps(n) register for hero type + micro-toggles only; (c) one border/shadow/radius system — either 2px near-black border + radius 0 + structural background-color fill (Sui), or hard offset shadow 0 4px 0 that collapses on press (FlowFest), or the warm round-button variant where the TYPE does the brutalist work. Channel-collision rule (deterministic, replaces the old taste call): each element class owns a distinct (trigger × property) pair; if two classes would animate the SAME property on the SAME trigger, reassign one to a different trigger (scroll-scrub / hover / idle) or a different property (transform / opacity / filter) so no two classes share a (trigger, property) pair.",
-   "evidence": [
-    "Eloy: scrubbed flower-pluck scrub:8 + title rows yPercent -300 scrub:0.6, terminal-runtime metaphor (Codrops-verified to the number — canonical brutalist source)",
-    "Naked City: restraint register — a single rAF loop is the whole carry, no marquee ('movement without chaos', Codrops-verified)",
-    "Velocity-coupled marquee variant: gsap.quickSetter proxy skew + ScrollTrigger onUpdate + velocity/−300 clamp (GSAP 'skew on scroll velocity' + 'Velocity Image Marquee' reference demos; Osmo house technique — the FlowFest studio)",
-    "Sui: 2px #000F1D border, radius 0, full-accent structural fill (award verified; CSS params reference-carried, see unverified)"
-   ]
-  },
-  {
-   "step": 3,
-   "decide": "Hero scene + in-character loader hand-off",
-   "rule": "No zero-intro instant paint — the loader SIGNS its character. Loader family by macrostructure: loader-into-navbar (studio-index — the progress bar grows into the nav) or char-diff identity tags (Eloy, winner-verified); chat-cloud typed beats (argument — TextPlugin ease:none, '...' → 'Hi Friends!' → hero line while .loading-screen fades autoAlpha:0 0.3s; FlowFest, boundary-adjacent, params reference-carried); stepped counter steps(14) 0→100 then a clip-path inset wipe (studio-reel, the steps() is the tell; Joffrey technique). Hand off to a type-as-image or identity reveal: char-diff identity tags TextPlugin type:'diff' 0.3s (Eloy), or a drawn inline-SVG <path> H1 slab, spans yPercent 100→0 stagger −0.025 Expo.easeOut (FlowFest, reference-carried). One in-fold CTA (nav pill) for argument; none for studio-index. Then nav drops (yPercent −102→0) and welcome cards stagger. Author the loader hidden so no-JS never blocks the page.",
-   "evidence": [
-    "Eloy: loader-into-navbar + char-diff identity tags, forced-open scramble nav, no in-fold CTA (Codrops-verified brutalist)",
-    "FlowFest initLoader: chat-cloud typed beats → mascot slides → nav drops → cards stagger → H1 spans rise (mechanics reference-carried, not re-read this run — boundary-adjacent)",
-    "Joffrey: steps(14) counter → Flip into the showreel (Codrops technique)"
-   ]
-  },
-  {
-   "step": 4,
-   "decide": "Momentum map — peak cap + placement + never-silent floor",
-   "rule": "Cap the spectacle peak at ONE. Place it at the PROOF (lineup ~40%, argument-scroll, intensity 9) or the FOOTER (clone-machine, studio-index) — rarely the hero (the hero is a committed scene at intensity ~8, sub-peak). Everywhere else the CONTINUOUS idle carry runs at the brief's register amplitude — the scrubbed décor field welded to the full page height, plus (loud register only) a marquee and in-character idle loop. FAQ / community band are the designed RESTS (carry still audible, never a hard silence). A second spectacle peak equal to the first dilutes. Amplitude is set in step 2 by register; this step only fixes the peak count and placement.",
-   "evidence": [
-    "Eloy: the ONE spectacle peak deferred to the footer clone machine; scrubbed carry runs the whole scroll (Codrops-verified brutalist)",
-    "FlowFest: one spectacle peak at the lineup ~40%; hero scene sub-peak; carry continuous; oversized reprise close (SOTD verified; boundary-adjacent)",
-    "Naked City: single rAF loop keeps every section moving at the RESTRAINT register — 'movement without chaos' (Codrops-verified)"
-   ]
-  },
-  {
-   "step": 5,
-   "decide": "Per-section form + interaction pairing",
-   "rule": "For roles whose form EXISTS, pick by role. For roles whose form is flagged MISSING in `gaps` (lineup-grid, faq-accordion, identity-terminal-hero, footer-clone-machine, chat-cloud-loader, index-hover-preview), AUTHOR the component FIRST from its `gaps` mechanic spec, then pick it — do NOT hand-improvise ad-hoc section layout. Role → form map: hero → type-as-image (drawn-SVG H1 slab) OR identity-terminal-hero (author from gaps), caption text-emphasis-fill. what-is/about → editorial-split, h2 char-assemble, prose text-emphasis-fill + semantic-accent. lineup (proof peak) → lineup-grid (author from gaps), rows index-row-hover + cards tilt-parity-figure + labels scramble-decode. work-index (studio-index proof) → index-list, rows spotlight-dim + optional index-hover-preview (author from gaps). community → logo-wall (grayscale→colour hover). FAQ → faq-accordion (author from gaps, the rest). close → close-panel (argument: reprised CTA at largest type) OR footer-clone-machine (author from gaps, studio-index deferred peak). footer → CTA-reprise oversized-wordmark / footer-spectacle. Weld the scrubbed décor layer behind ALL of it.",
-   "evidence": [
-    "Eloy recipe: identity hero → about → work-index → footer-spectacle clone machine (winner-verified brutalist order)",
-    "FlowFest recipe: hero type-as-image → what-is editorial-split → lineup (peak) → what-to-expect → community logo-wall → FAQ → oversized invitation close (SOTD verified order; boundary-adjacent)"
-   ]
-  },
-  {
-   "step": 6,
-   "decide": "Per-element interaction states (desktop pointer layer)",
-   "rule": "cta: hard-shadow press (box-shadow 0 4px 0 rgba(0,0,0,.15) → translateY(0.25em), shadow collapses to 0, ~0.25s — no fill, no colour change) OR full-accent structural fill (border 2px solid, radius 0, background→FULL accent, label colour holds, background-color 0.3s) — never a pale tint. link: underline draw from the leading edge (2px currentColor pseudo, scaleX 0→1, transform-origin:left, text colour unchanged, gated @media(hover:hover) and prefers-reduced-motion:no-preference) OR colour dim/shift no-underline over color 0.35s for dense text menus (director lists / indexes). figure: rotate-tilt by parity (±3° alternating per nth-child; stickers peel ±5° with scale) OR RGB channel-split / CRT dissolve into brand-tinted offset channels then buffered video (WebGL, Naked City). index_row: spotlight-dim (hovered row lights an accent rule + surfaces metadata, siblings dim to ~45%) PLUS one of — (a) hover image-preview: a project thumbnail, optionally cursor-attached, reveals on row hover (the canonical Awwwards 'index module' interaction); or (b) scramble-decode on the row label in the terminal expression (a symbol charset shuffled on a short interval — exact charset/interval NOT source-confirmed, treat as illustrative). heading: NEAR-ZERO hover — the effect is the ENTRANCE (type-as-image draw / char-diff / masked per-char rise); RGB split is ONE moment on the hero type only; scramble runs on LABELED elements only, never on prose or headings. nav: transparent + border-bottom:none + backdrop-filter:none at rest, text in the off-black/off-white token (all live-read winners); per-char rollover OR scramble on labels; the nav pill answers with hard-press. cursor: swap the bitmap (body{cursor:url(cursor.svg) 2 0,auto}, matched to the type — Eloy) OR keep the OS pointer with unstyled anchors browser-default blue (Naked City); NEVER a lerped mix-blend-difference follower-blob (that belongs to the smooth-agency archetype).",
-   "evidence": [
-    "Eloy: scramble-on-hover labels, char-diff location tags (type:'diff' 0.3s), custom bitmap cursor (Codrops-verified brutalist); Naked City: CRT dissolve figures, OS pointer + default-blue anchors (winner-verified)",
-    "Index hover image-preview: Awwwards 'index module' documentation + nominee entries (Olivier Gillaizeau, Kirschberg) — canon-documented, not tied to a specific brutalist SOTD this run",
-    "Sui: full-accent structural fill on nav pills / chips, 2px #000F1D border, radius 0 (award verified; CSS params reference-carried)",
-    "FlowFest: hard-press CTA, underline-draw link, tilt-parity ±3° cards, transparent nav (SOTD verified; boundary-adjacent)"
-   ]
-  },
-  {
-   "step": 7,
-   "decide": "Mobile / touch strategy",
-   "rule": "Pointer classes go DORMANT: underline draw, tilt straighten, scramble-on-hover, per-char rollover, RGB-split hover, CRT dissolve, hover image-preview, the custom bitmap cursor (→ OS pointer), and the cursor-tracked mascot idle loop. The CONTINUOUS idle carry SURVIVES touch through its scroll-driven channels — the marquee runs (velocity-coupled or constant), the scrubbed décor field plucks/shuffles by scroll position, the case slider scrubs, the rAF loop keeps rendering — because none of those depend on the pointer; the mascot cursor-track degrades to a time- or scroll-driven idle fallback. For hover image-preview, the documented mobile fallback flips the index vertical and reveals each row's image when the row centers under scroll. Press-class elements (hard-press buttons, full-accent chips, nav pills) answer the tap with a 90–160ms :active flash — the :active press IS the tap answer. Image sets swap any desktop hold-drag strip for swipe-snap-gallery (native scroll-snap on OS momentum, tap-to-enlarge). Under prefers-reduced-motion: finished states instantly, décor static, marquee paused, scramble → final string, glitch/CRT → static frame, steps counter → instant.",
-   "evidence": [
-    "Eloy / Naked City: the scrubbed décor / rAF loop are scroll-driven so they carry mobile unchanged; hover-only states are the ones that go dormant (mechanics verified)",
-    "Index hover-preview mobile fallback: flip the index vertical, reveal the image when the row centers under scroll (Awwwards index-module documentation)",
-    "hard-press-button: the :active press is the tap answer (component contract)",
-    "Awwwards Mobile Excellence: swipe to see more, tap to enlarge (scored criterion)"
-   ]
-  },
-  {
-   "step": 8,
-   "decide": "Copy pass",
-   "rule": "Terminal-ironic (studio/dev, the canonical brutalist voice): lowercase, >>> prefixes, ALL-CAPS verbs, // and # fences; the CTA is a terminal command. Warm-communal (festival/event): first-plural, exclamatory, hot imperatives, trailing ellipses, a named human + a real address; the loader speaks in character. Both refuse corporate distance and hedging — the button is ALWAYS a verb. Indexed ASCII flags ([ MANIFEST 04 ]) and process strings (REV 2.6) are legitimate grammar. Imitate the specificity (the named place, the count, the refusal), never the wording.",
-   "evidence": [
-    "Eloy: '>>>based in madrid, spain'; '##########COPY EMAIL##' (Codrops-verified brutalist)",
-    "FlowFest: 'Hi Friends!' → 'We are back...' (loader in character); 'Webflow chat, festival vibes, good times.'; named human + real address (SOTD verified; boundary-adjacent voice)"
-   ]
-  }
- ],
- "section_playbook": [
-  {
-   "role": "hero",
-   "forms": [
-    "identity-terminal-hero (MISSING form — char-diff corner tags, no in-fold CTA; author from gaps)",
-    "type-as-image (drawn-SVG H1 slab)"
-   ],
-   "pairs": [
-    "mark: char-diff identity tags (TextPlugin type:'diff' 0.3s) | drawn inline-SVG <path>, spans rise yPercent 100→0 stagger −0.025 Expo.easeOut",
-    "caption/tags: text-emphasis-fill | char-diff swap",
-    "loader hand-off: loader-into-navbar | chat-cloud-loader | stepped counter-loader"
-   ],
-   "intensity": 8,
-   "states": "the hero is a committed IN-CHARACTER scene, not a quiet opener; the one in-fold CTA (nav pill) answers with hard-press for argument, none for studio-index; on touch the entrance still plays and the pill answers :active; no zero-intro instant paint",
-   "evidence": [
-    "Eloy: loader-into-navbar + char-diff identity tags, no in-fold CTA (Codrops-verified brutalist)",
-    "FlowFest: chat-cloud loader → mascot slides → nav drops → cards stagger → drawn H1 spans rise (SOTD verified; boundary-adjacent, params reference-carried)"
-   ]
-  },
-  {
-   "role": "understanding (what-is / about)",
-   "forms": [
-    "editorial-split"
-   ],
-   "pairs": [
-    "h2: char-assemble",
-    "prose: text-emphasis-fill + semantic-accent"
-   ],
-   "intensity": 5,
-   "states": "masked reveals fire ONCE while the CONTINUOUS idle carry runs under at the brief's register (scrubbed pluck/arch décor always; marquee + mascot loop only in the loud register); standalone headings carry NEAR-ZERO hover; the section rests relative to the peak but is never silent",
-   "evidence": [
-    "Eloy: scrubbed flower-pluck + sheared title rows carry the about section (Codrops-verified brutalist)",
-    "Naked City: rAF loop keeps the section subtly moving at the restraint register (Codrops-verified)"
-   ]
-  },
-  {
-   "role": "proof (lineup / work-index)",
-   "forms": [
-    "lineup-grid (MISSING form — index+card hybrid; author from gaps)",
-    "index-list (studio-index)"
-   ],
-   "pairs": [
-    "rows: index-row-hover (spotlight-dim) + optional index-hover-preview (MISSING form; author from gaps) OR scramble-decode label",
-    "cards: tilt-parity-figure (±3°)",
-    "h2: kinetic-reveal"
-   ],
-   "intensity": 9,
-   "states": "for argument-scroll THIS is the capped spectacle peak (~40%): rows spotlight-dim + labels scramble on hover, sticker cards straighten on hover; for studio-index the index ESCALATES toward the footer instead of peaking here, with hover image-preview or scramble as the row state; on touch rows are plain tap targets (preview flips to scroll-centered reveal) and cards rest at their parity tilt",
-   "evidence": [
-    "Eloy hover-charged work index building to the footer (Codrops-verified brutalist)",
-    "FlowFest lineup peak ~40% with tilt-parity cards + index rows (SOTD verified; boundary-adjacent)",
-    "Index hover image-preview: Awwwards index-module documentation (canon, not single-winner-verified)"
-   ]
-  },
-  {
-   "role": "community band / rest",
-   "forms": [
-    "logo-wall",
-    "editorial-split (what-to-expect)"
-   ],
-   "pairs": [
-    "wall: static, grayscale→colour on hover (the one micro-state the form owns)"
-   ],
-   "intensity": 5,
-   "states": "designed rest — a static wall (never a marquee); the CONTINUOUS idle carry is still audible behind it; hover recolors a single logo; on touch the wall is static",
-   "evidence": [
-    "FlowFest community band + what-to-expect between the lineup peak and the FAQ rest (SOTD verified order; boundary-adjacent)"
-   ]
-  },
-  {
-   "role": "FAQ (the designed rest)",
-   "forms": [
-    "faq-accordion (MISSING form; author from gaps)"
-   ],
-   "pairs": [],
-   "intensity": 4,
-   "states": "the lowest-intensity beat before the close; the scrubbed décor layer still runs the full page height welded to the scrollbar; rows answer :active on touch",
-   "evidence": [
-    "FlowFest FAQ as the rest before the oversized-invitation close (SOTD verified order; boundary-adjacent)"
-   ]
-  },
-  {
-   "role": "close / footer",
-   "forms": [
-    "close-panel + CTA-reprise oversized-wordmark (argument)",
-    "footer-clone-machine (MISSING component — studio-index deferred peak; author from gaps)"
-   ],
-   "pairs": [
-    "ask: kinetic-reveal",
-    "channels: accent-link + masked-label-swap (argument)",
-    "clone-field: mousemove clones ×200 @~200px, mix-blend difference, exit opacity 0 / scale 0.6 / dur 0.2 / back.in(1.7), stagger amount 0.4 from random (studio-index)"
-   ],
-   "intensity": 9,
-   "states": "argument: the footer is the page's LARGEST type + reprised primary CTA + flanking illustrations; studio-index: the single spectacle peak lands HERE (clone machine); the palette holds and the carry persists to the last frame; on touch the clone-field is dormant, the reprised CTA answers :active",
-   "evidence": [
-    "Eloy footer clone machine ×200 mix-blend-difference clones as the finale — every param Codrops-verified to the number (winner-verified brutalist)",
-    "FlowFest oversized invitation + reprised 'Buy Tickets' + flanking illustrations (SOTD verified; boundary-adjacent)"
-   ]
-  }
- ],
- "element_states": {
-  "cta": {
-   "hover": "hard-shadow press — button rests on box-shadow 0 4px 0 rgba(0,0,0,.15); hover translateY(0.25em) collapses the shadow to 0, NO fill and NO colour change (FlowFest, ~0.25s) — the button reads as a physical object lifting. OR full-accent structural fill — border 2px solid near-black, radius 0, background floods the FULL saturated accent while the label colour holds, background-color 0.3s (Sui). NEVER a pale color-mix(accent,white) wash.",
-   "tap": ":active IS the answer — the hard-shadow collapses / the accent floods on press, 90–160ms; no hover intermediary on touch",
-   "focus": ":focus-visible mirrors hover (shadow collapse / accent fill) with a visible ring; keyboard-reachable"
-  },
-  "link": {
-   "hover": "underline draw from the leading edge — a 2px currentColor pseudo-element, transform scaleX(0)→scaleX(1) with transform-origin:left, text colour unchanged; gated @media(hover:hover) and prefers-reduced-motion:no-preference. OR (dense text menus — director lists, indexes) colour dim/shift toward a muted token over color 0.35s, no decoration.",
-   "tap": "no hover state on touch — plain tap target; the underline/dim are @media(hover:hover)-gated so no content is trapped behind a hover",
-   "focus": ":focus-visible triggers the underline draw (or colour shift) + preserves the accessible name"
-  },
-  "figure": {
-   "hover": "rotate-tilt by parity — cards rest at alternating ±3° (sign per nth-child) so the grid reads like scattered paper and STRAIGHTEN on hover; stickers peel in at ±5° with scale. OR RGB channel-split / CRT dissolve — a shader dissolves the still into brand-tinted offset R/G/B channels, then a buffered video autoplays under it after the transition completes (Naked City, WebGL). CSS-only fallback: filter:invert(100%) kept instant or ≤0.2s.",
-   "tap": "figure straightens / the CRT figure reveals its video on tap; swipe-snap-gallery cells enlarge on tap",
-   "focus": "focus-within mirrors the hover (straighten / reveal) so keyboard users reach the state"
-  },
-  "index_row": {
-   "hover": "spotlight-dim — the hovered row lights with an accent rule and surfaces its metadata while siblings dim to ~45%. PLUS one of: (a) hover image-preview — a project thumbnail, optionally cursor-attached (lerped toward the pointer), reveals on row hover; the canonical Awwwards 'index module' interaction (a list of links each with an image that reveals on hover), documented across award portfolios (Olivier Gillaizeau, Kirschberg). (b) scramble-decode on the row label in the terminal expression — a symbol charset shuffled on a short interval (~100ms); the exact charset and interval are NOT source-confirmed (the Codrops study does not detail them), so treat the specific params as illustrative, not fact.",
-   "tap": "plain tap target — no spotlight-dim, no scramble on touch (both read as broken without a pointer); for the hover-preview variant, the mobile fallback flips the index vertical and reveals each row's image when the row centers under scroll",
-   "focus": ":focus-visible lights the row identically to hover (and reveals the preview image for the image variant)"
-  },
-  "heading": {
-   "hover": "NEAR-ZERO by design — display type and prose carry no hover; the heading's effect is the ENTRANCE (type-as-image draw / char-diff swap / masked per-char rise). RGB channel-split is ONE moment on the HERO type only, never scattered across body; scramble runs on LABELED elements only, never on prose or headings",
-   "tap": "none — headings do not answer touch",
-   "focus": "none beyond default (headings are not interactive)"
-  },
-  "nav": {
-   "hover": "the nav rests transparent — background:transparent, border-bottom:none, backdrop-filter:none, text in the page's off-black/off-white token (all live-read winners; no colored border-bottom, no frosted bar). Link hover: per-char rollover (split-rollover) OR scramble on the label; the primary nav pill answers with hard-press",
-   "tap": "nav pills answer :active; nav reveals on scroll-up, hides on scroll-down (scrolled-state surface change unverified across the corpus)",
-   "focus": ":focus-visible shows the rollover/scramble + ring; nav order preserved"
-  }
- },
- "mobile_answer": "CARRY-BY-SCROLL, register-aware. The brutalist CONTINUOUS idle carry is the thing the user worries about losing on mobile — and it SURVIVES, because its channels are scroll-driven, not pointer-driven: the marquee keeps running (velocity-coupled or constant), the scrubbed décor field (DrawSVG arch / pixel-field pluck / photo-shuffle carousel) plucks and shuffles by scroll position, the case slider scrubs, and the restraint-register rAF loop keeps rendering. The ONE pointer-dependent idle channel — the cursor-tracked mascot loop (quickTo) — degrades to a time- or scroll-driven idle fallback so the character still moves. Pointer-only STATES go dormant and are @media(hover:hover)-gated so nothing is trapped: underline draw, tilt straighten, scramble-on-hover, per-char rollover, RGB-split hover, CRT dissolve, hover image-preview, and the custom bitmap cursor (→ OS pointer). For the hover image-preview index, the documented mobile fallback flips the index vertical and reveals each row's image when the row centers under scroll. Press-class elements — hard-press buttons, full-accent chips, nav pills — answer the tap with a 90–160ms :active flash (the press IS the tap answer). Image sets swap any desktop hold-drag strip for swipe-snap-gallery (native scroll-snap on OS momentum, tap-to-enlarge — the scored Mobile Excellence line). Under prefers-reduced-motion: every component snaps to its finished state, the marquee pauses, the décor goes static, scramble resolves to the final string, glitch/CRT freeze to a static frame, and the stepped counter jumps instantly — the static frame still reads as deliberately composed.",
- "gaps": [
-  {
-   "component": "continuous-idle-carry",
-   "seen_in": [
-    "Eloy Benoffi (maximalist register)",
-    "Naked City Films (restraint register)",
-    "FlowFest 2025 (loud register, boundary-adjacent)"
-   ],
-   "mechanic": "The brutalist never-silent CARRY — the single most load-bearing missing mechanic for the momentum law. A décor/idle channel run continuously hero→footer so the page is never a bank of fire-once reveals with dead silence between. AMPLITUDE IS PER-BRIEF (correction from revision 1): (LOUD register) a marquee band + ONE in-character idle loop — a mascot/element that tracks the cursor via a lerped quickTo on desktop and falls back to a time- or scroll-driven idle on touch (FlowFest, boundary-adjacent, params reference-carried); (RESTRAINT register) a single perpetual rAF loop that keeps sections subtly moving — Naked City, framed by its makers as 'movement without chaos'. When a marquee ships, couple its speed AND skew to scroll velocity (proxy skew via gsap.quickSetter, ScrollTrigger onUpdate, velocity/−300 clamp, ease back to 0) — the documented Osmo winner variant, and it survives touch as a scroll-driven channel; a constant px/s band is the tamer fallback. Pausable on visibilitychange/off-screen. Distinct from the manifest's ambient-idle (glow/float/shimmer) — this renders the archetype's own metaphor in-character. No manifest component ships a marquee band, a velocity-skew coupling, or a cursor-tracked idle loop with a touch fallback. Priority 1.",
-   "priority": 1
-  },
-  {
-   "component": "scrubbed-decor-draw",
-   "seen_in": [
-    "Eloy Benoffi",
-    "FlowFest 2025 (boundary-adjacent)"
-   ],
-   "mechanic": "The 'dead middle' fix — a décor layer welded to GLOBAL scroll that runs the full page height behind the prose, so the page is never a bank of fire-once reveals with silence between. Two proven flavors: a pixel/SVG field that plucks out path-by-path scrub:8, stagger {each:0.1, from:'random'}, opacity 0, ease bounce.inOut (Eloy flower-pluck, Codrops-verified to the number); and a DrawSVG stroke that draws/undraws itself scrub:0 (FlowFest rainbow arches, reference-carried, boundary-adjacent). Also covers the different-speed title rows (yPercent -300, scrub:0.6, staggered power3.in/power2.in/power1.in) that shear the scroll (Eloy, Codrops-verified). Positional (re-fires every pass), compositor-clean, IO/visibility-gated. The manifest has no scroll-welded décor layer — dolly-zoom is a pinned focal push, shader-surface is a token WebGL ground, neither is a scrubbed line-draw/pluck décor. Priority 1.",
-   "priority": 1
-  },
-  {
-   "component": "footer-clone-machine",
-   "seen_in": [
-    "Eloy Benoffi"
-   ],
-   "mechanic": "The studio-index DEFERRED PEAK — the studio-index climax with no component to build it. Mousemove inside the footer clones the primary CTA up to 200 copies, positioned absolutely at random offsets (~200px steps), each under mix-blend-mode:difference so they interfere; on mouseleave the clones animate out opacity 0, scale 0.6, duration 0.2, ease back.in(1.7), stagger {amount:0.4, from:'random'} (Eloy, Codrops-verified to the number — the best-sourced mechanic in the corpus). Payoff: an unbounded interference field where the loudest interaction lands LAST. Fine-pointer only; on touch the footer is a static reprised CTA. Priority 1.",
-   "priority": 1
-  },
-  {
-   "component": "index-hover-preview",
-   "seen_in": [
-    "Awwwards 'index module' canon (Olivier Gillaizeau, Kirschberg)"
-   ],
-   "mechanic": "The canonical studio-index interaction the playbook omitted (integrated in revision 2). Hovering a project name in a list/index reveals a thumbnail — often cursor-attached (lerped toward the pointer) — previewing the work; Awwwards documents this as a named 'index' module (a list of links each with an image that reveals on hover). Distinct from spotlight-dim + scramble (which light/decode the row): this surfaces the WORK. Mobile fallback (documented): flip the index vertical, reveal each row's image when the row centers under scroll. For an archetype whose primary spine is the studio-index, this is the index's canonical hover state. EVIDENCE GRADE: grounded in the Awwwards index-module documentation + nominee entries, NOT tied to a specific 2025-2026 brutalist SOTD this run — canon-documented, not single-winner-verified. Priority 2.",
-   "priority": 2
-  },
-  {
-   "component": "identity-terminal-hero",
-   "seen_in": [
-    "Eloy Benoffi",
-    "Treize Grammes"
-   ],
-   "mechanic": "The studio-index hero FORM (the primary brutalist spine's hero). Corner identity tags ('>>>based in madrid, spain') that char-DIFF swap to a second string ('>>>born in mar del plata, arg') via TextPlugin type:'diff', 0.3s, preserveSpaces; a forced-open scramble nav; NO in-fold CTA (the withheld CTA defers activation to the footer finale). Eloy, Codrops-verified. No form/slot contract exists to build the terminal identity hero — only type-as-image (drawn slab) is covered. Priority 2.",
-   "priority": 2
-  },
-  {
-   "component": "chat-cloud-loader",
-   "seen_in": [
-    "FlowFest 2025 (boundary-adjacent)"
-   ],
-   "mechanic": "The in-character typed loader for the argument spine: a mascot's chat cloud types successive beats via GSAP TextPlugin (all ease:none) — '...' → 'Hi Friends!' → 'We are back...' → the hero's resident line — while .loading-screen fades autoAlpha:0 over 0.3s; then the mascot slides to rest, the nav drops (yPercent −102→0), and the welcome cards stagger. The loader SIGNS its character rather than showing a bare counter. Authored hidden so no-JS never blocks the page. NOTE: FlowFest is a colorful-illustration BOUNDARY member (not tagged brutalist) and these beat/param details live in Slater/GSAP JS, not re-read this run — build the pattern, treat the exact params as illustrative. Priority 2.",
-   "priority": 2
-  },
-  {
-   "component": "crt-dissolve-figure",
-   "seen_in": [
-    "Naked City Films"
-   ],
-   "mechanic": "WebGL-delegated figure treatment: a custom CRT-screen shader dissolves a still into brand-tinted offset R/G/B channels on hover, then a buffered video autoplays under it after the transition completes (Naked City, winner-verified via Codrops; not CSS-inspectable). Distinct from glitch-type (a CSS RGB-split heading) and figure-hover (contained zoom) — this is a full shader dissolve-to-video on a media figure. Requires a WebGL path; the exact shader uniforms/channel offsets are WebGL-internal (see unverified). CSS-only fallback filter:invert(100%) instant or ≤0.2s. Priority 3.",
-   "priority": 3
-  },
-  {
-   "component": "stepped-counter-loader",
-   "seen_in": [
-    "Joffrey Spitzer (technique, award-unverified)"
-   ],
-   "mechanic": "A brutalist VARIANT of the existing counter-loader: the number ratchets 0→100 in n discrete steps via ease steps(14) (the jump is the brutalist tell, vs the smooth roll), ~3s, then a clip-path inset() wipe hands off — for the studio-reel, the loader Flips the background image to match the showreel video's size/position (GSAP Flip). counter-loader currently rolls smoothly; needs a steps(n) mode + optional Flip hand-off. Award status unverified — technique only. Priority 3.",
-   "priority": 3
-  }
- ],
- "unverified": [
-  "FlowFest brutalist classification (revision 2 reclassification): Awwwards tags FlowFest 'Art & Illustration, Events, Animation, Colorful, Illustration, Microinteractions' — 'brutalist' is ABSENT, and no external source (Osmo, Webflow, Awwwards) calls it brutalist; Osmo's own framing is 'delightful animation / FlowFest fun'. Reclassified from CANONICAL to BOUNDARY / brutalist-ADJACENT this revision. Its hard-press / type-as-image / marquee grammar remains reusable technique but is NOT proof of a brutalist law — the argument-scroll spine now carries this caveat.",
-  "Central law re-scoping (revision 2): revision 1's 'LOUD, CONTINUOUS IDLE BAND as THE divergence from minimalist' + 'one wow then quiet describes ZERO brutalist winners' were over-generalized from ~1 genuinely-fitting brutalist site (Eloy), propped by a misfit (FlowFest, not brutalist) and a misread (Naked City, restraint-framed). Reframed to: CONTINUOUS motion at rest (never a bank of fire-once reveals), amplitude PER-BRIEF (maximalist ↔ restrained). The absolute 'ZERO winners' claim is dropped as unfalsifiable and directly contradicted by Naked City's 'movement without chaos' framing.",
-  "Naked City register: revision 1 cited it as proof of a 'LOUD, never-silent' law; the Codrops case study frames the build as 'restraint paired with intensity … movement without chaos', the OPPOSITE register. Reframed this revision as the RESTRAINED end of the continuous-carry model, not loud-at-rest. 'Refuses to stand still' is the article's title hook, not its design thesis. The SOTD 2026-01-23 (7.34), palette #0004EB / #979797, single-rAF architecture, and CRT-dissolve-to-video hover are verified; the register correction is the substantive change.",
-  "FlowFest idle-band exact params (mascot quickTo 0.4s power3, marquee 75px/s, DrawSVG arch scrub:0, chat-cloud beat order, CustomEase 0.625,0.05,0,1, nav yPercent −102→0, H1 span stagger −0.025) — carried from a prior reference read, NOT re-read live this run (they live in the site's Slater/GSAP JS, unreachable via search/case study). Revision 1 labeled these 'winner-verified' in evidence arrays while conceding here they were not re-read; that contradiction is corrected — they are reference-carried, not winner-verified.",
-  "Eloy index-row scramble charset '*&@#%$-_:/;' + setInterval 100ms — the Codrops case study does NOT detail the charset or interval ('not explicitly detailed in the source material'). Scramble-on-hover exists on the site, but the specific charset string and interval are not source-confirmed; treated as illustrative, not fact. Eloy's OTHER mechanics (footer clone machine ×200 / difference / back.in(1.7) / stagger 0.4 random / 0.2s; flower-pluck scrub 8 / each 0.1 / random / bounce.inOut; title rows −300 / 0.6 / power3.in·power2.in·power1.in; location swap type:'diff' 0.3s) ARE Codrops-verified to the number.",
-  "Index hover image-preview (O1) evidence grade — grounded in the Awwwards 'index module' documentation + nominee entries (Olivier Gillaizeau, Kirschberg), NOT tied to a specific 2025-2026 brutalist SOTD this run. Integrated as a canonical index option; evidence is canon-documented, not single-winner-verified.",
-  "Velocity-coupled marquee (O2) — the skew/speed coupling to scroll velocity (gsap.quickSetter proxy skew, ScrollTrigger onUpdate, velocity/−300 clamp) is grounded in GSAP's 'skew on scroll velocity' + 'Velocity Image Marquee' reference demos and Osmo's documented house technique (Osmo = the FlowFest studio), NOT re-read from a specific awarded build's source this run. Integrated as the winner variant of the marquee; the constant px/s band is the verified-tamer fallback.",
-  "Post-hero pinned / horizontal-scroll momentum (O3 candidate) — a pinned horizontal-scroll gallery (pin section, translate track on vertical scroll) is a common SOTD post-hero device, but was NOT tied to a named 2025-2026 brutalist winner this run. Candidate gap only; NOT integrated as a verified component this revision.",
-  "Sui Overflow CSS interaction params (2px #000F1D border, radius 0, full-accent background-color 0.3s fill, Lenis 1.1.14) — the SOTD 2025-04-15 + Dev Award (7.48), Holographik authorship, and palette are verified; the CSS-level timings are carried from a prior reference read, not re-inspected (the live URL now serves Overflow 2026, so the awarded build can't be re-hit).",
-  "Naked City CRT-shader exact channel math + video-buffer timing — WebGL-internal, not CSS-inspectable; the SOTD, palette, single-rAF architecture, brutalist-foundation framing, and CRT-dissolve-to-video hover are verified via Awwwards + Codrops; the precise shader uniforms/channel offsets are not.",
-  "Joffrey Spitzer award status — Codrops feature (2026-02-18) verified, but NO Awwwards/CSSDA/FWA win found this run; treated strictly as a technique source (studio-reel / stepped-counter mechanics), NOT counted among the awarded winners.",
-  "Anime.js v4 SOTM May 2025 + brutalist classification — SOTD 2025-05-06 (7.62) verified; SOTM 'per reference' not re-verified; included as a BOUNDARY member for the industrial-monochrome expression only (it serves the Bento archetype better), not a core arc source.",
-  "FlowFest GSAP Site of the Week badge — the Awwwards SOTD 2025-07-29 (7.36) is verified this run; the GSAP SotW is carried from the reference (Osmo authorship confirmed) but the badge itself was not re-verified this run."
- ],
- "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent."
+  "mobile_answer": "CARRY-BY-SCROLL, register-aware. The brutalist CONTINUOUS idle carry is the thing the user worries about losing on mobile — and it SURVIVES, because its channels are scroll-driven, not pointer-driven: the marquee keeps running (velocity-coupled or constant), the scrubbed décor field (DrawSVG arch / pixel-field pluck / photo-shuffle carousel) plucks and shuffles by scroll position, the case slider scrubs, and the restraint-register rAF loop keeps rendering. The ONE pointer-dependent idle channel — the cursor-tracked mascot loop (quickTo) — degrades to a time- or scroll-driven idle fallback so the character still moves. Pointer-only STATES go dormant and are @media(hover:hover)-gated so nothing is trapped: underline draw, tilt straighten, scramble-on-hover, per-char rollover, RGB-split hover, CRT dissolve, hover image-preview, and the custom bitmap cursor (→ OS pointer). For the hover image-preview index, the documented mobile fallback flips the index vertical and reveals each row's image when the row centers under scroll. Press-class elements — hard-press buttons, full-accent chips, nav pills — answer the tap with a 90–160ms :active flash (the press IS the tap answer). Image sets swap any desktop hold-drag strip for swipe-snap-gallery (native scroll-snap on OS momentum, tap-to-enlarge — the scored Mobile Excellence line). Under prefers-reduced-motion: every component snaps to its finished state, the marquee pauses, the décor goes static, scramble resolves to the final string, glitch/CRT freeze to a static frame, and the stepped counter jumps instantly — the static frame still reads as deliberately composed.",
+  "gaps": [
+    {
+      "component": "continuous-idle-carry",
+      "seen_in": [
+        "Eloy Benoffi (maximalist register)",
+        "Naked City Films (restraint register)",
+        "FlowFest 2025 (loud register, boundary-adjacent)"
+      ],
+      "mechanic": "The brutalist never-silent CARRY — the single most load-bearing missing mechanic for the momentum law. A décor/idle channel run continuously hero→footer so the page is never a bank of fire-once reveals with dead silence between. AMPLITUDE IS PER-BRIEF (correction from revision 1): (LOUD register) a marquee band + ONE in-character idle loop — a mascot/element that tracks the cursor via a lerped quickTo on desktop and falls back to a time- or scroll-driven idle on touch (FlowFest, boundary-adjacent, params reference-carried); (RESTRAINT register) a single perpetual rAF loop that keeps sections subtly moving — Naked City, framed by its makers as 'movement without chaos'. When a marquee ships, couple its speed AND skew to scroll velocity (proxy skew via gsap.quickSetter, ScrollTrigger onUpdate, velocity/−300 clamp, ease back to 0) — the documented Osmo winner variant, and it survives touch as a scroll-driven channel; a constant px/s band is the tamer fallback. Pausable on visibilitychange/off-screen. Distinct from the manifest's ambient-idle (glow/float/shimmer) — this renders the archetype's own metaphor in-character. No manifest component ships a marquee band, a velocity-skew coupling, or a cursor-tracked idle loop with a touch fallback. Priority 1.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "scrubbed-decor-draw",
+      "seen_in": [
+        "Eloy Benoffi",
+        "FlowFest 2025 (boundary-adjacent)"
+      ],
+      "mechanic": "The 'dead middle' fix — a décor layer welded to GLOBAL scroll that runs the full page height behind the prose, so the page is never a bank of fire-once reveals with silence between. Two proven flavors: a pixel/SVG field that plucks out path-by-path scrub:8, stagger {each:0.1, from:'random'}, opacity 0, ease bounce.inOut (Eloy flower-pluck, Codrops-verified to the number); and a DrawSVG stroke that draws/undraws itself scrub:0 (FlowFest rainbow arches, reference-carried, boundary-adjacent). Also covers the different-speed title rows (yPercent -300, scrub:0.6, staggered power3.in/power2.in/power1.in) that shear the scroll (Eloy, Codrops-verified). Positional (re-fires every pass), compositor-clean, IO/visibility-gated. The manifest has no scroll-welded décor layer — dolly-zoom is a pinned focal push, shader-surface is a token WebGL ground, neither is a scrubbed line-draw/pluck décor. Priority 1.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "footer-clone-machine",
+      "seen_in": [
+        "Eloy Benoffi"
+      ],
+      "mechanic": "The studio-index DEFERRED PEAK — the studio-index climax with no component to build it. Mousemove inside the footer clones the primary CTA up to 200 copies, positioned absolutely at random offsets (~200px steps), each under mix-blend-mode:difference so they interfere; on mouseleave the clones animate out opacity 0, scale 0.6, duration 0.2, ease back.in(1.7), stagger {amount:0.4, from:'random'} (Eloy, Codrops-verified to the number — the best-sourced mechanic in the corpus). Payoff: an unbounded interference field where the loudest interaction lands LAST. Fine-pointer only; on touch the footer is a static reprised CTA. Priority 1.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "index-hover-preview",
+      "seen_in": [
+        "Awwwards 'index module' canon (Olivier Gillaizeau, Kirschberg)"
+      ],
+      "mechanic": "The canonical studio-index interaction the playbook omitted (integrated in revision 2). Hovering a project name in a list/index reveals a thumbnail — often cursor-attached (lerped toward the pointer) — previewing the work; Awwwards documents this as a named 'index' module (a list of links each with an image that reveals on hover). Distinct from spotlight-dim + scramble (which light/decode the row): this surfaces the WORK. Mobile fallback (documented): flip the index vertical, reveal each row's image when the row centers under scroll. For an archetype whose primary spine is the studio-index, this is the index's canonical hover state. EVIDENCE GRADE: grounded in the Awwwards index-module documentation + nominee entries, NOT tied to a specific 2025-2026 brutalist SOTD this run — canon-documented, not single-winner-verified. Priority 2.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "identity-terminal-hero",
+      "seen_in": [
+        "Eloy Benoffi",
+        "Treize Grammes"
+      ],
+      "mechanic": "The studio-index hero FORM (the primary brutalist spine's hero). Corner identity tags ('>>>based in madrid, spain') that char-DIFF swap to a second string ('>>>born in mar del plata, arg') via TextPlugin type:'diff', 0.3s, preserveSpaces; a forced-open scramble nav; NO in-fold CTA (the withheld CTA defers activation to the footer finale). Eloy, Codrops-verified. No form/slot contract exists to build the terminal identity hero — only type-as-image (drawn slab) is covered. Priority 2.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "chat-cloud-loader",
+      "seen_in": [
+        "FlowFest 2025 (boundary-adjacent)"
+      ],
+      "mechanic": "The in-character typed loader for the argument spine: a mascot's chat cloud types successive beats via GSAP TextPlugin (all ease:none) — '...' → 'Hi Friends!' → 'We are back...' → the hero's resident line — while .loading-screen fades autoAlpha:0 over 0.3s; then the mascot slides to rest, the nav drops (yPercent −102→0), and the welcome cards stagger. The loader SIGNS its character rather than showing a bare counter. Authored hidden so no-JS never blocks the page. NOTE: FlowFest is a colorful-illustration BOUNDARY member (not tagged brutalist) and these beat/param details live in Slater/GSAP JS, not re-read this run — build the pattern, treat the exact params as illustrative. Priority 2.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "crt-dissolve-figure",
+      "seen_in": [
+        "Naked City Films"
+      ],
+      "mechanic": "WebGL-delegated figure treatment: a custom CRT-screen shader dissolves a still into brand-tinted offset R/G/B channels on hover, then a buffered video autoplays under it after the transition completes (Naked City, winner-verified via Codrops; not CSS-inspectable). Distinct from glitch-type (a CSS RGB-split heading) and figure-hover (contained zoom) — this is a full shader dissolve-to-video on a media figure. Requires a WebGL path; the exact shader uniforms/channel offsets are WebGL-internal (see unverified). CSS-only fallback filter:invert(100%) instant or ≤0.2s. Priority 3.",
+      "priority": 3,
+      "status": "merged"
+    },
+    {
+      "component": "stepped-counter-loader",
+      "seen_in": [
+        "Joffrey Spitzer (technique, award-unverified)"
+      ],
+      "mechanic": "A brutalist VARIANT of the existing counter-loader: the number ratchets 0→100 in n discrete steps via ease steps(14) (the jump is the brutalist tell, vs the smooth roll), ~3s, then a clip-path inset() wipe hands off — for the studio-reel, the loader Flips the background image to match the showreel video's size/position (GSAP Flip). counter-loader currently rolls smoothly; needs a steps(n) mode + optional Flip hand-off. Award status unverified — technique only. Priority 3.",
+      "priority": 3,
+      "status": "merged"
+    }
+  ],
+  "unverified": [
+    "FlowFest brutalist classification (revision 2 reclassification): Awwwards tags FlowFest 'Art & Illustration, Events, Animation, Colorful, Illustration, Microinteractions' — 'brutalist' is ABSENT, and no external source (Osmo, Webflow, Awwwards) calls it brutalist; Osmo's own framing is 'delightful animation / FlowFest fun'. Reclassified from CANONICAL to BOUNDARY / brutalist-ADJACENT this revision. Its hard-press / type-as-image / marquee grammar remains reusable technique but is NOT proof of a brutalist law — the argument-scroll spine now carries this caveat.",
+    "Central law re-scoping (revision 2): revision 1's 'LOUD, CONTINUOUS IDLE BAND as THE divergence from minimalist' + 'one wow then quiet describes ZERO brutalist winners' were over-generalized from ~1 genuinely-fitting brutalist site (Eloy), propped by a misfit (FlowFest, not brutalist) and a misread (Naked City, restraint-framed). Reframed to: CONTINUOUS motion at rest (never a bank of fire-once reveals), amplitude PER-BRIEF (maximalist ↔ restrained). The absolute 'ZERO winners' claim is dropped as unfalsifiable and directly contradicted by Naked City's 'movement without chaos' framing.",
+    "Naked City register: revision 1 cited it as proof of a 'LOUD, never-silent' law; the Codrops case study frames the build as 'restraint paired with intensity … movement without chaos', the OPPOSITE register. Reframed this revision as the RESTRAINED end of the continuous-carry model, not loud-at-rest. 'Refuses to stand still' is the article's title hook, not its design thesis. The SOTD 2026-01-23 (7.34), palette #0004EB / #979797, single-rAF architecture, and CRT-dissolve-to-video hover are verified; the register correction is the substantive change.",
+    "FlowFest idle-band exact params (mascot quickTo 0.4s power3, marquee 75px/s, DrawSVG arch scrub:0, chat-cloud beat order, CustomEase 0.625,0.05,0,1, nav yPercent −102→0, H1 span stagger −0.025) — carried from a prior reference read, NOT re-read live this run (they live in the site's Slater/GSAP JS, unreachable via search/case study). Revision 1 labeled these 'winner-verified' in evidence arrays while conceding here they were not re-read; that contradiction is corrected — they are reference-carried, not winner-verified.",
+    "Eloy index-row scramble charset '*&@#%$-_:/;' + setInterval 100ms — the Codrops case study does NOT detail the charset or interval ('not explicitly detailed in the source material'). Scramble-on-hover exists on the site, but the specific charset string and interval are not source-confirmed; treated as illustrative, not fact. Eloy's OTHER mechanics (footer clone machine ×200 / difference / back.in(1.7) / stagger 0.4 random / 0.2s; flower-pluck scrub 8 / each 0.1 / random / bounce.inOut; title rows −300 / 0.6 / power3.in·power2.in·power1.in; location swap type:'diff' 0.3s) ARE Codrops-verified to the number.",
+    "Index hover image-preview (O1) evidence grade — grounded in the Awwwards 'index module' documentation + nominee entries (Olivier Gillaizeau, Kirschberg), NOT tied to a specific 2025-2026 brutalist SOTD this run. Integrated as a canonical index option; evidence is canon-documented, not single-winner-verified.",
+    "Velocity-coupled marquee (O2) — the skew/speed coupling to scroll velocity (gsap.quickSetter proxy skew, ScrollTrigger onUpdate, velocity/−300 clamp) is grounded in GSAP's 'skew on scroll velocity' + 'Velocity Image Marquee' reference demos and Osmo's documented house technique (Osmo = the FlowFest studio), NOT re-read from a specific awarded build's source this run. Integrated as the winner variant of the marquee; the constant px/s band is the verified-tamer fallback.",
+    "Post-hero pinned / horizontal-scroll momentum (O3 candidate) — a pinned horizontal-scroll gallery (pin section, translate track on vertical scroll) is a common SOTD post-hero device, but was NOT tied to a named 2025-2026 brutalist winner this run. Candidate gap only; NOT integrated as a verified component this revision.",
+    "Sui Overflow CSS interaction params (2px #000F1D border, radius 0, full-accent background-color 0.3s fill, Lenis 1.1.14) — the SOTD 2025-04-15 + Dev Award (7.48), Holographik authorship, and palette are verified; the CSS-level timings are carried from a prior reference read, not re-inspected (the live URL now serves Overflow 2026, so the awarded build can't be re-hit).",
+    "Naked City CRT-shader exact channel math + video-buffer timing — WebGL-internal, not CSS-inspectable; the SOTD, palette, single-rAF architecture, brutalist-foundation framing, and CRT-dissolve-to-video hover are verified via Awwwards + Codrops; the precise shader uniforms/channel offsets are not.",
+    "Joffrey Spitzer award status — Codrops feature (2026-02-18) verified, but NO Awwwards/CSSDA/FWA win found this run; treated strictly as a technique source (studio-reel / stepped-counter mechanics), NOT counted among the awarded winners.",
+    "Anime.js v4 SOTM May 2025 + brutalist classification — SOTD 2025-05-06 (7.62) verified; SOTM 'per reference' not re-verified; included as a BOUNDARY member for the industrial-monochrome expression only (it serves the Bento archetype better), not a core arc source.",
+    "FlowFest GSAP Site of the Week badge — the Awwwards SOTD 2025-07-29 (7.36) is verified this run; the GSAP SotW is carried from the reference (Osmo authorship confirmed) but the badge itself was not re-verified this run."
+  ],
+  "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent.",
+  "gaps_note": "All orders closed July 2026 (completeness program) — entries kept as the winner-cited mechanic-spec grammar; per-entry status carries the resolution. For a builder every entry is library-covered: compose, never author."
 }

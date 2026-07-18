@@ -1,383 +1,392 @@
 {
- "archetype": "corporate-luxury",
- "revision": 3,
- "corpus": [
-  {
-   "site": "Cartier Watches & Wonders 2025",
-   "url": "cartier-waw-0225.dev.60fps.fr",
-   "award": "Awwwards SOTD Aug 18 2025 (7.64) + Developer Award (7.55, Animations 9.00) (verified this run via awwwards.com/sites/cartier-watches-wonders-2025 + webgpu.com showcase + immersive-g.com case study). Prior revision's 'SOTM' label was wrong — the page shows Site of the Day, not Site of the Month.",
-   "fit": "Cinematic 3D pavilion — six contemplative alcove universes (webgpu.com: 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours'), Mooders soundscape, hidden gestures in every scene, slow tasteful motion, GSAP + Lenis on one clock. The canonical exemplar. Immersive Garden / 60fps / Mooders for Cartier."
-  },
-  {
-   "site": "Cartier Watches & Wonders 2026",
-   "url": "cartier-watches-wonders-2026 (awwwards page)",
-   "award": "Awwwards SOTD May 25 2026 (7.53) + Developer Award (7.85) (verified this run via awwwards.com/sites/cartier-watches-wonders-2026). Prior revision credited CSSDA — that is the Developer Award, miscredited. No CSSDA.",
-   "fit": "Re-win by the same studio (Immersive Garden) one year on — awwwards description is only 'an immersive journey through refined worlds, highlighting iconic timepieces'; tech Three.js / GLSL / Blender. Proves the immersive-3D pavilion pattern repeats and re-wins. The interior structure for 2026 was NOT exposed this run — the 'six self-contained alcoves / rooms in a very expensive museum' phrasing describes the 2025 pavilion (webgpu.com), and the prior revision transplanted it onto 2026 as observed fact."
-  },
-  {
-   "site": "Delvaux Digital Flagship Store",
-   "url": "delvaux.com",
-   "award": "Awwwards Honorable Mention Jun 15 2026, high community craft score (~8.3-8.5, directionally the corpus's highest) (verified this run via awwwards.com/sites/delvaux-digital-flagship-store; studio 51North, GSAP + Craft CMS). Exact sub-scores are NOT reliable — three differing readings this run (prior revision 8.35 D8.5/U8.6/C7.9/Ct8.4; independent refuter 8.26; this-run fetch D9.00/U8.86/C7.86/Ct8.29). Only 'high, directionally-highest craft' is robust.",
-   "fit": "Editorial-maison profile: fullscreen home-slider, Genath serif on Atlas Grotesk, roll-swap / stroke CTAs, 'The Oldest Fine Leather Goods House in the World', GSAP + Craft CMS. The stillest register in the corpus — the control case for the continuity question. Multi-page commerce (51North case study: 'dynamic transitions and subtle animations unify product categories')."
-  },
-  {
-   "site": "Son Daven — Design Resort Hotel",
-   "url": "sondaven.com/en",
-   "award": "Awwwards SOTD Jun 5 2026, 7.62 + Developer Award 8.09 (verified this run via awwwards.com/sites/son-daven; studio The First The Last, tech WebGL + GSAP + Webflow — no smoother tagged on the award page).",
-   "fit": "Argument long-scroll (15+ sections): preloader Flip hero, KTF Metro serif, magnetic circular CTAs, WebGL + GSAP + Webflow (Lenis is NOT tagged on the award page), warm-tan #A89474 / dark-brown #2C2824 grade, real Carpathian photo + film. The continuous-thread case — award verified; the interior décor-bed numeric mechanics (parallax-layer count, film scrub, marquee timeScale, easing) are executable defaults, not source-verified this run (see unverified)."
-  },
-  {
-   "site": "Depo Luxe",
-   "url": "depoluxe.xyz",
-   "award": "Awwwards SOTD + Developer Award Jul 7 2026, 7.62 (Animations 8.40) (verified this run via awwwards.com/sites/depo-luxe; studio Cuchillo, 11ty).",
-   "fit": "Cinematic folio: monochrome #fff/#000, EB Garamond, video-preloader + SVG-logo fill, 11ty. Reported WebGL-displaced footage and a hand-rolled virtual-scroll approach fusing scroll + render into one clock — interior mechanics NOT source-verified this run (no award description or teardown found exposes them). Living-WebGL-ground reading as the continuation bed."
-  },
-  {
-   "site": "Brunello Cucinelli — AI E-com",
-   "url": "brunellocucinelli.ai",
-   "award": "Awwwards SOTD Jul 9 2026 (7.19) + Developer Award (7.01) (verified this run via awwwards.com/sites/brunello-cucinelli-ai-e-com + makemepulse.com case study). Prior revision said Jul 10 — off by one.",
-   "fit": "Pageless agentic maison (makemepulse / Solomei AI 'Callimacus'): awwwards description 'a pageless, intent-led e-commerce experience that unfolds in real time. Multi-agent AI welcomes, listens, and understands.' Frosted glass + soft blur + hand-drawn sketch detail come from the makemepulse case study (not the award page); technology made to recede so the human brand stays foreground. Humanist luxury voice. Multi-page commerce."
-  },
-  {
-   "site": "Urban Jürgensen",
-   "url": "urban-jurgensen (awwwards page) / urbanjurgensen.com",
-   "award": "Awwwards SOTD + Developer Award Oct 30 2025, 7.27 (Dev 7.22) (verified this run via awwwards.com/sites/urban-jurgensen; studio Digital Luxury Group + Numbered, WebGL + Sanity + Vercel).",
-   "fit": "Dark-luxury watchmaking heritage revival: cream #f8f5f0 / charcoal #040810, unconventional text-loading transitions, infinite vertical + horizontal scroll, rotatable 3D watch on product pages, WebGL + Sanity + Vercel. Fresh watchmaking data point beyond the 3D-pavilion trio. Multi-page commerce (PDP + product pages)."
-  },
-  {
-   "site": "Louis Vuitton Collectibles",
-   "url": "louisvuitton.com (Collectibles)",
-   "award": "Awwwards SOTD Feb 20 2024, 7.79 (Animations 9.4) (verified this run via awwwards.com/sites/louis-vuitton-collectibles; studios Immersive Garden + Reflet) — 2024, admitted as canon.",
-   "fit": "Experimental maison 3D (Immersive Garden + Reflet): click-and-hold product reveal, 'Change Universe' scroll-driven 3D navigation between distinct environments. The gesture-primitive data point; canon LV, so 2024 admissible."
-  }
- ],
- "story": {
-  "arcs": [
-   "Procession-through-rooms (Cartier WAW 2025, LV Collectibles): the page is a sequence of self-contained worlds, one per hero object; scroll walks the visitor between them. webgpu.com describes the 2025 Cartier pavilion as 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours' — six equal self-contained rooms plus hidden gestures in every scene and a continuous Mooders score. No single climax: each room IS a contemplative peak and the momentum is the drift between them. (The 'no single climactic reveal' reading is an inference from the six-equal-rooms structure, not an award-body statement.)",
-   "Argument-scroll to a joining moment (Son Daven, award-verified SOTD): preloader Flip -> prologue -> place-tour proof beats with walk-time counters -> financials -> 'Become part of the legend' (the buy-moment framed as joining a heritage) -> contact rest. The one late climax fuses with the close; the whole spine between hero and close is kept alive by a scrubbed décor bed (the bed's interior numbers are executable defaults, not source-verified).",
-   "Editorial maison quiet-scroll (Delvaux, award-verified HM): slider hero -> triple-image swiper -> dual-image emblematic product -> tabular footer. Restraint is the register; commerce hides behind 'Discover'. This is the stillest arc — and it took the lower jury tier (HM) despite a very high community craft score.",
-   "Heritage-revival long-scroll (Urban Jürgensen): unconventional text-load entrance -> infinite vertical storytelling spine -> infinite horizontal product carousel -> rotatable 3D watch on the product page. Heritage told as an unbroken vertical surface that never bottoms out."
+  "archetype": "corporate-luxury",
+  "revision": 4,
+  "corpus": [
+    {
+      "site": "Cartier Watches & Wonders 2025",
+      "url": "cartier-waw-0225.dev.60fps.fr",
+      "award": "Awwwards SOTD Aug 18 2025 (7.64) + Developer Award (7.55, Animations 9.00) (verified this run via awwwards.com/sites/cartier-watches-wonders-2025 + webgpu.com showcase + immersive-g.com case study). Prior revision's 'SOTM' label was wrong — the page shows Site of the Day, not Site of the Month.",
+      "fit": "Cinematic 3D pavilion — six contemplative alcove universes (webgpu.com: 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours'), Mooders soundscape, hidden gestures in every scene, slow tasteful motion, GSAP + Lenis on one clock. The canonical exemplar. Immersive Garden / 60fps / Mooders for Cartier."
+    },
+    {
+      "site": "Cartier Watches & Wonders 2026",
+      "url": "cartier-watches-wonders-2026 (awwwards page)",
+      "award": "Awwwards SOTD May 25 2026 (7.53) + Developer Award (7.85) (verified this run via awwwards.com/sites/cartier-watches-wonders-2026). Prior revision credited CSSDA — that is the Developer Award, miscredited. No CSSDA.",
+      "fit": "Re-win by the same studio (Immersive Garden) one year on — awwwards description is only 'an immersive journey through refined worlds, highlighting iconic timepieces'; tech Three.js / GLSL / Blender. Proves the immersive-3D pavilion pattern repeats and re-wins. The interior structure for 2026 was NOT exposed this run — the 'six self-contained alcoves / rooms in a very expensive museum' phrasing describes the 2025 pavilion (webgpu.com), and the prior revision transplanted it onto 2026 as observed fact."
+    },
+    {
+      "site": "Delvaux Digital Flagship Store",
+      "url": "delvaux.com",
+      "award": "Awwwards Honorable Mention Jun 15 2026, high community craft score (~8.3-8.5, directionally the corpus's highest) (verified this run via awwwards.com/sites/delvaux-digital-flagship-store; studio 51North, GSAP + Craft CMS). Exact sub-scores are NOT reliable — three differing readings this run (prior revision 8.35 D8.5/U8.6/C7.9/Ct8.4; independent refuter 8.26; this-run fetch D9.00/U8.86/C7.86/Ct8.29). Only 'high, directionally-highest craft' is robust.",
+      "fit": "Editorial-maison profile: fullscreen home-slider, Genath serif on Atlas Grotesk, roll-swap / stroke CTAs, 'The Oldest Fine Leather Goods House in the World', GSAP + Craft CMS. The stillest register in the corpus — the control case for the continuity question. Multi-page commerce (51North case study: 'dynamic transitions and subtle animations unify product categories')."
+    },
+    {
+      "site": "Son Daven — Design Resort Hotel",
+      "url": "sondaven.com/en",
+      "award": "Awwwards SOTD Jun 5 2026, 7.62 + Developer Award 8.09 (verified this run via awwwards.com/sites/son-daven; studio The First The Last, tech WebGL + GSAP + Webflow — no smoother tagged on the award page).",
+      "fit": "Argument long-scroll (15+ sections): preloader Flip hero, KTF Metro serif, magnetic circular CTAs, WebGL + GSAP + Webflow (Lenis is NOT tagged on the award page), warm-tan #A89474 / dark-brown #2C2824 grade, real Carpathian photo + film. The continuous-thread case — award verified; the interior décor-bed numeric mechanics (parallax-layer count, film scrub, marquee timeScale, easing) are executable defaults, not source-verified this run (see unverified)."
+    },
+    {
+      "site": "Depo Luxe",
+      "url": "depoluxe.xyz",
+      "award": "Awwwards SOTD + Developer Award Jul 7 2026, 7.62 (Animations 8.40) (verified this run via awwwards.com/sites/depo-luxe; studio Cuchillo, 11ty).",
+      "fit": "Cinematic folio: monochrome #fff/#000, EB Garamond, video-preloader + SVG-logo fill, 11ty. Reported WebGL-displaced footage and a hand-rolled virtual-scroll approach fusing scroll + render into one clock — interior mechanics NOT source-verified this run (no award description or teardown found exposes them). Living-WebGL-ground reading as the continuation bed."
+    },
+    {
+      "site": "Brunello Cucinelli — AI E-com",
+      "url": "brunellocucinelli.ai",
+      "award": "Awwwards SOTD Jul 9 2026 (7.19) + Developer Award (7.01) (verified this run via awwwards.com/sites/brunello-cucinelli-ai-e-com + makemepulse.com case study). Prior revision said Jul 10 — off by one.",
+      "fit": "Pageless agentic maison (makemepulse / Solomei AI 'Callimacus'): awwwards description 'a pageless, intent-led e-commerce experience that unfolds in real time. Multi-agent AI welcomes, listens, and understands.' Frosted glass + soft blur + hand-drawn sketch detail come from the makemepulse case study (not the award page); technology made to recede so the human brand stays foreground. Humanist luxury voice. Multi-page commerce."
+    },
+    {
+      "site": "Urban Jürgensen",
+      "url": "urban-jurgensen (awwwards page) / urbanjurgensen.com",
+      "award": "Awwwards SOTD + Developer Award Oct 30 2025, 7.27 (Dev 7.22) (verified this run via awwwards.com/sites/urban-jurgensen; studio Digital Luxury Group + Numbered, WebGL + Sanity + Vercel).",
+      "fit": "Dark-luxury watchmaking heritage revival: cream #f8f5f0 / charcoal #040810, unconventional text-loading transitions, infinite vertical + horizontal scroll, rotatable 3D watch on product pages, WebGL + Sanity + Vercel. Fresh watchmaking data point beyond the 3D-pavilion trio. Multi-page commerce (PDP + product pages)."
+    },
+    {
+      "site": "Louis Vuitton Collectibles",
+      "url": "louisvuitton.com (Collectibles)",
+      "award": "Awwwards SOTD Feb 20 2024, 7.79 (Animations 9.4) (verified this run via awwwards.com/sites/louis-vuitton-collectibles; studios Immersive Garden + Reflet) — 2024, admitted as canon.",
+      "fit": "Experimental maison 3D (Immersive Garden + Reflet): click-and-hold product reveal, 'Change Universe' scroll-driven 3D navigation between distinct environments. The gesture-primitive data point; canon LV, so 2024 admissible."
+    }
   ],
-  "thread": "The fil rouge is a single material treatment carried at one grade, hero to footer, and it is ALWAYS moving under the reader's hand — never a static motif. Pick ONE and commit it start to finish: (a) a continuous scored 3D drift where scroll IS the camera and each object gets its room (Cartier — GSAP + Lenis 'on the same nervous system', confirmed via webgpu.com); (b) a scroll-scrubbed parallax/film bed running UNDER the whole mid-page while fire-once reveals play over it (Son Daven — recommended recipe: ~five parallax layers at ease:none + a frame-sequence film at scrub:.25; interior numbers are executable defaults, not source-verified); (c) a living WebGL displacement ground that every image and the nav index sit on (Depo Luxe — reported virtual-scroll fusing scroll + render into one clock; mechanic not source-verified); (d) frosted-glass + hand-drawn craft skin that recedes so the product stays foreground (Brunello). The thread's amplitude stays LOW and reversible — the luxury tell is that the effect is felt, not announced. One grade page-wide, split by brand never within a page, never stock. On a multi-page maison (Delvaux, Urban Jürgensen, Brunello) the thread must survive the route change — carry it across navigations with a curtain/overlay wipe + loader re-entry (see gaps: route-transition-overlay), or the continuity law dies at the first page jump.",
-  "copy": "Third-person inherited voice (founder maisons go first-person-plural). The words carry the story by naming the specific and refusing the transactional: one elevated tagline or one long lyrical sentence per surface; CTAs 2-4 words and invitational (Discover, Explore, Step inside, Become part of the legend) — never a price-forward or urgency CTA. Heritage signatures earned by a date ('The Oldest Fine Leather Goods House in the World' / 'Since 1829'; Urban Jürgensen leads on '250-year-old'). Sentence case except product names; tabular numerals for prices/editions/counts. Brunello lets a Kant/Socrates line stand in for product talk. The copy never feature-lists and never self-narrates the interaction."
- },
- "spectacle_model": {
-  "hero": "The first viewport commits the material register and the entrance ritual, at a HIGH but never-loud amplitude. Three commit-shapes: (1) in-engine statement — a scored 3D room settles from the loader with no hard cut, hidden gestures live from frame one (Cartier, LV Collectibles, Depo Luxe SVG-fill dissolve); (2) eyebrow + display Flip-handoff — a real-progress preloader Flips its logo into the header, then the display type rises yPercent 250->0 behind a mask over ~1.2s easeOutQuart, a magnetic circular CTA with elastic.out(1,0.3) overshoot (Son Daven — these numbers are recommended defaults, not source-verified); (3) slider maison — visual + scrim, serif SplitText title up behind a mask (dur ~2, stagger ~.2, power4.inOut), roll-swap / stroke CTAs, figure clip-path:inset() wipe over ~1s (Delvaux — numbers carried from prior source reads, not re-verified this run). The hero is where first impression forms, but it is the OPENING of the thread, not a spent firework.",
-  "continuation": [
-   "Cartier WAW 2025: after alcove one, the scored camera keeps drifting — five more self-contained 3D rooms dispose/load as you cross between them, each with its own drifting horizons / lapping water / theatrical mirrors and hidden gestures. Spectacle is DISTRIBUTED across all six rooms; the Mooders score is a continuous narrative layer, not wallpaper. Zero silence — the whole page is the spectacle. (Six-room structure + hidden gestures + continuous score confirmed via webgpu.com; exact per-scene transition timings not exposed.)",
-   "Son Daven: after the hero, THREE welded channels run continuously to the footer — (1) a fire-once reveal on every content block (data-scroll-reveal on ScrollTrigger once:true), (2) a REVERSIBLE scrubbed décor bed under the entire mid-page (~five parallax layers ease:none + frame-sequence film scrub:.25 + WebGL grade), (3) one idle touch welded to the wheel (marquee timeScale(1 + .01*velocity)). Prose stays alive via a scrubbed reading wash (chars from opacity:.1, re-firing every pass). Late spike at 'Become part of the legend'. The décor bed IS the continuation thread. (Structure plausible; the numeric parameters are executable defaults, not source-verified — the award page exposes none of them.)",
-   "Depo Luxe: the reported WebGL-displaced footage field reads as the GROUND for the whole page, not a hero spike — every figure and the nav index sit on it; the spotlight-dim index carries the middle; audio behind a toggle runs throughout. A hand-rolled virtual-scroll approach is reported to keep scroll and render on one clock so the displacement tracks the hand continuously. (Interior mechanics not source-verified this run.)",
-   "Urban Jürgensen: post-hero the infinite vertical scroll never bottoms out and the infinite horizontal carousel keeps product moving laterally, with unconventional text-loading transitions between beats; the 3D watch is a late rotatable interaction on the product page. Continuity by never letting the scroll rest. (awwwards description lists: infinite vertical scroll, infinite horizontal scroll, unconventional text-loading transitions, 3D Watch Interaction.)",
-   "Delvaux (the control): after the slider hero, a triple-image swiper procession moves product laterally at a measured pace, then a dual-image emblematic product — clip-path reveals and swiper motion, but no always-on idle channel (playbook inference from the shipped experience). The stillest continuation. It took HM, not SOTD."
+  "story": {
+    "arcs": [
+      "Procession-through-rooms (Cartier WAW 2025, LV Collectibles): the page is a sequence of self-contained worlds, one per hero object; scroll walks the visitor between them. webgpu.com describes the 2025 Cartier pavilion as 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours' — six equal self-contained rooms plus hidden gestures in every scene and a continuous Mooders score. No single climax: each room IS a contemplative peak and the momentum is the drift between them. (The 'no single climactic reveal' reading is an inference from the six-equal-rooms structure, not an award-body statement.)",
+      "Argument-scroll to a joining moment (Son Daven, award-verified SOTD): preloader Flip -> prologue -> place-tour proof beats with walk-time counters -> financials -> 'Become part of the legend' (the buy-moment framed as joining a heritage) -> contact rest. The one late climax fuses with the close; the whole spine between hero and close is kept alive by a scrubbed décor bed (the bed's interior numbers are executable defaults, not source-verified).",
+      "Editorial maison quiet-scroll (Delvaux, award-verified HM): slider hero -> triple-image swiper -> dual-image emblematic product -> tabular footer. Restraint is the register; commerce hides behind 'Discover'. This is the stillest arc — and it took the lower jury tier (HM) despite a very high community craft score.",
+      "Heritage-revival long-scroll (Urban Jürgensen): unconventional text-load entrance -> infinite vertical storytelling spine -> infinite horizontal product carousel -> rotatable 3D watch on the product page. Heritage told as an unbroken vertical surface that never bottoms out."
+    ],
+    "thread": "The fil rouge is a single material treatment carried at one grade, hero to footer, and it is ALWAYS moving under the reader's hand — never a static motif. Pick ONE and commit it start to finish: (a) a continuous scored 3D drift where scroll IS the camera and each object gets its room (Cartier — GSAP + Lenis 'on the same nervous system', confirmed via webgpu.com); (b) a scroll-scrubbed parallax/film bed running UNDER the whole mid-page while fire-once reveals play over it (Son Daven — recommended recipe: ~five parallax layers at ease:none + a frame-sequence film at scrub:.25; interior numbers are executable defaults, not source-verified); (c) a living WebGL displacement ground that every image and the nav index sit on (Depo Luxe — reported virtual-scroll fusing scroll + render into one clock; mechanic not source-verified); (d) frosted-glass + hand-drawn craft skin that recedes so the product stays foreground (Brunello). The thread's amplitude stays LOW and reversible — the luxury tell is that the effect is felt, not announced. One grade page-wide, split by brand never within a page, never stock. On a multi-page maison (Delvaux, Urban Jürgensen, Brunello) the thread must survive the route change — carry it across navigations with a curtain/overlay wipe + loader re-entry (see gaps: route-transition-overlay), or the continuity law dies at the first page jump.",
+    "copy": "Third-person inherited voice (founder maisons go first-person-plural). The words carry the story by naming the specific and refusing the transactional: one elevated tagline or one long lyrical sentence per surface; CTAs 2-4 words and invitational (Discover, Explore, Step inside, Become part of the legend) — never a price-forward or urgency CTA. Heritage signatures earned by a date ('The Oldest Fine Leather Goods House in the World' / 'Since 1829'; Urban Jürgensen leads on '250-year-old'). Sentence case except product names; tabular numerals for prices/editions/counts. Brunello lets a Kant/Socrates line stand in for product talk. The copy never feature-lists and never self-narrates the interaction."
+  },
+  "spectacle_model": {
+    "hero": "The first viewport commits the material register and the entrance ritual, at a HIGH but never-loud amplitude. Three commit-shapes: (1) in-engine statement — a scored 3D room settles from the loader with no hard cut, hidden gestures live from frame one (Cartier, LV Collectibles, Depo Luxe SVG-fill dissolve); (2) eyebrow + display Flip-handoff — a real-progress preloader Flips its logo into the header, then the display type rises yPercent 250->0 behind a mask over ~1.2s easeOutQuart, a magnetic circular CTA with elastic.out(1,0.3) overshoot (Son Daven — these numbers are recommended defaults, not source-verified); (3) slider maison — visual + scrim, serif SplitText title up behind a mask (dur ~2, stagger ~.2, power4.inOut), roll-swap / stroke CTAs, figure clip-path:inset() wipe over ~1s (Delvaux — numbers carried from prior source reads, not re-verified this run). The hero is where first impression forms, but it is the OPENING of the thread, not a spent firework.",
+    "continuation": [
+      "Cartier WAW 2025: after alcove one, the scored camera keeps drifting — five more self-contained 3D rooms dispose/load as you cross between them, each with its own drifting horizons / lapping water / theatrical mirrors and hidden gestures. Spectacle is DISTRIBUTED across all six rooms; the Mooders score is a continuous narrative layer, not wallpaper. Zero silence — the whole page is the spectacle. (Six-room structure + hidden gestures + continuous score confirmed via webgpu.com; exact per-scene transition timings not exposed.)",
+      "Son Daven: after the hero, THREE welded channels run continuously to the footer — (1) a fire-once reveal on every content block (data-scroll-reveal on ScrollTrigger once:true), (2) a REVERSIBLE scrubbed décor bed under the entire mid-page (~five parallax layers ease:none + frame-sequence film scrub:.25 + WebGL grade), (3) one idle touch welded to the wheel (marquee timeScale(1 + .01*velocity)). Prose stays alive via a scrubbed reading wash (chars from opacity:.1, re-firing every pass). Late spike at 'Become part of the legend'. The décor bed IS the continuation thread. (Structure plausible; the numeric parameters are executable defaults, not source-verified — the award page exposes none of them.)",
+      "Depo Luxe: the reported WebGL-displaced footage field reads as the GROUND for the whole page, not a hero spike — every figure and the nav index sit on it; the spotlight-dim index carries the middle; audio behind a toggle runs throughout. A hand-rolled virtual-scroll approach is reported to keep scroll and render on one clock so the displacement tracks the hand continuously. (Interior mechanics not source-verified this run.)",
+      "Urban Jürgensen: post-hero the infinite vertical scroll never bottoms out and the infinite horizontal carousel keeps product moving laterally, with unconventional text-loading transitions between beats; the 3D watch is a late rotatable interaction on the product page. Continuity by never letting the scroll rest. (awwwards description lists: infinite vertical scroll, infinite horizontal scroll, unconventional text-loading transitions, 3D Watch Interaction.)",
+      "Delvaux (the control): after the slider hero, a triple-image swiper procession moves product laterally at a measured pace, then a dual-image emblematic product — clip-path reveals and swiper motion, but no always-on idle channel (playbook inference from the shipped experience). The stillest continuation. It took HM, not SOTD."
+    ],
+    "one_climax_verdict": "REFINED",
+    "evidence": [
+      "Cartier WAW (SOTD 2025 + SOTD 2026): webgpu.com describes the 2025 pavilion as 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours' — six equal self-contained rooms plus hidden gestures in every scene and a continuous Mooders score. The even, room-by-room structure reads as distributed presence rather than one climactic reveal. (Structural inference — the prior revision quoted webgpu.com as saying the design 'sustains engagement... rather than a single climactic reveal'; that sentence does NOT exist on the page and has been removed.)",
+      "Son Daven (SOTD Jun 5 2026 7.62, Dev 8.09): award and studio confirmed; a reversible scrubbed décor bed + wheel-welded idle marquee are a plausible reimplementation of its lived hero-to-footer thread (interior mechanics not source-verified — see unverified), with the late join-the-legend moment as the one climax fused with the close.",
+      "Delvaux (HM Jun 15 2026, high community craft score ~8.3-8.5, directionally the corpus's highest) ships no always-on idle channel (playbook inference) and lands at Honorable Mention, a LOWER jury tier than Son Daven's Site of the Day. On the jury-prestige axis the livelier site won; stillness read as least alive. (Caveat: community voters rated Delvaux's craft higher than Son Daven's 7.62 — the inversion is real; the continuity signal lives on the award-tier axis, not the raw score. Moderate, caveated evidence — not proof that stillness alone caused the lower tier.)",
+      "Depo Luxe (SOTD + Dev Jul 7 2026, Animations 8.40): the living-WebGL-ground reading is a plausible continuation model (interior mechanics not source-verified this run)."
+    ],
+    "recommended_law": "REFINE 'exactly one climax; peaks are capped, vocabulary is not' for corporate-luxury to: 'Peaks stay capped at 0-1 in the luxury register — but a continuous, LOW-amplitude, reversible signature thread must run under every viewport from hero to footer; the hero opens the thread, it never closes it. Going silent after the hero is a defect the jury reads as least-alive (Delvaux: very high community craft score, lowest award tier of the corpus). The luxury lever is the thread's AMPLITUDE (kept quiet, reversible, material — a scored 3D drift, a scrubbed parallax/film bed, a living WebGL displacement ground), never its peak count. Escalating peaks belong to other archetypes; corporate-luxury escalates presence, not volume.' Grounded on the confirmed six-equal-rooms structure of the canonical exemplar (Cartier 2025), LV Collectibles change-universe navigation between distinct environments, and Urban Jürgensen's never-bottoming infinite scroll; the Son Daven / Depo Luxe interior décor-bed mechanics that were extra support are demoted to executable defaults, not load-bearing for the verdict."
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "The one story the scroll tells",
+      "rule": "Pick exactly one of four arcs by brief: procession-through-rooms (object-first launch: watch/jewel/trunk reveal) -> Cartier/LV; argument-scroll-to-joining (investment/venture/heritage with an ask) -> Son Daven; editorial-maison-quiet-scroll (established house, commerce behind Discover) -> Delvaux; heritage-revival-long-scroll (revived/storied brand) -> Urban Jurgensen. The arc fixes the macrostructure and the climax count downstream; never blend two.",
+      "evidence": [
+        "Cartier: six-rooms procession (confirmed via webgpu.com); Son Daven: 15+ section argument to 'Become part of the legend'; Delvaux: slider->swiper->product->footer; Urban Jurgensen: infinite vertical heritage spine (confirmed via awwwards description)."
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "The signature thread (fil rouge) carried hero-to-footer",
+      "rule": "Choose ONE continuous material treatment and commit it under every viewport, at one page-wide grade, always moving under the hand: (a) scored 3D drift where scroll=camera (needs a WebGL path); (b) scroll-scrubbed parallax/film décor bed under the mid-page; (c) living WebGL displacement ground under all media; (d) frosted-glass + hand-drawn craft skin. Amplitude stays low and reversible. This decision is binding for every later section — every section either sits on the thread or advances it; no section is allowed to go inert. On a multi-page build, the thread must be re-entered across route changes (see step 4 + gaps: route-transition-overlay).",
+      "evidence": [
+        "Cartier: GSAP + Lenis 'on the same nervous system', continuous Mooders score (confirmed via webgpu.com). Son Daven: reversible décor bed + idle marquee welded to wheel (executable defaults, not source-verified). Depo Luxe: reported virtual-scroll fusing scroll+WebGL into one clock (not source-verified). Brunello: frosted glass + hand-drawn recede so product stays foreground (makemepulse case study)."
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "Macrostructure + climax placement",
+      "rule": "Map the arc to sections and place AT MOST one peak: procession = even-high intensity, no peak (each room is its own contemplative beat); argument-scroll = one LATE peak fused with the close (become-part-of-the-legend); editorial-maison = ZERO peak, even restrained intensity; heritage-revival = late 3D-object interaction as the only spike. Never a fold 'Shop now' CTA; never a product-card grid above the fold; the footer is tabular/contact-first, never a spectacle.",
+      "evidence": [
+        "Son Daven: late join-the-legend fuses climax and close. Delvaux: no climax spike, restraint is the register. Cartier: no single climactic reveal (inference from six equal rooms)."
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "Momentum map — what fills the gaps between peaks (and across routes)",
+      "rule": "Every viewport between hero and footer must carry the thread from step 2 PLUS a fire-once reveal on each content block. Minimum live channels at this tier = the thread (always-on, reversible) + fire-once block reveals + one hover/index channel; add a wheel-welded idle only where the register allows (skip it for the stillest editorial-maison, but know that costs award-tier). Reveals fire once (ScrollTrigger once:true); the décor thread re-fires every pass because it is décor over reading, not a reveal. Prose that must stay alive uses a scrubbed reading wash (chars from opacity:.1, top75%->bottom50%), NEVER a hover. On multi-page maisons, a route change plays a curtain/overlay wipe + loader re-entry that carries the thread across the navigation (see gaps: route-transition-overlay) — the single-scroll continuity model does not survive a page jump on its own.",
+      "evidence": [
+        "Son Daven (award-verified): fire-once reveals + reversible décor bed + idle marquee; scrubbed reading wash on [data-highlight-text] (interior mechanics are executable defaults, not source-verified). Delvaux: no idle channel (inference) -> HM. Wheel smoothing is common across the corpus (Cartier GSAP+Lenis confirmed via webgpu.com; others plausibly via GSAP ScrollSmoother, untagged) — the prior revision's 'universal 5/5 (Lenis / ScrollSmoother / VirtualScroll)' was over-asserted and is dropped."
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section form + interaction pairing",
+      "rule": "Pair the corpus reveal primitive to each section, changing axis/geometry per element but never the easing or primitive without a brief reason. Recommended easing default = easeOutQuart cubic-bezier(0.25,1,0.5,1) (a page-wide consistency default; the prior revision's 'byte-identical across Delvaux CSS var + GSAP CustomEase and Son Daven' was NOT re-verified from shipped CSS this run — see unverified); cubic-bezier(0.16,1,0.3,1) easeOutExpo is the snappier alternate. Reveal primitive = reveal-from-behind-a-clip: masked translate for type, clip-path:inset() for media/overlays. Media reveals grayscale-first then colour floods late (image-curtain) when imagery is graded/archival.",
+      "evidence": [
+        "Delvaux: figure clip-path:inset() ~1s cubic-bezier(.25,1,.5,1); serif SplitText up behind mask dur ~2 stagger ~.2 power4.inOut (carried from prior source reads, not re-verified). Son Daven: display yPercent 250->0 ~1.2s easeOutQuart (recommended default, not source-verified)."
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states (each element class gets its OWN geometry)",
+      "rule": "Never repeat one uniform hover across classes. CTA: roll-swap (two label copies, both translateY(-100%), no colour event) for editorial maisons, OR invert-to-solid-section-token (never rgba tint), OR line/stroke-draw (SVG ring or currentColor :before underline height .5px opacity 0->1) over photographic/3D surfaces. Link: colour cross-fade ink<->muted brand tone 1s + a 2px bullet dot fading in beside the label, OR an underline that appears (not grows). Figure: contained zoom scale(1.02-1.05) over 0.8-1.5s guarded by @media(hover:hover) for editorial figures — never a fast 1.1x snap; commerce product cards instead swap to a second angle or a short muted craft video on hover (see element_states.figure). Index row: spotlight-dim — hovered row lights, siblings drop to opacity:.2, metadata cross-fades in. Heading: masked per-line/per-word reveal only, zero font-variation-settings shift on hover. Cursor: over an interactive/hidden-gesture object the custom cursor morphs to a contextual label (HOLD/DRAG/VIEW/EXPLORE) so the gesture is discoverable (see element_states.cursor). Nav: the section's own colour faded in past a threshold, or backdrop-blur over <=5% tint, or a photographic scrim — NEVER a contrasting-accent border-bottom (the Delvaux same-ink <=3% hairline is the ONE sanctioned override, requires a written note).",
+      "evidence": [
+        "Delvaux roll-swap CTAs + same-ink hairline nav; Son Daven invert-to-token CTA + magnetic circular CTA elastic.out(1,0.3) + per-char nav roll siblings-dim to .2; Brunello + Depo Luxe stroke/line CTAs; Depo Luxe index metadata cross-fade + backdrop-blur nav; LV Collectibles click-and-hold + Cartier hidden gestures require a contextual-label cursor to be discoverable."
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile / touch answer",
+      "rule": "Pointer classes go dormant on touch: magnetic cursor -> native, pointer-parallax off (depth comes from scroll), custom cursor scoped to WebGL surface only and its contextual-label affordance replaced by an on-object hint (icon/label). Scroll-driven thread STAYS (décor bed, clip reveals, WebGL ground, infinite scroll all work on touch). Figure hover-zoom -> tap opens the detail; commerce card second-image/video swap -> tap advances to the alternate view. CTAs answer the tap with a 90-160ms flash floor. Swipe-snap-gallery (native scroll-snap, next-cell peek) is the mobile gallery signature; drag surfaces set grab->grabbing. Bespoke soundscape stays behind a gesture-unlocked toggle.",
+      "evidence": [
+        "Son Daven magnetic CTA native on touch; figure zoom @media(hover:hover); Depo Luxe audio behind toggle; swipe-snap-gallery = the scored Awwwards Mobile Excellence line."
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy pass",
+      "rule": "Third-person inherited (founder brands first-person-plural). One elevated tagline OR one long lyrical sentence per surface. CTAs 2-4 words, invitational, never price/urgency. Earn superlatives with a date. Sentence case except product names; tabular numerals for prices/editions/counts. Imitate the SPECIFICITY of the corpus lines (the named place, the count, the refusal), never the wording. Never feature-list, never self-narrate the interaction.",
+      "evidence": [
+        "Delvaux 'The Oldest Fine Leather Goods House in the World'; Son Daven 'investment project' / 'Become part of the legend'; Brunello Kant/Socrates line; Urban Jurgensen '250-year-old Swiss-Danish'."
+      ]
+    }
   ],
-  "one_climax_verdict": "REFINED",
-  "evidence": [
-   "Cartier WAW (SOTD 2025 + SOTD 2026): webgpu.com describes the 2025 pavilion as 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours' — six equal self-contained rooms plus hidden gestures in every scene and a continuous Mooders score. The even, room-by-room structure reads as distributed presence rather than one climactic reveal. (Structural inference — the prior revision quoted webgpu.com as saying the design 'sustains engagement... rather than a single climactic reveal'; that sentence does NOT exist on the page and has been removed.)",
-   "Son Daven (SOTD Jun 5 2026 7.62, Dev 8.09): award and studio confirmed; a reversible scrubbed décor bed + wheel-welded idle marquee are a plausible reimplementation of its lived hero-to-footer thread (interior mechanics not source-verified — see unverified), with the late join-the-legend moment as the one climax fused with the close.",
-   "Delvaux (HM Jun 15 2026, high community craft score ~8.3-8.5, directionally the corpus's highest) ships no always-on idle channel (playbook inference) and lands at Honorable Mention, a LOWER jury tier than Son Daven's Site of the Day. On the jury-prestige axis the livelier site won; stillness read as least alive. (Caveat: community voters rated Delvaux's craft higher than Son Daven's 7.62 — the inversion is real; the continuity signal lives on the award-tier axis, not the raw score. Moderate, caveated evidence — not proof that stillness alone caused the lower tier.)",
-   "Depo Luxe (SOTD + Dev Jul 7 2026, Animations 8.40): the living-WebGL-ground reading is a plausible continuation model (interior mechanics not source-verified this run)."
+  "section_playbook": [
+    {
+      "role": "hero",
+      "forms": [
+        "hero-masthead (media:back)",
+        "in-engine-statement (WebGL, delegated)",
+        "slider-maison (fullscreen visual + scrim)"
+      ],
+      "pairs": [
+        "h1 -> kinetic-reveal / char-assemble (masked line/word up)",
+        "media -> clip-reveal / image-curtain (grayscale-first)",
+        "cta-row -> masked-label-swap (roll) OR fill-invert-cta (solid token) OR line-draw-cta (over photo/3D)",
+        "loader handoff -> counter-loader / svg-path-fill / flip-handoff"
+      ],
+      "intensity": 8,
+      "states": "The hero must be pointer-alive on desktop (a dead hero is a defect): CTA answers hover, media answers pointer where a magnetic/parallax layer exists. Opens the signature thread — the thread is live from frame one, never introduced later.",
+      "evidence": [
+        "Son Daven preloader Flip -> display yPercent 250->0 (recommended defaults); Delvaux SplitText slider hero; Depo Luxe SVG-fill dissolve no hard cut."
+      ]
+    },
+    {
+      "role": "proof",
+      "forms": [
+        "editorial-split (media alternating)",
+        "swipe-snap-gallery / lateral swiper",
+        "product-card (commerce: second-angle / muted-craft-video swap on hover)",
+        "pinned-media-stepthrough (pin + scrub — media held while captions/figures step over it)",
+        "place-tour (MISSING form)"
+      ],
+      "pairs": [
+        "h2 -> char-assemble",
+        "prose -> text-emphasis-fill + semantic-accent",
+        "media -> clip-reveal / figure-hover / image-curtain",
+        "counters -> counter-odometer"
+      ],
+      "intensity": 6,
+      "states": "Editorial figures answer hover with contained scale(1.02-1.05) + companion cue; commerce product cards swap to a second angle or a short muted craft video on hover; the scrubbed décor thread runs under the whole band; prose optionally carries a scrubbed reading wash.",
+      "evidence": [
+        "Delvaux triple-image swiper + emblematic product (multi-page commerce); Son Daven place-tour with walk-time counters. Product-card second-image swap is the prevailing luxury e-com hover convention, not source-verified against a specific corpus card this run; pinned-media-stepthrough is a standard pin+scrub device the vocabulary otherwise lacks."
+      ]
+    },
+    {
+      "role": "index",
+      "forms": [
+        "index-reel-header + index-list",
+        "nav-index over WebGL field"
+      ],
+      "pairs": [
+        "rows -> index-row-hover (spotlight-dim siblings to .2)",
+        "h2 -> char-assemble"
+      ],
+      "intensity": 6,
+      "states": "Hovered row lights with accent rule + surfaced/cross-faded metadata; siblings dim; on touch the row is a plain tap target. This is the primary interaction where a nav index is the page's spine.",
+      "evidence": [
+        "Depo Luxe nav-index spotlight-dim + metadata cross-fade; Son Daven per-row spotlight."
+      ]
+    },
+    {
+      "role": "feature / room",
+      "forms": [
+        "webgl-scene (delegated 3D alcove)",
+        "full-bleed-figure",
+        "editorial-split"
+      ],
+      "pairs": [
+        "ground -> shader-surface / scored 3D drift",
+        "media -> clip-reveal / dolly-zoom",
+        "hidden detail -> press-hold-reveal (MISSING) + contextual-cursor-label (MISSING)"
+      ],
+      "intensity": 7,
+      "states": "In the procession arc each room is a contemplative beat at even-high intensity with hidden gestures live from frame one; scroll drives the camera; a scoped custom cursor over the WebGL surface only, morphing to a contextual label (HOLD/VIEW/DRAG) so the hidden gesture is discoverable.",
+      "evidence": [
+        "Cartier six alcoves dispose/load between rooms, hidden gestures each scene (confirmed via webgpu.com); LV Collectibles click-and-hold + change-universe — both need a contextual-label cursor to surface the gesture."
+      ]
+    },
+    {
+      "role": "close",
+      "forms": [
+        "close-panel",
+        "join-the-legend climax panel"
+      ],
+      "pairs": [
+        "ask -> kinetic-reveal",
+        "channels -> accent-link + masked-label-swap"
+      ],
+      "intensity": 6,
+      "states": "The argument-scroll arc puts its ONE peak here (climax fused with close, intensity 9); other arcs keep the close quiet. One imperative, decisive channel rows, no media slot (the close cannot become a mood reel).",
+      "evidence": [
+        "Son Daven legend-close intensity 9 fuses climax+close."
+      ]
+    },
+    {
+      "role": "footer",
+      "forms": [
+        "tabular-index (newsletter + accordion nav + tagline)",
+        "oversized-wordmark (signed)",
+        "contact-first (departments by city)"
+      ],
+      "pairs": [
+        "wordmark -> kinetic-reveal (quiet)",
+        "links -> accent-link"
+      ],
+      "intensity": 4,
+      "states": "Tabular/contact-first carrying the maison tagline; rest, never a spectacle. Palette may flip once at the very close but stays legible in both states.",
+      "evidence": [
+        "Delvaux newsletter+accordion+'Oldest Fine Leather Goods House'; Son Daven sales departments by city; Depo Luxe signed oversized wordmark."
+      ]
+    }
   ],
-  "recommended_law": "REFINE 'exactly one climax; peaks are capped, vocabulary is not' for corporate-luxury to: 'Peaks stay capped at 0-1 in the luxury register — but a continuous, LOW-amplitude, reversible signature thread must run under every viewport from hero to footer; the hero opens the thread, it never closes it. Going silent after the hero is a defect the jury reads as least-alive (Delvaux: very high community craft score, lowest award tier of the corpus). The luxury lever is the thread's AMPLITUDE (kept quiet, reversible, material — a scored 3D drift, a scrubbed parallax/film bed, a living WebGL displacement ground), never its peak count. Escalating peaks belong to other archetypes; corporate-luxury escalates presence, not volume.' Grounded on the confirmed six-equal-rooms structure of the canonical exemplar (Cartier 2025), LV Collectibles change-universe navigation between distinct environments, and Urban Jürgensen's never-bottoming infinite scroll; the Son Daven / Depo Luxe interior décor-bed mechanics that were extra support are demoted to executable defaults, not load-bearing for the verdict."
- },
- "algorithm": [
-  {
-   "step": 1,
-   "decide": "The one story the scroll tells",
-   "rule": "Pick exactly one of four arcs by brief: procession-through-rooms (object-first launch: watch/jewel/trunk reveal) -> Cartier/LV; argument-scroll-to-joining (investment/venture/heritage with an ask) -> Son Daven; editorial-maison-quiet-scroll (established house, commerce behind Discover) -> Delvaux; heritage-revival-long-scroll (revived/storied brand) -> Urban Jurgensen. The arc fixes the macrostructure and the climax count downstream; never blend two.",
-   "evidence": [
-    "Cartier: six-rooms procession (confirmed via webgpu.com); Son Daven: 15+ section argument to 'Become part of the legend'; Delvaux: slider->swiper->product->footer; Urban Jurgensen: infinite vertical heritage spine (confirmed via awwwards description)."
-   ]
+  "element_states": {
+    "cta": {
+      "hover": "Editorial maison: label roll-swap — two label copies in an overflow:hidden clip both translateY(-100%) together, transform ~.2s cubic-bezier(.65,0,.35,1), NO colour event (Delvaux, Son Daven). Weighty hero CTA: invert to the SOLID section token, geometry extended -4px past the label with a 2px outline in the bg colour, never rgba(token,0.1) (Son Daven). Over photography/3D: line/stroke-draw — draw an SVG ring OR fade a currentColor :before underline at height:.5px opacity 0->1 (Brunello, Depo Luxe). Magnetic circular CTA translates toward the pointer, springs back elastic.out(1,0.3) (Son Daven; amplitudes are recommended defaults, not source-verified).",
+      "tap": "Fill/roll fires on :active as the tap answer, 90-160ms flash floor; magnetic pull is native on touch.",
+      "focus": ":focus-visible mirrors the hover state (roll/fill/draw all reachable by keyboard); never hover-only."
+    },
+    "link": {
+      "hover": "Colour cross-fade ink <-> muted brand tone, color 1s cubic-bezier(.65,0,.35,1), with a 2px bullet dot fading in beside the label (Delvaux); OR a currentColor :before underline that APPEARS opacity 0->1 over .1-.2s rather than growing from a point (Depo Luxe). Never a fast underline slide.",
+      "tap": "Underline/dot in its resting-present state; the tap navigates.",
+      "focus": ":focus-visible shows the same accent + underline; underline is present, not animated, for reduced-motion."
+    },
+    "figure": {
+      "hover": "Editorial figure: contained zoom scale(1.02-1.05) over 0.8-1.5s on the corpus easing, guarded by @media(hover:hover) — never a fast 1.1x snap. Companion cue: caption rise, scrim lift, or grayscale->colour bloom. Delvaux's only zoom in the whole sheet is scale(1.02) on a swatch. Commerce product-card variant: on hover the card swaps to a second angle OR a short muted craft/artisan video (secondary-image-on-hover, the prevailing luxury e-com convention for the corpus's commerce grids — Delvaux, Urban Jürgensen, Brunello; crossfade ~.3-.5s, first frame preloaded, video muted+loop+playsinline, guarded by @media(hover:hover)). The card swap is a convention, not source-verified against a specific corpus card this run.",
+      "tap": "Tap opens the detail / enlarges; commerce card tap advances to the alternate view; the resting figure is fully legible with no hover.",
+      "focus": "focus-within triggers the same cue so keyboard users reach the caption / alternate view."
+    },
+    "index_row": {
+      "hover": "Hovered row lights (accent rule + surfaced metadata); siblings drop to opacity:.2; Depo Luxe additionally cross-fades the hovered row's metadata (client/counter fade out as director/title arrive).",
+      "tap": "Plain tap target — no dim; the row navigates.",
+      "focus": ":focus-visible lights the focused row identically; the dim is decorative and never hides content."
+    },
+    "heading": {
+      "hover": "None — headings do not answer the pointer. Zero font-variation-settings shift on hover across every readable sheet.",
+      "tap": "None.",
+      "focus": "Entrance only: masked per-line (SplitText under overflow:hidden, sliding up, power4.inOut dur ~2 stagger ~.2) or per-word scatter-in (alternating yPercent) — fire-once, never per-letter typewriter."
+    },
+    "cursor": {
+      "hover": "Over an interactive / hidden-gesture object the custom cursor morphs to a contextual label (HOLD / DRAG / VIEW / EXPLORE) plus a shape shift (grow, or an outline ring), making luxury's hidden gestures discoverable. Scoped to the interactive or WebGL surface — the default cursor returns off the surface. This is the affordance that surfaces the confirmed gestures (LV Collectibles click-and-hold, Cartier hidden gestures); listing the gesture without it leaves it undiscoverable.",
+      "tap": "No custom cursor on touch — native pointer. The gesture is surfaced instead by an on-object hint (icon or short label) since there is no hover to reveal it.",
+      "focus": "Keyboard reaches the gesture via focus + Enter/Space; the contextual label has an accessible-name equivalent (aria-label / visually-present hint) so it is not pointer-only."
+    },
+    "nav": {
+      "hover": "Per-char roll-swap on nav labels staggered {each:.025, from:'random'} with siblings spotlight-dimmed to .2 (Son Daven). Surface flips with the section: the section's own colour faded in past a scroll threshold (Son Daven), OR backdrop-filter:blur(40px) over a <=5% tint (Depo Luxe), OR a photographic top-down gradient scrim (Brunello). NEVER a contrasting-accent border-bottom; the Delvaux same-ink border-bottom:1px rgba(29,29,27,.03) ~3% hairline is the ONE sanctioned exception, requires a written override.",
+      "tap": "Hamburger / plate answers the tap; the surface tint is the resting state, no blur required (two of four winners use no blur at all).",
+      "focus": "Nav links keep a clean accessible name (aria-label); :focus-visible shows the roll target string."
+    }
   },
-  {
-   "step": 2,
-   "decide": "The signature thread (fil rouge) carried hero-to-footer",
-   "rule": "Choose ONE continuous material treatment and commit it under every viewport, at one page-wide grade, always moving under the hand: (a) scored 3D drift where scroll=camera (needs a WebGL path); (b) scroll-scrubbed parallax/film décor bed under the mid-page; (c) living WebGL displacement ground under all media; (d) frosted-glass + hand-drawn craft skin. Amplitude stays low and reversible. This decision is binding for every later section — every section either sits on the thread or advances it; no section is allowed to go inert. On a multi-page build, the thread must be re-entered across route changes (see step 4 + gaps: route-transition-overlay).",
-   "evidence": [
-    "Cartier: GSAP + Lenis 'on the same nervous system', continuous Mooders score (confirmed via webgpu.com). Son Daven: reversible décor bed + idle marquee welded to wheel (executable defaults, not source-verified). Depo Luxe: reported virtual-scroll fusing scroll+WebGL into one clock (not source-verified). Brunello: frosted glass + hand-drawn recede so product stays foreground (makemepulse case study)."
-   ]
-  },
-  {
-   "step": 3,
-   "decide": "Macrostructure + climax placement",
-   "rule": "Map the arc to sections and place AT MOST one peak: procession = even-high intensity, no peak (each room is its own contemplative beat); argument-scroll = one LATE peak fused with the close (become-part-of-the-legend); editorial-maison = ZERO peak, even restrained intensity; heritage-revival = late 3D-object interaction as the only spike. Never a fold 'Shop now' CTA; never a product-card grid above the fold; the footer is tabular/contact-first, never a spectacle.",
-   "evidence": [
-    "Son Daven: late join-the-legend fuses climax and close. Delvaux: no climax spike, restraint is the register. Cartier: no single climactic reveal (inference from six equal rooms)."
-   ]
-  },
-  {
-   "step": 4,
-   "decide": "Momentum map — what fills the gaps between peaks (and across routes)",
-   "rule": "Every viewport between hero and footer must carry the thread from step 2 PLUS a fire-once reveal on each content block. Minimum live channels at this tier = the thread (always-on, reversible) + fire-once block reveals + one hover/index channel; add a wheel-welded idle only where the register allows (skip it for the stillest editorial-maison, but know that costs award-tier). Reveals fire once (ScrollTrigger once:true); the décor thread re-fires every pass because it is décor over reading, not a reveal. Prose that must stay alive uses a scrubbed reading wash (chars from opacity:.1, top75%->bottom50%), NEVER a hover. On multi-page maisons, a route change plays a curtain/overlay wipe + loader re-entry that carries the thread across the navigation (see gaps: route-transition-overlay) — the single-scroll continuity model does not survive a page jump on its own.",
-   "evidence": [
-    "Son Daven (award-verified): fire-once reveals + reversible décor bed + idle marquee; scrubbed reading wash on [data-highlight-text] (interior mechanics are executable defaults, not source-verified). Delvaux: no idle channel (inference) -> HM. Wheel smoothing is common across the corpus (Cartier GSAP+Lenis confirmed via webgpu.com; others plausibly via GSAP ScrollSmoother, untagged) — the prior revision's 'universal 5/5 (Lenis / ScrollSmoother / VirtualScroll)' was over-asserted and is dropped."
-   ]
-  },
-  {
-   "step": 5,
-   "decide": "Per-section form + interaction pairing",
-   "rule": "Pair the corpus reveal primitive to each section, changing axis/geometry per element but never the easing or primitive without a brief reason. Recommended easing default = easeOutQuart cubic-bezier(0.25,1,0.5,1) (a page-wide consistency default; the prior revision's 'byte-identical across Delvaux CSS var + GSAP CustomEase and Son Daven' was NOT re-verified from shipped CSS this run — see unverified); cubic-bezier(0.16,1,0.3,1) easeOutExpo is the snappier alternate. Reveal primitive = reveal-from-behind-a-clip: masked translate for type, clip-path:inset() for media/overlays. Media reveals grayscale-first then colour floods late (image-curtain) when imagery is graded/archival.",
-   "evidence": [
-    "Delvaux: figure clip-path:inset() ~1s cubic-bezier(.25,1,.5,1); serif SplitText up behind mask dur ~2 stagger ~.2 power4.inOut (carried from prior source reads, not re-verified). Son Daven: display yPercent 250->0 ~1.2s easeOutQuart (recommended default, not source-verified)."
-   ]
-  },
-  {
-   "step": 6,
-   "decide": "Per-element interaction states (each element class gets its OWN geometry)",
-   "rule": "Never repeat one uniform hover across classes. CTA: roll-swap (two label copies, both translateY(-100%), no colour event) for editorial maisons, OR invert-to-solid-section-token (never rgba tint), OR line/stroke-draw (SVG ring or currentColor :before underline height .5px opacity 0->1) over photographic/3D surfaces. Link: colour cross-fade ink<->muted brand tone 1s + a 2px bullet dot fading in beside the label, OR an underline that appears (not grows). Figure: contained zoom scale(1.02-1.05) over 0.8-1.5s guarded by @media(hover:hover) for editorial figures — never a fast 1.1x snap; commerce product cards instead swap to a second angle or a short muted craft video on hover (see element_states.figure). Index row: spotlight-dim — hovered row lights, siblings drop to opacity:.2, metadata cross-fades in. Heading: masked per-line/per-word reveal only, zero font-variation-settings shift on hover. Cursor: over an interactive/hidden-gesture object the custom cursor morphs to a contextual label (HOLD/DRAG/VIEW/EXPLORE) so the gesture is discoverable (see element_states.cursor). Nav: the section's own colour faded in past a threshold, or backdrop-blur over <=5% tint, or a photographic scrim — NEVER a contrasting-accent border-bottom (the Delvaux same-ink <=3% hairline is the ONE sanctioned override, requires a written note).",
-   "evidence": [
-    "Delvaux roll-swap CTAs + same-ink hairline nav; Son Daven invert-to-token CTA + magnetic circular CTA elastic.out(1,0.3) + per-char nav roll siblings-dim to .2; Brunello + Depo Luxe stroke/line CTAs; Depo Luxe index metadata cross-fade + backdrop-blur nav; LV Collectibles click-and-hold + Cartier hidden gestures require a contextual-label cursor to be discoverable."
-   ]
-  },
-  {
-   "step": 7,
-   "decide": "Mobile / touch answer",
-   "rule": "Pointer classes go dormant on touch: magnetic cursor -> native, pointer-parallax off (depth comes from scroll), custom cursor scoped to WebGL surface only and its contextual-label affordance replaced by an on-object hint (icon/label). Scroll-driven thread STAYS (décor bed, clip reveals, WebGL ground, infinite scroll all work on touch). Figure hover-zoom -> tap opens the detail; commerce card second-image/video swap -> tap advances to the alternate view. CTAs answer the tap with a 90-160ms flash floor. Swipe-snap-gallery (native scroll-snap, next-cell peek) is the mobile gallery signature; drag surfaces set grab->grabbing. Bespoke soundscape stays behind a gesture-unlocked toggle.",
-   "evidence": [
-    "Son Daven magnetic CTA native on touch; figure zoom @media(hover:hover); Depo Luxe audio behind toggle; swipe-snap-gallery = the scored Awwwards Mobile Excellence line."
-   ]
-  },
-  {
-   "step": 8,
-   "decide": "Copy pass",
-   "rule": "Third-person inherited (founder brands first-person-plural). One elevated tagline OR one long lyrical sentence per surface. CTAs 2-4 words, invitational, never price/urgency. Earn superlatives with a date. Sentence case except product names; tabular numerals for prices/editions/counts. Imitate the SPECIFICITY of the corpus lines (the named place, the count, the refusal), never the wording. Never feature-list, never self-narrate the interaction.",
-   "evidence": [
-    "Delvaux 'The Oldest Fine Leather Goods House in the World'; Son Daven 'investment project' / 'Become part of the legend'; Brunello Kant/Socrates line; Urban Jurgensen '250-year-old Swiss-Danish'."
-   ]
-  }
- ],
- "section_playbook": [
-  {
-   "role": "hero",
-   "forms": [
-    "hero-masthead (media:back)",
-    "in-engine-statement (WebGL, delegated)",
-    "slider-maison (fullscreen visual + scrim)"
-   ],
-   "pairs": [
-    "h1 -> kinetic-reveal / char-assemble (masked line/word up)",
-    "media -> clip-reveal / image-curtain (grayscale-first)",
-    "cta-row -> masked-label-swap (roll) OR fill-invert-cta (solid token) OR line-draw-cta (over photo/3D)",
-    "loader handoff -> counter-loader / svg-path-fill / flip-handoff"
-   ],
-   "intensity": 8,
-   "states": "The hero must be pointer-alive on desktop (a dead hero is a defect): CTA answers hover, media answers pointer where a magnetic/parallax layer exists. Opens the signature thread — the thread is live from frame one, never introduced later.",
-   "evidence": [
-    "Son Daven preloader Flip -> display yPercent 250->0 (recommended defaults); Delvaux SplitText slider hero; Depo Luxe SVG-fill dissolve no hard cut."
-   ]
-  },
-  {
-   "role": "proof",
-   "forms": [
-    "editorial-split (media alternating)",
-    "swipe-snap-gallery / lateral swiper",
-    "product-card (commerce: second-angle / muted-craft-video swap on hover)",
-    "pinned-media-stepthrough (pin + scrub — media held while captions/figures step over it)",
-    "place-tour (MISSING form)"
-   ],
-   "pairs": [
-    "h2 -> char-assemble",
-    "prose -> text-emphasis-fill + semantic-accent",
-    "media -> clip-reveal / figure-hover / image-curtain",
-    "counters -> counter-odometer"
-   ],
-   "intensity": 6,
-   "states": "Editorial figures answer hover with contained scale(1.02-1.05) + companion cue; commerce product cards swap to a second angle or a short muted craft video on hover; the scrubbed décor thread runs under the whole band; prose optionally carries a scrubbed reading wash.",
-   "evidence": [
-    "Delvaux triple-image swiper + emblematic product (multi-page commerce); Son Daven place-tour with walk-time counters. Product-card second-image swap is the prevailing luxury e-com hover convention, not source-verified against a specific corpus card this run; pinned-media-stepthrough is a standard pin+scrub device the vocabulary otherwise lacks."
-   ]
-  },
-  {
-   "role": "index",
-   "forms": [
-    "index-reel-header + index-list",
-    "nav-index over WebGL field"
-   ],
-   "pairs": [
-    "rows -> index-row-hover (spotlight-dim siblings to .2)",
-    "h2 -> char-assemble"
-   ],
-   "intensity": 6,
-   "states": "Hovered row lights with accent rule + surfaced/cross-faded metadata; siblings dim; on touch the row is a plain tap target. This is the primary interaction where a nav index is the page's spine.",
-   "evidence": [
-    "Depo Luxe nav-index spotlight-dim + metadata cross-fade; Son Daven per-row spotlight."
-   ]
-  },
-  {
-   "role": "feature / room",
-   "forms": [
-    "webgl-scene (delegated 3D alcove)",
-    "full-bleed-figure",
-    "editorial-split"
-   ],
-   "pairs": [
-    "ground -> shader-surface / scored 3D drift",
-    "media -> clip-reveal / dolly-zoom",
-    "hidden detail -> press-hold-reveal (MISSING) + contextual-cursor-label (MISSING)"
-   ],
-   "intensity": 7,
-   "states": "In the procession arc each room is a contemplative beat at even-high intensity with hidden gestures live from frame one; scroll drives the camera; a scoped custom cursor over the WebGL surface only, morphing to a contextual label (HOLD/VIEW/DRAG) so the hidden gesture is discoverable.",
-   "evidence": [
-    "Cartier six alcoves dispose/load between rooms, hidden gestures each scene (confirmed via webgpu.com); LV Collectibles click-and-hold + change-universe — both need a contextual-label cursor to surface the gesture."
-   ]
-  },
-  {
-   "role": "close",
-   "forms": [
-    "close-panel",
-    "join-the-legend climax panel"
-   ],
-   "pairs": [
-    "ask -> kinetic-reveal",
-    "channels -> accent-link + masked-label-swap"
-   ],
-   "intensity": 6,
-   "states": "The argument-scroll arc puts its ONE peak here (climax fused with close, intensity 9); other arcs keep the close quiet. One imperative, decisive channel rows, no media slot (the close cannot become a mood reel).",
-   "evidence": [
-    "Son Daven legend-close intensity 9 fuses climax+close."
-   ]
-  },
-  {
-   "role": "footer",
-   "forms": [
-    "tabular-index (newsletter + accordion nav + tagline)",
-    "oversized-wordmark (signed)",
-    "contact-first (departments by city)"
-   ],
-   "pairs": [
-    "wordmark -> kinetic-reveal (quiet)",
-    "links -> accent-link"
-   ],
-   "intensity": 4,
-   "states": "Tabular/contact-first carrying the maison tagline; rest, never a spectacle. Palette may flip once at the very close but stays legible in both states.",
-   "evidence": [
-    "Delvaux newsletter+accordion+'Oldest Fine Leather Goods House'; Son Daven sales departments by city; Depo Luxe signed oversized wordmark."
-   ]
-  }
- ],
- "element_states": {
-  "cta": {
-   "hover": "Editorial maison: label roll-swap — two label copies in an overflow:hidden clip both translateY(-100%) together, transform ~.2s cubic-bezier(.65,0,.35,1), NO colour event (Delvaux, Son Daven). Weighty hero CTA: invert to the SOLID section token, geometry extended -4px past the label with a 2px outline in the bg colour, never rgba(token,0.1) (Son Daven). Over photography/3D: line/stroke-draw — draw an SVG ring OR fade a currentColor :before underline at height:.5px opacity 0->1 (Brunello, Depo Luxe). Magnetic circular CTA translates toward the pointer, springs back elastic.out(1,0.3) (Son Daven; amplitudes are recommended defaults, not source-verified).",
-   "tap": "Fill/roll fires on :active as the tap answer, 90-160ms flash floor; magnetic pull is native on touch.",
-   "focus": ":focus-visible mirrors the hover state (roll/fill/draw all reachable by keyboard); never hover-only."
-  },
-  "link": {
-   "hover": "Colour cross-fade ink <-> muted brand tone, color 1s cubic-bezier(.65,0,.35,1), with a 2px bullet dot fading in beside the label (Delvaux); OR a currentColor :before underline that APPEARS opacity 0->1 over .1-.2s rather than growing from a point (Depo Luxe). Never a fast underline slide.",
-   "tap": "Underline/dot in its resting-present state; the tap navigates.",
-   "focus": ":focus-visible shows the same accent + underline; underline is present, not animated, for reduced-motion."
-  },
-  "figure": {
-   "hover": "Editorial figure: contained zoom scale(1.02-1.05) over 0.8-1.5s on the corpus easing, guarded by @media(hover:hover) — never a fast 1.1x snap. Companion cue: caption rise, scrim lift, or grayscale->colour bloom. Delvaux's only zoom in the whole sheet is scale(1.02) on a swatch. Commerce product-card variant: on hover the card swaps to a second angle OR a short muted craft/artisan video (secondary-image-on-hover, the prevailing luxury e-com convention for the corpus's commerce grids — Delvaux, Urban Jürgensen, Brunello; crossfade ~.3-.5s, first frame preloaded, video muted+loop+playsinline, guarded by @media(hover:hover)). The card swap is a convention, not source-verified against a specific corpus card this run.",
-   "tap": "Tap opens the detail / enlarges; commerce card tap advances to the alternate view; the resting figure is fully legible with no hover.",
-   "focus": "focus-within triggers the same cue so keyboard users reach the caption / alternate view."
-  },
-  "index_row": {
-   "hover": "Hovered row lights (accent rule + surfaced metadata); siblings drop to opacity:.2; Depo Luxe additionally cross-fades the hovered row's metadata (client/counter fade out as director/title arrive).",
-   "tap": "Plain tap target — no dim; the row navigates.",
-   "focus": ":focus-visible lights the focused row identically; the dim is decorative and never hides content."
-  },
-  "heading": {
-   "hover": "None — headings do not answer the pointer. Zero font-variation-settings shift on hover across every readable sheet.",
-   "tap": "None.",
-   "focus": "Entrance only: masked per-line (SplitText under overflow:hidden, sliding up, power4.inOut dur ~2 stagger ~.2) or per-word scatter-in (alternating yPercent) — fire-once, never per-letter typewriter."
-  },
-  "cursor": {
-   "hover": "Over an interactive / hidden-gesture object the custom cursor morphs to a contextual label (HOLD / DRAG / VIEW / EXPLORE) plus a shape shift (grow, or an outline ring), making luxury's hidden gestures discoverable. Scoped to the interactive or WebGL surface — the default cursor returns off the surface. This is the affordance that surfaces the confirmed gestures (LV Collectibles click-and-hold, Cartier hidden gestures); listing the gesture without it leaves it undiscoverable.",
-   "tap": "No custom cursor on touch — native pointer. The gesture is surfaced instead by an on-object hint (icon or short label) since there is no hover to reveal it.",
-   "focus": "Keyboard reaches the gesture via focus + Enter/Space; the contextual label has an accessible-name equivalent (aria-label / visually-present hint) so it is not pointer-only."
-  },
-  "nav": {
-   "hover": "Per-char roll-swap on nav labels staggered {each:.025, from:'random'} with siblings spotlight-dimmed to .2 (Son Daven). Surface flips with the section: the section's own colour faded in past a scroll threshold (Son Daven), OR backdrop-filter:blur(40px) over a <=5% tint (Depo Luxe), OR a photographic top-down gradient scrim (Brunello). NEVER a contrasting-accent border-bottom; the Delvaux same-ink border-bottom:1px rgba(29,29,27,.03) ~3% hairline is the ONE sanctioned exception, requires a written override.",
-   "tap": "Hamburger / plate answers the tap; the surface tint is the resting state, no blur required (two of four winners use no blur at all).",
-   "focus": "Nav links keep a clean accessible name (aria-label); :focus-visible shows the roll target string."
-  }
- },
- "mobile_answer": "The scroll-driven signature thread is the touch strategy — it is what survives the pointer going dormant. On touch: magnetic cursor -> native, pointer-parallax OFF (depth comes from scroll), any custom cursor scoped to a WebGL surface only and its contextual-label affordance replaced by an on-object hint. The décor bed, clip/curtain reveals, WebGL displacement ground, infinite scroll and scored 3D drift ALL work on touch because they are scroll-driven, so the continuation thread is never lost on mobile. Figure hover-zoom degrades to tap-opens-detail; commerce card second-image/video swap degrades to tap-advances-view; CTAs answer :active with a 90-160ms flash floor; index rows become plain tap targets (no sibling dim). swipe-snap-gallery (native OS-momentum scroll-snap, next-cell peek, enhancer-fed dots) is the mobile gallery signature and the scored Awwwards Mobile Excellence line; drag surfaces set grab->grabbing. Bespoke soundscape stays behind a gesture-unlocked toggle. On multi-page maisons the route-transition overlay still fires on touch (it is scroll/time-driven, not pointer-driven) so the thread survives navigation. Evidence: Son Daven magnetic CTA native on touch + figure zoom under @media(hover:hover); Depo Luxe audio toggle; Cartier/Depo Luxe scroll-camera and WebGL ground are inherently touch-scrollable.",
- "gaps": [
-  {
-   "component": "line-draw-cta",
-   "seen_in": [
-    "Brunello Cucinelli AI (SOTD Jul 9 2026)",
-    "Depo Luxe (SOTD Jul 7 2026)",
-    "Louis Vuitton Collectibles (SOTD Feb 2024)"
-   ],
-   "mechanic": "The CTA move for photographic / 3D / frosted surfaces where a fill or roll would be too heavy: on hover/focus, either stroke-draw an SVG ring around a circular CTA (stroke-dashoffset animating to 0 over ~.6-.8s on the corpus easing) OR fade in a currentColor :before underline at height:.5px, opacity 0->1 over .1-.2s. No fill flood, no colour flip of the label. Reduced-motion: the underline/ring is present at rest. The manifest has fill-invert-cta (flood) and masked-label-swap (roll) but no drawn-line option — and corporate-luxury lives on photography/3D where those two read as too loud.",
-   "priority": 1
-  },
-  {
-   "component": "scrub-parallax-bed",
-   "seen_in": [
-    "Son Daven (SOTD Jun 2026, award-verified; interior numbers not source-verified)",
-    "Urban Jurgensen (SOTD Oct 2025)"
-   ],
-   "mechanic": "The executable form of the continuation law: a reversible, scroll-scrubbed multi-layer parallax/film bed that runs UNDER the whole mid-page while fire-once reveals play over it. 3-5 [data-depth] layers translate at differential rates ease:none tied to ScrollTrigger scrub, optionally a frame-sequence film at scrub:.25 and a WebGL blackPoint/whitePoint grade; compositor-only (transform/opacity), pauses off-screen. Distinct from pointer-parallax (pointer-driven, fine-pointer only, dormant on touch) — this is SCROLL-driven, always-on, and works on touch. This is THE mechanic the manifest cannot execute for the mandatory low-amplitude continuation thread.",
-   "priority": 1
-  },
-  {
-   "component": "route-transition-overlay",
-   "seen_in": [
-    "Delvaux (HM Jun 2026, multi-page commerce; 51North case study: 'dynamic transitions... unify product categories')",
-    "Urban Jürgensen (SOTD Oct 2025, PDP + product pages)",
-    "Brunello Cucinelli AI (SOTD Jul 2026)"
-   ],
-   "mechanic": "The mechanic that keeps the signature thread alive across a page navigation on multi-page maisons — the continuity law the playbook otherwise models only as one continuous scroll. On a route change, intercept the default navigation (Barba.js / Taxi.js-style: preventDefault, animate out, fetch + swap the container, animate in), playing a full-bleed curtain/overlay wipe (clip-path:inset() sweep or a transform panel that covers then uncovers) with a brief loader re-entry that re-establishes the thread (décor bed / WebGL ground / scored drift) on the incoming page. Compositor-only, ~.6-1s. Reduced-motion: instant container swap with a short cross-fade. Without it the continuation thread dies at every navigation on the 3 of 8 corpus sites that are multi-page commerce.",
-   "priority": 1
-  },
-  {
-   "component": "scored-scene-procession (+ a corporate-luxury cinematic-pavilion recipe)",
-   "seen_in": [
-    "Cartier WAW 2025 (SOTD Aug 2025)",
-    "Cartier WAW 2026 (SOTD May 2026)",
-    "Louis Vuitton Collectibles (SOTD Feb 2024)"
-   ],
-   "mechanic": "Scroll-scrubbed camera procession through discrete self-contained 3D scenes/alcoves (one per hero object), scenes dispose/load as you cross between them, GSAP + Lenis on one clock, a continuous scored soundscape as a narrative layer, and hidden gesture reveals live in every scene. The canonical exemplar of the whole archetype has NO buildable recipe in recipes.json (engine-world-depoluxe is a folio, not a pavilion) and no component for the multi-scene camera glide with per-scene hotspots. Delegated to webgl-scene today; needs a named corporate-luxury cinematic-pavilion recipe + a scene-procession spec so the pattern is composable, not just possible. (2025 six-alcove structure + hidden gestures + score confirmed via webgpu.com; per-scene transition timings not exposed.)",
-   "priority": 2
-  },
-  {
-   "component": "contextual-cursor-label",
-   "seen_in": [
-    "Louis Vuitton Collectibles (SOTD Feb 2024, click-and-hold)",
-    "Cartier WAW 2025 (SOTD Aug 2025, hidden gestures)"
-   ],
-   "mechanic": "A custom cursor that morphs to a contextual label (HOLD / DRAG / VIEW / EXPLORE) plus a shape shift (grow / outline ring) when over an interactive object, making luxury's 'hidden gestures that reward curiosity' discoverable. Scoped to the interactive / WebGL surface, default off-surface; dormant on touch (native pointer, gesture surfaced by an on-object hint instead); keyboard reaches the gesture via focus + Enter/Space with an accessible-name equivalent. The playbook scopes the cursor to the WebGL surface but never encodes the label-morph affordance — so the two exemplars' confirmed gestures are undiscoverable. This is the affordance the manifest is missing, distinct from a plain magnetic cursor.",
-   "priority": 2
-  },
-  {
-   "component": "press-hold-reveal",
-   "seen_in": [
-    "Louis Vuitton Collectibles (SOTD Feb 2024, Animations 9.4)"
-   ],
-   "mechanic": "A luxury gesture primitive: press-and-hold on an object charges a progressive reveal (open the trunk / rotate into detail / dissolve to the next universe), with a radial or linear progress cue that fills over the hold (~600-900ms) and completes or reverts on release. Pointer + touch (pointerdown/pointerup, cancel on leave). Keyboard equivalent: Enter/Space hold or a single activate. No manifest component covers a hold-to-charge gesture; scrub-film is scroll/pointer-mapped, not press-charged.",
-   "priority": 3
-  },
-  {
-   "component": "infinite-scroll-loop",
-   "seen_in": [
-    "Urban Jurgensen (SOTD Oct 2025)"
-   ],
-   "mechanic": "Seamless infinite vertical storytelling spine and/or infinite horizontal product carousel that never bottoms out — content recycles so the scroll (and therefore the signature thread) never rests. Momentum-preserving, index-mapped, respects reduced-motion by falling back to a finite track. swipe-snap-gallery is finite native-snap; there is no looping/recycling track in the manifest.",
-   "priority": 3
-  },
-  {
-   "component": "pinned-media-stepthrough",
-   "seen_in": [
-    "general luxury award canon — not corpus-source-verified against a specific winner this run"
-   ],
-   "mechanic": "The 'hold the object still, advance the story' beat the momentum vocabulary lacks: a media panel pins (ScrollTrigger pin + scrub) for a bounded scroll distance while captions/figures step over it, then releases. Compositor-only, reduced-motion falls back to a static stacked layout. The section_playbook acknowledges only Urban Jürgensen's infinite-horizontal for pinned/horizontal motion; a straight pin+scrub step-through is a standard luxury device the manifest cannot compose. Lighter than the priority-1 gaps and not tied to a source-verified corpus winner.",
-   "priority": 3
-  }
- ],
- "unverified": [
-  "THESIS provenance: the prior revision quoted webgpu.com as stating the design 'sustains engagement across all six alcoves through continuous environmental storytelling rather than a single climactic reveal'. That sentence does NOT appear on the page — webgpu.com's actual text is 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours', and never uses 'climax' or 'continuous environmental storytelling'. The fabricated quote is removed; the one_climax_verdict now rests on the six-equal-rooms structure as an inference, plus LV change-universe and Urban Jürgensen infinite scroll.",
-  "Son Daven interior numeric mechanics (~5 parallax layers ease:none, frame-sequence film scrub:.25, marquee timeScale(1 + .01*velocity), display yPercent 250->0 ~1.2s easeOutQuart, magnetic CTA elastic.out(1,0.3), reading wash chars from opacity:.1) are executable defaults / a plausible reimplementation, NOT source-verified — the awwwards page exposes none of them and no public teardown was found this run. The prior revision stamped them 'winner-verified'; that stamp is dropped. Lenis is not tagged for Son Daven (tech = WebGL + GSAP + Webflow).",
-  "Depo Luxe interior mechanics — 'WebGL-displaced footage' and a 'hand-rolled VirtualScroll fusing scroll + render on one clock' — appear in NO award description or teardown found this run; asserted, not sourced. Award facts (SOTD + Dev Jul 7 2026 7.62, Animations 8.40, Cuchillo, 11ty) are confirmed.",
-  "Corpus easing 'byte-identical across Delvaux CSS var + GSAP CustomEase and Son Daven' and 'wheel smoothing universal 5/5 (Lenis / ScrollSmoother / VirtualScroll)' were asserted without shipped-CSS access; both are demoted to recommended executable defaults. Only Cartier's GSAP + Lenis smoother is confirmed (webgpu.com); other corpus smoothers are untagged.",
-  "Delvaux exact community score and sub-scores are NOT reliably re-derived — three differing readings this run (prior revision 8.35 D8.5/U8.6/C7.9/Ct8.4; independent refuter 8.26 D8.5/U8.5/C7.8/Ct8.3; this-run fetch overall ~8.50 with D9.00/U8.86/C7.86/Ct8.29). Only 'high, directionally the corpus's highest craft' is robust. The HM-vs-Son-Daven-SOTD continuity inference rests on award TIER (jury) with a real community-score inversion — treated as moderate, caveated evidence, not proof that stillness alone caused the lower tier.",
-  "Cartier WAW 2026 interior structure was not exposed this run — the awwwards description is only 'an immersive journey through refined worlds, highlighting iconic timepieces'; the 'six alcoves / rooms in a very expensive museum' description belongs to the 2025 pavilion. The prior revision also miscredited 2026's Developer Award (7.85) as a CSSDA — corrected.",
-  "Cartier WAW exact easing curves, camera-move parameters, and per-scene transition timings — case studies confirm scroll-driven camera + GSAP/Lenis + dispose/load between alcoves and continuous scoring, but no numeric easing/duration values were exposed during this run (mechanic described qualitatively, not pixel-exact).",
-  "Delvaux hero SplitText numbers (dur ~2, stagger ~.2, power4.inOut) and figure clip ~1s cubic-bezier(.25,1,.5,1) are carried from the skill's prior source-level reads, not re-verified from shipped CSS during this run.",
-  "Brunello Cucinelli AI specific hover/scroll amplitudes — the makemepulse case study confirms frosted glass + soft blur + hand-drawn sketch detail and a pageless intent-led flow, but per-element interaction amplitudes were not exposed (agentic/pageless UI resists static section mapping). The awwwards page itself does not mention frosted glass or hand-drawn sketch — those come from the makemepulse case study.",
-  "Commerce product-card second-image/muted-video hover swap and the pinned-media step-through are luxury/award conventions integrated as executable defaults; neither was source-verified against a specific corpus winner this run. The route-transition-overlay is evidenced as a hole against 3 multi-page corpus sites (Delvaux, Urban Jürgensen, Brunello) but the exact per-site transition mechanic (Barba/Taxi vs bespoke) was not exposed.",
-  "Whether the scored-scene-procession's hidden gestures are hover-, click-, or hold-triggered per scene on Cartier — LV Collectibles confirms click-and-hold; Cartier is described only as 'hidden gestures' — not disambiguated this run."
- ],
- "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent."
+  "mobile_answer": "The scroll-driven signature thread is the touch strategy — it is what survives the pointer going dormant. On touch: magnetic cursor -> native, pointer-parallax OFF (depth comes from scroll), any custom cursor scoped to a WebGL surface only and its contextual-label affordance replaced by an on-object hint. The décor bed, clip/curtain reveals, WebGL displacement ground, infinite scroll and scored 3D drift ALL work on touch because they are scroll-driven, so the continuation thread is never lost on mobile. Figure hover-zoom degrades to tap-opens-detail; commerce card second-image/video swap degrades to tap-advances-view; CTAs answer :active with a 90-160ms flash floor; index rows become plain tap targets (no sibling dim). swipe-snap-gallery (native OS-momentum scroll-snap, next-cell peek, enhancer-fed dots) is the mobile gallery signature and the scored Awwwards Mobile Excellence line; drag surfaces set grab->grabbing. Bespoke soundscape stays behind a gesture-unlocked toggle. On multi-page maisons the route-transition overlay still fires on touch (it is scroll/time-driven, not pointer-driven) so the thread survives navigation. Evidence: Son Daven magnetic CTA native on touch + figure zoom under @media(hover:hover); Depo Luxe audio toggle; Cartier/Depo Luxe scroll-camera and WebGL ground are inherently touch-scrollable.",
+  "gaps": [
+    {
+      "component": "line-draw-cta",
+      "seen_in": [
+        "Brunello Cucinelli AI (SOTD Jul 9 2026)",
+        "Depo Luxe (SOTD Jul 7 2026)",
+        "Louis Vuitton Collectibles (SOTD Feb 2024)"
+      ],
+      "mechanic": "The CTA move for photographic / 3D / frosted surfaces where a fill or roll would be too heavy: on hover/focus, either stroke-draw an SVG ring around a circular CTA (stroke-dashoffset animating to 0 over ~.6-.8s on the corpus easing) OR fade in a currentColor :before underline at height:.5px, opacity 0->1 over .1-.2s. No fill flood, no colour flip of the label. Reduced-motion: the underline/ring is present at rest. The manifest has fill-invert-cta (flood) and masked-label-swap (roll) but no drawn-line option — and corporate-luxury lives on photography/3D where those two read as too loud.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "scrub-parallax-bed",
+      "seen_in": [
+        "Son Daven (SOTD Jun 2026, award-verified; interior numbers not source-verified)",
+        "Urban Jurgensen (SOTD Oct 2025)"
+      ],
+      "mechanic": "The executable form of the continuation law: a reversible, scroll-scrubbed multi-layer parallax/film bed that runs UNDER the whole mid-page while fire-once reveals play over it. 3-5 [data-depth] layers translate at differential rates ease:none tied to ScrollTrigger scrub, optionally a frame-sequence film at scrub:.25 and a WebGL blackPoint/whitePoint grade; compositor-only (transform/opacity), pauses off-screen. Distinct from pointer-parallax (pointer-driven, fine-pointer only, dormant on touch) — this is SCROLL-driven, always-on, and works on touch. This is THE mechanic the manifest cannot execute for the mandatory low-amplitude continuation thread.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "route-transition-overlay",
+      "seen_in": [
+        "Delvaux (HM Jun 2026, multi-page commerce; 51North case study: 'dynamic transitions... unify product categories')",
+        "Urban Jürgensen (SOTD Oct 2025, PDP + product pages)",
+        "Brunello Cucinelli AI (SOTD Jul 2026)"
+      ],
+      "mechanic": "The mechanic that keeps the signature thread alive across a page navigation on multi-page maisons — the continuity law the playbook otherwise models only as one continuous scroll. On a route change, intercept the default navigation (Barba.js / Taxi.js-style: preventDefault, animate out, fetch + swap the container, animate in), playing a full-bleed curtain/overlay wipe (clip-path:inset() sweep or a transform panel that covers then uncovers) with a brief loader re-entry that re-establishes the thread (décor bed / WebGL ground / scored drift) on the incoming page. Compositor-only, ~.6-1s. Reduced-motion: instant container swap with a short cross-fade. Without it the continuation thread dies at every navigation on the 3 of 8 corpus sites that are multi-page commerce.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "scored-scene-procession (+ a corporate-luxury cinematic-pavilion recipe)",
+      "seen_in": [
+        "Cartier WAW 2025 (SOTD Aug 2025)",
+        "Cartier WAW 2026 (SOTD May 2026)",
+        "Louis Vuitton Collectibles (SOTD Feb 2024)"
+      ],
+      "mechanic": "Scroll-scrubbed camera procession through discrete self-contained 3D scenes/alcoves (one per hero object), scenes dispose/load as you cross between them, GSAP + Lenis on one clock, a continuous scored soundscape as a narrative layer, and hidden gesture reveals live in every scene. The canonical exemplar of the whole archetype has NO buildable recipe in recipes.json (engine-world-depoluxe is a folio, not a pavilion) and no component for the multi-scene camera glide with per-scene hotspots. Delegated to webgl-scene today; needs a named corporate-luxury cinematic-pavilion recipe + a scene-procession spec so the pattern is composable, not just possible. (2025 six-alcove structure + hidden gestures + score confirmed via webgpu.com; per-scene transition timings not exposed.)",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "contextual-cursor-label",
+      "seen_in": [
+        "Louis Vuitton Collectibles (SOTD Feb 2024, click-and-hold)",
+        "Cartier WAW 2025 (SOTD Aug 2025, hidden gestures)"
+      ],
+      "mechanic": "A custom cursor that morphs to a contextual label (HOLD / DRAG / VIEW / EXPLORE) plus a shape shift (grow / outline ring) when over an interactive object, making luxury's 'hidden gestures that reward curiosity' discoverable. Scoped to the interactive / WebGL surface, default off-surface; dormant on touch (native pointer, gesture surfaced by an on-object hint instead); keyboard reaches the gesture via focus + Enter/Space with an accessible-name equivalent. The playbook scopes the cursor to the WebGL surface but never encodes the label-morph affordance — so the two exemplars' confirmed gestures are undiscoverable. This is the affordance the manifest is missing, distinct from a plain magnetic cursor.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "press-hold-reveal",
+      "seen_in": [
+        "Louis Vuitton Collectibles (SOTD Feb 2024, Animations 9.4)"
+      ],
+      "mechanic": "A luxury gesture primitive: press-and-hold on an object charges a progressive reveal (open the trunk / rotate into detail / dissolve to the next universe), with a radial or linear progress cue that fills over the hold (~600-900ms) and completes or reverts on release. Pointer + touch (pointerdown/pointerup, cancel on leave). Keyboard equivalent: Enter/Space hold or a single activate. No manifest component covers a hold-to-charge gesture; scrub-film is scroll/pointer-mapped, not press-charged.",
+      "priority": 3,
+      "status": "merged"
+    },
+    {
+      "component": "infinite-scroll-loop",
+      "seen_in": [
+        "Urban Jurgensen (SOTD Oct 2025)"
+      ],
+      "mechanic": "Seamless infinite vertical storytelling spine and/or infinite horizontal product carousel that never bottoms out — content recycles so the scroll (and therefore the signature thread) never rests. Momentum-preserving, index-mapped, respects reduced-motion by falling back to a finite track. swipe-snap-gallery is finite native-snap; there is no looping/recycling track in the manifest.",
+      "priority": 3,
+      "status": "merged"
+    },
+    {
+      "component": "pinned-media-stepthrough",
+      "seen_in": [
+        "general luxury award canon — not corpus-source-verified against a specific winner this run"
+      ],
+      "mechanic": "The 'hold the object still, advance the story' beat the momentum vocabulary lacks: a media panel pins (ScrollTrigger pin + scrub) for a bounded scroll distance while captions/figures step over it, then releases. Compositor-only, reduced-motion falls back to a static stacked layout. The section_playbook acknowledges only Urban Jürgensen's infinite-horizontal for pinned/horizontal motion; a straight pin+scrub step-through is a standard luxury device the manifest cannot compose. Lighter than the priority-1 gaps and not tied to a source-verified corpus winner.",
+      "priority": 3,
+      "status": "merged"
+    }
+  ],
+  "unverified": [
+    "THESIS provenance: the prior revision quoted webgpu.com as stating the design 'sustains engagement across all six alcoves through continuous environmental storytelling rather than a single climactic reveal'. That sentence does NOT appear on the page — webgpu.com's actual text is 'six self-contained 3D alcoves, one per watch, that you scroll through like rooms in a very expensive museum after hours', and never uses 'climax' or 'continuous environmental storytelling'. The fabricated quote is removed; the one_climax_verdict now rests on the six-equal-rooms structure as an inference, plus LV change-universe and Urban Jürgensen infinite scroll.",
+    "Son Daven interior numeric mechanics (~5 parallax layers ease:none, frame-sequence film scrub:.25, marquee timeScale(1 + .01*velocity), display yPercent 250->0 ~1.2s easeOutQuart, magnetic CTA elastic.out(1,0.3), reading wash chars from opacity:.1) are executable defaults / a plausible reimplementation, NOT source-verified — the awwwards page exposes none of them and no public teardown was found this run. The prior revision stamped them 'winner-verified'; that stamp is dropped. Lenis is not tagged for Son Daven (tech = WebGL + GSAP + Webflow).",
+    "Depo Luxe interior mechanics — 'WebGL-displaced footage' and a 'hand-rolled VirtualScroll fusing scroll + render on one clock' — appear in NO award description or teardown found this run; asserted, not sourced. Award facts (SOTD + Dev Jul 7 2026 7.62, Animations 8.40, Cuchillo, 11ty) are confirmed.",
+    "Corpus easing 'byte-identical across Delvaux CSS var + GSAP CustomEase and Son Daven' and 'wheel smoothing universal 5/5 (Lenis / ScrollSmoother / VirtualScroll)' were asserted without shipped-CSS access; both are demoted to recommended executable defaults. Only Cartier's GSAP + Lenis smoother is confirmed (webgpu.com); other corpus smoothers are untagged.",
+    "Delvaux exact community score and sub-scores are NOT reliably re-derived — three differing readings this run (prior revision 8.35 D8.5/U8.6/C7.9/Ct8.4; independent refuter 8.26 D8.5/U8.5/C7.8/Ct8.3; this-run fetch overall ~8.50 with D9.00/U8.86/C7.86/Ct8.29). Only 'high, directionally the corpus's highest craft' is robust. The HM-vs-Son-Daven-SOTD continuity inference rests on award TIER (jury) with a real community-score inversion — treated as moderate, caveated evidence, not proof that stillness alone caused the lower tier.",
+    "Cartier WAW 2026 interior structure was not exposed this run — the awwwards description is only 'an immersive journey through refined worlds, highlighting iconic timepieces'; the 'six alcoves / rooms in a very expensive museum' description belongs to the 2025 pavilion. The prior revision also miscredited 2026's Developer Award (7.85) as a CSSDA — corrected.",
+    "Cartier WAW exact easing curves, camera-move parameters, and per-scene transition timings — case studies confirm scroll-driven camera + GSAP/Lenis + dispose/load between alcoves and continuous scoring, but no numeric easing/duration values were exposed during this run (mechanic described qualitatively, not pixel-exact).",
+    "Delvaux hero SplitText numbers (dur ~2, stagger ~.2, power4.inOut) and figure clip ~1s cubic-bezier(.25,1,.5,1) are carried from the skill's prior source-level reads, not re-verified from shipped CSS during this run.",
+    "Brunello Cucinelli AI specific hover/scroll amplitudes — the makemepulse case study confirms frosted glass + soft blur + hand-drawn sketch detail and a pageless intent-led flow, but per-element interaction amplitudes were not exposed (agentic/pageless UI resists static section mapping). The awwwards page itself does not mention frosted glass or hand-drawn sketch — those come from the makemepulse case study.",
+    "Commerce product-card second-image/muted-video hover swap and the pinned-media step-through are luxury/award conventions integrated as executable defaults; neither was source-verified against a specific corpus winner this run. The route-transition-overlay is evidenced as a hole against 3 multi-page corpus sites (Delvaux, Urban Jürgensen, Brunello) but the exact per-site transition mechanic (Barba/Taxi vs bespoke) was not exposed.",
+    "Whether the scored-scene-procession's hidden gestures are hover-, click-, or hold-triggered per scene on Cartier — LV Collectibles confirms click-and-hold; Cartier is described only as 'hidden gestures' — not disambiguated this run."
+  ],
+  "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent.",
+  "gaps_note": "All orders closed July 2026 (completeness program) — entries kept as the winner-cited mechanic-spec grammar; per-entry status carries the resolution. For a builder every entry is library-covered: compose, never author."
 }

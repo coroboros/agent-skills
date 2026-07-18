@@ -1,383 +1,391 @@
 {
- "archetype": "editorial-dark",
- "revision": 3,
- "corpus": [
-  {
-   "site": "Siena Film Foundation",
-   "url": "siena.film",
-   "award": "Awwwards Site of the Day 2025-03-18 (verified — overall 7.9, Design 7.99 / Usability 7.61 / Creativity 8.13 / Content 8, by G-NS Studio) + Developer Award; SOTM Mar 2025 nominee only (vote page verified this campaign — no SOTM badge on the site's Awwwards page)",
-   "fit": "The pure dark cinematic-poster editorial: near-black ground, vintage-poster display type over treated film stills, metadata stamps (DOCUMENTARY · 2022 · MIN.77), dual-menu editorial nav, hold-and-drag filmstrip. Our canon — re-derived here for the after-hero flow. The Awwwards entry names its mechanics (Film Strip Slider, Dynamic Menu, Contact Type Lettering, Procedural Slider Re-Arrangement); the exact CSS selectors, transforms, and durations cited below come from an internal teardown (editorial.md), not from a public source — see unverified."
-  },
-  {
-   "site": "Bloom (Bloom Paris)",
-   "url": "bloomparis.tv",
-   "award": "Awwwards Site of the Day 2025-05-07 (verified — 7.52 overall; Design 7.67 / Usability 7.22 / Creativity 7.73 / Content 7.41). Built by Beaucoup. + Codrops case study 2025-07-08 (verified)",
-   "fit": "Dark charcoal cinematic editorial for a Paris full-production house — video-first, animated loader that opens on the showreel, stacked-card scroll in the services band, project-grid hover where a marquee title glides over the preview image ('Hover listing archives'), operable portfolio reel, contact modal. A fresh in-window member that continues past the hero via a mid-page stacked-card mechanic and an operable reel. Studio caveat: same studio as Bisous (Beaucoup.) — see unverified for the single-studio concentration this creates."
-  },
-  {
-   "site": "KAI Design Dept.",
-   "url": "awwwards.com/sites/kai-design-dept (Codrops case study 2025-11-20)",
-   "award": "Awwwards Honorable Mention (verified) + Codrops technical case study 2025-11-20 (verified)",
-   "fit": "Dark editorial whose entire body is 'touchable video' — drag-scrubbed footage mapped to video.currentTime, WebGL two-pass line depth-of-field, Blender-authored line timing exported as JSON. Craftsmanship gravity (117-year blade maker, KAI Corp) told with editorial pacing. The strongest single piece of evidence that the spectacle is a sustained operable surface, not a one-shot hero. It is a single-product craft page, not a body-of-work archive — arguably its own continuous form rather than proof of a general continuous-surface law."
-  },
-  {
-   "site": "Bisous",
-   "url": "awwwards.com/sites/bisous (Codrops case study 2026-06-29)",
-   "award": "Awwwards Honorable Mention 2026-04-08 (verified — by Beaucoup.) + Codrops case study 2026-06-29 (verified)",
-   "fit": "Near-black cinematic-CGI editorial (Bisous Production, a 3D/CGI studio): a cinematic loader that reads as an opening scene, a full-screen infinite bidirectional vertical reel as the whole home, stochastic per-letter opacity text appearance, production-software 'labeled tag' secondary nav, curtain-less continuous project-to-project transitions. WordPress + GSAP. The only fully verified continuous-surface member of the corpus. Studio caveat: same studio as Bloom (Beaucoup.) — the continuous-surface arc and the loader-as-first-scene arc both rest substantially on this one studio's house style; see unverified."
-  },
-  {
-   "site": "Grit Pictures",
-   "url": "grit.pictures",
-   "award": "Awwwards Honorable Mention 2025-09-05 (verified — 7.5 community avg)",
-   "fit": "Monochrome commercial-filmmaking editorial — a 'mad man's scrapbook' of torn edges, collage, playful texture over a black/white grade, video + illustration (GrinningGraphics, WordPress/Elementor). The rough-cut, hand-assembled dark editorial variant (proves the archetype is not only the polished-poster Siena register). Role limited to register-evidence; its specific interaction mechanics are undocumented (see unverified)."
-  },
-  {
-   "site": "Harvard Film Archive",
-   "url": "hcl.harvard.edu/hfa (awwwards.com/sites/harvard-film-archive)",
-   "award": "Awwwards Site of the Day 2019-09-18 (verified — 7.43; PRE-WINDOW historical anchor, not primary momentum evidence)",
-   "fit": "Film-archive cultural institution on pure black (#000/#9C9C9C), GSAP-driven, calendar/programme editorial. Included only as the institutional-archive precedent for the register; its 2019 date puts it outside the 2024-2026 admissibility bar, so no algorithm rule rests on it alone."
-  }
- ],
- "story": {
-  "arcs": [
-   "Ritual-of-entry -> featured masthead -> operable archive -> per-work rest -> contact close (Siena, winner-verified as an SOTD/SOTM entry): the gate is a threshold you cross, the masthead is the first impression, then the archive is something you DRIVE, not read. The story is 'here is a body of work you thread by hand.'",
-   "Continuous-surface / no discrete acts (Bisous verified; KAI a single-product variant): there is no hero-then-sections seam — the whole page is one moving reel (Bisous infinite vertical slider) or one operable video field (KAI drag-scrub). The narrative arc is spatial ('keep moving through the material'), not chaptered. Caveat: only Bisous is a fully verified continuous-surface site, and it shares a studio with Bloom (Beaucoup.); treat this as a legal editorial-dark resolution rather than broad archetype canon.",
-   "Loader-as-first-scene (Bisous + Bloom, verified): the arrival is diegetic — curated visuals during load ARE the opening scene, then dissolve into the first live frame. The film starts before the site does; there is no separate 'intro then content.' Caveat: both verified instances are the same studio (Beaucoup.).",
-   "Rough-cut assembly (Grit, register-verified): torn-edge collage sequenced like a scrapbook — the arc is a montage of fragments, deliberately un-smoothed, monochrome as the unifying grade."
+  "archetype": "editorial-dark",
+  "revision": 4,
+  "corpus": [
+    {
+      "site": "Siena Film Foundation",
+      "url": "siena.film",
+      "award": "Awwwards Site of the Day 2025-03-18 (verified — overall 7.9, Design 7.99 / Usability 7.61 / Creativity 8.13 / Content 8, by G-NS Studio) + Developer Award; SOTM Mar 2025 nominee only (vote page verified this campaign — no SOTM badge on the site's Awwwards page)",
+      "fit": "The pure dark cinematic-poster editorial: near-black ground, vintage-poster display type over treated film stills, metadata stamps (DOCUMENTARY · 2022 · MIN.77), dual-menu editorial nav, hold-and-drag filmstrip. Our canon — re-derived here for the after-hero flow. The Awwwards entry names its mechanics (Film Strip Slider, Dynamic Menu, Contact Type Lettering, Procedural Slider Re-Arrangement); the exact CSS selectors, transforms, and durations cited below come from an internal teardown (editorial.md), not from a public source — see unverified."
+    },
+    {
+      "site": "Bloom (Bloom Paris)",
+      "url": "bloomparis.tv",
+      "award": "Awwwards Site of the Day 2025-05-07 (verified — 7.52 overall; Design 7.67 / Usability 7.22 / Creativity 7.73 / Content 7.41). Built by Beaucoup. + Codrops case study 2025-07-08 (verified)",
+      "fit": "Dark charcoal cinematic editorial for a Paris full-production house — video-first, animated loader that opens on the showreel, stacked-card scroll in the services band, project-grid hover where a marquee title glides over the preview image ('Hover listing archives'), operable portfolio reel, contact modal. A fresh in-window member that continues past the hero via a mid-page stacked-card mechanic and an operable reel. Studio caveat: same studio as Bisous (Beaucoup.) — see unverified for the single-studio concentration this creates."
+    },
+    {
+      "site": "KAI Design Dept.",
+      "url": "awwwards.com/sites/kai-design-dept (Codrops case study 2025-11-20)",
+      "award": "Awwwards Honorable Mention (verified) + Codrops technical case study 2025-11-20 (verified)",
+      "fit": "Dark editorial whose entire body is 'touchable video' — drag-scrubbed footage mapped to video.currentTime, WebGL two-pass line depth-of-field, Blender-authored line timing exported as JSON. Craftsmanship gravity (117-year blade maker, KAI Corp) told with editorial pacing. The strongest single piece of evidence that the spectacle is a sustained operable surface, not a one-shot hero. It is a single-product craft page, not a body-of-work archive — arguably its own continuous form rather than proof of a general continuous-surface law."
+    },
+    {
+      "site": "Bisous",
+      "url": "awwwards.com/sites/bisous (Codrops case study 2026-06-29)",
+      "award": "Awwwards Honorable Mention 2026-04-08 (verified — by Beaucoup.) + Codrops case study 2026-06-29 (verified)",
+      "fit": "Near-black cinematic-CGI editorial (Bisous Production, a 3D/CGI studio): a cinematic loader that reads as an opening scene, a full-screen infinite bidirectional vertical reel as the whole home, stochastic per-letter opacity text appearance, production-software 'labeled tag' secondary nav, curtain-less continuous project-to-project transitions. WordPress + GSAP. The only fully verified continuous-surface member of the corpus. Studio caveat: same studio as Bloom (Beaucoup.) — the continuous-surface arc and the loader-as-first-scene arc both rest substantially on this one studio's house style; see unverified."
+    },
+    {
+      "site": "Grit Pictures",
+      "url": "grit.pictures",
+      "award": "Awwwards Honorable Mention 2025-09-05 (verified — 7.5 community avg)",
+      "fit": "Monochrome commercial-filmmaking editorial — a 'mad man's scrapbook' of torn edges, collage, playful texture over a black/white grade, video + illustration (GrinningGraphics, WordPress/Elementor). The rough-cut, hand-assembled dark editorial variant (proves the archetype is not only the polished-poster Siena register). Role limited to register-evidence; its specific interaction mechanics are undocumented (see unverified)."
+    },
+    {
+      "site": "Harvard Film Archive",
+      "url": "hcl.harvard.edu/hfa (awwwards.com/sites/harvard-film-archive)",
+      "award": "Awwwards Site of the Day 2019-09-18 (verified — 7.43; PRE-WINDOW historical anchor, not primary momentum evidence)",
+      "fit": "Film-archive cultural institution on pure black (#000/#9C9C9C), GSAP-driven, calendar/programme editorial. Included only as the institutional-archive precedent for the register; its 2019 date puts it outside the 2024-2026 admissibility bar, so no algorithm rule rests on it alone."
+    }
   ],
-  "thread": "The fil rouge is ONE treated-material gesture chosen at the hero and carried to the footer: (1) the film grade itself — every image the same desaturated high-contrast duotone/mono, edge-to-edge, source light kept (Siena, Grit, Bloom); (2) the operable-material mechanic — the reader's own hand drives the footage/stills (Siena hold-and-drag filmstrip; KAI drag-scrub video; Bloom operable reel) and that same drag-to-reveal verb recurs at every image the page shows; (3) the doubled-label/stochastic type texture that recurs on every heading, caption and link (Siena two-line char roll; Bisous per-letter opacity flicker). Winners pick exactly one of these three, establish it in the first viewport, and never let it go silent — the thread is felt in the loader, the hero, every mid-page figure, and the close.",
-  "copy": "Impersonal curator voice, fragments over sentences, imperatives confined to chrome ('Hold and drag to navigate', 'Enter'). Proof is borrowed verbatim (jury/press pull-quotes) and never self-claimed. The site never narrates or credits its own construction — no 'a film about', no listing its own typefaces. Metadata is stamped as mono facts (DISCIPLINE · YEAR · RUNTIME). One register per page; the single calculated exception is Bisous' production-software 'labeled tag' chrome, which reads as diegetic craft, not a HUD mixed into editorial prose. Straight apostrophes in the dark register (Siena ')."
- },
- "spectacle_model": {
-  "hero": "The first viewport commits the grade and the thread in one frame: a full-bleed treated still or a live cinematic loader-scene, an oversized display title (type-as-image; on Siena the h1 is reportedly omitted per the internal teardown — not independently verified), a mono metadata stamp, and a pointer-events:none gradient-scrim nav. The entrance move is the signature — Siena's two-line doubled-char label roll (visible copy translate out, duplicate translateY in, short stagger, sub-second easeOutQuint per the internal teardown) or Bisous' stochastic per-letter opacity settle. The hero does not merely display; it hands the reader the verb they will reuse (drag, cross, thread) — and on drag/operable pages the cursor itself morphs to a label/glyph that names that verb (see element_states.cursor).",
-  "continuation": [
-   "Siena: masthead (climax) -> hold-and-drag filmstrip (SUSTAINED — an operable spectacle the reader drives by hand, titles roll via the same doubled-char label, jury pull-quotes) -> per-work detail (REST — char-assemble h2, treated stills, spec counters) -> contact close. No section drops to pointer-dead silence; the drag verb and the grade persist to the footer.",
-   "KAI: there is effectively NO single hero peak — the whole body is a continuous drag-scrub video field with WebGL line depth-of-field; amplitude stays even-high from first frame to last. Spectacle is a sustained texture, not a spike.",
-   "Bisous: cinematic loader (opening scene) -> infinite bidirectional vertical full-screen reel (the entire home; continuous, never rests to zero) -> curtain-less continuous transitions into each work -> per-letter opacity flicker recurs on every title/link throughout. The continuation IS the macrostructure.",
-   "Bloom: animated loader (opens on the showreel) -> hero video -> stacked-card scroll in the services band (layered cards pin and peel — a mid-page mechanic that carries momentum) -> project-grid hover where a marquee title glides over the preview image -> operable portfolio reel -> contact modal. The hero energy is re-spent in distinct mid-page mechanics, not left quiet.",
-   "Grit: monochrome montage — each scroll-beat is a new collage fragment entering; the scrapbook assembly is a low-grade continuous motion rather than one hero wow."
+  "story": {
+    "arcs": [
+      "Ritual-of-entry -> featured masthead -> operable archive -> per-work rest -> contact close (Siena, winner-verified as an SOTD/SOTM entry): the gate is a threshold you cross, the masthead is the first impression, then the archive is something you DRIVE, not read. The story is 'here is a body of work you thread by hand.'",
+      "Continuous-surface / no discrete acts (Bisous verified; KAI a single-product variant): there is no hero-then-sections seam — the whole page is one moving reel (Bisous infinite vertical slider) or one operable video field (KAI drag-scrub). The narrative arc is spatial ('keep moving through the material'), not chaptered. Caveat: only Bisous is a fully verified continuous-surface site, and it shares a studio with Bloom (Beaucoup.); treat this as a legal editorial-dark resolution rather than broad archetype canon.",
+      "Loader-as-first-scene (Bisous + Bloom, verified): the arrival is diegetic — curated visuals during load ARE the opening scene, then dissolve into the first live frame. The film starts before the site does; there is no separate 'intro then content.' Caveat: both verified instances are the same studio (Beaucoup.).",
+      "Rough-cut assembly (Grit, register-verified): torn-edge collage sequenced like a scrapbook — the arc is a montage of fragments, deliberately un-smoothed, monochrome as the unifying grade."
+    ],
+    "thread": "The fil rouge is ONE treated-material gesture chosen at the hero and carried to the footer: (1) the film grade itself — every image the same desaturated high-contrast duotone/mono, edge-to-edge, source light kept (Siena, Grit, Bloom); (2) the operable-material mechanic — the reader's own hand drives the footage/stills (Siena hold-and-drag filmstrip; KAI drag-scrub video; Bloom operable reel) and that same drag-to-reveal verb recurs at every image the page shows; (3) the doubled-label/stochastic type texture that recurs on every heading, caption and link (Siena two-line char roll; Bisous per-letter opacity flicker). Winners pick exactly one of these three, establish it in the first viewport, and never let it go silent — the thread is felt in the loader, the hero, every mid-page figure, and the close.",
+    "copy": "Impersonal curator voice, fragments over sentences, imperatives confined to chrome ('Hold and drag to navigate', 'Enter'). Proof is borrowed verbatim (jury/press pull-quotes) and never self-claimed. The site never narrates or credits its own construction — no 'a film about', no listing its own typefaces. Metadata is stamped as mono facts (DISCIPLINE · YEAR · RUNTIME). One register per page; the single calculated exception is Bisous' production-software 'labeled tag' chrome, which reads as diegetic craft, not a HUD mixed into editorial prose. Straight apostrophes in the dark register (Siena ')."
+  },
+  "spectacle_model": {
+    "hero": "The first viewport commits the grade and the thread in one frame: a full-bleed treated still or a live cinematic loader-scene, an oversized display title (type-as-image; on Siena the h1 is reportedly omitted per the internal teardown — not independently verified), a mono metadata stamp, and a pointer-events:none gradient-scrim nav. The entrance move is the signature — Siena's two-line doubled-char label roll (visible copy translate out, duplicate translateY in, short stagger, sub-second easeOutQuint per the internal teardown) or Bisous' stochastic per-letter opacity settle. The hero does not merely display; it hands the reader the verb they will reuse (drag, cross, thread) — and on drag/operable pages the cursor itself morphs to a label/glyph that names that verb (see element_states.cursor).",
+    "continuation": [
+      "Siena: masthead (climax) -> hold-and-drag filmstrip (SUSTAINED — an operable spectacle the reader drives by hand, titles roll via the same doubled-char label, jury pull-quotes) -> per-work detail (REST — char-assemble h2, treated stills, spec counters) -> contact close. No section drops to pointer-dead silence; the drag verb and the grade persist to the footer.",
+      "KAI: there is effectively NO single hero peak — the whole body is a continuous drag-scrub video field with WebGL line depth-of-field; amplitude stays even-high from first frame to last. Spectacle is a sustained texture, not a spike.",
+      "Bisous: cinematic loader (opening scene) -> infinite bidirectional vertical full-screen reel (the entire home; continuous, never rests to zero) -> curtain-less continuous transitions into each work -> per-letter opacity flicker recurs on every title/link throughout. The continuation IS the macrostructure.",
+      "Bloom: animated loader (opens on the showreel) -> hero video -> stacked-card scroll in the services band (layered cards pin and peel — a mid-page mechanic that carries momentum) -> project-grid hover where a marquee title glides over the preview image -> operable portfolio reel -> contact modal. The hero energy is re-spent in distinct mid-page mechanics, not left quiet.",
+      "Grit: monochrome montage — each scroll-beat is a new collage fragment entering; the scrapbook assembly is a low-grade continuous motion rather than one hero wow."
+    ],
+    "one_climax_verdict": "REFINED",
+    "evidence": [
+      "Siena: the hold-and-drag filmstrip AFTER the masthead is a second operable spectacle at near-hero amplitude — the reader threads the reel by hand; the page is never silent after the hero (Awwwards SOTD/SOTM entry names Film Strip Slider + Dynamic Menu; the mechanic exists, exact timings are from an internal teardown).",
+      "KAI: the whole page is one drag-scrubbed 'touchable video' — there is no hero-then-quiet at all; spectacle is a continuous operable surface (Codrops case study 2025-11-20).",
+      "Bisous: an infinite bidirectional vertical reel IS the home, and per-letter opacity flicker runs on every title and link to the footer — the signature thread is structural and unbroken (Codrops case study 2026-06-29).",
+      "Bloom: a stacked-card scroll mechanic in the services band plus a project-grid hover-preview re-spend hero momentum mid-page before the operable reel (Awwwards SOTD 2025-05-07 entry + Codrops 2025-07-08)."
+    ],
+    "recommended_law": "Two independently verified structural facts survive: (1) the hero carries the single most dominant novel mechanic and no later section introduces a rival of equal-or-greater visual dominance — later sections re-express the ONE Step-2 thread rather than adding a second wow (Siena filmstrip re-uses the doubled-char roll; Bloom re-spends via stacked-card + hover-preview); (2) no section after the hero is fully static — the failure mode this archetype punishes is silence, not a second peak. In the continuous-surface expression the hero and body fuse into one operable/looping reel with no discrete peak (Bisous verified; KAI a single-product variant) — a legal editorial-dark resolution, though the evidence for it as broad canon is thin (one fully verified site, sharing a studio with Bloom). The per-section intensity numbers used elsewhere in this playbook are ordinal authoring targets, not measured DOM reads (see unverified). Phase-4 wording: 'One thread, lived hero-to-footer; the hero owns the dominant mechanic, later sections re-express it, no section goes silent.'"
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "The story shape",
+      "rule": "Classify by content, not taste. Archive/body-of-work brief (film foundation, production house, cinematographer) -> ritual-of-entry arc (gate -> masthead -> operable archive -> rest -> close). Single-continuous-material brief (CGI studio, one craft object, one reel) -> continuous-surface arc (loader-scene -> infinite/operable reel = the whole page, no discrete sections). Rough/DIY brand -> rough-cut montage. Default to ritual-of-entry when the component library requires a discrete section chain.",
+      "evidence": [
+        "Siena: gate->masthead->filmstrip->detail->close",
+        "Bisous continuous-surface (verified); KAI single-product variant",
+        "Grit: scrapbook montage"
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "The signature thread (the fil rouge carried hero-to-footer)",
+      "rule": "Choose exactly ONE family and apply it page-wide: (a) the film GRADE — one desaturated high-contrast duotone/mono on every image, edge-to-edge, source light kept, over a pure off-black floor; (b) the operable-DRAG verb — the reader's pointer/touch drives every still/video (hold-and-drag filmstrip, drag-scrub video, drag reel); (c) the type TEXTURE — a doubled two-line label roll OR a stochastic per-letter opacity flicker on every heading/caption/link. Checkable constraint: the chosen family appears in the first viewport AND recurs in every subsequent section; the other two families may appear at most once, locally, and never as a page-wide system that repeats across sections.",
+      "evidence": [
+        "Siena: grade + hold-and-drag + doubled-char roll (one family)",
+        "KAI: drag-scrub verb everywhere",
+        "Bisous: per-letter opacity flicker on all type + infinite reel"
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "Macrostructure",
+      "rule": "Ritual-of-entry -> gated-splash(threshold) + hero-masthead(climax) + pinned-filmstrip(reel) + editorial-split(per-work detail) + close-panel + oversized-wordmark footer. Continuous-surface -> loader-scene + fullscreen-vertical-reel (GAP: infinite bidirectional slider) as the whole body + curtain-less transitions + bare-cue/costumed-credits footer. Never open on a card grid; never a centered-hero + twin-CTA; lateral or continuous motion is hand-driven or IS the content, never an autoplay carousel.",
+      "evidence": [
+        "Siena anatomy (SOTD/SOTM entry)",
+        "Bisous infinite vertical reel is the home",
+        "editorial.md anti-signals"
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "Momentum map (dominant hero mechanic, no rival, no silence)",
+      "rule": "Deterministic constraints, ranked by animated-area x displacement (a proxy a composer can evaluate against the built DOM, not a taste call): (1) the hero holds the single most dominant novel mechanic on the page; (2) NO section after the hero introduces a NEW mechanic whose animated-area x displacement equals or exceeds the hero's — later sections re-express the Step-2 thread, they add no rival; (3) NO section is static: every section after the hero must exhibit at least one of {the chosen thread applied to its imagery, the operable-drag verb, an entrance or hover motion on its type/figures} — a section with no entrance motion, no hover state, and no operable media is illegal; (4) the reel/proof section runs the operable-drag verb continuously; the per-work detail may reduce to the grade + one type signature but never to none; the close re-expresses the thread exactly once. Continuous-surface: constraints (1)-(2) collapse to 'one surface that never stops moving and introduces no rival mechanic.' The ordinal intensity targets (hero highest, reel near-hero, detail reduced-but-nonzero, close single re-expression) live in section_playbook as authoring intent, not as measured units.",
+      "evidence": [
+        "Siena masthead dominant, filmstrip re-expresses the same roll",
+        "KAI even-high continuous",
+        "Bloom stacked-card + hover-preview re-spend mid-page, no rival to the hero"
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section component pairing",
+      "rule": "hero-masthead: h1 -> kinetic-reveal OR (signature) doubled masked-label-swap; media(back) -> scrub-film OR clip-reveal + grain-grade overlay; data-strip -> mono stamp; on drag/operable pages, cursor -> verb-label morph (GAP). reel: pinned-filmstrip (desktop hold-and-drag) + swipe-snap-gallery (mobile native snap); index rows -> hover-preview-video (GAP: reveal the muted footage on row hover); caption -> text-emphasis-fill. detail: editorial-split, media left, h2 -> char-assemble, prose -> text-emphasis-fill + semantic-accent, media -> image-curtain (grayscale->colour reveal, so the reveal itself runs the grade transition), spec -> counter-odometer. close: close-panel, ask -> kinetic-reveal, channels -> accent-link + masked-label-swap. Use image-curtain (not plain clip-reveal) on every graded image.",
+      "evidence": [
+        "Siena recipe pairs",
+        "Bloom project-grid hover-preview (marquee title over preview image)",
+        "image-curtain manifest whenToUse (graded/archival imagery)",
+        "swipe-snap-gallery = scored Mobile Excellence line"
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states",
+      "rule": "cta -> full-token ink-inversion fill (fill-invert-cta; never a pale tint) + optional two-line label roll (masked-label-swap), sub-second ease-signature. link -> accent recolor + underline wipe from origin-left (accent-link), ~.2s. figure -> contained zoom scale(1.1) inside overflow:hidden + companion cue (figure-hover); gallery -> focus-defocus siblings; operable/index variant -> hover-preview-video (reveal muted footage). index_row -> row lights accent rule + surfaced meta with siblings dimmed (index-row-hover) OR, for a body-of-film-work, the footage-preview reveal (hover-preview-video). heading -> masked reveal on entrance only, NO hover on in-flow headings (consistent with the Siena/Truekind entries; exact rules from an internal teardown). nav -> transparent + gradient scrim, ink-inversion by section behind, show-on-scroll-up; never frosted, never a contrasting border-bottom. cursor -> on drag/operable fields, morph to a verb-label/glyph ('DRAG'/'HOLD'/'VIEW'/play-triangle) that teaches the operable verb (GAP: cursor-verb-label).",
+      "evidence": [
+        "Siena CTA ink-inversion + arrow invert (internal teardown)",
+        "Anthropic text-decoration-color transparent->ink underline wipe",
+        "index-row-hover Depo/Son Daven/Siena",
+        "Awwwards 'Video Hover Preview' + 'Project hover preview' (Olivier Gillaizeau) + Bloom 'Hover listing archives'",
+        "Awwwards cursor customization resource + Hovers/Cursors + Drag/Gestures collections"
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile answer",
+      "rule": "Pointer classes go dormant (pointer-parallax, magnetic-cursor, focus-defocus, conic-border-shine — native/off on touch). Press-class elements answer the tap with a 90-160ms flash floor (fill-invert-cta :active). The hold-and-drag filmstrip and any horizontal reel switch to native scroll-snap + OS momentum (swipe-snap-gallery) with next-cell peek and snap dots. Drag-scrub video answers touch-drag natively (KAI). Index hover-preview switches to tap-to-play-inline vs navigate (the footage reveal has no hover on touch). The cursor verb-label has no touch equivalent — replace it with a persistent 'swipe'/'drag' hint or a next-cell peek as the verb teacher. Figures get tap-to-enlarge. Grain-grade and any shader ground stay but drop amplitude. Bisous' infinite vertical reel = native touch swipe.",
+      "evidence": [
+        "swipe-snap-gallery manifest (Mobile Excellence, native snap, zero JS physics)",
+        "KAI drag-scrub responds to touch-drag",
+        "pointer-parallax DORMANT on touch (manifest)",
+        "cursor-verb-label has no touch analogue (Awwwards cursor resource)"
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy",
+      "rule": "One register: impersonal curator, fragments, imperatives in chrome only. Borrow proof verbatim (jury/press quotes), never self-claim. Never narrate or credit the build. Metadata as mono stamps (DISCIPLINE · YEAR · RUNTIME). Kicker/eyebrow default ABSENT — ships only when it carries a real category/date the title and position do not. Straight apostrophes in the dark register. The lone HUD-flavoured exception (production-tag nav) must read as diegetic craft, kept out of the prose.",
+      "evidence": [
+        "Siena onboarding 'Hold and drag to navigate' + borrowed jury quote",
+        "editorial.md copy law: no self-narration, default no kicker",
+        "Bisous production-tag nav"
+      ]
+    }
   ],
-  "one_climax_verdict": "REFINED",
-  "evidence": [
-   "Siena: the hold-and-drag filmstrip AFTER the masthead is a second operable spectacle at near-hero amplitude — the reader threads the reel by hand; the page is never silent after the hero (Awwwards SOTD/SOTM entry names Film Strip Slider + Dynamic Menu; the mechanic exists, exact timings are from an internal teardown).",
-   "KAI: the whole page is one drag-scrubbed 'touchable video' — there is no hero-then-quiet at all; spectacle is a continuous operable surface (Codrops case study 2025-11-20).",
-   "Bisous: an infinite bidirectional vertical reel IS the home, and per-letter opacity flicker runs on every title and link to the footer — the signature thread is structural and unbroken (Codrops case study 2026-06-29).",
-   "Bloom: a stacked-card scroll mechanic in the services band plus a project-grid hover-preview re-spend hero momentum mid-page before the operable reel (Awwwards SOTD 2025-05-07 entry + Codrops 2025-07-08)."
+  "section_playbook": [
+    {
+      "role": "threshold",
+      "forms": [
+        "gated-splash",
+        "loader-scene (continuous-surface variant)"
+      ],
+      "pairs": [
+        "overlay: grain-grade",
+        "enter: fill-invert-cta OR masked-label-swap"
+      ],
+      "intensity": 7,
+      "states": "The ENTER control MUST answer hover/focus (fill-invert or label roll) — a dead ENTER hover is the first impression lost. Doubles as the sound gate. Authored hidden so no-JS shows the page.",
+      "evidence": [
+        "Siena gate-into-fold",
+        "Bisous cinematic loader = opening scene"
+      ]
+    },
+    {
+      "role": "hero",
+      "forms": [
+        "hero-masthead (media back)",
+        "type-as-image (poster masthead; h1 reportedly omitted on Siena — not independently verified)"
+      ],
+      "pairs": [
+        "h1: kinetic-reveal OR doubled masked-label-swap",
+        "media: scrub-film OR clip-reveal",
+        "grade: grain-grade",
+        "data-strip: mono stamp",
+        "cursor: verb-label morph (drag/operable pages)"
+      ],
+      "intensity": 9,
+      "states": "Pointer-events:none gradient-scrim nav over the still (never a bar). Entrance is the signature move; the hero hands the reader the verb (drag/cross) reused below, and on operable pages the cursor morphs to name that verb. Desktop pointer layer committed — a pointer-dead hero is a defect.",
+      "evidence": [
+        "Siena featured-work masthead + two-line label roll (internal teardown)",
+        "Bisous stochastic per-letter opacity settle"
+      ]
+    },
+    {
+      "role": "reel / proof",
+      "forms": [
+        "pinned-filmstrip (desktop hold-and-drag)",
+        "fullscreen-vertical-reel (GAP)",
+        "drag-scrub-video field (GAP)"
+      ],
+      "pairs": [
+        "caption: text-emphasis-fill",
+        "media: image-curtain",
+        "index rows: hover-preview-video (GAP)",
+        "cursor: verb-label morph",
+        "mobile: swipe-snap-gallery"
+      ],
+      "intensity": 8,
+      "states": "The operable-drag verb sustains here at near-hero amplitude — grab-drag on desktop (release momentum is an optional enhancement, not documented in the KAI source); native scroll-snap on touch. Index/project rows reveal their footage on hover (muted, often cursor-tracking). Titles roll via the same doubled-char label. Jury pull-quotes borrowed, not claimed.",
+      "evidence": [
+        "Siena hold-and-drag filmstrip, jury quotes",
+        "KAI touchable-video field",
+        "Bisous infinite vertical reel",
+        "Bloom 'Hover listing archives' / marquee-over-preview"
+      ]
+    },
+    {
+      "role": "feature / detail",
+      "forms": [
+        "editorial-split (media left/right)",
+        "stacked-card-scroll (GAP — Bloom services band)"
+      ],
+      "pairs": [
+        "h2: char-assemble",
+        "prose: text-emphasis-fill + semantic-accent",
+        "media: image-curtain",
+        "spec-table: counter-odometer"
+      ],
+      "intensity": 6,
+      "states": "REST beat but not silent: the grade and one text signature stay alive; figures answer hover with contained zoom (figure-hover); no hover on in-flow headings; protected reading measure (60-75ch). Reversible image parallax legal (returns on scroll-back), prose never scrubs.",
+      "evidence": [
+        "Siena per-work detail",
+        "Bloom stacked-card scroll",
+        "editorial.md mid-page: figures may scrub, prose stays un-scrubbed"
+      ]
+    },
+    {
+      "role": "close",
+      "forms": [
+        "close-panel",
+        "contact-modal (Bloom)"
+      ],
+      "pairs": [
+        "ask: kinetic-reveal",
+        "channels: accent-link + masked-label-swap",
+        "trust: mono line"
+      ],
+      "intensity": 6,
+      "states": "Re-spends the thread once — one imperative (18ch cap), decisive channel rows that answer hover/tap, a quiet trust line a rest below. No media slot (the close cannot become a mood reel).",
+      "evidence": [
+        "Siena LET'S TALK / EMAIL US / contact",
+        "close-panel manifest whenToUse"
+      ]
+    },
+    {
+      "role": "footer",
+      "forms": [
+        "oversized-wordmark",
+        "bare-cue / costumed-credits (continuous-surface)"
+      ],
+      "pairs": [
+        "wordmark: kinetic-reveal"
+      ],
+      "intensity": 6,
+      "states": "The grade and thread reach the footer. Oversized signed wordmark ('©2024. SIENA FILM FOUNDATION.') OR a designed thin credits refusal when the body already spent the spectacle. Palette may flip once here.",
+      "evidence": [
+        "Siena wordmark-contact-close footer",
+        "gated-reel-siena-immersive: thin credits close is a designed refusal"
+      ]
+    }
   ],
-  "recommended_law": "Two independently verified structural facts survive: (1) the hero carries the single most dominant novel mechanic and no later section introduces a rival of equal-or-greater visual dominance — later sections re-express the ONE Step-2 thread rather than adding a second wow (Siena filmstrip re-uses the doubled-char roll; Bloom re-spends via stacked-card + hover-preview); (2) no section after the hero is fully static — the failure mode this archetype punishes is silence, not a second peak. In the continuous-surface expression the hero and body fuse into one operable/looping reel with no discrete peak (Bisous verified; KAI a single-product variant) — a legal editorial-dark resolution, though the evidence for it as broad canon is thin (one fully verified site, sharing a studio with Bloom). The per-section intensity numbers used elsewhere in this playbook are ordinal authoring targets, not measured DOM reads (see unverified). Phase-4 wording: 'One thread, lived hero-to-footer; the hero owns the dominant mechanic, later sections re-express it, no section goes silent.'"
- },
- "algorithm": [
-  {
-   "step": 1,
-   "decide": "The story shape",
-   "rule": "Classify by content, not taste. Archive/body-of-work brief (film foundation, production house, cinematographer) -> ritual-of-entry arc (gate -> masthead -> operable archive -> rest -> close). Single-continuous-material brief (CGI studio, one craft object, one reel) -> continuous-surface arc (loader-scene -> infinite/operable reel = the whole page, no discrete sections). Rough/DIY brand -> rough-cut montage. Default to ritual-of-entry when the component library requires a discrete section chain.",
-   "evidence": [
-    "Siena: gate->masthead->filmstrip->detail->close",
-    "Bisous continuous-surface (verified); KAI single-product variant",
-    "Grit: scrapbook montage"
-   ]
+  "element_states": {
+    "cta": {
+      "hover": "Full-token ink-inversion FILL — outline/light button floods a solid brand value, label flips to the opposite ink (Siena's CTA floods to solid, nested arrow inverting the opposite way, sub-second easeOutQuint per the internal teardown). Signature hero CTA adds a two-line label roll (visible translate out, duplicate translateY in, short stagger). Never a pale tint. The exact selectors/values are from an internal teardown, not independently verified; the ink-inversion-fill mechanic itself is standard.",
+      "tap": "The fill IS the tap answer — :active flash 90-160ms floor; no separate hover-only reveal.",
+      "focus": ":focus-visible mirrors hover (same fill/inversion) plus an ink/accent ring; reachable in keyboard order."
+    },
+    "link": {
+      "hover": "Accent recolor + underline wipe drawn from origin-left (scaleX 0->1, transform-origin left; Anthropic text-decoration-color transparent->ink ~.2s, text-underline-offset varies by context). Bisous menu links: randomized per-letter transformation. The underline-wipe selector referenced from Truekind is a cross-archetype micro-interaction borrow (Truekind is a light skincare SOTD, not dark cinematic-editorial) and is not independently verified — the mechanic is generic; the citation is not editorial-dark canon (see unverified).",
+      "tap": "Instant recolor + underline present (no drawn animation needed on touch).",
+      "focus": "Underline shown + accent colour; offset matches its context."
+    },
+    "figure": {
+      "hover": "Contained zoom scale(1.1) inside overflow:hidden (Siena figure zoom) + one companion cue (caption rise, scrim lift, or tint) — felt, never a 1-3% twitch. Gallery variant: hovered figure sharpens while siblings blur+dim (focus-defocus). Operable variant: hover/drag scrubs the footage (KAI). Index/project-row variant: hover reveals the muted footage preview (hover-preview-video), often cursor-tracking.",
+      "tap": "Tap-to-enlarge or navigate; drag scrubs on the operable variant (native touch-drag); index footage-preview becomes tap-to-play-inline vs navigate on touch.",
+      "focus": "focus-within triggers the same zoom + cue so keyboard users reach revealed captions."
+    },
+    "index_row": {
+      "hover": "For a body-of-film-work, the canonical reveal is the footage itself: hover a title/row and its muted video/still previews inline (hover-preview-video), commonly cursor-tracking. Fallback / text-only lists: the row lights an accent rule + surfaces metadata while siblings dim to ~45% (index-row-hover; Depo Luxe, Son Daven, Siena). ~.3s on ease-signature.",
+      "tap": "Navigate on tap, or tap-to-play-inline for the footage-preview variant; brief press flash; no sibling-dim / no hover-preview on touch (pointer-driven reveals are dormant).",
+      "focus": ":focus-visible lights the row (or shows a poster frame) identically; siblings dim so the focused target is unambiguous."
+    },
+    "heading": {
+      "hover": "NONE on in-flow headings — consistent with the Siena/Truekind entries (their published hover rules do not touch body prose, in-flow headings, or numerals; exact rules from an internal teardown). Hover on titles happens only inside a card/index-row context.",
+      "tap": "n/a (headings are not interactive targets).",
+      "focus": "n/a; entrance is the only motion — masked line reveal (kinetic-reveal, power4.out) or per-char assemble (char-assemble) or stochastic per-letter opacity settle (Bisous), fire-once, opacity holds 1 (a mask, never a fade)."
+    },
+    "nav": {
+      "hover": "Links recolor/underline (accent-link) or per-char rollover (split-rollover). Bar itself: transparent gradient scrim over the hero, gains ground on scroll, ink-inversion by the section behind (pointer-events:none scrim, .on-dark flips ink). Never frosted, never a contrasting border-bottom.",
+      "tap": "Menu toggle opens the dual-menu/overlay; links answer tap with instant recolor.",
+      "focus": "show-on-scroll-up reveals the bar; focus-visible rings on links; the pointer-events:none scrim never traps focus."
+    },
+    "cursor": {
+      "hover": "On drag/operable fields (filmstrip, drag-scrub video, reel) the cursor morphs from the default pointer to a verb-label or glyph that names the operable verb — 'DRAG', 'HOLD', 'VIEW', or a play-triangle — so the affordance is taught visually, not only by onboarding copy. Enters on pointer-over the operable field, retracts to default on exit (cursor-verb-label GAP).",
+      "tap": "n/a — no cursor on touch; replaced by a persistent 'swipe'/'drag' hint or a next-cell peek (see mobile_answer).",
+      "focus": "n/a — decorative pointer layer; keyboard reaches the operable content via the underlying controls, never via the cursor glyph."
+    }
   },
-  {
-   "step": 2,
-   "decide": "The signature thread (the fil rouge carried hero-to-footer)",
-   "rule": "Choose exactly ONE family and apply it page-wide: (a) the film GRADE — one desaturated high-contrast duotone/mono on every image, edge-to-edge, source light kept, over a pure off-black floor; (b) the operable-DRAG verb — the reader's pointer/touch drives every still/video (hold-and-drag filmstrip, drag-scrub video, drag reel); (c) the type TEXTURE — a doubled two-line label roll OR a stochastic per-letter opacity flicker on every heading/caption/link. Checkable constraint: the chosen family appears in the first viewport AND recurs in every subsequent section; the other two families may appear at most once, locally, and never as a page-wide system that repeats across sections.",
-   "evidence": [
-    "Siena: grade + hold-and-drag + doubled-char roll (one family)",
-    "KAI: drag-scrub verb everywhere",
-    "Bisous: per-letter opacity flicker on all type + infinite reel"
-   ]
-  },
-  {
-   "step": 3,
-   "decide": "Macrostructure",
-   "rule": "Ritual-of-entry -> gated-splash(threshold) + hero-masthead(climax) + pinned-filmstrip(reel) + editorial-split(per-work detail) + close-panel + oversized-wordmark footer. Continuous-surface -> loader-scene + fullscreen-vertical-reel (GAP: infinite bidirectional slider) as the whole body + curtain-less transitions + bare-cue/costumed-credits footer. Never open on a card grid; never a centered-hero + twin-CTA; lateral or continuous motion is hand-driven or IS the content, never an autoplay carousel.",
-   "evidence": [
-    "Siena anatomy (SOTD/SOTM entry)",
-    "Bisous infinite vertical reel is the home",
-    "editorial.md anti-signals"
-   ]
-  },
-  {
-   "step": 4,
-   "decide": "Momentum map (dominant hero mechanic, no rival, no silence)",
-   "rule": "Deterministic constraints, ranked by animated-area x displacement (a proxy a composer can evaluate against the built DOM, not a taste call): (1) the hero holds the single most dominant novel mechanic on the page; (2) NO section after the hero introduces a NEW mechanic whose animated-area x displacement equals or exceeds the hero's — later sections re-express the Step-2 thread, they add no rival; (3) NO section is static: every section after the hero must exhibit at least one of {the chosen thread applied to its imagery, the operable-drag verb, an entrance or hover motion on its type/figures} — a section with no entrance motion, no hover state, and no operable media is illegal; (4) the reel/proof section runs the operable-drag verb continuously; the per-work detail may reduce to the grade + one type signature but never to none; the close re-expresses the thread exactly once. Continuous-surface: constraints (1)-(2) collapse to 'one surface that never stops moving and introduces no rival mechanic.' The ordinal intensity targets (hero highest, reel near-hero, detail reduced-but-nonzero, close single re-expression) live in section_playbook as authoring intent, not as measured units.",
-   "evidence": [
-    "Siena masthead dominant, filmstrip re-expresses the same roll",
-    "KAI even-high continuous",
-    "Bloom stacked-card + hover-preview re-spend mid-page, no rival to the hero"
-   ]
-  },
-  {
-   "step": 5,
-   "decide": "Per-section component pairing",
-   "rule": "hero-masthead: h1 -> kinetic-reveal OR (signature) doubled masked-label-swap; media(back) -> scrub-film OR clip-reveal + grain-grade overlay; data-strip -> mono stamp; on drag/operable pages, cursor -> verb-label morph (GAP). reel: pinned-filmstrip (desktop hold-and-drag) + swipe-snap-gallery (mobile native snap); index rows -> hover-preview-video (GAP: reveal the muted footage on row hover); caption -> text-emphasis-fill. detail: editorial-split, media left, h2 -> char-assemble, prose -> text-emphasis-fill + semantic-accent, media -> image-curtain (grayscale->colour reveal, so the reveal itself runs the grade transition), spec -> counter-odometer. close: close-panel, ask -> kinetic-reveal, channels -> accent-link + masked-label-swap. Use image-curtain (not plain clip-reveal) on every graded image.",
-   "evidence": [
-    "Siena recipe pairs",
-    "Bloom project-grid hover-preview (marquee title over preview image)",
-    "image-curtain manifest whenToUse (graded/archival imagery)",
-    "swipe-snap-gallery = scored Mobile Excellence line"
-   ]
-  },
-  {
-   "step": 6,
-   "decide": "Per-element interaction states",
-   "rule": "cta -> full-token ink-inversion fill (fill-invert-cta; never a pale tint) + optional two-line label roll (masked-label-swap), sub-second ease-signature. link -> accent recolor + underline wipe from origin-left (accent-link), ~.2s. figure -> contained zoom scale(1.1) inside overflow:hidden + companion cue (figure-hover); gallery -> focus-defocus siblings; operable/index variant -> hover-preview-video (reveal muted footage). index_row -> row lights accent rule + surfaced meta with siblings dimmed (index-row-hover) OR, for a body-of-film-work, the footage-preview reveal (hover-preview-video). heading -> masked reveal on entrance only, NO hover on in-flow headings (consistent with the Siena/Truekind entries; exact rules from an internal teardown). nav -> transparent + gradient scrim, ink-inversion by section behind, show-on-scroll-up; never frosted, never a contrasting border-bottom. cursor -> on drag/operable fields, morph to a verb-label/glyph ('DRAG'/'HOLD'/'VIEW'/play-triangle) that teaches the operable verb (GAP: cursor-verb-label).",
-   "evidence": [
-    "Siena CTA ink-inversion + arrow invert (internal teardown)",
-    "Anthropic text-decoration-color transparent->ink underline wipe",
-    "index-row-hover Depo/Son Daven/Siena",
-    "Awwwards 'Video Hover Preview' + 'Project hover preview' (Olivier Gillaizeau) + Bloom 'Hover listing archives'",
-    "Awwwards cursor customization resource + Hovers/Cursors + Drag/Gestures collections"
-   ]
-  },
-  {
-   "step": 7,
-   "decide": "Mobile answer",
-   "rule": "Pointer classes go dormant (pointer-parallax, magnetic-cursor, focus-defocus, conic-border-shine — native/off on touch). Press-class elements answer the tap with a 90-160ms flash floor (fill-invert-cta :active). The hold-and-drag filmstrip and any horizontal reel switch to native scroll-snap + OS momentum (swipe-snap-gallery) with next-cell peek and snap dots. Drag-scrub video answers touch-drag natively (KAI). Index hover-preview switches to tap-to-play-inline vs navigate (the footage reveal has no hover on touch). The cursor verb-label has no touch equivalent — replace it with a persistent 'swipe'/'drag' hint or a next-cell peek as the verb teacher. Figures get tap-to-enlarge. Grain-grade and any shader ground stay but drop amplitude. Bisous' infinite vertical reel = native touch swipe.",
-   "evidence": [
-    "swipe-snap-gallery manifest (Mobile Excellence, native snap, zero JS physics)",
-    "KAI drag-scrub responds to touch-drag",
-    "pointer-parallax DORMANT on touch (manifest)",
-    "cursor-verb-label has no touch analogue (Awwwards cursor resource)"
-   ]
-  },
-  {
-   "step": 8,
-   "decide": "Copy",
-   "rule": "One register: impersonal curator, fragments, imperatives in chrome only. Borrow proof verbatim (jury/press quotes), never self-claim. Never narrate or credit the build. Metadata as mono stamps (DISCIPLINE · YEAR · RUNTIME). Kicker/eyebrow default ABSENT — ships only when it carries a real category/date the title and position do not. Straight apostrophes in the dark register. The lone HUD-flavoured exception (production-tag nav) must read as diegetic craft, kept out of the prose.",
-   "evidence": [
-    "Siena onboarding 'Hold and drag to navigate' + borrowed jury quote",
-    "editorial.md copy law: no self-narration, default no kicker",
-    "Bisous production-tag nav"
-   ]
-  }
- ],
- "section_playbook": [
-  {
-   "role": "threshold",
-   "forms": [
-    "gated-splash",
-    "loader-scene (continuous-surface variant)"
-   ],
-   "pairs": [
-    "overlay: grain-grade",
-    "enter: fill-invert-cta OR masked-label-swap"
-   ],
-   "intensity": 7,
-   "states": "The ENTER control MUST answer hover/focus (fill-invert or label roll) — a dead ENTER hover is the first impression lost. Doubles as the sound gate. Authored hidden so no-JS shows the page.",
-   "evidence": [
-    "Siena gate-into-fold",
-    "Bisous cinematic loader = opening scene"
-   ]
-  },
-  {
-   "role": "hero",
-   "forms": [
-    "hero-masthead (media back)",
-    "type-as-image (poster masthead; h1 reportedly omitted on Siena — not independently verified)"
-   ],
-   "pairs": [
-    "h1: kinetic-reveal OR doubled masked-label-swap",
-    "media: scrub-film OR clip-reveal",
-    "grade: grain-grade",
-    "data-strip: mono stamp",
-    "cursor: verb-label morph (drag/operable pages)"
-   ],
-   "intensity": 9,
-   "states": "Pointer-events:none gradient-scrim nav over the still (never a bar). Entrance is the signature move; the hero hands the reader the verb (drag/cross) reused below, and on operable pages the cursor morphs to name that verb. Desktop pointer layer committed — a pointer-dead hero is a defect.",
-   "evidence": [
-    "Siena featured-work masthead + two-line label roll (internal teardown)",
-    "Bisous stochastic per-letter opacity settle"
-   ]
-  },
-  {
-   "role": "reel / proof",
-   "forms": [
-    "pinned-filmstrip (desktop hold-and-drag)",
-    "fullscreen-vertical-reel (GAP)",
-    "drag-scrub-video field (GAP)"
-   ],
-   "pairs": [
-    "caption: text-emphasis-fill",
-    "media: image-curtain",
-    "index rows: hover-preview-video (GAP)",
-    "cursor: verb-label morph",
-    "mobile: swipe-snap-gallery"
-   ],
-   "intensity": 8,
-   "states": "The operable-drag verb sustains here at near-hero amplitude — grab-drag on desktop (release momentum is an optional enhancement, not documented in the KAI source); native scroll-snap on touch. Index/project rows reveal their footage on hover (muted, often cursor-tracking). Titles roll via the same doubled-char label. Jury pull-quotes borrowed, not claimed.",
-   "evidence": [
-    "Siena hold-and-drag filmstrip, jury quotes",
-    "KAI touchable-video field",
-    "Bisous infinite vertical reel",
-    "Bloom 'Hover listing archives' / marquee-over-preview"
-   ]
-  },
-  {
-   "role": "feature / detail",
-   "forms": [
-    "editorial-split (media left/right)",
-    "stacked-card-scroll (GAP — Bloom services band)"
-   ],
-   "pairs": [
-    "h2: char-assemble",
-    "prose: text-emphasis-fill + semantic-accent",
-    "media: image-curtain",
-    "spec-table: counter-odometer"
-   ],
-   "intensity": 6,
-   "states": "REST beat but not silent: the grade and one text signature stay alive; figures answer hover with contained zoom (figure-hover); no hover on in-flow headings; protected reading measure (60-75ch). Reversible image parallax legal (returns on scroll-back), prose never scrubs.",
-   "evidence": [
-    "Siena per-work detail",
-    "Bloom stacked-card scroll",
-    "editorial.md mid-page: figures may scrub, prose stays un-scrubbed"
-   ]
-  },
-  {
-   "role": "close",
-   "forms": [
-    "close-panel",
-    "contact-modal (Bloom)"
-   ],
-   "pairs": [
-    "ask: kinetic-reveal",
-    "channels: accent-link + masked-label-swap",
-    "trust: mono line"
-   ],
-   "intensity": 6,
-   "states": "Re-spends the thread once — one imperative (18ch cap), decisive channel rows that answer hover/tap, a quiet trust line a rest below. No media slot (the close cannot become a mood reel).",
-   "evidence": [
-    "Siena LET'S TALK / EMAIL US / contact",
-    "close-panel manifest whenToUse"
-   ]
-  },
-  {
-   "role": "footer",
-   "forms": [
-    "oversized-wordmark",
-    "bare-cue / costumed-credits (continuous-surface)"
-   ],
-   "pairs": [
-    "wordmark: kinetic-reveal"
-   ],
-   "intensity": 6,
-   "states": "The grade and thread reach the footer. Oversized signed wordmark ('©2024. SIENA FILM FOUNDATION.') OR a designed thin credits refusal when the body already spent the spectacle. Palette may flip once here.",
-   "evidence": [
-    "Siena wordmark-contact-close footer",
-    "gated-reel-siena-immersive: thin credits close is a designed refusal"
-   ]
-  }
- ],
- "element_states": {
-  "cta": {
-   "hover": "Full-token ink-inversion FILL — outline/light button floods a solid brand value, label flips to the opposite ink (Siena's CTA floods to solid, nested arrow inverting the opposite way, sub-second easeOutQuint per the internal teardown). Signature hero CTA adds a two-line label roll (visible translate out, duplicate translateY in, short stagger). Never a pale tint. The exact selectors/values are from an internal teardown, not independently verified; the ink-inversion-fill mechanic itself is standard.",
-   "tap": "The fill IS the tap answer — :active flash 90-160ms floor; no separate hover-only reveal.",
-   "focus": ":focus-visible mirrors hover (same fill/inversion) plus an ink/accent ring; reachable in keyboard order."
-  },
-  "link": {
-   "hover": "Accent recolor + underline wipe drawn from origin-left (scaleX 0->1, transform-origin left; Anthropic text-decoration-color transparent->ink ~.2s, text-underline-offset varies by context). Bisous menu links: randomized per-letter transformation. The underline-wipe selector referenced from Truekind is a cross-archetype micro-interaction borrow (Truekind is a light skincare SOTD, not dark cinematic-editorial) and is not independently verified — the mechanic is generic; the citation is not editorial-dark canon (see unverified).",
-   "tap": "Instant recolor + underline present (no drawn animation needed on touch).",
-   "focus": "Underline shown + accent colour; offset matches its context."
-  },
-  "figure": {
-   "hover": "Contained zoom scale(1.1) inside overflow:hidden (Siena figure zoom) + one companion cue (caption rise, scrim lift, or tint) — felt, never a 1-3% twitch. Gallery variant: hovered figure sharpens while siblings blur+dim (focus-defocus). Operable variant: hover/drag scrubs the footage (KAI). Index/project-row variant: hover reveals the muted footage preview (hover-preview-video), often cursor-tracking.",
-   "tap": "Tap-to-enlarge or navigate; drag scrubs on the operable variant (native touch-drag); index footage-preview becomes tap-to-play-inline vs navigate on touch.",
-   "focus": "focus-within triggers the same zoom + cue so keyboard users reach revealed captions."
-  },
-  "index_row": {
-   "hover": "For a body-of-film-work, the canonical reveal is the footage itself: hover a title/row and its muted video/still previews inline (hover-preview-video), commonly cursor-tracking. Fallback / text-only lists: the row lights an accent rule + surfaces metadata while siblings dim to ~45% (index-row-hover; Depo Luxe, Son Daven, Siena). ~.3s on ease-signature.",
-   "tap": "Navigate on tap, or tap-to-play-inline for the footage-preview variant; brief press flash; no sibling-dim / no hover-preview on touch (pointer-driven reveals are dormant).",
-   "focus": ":focus-visible lights the row (or shows a poster frame) identically; siblings dim so the focused target is unambiguous."
-  },
-  "heading": {
-   "hover": "NONE on in-flow headings — consistent with the Siena/Truekind entries (their published hover rules do not touch body prose, in-flow headings, or numerals; exact rules from an internal teardown). Hover on titles happens only inside a card/index-row context.",
-   "tap": "n/a (headings are not interactive targets).",
-   "focus": "n/a; entrance is the only motion — masked line reveal (kinetic-reveal, power4.out) or per-char assemble (char-assemble) or stochastic per-letter opacity settle (Bisous), fire-once, opacity holds 1 (a mask, never a fade)."
-  },
-  "nav": {
-   "hover": "Links recolor/underline (accent-link) or per-char rollover (split-rollover). Bar itself: transparent gradient scrim over the hero, gains ground on scroll, ink-inversion by the section behind (pointer-events:none scrim, .on-dark flips ink). Never frosted, never a contrasting border-bottom.",
-   "tap": "Menu toggle opens the dual-menu/overlay; links answer tap with instant recolor.",
-   "focus": "show-on-scroll-up reveals the bar; focus-visible rings on links; the pointer-events:none scrim never traps focus."
-  },
-  "cursor": {
-   "hover": "On drag/operable fields (filmstrip, drag-scrub video, reel) the cursor morphs from the default pointer to a verb-label or glyph that names the operable verb — 'DRAG', 'HOLD', 'VIEW', or a play-triangle — so the affordance is taught visually, not only by onboarding copy. Enters on pointer-over the operable field, retracts to default on exit (cursor-verb-label GAP).",
-   "tap": "n/a — no cursor on touch; replaced by a persistent 'swipe'/'drag' hint or a next-cell peek (see mobile_answer).",
-   "focus": "n/a — decorative pointer layer; keyboard reaches the operable content via the underlying controls, never via the cursor glyph."
-  }
- },
- "mobile_answer": "Pointer classes go dormant (pointer-parallax, magnetic-cursor, focus-defocus, conic-border-shine are fine-pointer only; depth comes from scroll on touch). Press-class elements carry the load: fill-invert-cta answers the tap with a 90-160ms flash floor; index rows navigate with a brief press flash and no sibling-dim. The desktop hold-and-drag filmstrip and every horizontal reel switch to native scroll-snap + OS momentum via swipe-snap-gallery (next-cell peek, enhancer-fed snap dots — the verbatim-scored Awwwards Mobile Excellence line, zero JS physics). KAI's drag-scrub video answers touch-drag natively; Bisous' infinite vertical reel is a native touch swipe. Index footage-preview switches from hover to tap-to-play-inline vs navigate. The cursor verb-label has no touch equivalent — replace it with a persistent 'swipe'/'drag' hint or a next-cell peek that teaches the verb. Figures switch to tap-to-enlarge. Grain-grade and any shader ground stay but drop amplitude; reduced-motion degrades scrubbed media to a static graded poster.",
- "gaps": [
-  {
-   "component": "hover-preview-video",
-   "seen_in": [
-    "Bloom ('Hover listing archives' / marquee-over-preview)",
-    "Awwwards catalog: 'Video Hover Preview', 'Project hover preview' (Olivier Gillaizeau), 'Cursor hover preview video player (Canvas)', Bittercreek.Studio index hover"
-   ],
-   "mechanic": "The table-stakes production-house index interaction: hovering a project title/row reveals its muted footage (video or still sequence) inline, commonly cursor-tracking (the preview follows or anchors near the pointer), a marquee/scrolling title gliding over it. For an archetype whose content IS a body of film work this is the single most canonical index reveal, and it is stronger than the text-only spotlight-dim the index_row state currently encodes. Compositor-friendly (muted autoplay video or sprite/still crossfade). Touch answer: no hover — tap-to-play-inline vs navigate, or a poster frame. Reduced-motion: static poster frame, no autoplay.",
-   "priority": 1
-  },
-  {
-   "component": "fullscreen-vertical-reel",
-   "seen_in": [
-    "Bisous"
-   ],
-   "mechanic": "A full-screen vertical slider that IS the whole home — infinite scroll in BOTH vertical directions (looping, no start/end), one full-bleed treated work per panel, titles composed as studio-name + client-name. Continuous project-to-project flow with no discrete sections; the macrostructure itself is the spectacle-continuation. Native touch-swipe on mobile; wheel/drag on desktop with eased momentum (Lenis-smoothed). Reduced-motion: static stacked panels, native scroll. Fills the archetype's continuous-surface arc that every current recipe (all discrete-section chains) cannot express. Evidence caveat: one fully verified instance (Bisous), sharing a studio with Bloom (Beaucoup.) — a legal resolution, not broad canon.",
-   "priority": 1
-  },
-  {
-   "component": "drag-scrub-video",
-   "seen_in": [
-    "KAI Design Dept.",
-    "Siena (still-scrub cousin)"
-   ],
-   "mechanic": "Grab-drag over a video field maps pointer/touch delta to video.currentTime. Extends scrub-film (currently scroll/pointer-position -> currentTime on a single still) with: horizontal/vertical drag, a whole-SECTION operable field (not one figure), and cross-browser scrub encoding guidance — H.264 baseline, ~12-frame keyframe interval (`-g 12`) for seekability vs file size, WebCodecs fallback (mediabunny) for sample-accurate seeking in Firefox. Release momentum/inertia is an OPTIONAL enhancement — the KAI Codrops source documents only `video.currentTime = sec`, no momentum (see unverified); do not assert inertia as verified. Optional WebGL line depth-of-field is a delegated shader layer, noted not built. Native touch-drag on mobile; reduced-motion -> static poster frame.",
-   "priority": 1
-  },
-  {
-   "component": "cursor-verb-label",
-   "seen_in": [
-    "Awwwards cursor resources: 'Customize your mouse cursor: inspirational examples & implementation tricks', 'Hovers, Cursors and Cute Interactions' collection, 'Drag, Gestures & Other Interactions' collection"
-   ],
-   "mechanic": "The visual teacher for the operable verb the playbook's own thesis relies on ('the hero hands the reader the verb'). On pointer-over an operable field (filmstrip, drag-scrub video, reel) the cursor morphs from default to a verb-label/glyph — 'DRAG', 'HOLD', 'VIEW', or a play-triangle — retracting on exit. Currently the playbook teaches the verb only via onboarding COPY and lists magnetic-cursor merely as a dormant-on-touch pointer class, never as the verb-signal. Compositor-only (a fixed element tracking pointer coords, transform/opacity). Touch: no cursor — replace with a persistent 'swipe'/'drag' hint or next-cell peek. Reduced-motion: static default cursor + the onboarding copy alone.",
-   "priority": 2
-  },
-  {
-   "component": "flicker-reveal",
-   "seen_in": [
-    "Bisous"
-   ],
-   "mechanic": "Stochastic per-letter opacity settle: characters fade in on RANDOMIZED opacity transitions (not a uniform mask, not char-assemble's positional stagger, not scramble's charset noise) — echoing the imperfection of a 3D render / film grain on type. Entrance-once on headings/captions; a hover-replay variant fires 'randomized letter transformations' on menu links. Distinct dark-cinematic text texture our text kit (kinetic-reveal / char-assemble / text-emphasis-fill / scramble-decode) does not cover. aria-label preserves the accessible name; reduced-motion -> instant full opacity.",
-   "priority": 2
-  },
-  {
-   "component": "stacked-card-scroll",
-   "seen_in": [
-    "Bloom"
-   ],
-   "mechanic": "A pinned deck where layered cards overlap and peel as the track scrolls — each card pins, the next rises to cover/offset it, giving a mid-page mechanic that re-spends hero momentum in the proof/services band. Compositor-only (transform/opacity), reversible on scroll-back. Distinct from card-list (static grid). Mobile: native scroll with reduced overlap or a simple stack. Reduced-motion: flat stacked list.",
-   "priority": 2
-  },
-  {
-   "component": "continuous-work-transition",
-   "seen_in": [
-    "Bisous"
-   ],
-   "mechanic": "A curtain-LESS route/section transition that leads 'seamlessly into the next work' — the opposite of curtain-transition's cover wipe. Shared-element / cross-dissolve morph where the outgoing figure flows into the incoming one, 'fluid and almost imperceptible', keeping immersion unbroken. Partially adjacent to Cyd Stumpel's View-Transitions shared-element morph already in recipes, but here it is a continuous-immersion mode with no cover phase. Reduced-motion / no-View-Transitions: instant cut.",
-   "priority": 3
-  }
- ],
- "unverified": [
-  "Siena exact CSS is internal, not independently verifiable. The Awwwards SOTD/SOTM entry confirms the mechanics by NAME only (Film Strip Slider, Dynamic Menu, Contact Type Lettering, Procedural Slider Re-Arrangement). The exact selectors (.all-work-cta-w:hover{background:#000;color:#fff}), the two-line label-roll transforms (translate(100%) out / translateY(-150%) in, .1s stagger, .8s easeOutQuint), the .5s CTA timing, and the 'no semantic h1' claim all rest on an internal teardown (editorial.md), NOT on any source reachable without the live DOM. Treat the mechanic families as verified; treat the precise values as internal-source, unverified.",
-  "KAI drag scrub carrying release momentum / inertia is invented beyond the source. The Codrops case study (2025-11-20) documents only pointer/touch delta -> video.currentTime = sec; it gives no mention of momentum, inertia, or release physics. The drag verb is verified; the inertia embellishment is not — it is an optional implementation choice, not a documented KAI behavior.",
-  "Truekind micro-state CSS as editorial-dark canon is a cross-archetype misfit. truekind-skincare is a real Awwwards SOTD (2025-04-29, Developer Award) but a LIGHT skincare brand (2-colour palette, PP Mori + Editorial Neue), not a dark cinematic-editorial film site. Its link/button micro-states (.link:before scaleX origin 0 50%, .btn.outline:hover{background:#3b3b3b;color:#fff}) are used here only as generic micro-interaction references; the exact selectors are not independently verifiable and carry no editorial-dark evidentiary weight.",
-  "Single-studio concentration in the in-window corpus. Bloom (SOTD 2025-05-07) and Bisous (HM 2026-04-08) were BOTH built by Beaucoup. (verified). The 'loader-as-first-scene' arc (Bisous + Bloom) and the 'continuous-surface' law (Bisous fully; KAI a single-product variant) therefore lean substantially on one studio's house style. These remain legal editorial-dark resolutions, but the evidence base for them as broad archetype canon is thin.",
-  "Per-section intensity numbers (7/9/8/6/6 etc. in section_playbook and referenced by the algorithm) are ordinal AUTHORING TARGETS, not measured DOM-timing reads. The shape (hero dominant, reel near-hero, detail reduced-but-nonzero, close single re-expression, no silence) is verified structurally; the specific numeric values for Bloom/KAI/Grit are calibrated estimates from case-study/entry descriptions, not live reads.",
-  "Bisous infinite-reel and flicker-reveal easing names/durations are described qualitatively in the Codrops case study ('randomized opacity transitions', 'fluid and almost imperceptible'); exact cubic-beziers and ms were not published.",
-  "Grit Pictures interaction mechanics beyond the monochrome-scrapbook art direction (specific hover/scroll/loader) were not documented in the Awwwards entry; its role in the corpus is register-evidence (rough-cut dark editorial), not mechanic-evidence.",
-  "Scroll-velocity-reactive media (skew/scale/RGB-offset on fast scroll, settling on stop) is a CANDIDATE rest-beat filler for the 'never-silent' job, not asserted canon. Evidence is pattern-level (Awwwards filters/effects and scroll collections), not a single pinned editorial-dark winner this run — hold it as a candidate mechanism, do not encode it as a rule.",
-  "Lando Norris (landonorris.com) — cross-archetype support only. Verified this run: Awwwards Site of the Month 2025-12 AND Site of the Year 2025 + Users' Choice (by OFF+BRAND) — the previously-hedged SOTY claim is now independently confirmed. It is the IMMERSIVE archetype, not editorial-dark; cited only for the cross-archetype momentum shape (hero spectacle + mid-page 3D climax + inverted valediction close, thread to footer). The editorial-dark verdict is anchored in editorial-dark winners.",
-  "Harvard Film Archive is a 2019 SOTD — outside the 2024-2026 window; used only as institutional-archive precedent, no rule rests on it."
- ],
- "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent."
+  "mobile_answer": "Pointer classes go dormant (pointer-parallax, magnetic-cursor, focus-defocus, conic-border-shine are fine-pointer only; depth comes from scroll on touch). Press-class elements carry the load: fill-invert-cta answers the tap with a 90-160ms flash floor; index rows navigate with a brief press flash and no sibling-dim. The desktop hold-and-drag filmstrip and every horizontal reel switch to native scroll-snap + OS momentum via swipe-snap-gallery (next-cell peek, enhancer-fed snap dots — the verbatim-scored Awwwards Mobile Excellence line, zero JS physics). KAI's drag-scrub video answers touch-drag natively; Bisous' infinite vertical reel is a native touch swipe. Index footage-preview switches from hover to tap-to-play-inline vs navigate. The cursor verb-label has no touch equivalent — replace it with a persistent 'swipe'/'drag' hint or a next-cell peek that teaches the verb. Figures switch to tap-to-enlarge. Grain-grade and any shader ground stay but drop amplitude; reduced-motion degrades scrubbed media to a static graded poster.",
+  "gaps": [
+    {
+      "component": "hover-preview-video",
+      "seen_in": [
+        "Bloom ('Hover listing archives' / marquee-over-preview)",
+        "Awwwards catalog: 'Video Hover Preview', 'Project hover preview' (Olivier Gillaizeau), 'Cursor hover preview video player (Canvas)', Bittercreek.Studio index hover"
+      ],
+      "mechanic": "The table-stakes production-house index interaction: hovering a project title/row reveals its muted footage (video or still sequence) inline, commonly cursor-tracking (the preview follows or anchors near the pointer), a marquee/scrolling title gliding over it. For an archetype whose content IS a body of film work this is the single most canonical index reveal, and it is stronger than the text-only spotlight-dim the index_row state currently encodes. Compositor-friendly (muted autoplay video or sprite/still crossfade). Touch answer: no hover — tap-to-play-inline vs navigate, or a poster frame. Reduced-motion: static poster frame, no autoplay.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "fullscreen-vertical-reel",
+      "seen_in": [
+        "Bisous"
+      ],
+      "mechanic": "A full-screen vertical slider that IS the whole home — infinite scroll in BOTH vertical directions (looping, no start/end), one full-bleed treated work per panel, titles composed as studio-name + client-name. Continuous project-to-project flow with no discrete sections; the macrostructure itself is the spectacle-continuation. Native touch-swipe on mobile; wheel/drag on desktop with eased momentum (Lenis-smoothed). Reduced-motion: static stacked panels, native scroll. Fills the archetype's continuous-surface arc that every current recipe (all discrete-section chains) cannot express. Evidence caveat: one fully verified instance (Bisous), sharing a studio with Bloom (Beaucoup.) — a legal resolution, not broad canon.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "drag-scrub-video",
+      "seen_in": [
+        "KAI Design Dept.",
+        "Siena (still-scrub cousin)"
+      ],
+      "mechanic": "Grab-drag over a video field maps pointer/touch delta to video.currentTime. Extends scrub-film (currently scroll/pointer-position -> currentTime on a single still) with: horizontal/vertical drag, a whole-SECTION operable field (not one figure), and cross-browser scrub encoding guidance — H.264 baseline, ~12-frame keyframe interval (`-g 12`) for seekability vs file size, WebCodecs fallback (mediabunny) for sample-accurate seeking in Firefox. Release momentum/inertia is an OPTIONAL enhancement — the KAI Codrops source documents only `video.currentTime = sec`, no momentum (see unverified); do not assert inertia as verified. Optional WebGL line depth-of-field is a delegated shader layer, noted not built. Native touch-drag on mobile; reduced-motion -> static poster frame.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "cursor-verb-label",
+      "seen_in": [
+        "Awwwards cursor resources: 'Customize your mouse cursor: inspirational examples & implementation tricks', 'Hovers, Cursors and Cute Interactions' collection, 'Drag, Gestures & Other Interactions' collection"
+      ],
+      "mechanic": "The visual teacher for the operable verb the playbook's own thesis relies on ('the hero hands the reader the verb'). On pointer-over an operable field (filmstrip, drag-scrub video, reel) the cursor morphs from default to a verb-label/glyph — 'DRAG', 'HOLD', 'VIEW', or a play-triangle — retracting on exit. Currently the playbook teaches the verb only via onboarding COPY and lists magnetic-cursor merely as a dormant-on-touch pointer class, never as the verb-signal. Compositor-only (a fixed element tracking pointer coords, transform/opacity). Touch: no cursor — replace with a persistent 'swipe'/'drag' hint or next-cell peek. Reduced-motion: static default cursor + the onboarding copy alone.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "flicker-reveal",
+      "seen_in": [
+        "Bisous"
+      ],
+      "mechanic": "Stochastic per-letter opacity settle: characters fade in on RANDOMIZED opacity transitions (not a uniform mask, not char-assemble's positional stagger, not scramble's charset noise) — echoing the imperfection of a 3D render / film grain on type. Entrance-once on headings/captions; a hover-replay variant fires 'randomized letter transformations' on menu links. Distinct dark-cinematic text texture our text kit (kinetic-reveal / char-assemble / text-emphasis-fill / scramble-decode) does not cover. aria-label preserves the accessible name; reduced-motion -> instant full opacity.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "stacked-card-scroll",
+      "seen_in": [
+        "Bloom"
+      ],
+      "mechanic": "A pinned deck where layered cards overlap and peel as the track scrolls — each card pins, the next rises to cover/offset it, giving a mid-page mechanic that re-spends hero momentum in the proof/services band. Compositor-only (transform/opacity), reversible on scroll-back. Distinct from card-list (static grid). Mobile: native scroll with reduced overlap or a simple stack. Reduced-motion: flat stacked list.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "continuous-work-transition",
+      "seen_in": [
+        "Bisous"
+      ],
+      "mechanic": "A curtain-LESS route/section transition that leads 'seamlessly into the next work' — the opposite of curtain-transition's cover wipe. Shared-element / cross-dissolve morph where the outgoing figure flows into the incoming one, 'fluid and almost imperceptible', keeping immersion unbroken. Partially adjacent to Cyd Stumpel's View-Transitions shared-element morph already in recipes, but here it is a continuous-immersion mode with no cover phase. Reduced-motion / no-View-Transitions: instant cut.",
+      "priority": 3,
+      "status": "merged"
+    }
+  ],
+  "unverified": [
+    "Siena exact CSS is internal, not independently verifiable. The Awwwards SOTD/SOTM entry confirms the mechanics by NAME only (Film Strip Slider, Dynamic Menu, Contact Type Lettering, Procedural Slider Re-Arrangement). The exact selectors (.all-work-cta-w:hover{background:#000;color:#fff}), the two-line label-roll transforms (translate(100%) out / translateY(-150%) in, .1s stagger, .8s easeOutQuint), the .5s CTA timing, and the 'no semantic h1' claim all rest on an internal teardown (editorial.md), NOT on any source reachable without the live DOM. Treat the mechanic families as verified; treat the precise values as internal-source, unverified.",
+    "KAI drag scrub carrying release momentum / inertia is invented beyond the source. The Codrops case study (2025-11-20) documents only pointer/touch delta -> video.currentTime = sec; it gives no mention of momentum, inertia, or release physics. The drag verb is verified; the inertia embellishment is not — it is an optional implementation choice, not a documented KAI behavior.",
+    "Truekind micro-state CSS as editorial-dark canon is a cross-archetype misfit. truekind-skincare is a real Awwwards SOTD (2025-04-29, Developer Award) but a LIGHT skincare brand (2-colour palette, PP Mori + Editorial Neue), not a dark cinematic-editorial film site. Its link/button micro-states (.link:before scaleX origin 0 50%, .btn.outline:hover{background:#3b3b3b;color:#fff}) are used here only as generic micro-interaction references; the exact selectors are not independently verifiable and carry no editorial-dark evidentiary weight.",
+    "Single-studio concentration in the in-window corpus. Bloom (SOTD 2025-05-07) and Bisous (HM 2026-04-08) were BOTH built by Beaucoup. (verified). The 'loader-as-first-scene' arc (Bisous + Bloom) and the 'continuous-surface' law (Bisous fully; KAI a single-product variant) therefore lean substantially on one studio's house style. These remain legal editorial-dark resolutions, but the evidence base for them as broad archetype canon is thin.",
+    "Per-section intensity numbers (7/9/8/6/6 etc. in section_playbook and referenced by the algorithm) are ordinal AUTHORING TARGETS, not measured DOM-timing reads. The shape (hero dominant, reel near-hero, detail reduced-but-nonzero, close single re-expression, no silence) is verified structurally; the specific numeric values for Bloom/KAI/Grit are calibrated estimates from case-study/entry descriptions, not live reads.",
+    "Bisous infinite-reel and flicker-reveal easing names/durations are described qualitatively in the Codrops case study ('randomized opacity transitions', 'fluid and almost imperceptible'); exact cubic-beziers and ms were not published.",
+    "Grit Pictures interaction mechanics beyond the monochrome-scrapbook art direction (specific hover/scroll/loader) were not documented in the Awwwards entry; its role in the corpus is register-evidence (rough-cut dark editorial), not mechanic-evidence.",
+    "Scroll-velocity-reactive media (skew/scale/RGB-offset on fast scroll, settling on stop) is a CANDIDATE rest-beat filler for the 'never-silent' job, not asserted canon. Evidence is pattern-level (Awwwards filters/effects and scroll collections), not a single pinned editorial-dark winner this run — hold it as a candidate mechanism, do not encode it as a rule.",
+    "Lando Norris (landonorris.com) — cross-archetype support only. Verified this run: Awwwards Site of the Month 2025-12 AND Site of the Year 2025 + Users' Choice (by OFF+BRAND) — the previously-hedged SOTY claim is now independently confirmed. It is the IMMERSIVE archetype, not editorial-dark; cited only for the cross-archetype momentum shape (hero spectacle + mid-page 3D climax + inverted valediction close, thread to footer). The editorial-dark verdict is anchored in editorial-dark winners.",
+    "Harvard Film Archive is a 2019 SOTD — outside the 2024-2026 window; used only as institutional-archive precedent, no rule rests on it."
+  ],
+  "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, motion register + interaction vocabulary, annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent.",
+  "gaps_note": "All orders closed July 2026 (completeness program) — entries kept as the winner-cited mechanic-spec grammar; per-entry status carries the resolution. For a builder every entry is library-covered: compose, never author."
 }
