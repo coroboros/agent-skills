@@ -381,7 +381,7 @@
         },
         {
           "role": "place-tour",
-          "form": "MISSING:place-tour",
+          "form": "place-tour",
           "pairs": {
             "counters": "counter-odometer",
             "media": [
@@ -444,7 +444,7 @@
         }
       ],
       "footer": "oversized-wordmark (signed: All work (c) DEPO LUXE, 2026)",
-      "loader": "MISSING:svg-path-fill-loader (SVG logo fill then dissolve, no hard cut)",
+      "loader": "svg-path-fill-loader",
       "paceNotes": "the WebGL field is the ground, not a spike; the index's spotlight-dim carries the middle; the signed wordmark footer is the quiet rest-close. Requires a WebGL path",
       "whenToUse": "luxury creative folio wanting a living WebGL ground under a spotlight-dim index"
     },

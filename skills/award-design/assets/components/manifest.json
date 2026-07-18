@@ -1344,6 +1344,55 @@
       },
       "whenToUse": "The 'hold the object still, advance the story' proof beat: ONE media figure pins for a bounded distance (one viewport of runway per step) while caption blocks — and optional inset detail plates — step over it as a pure function of scroll, then the pin releases through the boundary parks. Ruled DISTINCT from pinned-demo-panels (bento's specimen tour, where every panel pairs copy with its OWN demo and the stage content cross-fades panel to panel): here the held object never fades, never swaps — drive-verified media opacity 1 at every sample of a full scrub, both directions, zero overlap onto the neighbor sections. The active step publishes as data-ad-pms-step. Reduce / no JS: the static stacked layout stands, every caption legible.",
       "init": "awardPinnedMediaStepthrough.init(root, { selector, fade })"
+    },
+    {
+      "id": "place-tour",
+      "css": "forms/place-tour.css",
+      "js": "forms/place-tour.js",
+      "global": "awardPlaceTour",
+      "winner": "Son Daven (SOTD Jun 5 2026, 7.62 + Developer Award 8.09 — the place-tour proof beats with walk-time counters; already flagged MISSING:place-tour in recipes.json, the place-tour section `form` of argument-scroll-sondaven)",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "intro",
+          "element": "header",
+          "required": false
+        },
+        {
+          "name": "stations",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "media": [
+          "alternate",
+          "left"
+        ]
+      },
+      "pairs": {
+        "counters": [
+          "counter-odometer"
+        ],
+        "media": [
+          "clip-reveal",
+          "image-curtain"
+        ],
+        "h3": [
+          "char-assemble"
+        ]
+      },
+      "whenToUse": "The SPATIAL WALK as a proof band: an itinerary of stations, each pairing one photographic plate with a place name, prose, and a tabular walk-time counter — the count is the proof grammar (the named place, the number, never adjectives). data-media='alternate' sways the walk (every second station mirrors). The enhancer publishes the station nearest the viewport centre as data-ad-place-station on the root + data-ad-place-active on the station — a pure function of scroll, zero-flip, attributes only (drive-verified 0→1→2 down and 2→1→0 back up). Ruled DISTINCT from pinned-media-stepthrough (ONE held object with stepping captions — here every station owns its OWN plate and the page walks between places) and editorial-split (a single split band — no station rhythm, no counter grammar). No-JS / reduce: the static itinerary stands fully legible; the stylesheet hides nothing.",
+      "init": "awardPlaceTour.init(root, { selector })"
     }
   ],
   "components": [
@@ -2747,6 +2796,93 @@
       "deps": [],
       "whenToUse": "The CTA move for photographic / 3D / frosted surfaces where a fill or roll reads too heavy: data-ad-line-cta='ring' stroke-draws an SVG ring around a circular CTA (pathLength-normalized dashoffset 1->0 over ~700ms from 12 o'clock, retracting through the same transition on leave — drive-verified draw AND retract, no spill past r=49 in the 100-box); data-ad-line-cta='underline' fades a .5px currentColor :before in over ~160ms — an underline that APPEARS, never grows from a point. NO fill flood, NO label colour flip; :focus-visible mirrors hover; touch answers on :active over a 140ms flash floor. Ruled DISTINCT from fill-invert-cta (flood) and masked-label-swap (roll). Reduce: the line is present at rest, nothing animates.",
       "init": "awardLineDrawCta.init(root, { selector })"
+    },
+    {
+      "id": "scrub-parallax-bed",
+      "file": "scrub-parallax-bed.js",
+      "global": "awardScrubParallaxBed",
+      "winner": "Son Daven (SOTD Jun 5 2026, 7.62 + Developer Award 8.09 — the reversible scrubbed décor bed under the entire mid-page; award-verified, the interior numbers — layer count, rates, the film's scrub:.25 catch-up — are executable defaults, not source-verified); Urban Jürgensen (SOTD Oct 2025 — the never-resting scroll)",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The executable form of the continuation law: a multi-layer parallax/film bed welded to SCROLL that runs UNDER the whole mid-page while fire-once reveals play over it. [data-depth] layers translate at differential rates as a PURE function of the bed's viewport progress (ease:none, zero lag — drive-verified identical transforms at the same scroll position down and back up), plus an optional [data-ad-bed-film] whose currentTime chases that progress through a 0.25s catch-up; Range-less serving self-heals into a blob (the scrub-film law). Ruled DISTINCT from pointer-parallax (pointer-driven, fine-pointer only, dormant on touch — this bed is scroll-driven, always-on, works on touch), scrubbed-decor-draw (SVG stroke/pluck/shear channels — no translate-depth layers, no film), and dolly-zoom (a pinned focal push). Compositor-only, IO-gated off-screen. Reduce: the authored rest stands, the film holds its poster.",
+      "init": "awardScrubParallaxBed.init(root, { selector, amplitude })"
+    },
+    {
+      "id": "route-transition-overlay",
+      "file": "route-transition-overlay.js",
+      "global": "awardRouteTransitionOverlay",
+      "winner": "Delvaux (HM Jun 15 2026, multi-page commerce; 51North case study: 'dynamic transitions... unify product categories'); Urban Jürgensen (SOTD Oct 2025, PDP + product pages); Brunello Cucinelli AI (SOTD Jul 9 2026). The per-site mechanic (Barba/Taxi vs bespoke) was not exposed — this is the playbook's Barba.js/Taxi.js-style executable default",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ground-2",
+        "--ad-dur-base",
+        "--ad-ease-signature",
+        "--ad-dur-reveal"
+      ],
+      "deps": [],
+      "whenToUse": "The continuity law across a real page navigation on multi-page maisons: intercepts same-origin link clicks (preventDefault), covers the view with a full-bleed transform panel on the decelerating register, fetches the next document and swaps the [data-ad-view] container under full cover, holds a brief loader RE-ENTRY beat while onEnter re-establishes the thread (décor bed / WebGL ground / scored drift), then uncovers — pushState on navigate, popstate rides the same beat both directions (drive-verified: cover → swap-under-cover → held re-entry → uncover, forward AND back). Any failure falls through to the browser's own navigation. Ruled DISTINCT from curtain-transition (imperative wipe tool — no interception, no fetch, no history, no re-entry beat), route-view-transition-carrier (minimalist SPA crossfade around a builder-supplied swap fn), and page-transition-choreography (bold-maximal spectacle blend — builder-driven, the peak the luxury page never plays); none keeps a real href alive. Reduce: no panel — instant swap + short cross-fade.",
+      "init": "awardRouteTransitionOverlay.init(root, { container, onLeave, onEnter, reentry, color, zIndex })"
+    },
+    {
+      "id": "press-hold-reveal",
+      "file": "press-hold-reveal.js",
+      "global": "awardPressHoldReveal",
+      "winner": "Louis Vuitton Collectibles (SOTD Feb 2024, Animations 9.4 — the click-and-hold product reveal). The hold band (~600-900ms, default 700) is the LV-band executable default shared with contextual-cursor-label",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The luxury gesture primitive — the OBJECT half of the charge arc contextual-cursor-label leaves to the object: pressing a [data-ad-gesture=\"HOLD\"] object charges it over its declared data-ad-gesture-hold duration (ONE attribute times the cursor's dial AND the object's charge — never two clocks), the charge drives the reveal progressively (--ad-phr-charge 0..1 + data-ad-charging; the authored [data-ad-press-detail] rides it — drive-verified 0.276/0.56/0.846 at 200/400/600ms of a 700ms hold), completes and LOCKS at a full hold (data-ad-revealed + aria-expanded + onReveal), retracts 3x on early release (drive-verified 0.421 → 0 in ~180ms). Pointer AND touch first-class (drive-verified under touch emulation); keyboard Enter/Space is a single activate — no timing barrier. Ruled DISTINCT from hard-press-button (instant styling press, no time dimension), scrub-film (position-mapped, nothing charges), and contextual-cursor-label (chrome only — 'drives no reveal'). Reduce: any press or activate reveals instantly; the settle transition is gated no-preference (parse-verified).",
+      "init": "awardPressHoldReveal.init(root, { selector, onReveal })"
+    },
+    {
+      "id": "scored-scene-procession",
+      "file": "scored-scene-procession.js",
+      "global": "awardScoredSceneProcession",
+      "winner": "Cartier WAW 2025 (SOTD Aug 18 2025, 7.64 + Dev Award — six self-contained alcoves, scenes dispose/load between rooms, continuous Mooders score; structure + score confirmed via webgpu.com, per-scene timings not exposed); Cartier WAW 2026 (SOTD May 2026); Louis Vuitton Collectibles (SOTD Feb 2024, change-universe)",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [
+        "rooms-procession (REQUIRED sibling component — the rig; this conductor constructs it and never re-derives the scroll math)"
+      ],
+      "whenToUse": "The cinematic-pavilion conductor welded onto the rooms-procession rig — the two halves the library could not execute: (1) SCENE LIFECYCLE, the dispose/load policy (only the active room ± margin stays mounted; onSceneLoad/onSceneDispose + data-ad-ssp-load stamps — drive-verified window 1100→1110→0111→0011 across a 4-room walk, reversing on the way back); (2) THE SCORE, a continuous soundscape as a NARRATIVE layer: a looping bed + one stem per room, each stem's gain keyed to walk proximity so crossing a boundary IS the crossfade (drive-verified [1,0,0,0] in room 0 → [0,.38,.62,0] mid-crossing) — behind ONE fixed gesture-unlocked toggle, AudioContext created only inside the click (drive-verified: graph absent until the trusted click), muted by default. Ruled DISTINCT from rooms-procession (scroll math only — no lifecycle policy, no audio) and sound-channel (bold-maximal page-level SFX/ambient, scene-agnostic — one audio carrier per page, ever; on a pavilion page this component IS it). Reduce: the rig snaps by its own law, the mix snaps, the toggle stays operable.",
+      "init": "awardScoredSceneProcession.init(track, { margin, onSceneLoad, onSceneDispose, onRoom, onProgress, onTransition, window, ease, score: { bed, stems, volume } })"
+    },
+    {
+      "id": "svg-path-fill-loader",
+      "file": "svg-path-fill-loader.js",
+      "global": "awardSvgPathFillLoader",
+      "winner": "Depo Luxe (SOTD + Developer Award Jul 7 2026, 7.62, Animations 8.40 — the video-preloader + SVG-logo fill; already flagged MISSING:svg-path-fill-loader in recipes.json, engine-world-depoluxe's loader field, with the recipe's own annotation 'SVG logo fill then dissolve, no hard cut'). Interior timings are executable defaults",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ink",
+        "--ad-dur-reveal",
+        "--ad-ease-signature",
+        "--ad-dur-base"
+      ],
+      "deps": [],
+      "whenToUse": "The mark that fills, then dissolves: the builder's authored SVG wordmark stands center-stage as a faint ghost and its fill RISES through the paths with honest load progress (a clip-path inset on a ghost+fill clone pair; ease to 90% over minDuration, hold for the real window load, settle — drive-verified 22%→82% over the first second, settle at 100, aria-valuenow tracking) — the mark ITSELF is the progress instrument, no bar, no counter — then one held beat and the scene dissolves over the painted hero, no hard cut (drive-verified: scene hidden restored, mark unwrapped, scroll unlocked, onDone at 2893ms). Ruled DISTINCT from branded-preloader (mark BESIDE a readout, recedes), counter-loader / stepped-counter-loader (numeric instruments), flip-handoff-loader (the mark TRAVELS into the header), type-forward-intro-loader (a type intro). Reduce / sessionOnce: the scene never shows, onDone still fires (drive-verified).",
+      "init": "awardSvgPathFillLoader.init(root, { selector, minDuration, sessionOnce, onDone })"
     }
   ]
 }
