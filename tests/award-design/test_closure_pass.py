@@ -77,5 +77,17 @@ class TestClosureRecipes(unittest.TestCase):
                 self.assertIn("closed-world", self.recipes[rid]["paceNotes"])
 
 
+class TestWordmarkEnrollmentRule(unittest.TestCase):
+    """The live wordmark-floor verdict retracted the universal hover floor
+    (0/6 winners build a bespoke wordmark hover): the letter is enrollment in
+    the site's uniform link grammar, never a bespoke response."""
+
+    def test_preflight_carries_the_enrollment_letter(self):
+        preflight = (REPO_ROOT / "skills" / "award-design" / "references"
+                     / "preflight.md").read_text(encoding="utf-8")
+        self.assertIn("The wordmark follows the enrollment rule", preflight)
+        self.assertNotIn("The wordmark and the accent word are not exempt", preflight)
+
+
 if __name__ == "__main__":
     unittest.main()
