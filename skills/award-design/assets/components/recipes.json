@@ -1034,7 +1034,7 @@
       "sections": [
         {
           "role": "world-boot",
-          "form": "MISSING:world-boot",
+          "form": "world-boot",
           "pairs": {
             "gate": "gated-splash",
             "ground": "shader-surface"

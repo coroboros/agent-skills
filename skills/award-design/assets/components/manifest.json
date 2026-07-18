@@ -1788,6 +1788,70 @@
       },
       "whenToUse": "The engine's own ARRIVAL CHOREOGRAPHY: the first fold is the scene waking — the enhancer hands the builder's engine an arrive(p) driver via ready(arrive) and runs ONE decelerating clock over arriveMs, feeding the engine's choreography and the poster's inline opacity from the same value each frame, so the photographic plate is frame zero and the scene resolves out of it with no cut and no loader DOM. Drive-verified from a cold load: data-engine='arriving' from t≈150ms, 121 arrive() frames 0.022→1 over ~2s, poster opacity decaying on the same clock (0.816→0.001), then the inline visibility hide + data-engine='live' (CSS routes the mount the pointer); HUD chrome (wordmark/status/cue) authored DOM, live from frame one, never gated. Ruled on the seams: DISTINCT from narrative-scene-one-loader (the story-cover HANDOFF — a READ-NOW affordance gates entry, a boundary beat by that winner's design; here arrival IS the first beat) and from in-engine-hero + in-engine-hud-fold (stage SHELLS whose poster→engine swap is a state CUT on first-frame-ready; here the swap is a driven choreography). The stage LAW is shared with both shells, mirrored under its own guard: poster-first LCP, the same mount gate (drive-verified under ?rm: no canvas, no data-engine, zero arrive calls, poster standing at opacity 1), one handle per root. A hidden tab pauses the arrival where it stands.",
       "init": "awardInEngineIntro.init(root, { selector, mount, arriveMs })"
+    },
+    {
+      "id": "world-boot",
+      "css": "forms/world-boot.css",
+      "js": "forms/world-boot.js",
+      "global": "awardWorldBoot",
+      "winner": "Bruno's Portfolio (SOTD 2026-01-21 + Dev Award + SOTM Jan 2026 — objects rise/assemble from the ground in the site's own shaders with a diegetic sound; the 'click to start' gate doubles as the audio unlock; already flagged MISSING:world-boot in recipes.json — the world-boot `form` of engine-world-bruno, pairs gate: gated-splash + ground: shader-surface). bootMs 2400 is a DEFAULT, not a measured winner value",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-accent",
+        "--ad-font-mono",
+        "--ad-font-display"
+      ],
+      "slots": [
+        {
+          "name": "poster",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "mount",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "start",
+          "element": "button",
+          "required": false
+        },
+        {
+          "name": "wordmark",
+          "element": "a",
+          "required": false
+        },
+        {
+          "name": "status",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cue",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {},
+      "pairs": {
+        "mount": [
+          "shader-surface"
+        ],
+        "start": [
+          "gated-splash"
+        ],
+        "status": [
+          "ambient-idle"
+        ]
+      },
+      "whenToUse": "The gated diegetic boot of the playable world — the Bruno spelling of the world-boot-gate gap (the Igloo spelling shipped in rung 8A as in-engine-intro; see the css header for the full alias ruling). The engine mounts and reports ready(boot); ready un-hides the authored-hidden [data-slot='start'] control (the gate appears only over a world that can actually start); the visitor's start gesture fires onStart(event) SYNCHRONOUSLY — the audio carrier unlocks there (spatial-audio-world.unlock(), the start-gate-doubles-as-unlock law) — then ONE decelerating clock feeds boot(p) and the poster's inline opacity together. Drive-verified from a COLD LOAD on native clicks: poster whole at opacity 1, canvas mounted, start un-hidden, ZERO boot frames before the gesture, pointer not routed; the click ran 142 decelerating boot(p) frames 0.013→1 over exactly 2400ms with the harness domes rising from the ground, the audio context running from the same gesture (level 0.268), then poster visibility hidden (inline write) + data-engine='live' routing the mount the pointer and the start spent; under ?slow the one-clock law held at every sample — p + posterOpacity = 1.000 exactly. DISTINCT from in-engine-intro on the GATE axis (the intro has no affordance — arrival auto-runs on first-frame-ready; here nothing moves before the visitor's gesture because the gesture is also the audio unlock and the world is playable) and from every loader curtain (this is the STAGE — the paired gated-splash overlay may front it, its onEnter calling handle.start(); one gate per page, never both). Reduce drive-verified: the choreography is decoration and skipped — ONE boot(1) frame, poster hidden instantly, world live and pointer-routed, audio still silent (interaction is not decoration; the assembly animation is). ?nojs drive-verified: the poster page and HUD chrome stand whole, the start control stays hidden — gating nothing.",
+      "init": "awardWorldBoot.init(root, { selector, mount, bootMs, onStart })"
     }
   ],
   "components": [
@@ -3431,6 +3495,77 @@
       "deps": [],
       "whenToUse": "The inhabited idle band: a websocket (or injected source with an onDown death signal) feeds peer marks drifting in a pointer-events:none aria-hidden decor layer, plus a global counter on an authored [data-ad-presence-count]. Drive-verified: 40 joins offered → the cap held at exactly 30 (the Bruno read), counter ticked 412→452, marks drifted at rest (transforms advancing over 1.2s with zero input — the wander + the lerp toward fed reseats). Presence is NEVER faked — the feed dying degrades to the solo world (drive-verified: kill → 30 marks → 0, layer standing for a reconnect; an unreachable ws:// endpoint left a silent solo world, 0 marks, no component throw). Peer label/flag land as textContent ONLY — moderation stays a server duty. In-engine worlds take the feed via onPeers (suppresses the DOM layer; the engine draws the marks). Ruled DISTINCT from ambient-idle (decorative breathing of AUTHORED elements — no data) and perpetual-tile-machines (authored content machines on period clocks): these marks are LIVE PEER DATA. Gated: socket connects only on-screen + visible, hidden/off-screen closes it; drift rAF runs only while marks exist. Reduce: wander and glide dormant — marks stand at fed positions, updates land instantly (drive-verified frozen transforms over 1.3s).",
       "init": "awardLivingPresenceLayer.init(root, { url, source, max, onPeers })"
+    },
+    {
+      "id": "physics-tumble-field",
+      "file": "physics-tumble-field.js",
+      "global": "awardPhysicsTumbleField",
+      "winner": "MoMoney (Jordan Gilroy) — SOTD 2026-03-13, the corpus's ONE clean verified Matter.js throw-field; Bruno's Portfolio is ADJACENT only (a bump-able vehicle-collision world, not a grab-and-throw DOM field; Valentin Gassend was removed as miscredited). restitution 0.6 is the documented Matter.js technique default, NOT a per-site read — every number is a DEFAULT. Repo law: dependency-free — the minimal hand-rolled subset (semi-implicit Euler, circle proxies, impulse + positional contacts, spring mouse-constraint, sleep states), never the library",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The manifest's first physics component: every field child becomes a body with weight, restitution and drag — grab, drag (a spring constraint keeps momentum), release and the cursor's instantaneous velocity throws it. Drive-verified: on load the cards fell, stacked on the floor and SLEPT near-upright (angle ≈0.03 rad — the speed-gated weighted-base settle torque, drive-caught after the first run left cards resting at 10 rad), loop parked cold (running:false); a 160ms accelerating flick released at vx≈1814/vy≈-2190, arced off the ceiling, collided body-to-body at x≈1192 (velocity reversed to -366), jostled the pile awake, and the whole field settled back to sleep IN BOUNDS; the same grab-drag-fling drove under a dispatched touch-pointer stream (vx=-1016 mid-flight). Links inside bodies keep their click: a 6px drag threshold, the drag's own click swallowed and DISARMED on the next task (drive-caught: the lingering swallow ate a later legitimate click), a clean click navigated. The container clips (overflow:clip) so a thrown body never paints over neighbors. Gated: rAF only on-screen + visible + any body awake — a settled pile costs zero frames; any grab wakes it. Reduce: fully dormant — the authored layout IS the field (drive-verified: no transforms, no stylesheet, a flick moved nothing).",
+      "init": "awardPhysicsTumbleField.init(root, { selector, itemSelector, gravity, restitution, maxSpeed })"
+    },
+    {
+      "id": "scroll-velocity-scene-distortion",
+      "file": "scroll-velocity-scene-distortion.js",
+      "global": "awardScrollVelocitySceneDistortion",
+      "winner": "Lusion v3 (Dev SOTY 2023, animations 10.00, ships a public WebGL scroll driver) + Codrops 'Distortion and Grain Effects on Scroll with Shaders in Three.js' (2024-07-18) + Awwwards' WebGL-scroll-distortion collections. EVIDENCE CAVEAT carried from the gap verbatim: a DOCUMENTED TECHNIQUE — single-winner attribution SOFT, every number a default",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Whole-SCENE distortion driven by scroll/scrub SPEED — the post-hero momentum made visible: one smoothed signed velocity uniform warps the plate (center-lag jelly bulge + axis stretch + RGB split) and decays to the composed rest when scrolling stops. Drive-verified: an eased 900px real-scroll flick peaked the signal at 0.772 tracking the ease up and down, then decayed 0.093→0 in ~560ms and PARKED with one exact-rest draw; a sustained feed() drive held vel 0.94 with the whole sky's stars split into R/B fringes and the scene visibly stretched (screenshot evidence). feed(pos) is the journey seam: on a wheel-driven no-native-scroll stack, journey-touch-momentum's onProgress feeds the same signal — there this channel is what renders momentum perceptible. Ruled DISTINCT + COMPANION to scroll-speed-oscillator: the oscillator is the DOM-TRANSFORM half of the velocity transfer (its own header delegates 'the RGB-shift expression of the same signal' to WebGL); this component IS that delegated half — per-pixel displacement in the scene texture no compositor transform can express. Same input, different substrate: one spelling per surface, never both on one element. NOT pointer-gated (scroll is the input — live on touch). Reduce: fully dormant — nothing mounts, scrolling distorts nothing (drive-verified vel stayed 0).",
+      "init": "awardScrollVelocitySceneDistortion.init(root, { selector, amp, fullSpeed })"
+    },
+    {
+      "id": "sdf-scramble-substrate",
+      "file": "sdf-scramble-substrate.js",
+      "global": "awardSdfScrambleSubstrate",
+      "winner": "Igloo Inc — SOTY 2024 + Dev SOTY; the winner-verified case-study read: labels rendered from an SDF glyph atlas so scramble/decode happens by SWAPPING SDF TEXTURE OFFSETS in a shader — zero DOM relayout, zero reflow, every frame cheap",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "In-engine text for the fully-WebGL build: glyphs baked ONCE into a runtime signed-distance atlas (2D raster + exact euclidean distance transform), labels rendered as textured quads, and the decode churning by rewriting ONLY the per-glyph atlas-cell attribute buffer. The reflow-free law is DECIDABLE and drive-proven: a MutationObserver over the label recorded ZERO mutations through a full decode and textContent never changed — while the DOM spelling (scramble-decode) rewrites textContent every tick. Drive-verified: the entrance decode resolved 1→16 left-to-right over ~900ms with the rAF parking at settle; chromatic aberration rode the churn and died at the lock (mid-churn screenshot: locked 'TEL' prefix, churning tail, R/B fringes); hover replay re-decoded 3/15→15/15. A11y: the element's text stays in the DOM — ink hidden by an INLINE write (drive-caught: a builder's higher-specificity color rule painted a doubled label under the canvas; inline transparent + shadow none, restored on teardown) — and aria-label is pinned to the true label, INTACT through every churn frame; the canvas is aria-hidden. handle.transition(p) exposes the frost + aberration pass for the engine's scene-transition beats. SHORT strings only (the DOM spelling's register law, kept). Ruled DISTINCT from scramble-decode on the substrate axis: DOM churn for standard pages, THIS for engine-world stacks — its own seen-in already names 'Igloo SDF decode'. Reduce: never scrambles — dormant, the authored text stands. No-WebGL/context loss: the authored ink returns.",
+      "init": "awardSdfScrambleSubstrate.init(root, { selector, duration, tick })"
+    },
+    {
+      "id": "spatial-audio-world",
+      "file": "spatial-audio-world.js",
+      "global": "awardSpatialAudioWorld",
+      "winner": "Bruno's Portfolio (SOTD 2026-01-21 + Dev Award + SOTM Jan 2026 — springs/hydraulics/engine/tire-friction on the vehicle, birds/crickets/waves/wind/thunder in the environment, three CC0 ambient tracks by Kounine, the start gate doubling as the audio unlock); Resn (KPR) carries the register. Winner PARAMETERS unpublished — the HRTF panner model and every distance/gain is a DEFAULT and says so",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-accent",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The POSITIONAL audio bed of the playable world: each source a PannerNode tied to its object's world coordinates, the listener riding the camera, so sounds pan and attenuate as the visitor moves. Drive-verified with the split-channel RMS readout (the pan, measured): with the beacon muted via setSourceGain (the day-night/weather hook), the falls 4 units LEFT read L 0.046 > R 0.013 — and FLIPPED to R 0.023 > L 0.008 when setSource moved the object to +4 right; walking onto the beacon raised the master level 0.048→0.106 (attenuation); a positioned one-shot blipped 0.038→0.054→0.040. The unlock law drove end-to-end on native clicks: nothing sounded before the gate (ctx 'none'), the ENTER click unlocked and swelled the world in (running, 2s ramp), and a listener pose set BEHIND the gate was applied at unlock (drive-caught fix — the world never boots with a stale center camera). The designed mute is the merged carrier's affordance contract restated: aria-pressed four-bar meter, Enable/Mute action labels, ramp-never-cut then context suspend, preference persisted. Calm signals drive-verified: under reduce the gate's unlock() kept the world SILENT even with a persisted ON, and the visitor's own toggle click still sounded it. ONE audio carrier per page, ever: this on the spatial world — never beside sound-channel (the scene-agnostic page costume) or scored-scene-procession's score (per-room stem gains on a 1D procession — no panner, no space). visibilitychange suspends a hidden tab.",
+      "init": "awardSpatialAudioWorld.init(root, { sources, storageKey })"
+    },
+    {
+      "id": "velocity-flowmap-hover",
+      "file": "velocity-flowmap-hover.js",
+      "global": "awardVelocityFlowmapHover",
+      "winner": "Igloo Inc + Active Theory carry the chromatic-hover family (winner-verified); the exact recipe is the Guignand/Codrops technique — single-source, award-UNVERIFIED numbers (R ×1.5, G ×0.5, B ×1.8, uVelo > 0.01) carried as defaults and flagged so",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Image hover that reacts to cursor SPEED, not just position: per-frame velocity splatted into a decaying off-screen RG flowmap (ping-pong framebuffers), the image shader splitting RGB along the mouse→pixel vector by the LOCAL flowmap strength, tipping into a rainbow fringe above the velocity threshold. Drive-verified: a fast sweep wrote a directional trail — the flowmap texel on the swept row read fx=0.181 (rightward) with 0 off-row; the trail PERSISTED after pointerleave (energy 0.21 standing) and decayed exponentially to the park floor (0.105→0.004 over ~1.26s, rAF false — the loop parks cold); a circular sweep at velo 0.276 showed the full rainbow split on the plate while the neighboring untouched figure sat clean (screenshot evidence). Context loss dropped the canvas and the plain <img> stood (remount on restore); a tainted plate falls back the same way instead of throwing (drive-caught on the CORS-less file:// run). Ruled DISTINCT from figure-hover (contained 1.1 zoom + cue — its own header names this as the generative-canvas response it cannot execute) and liquid-glass-refraction (a STILL displacement material, zero per-frame work, no memory): this is the canvas/WebGL PERSISTENCE variant — a time-decaying velocity field the cursor writes. Fine pointers only — dormant on touch (drive-verified: no canvas, no stylesheet under the coarse-pointer emulation). Reduce: fully dormant — the authored figure is the state.",
+      "init": "awardVelocityFlowmapHover.init(root, { selector, amp })"
     }
   ]
 }
