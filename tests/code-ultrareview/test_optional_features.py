@@ -298,6 +298,20 @@ class TestVerifyBuildGate(unittest.TestCase):
         )
         self.assertIn("command -v pnpm", remediation)
 
+    def test_apt_remediation_names_packages_without_delegating_sudo(self):
+        def available(command: str) -> str | None:
+            return "/usr/bin/apt-get" if command == "apt-get" else None
+
+        with mock.patch.object(run_build_verify.shutil, "which", side_effect=available):
+            remediation = run_build_verify._missing_runner_remediation(
+                self.repo,
+                "go",
+            )
+
+        self.assertIn("Debian package(s) `golang-go`", remediation)
+        self.assertIn("https://go.dev/doc/install", remediation)
+        self.assertNotIn("sudo", remediation)
+
     def test_zero_test_report_blocks_the_gate(self):
         verified_input = self._findings()
         out, meta = run_build_verify.run(

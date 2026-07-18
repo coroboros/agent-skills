@@ -165,7 +165,10 @@ def _system_install(package: str, *, brew: str, apt: str, url: str) -> str:
     if shutil.which("brew"):
         return f"Run `brew install {brew}`"
     if shutil.which("apt-get"):
-        return f"Run `sudo apt-get update && sudo apt-get install -y {apt}`"
+        return (
+            f"Ask an administrator to install Debian package(s) `{apt}`; "
+            f"official guide: {url}"
+        )
     return f"Install {package} from its official guide: {url}"
 
 

@@ -229,7 +229,7 @@ tool_install_command() {
       if command -v brew >/dev/null 2>&1; then
         printf 'brew install maven\n'
       elif command -v apt-get >/dev/null 2>&1; then
-        printf 'sudo apt-get install maven\n'
+        printf 'Ask an administrator to install Debian package maven; official guide: https://maven.apache.org/install.html\n'
       else
         printf 'Install Maven from https://maven.apache.org/install.html\n'
       fi

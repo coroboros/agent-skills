@@ -24,6 +24,9 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPT = REPO_ROOT / "skills" / "code-ultrareview" / "scripts" / "run_battery.sh"
 PREFLIGHT = REPO_ROOT / "skills" / "code-ultrareview" / "scripts" / "preflight_tools.sh"
+INSTALL_GUIDANCE = (
+    REPO_ROOT / "skills" / "code-ultrareview" / "scripts" / "install-guidance.sh"
+)
 README = REPO_ROOT / "README.md"
 
 # All tools known to the dispatch matrix. Mirrors BATTERY_TABLE in the script.
@@ -1512,6 +1515,32 @@ class TestNoAutoInstall(unittest.TestCase):
                     f"{SCRIPT.name}:{line_no} invokes a forbidden install "
                     f"pattern {pattern!r}: {raw_line!r}",
                 )
+
+    def test_apt_guidance_names_maven_package_without_sudo(self):
+        with tempfile.TemporaryDirectory() as td:
+            bin_dir = Path(td) / "bin"
+            _make_shim(bin_dir, "apt-get")
+            result = subprocess.run(
+                [
+                    "bash",
+                    "-c",
+                    'source "$1"; tool_install_command . mvn',
+                    "test",
+                    str(INSTALL_GUIDANCE),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin",
+                },
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("Debian package maven", result.stdout)
+        self.assertIn("https://maven.apache.org/install.html", result.stdout)
+        self.assertNotIn("sudo", result.stdout)
 
 
 # ---------------------------------------------------------------------------
