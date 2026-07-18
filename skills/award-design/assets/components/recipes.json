@@ -1355,6 +1355,125 @@
       "loader": "branded-preloader(component) (progress tied to real Three.js asset load; hands off to the atrium with a camera move, not a hard cut; doubles as the Web Audio sound-unlock gate)",
       "paceNotes": "Cartier W&W 2025 (Immersive Garden + 60fps, SOTD + SOTM + CSSDA): six self-contained 3D alcoves 'like rooms in a museum after hours', one watch per room, scroll transitioning the CAMERA room-to-room (never a page fade); a persistent Mooders Web Audio score threads the rooms unbroken as a narrative layer, and hidden gestures (raycast-object-state) keep the pointer live throughout. Every room sits at spectacle amplitude — no quiet section (the silence defect); the one capped peak is the centerpiece closest push-in; the valediction inverts the palette once. Expose a room index / progress rail bound to the active-room index for the long scroll-jacked procession (procession-wayfinding), keyboard- and skip-reachable. Requires a WebGL path; rooms-procession owns the scroll->room math, the delegated scene owns rendering.",
       "whenToUse": "A set of discrete artifacts (a collection, a product line, a capsule, a chaptered archive) told as a museum-after-hours walk — each artifact its own staged 3D room sharing one canvas + camera rig, scroll transitioning room-to-room, an optional ambient audio score threading them. Pick over portrait-procession when the subject is a set of objects rather than one person, and over engine-world when the rooms are discrete staged scenes rather than one continuous space. Requires a WebGL path."
+    },
+    {
+      "id": "cinematic-pavilion-cartier",
+      "archetype": "corporate-luxury",
+      "winner": "Cartier Watches & Wonders 2025 (Immersive Garden + Mooders score)",
+      "macrostructure": "rooms-procession",
+      "sections": [
+        {
+          "role": "arrival",
+          "form": "in-engine-hero",
+          "pairs": {
+            "h1": "kinetic-reveal",
+            "ground": "shader-surface"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "pavilion-procession",
+          "media": "back",
+          "form": "rooms-procession(component) + scored-scene-procession(component) (one shared rig — walking the pavilion IS mixing the score)",
+          "pairs": {
+            "wayfind": "procession-wayfinding",
+            "transition": "curtain-transition",
+            "life": "in-scene-ambient-life"
+          },
+          "intensity": 8,
+          "climax": true
+        },
+        {
+          "role": "alcove",
+          "media": "back",
+          "form": "rooms-procession(component) + webgl-scene(delegated) (staged alcove — ONE charged gesture)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "gesture": "press-hold-reveal",
+            "cursor": "contextual-cursor-label"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "alcove",
+          "media": "back",
+          "form": "rooms-procession(component) + webgl-scene(delegated) (staged alcove — reframed light, same gesture grammar)",
+          "pairs": {
+            "object": "raycast-object-state",
+            "caption": "text-emphasis-fill"
+          },
+          "intensity": 7
+        },
+        {
+          "role": "held-object",
+          "form": "pinned-media-stepthrough",
+          "pairs": {
+            "h3": "char-assemble"
+          },
+          "intensity": 6
+        },
+        {
+          "role": "close",
+          "form": "close-panel",
+          "pairs": {
+            "cta": "line-draw-cta"
+          },
+          "intensity": 5
+        }
+      ],
+      "footer": "oversized-wordmark (the quiet signed rest-close)",
+      "loader": "brand-object-assembly-loader",
+      "paceNotes": "walking the pavilion IS mixing the score — the stems cross per room; ONE charged gesture per alcove, never two; the wayfinding recedes between rooms and the score never stops. Requires a WebGL path and a covering scene (closed-world: no scene authoring at build)",
+      "whenToUse": "a luxury maison pavilion — a scored procession through staged alcoves, one charged gesture per room, the object held still at the end"
+    },
+    {
+      "id": "playable-verb-bruno",
+      "archetype": "experimental",
+      "winner": "Bruno's Portfolio (SOTD + Dev, SOTM Jan 2026); Egg Hunt (Merci-Michel)",
+      "macrostructure": "engine-world",
+      "sections": [
+        {
+          "role": "boot",
+          "form": "world-boot",
+          "pairs": {
+            "wordmark": "kinetic-reveal"
+          },
+          "intensity": 5
+        },
+        {
+          "role": "playable-world",
+          "media": "back",
+          "form": "in-engine-hero (the stage) + webgl-scene(delegated — the covering reference scene per the closed-world law)",
+          "pairs": {
+            "verb": "raycast-object-state",
+            "world-input": "in-3d-dom-input-bridge",
+            "charge": "press-hold-reveal",
+            "attract": "idle-attract-auto-demo",
+            "score": "spatial-audio-world",
+            "life": "in-scene-ambient-life"
+          },
+          "intensity": 9,
+          "climax": true
+        },
+        {
+          "role": "findings-index",
+          "form": "index-list",
+          "pairs": {
+            "rows": "index-row-hover"
+          },
+          "intensity": 6
+        },
+        {
+          "role": "about-close",
+          "form": "about-overlay-footer",
+          "pairs": {},
+          "intensity": 4
+        }
+      ],
+      "footer": "about-overlay-footer doubles as the footer (the Aristide close)",
+      "loader": "none (world-boot is the arrival)",
+      "paceNotes": "the primary verb is PLAYED through composed pieces — raycast per object, the bridge for the world's channels, one charged gesture; the attract loop teaches after real idle; the positional score and ambient life keep the world inhabited between actions. Requires a WebGL path and a covering scene (closed-world: no scene authoring at build)",
+      "whenToUse": "a playable-world experience whose primary verb is a physical action performed in-engine — the composition recipe the playable-verb-scene ruling ordered"
     }
   ]
 }

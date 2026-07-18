@@ -243,6 +243,17 @@
       (document.body || document.documentElement).appendChild(toggle);
     }
 
+    // a hidden tab suspends the score; return resumes only a still-ON mix
+    var onVis = function () {
+      if (!audio.ctx) return;
+      if (document.hidden) {
+        if (audio.ctx.state === 'running') audio.ctx.suspend();
+      } else if (audio.on && audio.ctx.state === 'suspended') {
+        audio.ctx.resume().then(function () {}, function () {});
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
+
     // ---- the rig: constructed here, builder callbacks pass through ---------
     var rig = rigLib.init(track, {
       window: opts.window,
@@ -261,6 +272,7 @@
     current = {
       destroy: function () {
         rig.destroy();
+        document.removeEventListener('visibilitychange', onVis);
         if (audio.ctx) { try { audio.ctx.close(); } catch (e) {} }
         if (toggle && toggle.parentNode) toggle.parentNode.removeChild(toggle);
         roomEls.forEach(function (el) { el.removeAttribute('data-ad-ssp-load'); });

@@ -293,6 +293,16 @@
     document.addEventListener('pointerdown', prime, true);
     document.addEventListener('keydown', prime, true);
     document.addEventListener('click', prime, true);
+    // a hidden tab never keeps a bed running; return resumes only a still-ON channel
+    var onVis = function () {
+      if (!ctx) return;
+      if (document.hidden) {
+        if (ctx.state === 'running') ctx.suspend();
+      } else if (on && ctx.state === 'suspended') {
+        ctx.resume().then(function () {}, function () {});
+      }
+    };
+    document.addEventListener('visibilitychange', onVis);
 
     var handle = {
       play: play,
@@ -305,6 +315,7 @@
         document.removeEventListener('pointerdown', prime, true);
         document.removeEventListener('keydown', prime, true);
         document.removeEventListener('click', prime, true);
+        document.removeEventListener('visibilitychange', onVis);
         if (suspendTimer) { clearTimeout(suspendTimer); suspendTimer = 0; }
         if (bedState.stop) { try { bedState.stop(); } catch (e) {} }
         if (bedState.source) { try { bedState.source.stop(); } catch (e) {} }
