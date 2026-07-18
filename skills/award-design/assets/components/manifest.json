@@ -1535,6 +1535,85 @@
       },
       "whenToUse": "The warm-organic fold: a repeating variable-font wordmark strip OVERFLOWING the viewport edge (authored repeated, aria-hidden — the h1 names the fold; width:0/min-width:100% so the nowrap strip never sizes the fr tracks, drive-caught grid blowout at 6000px; the root clips, page overflow-x drive-verified 0), above a utility row + nav, a real portrait on an organic border-radius blob riding the accent shape, the role-h1, up to two badge stickers, and a scroll cue or email link — NO filled fold CTA, the winner's own order. The enhancer owns all three mechanics so the stylesheet ships zero motion: strip drift as a pure function of scroll (rate .35, clamped at the far edge; drive-verified -105/-245/-420px at y 300/700/1200, identical back up), the badge entrance (scale 0->1, 400ms at 200ms delay on the bouncy ease, WAAPI fill:backwards so a dead script leaves the badge standing — drive-verified landed at rotate(-8deg) scale(1)), and the data-retime badge scroll-retimed via --ad-mh-badge-tilt/shift inline var writes (the animation-timeline idiom; drive-verified 7->-15deg / 0->-26px keyed to fold exit, reversing exactly). Ruled DISTINCT from hero-masthead (cannot express the strip, the blob mount, or the retimed sticker — the recipe's own annotation), divided-capability-strip (mid-page band, marquee only under 768px) and continuous-idle-carry (a time-driven décor CHANNEL — this strip is scroll-welded and IS the fold). Reduce: enhancer no-op, the authored fold stands whole (drive-verified). Mobile: one slot per row (nav/utility and role/cue overlap drive-caught at 390px).",
       "init": "awardMarqueeHero.init(root, { selector, rate })"
+    },
+    {
+      "id": "morph-tile-grid",
+      "css": "forms/morph-tile-grid.css",
+      "js": "forms/morph-tile-grid.js",
+      "global": "awardMorphTileGrid",
+      "winner": "Cyd Stumpel (the organic-shape work grid whose hover IS the archetype's figure signature; already flagged MISSING:morph-tile-grid in recipes.json — the proof `form` of studio-reel-cyd)",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "tile",
+          "element": "a",
+          "required": true
+        }
+      ],
+      "variants": {
+        "stagger": [
+          "on",
+          "off"
+        ]
+      },
+      "pairs": {
+        "tile": []
+      },
+      "whenToUse": "The Cyd work grid: repeated tile links on a staggered 2-column grid (even tiles drop — the anti-grid flow), each pairing a radius MORPH with a CROSSFADE. The stylesheet owns layout + the resting radius language only (--ad-mtg-radius / --ad-mtg-hover-radius, one language per build); the enhancer owns the whole state machine as inline writes so nothing is ever hidden in CSS: on fine pointers hover/focus-within morphs the media box's clip-path inset(0 round …) from the organic resting radius to the rounder hover shape (drive-verified: 52 interpolation states over the 420ms clock, EXACT reversal on leave; the crossfading layers cannot spill mid-morph because the clip carries them) while the resting circle/graphic overlay crossfades 1->0 over the full image and the caption slides up. Coarse pointers and reduce get the REVEALED state as the rest (drive-verified: full image on the authored radius, caption up, no transitions armed — taps just navigate); a dead script leaves image + graphic + caption all legible. Ruled DISTINCT from figure-hover (contained zoom-to-1.1 + cue — no radius morph, no circle->full crossfade; never co-init on these tiles), spotlight-expand-tile (bento's layout-aware row expand — siblings lean away, de-saturation restores; here the grid never moves) and clip-reveal (fire-once scroll uncover vs a reversible pointer response).",
+      "init": "awardMorphTileGrid.init(root, { selector })"
+    },
+    {
+      "id": "type-index-grid",
+      "css": "forms/type-index-grid.css",
+      "js": "forms/type-index-grid.js",
+      "global": "awardTypeIndexGrid",
+      "winner": "UNION of both gap entries — experimental (priority 1): Aristide Benoist Portfolio 2021, Obys Agency, Lusion v3 ('the whole page is the index'); spatial-organic: the type-index arc, retained there as an executable pattern, NOT verified 2024-2026 canon. Already flagged MISSING:type-index-grid TWICE in recipes.json (type-index-aristide `type-index` + type-index-obys `index-fold`)",
+      "archetypes": [
+        "experimental",
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "ground",
+          "element": "div",
+          "required": false
+        },
+        {
+          "name": "row",
+          "element": "a",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "row": [
+          "index-row-hover"
+        ],
+        "ground": [
+          "shader-surface"
+        ]
+      },
+      "whenToUse": "No marketing hero, no prose — the 100svh fold IS a dense index of oversized title rows locked to ONE shared grid (--_cols defined once, every row locks to it) over a live ground stage (pointer-events:none decor the builder pairs with shader-surface / webgl-scene(delegated)). The enhancer owns the two mechanics: (1) the BOOT — row cells rise masked translate3d(0,101%,0)->0 under the row's overflow:clip, staggered per row and cell, fire-once on first view via WAAPI fill:backwards (drive-verified from document start: 69 distinct states, row0 mid-rise at 52px while row4 held at its 101% seed, decelerating settle, data-ad-tig-boot cleared at the end; under ?rm zero boot frames — the authored index IS the fold); (2) the BRIDGE — 'the whole page is the index': the hovered row's index publishes on the root as data-ad-tig-hover, a discrete write on change, so the ground keys imagery off it (drive-verified: hover row 1 -> attr '1', the Helix plate faded to 1 while plate 0 dropped to 0; still publishes under rm). The row hover grammar itself is the PAIRED index-row-hover (drive-verified through the pairing: hovered row full, siblings 0.45, meta surfaced, 2px accent material line) — never duplicated in the form. Rows stay REAL links, no click handler exists (drive-verified: click -> #p-helix at viewport top); the on-click route-morph climax is webgl-scene(delegated) territory. Ruled DISTINCT from index-list (the editorial row-list BODY under index-reel-header) while sharing its laws — one shared row grid, a repeated row slot, the same pairing.",
+      "init": "awardTypeIndexGrid.init(root, { selector })"
     }
   ],
   "components": [
@@ -3089,6 +3168,34 @@
       "deps": [],
       "whenToUse": "The refraction end of the glass register: an SVG feDisplacementMap lens (red/green ramp map, objectBoundingBox primitives so one filter serves every pane) BENDS the backdrop through backdrop-filter:url() — drive-verified over a real night plate: laser beams kink and S-bend inside the pane and break at the rim at the 0.16 default (0.055 tested imperceptible), wrapped in the Doppelrand shell (outer hairline at 22px, inner inset highlight at the concentric 18px). Ruled DISTINCT from glass-card (blur+saturate frost, 'no displacement/refraction' by its own header) — glass-card IS the declared floor, restated under this namespace as the frost fallback so the two never co-init on one element. Floors (the gap's order — fine-pointer/high-power only): coarse pointer, Save-Data, or an engine that cannot resolve url() in backdrop-filter -> frost (drive-verified: ?coarse -> ad-lgr--frost, no defs, blur(24px) saturate(1.2)); no backdrop-filter at all -> the ground mix rises. A still material: no motion, nothing for reduce to disable, a dead script leaves the builder's panel standing.",
       "init": "awardLiquidGlassRefraction.init(root, { selector, strength })"
+    },
+    {
+      "id": "organic-section-edge",
+      "file": "organic-section-edge.js",
+      "global": "awardOrganicSectionEdge",
+      "winner": "Cyd Stumpel (the contact footer's clip-path edge + accent offset shadow — winner-verified mechanic); spatial-organic reference DNA ('soft clip-path curves replace rectangular sections')",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-accent"
+      ],
+      "deps": [],
+      "whenToUse": "The anti-grid flow boundary: data-ad-edge=\"top|bottom|top bottom\" carves a soft quadratic arc into a section edge via clip-path: shape() — apex at the box edge, sides one depth (--ad-edge-depth) lower — and the GAPLESS SEAM LAW rides with it: the clipped section overlaps its neighbor by exactly the curve depth (negative margin + matching padding), so the curve band is double-painted and the seam cannot open a hairline of page background (drive-verified: elementFromPoint at five stations per curve at 1440/1024/~500px always lands neighbor-above/section-below, zero VOID). ONE CURVE PER SEAM (drive-caught law, in the header): two sections curving into the same seam expose the page ground between the crossing curves — a 'top bottom' section wants flat neighbors. data-ad-edge-shadow opts into the accent crescent hugging the curve (Cyd's offset shadow; two same-curve clips intersected, offset by --ad-edge-shadow-offset). A still material: no motion, nothing for reduce to disable; no shape() support or a dead script -> straight edges and no overlap (the gap's own degrade). Ruled DISTINCT from clip-reveal (a fire-once MEDIA uncover — this is a section boundary, pure geometry); the gap's ellipse() variants were dropped for shape() because one basic ellipse clips all four corners of a tall section.",
+      "init": "awardOrganicSectionEdge.init(root, {})"
+    },
+    {
+      "id": "vf-scroll-morph",
+      "file": "vf-scroll-morph.js",
+      "global": "awardVfScrollMorph",
+      "winner": "Cyd Stumpel (the axis scroll-morph carried hero-to-footer — mechanic winner-verified, the SPECIFIC axis unverified and the cited 'ytuc' refuted, so the component is genericized to registered axes); Codrops / Carmen Ansio (the generic technique, verified this run)",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The archetype's signature text move and cheapest continuation channel — NOTHING else in the manifest executes it (kinetic-reveal/char-assemble/text-emphasis-fill/semantic-accent are discrete/opacity effects; cursor-proximity-typefield drives wght from POINTER distance, a different input). data-ad-vfm binds a REGISTERED variable-font axis (wght default, opsz via the attribute value) to the element's own scroll view-range with native animation-timeline: view() — keyframes interpolate font-variation-settings between per-element --ad-vfm-from/--ad-vfm-to across --ad-vfm-range (default entry 0% cover 40%). Drive-verified with a loaded Fraunces VF: computed font-variation-settings sampled mid-range at wght 465.307 and 557.742, opsz 9->144 with custom endpoints, and EXACT rewind on scroll-back (reversible by construction, zero JS per frame). Honest perf scope in the header: the timeline is native but each step re-rasterizes glyphs — display headings and wordmarks only, never body prose. Degrades every rung to a static cut: no timeline support -> @supports never applies; reduced-motion -> animation:none in the sheet (driven: 'normal' at every scroll position under rm); axis absent from the font -> font-variation-settings ignored, the authored static weight renders.",
+      "init": "awardVfScrollMorph.init(root, {})"
     }
   ]
 }

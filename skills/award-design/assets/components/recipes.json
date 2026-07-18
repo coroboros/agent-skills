@@ -1109,7 +1109,7 @@
         },
         {
           "role": "type-index",
-          "form": "MISSING:type-index-grid",
+          "form": "type-index-grid",
           "pairs": {
             "rows": "index-row-hover",
             "ground": "shader-surface"
@@ -1190,7 +1190,7 @@
         },
         {
           "role": "morph-tile-grid",
-          "form": "MISSING:morph-tile-grid",
+          "form": "morph-tile-grid",
           "pairs": {
             "tile": "figure-hover"
           },
@@ -1239,7 +1239,7 @@
       "sections": [
         {
           "role": "index-fold",
-          "form": "MISSING:type-index-grid (no hero headline — the index is the page)",
+          "form": "type-index-grid (no hero headline — the index is the page)",
           "pairs": {
             "rows": "index-row-hover",
             "ground": "shader-surface"
