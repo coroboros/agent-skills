@@ -1133,6 +1133,110 @@
       },
       "whenToUse": "The record-collection chapter index: square album-cover tiles (real links) in one edge-bleed rail, native CSS scroll-snap with snap-align center (snap-to-place with zero script — pan, snap and click all survive a dead script). The enhancer adds what a mouse cannot do natively: grab-drag with the snap released only for the drag's duration and a centered settle on release, drag-click suppression (click stays click, drag stays drag), and nearest-center marking (data-cs-active + aria-current) so paired components read the picked-up record. Touch keeps the native pan + snap untouched.",
       "init": "awardChapterSelect.init(root, { selector })"
+    },
+    {
+      "id": "specimen-grid",
+      "css": "forms/specimen-grid.css",
+      "js": null,
+      "global": null,
+      "winner": "Exat (exat.hottype.co — SOTD + FWA + CSSDA WOTM 8.83; already flagged MISSING:specimen-grid in recipes.json, specimen-tour-exat's specimen-grid role — the recipe's CLIMAX, intensity 9)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": false
+        },
+        {
+          "name": "field",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "caption",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "stage": [
+          "full",
+          "flow"
+        ],
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "field": [
+          "cursor-proximity-typefield",
+          "scroll-speed-oscillator"
+        ]
+      },
+      "whenToUse": "The specimen glyph grid that performs itself — the specimen-tour macrostructure's single peak, re-firing the hero's own mechanic amplified. The form owns only the stage (full-viewport or in-flow section, per-slot ramps, the field's rest weight 200 = the sweep's outermost ring); the operable mechanic is the paired cursor-proximity-typefield's job. The no-JS / touch / reduced-motion render IS the winner's static composed grid, not a diminished copy."
+    },
+    {
+      "id": "type-tester",
+      "css": "forms/type-tester.css",
+      "js": "forms/type-tester.js",
+      "global": "awardTypeTester",
+      "winner": "Exat (exat.hottype.co — SOTD + FWA + CSSDA WOTM 8.83; already flagged MISSING:type-tester in recipes.json, specimen-tour-exat's type-tester role — the operable-proof beat before the specimen climax, intensity 6)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h2",
+          "element": "h2",
+          "required": false
+        },
+        {
+          "name": "preview",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "controls",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "density": [
+          "airy",
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {},
+      "whenToUse": "The operable specimen widget — proof-by-operation: native range/select controls write the gap's own axis vars (--ff/--fs/--fw/--lh/--ls) onto the preview block, and the enhancer makes the preview an editable plaintext sample so the visitor sets their own words in the type. The form CSS owns layout and the composed rest (a dead script shows the exact static specimen; keyboard operation comes native with the controls); state rides data attributes (data-tester-live), never role classes. The one styling hook on controls is accent-color on the committed token."
     }
   ],
   "components": [
@@ -2394,6 +2498,77 @@
       "deps": [],
       "whenToUse": "The chapter-world arrival: NOT an overlay gate — the visitor lands ON scene one. The cover's poster stands from first paint, the live ground warms under it (opts.ready — tie it to the engine's real asset manager; default window load), then the poster crossfades away and the READ-NOW cue rises; activating it is the in-character handoff into the reader (onRead mounts the entrance choreography). Scroll is never locked, there is no rAF, a failed warm-up never strands the cover, and no minimum hold ever adds latency past asset-ready. Reduce: the poster IS the scene, the cue is immediate, the jump instant. Pairs with the chapter-cover form's hooks; gated-splash remains the consent-gate move.",
       "init": "awardNarrativeSceneOneLoader.init(root, { selector, ready, target, onRead })"
+    },
+    {
+      "id": "page-transition-choreography",
+      "file": "page-transition-choreography.js",
+      "global": "awardPageTransitionChoreography",
+      "winner": "Ponpon Mania (SOTM 2025-10 + Dev Award — per-transition WebGL shader mixes, previous+next pages rendered simultaneously while a tween drives the blend, confirmed); 21 TSI (SOTD 2025-04-12 + FWA + CSSDA — morphing section transitions); Mat Voyce (SOTD + FWA — seamless page transitions). Tempo defaults illustrative — no winner published interior numbers",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-ptc-dur",
+        "--ad-ptc-ease",
+        "--ad-ptc-ground",
+        "--ad-ease-signature",
+        "--ad-ground-2"
+      ],
+      "deps": [],
+      "whenToUse": "The between-view spectacle channel for multi-route maximal builds (peak-adjacent — count it in the momentum floor): go(fn) runs the route/view swap inside one of two expressions. mix = the Ponpon delegation (the builder's engine renders BOTH scenes and exposes one blend uniform; the component owns only the eased clock, calls fn first so the incoming scene mounts, then drives mix(p) 0->1; coarse pointers degrade to a fast container crossfade, never a sub-30fps blend). wipe = the 21 TSI register DOM-expressed (default): a panel whose ellipse lip swells with launch velocity and relaxes flat on arrival — the inertia morph is the tell; a flat bar is curtain-transition's move, the quiet crossfade is route-view-transition-carrier's, the shared-element morph is continuous-work-transition's — ruled distinct, never an alias. Reduced motion = instant cut.",
+      "init": "awardPageTransitionChoreography.init(root, { mix, container, color, zIndex })"
+    },
+    {
+      "id": "scroll-speed-oscillator",
+      "file": "scroll-speed-oscillator.js",
+      "global": "awardScrollSpeedOscillator",
+      "winner": "Exat (SOTD + FWA + CSSDA WOTM 8.83 — numerals oscillate in a sine wave whose amplitude tracks scroll speed); Ponpon Mania (SOTM 2025-10 — velocity*0.01 position feedback, the factor is the winner's number); 21 TSI (SOTD 2025-04-12 — velocity/inertia distortion on media; its RGB-shift expression is WebGL-delegated, this component ships the transform-only displacement half)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-sso-amp"
+      ],
+      "deps": [],
+      "whenToUse": "The velocity décor channel — every other scrubbed channel binds to scroll POSITION, this one reads smoothed VELOCITY and settles to the composed rest when the scroll stops. Three declared modes: wave (glyph cells ride a standing sine whose amplitude tracks speed — the Exat numerals; splits text or takes authored [data-sso-unit] units, aria-label kept), nudge (whole element translates velocity*0.01, clamped), shift (skewY + stretch displacement on media, the host parent JS-clipped so a stretched figure never paints over neighbors). Compositor-only writes, IO-gated per element (leaving the viewport rests it — never frozen mid-wave), live on touch (scroll is the input), fully dormant under reduce.",
+      "init": "awardScrollSpeedOscillator.init(root, { selector })"
+    },
+    {
+      "id": "section-accent-rotation",
+      "file": "section-accent-rotation.js",
+      "global": "awardSectionAccentRotation",
+      "winner": "DICH Fashion (SOTD + Dev Award 2025-06 — 'each section had its own visual temperature'; the SINGLE corpus winner) + Figma per-section brand hues (design-canonical second source). A saturated-register expression, NOT archetype canon — seven of eight corpus sites are B&W / single-hue / 2-hue / cream",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ground",
+        "--ad-dur-reveal",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "ONLY on a saturated / warm-maximal register (never kinetic-register builds): each [data-ad-sar] section claims its accent (and optional ground temperature) from declared attributes or a rotation array, and as its band crosses the viewport center the component writes --ad-accent (and --ad-ground) on the target scope — every token-reading component inherits the section's color world with no per-component change; the body eases its ground through a JS-applied class. Zero-flip: one owner at a time, writes only on a real owner change; drive-verified role law — each hue holds the ONE accent job (links, kickers, fills), ink never rotates. Never invents color (nothing declared = no-op). Reduce = each section becomes its own static color scope, no global mutation.",
+      "init": "awardSectionAccentRotation.init(root, { selector, accents, grounds, target })"
+    },
+    {
+      "id": "sound-channel",
+      "file": "sound-channel.js",
+      "global": "awardSoundChannel",
+      "winner": "21 TSI (SOTD 2025-04-12 + FWA + CSSDA — the corpus's one sound carrier, a boundary member: thin evidence by design, ship only when the brief sells sensory maximalism). Gate + discipline laws are the references/ingredients/web-audio.md canon (unlock gate, off-by-default, ramp-never-cut, bed 0.05-0.15)",
+      "archetypes": [
+        "bold-maximal"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-accent",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The opt-in audio channel + its designed mute affordance in one component: UI cues and/or an ambient bed (each a URL or a synth factory — zero bytes) behind ONE fixed, always-reachable four-bar toggle (aria-pressed, action-naming label, bars dance on-state via CSS keyframes — static under reduce). The unlock gate is law: the context resumes ONLY inside a real gesture, nothing loads or decodes before the opt-in, play(name) is a silent no-op while muted. Mute RAMPS (0.4s, never a cut) then suspends. The preference persists across visits (localStorage); reduced-motion and Save-Data never auto-restore a persisted ON. getState() exposes an analyser RMS level — the did-it-actually-sound verification readout.",
+      "init": "awardSoundChannel.init(root, { cues, bed, storageKey })"
     }
   ]
 }

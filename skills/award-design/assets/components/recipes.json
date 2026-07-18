@@ -750,13 +750,13 @@
         },
         {
           "role": "type-tester",
-          "form": "MISSING:type-tester",
+          "form": "type-tester",
           "pairs": {},
           "intensity": 6
         },
         {
           "role": "specimen-grid",
-          "form": "MISSING:specimen-grid",
+          "form": "specimen-grid",
           "pairs": {},
           "intensity": 9,
           "climax": true
