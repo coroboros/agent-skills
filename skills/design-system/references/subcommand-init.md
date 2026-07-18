@@ -38,9 +38,11 @@ If `/award-design` is installed, the best init path is:
 3. **Select template**:
    - No archetype → generic minimal template (primary neutral palette, Inter typography, 4px radius scale, 8px spacing base, button + card + input components)
    - Archetype given → recommend `/award-design` (see *On archetype flavors* below) and only proceed with the generic template if the user confirms
-4. **Write** the file to `-o <path>` or `./DESIGN.md`.
-5. **Run audit** on the new file: `bash "$SKILL_DIR"/scripts/audit.sh <output>`. A minimal template should lint with ≤ 2 warnings (`orphaned-tokens`, `missing-sections` is acceptable for placeholders).
-6. **Report** to the user:
+4. **Preflight the canonical CLI before any write**. Source `scripts/resolve-designmd.sh` and resolve against the target directory. If the CLI or its pinned Yarn runtime is unavailable, stop with the exact `install` and `rerun` commands emitted by the wrapper. Do not create a partial target and do not substitute a manual audit.
+5. **Write a candidate temp file** next to the requested destination. Never write the final path yet.
+6. **Run audit on the candidate**: `bash "$SKILL_DIR"/scripts/audit.sh <candidate>`. A minimal template should lint with ≤ 2 warnings (`orphaned-tokens`, `missing-sections` is acceptable for placeholders). Any CLI, schema, or audit failure deletes the candidate and leaves the final path untouched.
+7. **Commit atomically** by renaming the validated candidate to `-o <path>` or `./DESIGN.md`. If a target appeared after preflight, stop rather than overwrite it.
+8. **Report** to the user:
    - Path created
    - Audit status
    - Next step: "Fill in the TODOs, then run `/design-system audit` again to track progress"
@@ -153,3 +155,4 @@ After creating the file, tell the user:
 - **Target path exists**: always abort by default. Offer overwrite (with `.legacy.<timestamp>` backup), `audit`, or `migrate` depending on what's already there.
 - **Archetype given but `/award-design` not installed**: proceed with the generic template and note that archetype flavor would have required `/award-design`.
 - **Directory doesn't exist** (e.g., `-o docs/DESIGN.md` with no `docs/`): surface the error, suggest `mkdir -p` or a different path.
+- **CLI or audit failure**: remove the candidate, preserve the final destination byte-for-byte, and print the exact repair plus init rerun commands.

@@ -12,6 +12,15 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_MD = REPO_ROOT / "skills" / "design-system" / "SKILL.md"
+AUDIT_REFERENCE = (
+    REPO_ROOT / "skills" / "design-system" / "references" / "subcommand-audit.md"
+)
+MIGRATE_REFERENCE = (
+    REPO_ROOT / "skills" / "design-system" / "references" / "subcommand-migrate.md"
+)
+INIT_REFERENCE = (
+    REPO_ROOT / "skills" / "design-system" / "references" / "subcommand-init.md"
+)
 
 
 def _body():
@@ -105,9 +114,37 @@ class TestNoExtractSubcommand(unittest.TestCase):
     def test_subcommand_count_pinned_at_seven(self):
         """The description pins seven subcommands — an eighth (e.g. extract) breaks this guard."""
         self.assertIn(
-            "seven CLI-backed subcommands", _frontmatter(),
+            "seven subcommands, four backed by the canonical CLI", _frontmatter(),
             "the description must pin the subcommand count at seven",
         )
+
+
+class TestCrossAgentRuntimeContracts(unittest.TestCase):
+    def test_strict_mode_probes_shared_agents_install(self):
+        text = AUDIT_REFERENCE.read_text(encoding="utf-8")
+        self.assertIn(
+            "~/.agents/skills/award-design/references/anti-patterns.md", text
+        )
+
+    def test_migration_preflights_before_any_write(self):
+        text = MIGRATE_REFERENCE.read_text(encoding="utf-8")
+        preflight = text.index("Preflight the canonical CLI before any write")
+        candidate = text.index("Write a candidate temp file")
+        commit = text.index("Commit atomically")
+        self.assertLess(preflight, candidate)
+        self.assertLess(candidate, commit)
+        self.assertIn("leaves the source and final output untouched", text)
+
+    def test_init_preflights_and_audits_before_atomic_commit(self):
+        text = INIT_REFERENCE.read_text(encoding="utf-8")
+        preflight = text.index("Preflight the canonical CLI before any write")
+        candidate = text.index("Write a candidate temp file")
+        audit = text.index("Run audit on the candidate")
+        commit = text.index("Commit atomically")
+        self.assertLess(preflight, candidate)
+        self.assertLess(candidate, audit)
+        self.assertLess(audit, commit)
+        self.assertIn("leaves the final path untouched", text)
 
 
 if __name__ == "__main__":

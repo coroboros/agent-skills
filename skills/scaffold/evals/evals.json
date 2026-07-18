@@ -1,0 +1,44 @@
+{
+  "skill_name": "scaffold",
+  "evals": [
+    {
+      "id": 1,
+      "name": "next-target-directory-runtime-contract",
+      "prompt": "Scaffold next-cloudflare into ./apps/portal while the current shell remains at the monorepo root.",
+      "expected_output": "Every post-create command targets ./apps/portal explicitly, the project declares @google/design.md, and the generated project exposes an offline project-local design audit.",
+      "files": [],
+      "expectations": [
+        "Every dependency command uses pnpm --dir with the explicit project directory instead of relying on prior cd state.",
+        "The development dependencies include @google/design.md alongside the existing Next.js scaffold tooling.",
+        "The generated scripts expose design:audit as designmd lint DESIGN.md.",
+        "Generated instructions use pnpm design:audit and contain no npx, pnpm dlx, bunx, uvx, or runtime package resolution instruction."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "astro-target-directory-runtime-contract",
+      "prompt": "Scaffold astro-cloudflare into ./sites/docs while the current shell remains at the workspace root.",
+      "expected_output": "Astro setup, dependency installation, helper paths, and the generated design audit all remain scoped to ./sites/docs without runtime package resolution.",
+      "files": [],
+      "expectations": [
+        "Astro integration and dependency commands use pnpm --dir with the explicit project directory.",
+        "The development dependencies include @google/design.md alongside the existing Astro scaffold tooling.",
+        "Generated helper-file and CSS paths are explicitly rooted under the project directory.",
+        "The generated project exposes pnpm design:audit and contains no npx, pnpm dlx, bunx, uvx, or runtime package resolution instruction."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "generated-cross-agent-design-handoff",
+      "prompt": "Inspect both generated scaffold templates and verify how a user installs the shared Design System skill and audits DESIGN.md afterward.",
+      "expected_output": "Routes to references/setup-next-cloudflare.md and references/setup-astro-cloudflare.md, verifies that both templates use the installed skills CLI for the optional shared skill and the declared project-local designmd dependency, and stops rather than falling back to runtime package resolution when that dependency is unavailable.",
+      "files": [],
+      "expectations": [
+        "Both generated templates document skills add coroboros/agent-skills --skill design-system without npx.",
+        "Both generated package script sets expose design:audit as designmd lint DESIGN.md.",
+        "Both generated command sections document pnpm design:audit rather than a global designmd command.",
+        "The setup references and generated templates contain no npx, pnpm dlx, bunx, uvx, or @latest runtime resolution path for Design System."
+      ]
+    }
+  ]
+}

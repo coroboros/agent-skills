@@ -8,17 +8,14 @@ validator phase.
 
 Routing matrix (TOOL_TO_AXIS) maps each tool to one of the 8 axes:
 
-    correctness   → semgrep (generic)
     simplification → knip, jscpd, lizard, vulture, deadcode, gocyclo, dupl,
                      cargo-machete
     documentation  → markdownlint-cli2, vale
     design-api    → api-extractor, oasdiff, atlas
-    performance   → semgrep (bundled perf-rules — routed via rule metadata)
+    performance   → semgrep (bundled perf-rules only)
 
-The performance routing for semgrep is dynamic: a finding whose `check_id`
-starts with `code-ultrareview-` (the bundled perf-rules namespace) or whose
-metadata declares `axis: performance` routes to performance; everything else
-from semgrep routes to correctness.
+Semgrep never loads remote or generic rules at runtime. An unexpected rule ID
+is an invalid analyzer report, not Correctness coverage.
 
 Canonical finding schema:
 
@@ -54,8 +51,7 @@ from typing import Callable
 CONFIDENCE = 100
 PERF_RULE_PREFIX = "code-ultrareview-"
 
-# Canonical axis routing per tool. Semgrep's per-finding axis decision lives
-# inside parse_semgrep() since it depends on the rule namespace, not the tool.
+# Canonical axis routing per tool.
 TOOL_TO_AXIS = {
     "knip": "simplification",
     "jscpd": "simplification",
@@ -63,7 +59,7 @@ TOOL_TO_AXIS = {
     "api-extractor": "design-api",
     "lizard": "simplification",
     "vulture": "simplification",
-    "semgrep": "correctness",  # default — perf-rules override per-finding
+    "semgrep": "performance",
     "oasdiff": "design-api",
     "atlas": "design-api",
     "vale": "documentation",
@@ -94,19 +90,32 @@ def _emit(*, file: str, line_start: int, line_end: int | None,
 
 
 def parse_knip(raw: str) -> list[dict]:
+    if not raw.strip():
+        return []
     try:
         data = json.loads(raw)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise ValueError("knip produced malformed JSON") from exc
 
     findings: list[dict] = []
 
-    # knip's JSON reporter shape: array of per-file issue objects.
-    items = data if isinstance(data, list) else [data]
+    # Knip 6 wraps per-file issue objects in {"issues": [...]}. Keep the
+    # legacy array form readable so reports from an older project-local Knip
+    # remain valid.
+    if isinstance(data, dict) and isinstance(data.get("issues"), list):
+        items = data["issues"]
+    elif isinstance(data, list):
+        items = data
+    elif isinstance(data, dict) and (
+        "file" in data or "fileName" in data or "files" in data
+    ):
+        items = [data]
+    else:
+        raise ValueError("knip JSON does not match a supported report schema")
 
     for item in items:
         if not isinstance(item, dict):
-            continue
+            raise ValueError("knip issue entries must be JSON objects")
         file = item.get("file") or item.get("fileName") or ""
         if not file:
             continue
@@ -140,10 +149,19 @@ def parse_knip(raw: str) -> list[dict]:
                     fix_hint="Remove if truly unused, or wire it up.",
                 ))
 
-        # knip flags a whole-file-unused entry with `files: true`.
+        # Legacy Knip reports use `files: true`; Knip 6 reports a list whose
+        # entries carry the unused path in `name`.
+        unused_files: list[str] = []
         if item.get("files") is True:
+            unused_files.append(file)
+        elif isinstance(item.get("files"), list):
+            for entry in item["files"]:
+                path = entry.get("name") if isinstance(entry, dict) else entry
+                if isinstance(path, str) and path:
+                    unused_files.append(path)
+        for path in dict.fromkeys(unused_files):
             findings.append(_emit(
-                file=file, line_start=1, line_end=1,
+                file=path, line_start=1, line_end=1,
                 severity="Medium", axis=TOOL_TO_AXIS["knip"],
                 source_tool="knip",
                 message="file is unused",
@@ -162,8 +180,9 @@ def parse_knip(raw: str) -> list[dict]:
                 name = entry.get("name") if isinstance(entry, dict) else str(entry)
                 if not name:
                     continue
+                line = int(entry.get("line", 1) or 1) if isinstance(entry, dict) else 1
                 findings.append(_emit(
-                    file=file or "package.json", line_start=1, line_end=1,
+                    file=file or "package.json", line_start=line, line_end=line,
                     severity="Low", axis=TOOL_TO_AXIS["knip"],
                     source_tool="knip",
                     message=f"unused {category}: {name}",
@@ -187,24 +206,26 @@ def parse_knip(raw: str) -> list[dict]:
 
 
 def parse_jscpd(raw: str) -> list[dict]:
+    if not raw.strip():
+        return []
     try:
         data = json.loads(raw)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise ValueError("jscpd produced malformed JSON") from exc
 
     findings: list[dict] = []
     duplicates = data.get("duplicates") if isinstance(data, dict) else None
-    if not isinstance(duplicates, list):
-        return findings
+    if not isinstance(data, dict) or not isinstance(duplicates, list):
+        raise ValueError("jscpd JSON is missing the duplicates array")
 
     for dup in duplicates:
         if not isinstance(dup, dict):
-            continue
+            raise ValueError("jscpd duplicate entries must be JSON objects")
         first = dup.get("firstFile") or {}
         second = dup.get("secondFile") or {}
         lines = dup.get("lines") or dup.get("linesCount") or 0
         if not first.get("name"):
-            continue
+            raise ValueError("jscpd duplicate entry is missing firstFile.name")
         line_start = int(first.get("start", 1) or 1)
         line_end = int(first.get("end", line_start) or line_start)
         msg = (
@@ -221,33 +242,62 @@ def parse_jscpd(raw: str) -> list[dict]:
     return findings
 
 
+_MARKDOWNLINT_LINE = re.compile(
+    r"^(?P<file>.+?):(?P<line>\d+)(?::(?P<col>\d+))?\s+"
+    r"(?:error\s+)?(?P<rule>MD\d+(?:/[^\s]+)?)\s+(?P<message>.+)$"
+)
+
+
 def parse_markdownlint(raw: str) -> list[dict]:
     try:
         data = json.loads(raw)
     except json.JSONDecodeError:
-        return []
-    if not isinstance(data, list):
-        return []
+        data = None
 
     findings: list[dict] = []
-    for item in data:
-        if not isinstance(item, dict):
+    if isinstance(data, list):
+        for item in data:
+            if not isinstance(item, dict):
+                raise ValueError(
+                    "markdownlint-cli2 JSON entries must be objects"
+                )
+            file = item.get("fileName") or item.get("file") or ""
+            if not file:
+                raise ValueError(
+                    "markdownlint-cli2 JSON entry is missing a file name"
+                )
+            line = int(item.get("lineNumber") or 1)
+            rule_names = item.get("ruleNames") or []
+            rule_desc = item.get("ruleDescription") or ""
+            error_ctx = item.get("errorContext") or ""
+            rule_id = rule_names[0] if rule_names else "MD???"
+            msg = f"{rule_id}: {rule_desc}"
+            if error_ctx:
+                msg = f"{msg} — {error_ctx}"
+            findings.append(_emit(
+                file=file, line_start=line, line_end=line,
+                severity="Low", axis=TOOL_TO_AXIS["markdownlint-cli2"],
+                source_tool="markdownlint-cli2",
+                message=msg,
+            ))
+        return findings
+
+    for line_text in raw.splitlines():
+        match = _MARKDOWNLINT_LINE.match(line_text.strip())
+        if not match:
             continue
-        file = item.get("fileName") or item.get("file") or ""
-        line = int(item.get("lineNumber") or 1)
-        rule_names = item.get("ruleNames") or []
-        rule_desc = item.get("ruleDescription") or ""
-        error_ctx = item.get("errorContext") or ""
-        rule_id = rule_names[0] if rule_names else "MD???"
-        msg = f"{rule_id}: {rule_desc}"
-        if error_ctx:
-            msg = f"{msg} — {error_ctx}"
+        line = int(match.group("line"))
         findings.append(_emit(
-            file=file, line_start=line, line_end=line,
+            file=match.group("file"), line_start=line, line_end=line,
             severity="Low", axis=TOOL_TO_AXIS["markdownlint-cli2"],
             source_tool="markdownlint-cli2",
-            message=msg,
+            message=f"{match.group('rule')}: {match.group('message')}",
         ))
+    if raw.strip() and not findings:
+        raise ValueError(
+            "markdownlint-cli2 produced non-empty output that does not match "
+            "its documented text or JSON schema"
+        )
     return findings
 
 
@@ -271,6 +321,11 @@ def parse_api_extractor(raw: str) -> list[dict]:
             source_tool="api-extractor",
             message=f"{m.group('rule')}: {m.group('msg').strip()}",
         ))
+    if raw.strip() and not findings and "API Extractor completed successfully" not in raw:
+        raise ValueError(
+            "api-extractor produced non-empty output without a documented "
+            "finding or successful-completion marker"
+        )
     return findings
 
 
@@ -283,23 +338,32 @@ LIZARD_PARAM_THRESHOLD = 5
 
 def parse_lizard(raw: str) -> list[dict]:
     findings: list[dict] = []
+    recognized = 0
+    unknown: list[str] = []
     for raw_line in raw.splitlines():
         line = raw_line.strip()
-        if not line or line.startswith("NLOC"):
+        if not line:
+            continue
+        if line.startswith("NLOC"):
+            recognized += 1
             continue
         # Split on the first 5 commas only — location can itself contain commas.
         parts = line.split(",", 5)
         if len(parts) < 6:
+            unknown.append(line)
             continue
         try:
             ccn = int(parts[1].strip())
             param = int(parts[3].strip())
         except ValueError:
+            unknown.append(line)
             continue
         loc = parts[5].strip().strip('"')
         m = _LIZARD_LOCATION.match(loc)
         if not m:
+            unknown.append(line)
             continue
+        recognized += 1
         if ccn <= LIZARD_CCN_THRESHOLD and param <= LIZARD_PARAM_THRESHOLD:
             continue
         reasons = []
@@ -317,6 +381,8 @@ def parse_lizard(raw: str) -> list[dict]:
             message=f"{m.group('name')}: {', '.join(reasons)}",
             fix_hint="Split into smaller functions; extract guard clauses.",
         ))
+    if unknown or (raw.strip() and recognized == 0):
+        raise ValueError("lizard produced unrecognized CSV output")
     return findings
 
 
@@ -327,9 +393,14 @@ _VULTURE_LINE = re.compile(
 
 def parse_vulture(raw: str) -> list[dict]:
     findings: list[dict] = []
+    unknown: list[str] = []
     for line in raw.splitlines():
-        m = _VULTURE_LINE.search(line)
+        stripped = line.strip()
+        if not stripped:
+            continue
+        m = _VULTURE_LINE.fullmatch(stripped)
         if not m:
+            unknown.append(stripped)
             continue
         findings.append(_emit(
             file=m.group("file"),
@@ -341,16 +412,21 @@ def parse_vulture(raw: str) -> list[dict]:
                     f"({m.group('conf')}% lint confidence)",
             fix_hint="Remove if truly unused.",
         ))
+    if unknown:
+        raise ValueError("vulture produced unrecognized text output")
     return findings
 
 
-# semgrep routes per-finding: perf-rules → performance, everything else → correctness.
 def _semgrep_axis(check_id: str, metadata: dict) -> str:
-    if metadata.get("axis") == "performance":
+    rule_id = check_id.rsplit(".", 1)[-1] if isinstance(check_id, str) else ""
+    if (
+        metadata.get("axis") == "performance"
+        and rule_id.startswith(PERF_RULE_PREFIX)
+    ):
         return "performance"
-    if isinstance(check_id, str) and check_id.startswith(PERF_RULE_PREFIX):
-        return "performance"
-    return "correctness"
+    raise ValueError(
+        f"unexpected Semgrep rule outside the bundled performance set: {check_id}"
+    )
 
 
 def _semgrep_severity(level: str) -> str:
@@ -359,20 +435,24 @@ def _semgrep_severity(level: str) -> str:
 
 
 def parse_semgrep(raw: str) -> list[dict]:
+    if not raw.strip():
+        return []
     try:
         data = json.loads(raw)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise ValueError("semgrep produced malformed JSON") from exc
     results = data.get("results") if isinstance(data, dict) else None
     if not isinstance(results, list):
-        return []
+        raise ValueError("semgrep JSON is missing the results array")
 
     findings: list[dict] = []
     for r in results:
         if not isinstance(r, dict):
-            continue
+            raise ValueError("semgrep result entries must be JSON objects")
         check_id = r.get("check_id") or ""
         path = r.get("path") or ""
+        if not check_id or not path:
+            raise ValueError("semgrep result is missing check_id or path")
         start = (r.get("start") or {}).get("line", 1)
         end = (r.get("end") or {}).get("line", start)
         extra = r.get("extra") or {}
@@ -389,20 +469,27 @@ def parse_semgrep(raw: str) -> list[dict]:
 
 
 def parse_oasdiff(raw: str) -> list[dict]:
+    if not raw.strip():
+        return []
     try:
         data = json.loads(raw)
-    except json.JSONDecodeError:
-        return []
-    items = data if isinstance(data, list) else (
-        data.get("breaking") or data.get("changes") or []
-    )
+    except json.JSONDecodeError as exc:
+        raise ValueError("oasdiff produced malformed JSON") from exc
+    if isinstance(data, list):
+        items = data
+    elif isinstance(data, dict) and "breaking" in data:
+        items = data["breaking"]
+    elif isinstance(data, dict) and "changes" in data:
+        items = data["changes"]
+    else:
+        raise ValueError("oasdiff JSON does not match a supported report schema")
     if not isinstance(items, list):
-        return []
+        raise ValueError("oasdiff changes must be a JSON array")
 
     findings: list[dict] = []
     for it in items:
         if not isinstance(it, dict):
-            continue
+            raise ValueError("oasdiff change entries must be JSON objects")
         # oasdiff levels: 3 = ERR (breaking), 2 = WARN, 1 = INFO
         level = int(it.get("level", 3) or 3)
         sev = "High" if level >= 3 else "Medium" if level == 2 else "Low"
@@ -422,21 +509,36 @@ def parse_oasdiff(raw: str) -> list[dict]:
 
 
 def parse_atlas(raw: str) -> list[dict]:
+    if not raw.strip():
+        return []
     try:
         data = json.loads(raw)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise ValueError("atlas produced malformed JSON") from exc
 
     findings: list[dict] = []
     # Atlas JSON: { "Files": [ { "Name", "Reports": [ { "Diagnostics": [...] } ] } ] }
-    files = (data.get("Files") if isinstance(data, dict) else None) or []
+    if not isinstance(data, dict) or not isinstance(data.get("Files"), list):
+        raise ValueError("atlas JSON is missing the Files array")
+    files = data["Files"]
     for file_entry in files:
         if not isinstance(file_entry, dict):
-            continue
+            raise ValueError("atlas file entries must be JSON objects")
         fname = file_entry.get("Name") or "migration.sql"
         reports = file_entry.get("Reports") or []
+        if not isinstance(reports, list):
+            raise ValueError("atlas Reports must be a JSON array")
         for rep in reports:
-            for diag in rep.get("Diagnostics") or []:
+            if not isinstance(rep, dict):
+                raise ValueError("atlas report entries must be JSON objects")
+            diagnostics = rep.get("Diagnostics") or []
+            if not isinstance(diagnostics, list):
+                raise ValueError("atlas Diagnostics must be a JSON array")
+            for diag in diagnostics:
+                if not isinstance(diag, dict):
+                    raise ValueError(
+                        "atlas diagnostic entries must be JSON objects"
+                    )
                 pos = diag.get("Pos") or 0
                 text = diag.get("Text") or "migration warning"
                 code = diag.get("Code") or ""
@@ -451,20 +553,22 @@ def parse_atlas(raw: str) -> list[dict]:
 
 
 def parse_vale(raw: str) -> list[dict]:
+    if not raw.strip():
+        return []
     try:
         data = json.loads(raw)
-    except json.JSONDecodeError:
-        return []
+    except json.JSONDecodeError as exc:
+        raise ValueError("vale produced malformed JSON") from exc
     if not isinstance(data, dict):
-        return []
+        raise ValueError("vale JSON report must be an object")
 
     findings: list[dict] = []
     for fname, items in data.items():
         if not isinstance(items, list):
-            continue
+            raise ValueError("vale file entries must be JSON arrays")
         for it in items:
             if not isinstance(it, dict):
-                continue
+                raise ValueError("vale findings must be JSON objects")
             line = int(it.get("Line", 1) or 1)
             sev = {"error": "High", "warning": "Medium", "suggestion": "Low"}.get(
                 (it.get("Severity") or "warning").lower(), "Low"
@@ -485,9 +589,14 @@ _DEADCODE_LINE = re.compile(r"^(?P<file>[^:]+\.go):(?P<line>\d+):(?P<col>\d+):\s
 
 def parse_deadcode(raw: str) -> list[dict]:
     findings: list[dict] = []
+    unknown: list[str] = []
     for line in raw.splitlines():
-        m = _DEADCODE_LINE.match(line.strip())
+        stripped = line.strip()
+        if not stripped:
+            continue
+        m = _DEADCODE_LINE.fullmatch(stripped)
         if not m:
+            unknown.append(stripped)
             continue
         findings.append(_emit(
             file=m.group("file"),
@@ -498,6 +607,8 @@ def parse_deadcode(raw: str) -> list[dict]:
             message=f"dead code: {m.group('msg').strip()}",
             fix_hint="Remove if truly unreachable.",
         ))
+    if unknown:
+        raise ValueError("deadcode produced unrecognized text output")
     return findings
 
 
@@ -509,9 +620,14 @@ _GOCYCLO_LINE = re.compile(
 
 def parse_gocyclo(raw: str) -> list[dict]:
     findings: list[dict] = []
+    unknown: list[str] = []
     for line in raw.splitlines():
-        m = _GOCYCLO_LINE.match(line.strip())
+        stripped = line.strip()
+        if not stripped:
+            continue
+        m = _GOCYCLO_LINE.match(stripped)
         if not m:
+            unknown.append(stripped)
             continue
         ccn = int(m.group("ccn"))
         findings.append(_emit(
@@ -524,6 +640,8 @@ def parse_gocyclo(raw: str) -> list[dict]:
             message=f"{m.group('func')} CCN {ccn}",
             fix_hint="Split into smaller functions.",
         ))
+    if unknown:
+        raise ValueError("gocyclo produced unrecognized text output")
     return findings
 
 
@@ -532,6 +650,8 @@ def parse_gocyclo(raw: str) -> list[dict]:
 def parse_dupl(raw: str) -> list[dict]:
     findings: list[dict] = []
     block: list[tuple[str, int, int]] = []
+    clone_count: int | None = None
+    unknown: list[str] = []
 
     def flush():
         if len(block) < 2:
@@ -548,18 +668,29 @@ def parse_dupl(raw: str) -> list[dict]:
             ))
 
     loc_re = re.compile(r"(?P<file>[^\s]+\.go):(?P<start>\d+),(?P<end>\d+)")
+    summary_re = re.compile(r"^found\s+(?P<count>\d+)\s+clones?:$", re.IGNORECASE)
     for line in raw.splitlines():
         stripped = line.strip()
         if not stripped:
             flush()
             block = []
             continue
+        summary = summary_re.fullmatch(stripped)
+        if summary:
+            clone_count = int(summary.group("count"))
+            continue
         m = loc_re.search(stripped)
         if m:
             block.append(
                 (m.group("file"), int(m.group("start")), int(m.group("end")))
             )
+        else:
+            unknown.append(stripped)
     flush()
+    if unknown:
+        raise ValueError("dupl produced unrecognized text output")
+    if clone_count is not None and clone_count > 0 and not findings:
+        raise ValueError("dupl reported clones without parseable locations")
     return findings
 
 
@@ -571,18 +702,35 @@ _MACHETE_HEADER = re.compile(
 def parse_cargo_machete(raw: str) -> list[dict]:
     findings: list[dict] = []
     current_file: str | None = None
+    recognized = 0
+    unknown: list[str] = []
+    clean_re = re.compile(
+        r"(?:did(?: not|n't)|does not) find any unused dependencies|"
+        r"found no unused dependencies",
+        re.IGNORECASE,
+    )
     for line in raw.splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if clean_re.search(stripped):
+            recognized += 1
+            continue
         m = _MACHETE_HEADER.search(line)
         if m:
             current_file = m.group("file").strip()
+            recognized += 1
             continue
         if current_file is None:
+            unknown.append(stripped)
             continue
-        name = line.strip()
-        if not name or name.startswith("cargo-machete"):
-            continue
+        name = stripped
         if name.startswith("-"):
             name = name.lstrip("- ").strip()
+        if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
+            unknown.append(stripped)
+            continue
+        recognized += 1
         findings.append(_emit(
             file=current_file, line_start=1, line_end=1,
             severity="Low", axis=TOOL_TO_AXIS["cargo-machete"],
@@ -590,6 +738,8 @@ def parse_cargo_machete(raw: str) -> list[dict]:
             message=f"unused dependency: {name}",
             fix_hint="Remove from Cargo.toml.",
         ))
+    if unknown or (raw.strip() and recognized == 0):
+        raise ValueError("cargo-machete produced unrecognized text output")
     return findings
 
 
@@ -614,34 +764,115 @@ PARSERS: dict[str, Callable[[str], list[dict]]] = {
 def ingest_one(tool: str, raw: str) -> list[dict]:
     parser = PARSERS.get(tool)
     if parser is None:
-        return []
+        raise ValueError(f"unknown analyzer output: {tool}")
     return parser(raw)
 
 
 def _read_raw(path: Path) -> str:
-    try:
-        return path.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        return ""
+    return path.read_text(encoding="utf-8", errors="replace")
 
 
-def batch(raw_dir: Path) -> list[dict]:
-    """Read raw/<tool>.<ext> for every tool the dir holds; emit aggregated findings.
+RAW_FILENAMES = {
+    "knip": "knip.json",
+    "jscpd": "jscpd.json",
+    "markdownlint-cli2": "markdownlint-cli2.txt",
+    "api-extractor": "api-extractor.txt",
+    "lizard": "lizard.txt",
+    "vulture": "vulture.txt",
+    "semgrep": "semgrep.json",
+    "oasdiff": "oasdiff.json",
+    "atlas": "atlas.json",
+    "vale": "vale.json",
+    "deadcode": "deadcode.txt",
+    "gocyclo": "gocyclo.txt",
+    "dupl": "dupl.txt",
+    "cargo-machete": "cargo-machete.txt",
+}
 
-    File-extension is informational only; the tool name (stem) drives parsing.
+# These analyzers report a repository or manifest-level contract. Their line
+# number is often a placeholder, so path-level diff scoping is the strongest
+# sound filter available. All other analyzers must overlap a changed hunk.
+PATH_LEVEL_TOOLS = {
+    "knip",
+    "api-extractor",
+    "oasdiff",
+    "atlas",
+    "cargo-machete",
+}
+
+
+def batch(raw_dir: Path, tools: list[str] | None = None) -> list[dict]:
+    """Read exactly one canonical report for each executed analyzer.
+
+    Empty text reports remain valid for analyzers that communicate a clean run
+    through their exit status. Missing files, unknown analyzers, and read errors
+    are runtime failures and must not collapse into zero findings.
     """
     all_findings: list[dict] = []
-    for entry in sorted(raw_dir.iterdir()):
+    selected = sorted(tools if tools is not None else RAW_FILENAMES)
+    for tool in selected:
+        if tool not in PARSERS or tool not in RAW_FILENAMES:
+            raise ValueError(f"unknown analyzer output: {tool}")
+        entry = raw_dir / RAW_FILENAMES[tool]
         if not entry.is_file():
-            continue
-        tool = entry.stem
-        if tool not in PARSERS:
-            continue
+            raise FileNotFoundError(f"missing analyzer report: {entry}")
         raw = _read_raw(entry)
-        if not raw:
-            continue
         all_findings.extend(ingest_one(tool, raw))
     return all_findings
+
+
+def filter_to_changed_files(
+    findings: list[dict],
+    changed_files: list[str],
+    repo: Path,
+    changed_line_ranges: dict[str, list[list[int]]] | None = None,
+) -> list[dict]:
+    """Keep deterministic findings anchored to reviewed paths and hunks.
+
+    Some analyzers necessarily inspect repository-wide state (for example
+    Knip, deadcode, Atlas, and cargo-machete). Their reports are still useful,
+    but unchanged-file findings are pre-existing debt and must not be promoted
+    to confidence 100 in a diff review.
+    """
+    repo = repo.resolve()
+
+    def canonical(path: str) -> str:
+        candidate = Path(path)
+        if candidate.is_absolute():
+            try:
+                return candidate.resolve().relative_to(repo).as_posix()
+            except ValueError:
+                return candidate.as_posix()
+        normalized = Path(path).as_posix()
+        return normalized[2:] if normalized.startswith("./") else normalized
+
+    allowed = {canonical(path) for path in changed_files}
+    if changed_line_ranges is None:
+        return [
+            finding
+            for finding in findings
+            if canonical(str(finding.get("file") or "")) in allowed
+        ]
+
+    ranges_by_path = {
+        canonical(path): ranges for path, ranges in changed_line_ranges.items()
+    }
+    filtered: list[dict] = []
+    for finding in findings:
+        path = canonical(str(finding.get("file") or ""))
+        if path not in allowed:
+            continue
+        if finding.get("source_tool") in PATH_LEVEL_TOOLS:
+            filtered.append(finding)
+            continue
+        ranges = ranges_by_path.get(path, [])
+        line_start = finding.get("line_start")
+        line_end = finding.get("line_end")
+        if not isinstance(line_start, int) or not isinstance(line_end, int):
+            continue
+        if any(line_start <= end and line_end >= start for start, end in ranges):
+            filtered.append(finding)
+    return filtered
 
 
 def _write_jsonl(findings: list[dict], output: Path | None) -> None:
@@ -666,20 +897,76 @@ def main() -> int:
 
     bat = sub.add_parser("batch", help="Parse every raw/<tool>.<ext> in a directory")
     bat.add_argument("--raw-dir", required=True, help="Directory of raw tool outputs")
+    bat.add_argument(
+        "--tools", nargs="*", default=None,
+        help="Executed analyzers whose canonical reports must exist",
+    )
+    bat.add_argument(
+        "--scope",
+        help="scope.json whose files_touched_list bounds deterministic findings",
+    )
+    bat.add_argument(
+        "--repo", default=".",
+        help="Repository root used to normalize absolute analyzer paths",
+    )
     bat.add_argument("--output", default=None,
                      help="JSONL path (default: stdout)")
 
     args = parser.parse_args()
 
-    if args.cmd == "ingest":
-        raw = _read_raw(Path(args.input))
-        findings = ingest_one(args.tool, raw)
-    else:
-        raw_dir = Path(args.raw_dir)
-        if not raw_dir.is_dir():
-            print(f"ERROR: raw-dir does not exist: {raw_dir}", file=sys.stderr)
-            return 2
-        findings = batch(raw_dir)
+    try:
+        if args.cmd == "ingest":
+            raw = _read_raw(Path(args.input))
+            findings = ingest_one(args.tool, raw)
+        else:
+            raw_dir = Path(args.raw_dir)
+            if not raw_dir.is_dir():
+                print(f"ERROR: raw-dir does not exist: {raw_dir}", file=sys.stderr)
+                return 2
+            findings = batch(raw_dir, args.tools)
+            if args.scope:
+                scope_path = Path(args.scope)
+                scope = json.loads(scope_path.read_text(encoding="utf-8"))
+                changed_files = scope.get("files_touched_list")
+                if not isinstance(changed_files, list) or not all(
+                    isinstance(path, str) for path in changed_files
+                ):
+                    raise ValueError(
+                        "scope.json files_touched_list must be an array of strings"
+                    )
+                changed_ranges = scope.get("changed_line_ranges")
+                if changed_ranges is not None and not isinstance(changed_ranges, dict):
+                    raise ValueError(
+                        "scope.json changed_line_ranges must be an object when present"
+                    )
+                if changed_ranges is not None:
+                    for path, ranges in changed_ranges.items():
+                        if not isinstance(path, str) or not isinstance(ranges, list):
+                            raise ValueError(
+                                "scope.json changed_line_ranges must map paths to lists"
+                            )
+                        if any(
+                            not isinstance(item, list)
+                            or len(item) != 2
+                            or not all(
+                                type(value) is int and value > 0 for value in item
+                            )
+                            or item[0] > item[1]
+                            for item in ranges
+                        ):
+                            raise ValueError(
+                                "scope.json changed_line_ranges must contain positive "
+                                "[start, end] pairs"
+                            )
+                findings = filter_to_changed_files(
+                    findings,
+                    changed_files,
+                    Path(args.repo),
+                    changed_ranges,
+                )
+    except (OSError, ValueError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 4
 
     out = Path(args.output) if args.output else None
     _write_jsonl(findings, out)

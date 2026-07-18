@@ -1,6 +1,6 @@
 # Axis: Style (key `style`)
 
-New violations of the project rule hierarchy (CLAUDE.md, `.claude/rules/`, `~/.claude/rules/`) introduced by the diff. Linter-deferred concerns sit here too — the axis surfaces what a human reviewer would call out, not what the linter would.
+New violations of the project rule hierarchy (CLAUDE.md, `.claude/rules/`, `~/.claude/rules/`) or observable nearby repository conventions introduced by the diff. Linter-deferred concerns sit here too — the axis surfaces what a human reviewer would call out, not what the linter would.
 
 ## In scope (HIGH SIGNAL)
 
@@ -9,20 +9,21 @@ Anchor: `references/anthropic-verbatim.md` § HIGH SIGNAL review criteria (Agent
 - **CLAUDE.md rule violations on changed lines** — quote the exact rule line verbatim. CLAUDE.md is guidance for Claude as it writes code — apply judgment about which rules are review criteria vs writing-only.
 - **Linter-deferred concerns** — patterns the linter cannot catch but the project explicitly rejects (e.g., banned import paths in CLAUDE.md, naming conventions the linter does not enforce).
 - **Repo conventions in CLAUDE.md / .claude/rules/** — single source of truth, conformance over taste, file-layout conventions, banned vocabulary.
+- **Observable local conventions when no rule baseline exists** — a repeated, unambiguous convention in neighboring code that the changed lines alone break. Cite the concrete sibling evidence; do not elevate personal taste into a rule.
 
 ## Out of scope (false positives — silence at source)
 
 Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 
 - **Anything the linter / formatter would catch** — formatting, import ordering, quote style. CI runs these separately (per Agent assumption rule).
-- **Rules that are not in CLAUDE.md or `.claude/rules/`** — stylistic preferences without a rule are out. The Documentation axis owns AI vocabulary; the Simplification axis owns over-engineering.
+- **Unwritten preferences without repeated repository evidence** — personal taste is out. The Documentation axis owns AI vocabulary; the Simplification axis owns over-engineering.
 - **Rules called out in CLAUDE.md but explicitly silenced** in the code (e.g., a lint-ignore comment, an `# noqa`).
 - **Pre-existing violations on unchanged lines** — out of scope; the diff did not cause them.
 - **General code-quality complaints** (test coverage, security, naming) unless CLAUDE.md explicitly requires them.
 
 ## Tool inputs (Phase 2)
 
-No deterministic tool findings route to this axis. The Style axis is pure LLM judgment against the CLAUDE.md chain.
+No deterministic tool findings route to this axis. The Style axis is LLM judgment against the CLAUDE.md chain and, only when that chain is empty, concrete neighboring repository evidence.
 
 ## CLAUDE.md chain
 
@@ -48,7 +49,7 @@ No branches — rule files are repo-agnostic. The axis reads the CLAUDE.md chain
 
 ## Graceful degradation
 
-When the CLAUDE.md chain is empty (`scope.json["claude_md_chain"] == []`), the Style axis runs without a baseline and emits zero findings. The report header surfaces `Style axis: skipped — no rules baseline found`.
+When the CLAUDE.md chain is empty (`scope.json["claude_md_chain"] == []`), the Style axis still runs. It may report only a changed-line violation backed by repeated neighboring repository evidence; otherwise it emits zero findings. The report header states `Rules baseline: none — Style used observable repository conventions`; the axis is never marked skipped.
 
 ## Subagent inputs
 

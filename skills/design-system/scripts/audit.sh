@@ -8,6 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=resolve-designmd.sh
 source "$SCRIPT_DIR/resolve-designmd.sh"
+ORIGINAL_ARGS=("$@")
 
 usage() {
   echo "usage: audit.sh <path-to-design-md>" >&2
@@ -16,6 +17,7 @@ usage() {
 
 [[ $# -eq 1 ]] || usage
 path="$1"
+RERUN="$(designmd_format_command bash "$SCRIPT_DIR/audit.sh" "${ORIGINAL_ARGS[@]}")"
 
 if [[ ! -f "$path" ]]; then
   echo "RESULT: status=file-not-found"
@@ -23,25 +25,39 @@ if [[ ! -f "$path" ]]; then
   exit 1
 fi
 
-if ! DESIGNMD="$(resolve_designmd "$path")"; then
-  echo "RESULT: status=designmd-missing"
+if resolve_designmd "$path"; then
+  :
+else
+  resolution_rc=$?
+  emit_designmd_resolution_error "$path" "$resolution_rc" "$RERUN"
   exit 1
 fi
 
-json_tmp="$(mktemp -t design-audit-XXXXXX).json"
-stderr_tmp="$(mktemp -t design-audit-stderr-XXXXXX).log"
+json_tmp="$(mktemp -t design-audit-json-XXXXXX)"
+stderr_tmp="$(mktemp -t design-audit-stderr-XXXXXX)"
 
 # `lint` exits 1 on findings but still writes valid JSON; only exits >1 are real
 # failures.
 set +e
-"$DESIGNMD" lint "$path" >"$json_tmp" 2>"$stderr_tmp"
+run_designmd lint --format json "$path" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 
 if [[ $rc -gt 1 ]]; then
+  rm -f "$json_tmp"
   echo "RESULT: status=cli-failed"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: stderr=$stderr_tmp"
+  emit_designmd_runtime_repair "$path" "$RERUN"
+  exit 1
+fi
+
+if ! python3 "$SCRIPT_DIR/validate-output.py" lint "$json_tmp" --exit-code "$rc"; then
+  echo "RESULT: status=cli-invalid-output"
+  echo "RESULT: exit-code=$rc"
+  echo "RESULT: json=$json_tmp"
+  echo "RESULT: stderr=$stderr_tmp"
+  emit_designmd_runtime_repair "$path" "$RERUN"
   exit 1
 fi
 
@@ -50,4 +66,6 @@ echo "RESULT: status=ok"
 echo "RESULT: path=$path"
 echo "RESULT: exit-code=$rc"
 echo "RESULT: json=$json_tmp"
+emit_designmd_metadata
+rm -f "$stderr_tmp"
 exit "$rc"

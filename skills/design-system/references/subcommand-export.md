@@ -83,7 +83,7 @@ DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, 
 }
 ```
 
-The Google CLI's `--format tailwind` may or may not emit extension namespaces depending on its version (alpha v0.1.1 preserves them in source but the exporter focuses on the canonical 5). Verify by running an export and grepping the output for an extension token name. If absent, append the extension block manually using the mapping table — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS var per token.
+The 0.3.0 exporter focuses on the canonical token groups rather than this skill's extension namespaces. Verify the generated output before merging it, then append the extension block using the mapping table when needed — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS variable per token.
 
 **Tailwind v3 (JS-config).** Same JSON output as canonical tokens; nest extension namespaces under `theme.extend` keys (`shadow:`, `aspectRatio:`, `screens:` for breakpoints, etc.) per Tailwind's documented mapping. Hand-merge the JSON if the CLI does not flatten them automatically.
 
@@ -121,6 +121,6 @@ After `export`, if the output is DTCG JSON:
 
 - **Format typo** (`export twilwind`): script returns `RESULT: status=invalid-format`. Suggest the two valid options.
 - **Source missing**: `RESULT: status=file-not-found`. Suggest `/design-system init` to bootstrap.
-- **CLI unavailable**: `RESULT: status=designmd-missing`. Stop and provide the project-dependency or `PATH` installation guidance; no equivalent export can be produced from the bundled prose reference.
+- **CLI resolution or execution failure**: stop and surface the emitted `status`, optional `install`, `remediation`, and exact `rerun`; no equivalent export can be produced from the bundled prose reference.
 - **Output path writable?** If `-o <path>` points to a non-writable directory, the script surfaces the shell error. Report it verbatim.
 - **Empty DESIGN.md** (no tokens): the CLI still produces a valid but minimal output file. Surface a warning that the export is mostly empty and suggest running `/design-system audit` to see what's missing.

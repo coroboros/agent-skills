@@ -21,7 +21,7 @@ Emit the canonical DESIGN.md format specification — always reflects the instal
 | `--json` | Machine-readable JSON instead of markdown |
 | `-o <path>` | Write to file (default: stdout) |
 
-All flags pass through to the underlying `designmd spec` invocation.
+The wrapper forwards its stable `--rules-only` flag to the installed CLI, translates `--json` to `--format json`, and handles `-o` atomically.
 
 ## Workflow
 
@@ -31,7 +31,7 @@ Use the bundled resolver so a project-local dependency works without adding `nod
 bash "$SKILL_DIR/scripts/spec.sh" <flags> > <output>
 ```
 
-1. **Resolve CLI availability**: nearest directly declared project `node_modules/.bin/designmd`, then `PATH`. If unavailable, return `designmd-missing` and suggest adding `@google/design.md` with the project's package manager.
+1. **Resolve CLI availability**: nearest directly declared project `node_modules/.bin/designmd`, a directly declared Yarn Plug'n'Play binary through Yarn, then `PATH`. Any resolution failure stops with machine-readable remediation and the exact rerun command; never replace a broken declaration with a global binary.
 2. **Compose the command** from flags.
 3. **Invoke** and capture stdout.
 4. **Write or print** based on `-o`.
@@ -53,7 +53,7 @@ Refresh this file when the installed upstream CLI version changes.
 **Linting rules lookup.** When interpreting an audit finding, the rules table maps severity → rule name → check. `--rules-only --json` is compact and machine-parseable:
 
 ```bash
-/design-system spec --rules-only --json | jq '.[] | select(.rule == "contrast-ratio")'
+/design-system spec --rules-only --json | jq '.rules[] | select(.name == "contrast-ratio")'
 ```
 
 ## When NOT to use
@@ -63,5 +63,6 @@ Refresh this file when the installed upstream CLI version changes.
 
 ## Edge cases
 
-- **Offline / CLI unavailable**: the wrapper returns `designmd-missing`. Use `references/design-md-spec.md` only as bundled authoring guidance; do not present it as live CLI output.
+- **Resolution failure**: stop and surface the wrapper's `status`, optional `install`, `remediation`, and exact `rerun`. Use `references/design-md-spec.md` only as bundled authoring guidance; do not present it as live CLI output.
+- **0.3.0 packaging bug**: if the installed CLI fails only because its packaged `spec.md` lookup is wrong, the wrapper reads the exact official `dist/linter/spec.md` artifact from that same installed package. It still asks that CLI for active rules and never substitutes a cached skill copy.
 - **Old CLI installed**: if the installed binary is stale, the emitted spec will not reflect recent rule additions. Flag the maintenance gap instead of downloading an update during agent work.

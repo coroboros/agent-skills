@@ -117,6 +117,9 @@ def apply_a2(findings: list[dict]) -> tuple[list[dict], list[dict]]:
             f"Sub-{CONFIDENCE_THRESHOLD} confidence ({conf}) — "
             "verify locally before action."
         )
+        validator_reason = (f.get("meta") or {}).get("validator_reason")
+        if validator_reason:
+            rationale += f" Validator: {validator_reason}"
         rec = f.get("recommendation", "")
         if rationale not in rec:
             f["recommendation"] = f"{rationale} {rec}".strip()

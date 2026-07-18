@@ -1,8 +1,8 @@
 """Tests for skills/code-ultrareview/scripts/run_battery.sh.
 
-Covers per-language dispatch matrix, trigger-based dispatch (api-extractor,
-oasdiff, atlas, vale), graceful skip for missing tools, the no-auto-install
-contract, and README ↔ dispatch parity (no drift between the script's
+Cover per-language dispatch, trigger-based dispatch (api-extractor, oasdiff,
+atlas, vale), atomic failure for missing tools, the no-auto-install contract,
+and README ↔ dispatch parity (no drift between the script's
 BATTERY_TABLE and the README's tool table).
 
 Tests use a controlled PATH via tmpdir shims rather than the host's installed
@@ -17,6 +17,7 @@ import re
 import stat
 import subprocess
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -61,6 +62,14 @@ def _write_scope(path: Path, **overrides) -> None:
     }
     defaults.update(overrides)
     path.write_text(json.dumps(defaults, indent=2), encoding="utf-8")
+    for relative in defaults["files_touched_list"]:
+        touched = path.parent / relative
+        if not touched.exists():
+            touched.parent.mkdir(parents=True, exist_ok=True)
+            touched.write_text(
+                "{}\n" if relative == "package.json" else "",
+                encoding="utf-8",
+            )
 
 
 def _run_dry(scope: Path, repo: Path, bin_dir: Path | None = None) -> dict:
@@ -85,23 +94,163 @@ def _run_dry(scope: Path, repo: Path, bin_dir: Path | None = None) -> dict:
              "--dry-run"],
             capture_output=True, text=True, env=env, check=False,
         )
-    if r.returncode != 0:
+    if r.returncode not in (0, 3):
         raise AssertionError(f"run_battery --dry-run failed ({r.returncode})\n"
                              f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
     return json.loads(r.stdout)
 
 
 def _dispatched_tools(plan: dict) -> set[str]:
-    return {e["tool"] for e in plan.get("dispatched", [])}
+    return {e["tool"] for e in plan.get("available", [])}
 
 
 def _skipped_tools(plan: dict) -> set[str]:
-    return {e["tool"] for e in plan.get("skipped", [])}
+    return {e["tool"] for e in plan.get("missing", [])}
 
 
 def _wanted_tools(plan: dict) -> set[str]:
     """Union — both dispatched (available) and skipped (missing) were wanted."""
     return _dispatched_tools(plan) | _skipped_tools(plan)
+
+
+# ---------------------------------------------------------------------------
+# Input integrity.
+# ---------------------------------------------------------------------------
+
+
+class TestInputIntegrity(unittest.TestCase):
+    def _run(self, repo: Path, scope: Path) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            [
+                "bash",
+                str(SCRIPT),
+                "--scope",
+                str(scope),
+                "--output-dir",
+                str(repo / "out"),
+                "--repo",
+                str(repo),
+                "--dry-run",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+            env={**os.environ, "PATH": "/usr/bin:/bin:/usr/local/bin"},
+        )
+
+    def test_malformed_scope_fails_without_traceback_and_prints_rerun(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            scope.write_text("{broken\n", encoding="utf-8")
+
+            result = self._run(repo, scope)
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("invalid Code Ultrareview scope", result.stderr)
+        self.assertIn("rerun scope.py", result.stderr)
+        self.assertIn("ERROR: rerun:", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_mistyped_scope_manifest_fails_before_dispatch(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(scope, tool_coverage="complete")
+
+            result = self._run(repo, scope)
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("tool_coverage must be an object", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_invalid_changed_line_ranges_fail_before_dispatch(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["python"],
+                files_touched_list=["src/app.py"],
+                changed_line_ranges={"src/app.py": [[0, 4]]},
+            )
+
+            result = self._run(repo, scope)
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("positive [start, end] pairs", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_invalid_jscpd_thresholds_fail_before_dispatch(self):
+        for variable in ("JSCPD_MIN_LINES", "JSCPD_MIN_TOKENS"):
+            with self.subTest(variable=variable), tempfile.TemporaryDirectory() as td:
+                repo = Path(td)
+                scope = repo / "scope.json"
+                _write_scope(scope)
+                result = subprocess.run(
+                    [
+                        "bash",
+                        str(SCRIPT),
+                        "--scope",
+                        str(scope),
+                        "--output-dir",
+                        str(repo / "out"),
+                        "--repo",
+                        str(repo),
+                        "--dry-run",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    env={
+                        **os.environ,
+                        "PATH": "/usr/bin:/bin:/usr/local/bin",
+                        variable: "0",
+                    },
+                )
+
+            self.assertEqual(result.returncode, 2)
+            self.assertIn(f"{variable} must be a positive integer", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+
+    def test_invalid_package_json_never_falls_back_to_global_analyzers(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["src/foo.ts"],
+            )
+            (repo / "package.json").write_text("{broken\n", encoding="utf-8")
+            bin_dir = repo / "bin"
+            _make_shim(bin_dir, "knip")
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(repo / "out"),
+                    "--repo",
+                    str(repo),
+                    "--dry-run",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("invalid project manifest", result.stderr)
+        self.assertIn("repair package.json", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -223,6 +372,7 @@ class TestDispatchPerTrigger(unittest.TestCase):
             scope = tdp / "scope.json"
             _write_scope(scope, languages=["go"],
                          files_touched_list=["migrations/001.sql"])
+            (tdp / "atlas.hcl").write_text("env \"local\" {}\n")
             bin_dir = tdp / "bin"
             self._shim_all(bin_dir)
             plan = _run_dry(scope, tdp, bin_dir)
@@ -241,6 +391,21 @@ class TestDispatchPerTrigger(unittest.TestCase):
             (tdp / ".vale.ini").write_text("StylesPath = styles\n")
             plan2 = _run_dry(scope, tdp, bin_dir)
             self.assertIn("vale", _wanted_tools(plan2))
+
+    def test_deleted_markdown_is_not_dispatched_to_markdownlint(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(
+                scope,
+                languages=[],
+                files_touched_list=["docs/deleted.md"],
+            )
+            (tdp / "docs" / "deleted.md").unlink()
+            bin_dir = tdp / "bin"
+            _make_shim(bin_dir, "markdownlint-cli2")
+            plan = _run_dry(scope, tdp, bin_dir)
+        self.assertNotIn("markdownlint-cli2", _wanted_tools(plan))
 
 
 # ---------------------------------------------------------------------------
@@ -290,8 +455,144 @@ class TestToolResolution(unittest.TestCase):
             path_bin = tdp / "path-bin"
             _make_shim(path_bin, "knip")
             plan = _run_dry(scope, tdp, path_bin)
-            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["available"]}
             self.assertEqual(dispatched.get("knip"), "project")
+
+    def test_declared_missing_project_binary_never_falls_back_to_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=["README.md"],
+            )
+            (repo / "package.json").write_text(
+                '{"devDependencies":{"markdownlint-cli2":"0.18.1"}}\n',
+                encoding="utf-8",
+            )
+            bin_dir = repo / "bin"
+            _make_shim(bin_dir, "markdownlint-cli2")
+
+            plan = _run_dry(scope, repo, bin_dir)
+
+        self.assertIn("markdownlint-cli2", _skipped_tools(plan))
+        self.assertNotIn("markdownlint-cli2", _dispatched_tools(plan))
+
+    def test_declared_yarn_pnp_binary_dispatches_without_node_modules(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(
+                scope,
+                repo_kind="app",
+                languages=["typescript"],
+                files_touched_list=["src/foo.ts"],
+            )
+            (tdp / "package.json").write_text(
+                '{"packageManager":"yarn@4.9.2",'
+                '"devDependencies":{"knip":"5.61.2"}}\n',
+                encoding="utf-8",
+            )
+            (tdp / "yarn.lock").write_text("", encoding="utf-8")
+            bin_dir = tdp / "bin"
+            _make_shim(
+                bin_dir,
+                "yarn",
+                '[[ "${COREPACK_ENABLE_NETWORK-}" == "0" ]] || exit 66\n'
+                '[[ "${COREPACK_DEFAULT_TO_LATEST-}" == "0" ]] || exit 67\n'
+                'if [[ "$3" == "bin" && "$4" == "knip" ]]; then\n'
+                '  printf "/virtual/.yarn/knip\\n"\n'
+                "  exit 0\n"
+                "fi\n"
+                "exit 64",
+            )
+
+            plan = _run_dry(scope, tdp, bin_dir)
+
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["available"]}
+            self.assertEqual(dispatched.get("knip"), "yarn-pnp")
+
+    def test_yarn_pnp_binary_executes_through_yarn_run(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(
+                scope,
+                repo_kind="app",
+                languages=["typescript"],
+                files_touched_list=["src/foo.ts"],
+            )
+            (tdp / "package.json").write_text(
+                '{"packageManager":"yarn@4.9.2",'
+                '"devDependencies":{"knip":"5.61.2","jscpd":"4.0.8"}}\n',
+                encoding="utf-8",
+            )
+            (tdp / "yarn.lock").write_text("", encoding="utf-8")
+            bin_dir = tdp / "bin"
+            marker = tdp / "yarn-runs.log"
+            _make_shim(
+                bin_dir,
+                "yarn",
+                '[[ "${COREPACK_ENABLE_NETWORK-}" == "0" ]] || exit 66\n'
+                '[[ "${COREPACK_DEFAULT_TO_LATEST-}" == "0" ]] || exit 67\n'
+                'if [[ "$3" == "bin" ]]; then\n'
+                '  case "$4" in knip|jscpd) exit 0 ;; esac\n'
+                "  exit 1\n"
+                "fi\n"
+                'if [[ "$3" != "run" || "$4" != "-B" ]]; then exit 64; fi\n'
+                f'printf "%s\\n" "$5" >> "{marker}"\n'
+                'if [[ "$5" == "knip" ]]; then printf "[]\\n"; exit 0; fi\n'
+                'if [[ "$5" == "jscpd" ]]; then\n'
+                "  shift 5\n"
+                "  out=\n"
+                "  while [[ $# -gt 0 ]]; do\n"
+                '    if [[ "$1" == "--output" ]]; then out="$2"; break; fi\n'
+                "    shift\n"
+                "  done\n"
+                '  mkdir -p "$out"\n'
+                '  printf "{\\\"duplicates\\\":[]}\\n" > "$out/jscpd-report.json"\n'
+                "  exit 0\n"
+                "fi\n"
+                "exit 65",
+            )
+            _make_shim(
+                bin_dir,
+                "lizard",
+                'printf "NLOC,CCN,token,PARAM,length,location\\n'
+                '1,1,1,0,1,foo@1-1@src/foo.ts\\n"',
+            )
+            out_dir = tdp / "out"
+            env = os.environ.copy()
+            env["PATH"] = f"{bin_dir}:/usr/bin:/bin:/usr/local/bin"
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(tdp),
+                    "--axes",
+                    "simplification",
+                ],
+                capture_output=True,
+                text=True,
+                env=env,
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(marker.read_text(encoding="utf-8").splitlines(), ["knip", "jscpd"])
+            plan = json.loads((out_dir / "tool-preflight.json").read_text())
+            wrappers = {entry["tool"]: entry["wrapper"] for entry in plan["available"]}
+            self.assertEqual(
+                wrappers,
+                {"knip": "yarn-pnp", "jscpd": "yarn-pnp", "lizard": "path"},
+            )
 
     def test_undeclared_project_binary_does_not_shadow_path(self):
         with tempfile.TemporaryDirectory() as td:
@@ -305,7 +606,7 @@ class TestToolResolution(unittest.TestCase):
 
             plan = _run_dry(scope, tdp, path_bin)
 
-            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["available"]}
             self.assertEqual(dispatched.get("knip"), "path")
 
     def test_path_binary_dispatches(self):
@@ -317,7 +618,7 @@ class TestToolResolution(unittest.TestCase):
             bin_dir = tdp / "bin"
             _make_shim(bin_dir, "vulture")
             plan = _run_dry(scope, tdp, bin_dir)
-            dispatched = {e["tool"]: e["wrapper"] for e in plan["dispatched"]}
+            dispatched = {e["tool"]: e["wrapper"] for e in plan["available"]}
             self.assertEqual(dispatched.get("vulture"), "path")
 
     def test_source_has_no_runtime_package_resolver(self):
@@ -335,17 +636,14 @@ class TestToolResolution(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Graceful skip — no native tool, no wrapper → WARN + tools-skipped.json.
+# Atomic preflight — no native tool, no wrapper means no review.
 # ---------------------------------------------------------------------------
 
 
-class TestGracefulSkip(unittest.TestCase):
-    """AC: OpenAPI repo without oasdiff installed →
-    `WARN: oasdiff skipped — not found — install: brew install oasdiff` on stderr,
-    scope.json["tools_skipped"] contains oasdiff, skill continues without error.
-    """
+class TestAtomicPreflight(unittest.TestCase):
+    """Missing applicable analyzers block before any analyzer executes."""
 
-    def test_missing_oasdiff_emits_warn_and_logs_skip(self):
+    def test_missing_oasdiff_blocks_with_exact_remediation(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
             scope = tdp / "scope.json"
@@ -362,21 +660,55 @@ class TestGracefulSkip(unittest.TestCase):
                  "--repo", str(tdp)],
                 capture_output=True, text=True, env=env, check=False,
             )
-            self.assertEqual(r.returncode, 0, msg=r.stderr)
-            self.assertIn("WARN: oasdiff skipped — not found", r.stderr)
-            self.assertIn("brew install oasdiff", r.stderr)
-            skipped_path = out_dir / "tools-skipped.json"
-            self.assertTrue(skipped_path.is_file())
-            payload = json.loads(skipped_path.read_text())
-            skipped_names = {e["tool"] for e in payload["skipped"]}
-            self.assertIn("oasdiff", skipped_names)
+            self.assertEqual(r.returncode, 3, msg=r.stderr)
+            self.assertIn("required analyzer 'oasdiff' is missing", r.stderr)
+            self.assertIn("go install github.com/oasdiff/oasdiff@latest", r.stderr)
+            self.assertIn("then rerun Code Ultrareview", r.stderr)
+            plan = json.loads((out_dir / "tool-preflight.json").read_text())
+            self.assertFalse(plan["complete"])
+            self.assertIn("oasdiff", {e["tool"] for e in plan["missing"]})
+            self.assertFalse((out_dir / "tool-findings.jsonl").exists())
 
-    def test_battery_continues_when_all_native_tools_missing(self):
+    def test_pnpm_workspace_guidance_targets_the_workspace_root(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "package.json").write_text(
+                '{"packageManager":"pnpm@10.0.0"}\n', encoding="utf-8"
+            )
+            (repo / "pnpm-workspace.yaml").write_text(
+                "packages:\n  - packages/*\n", encoding="utf-8"
+            )
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["javascript"],
+                files_touched_list=["src/index.js"],
+            )
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(repo / "out"),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                env={**os.environ, "PATH": "/usr/bin:/bin"},
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 3, result.stderr)
+            plan = json.loads((repo / "out" / "tool-preflight.json").read_text())
+            installs = {entry["tool"]: entry["install"] for entry in plan["missing"]}
+            self.assertEqual(installs["knip"], "pnpm add -Dw knip")
+
+    def test_battery_blocks_when_all_native_tools_missing(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
             scope = tdp / "scope.json"
             _write_scope(scope, languages=["go"],
                          files_touched_list=["main.go", "migrations/001.sql"])
+            (tdp / "atlas.hcl").write_text("env \"local\" {}\n")
             out_dir = tdp / "out"
             env = os.environ.copy()
             env["PATH"] = "/usr/bin:/bin"
@@ -387,12 +719,29 @@ class TestGracefulSkip(unittest.TestCase):
                  "--repo", str(tdp)],
                 capture_output=True, text=True, env=env, check=False,
             )
-            self.assertEqual(r.returncode, 0, "battery must continue on missing tools")
-            payload = json.loads((out_dir / "tools-skipped.json").read_text())
-            # deadcode, gocyclo, dupl, atlas — all path-only and missing.
-            names = {e["tool"] for e in payload["skipped"]}
+            self.assertEqual(r.returncode, 3, "missing analyzers must block")
+            payload = json.loads((out_dir / "tool-preflight.json").read_text())
+            names = {e["tool"] for e in payload["missing"]}
             for tool in ("deadcode", "gocyclo", "dupl", "atlas"):
                 self.assertIn(tool, names)
+
+    def test_no_available_analyzer_runs_when_another_is_missing(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdp = Path(td)
+            scope = tdp / "scope.json"
+            _write_scope(scope, languages=["python"], files_touched_list=["src/foo.py"])
+            marker = tdp / "lizard-ran"
+            bin_dir = tdp / "bin"
+            _make_shim(bin_dir, "lizard", f"touch {marker!s}; exit 0")
+            env = os.environ.copy()
+            env["PATH"] = f"{bin_dir}:/usr/bin:/bin"
+            result = subprocess.run(
+                ["bash", str(SCRIPT), "--scope", str(scope),
+                 "--output-dir", str(tdp / "out"), "--repo", str(tdp)],
+                capture_output=True, text=True, env=env, check=False,
+            )
+            self.assertEqual(result.returncode, 3)
+            self.assertFalse(marker.exists(), "preflight must be atomic")
 
     def test_tool_findings_jsonl_always_emitted(self):
         """Even when no tool runs, the JSONL exists (empty)."""
@@ -413,10 +762,7 @@ class TestGracefulSkip(unittest.TestCase):
             self.assertEqual(r.returncode, 0)
             self.assertTrue((out_dir / "tool-findings.jsonl").is_file())
 
-    def test_scope_json_tools_skipped_mutated_in_place(self):
-        """SKILL.md says skipped tools land in scope.json[tools_skipped]. The
-        battery writes both <output>/tools-skipped.json AND mutates scope.json
-        so downstream phases can read either file."""
+    def test_scope_json_records_missing_tools_without_claiming_skips(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
             scope = tdp / "scope.json"
@@ -432,17 +778,704 @@ class TestGracefulSkip(unittest.TestCase):
                  "--repo", str(tdp)],
                 capture_output=True, text=True, env=env, check=False,
             )
-            self.assertEqual(r.returncode, 0, msg=r.stderr)
+            self.assertEqual(r.returncode, 3, msg=r.stderr)
             mutated = json.loads(scope.read_text())
-            skipped_names = {e["tool"] for e in mutated["tools_skipped"]}
-            self.assertIn("oasdiff", skipped_names)
-            # Shape parity with tools-skipped.json.
-            payload = json.loads((out_dir / "tools-skipped.json").read_text())
-            file_names = {e["tool"] for e in payload["skipped"]}
-            self.assertEqual(skipped_names, file_names)
+            missing_names = {e["tool"] for e in mutated["tools_missing"]}
+            self.assertIn("oasdiff", missing_names)
+            self.assertEqual(mutated["tools_skipped"], [])
             # Other scope.json fields preserved untouched.
             self.assertEqual(mutated["languages"], ["typescript"])
             self.assertIn("openapi.yaml", mutated["files_touched_list"])
+
+
+class TestAnalyzerExecution(unittest.TestCase):
+    def _init_git(self, repo: Path) -> None:
+        subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
+        subprocess.run(
+            ["git", "config", "user.email", "test@example.com"],
+            cwd=repo,
+            check=True,
+        )
+        subprocess.run(
+            ["git", "config", "user.name", "Test"], cwd=repo, check=True
+        )
+        subprocess.run(
+            ["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True
+        )
+        subprocess.run(
+            ["git", "config", "core.hooksPath", "/dev/null"], cwd=repo, check=True
+        )
+
+    def _commit(self, repo: Path, message: str) -> str:
+        subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-q", "-m", message], cwd=repo, check=True)
+        return subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=repo,
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout.strip()
+
+    def test_knip_6_wrapped_report_is_accepted(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["package.json"],
+            )
+            (repo / "package.json").write_text("{}\n", encoding="utf-8")
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(bin_dir, "knip", "printf '{\"issues\":[]}\\n'")
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--axes", "simplification",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(
+                (out_dir / "tool-findings.jsonl").read_text(encoding="utf-8"),
+                "",
+            )
+            coverage = json.loads(scope.read_text(encoding="utf-8"))["tool_coverage"]
+            self.assertEqual(coverage["executed"], ["knip"])
+
+    def test_semgrep_report_errors_block_with_repair_and_rerun_guidance(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["python"],
+                files_touched_list=["app.py"],
+            )
+            (repo / "app.py").write_text("print('ok')\n", encoding="utf-8")
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "semgrep",
+                "printf '%s\\n' '{\"results\":[],\"errors\":[{\"type\":\"Rule parse error\"}]}'",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(repo),
+                    "--axes",
+                    "performance",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("Semgrep reported analyzer errors", result.stderr)
+            self.assertIn(str(out_dir / "raw" / "semgrep.json"), result.stderr)
+            self.assertIn(str(out_dir / "raw" / "semgrep.stderr"), result.stderr)
+            self.assertIn("pipx install semgrep", result.stderr)
+            self.assertIn("then rerun Code Ultrareview", result.stderr)
+            coverage = json.loads(scope.read_text())["tool_coverage"]
+            self.assertFalse(coverage["complete"])
+            self.assertEqual(coverage["applicable"], ["semgrep"])
+            self.assertEqual(coverage["executed"], [])
+            self.assertFalse((out_dir / "tool-findings.jsonl").exists())
+
+    def test_semgrep_invalid_report_surfaces_stderr_and_exact_verification(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["python"],
+                files_touched_list=["app.py"],
+            )
+            (repo / "app.py").write_text("print('ok')\n", encoding="utf-8")
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "semgrep",
+                "printf 'permission denied\\n' >&2\nexit 1",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(repo),
+                    "--axes",
+                    "performance",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("did not produce its documented JSON schema", result.stderr)
+        self.assertIn(str(out_dir / "raw" / "semgrep.stderr"), result.stderr)
+        self.assertIn("ERROR: verify:", result.stderr)
+        self.assertIn("semgrep --version", result.stderr)
+        self.assertIn("pipx install semgrep", result.stderr)
+        self.assertIn("inspect the report and stderr", result.stderr)
+
+    def test_jscpd_v5_receives_changed_file_tree_with_relative_paths(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["python"],
+                files_touched_list=["src/a.py", "src/b.py", "src/deleted.py"],
+            )
+            (repo / "src" / "a.py").write_text("value = 1\n", encoding="utf-8")
+            (repo / "src" / "b.py").write_text("value = 1\n", encoding="utf-8")
+            (repo / "src" / "deleted.py").unlink()
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "jscpd",
+                'out=""\n'
+                'target=""\n'
+                'while [[ $# -gt 0 ]]; do\n'
+                '  case "$1" in\n'
+                '    --output) out="$2"; shift 2 ;;\n'
+                '    --min-lines) [[ "$2" == "15" ]] || exit 9; shift 2 ;;\n'
+                '    --min-tokens) [[ "$2" == "100" ]] || exit 9; shift 2 ;;\n'
+                '    --reporters) shift 2 ;;\n'
+                '    --silent) shift ;;\n'
+                '    *) target="$1"; shift ;;\n'
+                '  esac\n'
+                'done\n'
+                '[[ -d "$target" ]] || exit 9\n'
+                '[[ -f "$target/src/a.py" ]] || exit 9\n'
+                '[[ -f "$target/src/b.py" ]] || exit 9\n'
+                '[[ ! -e "$target/src/deleted.py" ]] || exit 9\n'
+                'mkdir -p "$out"\n'
+                "printf '%s\\n' "
+                "'{\"duplicates\":[{\"firstFile\":{\"name\":\"src/a.py\",\"start\":1,\"end\":2},"
+                "\"secondFile\":{\"name\":\"src/b.py\",\"start\":1,\"end\":2},"
+                "\"lines\":2,\"tokens\":12}]}' > \"$out/jscpd-report.json\"",
+            )
+            _make_shim(
+                bin_dir,
+                "lizard",
+                'printf "NLOC,CCN,token,PARAM,length,location\\n"',
+            )
+            _make_shim(bin_dir, "vulture")
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(repo),
+                    "--axes",
+                    "simplification",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            findings = [
+                json.loads(line)
+                for line in (out_dir / "tool-findings.jsonl")
+                .read_text(encoding="utf-8")
+                .splitlines()
+                if line.strip()
+            ]
+            self.assertEqual([finding["file"] for finding in findings], ["src/a.py"])
+            self.assertEqual(list((out_dir / "raw").glob("jscpd-input.*")), [])
+            self.assertEqual(list((out_dir / "raw").glob("jscpd-report.*")), [])
+
+    def test_malformed_markdownlint_output_reports_evidence_and_remediation(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=["README.md"],
+            )
+            (repo / "README.md").write_text("# Test\n", encoding="utf-8")
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "markdownlint-cli2",
+                "printf '%s\\n' 'unrecognized analyzer output'",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--axes", "documentation",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn(
+                "markdownlint-cli2 produced non-empty output", result.stderr
+            )
+            self.assertIn("documented text or JSON schema", result.stderr)
+            self.assertIn(
+                str(out_dir / "raw" / "markdownlint-cli2.txt"),
+                result.stderr,
+            )
+            self.assertIn(
+                str(out_dir / "raw" / "markdownlint-cli2.stderr"),
+                result.stderr,
+            )
+            self.assertIn(
+                "npm install --save-dev markdownlint-cli2", result.stderr
+            )
+            self.assertIn("repair only the analyzer reports listed above", result.stderr)
+            self.assertIn("ERROR: rerun: bash", result.stderr)
+            self.assertFalse((out_dir / "tool-findings.jsonl").exists())
+
+    def test_markdownlint_uses_bundled_base_config_without_resolving_packages(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=["README.md"],
+            )
+            (repo / "README.md").write_text("# Test\n", encoding="utf-8")
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            marker = repo / "markdownlint-args.txt"
+            _make_shim(
+                bin_dir,
+                "markdownlint-cli2",
+                f"printf '%s\\n' \"$@\" > {marker!s}",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(repo),
+                    "--axes",
+                    "documentation",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            args = marker.read_text(encoding="utf-8").splitlines()
+            self.assertIn("--config", args)
+            config = Path(args[args.index("--config") + 1])
+            self.assertEqual(
+                config.name,
+                "markdownlint-base.markdownlint-cli2.jsonc",
+            )
+            base_rules = json.loads(config.read_text(encoding="utf-8"))["config"]
+            self.assertEqual(base_rules["MD013"], False)
+            self.assertEqual(base_rules["MD060"], {"style": "compact"})
+            self.assertFalse({"npx", "pnpm", "npm", "yarn", "bunx"} & set(args))
+
+    def test_ingest_failure_names_only_the_invalid_analyzer(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=["README.md"],
+            )
+            (repo / "README.md").write_text("# Test\n", encoding="utf-8")
+            (repo / ".vale.ini").write_text("StylesPath = styles\n", encoding="utf-8")
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "markdownlint-cli2",
+                "printf '%s\\n' 'unrecognized analyzer output'",
+            )
+            _make_shim(bin_dir, "vale", "printf '{}\\n'")
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(repo),
+                    "--axes",
+                    "documentation",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("markdownlint-cli2 produced non-empty output", result.stderr)
+        self.assertIn(str(out_dir / "raw" / "markdownlint-cli2.txt"), result.stderr)
+        self.assertNotIn(str(out_dir / "raw" / "vale.json"), result.stderr)
+        self.assertIn("npm install --save-dev markdownlint-cli2", result.stderr)
+        self.assertNotIn("errata-ai/vale", result.stderr)
+
+    def test_findings_exit_without_report_blocks_markdownlint(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=["README.md"],
+            )
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(bin_dir, "markdownlint-cli2", "exit 1")
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--axes", "documentation",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("findings code but produced no parseable report", result.stderr)
+        self.assertIn("npm install --save-dev markdownlint-cli2", result.stderr)
+
+    def test_findings_exit_without_report_blocks_text_analyzers(self):
+        cases = (
+            ("python", "src/app.py", "vulture", 3),
+            ("rust", "src/lib.rs", "cargo-machete", 1),
+        )
+        for language, changed_file, failing_tool, exit_code in cases:
+            with self.subTest(tool=failing_tool), tempfile.TemporaryDirectory() as td:
+                repo = Path(td)
+                scope = repo / "scope.json"
+                _write_scope(
+                    scope,
+                    languages=[language],
+                    files_touched_list=[changed_file],
+                )
+                out_dir = repo / "out"
+                bin_dir = repo / "bin"
+                _make_shim(
+                    bin_dir,
+                    "jscpd",
+                    'out=""\n'
+                    'while [[ $# -gt 0 ]]; do\n'
+                    '  if [[ "$1" == "--output" ]]; then out="$2"; break; fi\n'
+                    '  shift\n'
+                    'done\n'
+                    'mkdir -p "$out"\n'
+                    'printf \'{"duplicates":[]}\\n\' > "$out/jscpd-report.json"',
+                )
+                _make_shim(
+                    bin_dir,
+                    "lizard",
+                    'printf "NLOC,CCN,token,PARAM,length,location\\n"',
+                )
+                _make_shim(bin_dir, failing_tool, f"exit {exit_code}")
+
+                result = subprocess.run(
+                    [
+                        "bash", str(SCRIPT),
+                        "--scope", str(scope),
+                        "--output-dir", str(out_dir),
+                        "--repo", str(repo),
+                        "--axes", "simplification",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                    timeout=15,
+                    env={
+                        **os.environ,
+                        "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                    },
+                )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn(
+                f"{failing_tool} exited with its findings code but produced no parseable report",
+                result.stderr,
+            )
+
+    def test_failed_rerun_invalidates_stale_coverage_and_findings(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=["README.md"],
+                tool_coverage={
+                    "complete": True,
+                    "selected_axes": ["documentation"],
+                    "applicable": ["markdownlint-cli2"],
+                    "executed": ["markdownlint-cli2"],
+                },
+                coverage_complete=True,
+            )
+            (repo / "README.md").write_text("# Test\n", encoding="utf-8")
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            stale_finding = {
+                "axis": "documentation",
+                "confidence": 100,
+                "file": "README.md",
+                "line_end": 1,
+                "line_start": 1,
+                "message": "stale finding",
+                "severity": "P1",
+                "source_tool": "markdownlint-cli2",
+            }
+            (out_dir / "tool-findings.jsonl").write_text(
+                json.dumps(stale_finding) + "\n",
+                encoding="utf-8",
+            )
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "markdownlint-cli2",
+                "printf '%s\\n' 'unrecognized analyzer output'",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--axes", "documentation",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            mutated = json.loads(scope.read_text(encoding="utf-8"))
+            self.assertFalse(mutated["tool_coverage"]["complete"])
+            self.assertFalse(mutated["coverage_complete"])
+            self.assertEqual(mutated["tool_coverage"]["executed"], [])
+            self.assertFalse((out_dir / "tool-findings.jsonl").exists())
+            self.assertFalse(
+                (out_dir / ".tool-findings.pending.jsonl").exists()
+            )
+
+    def test_oasdiff_uses_scope_base_for_every_changed_spec(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            self._init_git(repo)
+            specs = ["api/openapi.yaml", "api/admin-openapi.yaml"]
+            for index, relative in enumerate(specs, start=1):
+                path = repo / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(f"base-{index}\n", encoding="utf-8")
+            base = self._commit(repo, "base")
+            for index, relative in enumerate(specs, start=1):
+                (repo / relative).write_text(f"head-{index}\n", encoding="utf-8")
+            self._commit(repo, "intermediate")
+            for index, relative in enumerate(specs, start=1):
+                (repo / relative).write_text(f"worktree-{index}\n", encoding="utf-8")
+
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                base=base,
+                languages=[],
+                files_touched_list=specs,
+            )
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            log = repo / "oasdiff.log"
+            _make_shim(
+                bin_dir,
+                "oasdiff",
+                "previous=$4\n"
+                "current=$5\n"
+                "printf '%s|%s\\n' \"$(cat \"$previous\")\" \"$current\" >> \"$OASDIFF_LOG\"\n"
+                "printf '[]\\n'",
+            )
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=15,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                    "OASDIFF_LOG": str(log),
+                },
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            lines = log.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(lines), 2)
+            self.assertTrue(any(line.startswith("base-1|") for line in lines))
+            self.assertTrue(any(line.startswith("base-2|") for line in lines))
+            self.assertFalse(any("head-" in line for line in lines))
+            for relative in specs:
+                self.assertTrue(any(line.endswith(relative) for line in lines))
+
+    def test_battery_timeout_terminates_analyzer_children(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            self._init_git(repo)
+            spec = repo / "openapi.yaml"
+            spec.write_text("base\n", encoding="utf-8")
+            base = self._commit(repo, "base")
+            spec.write_text("changed\n", encoding="utf-8")
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                base=base,
+                languages=[],
+                files_touched_list=["openapi.yaml"],
+            )
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            sentinel = repo / "child-completed"
+            child = repo / "child.py"
+            child.write_text(
+                "import pathlib, time\n"
+                "time.sleep(1.5)\n"
+                f"pathlib.Path({str(sentinel)!r}).write_text('alive')\n",
+                encoding="utf-8",
+            )
+            _make_shim(
+                bin_dir,
+                "oasdiff",
+                f'python3 "{child}" &\n'
+                "sleep 10",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--timeout", "1",
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                timeout=5,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("oasdiff timed out after 1s", result.stderr)
+            time.sleep(2)
+            self.assertFalse(sentinel.exists(), "battery timeout left a child running")
 
 
 # ---------------------------------------------------------------------------
@@ -528,7 +1561,7 @@ class TestReadmeParity(unittest.TestCase):
 
 
 class TestPreflight(unittest.TestCase):
-    def test_preflight_prints_dispatched_and_skipped(self):
+    def test_preflight_blocks_and_prints_exact_install_commands(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
             scope = tdp / "scope.json"
@@ -544,11 +1577,12 @@ class TestPreflight(unittest.TestCase):
                  "--repo", str(tdp)],
                 capture_output=True, text=True, env=env, check=False,
             )
-            self.assertEqual(r.returncode, 0, msg=r.stderr)
+            self.assertEqual(r.returncode, 3, msg=r.stderr)
             self.assertIn("Repo kind:", r.stdout)
-            self.assertIn("Dispatched", r.stdout)
-            self.assertIn("Skipped", r.stdout)
-            self.assertIn("Informational only", r.stdout)
+            self.assertIn("Available", r.stdout)
+            self.assertIn("Missing", r.stdout)
+            self.assertIn("pipx install vulture", r.stdout)
+            self.assertIn("BLOCKED:", r.stdout)
 
 
 # ---------------------------------------------------------------------------
@@ -596,6 +1630,17 @@ class TestDefaultRunSafety(unittest.TestCase):
                 f"--config=auto in code (not comment) at line {lineno}: {line}",
             )
 
+    def test_semgrep_disables_runtime_network_features(self):
+        """Bundled-rule scans do not phone home or wait on version checks."""
+        body = self._function_body("run_semgrep")
+        self.assertIn("--metrics=off", body)
+        self.assertIn("--disable-version-check", body)
+
+    def test_semgrep_preserves_bundled_rule_ids(self):
+        """Local config paths must not leak into the reported rule IDs."""
+        body = self._function_body("run_semgrep")
+        self.assertIn("--no-rewrite-rule-ids", body)
+
     def test_jscpd_target_is_changed_files_not_whole_repo(self):
         """`run_jscpd` passes a `code_files` array, not `"$REPO"`."""
         body = self._function_body("run_jscpd")
@@ -616,6 +1661,21 @@ class TestDefaultRunSafety(unittest.TestCase):
         body = self._function_body("run_semgrep")
         self.assertIn('"${code_files[@]}"', body)
         self.assertNotRegex(body, r'semgrep[^|]+"\$REPO"')
+
+    def test_changed_paths_cannot_be_parsed_as_analyzer_options(self):
+        """Changed-file analyzers receive explicit repository-relative paths."""
+        for function_name, array_name in (
+            ("run_jscpd", "code_files"),
+            ("run_markdownlint", "md_files"),
+            ("run_semgrep", "code_files"),
+            ("run_vale", "prose_files"),
+        ):
+            body = self._function_body(function_name)
+            self.assertIn(
+                f'{array_name}+=("./$f")',
+                body,
+                f"{function_name} does not protect leading-hyphen paths",
+            )
 
 
 if __name__ == "__main__":

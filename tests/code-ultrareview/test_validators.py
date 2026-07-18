@@ -15,6 +15,7 @@ not in this unit-test file — that work is non-deterministic LLM output.
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import subprocess
 import tempfile
@@ -45,6 +46,14 @@ def _load_synth():
 
 run_validators = _load_module()
 synthesis_core = _load_synth()
+
+
+def _identity(path: Path) -> dict:
+    data = path.read_bytes()
+    return {
+        "path": str(path.resolve()),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -112,6 +121,30 @@ class TestThresholdSsot(unittest.TestCase):
         )
 
 
+class TestCoverageDependencies(unittest.TestCase):
+    def test_required_and_requested_optional_phases_must_be_complete(self):
+        scope = {
+            "tool_coverage": {"complete": True},
+            "axis_coverage": {"complete": True},
+        }
+        self.assertTrue(run_validators._validator_dependencies_complete(scope))
+
+        for key in (
+            "mutation_coverage",
+            "build_coverage",
+            "reconcile_coverage",
+        ):
+            with self.subTest(key=key):
+                scope[key] = {"complete": False}
+                self.assertFalse(
+                    run_validators._validator_dependencies_complete(scope)
+                )
+                scope[key] = {"complete": True}
+
+        scope["axis_coverage"] = {"complete": False}
+        self.assertFalse(run_validators._validator_dependencies_complete(scope))
+
+
 # ---------------------------------------------------------------------------
 # filter_sub_threshold — confidence-100 tool findings never validated
 # ---------------------------------------------------------------------------
@@ -127,11 +160,10 @@ class TestFilterSubThreshold(unittest.TestCase):
         ])
         self.assertEqual(out, [])
 
-    def test_confidence_0_excluded(self):
-        """Confidence 0 is the false-positive sentinel from the rubric — A2
-        already drops these; validators never see them either."""
+    def test_confidence_0_included(self):
+        """Zero is a valid uncertain score and must receive validation."""
         out = run_validators.filter_sub_threshold([{"confidence": 0}])
-        self.assertEqual(out, [])
+        self.assertEqual(out, [{"confidence": 0}])
 
     def test_confidence_at_threshold_excluded(self):
         """80 is already verified; no validator pass needed."""
@@ -155,17 +187,17 @@ class TestFilterSubThreshold(unittest.TestCase):
         out = run_validators.filter_sub_threshold(findings)
         self.assertEqual(len(out), 4)
 
-    def test_mixed_set_keeps_only_sub_threshold_above_zero(self):
+    def test_mixed_set_keeps_every_sub_threshold_score_including_zero(self):
         findings = [
             {"confidence": 100, "id": "tool"},
-            {"confidence": 0, "id": "drop"},
+            {"confidence": 0, "id": "zero"},
             {"confidence": 50, "id": "keep"},
             {"confidence": 80, "id": "verified"},
             {"confidence": 75, "id": "keep2"},
         ]
         out = run_validators.filter_sub_threshold(findings)
         ids = {f["id"] for f in out}
-        self.assertEqual(ids, {"keep", "keep2"})
+        self.assertEqual(ids, {"zero", "keep", "keep2"})
 
 
 # ---------------------------------------------------------------------------
@@ -485,7 +517,7 @@ class TestPrepare(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             findings = [
-                {"confidence": 100, "source_tool": "semgrep", "axis": "correctness"},
+                {"confidence": 100, "source_tool": "semgrep", "axis": "performance"},
                 make_unverified_finding(confidence=70),
                 {"confidence": 0, "axis": "intent"},
                 make_unverified_finding(confidence=55, location="src/b.ts:5"),
@@ -497,9 +529,16 @@ class TestPrepare(unittest.TestCase):
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
-            # Only the two sub-80 + above-zero findings made it through.
-            self.assertEqual(result["count"], 2)
-            self.assertEqual(len(result["bundles"]), 2)
+            # Every sub-80 finding, including confidence zero, is bundled.
+            self.assertEqual(result["count"], 3)
+            self.assertEqual(len(result["bundles"]), 3)
+
+            zero_bundle = json.loads(
+                Path(result["bundles"][1]["input_path"]).read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(zero_bundle["finding"]["confidence"], 0)
 
     def test_25_findings_three_batches(self):
         with tempfile.TemporaryDirectory() as td:
@@ -717,21 +756,35 @@ class TestIngestA2NoDrop(unittest.TestCase):
         out = run_validators.ingest(results, findings)
         self.assertEqual(len(out), len(findings))
 
-    def test_missing_validator_result_surfaces_finding_with_reason(self):
-        """No result for a finding → kept as unverified, never dropped."""
+    def test_missing_validator_result_blocks_the_review(self):
+        """No result for a finding means validator coverage is incomplete."""
         findings = [
             make_unverified_finding(confidence=60, location="src/a.ts:1"),
             make_unverified_finding(confidence=55, location="src/b.ts:2"),
         ]
         # Validator only produced output for index 0.
         results = [{"index": 0, "score": 85, "reason": "ok"}]
-        out = run_validators.ingest(results, findings)
-        self.assertEqual(len(out), 2)
-        self.assertEqual(out[1]["meta"]["validator_outcome"], "demoted")
-        self.assertIn(
-            "no output",
-            out[1]["meta"]["validator_reason"].lower(),
-        )
+        with self.assertRaisesRegex(ValueError, "missing indexes"):
+            run_validators.ingest(results, findings)
+
+    def test_duplicate_or_unexpected_validator_indexes_block(self):
+        findings = [make_unverified_finding(confidence=60)]
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            run_validators.ingest(
+                [
+                    {"index": 0, "score": 80, "reason": "first"},
+                    {"index": 0, "score": 81, "reason": "duplicate"},
+                ],
+                findings,
+            )
+        with self.assertRaisesRegex(ValueError, "unexpected indexes"):
+            run_validators.ingest(
+                [
+                    {"index": 0, "score": 80, "reason": "first"},
+                    {"index": 1, "score": 81, "reason": "extra"},
+                ],
+                findings,
+            )
 
     def test_promoted_and_demoted_findings_partition_the_input(self):
         findings = [
@@ -763,10 +816,6 @@ class TestCliPrepare(unittest.TestCase):
             diff_path = tdir / "diff.patch"
             output_dir = tdir / "run"
 
-            scope_path.write_text(json.dumps({
-                "claude_md_chain": [],
-                "repo_kind": "app",
-            }), encoding="utf-8")
             sub_findings = [
                 make_unverified_finding(confidence=60, location="src/a.ts:1"),
                 make_unverified_finding(confidence=70, location="src/b.ts:2"),
@@ -776,6 +825,20 @@ class TestCliPrepare(unittest.TestCase):
                 encoding="utf-8",
             )
             diff_path.write_text("diff --git", encoding="utf-8")
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(json.dumps({
+                "claude_md_chain": [],
+                "repo_kind": "app",
+                "tool_coverage": {"complete": True},
+                "axis_coverage": {
+                    "complete": True,
+                    "requested": ["correctness"],
+                    "completed": ["correctness"],
+                    "output": findings_identity["path"],
+                    "sha256": findings_identity["sha256"],
+                    "finding_count": len(sub_findings),
+                },
+            }), encoding="utf-8")
 
             proc = subprocess.run(
                 [
@@ -795,6 +858,49 @@ class TestCliPrepare(unittest.TestCase):
                 self.assertTrue(Path(info["input_path"]).is_file())
                 self.assertTrue(Path(info["prompt_path"]).is_file())
 
+    def test_cli_prepare_missing_diff_fails_without_bundles(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            scope_path = tdir / "scope.json"
+            findings_path = tdir / "axis-findings.jsonl"
+            output_dir = tdir / "run"
+            finding = make_unverified_finding(confidence=60)
+            findings_path.write_text(json.dumps(finding) + "\n", encoding="utf-8")
+            identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "output": identity["path"],
+                        "sha256": identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "coverage_complete": True,
+                }),
+                encoding="utf-8",
+            )
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "prepare",
+                    "--scope", str(scope_path),
+                    "--findings", str(findings_path),
+                    "--diff", str(tdir / "missing.patch"),
+                    "--output-dir", str(output_dir),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            self.assertIn("diff file is missing", proc.stderr)
+            self.assertFalse(output_dir.exists())
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertFalse(scope["validator_coverage"]["complete"])
+            self.assertFalse(scope["coverage_complete"])
+
 
 class TestCliIngest(unittest.TestCase):
 
@@ -804,8 +910,18 @@ class TestCliIngest(unittest.TestCase):
             findings_path = tdir / "axis-findings.jsonl"
             results_path = tdir / "validator-results.jsonl"
             output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
 
             findings = [
+                {
+                    "axis": "correctness",
+                    "severity": "High",
+                    "location": "src/critical.ts:1",
+                    "finding": "Verified finding",
+                    "recommendation": "Fix it",
+                    "confidence": 95,
+                },
                 make_unverified_finding(confidence=60, location="src/a.ts:1"),
                 make_unverified_finding(confidence=70, location="src/b.ts:2"),
             ]
@@ -813,11 +929,101 @@ class TestCliIngest(unittest.TestCase):
                 "\n".join(json.dumps(f) for f in findings) + "\n",
                 encoding="utf-8",
             )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            run_id = "validator-run"
             results_path.write_text(
                 "\n".join(json.dumps(r) for r in [
-                    {"index": 0, "score": 90, "reason": "promote"},
-                    {"index": 1, "score": 40, "reason": "demote"},
+                    {"run_id": run_id, "index": 0, "score": 90, "reason": "promote"},
+                    {"run_id": run_id, "index": 1, "score": 40, "reason": "demote"},
                 ]) + "\n",
+                encoding="utf-8",
+            )
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(json.dumps({
+                "tool_coverage": {"complete": True},
+                "axis_coverage": {
+                    "complete": True,
+                    "output": findings_identity["path"],
+                    "sha256": findings_identity["sha256"],
+                    "finding_count": len(findings),
+                },
+                "validator_coverage": {
+                    "complete": False, "expected": 2, "completed": 0,
+                    "run_id": run_id,
+                    "input_hashes": {
+                        "diff": _identity(diff_path),
+                        "axis_findings": findings_identity,
+                    },
+                },
+                "coverage_complete": False,
+            }), encoding="utf-8")
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "ingest",
+                    "--findings", str(findings_path),
+                    "--results", str(results_path),
+                    "--output", str(output_path),
+                    "--scope", str(scope_path),
+                ],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            self.assertTrue(output_path.is_file())
+            lines = output_path.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(lines), 3)
+            parsed = [json.loads(line) for line in lines]
+            self.assertEqual(parsed[0]["finding"], "Verified finding")
+            outcomes = [p["meta"]["validator_outcome"] for p in parsed[1:]]
+            self.assertEqual(outcomes, ["promoted", "demoted"])
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertTrue(scope["coverage_complete"])
+            self.assertEqual(scope["validator_coverage"]["completed"], 2)
+
+    def test_failed_rerun_invalidates_stale_validator_state_and_output(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            findings_path = tdir / "axis-findings.jsonl"
+            results_path = tdir / "validator-results.jsonl"
+            output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
+            findings_path.write_text(
+                json.dumps(
+                    make_unverified_finding(
+                        confidence=60,
+                        location="src/a.ts:1",
+                    )
+                ) + "\n",
+                encoding="utf-8",
+            )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            results_path.write_text("{malformed\n", encoding="utf-8")
+            output_path.write_text("stale\n", encoding="utf-8")
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "requested": ["correctness"],
+                        "completed": ["correctness"],
+                        "output": findings_identity["path"],
+                        "sha256": findings_identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "validator_coverage": {
+                        "complete": True,
+                        "expected": 1,
+                        "completed": 1,
+                        "run_id": "validator-run",
+                        "input_hashes": {
+                            "diff": _identity(diff_path),
+                            "axis_findings": findings_identity,
+                        },
+                    },
+                    "coverage_complete": True,
+                }),
                 encoding="utf-8",
             )
 
@@ -827,16 +1033,149 @@ class TestCliIngest(unittest.TestCase):
                     "--findings", str(findings_path),
                     "--results", str(results_path),
                     "--output", str(output_path),
+                    "--scope", str(scope_path),
                 ],
-                capture_output=True, text=True, check=False,
+                capture_output=True,
+                text=True,
+                check=False,
             )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
-            self.assertTrue(output_path.is_file())
-            lines = output_path.read_text(encoding="utf-8").splitlines()
-            self.assertEqual(len(lines), 2)
-            parsed = [json.loads(line) for line in lines]
-            outcomes = [p["meta"]["validator_outcome"] for p in parsed]
-            self.assertEqual(outcomes, ["promoted", "demoted"])
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertFalse(scope["validator_coverage"]["complete"])
+            self.assertEqual(scope["validator_coverage"]["completed"], 0)
+            self.assertFalse(scope["coverage_complete"])
+            self.assertFalse(output_path.exists())
+
+    def test_stale_validator_run_id_is_rejected_and_output_removed(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            findings_path = tdir / "axis-findings.jsonl"
+            results_path = tdir / "validator-results.jsonl"
+            output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
+            findings_path.write_text(
+                json.dumps(make_unverified_finding(confidence=60)) + "\n",
+                encoding="utf-8",
+            )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            results_path.write_text(
+                json.dumps({
+                    "run_id": "stale-run",
+                    "index": 0,
+                    "score": 90,
+                    "reason": "stale",
+                }) + "\n",
+                encoding="utf-8",
+            )
+            output_path.write_text("stale output\n", encoding="utf-8")
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "output": findings_identity["path"],
+                        "sha256": findings_identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "validator_coverage": {
+                        "complete": False,
+                        "expected": 1,
+                        "completed": 0,
+                        "run_id": "current-run",
+                        "input_hashes": {
+                            "diff": _identity(diff_path),
+                            "axis_findings": findings_identity,
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "ingest",
+                    "--findings", str(findings_path),
+                    "--results", str(results_path),
+                    "--output", str(output_path),
+                    "--scope", str(scope_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            self.assertIn("run_id does not match prepare", proc.stderr)
+            self.assertFalse(output_path.exists())
+
+    def test_changed_axis_findings_after_prepare_are_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            findings_path = tdir / "axis-findings.jsonl"
+            results_path = tdir / "validator-results.jsonl"
+            output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
+            findings_path.write_text(
+                json.dumps(make_unverified_finding(confidence=60)) + "\n",
+                encoding="utf-8",
+            )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            prepared_identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "output": prepared_identity["path"],
+                        "sha256": prepared_identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "validator_coverage": {
+                        "complete": False,
+                        "expected": 1,
+                        "completed": 0,
+                        "run_id": "current-run",
+                        "input_hashes": {
+                            "diff": _identity(diff_path),
+                            "axis_findings": prepared_identity,
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+            with findings_path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(make_unverified_finding(confidence=70)) + "\n")
+            results_path.write_text(
+                json.dumps({
+                    "run_id": "current-run",
+                    "index": 0,
+                    "score": 90,
+                    "reason": "promote",
+                }) + "\n",
+                encoding="utf-8",
+            )
+            output_path.write_text("stale output\n", encoding="utf-8")
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "ingest",
+                    "--findings", str(findings_path),
+                    "--results", str(results_path),
+                    "--output", str(output_path),
+                    "--scope", str(scope_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            self.assertIn("axis findings digest changed after prepare", proc.stderr)
+            self.assertFalse(output_path.exists())
 
 
 if __name__ == "__main__":

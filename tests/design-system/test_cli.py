@@ -7,6 +7,7 @@ and the stub's exit code/stderr is what gets propagated. That keeps the
 tests deterministic and free of network/install side-effects.
 """
 
+import json
 import os
 import stat
 import subprocess
@@ -29,10 +30,13 @@ def _run(
     *args: str,
     fake_bin: Path | None = None,
     cwd: Path | None = None,
+    extra_env: dict[str, str] | None = None,
 ):
     env = os.environ.copy()
     base_path = "/usr/bin:/bin:/usr/sbin:/sbin"
     env["PATH"] = f"{fake_bin}:{base_path}" if fake_bin else base_path
+    if extra_env:
+        env.update(extra_env)
     return subprocess.run(
         ["bash", str(SCRIPTS / script_name), *args],
         capture_output=True,
@@ -40,6 +44,74 @@ def _run(
         env=env,
         cwd=cwd,
         timeout=30,
+    )
+
+
+LINT_CLEAN = (
+    '{"findings":[],"summary":{"errors":0,"warnings":0,"infos":0}}'
+)
+LINT_ERRORS = (
+    '{"findings":[{"severity":"error","message":"broken token"}],'
+    '"summary":{"errors":1,"warnings":0,"infos":0}}'
+)
+EMPTY_TOKEN_DIFF = {
+    group: {"added": [], "removed": [], "modified": []}
+    for group in ("colors", "typography", "rounded", "spacing", "components")
+}
+DIFF_CLEAN = json.dumps(
+    {
+        "tokens": EMPTY_TOKEN_DIFF,
+        "findings": {
+            "before": {"errors": 0, "warnings": 0, "infos": 0},
+            "after": {"errors": 0, "warnings": 0, "infos": 0},
+            "delta": {"errors": 0, "warnings": 0},
+        },
+        "regression": False,
+    }
+)
+DIFF_REGRESSION = json.dumps(
+    {
+        "tokens": EMPTY_TOKEN_DIFF,
+        "findings": {
+            "before": {"errors": 0, "warnings": 0, "infos": 0},
+            "after": {"errors": 1, "warnings": 0, "infos": 0},
+            "delta": {"errors": 1, "warnings": 0},
+        },
+        "regression": True,
+    }
+)
+TAILWIND_EXPORT = json.dumps(
+    {
+        "theme": {
+            "extend": {
+                "colors": {},
+                "fontFamily": {},
+                "fontSize": {},
+                "borderRadius": {},
+                "spacing": {},
+            }
+        }
+    }
+)
+DTCG_EXPORT = json.dumps(
+    {
+        "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+        "color": {
+            "$type": "color",
+            "primary": {"$value": "#112233"},
+        },
+    }
+)
+
+
+def _make_json_stub(bin_dir: Path, payload: str, rc: int = 0) -> None:
+    _make_stub(
+        bin_dir,
+        "designmd",
+        "#!/bin/sh\n"
+        'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+        f"printf '%s\\n' '{payload}'\n"
+        f"exit {rc}\n",
     )
 
 
@@ -98,7 +170,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
 
     def test_cli_exit_0_reports_status_ok(self):
         # `lint` exit 0 = no errors; script must exit 0 and emit status=ok.
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{"summary":{"errors":0}}\'\nexit 0\n')
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
         design = self._design_md()
         r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 0)
@@ -106,11 +178,11 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("status"), "ok")
         self.assertEqual(kv.get("path"), str(design))
         self.assertEqual(kv.get("exit-code"), "0")
-        self.assertTrue(kv.get("json", "").endswith(".json"))
+        self.assertTrue(Path(kv.get("json", "")).is_file())
 
     def test_cli_exit_1_propagated_as_lint_errors(self):
         # `lint` exit 1 = errors found, valid run; script must exit 1 with status=ok.
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{"summary":{"errors":3}}\'\nexit 1\n')
+        _make_json_stub(self.fake_bin, LINT_ERRORS, rc=1)
         design = self._design_md()
         r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -118,12 +190,36 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("status"), "ok")
         self.assertEqual(kv.get("exit-code"), "1")
 
+    def test_invalid_json_schema_blocks_the_audit(self):
+        _make_json_stub(self.fake_bin, "{}")
+        design = self._design_md()
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
+    def test_summary_and_exit_code_must_match_findings(self):
+        inconsistent = (
+            '{"findings":[{"severity":"error","message":"broken"}],'
+            '"summary":{"errors":0,"warnings":0,"infos":0}}'
+        )
+        _make_json_stub(self.fake_bin, inconsistent, rc=0)
+        design = self._design_md()
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
     def test_cli_exit_higher_reports_cli_failed_with_stderr(self):
         # rc > 1 = real CLI failure; script must report cli-failed and propagate stderr file.
         _make_stub(
             self.fake_bin,
             "designmd",
-            '#!/bin/sh\necho boom >&2\nexit 7\n',
+            '#!/bin/sh\n'
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'echo boom >&2\nexit 7\n',
         )
         design = self._design_md()
         r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
@@ -139,12 +235,101 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         design = self._design_md()
         r = _run("audit.sh", str(design))
         self.assertEqual(r.returncode, 1)
-        self.assertEqual(_result_kv(r.stdout).get("status"), "designmd-missing")
+        kv = _result_kv(r.stdout)
+        self.assertEqual(kv.get("status"), "designmd-missing")
+        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+        self.assertEqual(
+            kv.get("rerun"),
+            f"bash {SCRIPTS / 'audit.sh'} {design}",
+        )
+        self.assertIn("exact rerun command", kv.get("remediation", ""))
+
+    def test_invalid_project_manifest_blocks_global_fallback(self):
+        project = self.tmp / "invalid-project"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text("{broken\n", encoding="utf-8")
+        marker = self.tmp / "global-ran"
+        _make_stub(
+            self.fake_bin,
+            "designmd",
+            "#!/bin/sh\n"
+            f'touch "{marker}"\n'
+            "printf '0.3.0\\n'\n",
+        )
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "invalid-project-manifest")
+        self.assertEqual(
+            Path(metadata.get("path", "")).resolve(),
+            (project / "package.json").resolve(),
+        )
+        self.assertIn("Repair package.json", metadata.get("remediation", ""))
+        self.assertIn("audit.sh", metadata.get("rerun", ""))
+        self.assertFalse(marker.exists())
+
+    def test_non_object_dependency_map_is_an_invalid_project_manifest(self):
+        project = self.tmp / "invalid-dependencies"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text(
+            '{"devDependencies":["@google/design.md"]}\n',
+            encoding="utf-8",
+        )
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(
+            _result_kv(result.stdout).get("status"),
+            "invalid-project-manifest",
+        )
+
+    def test_missing_cli_install_command_matches_project_package_manager(self):
+        cases = (
+            ("pnpm", '{"packageManager":"pnpm@10.0.0"}\n', "pnpm add -D @google/design.md"),
+            ("yarn", '{"packageManager":"yarn@4.0.0"}\n', "yarn add -D @google/design.md"),
+            ("bun", '{"packageManager":"bun@1.2.0"}\n', "bun add -d @google/design.md"),
+            ("npm", '{"packageManager":"npm@11.0.0"}\n', "npm install --save-dev @google/design.md"),
+        )
+        for name, package_json, expected in cases:
+            with self.subTest(package_manager=name):
+                project = self.tmp / name
+                project.mkdir()
+                (project / "package.json").write_text(package_json, encoding="utf-8")
+                design = project / "DESIGN.md"
+                design.write_text("# DESIGN\n", encoding="utf-8")
+                result = _run("audit.sh", str(design))
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(_result_kv(result.stdout).get("install"), expected)
+
+    def test_pnpm_workspace_install_targets_the_workspace_root(self):
+        (self.tmp / "pnpm-workspace.yaml").write_text(
+            "packages:\n  - packages/*\n", encoding="utf-8"
+        )
+        (self.tmp / "package.json").write_text(
+            '{"packageManager":"pnpm@10.0.0"}\n', encoding="utf-8"
+        )
+        design = self.tmp / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(
+            _result_kv(result.stdout).get("install"),
+            "pnpm add -Dw @google/design.md",
+        )
 
     def test_project_local_cli_precedes_path(self):
         local_bin = self.tmp / "node_modules" / ".bin"
         local_bin.mkdir(parents=True)
-        _make_stub(local_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        _make_json_stub(local_bin, LINT_CLEAN)
         (self.tmp / "package.json").write_text(
             '{"devDependencies":{"@google/design.md":"0.1.1"}}\n',
             encoding="utf-8",
@@ -155,16 +340,109 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         design = project_dir / "DESIGN.md"
         design.write_text("# DESIGN\n")
 
-        r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+        r = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env={"DESIGNMD_WORKSPACE_ROOT": str(self.tmp)},
+        )
 
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(_result_kv(r.stdout).get("status"), "ok")
+
+    def test_declared_yarn_pnp_cli_runs_without_node_modules(self):
+        project = self.tmp / "yarn-pnp"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text(
+            '{"packageManager":"yarn@4.9.2",'
+            '"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        (project / "yarn.lock").write_text("", encoding="utf-8")
+        marker = self.tmp / "yarn-runs.log"
+        _make_stub(
+            self.fake_bin,
+            "yarn",
+            "#!/bin/bash\n"
+            '[[ "$COREPACK_ENABLE_NETWORK" == "0" ]] || exit 65\n'
+            '[[ "$COREPACK_DEFAULT_TO_LATEST" == "0" ]] || exit 66\n'
+            'if [[ "$3" == "bin" && "$4" == "designmd" ]]; then exit 0; fi\n'
+            'if [[ "$3" != "run" || "$4" != "-B" || "$5" != "designmd" ]]; then exit 64; fi\n'
+            f'printf "%s\\n" "$*" >> "{marker}"\n'
+            'if [[ "$6" == "--version" ]]; then printf "0.3.0\\n"; exit 0; fi\n'
+            f"printf '%s\\n' '{LINT_CLEAN}'\n",
+        )
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "ok")
+        self.assertEqual(metadata.get("cli-wrapper"), "yarn-pnp")
+        self.assertIn("run -B designmd", metadata.get("cli", ""))
+        self.assertFalse((project / "node_modules").exists())
+        self.assertEqual(len(marker.read_text(encoding="utf-8").splitlines()), 3)
+
+    def test_declared_yarn_pnp_never_falls_back_to_global_cli(self):
+        project = self.tmp / "yarn-pnp"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text(
+            '{"packageManager":"yarn@4.9.2",'
+            '"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        (project / "yarn.lock").write_text("", encoding="utf-8")
+        _make_stub(self.fake_bin, "yarn", "#!/bin/sh\nexit 1\n")
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "yarn-runtime-unavailable")
+        self.assertIn("corepack install --global yarn@4.9.2", metadata.get("install", ""))
+        self.assertIn("yarn --cwd", metadata.get("install", ""))
+        self.assertIn("install --immutable", metadata.get("install", ""))
+        self.assertIn("audit.sh", metadata.get("rerun", ""))
+
+    def test_declared_node_modules_dependency_never_falls_back_to_global_cli(self):
+        project = self.tmp / "npm-project"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        marker = self.tmp / "global-ran"
+        _make_stub(
+            self.fake_bin,
+            "designmd",
+            "#!/bin/sh\n"
+            f'touch "{marker}"\n'
+            "printf '%s\\n' '0.3.0'\n",
+        )
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "designmd-missing")
+        self.assertEqual(
+            metadata.get("install"),
+            "npm install --save-dev @google/design.md",
+        )
+        self.assertFalse(marker.exists())
 
     def test_undeclared_project_binary_does_not_shadow_path(self):
         local_bin = self.tmp / "node_modules" / ".bin"
         local_bin.mkdir(parents=True)
         _make_stub(local_bin, "designmd", "#!/bin/sh\nexit 9\n")
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
         design = self._design_md()
 
         r = _run("audit.sh", str(design), fake_bin=self.fake_bin)
@@ -175,7 +453,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
     def test_declared_workspace_dependency_can_use_hoisted_binary(self):
         local_bin = self.tmp / "node_modules" / ".bin"
         local_bin.mkdir(parents=True)
-        _make_stub(local_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        _make_json_stub(local_bin, LINT_CLEAN)
         project_dir = self.tmp / "packages" / "web"
         project_dir.mkdir(parents=True)
         (project_dir / "package.json").write_text(
@@ -185,10 +463,122 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         design = project_dir / "DESIGN.md"
         design.write_text("# DESIGN\n")
 
-        r = _run("audit.sh", str(design))
+        r = _run(
+            "audit.sh",
+            str(design),
+            extra_env={"DESIGNMD_WORKSPACE_ROOT": str(self.tmp)},
+        )
 
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(_result_kv(r.stdout).get("status"), "ok")
+
+    def test_configured_workspace_root_rejects_external_input(self):
+        workspace = self.tmp / "workspace"
+        workspace.mkdir()
+        external = self.tmp / "external"
+        external.mkdir()
+        design = external / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+
+        result = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env={"DESIGNMD_WORKSPACE_ROOT": str(workspace)},
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "outside-workspace")
+        self.assertIn("DESIGNMD_WORKSPACE_ROOT", result.stdout)
+
+    def test_no_git_workspace_finds_hoisted_declared_binary(self):
+        root = self.tmp / "workspace"
+        local_bin = root / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_json_stub(local_bin, LINT_CLEAN)
+        (root / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        nested = root / "docs" / "brand"
+        nested.mkdir(parents=True)
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            Path(_result_kv(result.stdout)["cli"]).resolve(),
+            (local_bin / "designmd").resolve(),
+        )
+
+    def test_no_git_workspace_with_nested_manifest_finds_hoisted_binary(self):
+        root = self.tmp / "workspace"
+        local_bin = root / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_json_stub(local_bin, LINT_CLEAN)
+        (root / "package.json").write_text(
+            '{"private":true,"workspaces":["packages/*"]}\n',
+            encoding="utf-8",
+        )
+        (root / "package-lock.json").write_text("{}\n", encoding="utf-8")
+        nested = root / "packages" / "web"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            Path(_result_kv(result.stdout)["cli"]).resolve(),
+            (local_bin / "designmd").resolve(),
+        )
+
+    def test_broken_cli_reports_repair_instruction(self):
+        _make_stub(self.fake_bin, "designmd", "#!/bin/sh\nexit 9\n")
+        design = self._design_md()
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        kv = _result_kv(result.stdout)
+        self.assertEqual(kv.get("status"), "designmd-unsupported")
+        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+
+    def test_success_removes_stderr_temp_file(self):
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+        tmp_dir = self.tmp / "tmp"
+        tmp_dir.mkdir()
+        design = self._design_md()
+
+        result = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env={"TMPDIR": str(tmp_dir)},
+        )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        leftovers = [path.name for path in tmp_dir.iterdir() if path.name != "xcrun_db"]
+        self.assertEqual(leftovers, [Path(_result_kv(result.stdout)["json"]).name])
+
+    def test_success_reports_cli_identity(self):
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+        design = self._design_md()
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+        metadata = _result_kv(result.stdout)
+
+        self.assertEqual(result.returncode, 0)
+        self.assertEqual(metadata.get("cli"), str(self.fake_bin / "designmd"))
+        self.assertEqual(metadata.get("cli-version"), "0.3.0")
 
     def test_wrappers_do_not_invoke_runtime_package_resolvers(self):
         for name in (
@@ -233,8 +623,16 @@ class TestDiffUsage(_TmpMixin, unittest.TestCase):
 
 
 class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
+    def test_missing_cli_has_exact_remediation(self):
+        before, after = self._design_md("before.md"), self._design_md("after.md")
+        result = _run("diff.sh", str(before), str(after))
+        self.assertEqual(result.returncode, 1)
+        kv = _result_kv(result.stdout)
+        self.assertEqual(kv.get("status"), "designmd-missing")
+        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+
     def test_no_regression_exit_0(self):
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 0\n')
+        _make_json_stub(self.fake_bin, DIFF_CLEAN)
         before, after = self._design_md("before.md"), self._design_md("after.md")
         r = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 0)
@@ -244,7 +642,7 @@ class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("exit-code"), "0")
 
     def test_regression_exit_1_propagated(self):
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho \'{}\'\nexit 1\n')
+        _make_json_stub(self.fake_bin, DIFF_REGRESSION, rc=1)
         before, after = self._design_md("before.md"), self._design_md("after.md")
         r = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -252,8 +650,23 @@ class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("status"), "ok")
         self.assertEqual(kv.get("regression"), "true")
 
+    def test_payload_and_exit_code_disagreement_blocks_the_diff(self):
+        _make_json_stub(self.fake_bin, DIFF_REGRESSION, rc=0)
+        before, after = self._design_md("before.md"), self._design_md("after.md")
+
+        result = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
     def test_cli_failure_reports_stderr(self):
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho diff-boom >&2\nexit 4\n')
+        _make_stub(
+            self.fake_bin,
+            "designmd",
+            '#!/bin/sh\n'
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'echo diff-boom >&2\nexit 4\n',
+        )
         before, after = self._design_md("before.md"), self._design_md("after.md")
         r = _run("diff.sh", str(before), str(after), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -308,9 +721,18 @@ class TestExportUsage(_TmpMixin, unittest.TestCase):
 
 
 class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
+    def test_missing_cli_has_exact_remediation(self):
+        design = self._design_md()
+        result = _run("export.sh", "tailwind", str(design))
+        self.assertEqual(result.returncode, 1)
+        kv = _result_kv(result.stdout)
+        self.assertEqual(kv.get("status"), "designmd-missing")
+        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+
     def test_success_emits_full_schema(self):
         # Stub writes to stdout, which the script redirects into the output file.
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\nprintf "tokens-go-here"\nexit 0\n')
+        payload = TAILWIND_EXPORT
+        _make_json_stub(self.fake_bin, payload)
         design = self._design_md()
         r = _run("export.sh", "tailwind", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 0)
@@ -318,13 +740,12 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("status"), "ok")
         self.assertEqual(kv.get("format"), "tailwind")
         self.assertEqual(kv.get("source"), str(design))
-        self.assertEqual(kv.get("bytes"), str(len("tokens-go-here")))
+        self.assertEqual(kv.get("bytes"), str(len(payload) + 1))
         out = kv.get("output", "")
-        self.assertTrue(out.endswith(".tailwind"))
-        self.assertEqual(Path(out).read_text(), "tokens-go-here")
+        self.assertEqual(Path(out).read_text(), payload + "\n")
 
     def test_explicit_output_path_honoured(self):
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\nprintf "x"\nexit 0\n')
+        _make_json_stub(self.fake_bin, DTCG_EXPORT)
         design = self._design_md()
         explicit = self.tmp / "tokens.json"
         r = _run("export.sh", "dtcg", str(design), str(explicit), fake_bin=self.fake_bin)
@@ -334,13 +755,106 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertTrue(explicit.exists())
 
     def test_cli_failure_reports_stderr(self):
-        _make_stub(self.fake_bin, "designmd", '#!/bin/sh\necho export-boom >&2\nexit 5\n')
+        _make_stub(
+            self.fake_bin,
+            "designmd",
+            '#!/bin/sh\n'
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'echo export-boom >&2\nexit 5\n',
+        )
         design = self._design_md()
         r = _run("export.sh", "tailwind", str(design), fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
         kv = _result_kv(r.stdout)
         self.assertEqual(kv.get("status"), "cli-failed")
         self.assertIn("export-boom", Path(kv["stderr"]).read_text())
+
+    def test_failure_preserves_existing_explicit_output(self):
+        _make_stub(self.fake_bin, "designmd", "#!/bin/sh\necho partial\nexit 5\n")
+        design = self._design_md()
+        explicit = self.tmp / "tokens.json"
+        explicit.write_text('{"existing":true}\n', encoding="utf-8")
+
+        result = _run(
+            "export.sh", "dtcg", str(design), str(explicit), fake_bin=self.fake_bin
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(explicit.read_text(encoding="utf-8"), '{"existing":true}\n')
+
+    def test_valid_json_with_wrong_tailwind_shape_is_rejected(self):
+        _make_json_stub(self.fake_bin, '{"tokens":{}}')
+        design = self._design_md()
+
+        result = _run("export.sh", "tailwind", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
+    def test_dtcg_schema_and_token_group_are_required(self):
+        _make_json_stub(self.fake_bin, '{"color":{}}')
+        design = self._design_md()
+
+        result = _run("export.sh", "dtcg", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
+    def test_schema_only_dtcg_export_is_valid(self):
+        payload = json.dumps(
+            {"$schema": "https://www.designtokens.org/schemas/2025.10/format.json"}
+        )
+        _make_json_stub(self.fake_bin, payload)
+        design = self._design_md()
+
+        result = _run("export.sh", "dtcg", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "ok")
+
+    def test_dtcg_rejects_noncanonical_schema_url(self):
+        payload = json.dumps(
+            {
+                "$schema": "https://evil.example/designtokens.org/schemas/fake.json",
+                "color": {"$type": "color", "primary": {"$value": "#112233"}},
+            }
+        )
+        _make_json_stub(self.fake_bin, payload)
+        design = self._design_md()
+
+        result = _run("export.sh", "dtcg", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
+    def test_dtcg_rejects_group_without_valid_token_leaf(self):
+        payload = json.dumps(
+            {
+                "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+                "color": {"$type": "color", "primary": {}},
+            }
+        )
+        _make_json_stub(self.fake_bin, payload)
+        design = self._design_md()
+
+        result = _run("export.sh", "dtcg", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+
+    def test_invalid_json_preserves_existing_explicit_output(self):
+        _make_stub(self.fake_bin, "designmd", "#!/bin/sh\necho not-json\n")
+        design = self._design_md()
+        explicit = self.tmp / "tokens.json"
+        explicit.write_text('{"existing":true}\n', encoding="utf-8")
+
+        result = _run(
+            "export.sh", "dtcg", str(design), str(explicit), fake_bin=self.fake_bin
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "cli-invalid-output")
+        self.assertEqual(explicit.read_text(encoding="utf-8"), '{"existing":true}\n')
 
 
 # ---------- spec.sh ----------
@@ -350,12 +864,25 @@ class TestSpecCliResolution(_TmpMixin, unittest.TestCase):
     def test_missing_cli_reports_designmd_missing(self):
         r = _run("spec.sh", cwd=self.tmp)
         self.assertEqual(r.returncode, 1)
-        self.assertEqual(_result_kv(r.stdout).get("status"), "designmd-missing")
+        kv = _result_kv(r.stdout)
+        self.assertEqual(kv.get("status"), "designmd-missing")
+        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
 
     def test_project_local_cli_receives_flags(self):
         local_bin = self.tmp / "node_modules" / ".bin"
         local_bin.mkdir(parents=True)
-        _make_stub(local_bin, "designmd", '#!/bin/sh\nprintf "%s\\n" "$*"\n')
+        _make_stub(
+            local_bin,
+            "designmd",
+            '#!/bin/sh\n'
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'printf "# DESIGN.md Format\\n\\n%s\\n\\n" "$*"\n'
+            'printf "# Design Tokens\\n\\n## Schema\\n\\n# Sections\\n\\n"\n'
+            'printf "# Consumer Behavior for Unknown Content\\n\\n"\n'
+            'printf "| Rule | Severity | What it checks |\\n"\n'
+            'printf "|------|----------|----------------|\\n"\n'
+            'printf "| tokens | info | Token inventory |\\n"\n',
+        )
         (self.tmp / "package.json").write_text(
             '{"devDependencies":{"@google/design.md":"0.1.1"}}\n',
             encoding="utf-8",
@@ -364,7 +891,153 @@ class TestSpecCliResolution(_TmpMixin, unittest.TestCase):
         r = _run("spec.sh", "--rules", cwd=self.tmp)
 
         self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertEqual(r.stdout.strip(), "spec --rules")
+        self.assertIn("# DESIGN.md Format", r.stdout)
+        self.assertIn("spec --rules --format markdown", r.stdout)
+
+    def test_rules_only_json_translates_flags(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(
+            local_bin,
+            "designmd",
+            '#!/bin/sh\n'
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'printf \'{"rules":[{"name":"contrast-ratio","severity":"warning","description":"%s"}]}\\n\' "$*"\n',
+        )
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+
+        result = _run("spec.sh", "--rules-only", "--json", cwd=self.tmp)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertIn(
+            "spec --rules-only --format json", payload["rules"][0]["description"]
+        )
+
+    def test_packaged_spec_path_bug_uses_same_package_artifact(self):
+        package_root = self.tmp / "node_modules" / "@google" / "design.md"
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        (package_root / "dist" / "linter").mkdir(parents=True)
+        (package_root / "package.json").write_text(
+            '{"name":"@google/design.md","version":"0.3.0"}\n',
+            encoding="utf-8",
+        )
+        (package_root / "dist" / "linter" / "spec.md").write_text(
+            "# DESIGN.md Format\n\nOfficial packaged spec\n\n"
+            "# Design Tokens\n\n## Schema\n\n# Sections\n\n"
+            "# Consumer Behavior for Unknown Content\n",
+            encoding="utf-8",
+        )
+        _make_stub(
+            local_bin,
+            "designmd",
+            "#!/bin/sh\n"
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'case " $* " in\n'
+            '  *" --rules-only --format json "*) echo \'{"rules":[{"name":"tokens","severity":"info","description":"Token inventory"}]}\'; exit 0 ;;\n'
+            '  *" --rules-only "*) echo "| Rule |"; exit 0 ;;\n'
+            "esac\n"
+            'echo "Error: Failed to load spec.md." >&2\n'
+            "exit 1\n"
+            f"# cmd-shim-target={package_root / 'dist' / 'index.js'}\n",
+        )
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+
+        result = _run("spec.sh", "--rules", "--json", cwd=self.tmp)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        payload = json.loads(result.stdout)
+        self.assertIn("Official packaged spec", payload["spec"])
+        self.assertEqual(payload["rules"][0]["name"], "tokens")
+
+    def test_truncated_spec_output_is_rejected(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(
+            local_bin,
+            "designmd",
+            "#!/bin/sh\n"
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'echo "# DESIGN.md Format"\n',
+        )
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+
+        result = _run("spec.sh", cwd=self.tmp)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stderr).get("status"), "cli-invalid-output")
+
+    def test_unrelated_cli_failure_does_not_use_packaged_artifact(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(
+            local_bin,
+            "designmd",
+            "#!/bin/sh\n"
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            "echo 'unrelated failure' >&2\nexit 7\n",
+        )
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+
+        result = _run("spec.sh", cwd=self.tmp)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stderr).get("status"), "cli-failed")
+
+    def test_invalid_json_preserves_existing_output(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(local_bin, "designmd", "#!/bin/sh\necho not-json\n")
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        output = self.tmp / "spec.json"
+        output.write_text('{"existing":true}\n', encoding="utf-8")
+
+        result = _run(
+            "spec.sh", "--json", "--output", str(output), cwd=self.tmp
+        )
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stderr).get("status"), "cli-invalid-output")
+        self.assertEqual(output.read_text(encoding="utf-8"), '{"existing":true}\n')
+
+    def test_invalid_markdown_preserves_existing_output(self):
+        local_bin = self.tmp / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_stub(
+            local_bin,
+            "designmd",
+            '#!/bin/sh\n'
+            'if [ "$1" = "--version" ]; then echo 0.3.0; exit 0; fi\n'
+            'echo not-the-canonical-spec\n',
+        )
+        (self.tmp / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        output = self.tmp / "spec.md"
+        output.write_text("existing\n", encoding="utf-8")
+
+        result = _run("spec.sh", "--output", str(output), cwd=self.tmp)
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(_result_kv(result.stderr).get("status"), "cli-invalid-output")
+        self.assertEqual(output.read_text(encoding="utf-8"), "existing\n")
 
 
 if __name__ == "__main__":

@@ -64,7 +64,7 @@ Kept in `test_ultra_execution.py`: `TestBuildDetect`, `TestVersionSync`, `TestDe
 |------|------------|----------|
 | `test_scope.py` | WS-1 | `scope.py` — diff resolution, repo-kind classification (9 kinds + compound + override + CLI), CLAUDE.md chain, Coherence activation, languages detection (40 tests) |
 | `test_anthropic_verbatim.py` | WS-1 | Byte-parity between `references/anthropic-verbatim.md` and the upstream `claude-plugins-official` blocks |
-| `test_battery.py` | WS-2 | `run_battery.sh` per-language dispatch, graceful skip, no auto-install |
+| `test_battery.py` | WS-2 | `run_battery.sh` per-language dispatch, atomic missing/invalid-tool gates, no auto-install |
 | `test_battery_ingest.py` | WS-2 | Per-tool axis routing + canonical finding schema for all 14 parsers |
 | `test_axis_briefs.py` | WS-3 | Eight axis briefs + Coherence conditional — structure, repo-kind branches, anthropic-verbatim citation |
 | `test_axis_dispatch.py` | WS-3 | `axis_dispatch.py prepare` — bundle generation, per-axis filter, Coherence gating, parallel cap |

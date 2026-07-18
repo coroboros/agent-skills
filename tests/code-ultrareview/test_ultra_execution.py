@@ -60,7 +60,10 @@ class TestBuildDetect(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             (repo / "pnpm-lock.yaml").write_text("", encoding="utf-8")
-            (repo / "package.json").write_text("{}", encoding="utf-8")
+            (repo / "package.json").write_text(
+                json.dumps({"scripts": {"test": "node --test"}}),
+                encoding="utf-8",
+            )
             result = build_detect.detect(repo)
         self.assertEqual(result["tool"], "pnpm")
         self.assertEqual(result["test_command"], "pnpm test")
@@ -69,16 +72,97 @@ class TestBuildDetect(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             (repo / "yarn.lock").write_text("", encoding="utf-8")
-            (repo / "package.json").write_text("{}", encoding="utf-8")
+            (repo / "package.json").write_text(
+                json.dumps({"scripts": {"test": "node --test"}}),
+                encoding="utf-8",
+            )
             result = build_detect.detect(repo)
         self.assertEqual(result["tool"], "yarn")
+
+    def test_package_manager_declaration_precedes_conflicting_lockfile(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "yarn.lock").write_text("", encoding="utf-8")
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "packageManager": "pnpm@10.13.1",
+                    "scripts": {"test": "node --test"},
+                }),
+                encoding="utf-8",
+            )
+            result = build_detect.detect(repo)
+        self.assertEqual(result["tool"], "pnpm")
+        self.assertEqual(result["test_command"], "pnpm test")
+
+    def test_bun_declaration_and_lock_use_declared_test_script(self):
+        for package_json in (
+            {"packageManager": "bun@1.2.18", "scripts": {"test": "vitest run"}},
+            {"scripts": {"test": "vitest run"}},
+        ):
+            with self.subTest(package_manager=package_json.get("packageManager")):
+                with tempfile.TemporaryDirectory() as t:
+                    repo = Path(t)
+                    (repo / "bun.lock").write_text("", encoding="utf-8")
+                    (repo / "package.json").write_text(
+                        json.dumps(package_json), encoding="utf-8"
+                    )
+                    result = build_detect.detect(repo)
+                self.assertEqual(result["tool"], "bun")
+                self.assertEqual(result["test_command"], "bun run test")
 
     def test_package_json_picks_npm(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
-            (repo / "package.json").write_text("{}", encoding="utf-8")
+            (repo / "package.json").write_text(
+                json.dumps({"scripts": {"test": "node --test"}}),
+                encoding="utf-8",
+            )
             result = build_detect.detect(repo)
         self.assertEqual(result["tool"], "npm")
+        self.assertEqual(result["test_command"], "npm test")
+
+    def test_package_json_without_test_script_does_not_invent_npm_test(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text(
+                json.dumps({"scripts": {"build": "node build.js"}}),
+                encoding="utf-8",
+            )
+            result = build_detect.detect(repo)
+        self.assertIsNone(result["tool"])
+        self.assertIsNone(result["test_command"])
+
+    def test_invalid_package_json_does_not_fall_through_to_another_stack(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text("{broken\n", encoding="utf-8")
+            (repo / "pyproject.toml").write_text(
+                "[tool.pytest.ini_options]\n", encoding="utf-8"
+            )
+
+            with self.assertRaisesRegex(
+                build_detect.InvalidManifestError,
+                "package.json is not valid JSON",
+            ):
+                build_detect.detect(repo)
+
+    def test_cli_reports_invalid_package_json_without_traceback(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text("{broken\n", encoding="utf-8")
+
+            result = subprocess.run(
+                [sys.executable, str(SCRIPTS / "build_detect.py"), "--repo", str(repo)],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                check=False,
+            )
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("invalid project manifest", result.stderr)
+        self.assertIn("repair package.json", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
 
     def test_pyproject_with_pytest_picks_pytest(self):
         with tempfile.TemporaryDirectory() as t:
@@ -89,11 +173,27 @@ class TestBuildDetect(unittest.TestCase):
             result = build_detect.detect(repo)
         self.assertEqual(result["tool"], "pytest")
 
-    def test_pyproject_without_pytest_picks_unittest(self):
+    def test_python_manifest_without_runner_does_not_invent_unittest(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             (repo / "pyproject.toml").write_text(
                 '[project]\nname="x"\n', encoding="utf-8"
+            )
+            result = build_detect.detect(repo)
+        self.assertIsNone(result["tool"])
+        self.assertIsNone(result["test_command"])
+
+    def test_collectable_unittest_suite_picks_unittest(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            tests = repo / "tests"
+            tests.mkdir()
+            (tests / "test_example.py").write_text(
+                "import unittest\n\n"
+                "class ExampleTest(unittest.TestCase):\n"
+                "    def test_example(self):\n"
+                "        self.assertTrue(True)\n",
+                encoding="utf-8",
             )
             result = build_detect.detect(repo)
         self.assertEqual(result["tool"], "unittest")
@@ -128,7 +228,10 @@ class TestBuildDetect(unittest.TestCase):
     def test_cli_emits_json(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
-            (repo / "package.json").write_text("{}", encoding="utf-8")
+            (repo / "package.json").write_text(
+                json.dumps({"scripts": {"test": "node --test"}}),
+                encoding="utf-8",
+            )
             r = subprocess.run(
                 [sys.executable, str(SCRIPTS / "build_detect.py"), "--repo", str(repo)],
                 capture_output=True, text=True, timeout=10,
@@ -161,6 +264,8 @@ class TestVersionSync(unittest.TestCase):
         subprocess.run(["git", "init", "-q"], cwd=repo, check=True)
         subprocess.run(["git", "config", "user.email", "t@t"], cwd=repo, check=True)
         subprocess.run(["git", "config", "user.name", "t"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "commit.gpgsign", "false"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "core.hooksPath", os.devnull], cwd=repo, check=True)
         self._commit_counter = 0
 
     def _commit(self, msg: str):

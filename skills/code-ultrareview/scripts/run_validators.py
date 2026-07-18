@@ -47,13 +47,27 @@ import importlib.util
 import json
 import re
 import sys
+import uuid
 from pathlib import Path
 from typing import TypeVar
+
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+
+from runtime_contracts import (  # noqa: E402
+    file_identity as _file_identity,
+    read_required_diff as _read_text,
+    read_scope as _read_json,
+    verify_file_identity as _verify_file_identity,
+    write_json_atomic as _write_json_atomic,
+    write_jsonl_atomic as _write_jsonl_atomic,
+)
 
 # Reuse synthesis_core primitives — single source of truth for the
 # 80 threshold, the [unverified] prefix, and the severity restoration
 # semantics. A divergence here breaks the A2 contract; tests enforce it.
-_SYNTH_PATH = Path(__file__).resolve().parent / "synthesis_core.py"
+_SYNTH_PATH = _SCRIPT_DIR / "synthesis_core.py"
 _spec = importlib.util.spec_from_file_location("synthesis_core", _SYNTH_PATH)
 assert _spec is not None and _spec.loader is not None
 synthesis_core = importlib.util.module_from_spec(_spec)
@@ -80,21 +94,24 @@ DIFF_CONTEXT_LINES = 40
 # The validator prompt requires both keys on separate lines.
 _SCORE_RE = re.compile(r"^\s*score\s*:\s*(\d+)\s*$", re.IGNORECASE | re.MULTILINE)
 _REASON_RE = re.compile(r"^\s*reason\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE)
+_RUN_ID_RE = re.compile(r"^\s*run-id\s*:\s*([a-f0-9]+)\s*$", re.IGNORECASE | re.MULTILINE)
 
 
 def filter_sub_threshold(findings: list[dict]) -> list[dict]:
-    """Return only findings with confidence in `(0, CONFIDENCE_THRESHOLD)`.
+    """Return findings with confidence in `[0, CONFIDENCE_THRESHOLD)`.
 
     Excludes:
-    - confidence-0 findings — A2 already drops these (false positives).
     - confidence-100 findings — deterministic tool battery output;
       validators never see them.
     - confidence ≥ threshold — already verified; no validator pass.
+
+    Confidence zero is still a claim emitted by an axis reviewer. Validation,
+    not a sentinel convention, decides whether it is refuted or surfaced.
     """
     out: list[dict] = []
     for f in findings:
         conf = int(f.get("confidence", 0))
-        if 0 < conf < CONFIDENCE_THRESHOLD:
+        if 0 <= conf < CONFIDENCE_THRESHOLD:
             out.append(f)
     return out
 
@@ -223,8 +240,9 @@ citation, if any.
 
 ## Output
 
-Emit EXACTLY two lines to stdout, in this order, nothing else:
+Emit EXACTLY three lines to stdout, in this order, nothing else:
 
+    run-id: {run_id}
     score: <integer 0-100>
     reason: <single-line explanation, ≤ 200 chars>
 
@@ -244,6 +262,7 @@ def build_validator_prompt(
     claude_md_snippet: str | None,
     claude_md_path: str | None,
     anthropic_verbatim_path: str,
+    run_id: str = "direct-call",
 ) -> str:
     """Build the Haiku validator prompt for a single finding.
 
@@ -260,6 +279,7 @@ def build_validator_prompt(
         diff_context=diff_context or "(no diff context)",
         claude_md_snippet=snippet,
         claude_md_path=path,
+        run_id=run_id,
     )
 
 
@@ -271,6 +291,8 @@ def prepare_validator_bundle(
     output_dir: Path,
     skill_dir: Path,
     repo_dir: Path | None = None,
+    run_id: str = "direct-call",
+    input_hashes: dict | None = None,
 ) -> dict:
     """Write per-finding input + prompt files; return their absolute paths.
 
@@ -300,6 +322,8 @@ def prepare_validator_bundle(
     anthropic_path = str((skill_dir / ANTHROPIC_VERBATIM).resolve())
 
     bundle = {
+        "run_id": run_id,
+        "input_hashes": input_hashes or {},
         "index": index,
         "finding": finding,
         "diff_context": diff_context,
@@ -317,6 +341,7 @@ def prepare_validator_bundle(
         claude_md_snippet=claude_md_snippet,
         claude_md_path=claude_md_path,
         anthropic_verbatim_path=anthropic_path,
+        run_id=run_id,
     )
     prompt_path.write_text(prompt, encoding="utf-8")
 
@@ -325,6 +350,7 @@ def prepare_validator_bundle(
         "finding_id": finding.get("location", "?"),
         "input_path": str(input_path),
         "prompt_path": str(prompt_path),
+        "run_id": run_id,
     }
 
 
@@ -335,6 +361,8 @@ def prepare(
     output_dir: Path,
     skill_dir: Path,
     repo_dir: Path | None = None,
+    run_id: str = "direct-call",
+    input_hashes: dict | None = None,
 ) -> dict:
     """Filter sub-80 findings + write all bundles + return the batch plan.
 
@@ -353,16 +381,23 @@ def prepare(
             output_dir=output_dir,
             skill_dir=skill_dir,
             repo_dir=repo_dir,
+            run_id=run_id,
+            input_hashes=input_hashes,
         )
     batches = batch(list(range(len(sub_findings))))
     return {
         "count": len(sub_findings),
         "batches": batches,
         "bundles": bundles,
+        "run_id": run_id,
+        "input_hashes": input_hashes or {},
     }
 
 
-def parse_validator_output(stdout: str) -> tuple[int, str]:
+def parse_validator_output(
+    stdout: str,
+    expected_run_id: str | None = None,
+) -> tuple[int, str]:
     """Parse `score: <int>` + `reason: <text>` from validator stdout.
 
     Raises `ValueError` when either line is missing or malformed — the
@@ -371,6 +406,10 @@ def parse_validator_output(stdout: str) -> tuple[int, str]:
     """
     if not stdout:
         raise ValueError("validator stdout is empty")
+    if expected_run_id is not None:
+        run_match = _RUN_ID_RE.search(stdout)
+        if not run_match or run_match.group(1) != expected_run_id:
+            raise ValueError("validator stdout run-id does not match prepare")
     score_match = _SCORE_RE.search(stdout)
     if not score_match:
         raise ValueError("validator stdout missing `score:` line")
@@ -416,6 +455,7 @@ def _demote_finding(finding: dict, score: int, reason: str) -> dict:
 def ingest(
     validator_results: list[dict],
     sub_threshold_findings: list[dict],
+    expected_run_id: str | None = None,
 ) -> list[dict]:
     """Apply validator scores to the sub-80 finding set.
 
@@ -429,18 +469,40 @@ def ingest(
     demoted findings stay in Unverified state with the validator's
     reason recorded in `meta.validator_reason`.
     """
-    by_index = {r["index"]: r for r in validator_results}
+    expected = set(range(len(sub_threshold_findings)))
+    seen: set[int] = set()
+    by_index: dict[int, dict] = {}
+    for result in validator_results:
+        if not isinstance(result, dict):
+            raise ValueError("validator result must be a JSON object")
+        if expected_run_id is not None and result.get("run_id") != expected_run_id:
+            raise ValueError("validator result run_id does not match prepare")
+        index = result.get("index")
+        if isinstance(index, bool) or not isinstance(index, int):
+            raise ValueError("validator result index must be an integer")
+        if index in seen:
+            raise ValueError(f"duplicate validator result index: {index}")
+        seen.add(index)
+        score = result.get("score")
+        reason = result.get("reason")
+        if isinstance(score, bool) or not isinstance(score, int) or not 0 <= score <= 100:
+            raise ValueError(f"invalid validator score at index {index}")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError(f"missing validator reason at index {index}")
+        by_index[index] = result
+    if seen != expected:
+        missing = sorted(expected - seen)
+        unexpected = sorted(seen - expected)
+        detail = []
+        if missing:
+            detail.append(f"missing indexes {missing}")
+        if unexpected:
+            detail.append(f"unexpected indexes {unexpected}")
+        raise ValueError("validator coverage incomplete: " + "; ".join(detail))
+
     out: list[dict] = []
     for i, finding in enumerate(sub_threshold_findings):
-        result = by_index.get(i)
-        if result is None:
-            # A2 forbids silent drop: a missing validator result keeps the
-            # finding at its original sub-80 confidence with an explicit reason.
-            out.append(_demote_finding(
-                finding, int(finding.get("confidence", 0)),
-                "Validator produced no output — treat as unverified",
-            ))
-            continue
+        result = by_index[i]
         score = int(result["score"])
         reason = str(result.get("reason", ""))
         if score >= CONFIDENCE_THRESHOLD:
@@ -465,14 +527,71 @@ def _read_jsonl(path: Path) -> list[dict]:
     return out
 
 
-def _read_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
-
-
-def _read_text(path: Path) -> str:
+def _read_jsonl_strict(path: Path) -> list[dict]:
     if not path.is_file():
-        return ""
-    return path.read_text(encoding="utf-8")
+        raise ValueError(f"JSONL file not found: {path}")
+    out: list[dict] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"malformed JSONL at {path}:{line_number}") from exc
+        if not isinstance(record, dict):
+            raise ValueError(f"JSONL record must be an object at {path}:{line_number}")
+        out.append(record)
+    return out
+
+
+def _verify_axis_findings(scope: dict, findings_path: Path) -> None:
+    coverage = scope.get("axis_coverage")
+    if not isinstance(coverage, dict):
+        raise ValueError("axis coverage manifest is missing; rerun axis ingestion")
+    expected_path = coverage.get("output")
+    expected_digest = coverage.get("sha256")
+    expected_count = coverage.get("finding_count")
+    if not isinstance(expected_path, str) or not expected_path:
+        raise ValueError("axis output manifest is missing; rerun axis ingestion")
+    identity = {"path": expected_path, "sha256": expected_digest}
+    verified_path = _verify_file_identity(identity, "axis findings")
+    if verified_path != findings_path.resolve():
+        raise ValueError("validator findings path does not match axis coverage")
+    findings = _read_jsonl_strict(verified_path)
+    if isinstance(expected_count, bool) or not isinstance(expected_count, int):
+        raise ValueError("axis finding count is invalid")
+    if len(findings) != expected_count:
+        raise ValueError("axis findings count does not match coverage")
+
+
+def _verify_validator_inputs(scope: dict) -> str:
+    coverage = scope.get("validator_coverage")
+    if not isinstance(coverage, dict):
+        raise ValueError(
+            "validator coverage manifest is missing; rerun validator preparation"
+        )
+    run_id = coverage.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        raise ValueError("validator run_id is missing; rerun validator preparation")
+    identities = coverage.get("input_hashes")
+    if not isinstance(identities, dict):
+        raise ValueError("validator input manifest is missing")
+    for key in ("diff", "axis_findings"):
+        _verify_file_identity(identities.get(key), key.replace("_", " "))
+    return run_id
+
+
+def _validator_dependencies_complete(scope: dict) -> bool:
+    if not (
+        (scope.get("tool_coverage") or {}).get("complete") is True
+        and (scope.get("axis_coverage") or {}).get("complete") is True
+    ):
+        return False
+    for key in ("mutation_coverage", "build_coverage", "reconcile_coverage"):
+        coverage = scope.get(key)
+        if coverage is not None and coverage.get("complete") is not True:
+            return False
+    return True
 
 
 def _default_skill_dir() -> Path:
@@ -527,6 +646,10 @@ def main() -> int:
         "--output", required=True,
         help="Path to write validated-findings.jsonl",
     )
+    ing.add_argument(
+        "--scope", required=True,
+        help="Path to scope.json whose coverage manifest must be completed",
+    )
 
     args = parser.parse_args()
 
@@ -538,9 +661,36 @@ def main() -> int:
             print(f"ERROR: scope.json not found: {scope_path}", file=sys.stderr)
             return 2
 
-        scope = _read_json(scope_path)
-        findings = _read_jsonl(findings_path)
-        diff_text = _read_text(diff_path)
+        try:
+            scope = _read_json(scope_path)
+            axis_coverage = scope.get("axis_coverage")
+            if not isinstance(axis_coverage, dict):
+                raise ValueError(
+                    "axis coverage manifest is missing; rerun axis ingestion"
+                )
+            scope["validator_coverage"] = {
+                "complete": False,
+                "expected": 0,
+                "completed": 0,
+            }
+            scope["coverage_complete"] = False
+            _write_json_atomic(scope_path, scope)
+            if axis_coverage.get("complete") is not True:
+                raise ValueError(
+                    "axis coverage is incomplete; finish every requested axis "
+                    "before validator dispatch"
+                )
+            _verify_axis_findings(scope, findings_path)
+            findings = _read_jsonl_strict(findings_path)
+            diff_text = _read_text(diff_path)
+            run_id = uuid.uuid4().hex
+            input_hashes = {
+                "diff": _file_identity(diff_path),
+                "axis_findings": _file_identity(findings_path),
+            }
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"ERROR: validator coverage incomplete: {exc}", file=sys.stderr)
+            return 4
         output_dir = Path(args.output_dir).resolve()
         skill_dir = (
             Path(args.skill_dir).resolve()
@@ -558,7 +708,28 @@ def main() -> int:
             output_dir=output_dir,
             skill_dir=skill_dir,
             repo_dir=repo_dir,
+            run_id=run_id,
+            input_hashes=input_hashes,
         )
+        count = int(result["count"])
+        scope["validator_coverage"] = {
+            "complete": count == 0,
+            "expected": count,
+            "completed": 0,
+            "run_id": run_id,
+            "input_hashes": input_hashes,
+        }
+        if count == 0:
+            scope["validator_coverage"].update({
+                "output": str(findings_path.resolve()),
+                "sha256": input_hashes["axis_findings"]["sha256"],
+                "finding_count": len(findings),
+            })
+        scope["coverage_complete"] = bool(
+            count == 0
+            and _validator_dependencies_complete(scope)
+        )
+        _write_json_atomic(scope_path, scope)
         sys.stdout.write(json.dumps(result, indent=2, sort_keys=False) + "\n")
         return 0
 
@@ -566,19 +737,77 @@ def main() -> int:
         findings_path = Path(args.findings)
         results_path = Path(args.results)
         output_path = Path(args.output)
+        scope_path = Path(args.scope)
 
-        all_findings = _read_jsonl(findings_path)
-        sub_findings = filter_sub_threshold(all_findings)
-        results = _read_jsonl(results_path)
-        validated = ingest(results, sub_findings)
+        try:
+            scope = _read_json(scope_path)
+            previous = scope.get("validator_coverage")
+            if not isinstance(previous, dict):
+                raise ValueError(
+                    "validator coverage manifest is missing; rerun validator preparation"
+                )
+            scope["validator_coverage"] = {
+                "complete": False,
+                "expected": int(previous.get("expected") or 0),
+                "completed": 0,
+                "run_id": previous.get("run_id"),
+                "input_hashes": previous.get("input_hashes"),
+            }
+            scope["coverage_complete"] = False
+            _write_json_atomic(scope_path, scope)
+            if output_path.exists():
+                output_path.unlink()
+            if (scope.get("axis_coverage") or {}).get("complete") is not True:
+                raise ValueError(
+                    "axis coverage is incomplete; rerun axis ingestion before "
+                    "validator ingestion"
+                )
+            run_id = _verify_validator_inputs(scope)
+            _verify_axis_findings(scope, findings_path)
+            all_findings = _read_jsonl_strict(findings_path)
+            sub_findings = filter_sub_threshold(all_findings)
+            if scope["validator_coverage"]["expected"] != len(sub_findings):
+                raise ValueError(
+                    "validator input count does not match the prepared coverage "
+                    "manifest; rerun validator preparation"
+                )
+            results = _read_jsonl_strict(results_path)
+            validated_sub = ingest(
+                results,
+                sub_findings,
+                expected_run_id=run_id,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"ERROR: validator coverage incomplete: {exc}", file=sys.stderr)
+            return 4
 
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with output_path.open("w", encoding="utf-8") as fh:
-            for f in validated:
-                fh.write(json.dumps(f, sort_keys=False) + "\n")
+        validated_iter = iter(validated_sub)
+        validated = []
+        for finding in all_findings:
+            confidence = int(finding.get("confidence", 0))
+            if 0 <= confidence < CONFIDENCE_THRESHOLD:
+                validated.append(next(validated_iter))
+            else:
+                validated.append(finding)
+
+        _write_jsonl_atomic(output_path, validated)
+        output_identity = _file_identity(output_path)
+        scope["validator_coverage"] = {
+            "complete": True,
+            "expected": len(sub_findings),
+            "completed": len(results),
+            "run_id": run_id,
+            "input_hashes": previous.get("input_hashes"),
+            "output": output_identity["path"],
+            "sha256": output_identity["sha256"],
+            "finding_count": len(validated),
+        }
+        scope["coverage_complete"] = _validator_dependencies_complete(scope)
+        _write_json_atomic(scope_path, scope)
         sys.stdout.write(
             json.dumps({
-                "input_count": len(sub_findings),
+                "input_count": len(all_findings),
+                "validated_count": len(sub_findings),
                 "output_count": len(validated),
                 "output_path": str(output_path.resolve()),
             }, indent=2) + "\n"

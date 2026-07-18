@@ -32,11 +32,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 GIT_TIMEOUT_S = 30
+_HUNK_HEADER = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
 # Repo-kind precedence order — skills > monorepo > docs > app > library >
 # {python, rust, go} > unknown.
@@ -178,6 +180,65 @@ def diff_files(repo: Path, base: str, target: str,
                 files.append(path)
 
     return loc, files
+
+
+def _merge_line_ranges(ranges: list[list[int]]) -> list[list[int]]:
+    merged: list[list[int]] = []
+    for start, end in sorted(ranges):
+        if merged and start <= merged[-1][1] + 1:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    return merged
+
+
+def changed_line_ranges(
+    repo: Path,
+    base: str,
+    target: str,
+    files: list[str],
+    *,
+    dirty_tree: bool = False,
+) -> dict[str, list[list[int]]]:
+    """Return added/modified target-line ranges for every touched path."""
+    untracked = set(_untracked_files(repo)) if dirty_tree else set()
+    result: dict[str, list[list[int]]] = {}
+
+    for path in files:
+        if path in untracked:
+            full = repo / path
+            try:
+                with full.open("r", encoding="utf-8", errors="ignore") as handle:
+                    line_count = sum(1 for _ in handle)
+            except OSError:
+                line_count = 0
+            result[path] = [[1, line_count]] if line_count else []
+            continue
+
+        diff_range = "HEAD" if dirty_tree else f"{base}..{target}"
+        patch = run_git(
+            repo,
+            "diff",
+            "--unified=0",
+            "--no-color",
+            "--no-ext-diff",
+            diff_range,
+            "--",
+            path,
+        )
+        ranges: list[list[int]] = []
+        if patch.returncode == 0:
+            for line in patch.stdout.splitlines():
+                match = _HUNK_HEADER.match(line)
+                if not match:
+                    continue
+                start = int(match.group(1))
+                count = int(match.group(2) or "1")
+                if count > 0:
+                    ranges.append([start, start + count - 1])
+        result[path] = _merge_line_ranges(ranges)
+
+    return result
 
 
 def resolve_base(repo: Path, override: str | None = None,
@@ -494,6 +555,13 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         resolved_target = target
 
     loc, files = diff_files(repo, base, resolved_target, dirty_tree=dirty_tree)
+    line_ranges = changed_line_ranges(
+        repo,
+        base,
+        resolved_target,
+        files,
+        dirty_tree=dirty_tree,
+    )
     repo_kind, signals = classify_repo(repo, override=repo_kind_override)
     chain = claude_md_chain(repo, files)
     coherence = activates_coherence(files)
@@ -511,6 +579,7 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         "loc_changed": loc,
         "files_touched": len(files),  # derived count; canonical key is files_touched_list
         "files_touched_list": files,
+        "changed_line_ranges": line_ranges,
         "activates_coherence": coherence,
         "tools_skipped": [],
     }

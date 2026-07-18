@@ -27,10 +27,10 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 
 From `scripts/battery_ingest.py:TOOL_TO_AXIS`:
 
-- `semgrep` (default routing) — generic pattern findings. Confidence 100, skip validators.
-- Performance-specific semgrep rules (prefix `code-ultrareview-` or `metadata.axis: performance`) route to the Performance axis, NOT here.
+- No deterministic tool findings route to Correctness from the standard battery.
+- Semgrep runs only the bundled `code-ultrareview-*` performance rules; every accepted Semgrep finding routes to the Performance axis. Generic or mismatched Semgrep rules invalidate the report instead of falling back to Correctness.
 
-The Correctness axis ALSO runs without tool input on repos with no semgrep coverage — LLM judgment carries the axis.
+Correctness is an LLM-judgment axis and always runs even though its filtered tool input is empty.
 
 ## Severity calibration
 
@@ -56,7 +56,7 @@ The Correctness axis ALSO runs without tool input on repos with no semgrep cover
 The Phase 3 orchestrator passes:
 
 - `scope.json` — repo kind, languages, files touched, CLAUDE.md chain.
-- `tool-findings.jsonl` filtered to `axis: correctness` — semgrep generic findings only.
+- `tool-findings.jsonl` filtered to `axis: correctness` — empty under the standard battery.
 - The diff itself (resolved by Phase 1).
 - This brief.
 - `references/anthropic-verbatim.md` — rubric + false-positive list.

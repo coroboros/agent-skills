@@ -173,6 +173,39 @@ class TestEvalsJsonIsValid(unittest.TestCase):
         self.assertIn("evals", payload)
         self.assertTrue(payload["evals"], "evals list is empty")
 
+    def test_evals_are_comprehensive_objective_and_gradable(self):
+        with (SKILL_DIR / "evals" / "evals.json").open(encoding="utf-8") as f:
+            payload = json.load(f)
+        evals = payload["evals"]
+        self.assertGreaterEqual(
+            len(evals),
+            39,
+            "the historical adversarial coverage must not be collapsed",
+        )
+        self.assertEqual(len({case["id"] for case in evals}), len(evals))
+        for case in evals:
+            self.assertIsInstance(case.get("prompt"), str)
+            self.assertTrue(case["prompt"].strip())
+            self.assertIsInstance(case.get("expected_output"), str)
+            self.assertTrue(case["expected_output"].strip())
+            expectations = case.get("expectations")
+            if expectations is not None:
+                self.assertIsInstance(expectations, list)
+                self.assertGreaterEqual(len(expectations), 3)
+                self.assertTrue(all(
+                    isinstance(item, str) and item.strip()
+                    for item in expectations
+                ))
+
+    def test_skill_frontmatter_uses_canonical_harness_compatibility(self):
+        text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        frontmatter = text.split("---", 2)[1]
+        self.assertIn(
+            'compatibility: "Optimized for Claude Code; degrades gracefully '
+            'on any agent implementing the Agent Skills standard."',
+            frontmatter,
+        )
+
 
 class TestTerminalEchoRuleMirroredInThreePlaces(unittest.TestCase):
     """The terminal-echo rule states the full canonical report prints to the

@@ -211,6 +211,7 @@ class TestRemoteDetection(unittest.TestCase):
         )
         subprocess.run(
             ["git", "-C", str(repo), "-c", "user.email=t@t", "-c", "user.name=t",
+             "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
              "commit", "-q", "-m", "init"], check=True,
         )
         return repo

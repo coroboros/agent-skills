@@ -2,7 +2,7 @@
 
 **Base:** `{base}` · **Target:** `{target}` · **Rule:** {rung}
 **Repo:** {repo_kind} · **Languages:** {languages}
-**Rules baseline:** {CLAUDE.md chain + N files | skipped — no rules baseline found}
+**Rules baseline:** {CLAUDE.md chain + N files | none — Style used observable repository conventions}
 **Reviewed:** {N} changed file(s)
 **Coherence axis:** {active | inactive}
 **Findings:** {n_red} 🔴 · {n_orange} 🟠 · {n_green} 🟢 (verified) · {n_unverified} unverified
@@ -61,7 +61,7 @@ Findings with confidence < 80 surfaced per A2 (no silent drop). Severity is down
 
 | # | Axis | Location | Conf | Finding | Recommendation |
 |---|------|----------|------|---------|----------------|
-| U1 | tests | `path:line` | 65 | `[unverified]` … | Sub-80 confidence (65) — verify locally before action. … |
+| U1 | tests | `path:line` | 65 | `[unverified]` … | Sub-80 confidence (65) — verify locally before action. Validator: … |
 
 ---
 
@@ -87,11 +87,11 @@ Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fi
 
 ## 🧰 Tools skipped
 
-Tools the battery would have run but couldn't. Install commands surface verbatim from `scope.json["tools_skipped"]`. Body reads `_None — every detected tool ran._` when empty.
+Successful reports have no skipped applicable analyzers. A missing or failed analyzer stops before axis review and verdict. Body reads `_None — every applicable analyzer completed._`.
 
 | Tool | Axis | Install |
 |------|------|---------|
-| `oasdiff` | design-api | `brew install oasdiff` |
+| _None_ | _None_ | _None_ |
 
 ---
 
@@ -102,7 +102,6 @@ Coverage boundaries — explicit by design.
 - **Security** — Defers to `/security-review` or `https://github.com/anthropics/claude-code-security-review`. Distinct concern with its own deeper review pattern.
 - **Runtime performance** — Static patterns only (N+1, sync I/O). No benchmarks, no flamegraphs, no memory traces.
 - **Flaky test detection** — Structural smells only. Flake requires repeated runs the skill does not perform.
-- **Tools listed in `## 🧰 Tools skipped` above** — install them to recover the coverage. Body switches to `none this run.` when zero tools were skipped.
 
 ---
 

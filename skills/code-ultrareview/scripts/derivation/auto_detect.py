@@ -143,13 +143,17 @@ def current_pr_body(repo: Path) -> Artifact | None:
     )
 
 
-def fetch_pr_body_text(repo: Path) -> str:
-    """Return the current PR body as text. Returns '' when unavailable."""
+def fetch_pr_body_text(repo: Path, number: str | None = None) -> str:
+    """Return a PR body as text. Returns '' when unavailable."""
     if not _gh_available():
         return ""
+    command = ["gh", "pr", "view"]
+    if number is not None:
+        command.append(number)
+    command.extend(["--json", "body", "-q", ".body"])
     try:
         r = subprocess.run(
-            ["gh", "pr", "view", "--json", "body", "-q", ".body"],
+            command,
             cwd=repo, capture_output=True, text=True, timeout=GH_TIMEOUT_S,
         )
     except (subprocess.SubprocessError, OSError):

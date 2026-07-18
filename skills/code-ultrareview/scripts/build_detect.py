@@ -16,14 +16,18 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import shutil
 import sys
 from pathlib import Path
 
 
-def _detect_python_runner(repo: Path) -> str:
-    """Return 'pytest' if any manifest mentions pytest; else 'unittest'."""
+class InvalidManifestError(ValueError):
+    """Raised when a present project manifest cannot be trusted."""
+
+
+def _python_manifest_uses_pytest(repo: Path) -> bool:
     for fname in ("pyproject.toml", "requirements.txt", "requirements-dev.txt", "setup.cfg"):
         p = repo / fname
         if not p.exists():
@@ -33,8 +37,25 @@ def _detect_python_runner(repo: Path) -> str:
         except OSError:
             continue
         if "pytest" in text:
-            return "pytest"
-    return "unittest"
+            return True
+    return False
+
+
+def _has_unittest_suite(repo: Path) -> bool:
+    ignored = {".git", ".venv", "venv", "node_modules", "build", "dist"}
+    for root, dirs, files in os.walk(repo):
+        dirs[:] = [name for name in dirs if name not in ignored]
+        for name in files:
+            if not name.startswith("test") or not name.endswith(".py"):
+                continue
+            path = Path(root) / name
+            try:
+                text = path.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            if "unittest" in text and re.search(r"\bdef\s+test_", text):
+                return True
+    return False
 
 
 def _makefile_has_test_target(repo: Path) -> bool:
@@ -48,34 +69,67 @@ def _makefile_has_test_target(repo: Path) -> bool:
     return bool(re.search(r"^test:", text, re.MULTILINE))
 
 
-def detect(repo: Path) -> dict:
+def _javascript_test_command(repo: Path) -> tuple[str | None, str | None]:
+    """Return the declared package-manager test command, never an invented one."""
+    package_json = repo / "package.json"
+    if not package_json.is_file():
+        return None, None
+    try:
+        payload = json.loads(package_json.read_text(encoding="utf-8"))
+    except OSError as exc:
+        raise InvalidManifestError(f"cannot read package.json: {exc}") from exc
+    except json.JSONDecodeError as exc:
+        raise InvalidManifestError(
+            f"package.json is not valid JSON at line {exc.lineno}, "
+            f"column {exc.colno}: {exc.msg}"
+        ) from exc
+    if not isinstance(payload, dict):
+        raise InvalidManifestError("package.json must contain an object")
+    scripts = payload.get("scripts")
+    if scripts is not None and not isinstance(scripts, dict):
+        raise InvalidManifestError("package.json scripts must be an object")
+    test_script = scripts.get("test") if isinstance(scripts, dict) else None
+    if not isinstance(test_script, str) or not test_script.strip():
+        return None, None
+
+    package_manager = payload.get("packageManager")
+    declared = (
+        package_manager.split("@", 1)[0]
+        if isinstance(package_manager, str)
+        else None
+    )
+    commands = {
+        "pnpm": "pnpm test",
+        "yarn": "yarn test",
+        "bun": "bun run test",
+        "npm": "npm test",
+    }
+    if declared in commands:
+        return declared, commands[declared]
     if (repo / "pnpm-lock.yaml").exists():
-        return {
-            "tool": "pnpm",
-            "test_command": "pnpm test",
-            "available": shutil.which("pnpm") is not None,
-        }
+        return "pnpm", commands["pnpm"]
     if (repo / "yarn.lock").exists():
+        return "yarn", commands["yarn"]
+    if (repo / "bun.lock").exists() or (repo / "bun.lockb").exists():
+        return "bun", commands["bun"]
+    return "npm", commands["npm"]
+
+
+def detect(repo: Path) -> dict:
+    js_tool, js_command = _javascript_test_command(repo)
+    if js_tool and js_command:
         return {
-            "tool": "yarn",
-            "test_command": "yarn test",
-            "available": shutil.which("yarn") is not None,
+            "tool": js_tool,
+            "test_command": js_command,
+            "available": shutil.which(js_tool) is not None,
         }
-    if (repo / "package-lock.json").exists() or (repo / "package.json").exists():
+    if _python_manifest_uses_pytest(repo):
         return {
-            "tool": "npm",
-            "test_command": "npm test --no-coverage",
-            "available": shutil.which("npm") is not None,
+            "tool": "pytest",
+            "test_command": "pytest -x",
+            "available": shutil.which("pytest") is not None,
         }
-    if (repo / "pyproject.toml").exists() or (repo / "requirements.txt").exists() \
-            or (repo / "setup.cfg").exists():
-        runner = _detect_python_runner(repo)
-        if runner == "pytest":
-            return {
-                "tool": "pytest",
-                "test_command": "pytest -x",
-                "available": shutil.which("pytest") is not None,
-            }
+    if _has_unittest_suite(repo):
         return {
             "tool": "unittest",
             "test_command": "python3 -m unittest discover",
@@ -115,7 +169,16 @@ def main() -> int:
         print(f"ERROR: repo path does not exist: {repo}", file=sys.stderr)
         return 2
 
-    result = detect(repo)
+    try:
+        result = detect(repo)
+    except InvalidManifestError as exc:
+        print(f"ERROR: invalid project manifest: {exc}", file=sys.stderr)
+        print(
+            "ERROR: remediation: repair package.json so it is valid JSON, "
+            "then rerun build detection.",
+            file=sys.stderr,
+        )
+        return 2
     print(json.dumps(result, indent=2))
     return 0 if result.get("tool") else 1
 

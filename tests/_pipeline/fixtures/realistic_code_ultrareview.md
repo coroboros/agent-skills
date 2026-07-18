@@ -86,11 +86,7 @@ Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fi
 
 ## 🧰 Tools skipped
 
-Tools the battery would have run but couldn't. Install commands surface verbatim from `scope.json["tools_skipped"]`.
-
-| Tool | Axis | Install |
-|------|------|---------|
-| `oasdiff` | design-api | `brew install oasdiff` |
+_None — every applicable analyzer completed successfully._
 
 ---
 
@@ -101,7 +97,6 @@ Coverage boundaries — explicit by design.
 - **Security** — Defers to `/security-review` or `https://github.com/anthropics/claude-code-security-review`. Distinct concern with its own deeper review pattern. The limiter keys on a client-supplied `X-Forwarded-For` header — worth a security pass.
 - **Runtime performance** — Static patterns only (N+1, sync I/O). No benchmarks, no flamegraphs, no memory traces. The in-memory map grows unbounded; profile under load.
 - **Flaky test detection** — Structural smells only. Flake requires repeated runs the skill does not perform.
-- **Tools listed in `## 🧰 Tools skipped` above** — install them to recover the coverage.
 
 ---
 

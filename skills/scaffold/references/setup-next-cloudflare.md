@@ -2,6 +2,8 @@
 
 Per-scaffold steps for the `next-cloudflare` scaffold. Invoked from `SKILL.md` § *Workflow > Install*. The shared overlay (`scripts/overlay_templates.sh`) runs after these steps and writes the opinionated configs.
 
+Treat every relative path below as relative to `{project_dir}`. Execute each shell block with an explicit `--dir "{project_dir}"` or equivalent cwd; never rely on a previous shell call preserving `cd` state.
+
 ## 1. Run the framework CLI
 
 ```bash
@@ -19,8 +21,8 @@ The framework CLI may or may not have created these — delete idempotently:
 ## 3. Install additional dependencies
 
 ```bash
-pnpm add @opennextjs/cloudflare drizzle-orm @neondatabase/serverless zod better-auth
-pnpm add -D wrangler @biomejs/biome drizzle-kit vitest @playwright/test
+pnpm --dir "{project_dir}" add @opennextjs/cloudflare drizzle-orm @neondatabase/serverless zod better-auth
+pnpm --dir "{project_dir}" add -D wrangler @biomejs/biome @google/design.md drizzle-kit vitest @playwright/test
 ```
 
 ## 4. CSS tokens
@@ -29,4 +31,4 @@ Tailwind v4 keeps tokens in `src/app/globals.css` — `create-next-app` created 
 
 ## 5. Helper files
 
-Write `.node-version` containing `22`. Write `.dev.vars.example` with a short comment explaining it's a placeholder for Cloudflare bindings.
+Write `{project_dir}/.node-version` containing `22`. Write `{project_dir}/.dev.vars.example` with a short comment explaining it's a placeholder for Cloudflare bindings.

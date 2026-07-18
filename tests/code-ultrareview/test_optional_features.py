@@ -31,6 +31,7 @@ import io
 import json
 import os
 import subprocess
+import stat
 import sys
 import tempfile
 import time
@@ -79,7 +80,28 @@ def _write_scope(repo: Path, *, languages: list[str], files: list[str]) -> Path:
     }
     scope_path = repo / "scope.json"
     scope_path.write_text(json.dumps(scope, indent=2), encoding="utf-8")
+    for relative in files:
+        touched = repo / relative
+        if not touched.exists():
+            touched.parent.mkdir(parents=True, exist_ok=True)
+            touched.write_text(
+                "{}\n" if touched.name == "package.json" else "",
+                encoding="utf-8",
+            )
     return scope_path
+
+
+def _write_executable(path: Path, body: str = "exit 0") -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(f"#!/usr/bin/env bash\n{body}\n", encoding="utf-8")
+    path.chmod(path.stat().st_mode | stat.S_IEXEC | stat.S_IXGRP | stat.S_IXOTH)
+    return path
+
+
+def _configure_mutmut(repo: Path) -> None:
+    (repo / "setup.cfg").write_text(
+        '[mutmut]\nsource_paths = .\n', encoding="utf-8"
+    )
 
 
 def _write_findings(path: Path, findings: list[dict]) -> Path:
@@ -96,15 +118,13 @@ def _write_findings(path: Path, findings: list[dict]) -> Path:
 
 
 class TestVerifyBuildOff(unittest.TestCase):
-    """Toggle: without `--verify-build`, `run_build_verify.py` is never invoked.
+    """The orchestrator omits this script unless `--verify-build` is set.
 
-    Trivially the case at the orchestrator level — this test pins the
-    *script-level* property that an empty / missing findings file is
-    still a clean no-op, so a buggy orchestrator that calls the script
-    with empty input never raises.
+    Once invoked, a missing Phase 4 findings artifact is a runtime coverage
+    failure, not a no-op or a command-line syntax error.
     """
 
-    def test_missing_findings_file_is_clean_skip(self):
+    def test_missing_findings_file_is_an_input_error(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             scope = _write_scope(repo, languages=["python"], files=[])
@@ -119,18 +139,14 @@ class TestVerifyBuildOff(unittest.TestCase):
                 ],
                 capture_output=True, text=True, timeout=10,
             )
-            self.assertEqual(r.returncode, 0, r.stderr)
-            self.assertTrue(out.exists())
-            self.assertEqual(out.read_text(encoding="utf-8").strip(), "")
-            sidecar = out.with_suffix(out.suffix + ".meta.json")
-            self.assertTrue(sidecar.exists())
-            meta = json.loads(sidecar.read_text(encoding="utf-8"))
-            self.assertEqual(meta["build_status"], "skipped")
-            self.assertEqual(meta["promoted_count"], 0)
+            self.assertEqual(r.returncode, 4)
+            self.assertIn("findings JSONL not found", r.stderr)
+            self.assertIn("Rerun the axis and validator phases", r.stderr)
+            self.assertFalse(out.exists())
 
 
-class TestVerifyBuildPromotion(unittest.TestCase):
-    """Pin the +30 / cap-95 / floor-80 promotion contract end-to-end."""
+class TestVerifyBuildGate(unittest.TestCase):
+    """A generic build result gates the review but never proves a finding."""
 
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -175,61 +191,158 @@ class TestVerifyBuildPromotion(unittest.TestCase):
             },
         ]
 
-    def test_failing_build_promotes_bug_axes_only(self):
+    def test_failing_build_blocks_without_promoting_findings(self):
         verified_input = self._findings()
         out, meta = run_build_verify.run(
             self.repo, verified_input, "echo fail && exit 1",
-            tool_available=True, timeout=10,
+            tool="pytest", tool_available=True, timeout=10,
         )
-        by_axis = {f["axis"]: f for f in out}
-        # Correctness 65 → 95 (capped at 95 since 65+30 = 95).
-        self.assertEqual(by_axis["correctness"]["confidence"], 95)
-        # Tests 70 → 95 (capped at 95 since 70+30 = 100 → cap).
-        self.assertEqual(by_axis["tests"]["confidence"], 95)
-        # Performance 50 → 80 (50+30 = 80, exactly at floor).
-        self.assertEqual(by_axis["performance"]["confidence"], 80)
-        # Style axis is unaffected by build verification.
-        self.assertEqual(by_axis["style"]["confidence"], 60)
-        self.assertEqual(meta["build_failed"], True)
-        self.assertEqual(meta["promoted_count"], 3)
+        self.assertEqual(out, verified_input)
+        self.assertEqual(meta["build_status"], "failed")
+        self.assertFalse(meta["complete"])
+        self.assertEqual(meta["promoted_count"], 0)
 
-    def test_passing_build_promotes_nothing(self):
+    def test_passing_build_completes_without_promoting_findings(self):
         verified_input = self._findings()
         out, meta = run_build_verify.run(
             self.repo, verified_input, "true",
-            tool_available=True, timeout=10,
+            tool="pytest", tool_available=True, timeout=10,
         )
         for f in out:
             self.assertEqual(
                 f["confidence"],
                 next(g["confidence"] for g in verified_input if g["axis"] == f["axis"]),
             )
-        self.assertEqual(meta["build_failed"], False)
+        self.assertEqual(meta["build_status"], "passed")
+        self.assertTrue(meta["complete"])
         self.assertEqual(meta["promoted_count"], 0)
 
-    def test_tool_unavailable_passes_findings_through(self):
+    def test_build_timeout_terminates_child_processes(self):
+        sentinel = self.repo / "child-completed"
+        child = self.repo / "child.py"
+        parent = self.repo / "parent.py"
+        child.write_text(
+            "import pathlib, time\n"
+            "time.sleep(1.5)\n"
+            f"pathlib.Path({str(sentinel)!r}).write_text('alive')\n",
+            encoding="utf-8",
+        )
+        parent.write_text(
+            "import subprocess, sys, time\n"
+            f"subprocess.Popen([sys.executable, {str(child)!r}])\n"
+            "time.sleep(10)\n",
+            encoding="utf-8",
+        )
+
+        result = run_build_verify._run_build(
+            self.repo,
+            f'"{sys.executable}" "{parent}"',
+            "unittest",
+            timeout=1,
+        )
+
+        self.assertEqual(result["build_status"], "timeout")
+        time.sleep(2)
+        self.assertFalse(sentinel.exists(), "build timeout left a child running")
+
+    def test_build_gate_disables_corepack_network_resolution(self):
+        result = run_build_verify._run_build(
+            self.repo,
+            'test "$COREPACK_ENABLE_NETWORK" = 0 && '
+            'test "$COREPACK_DEFAULT_TO_LATEST" = 0',
+            "yarn",
+            timeout=10,
+        )
+
+        self.assertEqual(result["build_status"], "passed")
+
+    def test_tool_unavailable_is_incomplete_with_remediation(self):
         verified_input = self._findings()
         out, meta = run_build_verify.run(
             self.repo, verified_input, "pytest -x",
-            tool_available=False, timeout=10,
+            tool="pytest", tool_available=False, timeout=10,
         )
         self.assertEqual(out, verified_input)  # untouched
-        self.assertEqual(meta["build_status"], "skipped")
+        self.assertEqual(meta["build_status"], "missing-runner")
+        self.assertFalse(meta["complete"])
         self.assertEqual(meta["promoted_count"], 0)
-        self.assertIn("PATH", meta["reason"])
+        self.assertIn("command -v pytest", meta["remediation"])
 
-    def test_no_tool_detected_passes_findings_through(self):
+    def test_pytest_remediation_uses_declared_dev_requirements(self):
+        (self.repo / "requirements-dev.txt").write_text(
+            "pytest==8.4.1\n",
+            encoding="utf-8",
+        )
+        remediation = run_build_verify._missing_runner_remediation(
+            self.repo,
+            "pytest",
+        )
+        self.assertIn(
+            "`python3 -m pip install -r requirements-dev.txt`",
+            remediation,
+        )
+        self.assertIn("exact command printed below", remediation)
+
+    def test_pinned_pnpm_remediation_preserves_declared_version(self):
+        (self.repo / "package.json").write_text(
+            json.dumps({"packageManager": "pnpm@10.15.0"}),
+            encoding="utf-8",
+        )
+        remediation = run_build_verify._missing_runner_remediation(
+            self.repo,
+            "pnpm",
+        )
+        self.assertIn(
+            "`corepack install --global pnpm@10.15.0 && corepack enable pnpm`",
+            remediation,
+        )
+        self.assertIn("command -v pnpm", remediation)
+
+    def test_zero_test_report_blocks_the_gate(self):
+        verified_input = self._findings()
+        out, meta = run_build_verify.run(
+            self.repo,
+            verified_input,
+            "printf 'Ran 0 tests\\n' >&2",
+            tool="unittest",
+            tool_available=True,
+            timeout=10,
+        )
+        self.assertEqual(out, verified_input)
+        self.assertEqual(meta["build_status"], "no-tests-collected")
+        self.assertFalse(meta["complete"])
+        self.assertEqual(meta["promoted_count"], 0)
+
+    def test_pytest_zero_test_report_blocks_the_gate(self):
+        verified_input = self._findings()
+        out, meta = run_build_verify.run(
+            self.repo,
+            verified_input,
+            "printf 'collected 0 items\\n\\nno tests ran in 0.01s\\n'",
+            tool="pytest",
+            tool_available=True,
+            timeout=10,
+        )
+        self.assertEqual(out, verified_input)
+        self.assertEqual(meta["build_status"], "no-tests-collected")
+        self.assertFalse(meta["complete"])
+        self.assertEqual(meta["promoted_count"], 0)
+
+    def test_no_tool_detected_is_incomplete_with_remediation(self):
         verified_input = self._findings()
         out, meta = run_build_verify.run(
             self.repo, verified_input, None,
-            tool_available=False, timeout=10,
+            tool=None, tool_available=False, timeout=10,
         )
         self.assertEqual(out, verified_input)
-        self.assertEqual(meta["build_status"], "skipped")
-        self.assertIn("no build tool detected", meta["reason"])
+        self.assertEqual(meta["build_status"], "missing-test-command")
+        self.assertFalse(meta["complete"])
+        self.assertIn("Add a canonical test entry", meta["remediation"])
+        self.assertIn("`pytest`", meta["remediation"])
+        self.assertIn("`unittest`", meta["remediation"])
 
-    def test_only_sub80_findings_are_eligible(self):
-        """Findings already at ≥80 must not be touched even on a failing build."""
+    def test_requested_gate_runs_even_when_all_findings_are_verified(self):
+        """Finding confidence never disables an explicitly requested gate."""
         already_verified = [
             {
                 "axis": "correctness",
@@ -242,32 +355,18 @@ class TestVerifyBuildPromotion(unittest.TestCase):
         ]
         out, meta = run_build_verify.run(
             self.repo, already_verified, "exit 1",
-            tool_available=True, timeout=10,
+            tool="pytest", tool_available=True, timeout=10,
         )
         self.assertEqual(len(out), 1)
         self.assertEqual(out[0]["confidence"], 90)  # unchanged
-        # No sub-80 to verify → skipped path.
-        self.assertEqual(meta["build_status"], "skipped")
-
-    def test_verdict_fn_axis_filter(self):
-        """The verdict function only promotes bug-class axes."""
-        fn = run_build_verify.make_verdict_fn(build_failed=True)
-        for axis in run_build_verify.BUILD_RELEVANT_AXES:
-            self.assertEqual(fn({"axis": axis}), "confirmed")
-        for axis in ("style", "documentation", "intent", "simplification", "coherence"):
-            self.assertEqual(fn({"axis": axis}), "inconclusive")
-
-    def test_verdict_fn_passing_build(self):
-        fn = run_build_verify.make_verdict_fn(build_failed=False)
-        # Every axis is inconclusive on a passing build.
-        for axis in ("correctness", "tests", "design-api", "performance", "style"):
-            self.assertEqual(fn({"axis": axis}), "inconclusive")
+        self.assertEqual(meta["build_status"], "failed")
+        self.assertFalse(meta["complete"])
 
 
 class TestVerifyBuildCli(unittest.TestCase):
     """End-to-end CLI invocation — exercises argparse + sidecar layout."""
 
-    def test_passes_findings_through_when_no_tool(self):
+    def test_missing_test_command_blocks_with_remediation(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             scope = _write_scope(repo, languages=[], files=[])
@@ -289,7 +388,7 @@ class TestVerifyBuildCli(unittest.TestCase):
                 ],
                 capture_output=True, text=True, timeout=15,
             )
-            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertEqual(r.returncode, 3, r.stderr)
             self.assertTrue(out.exists())
             lines = [l for l in out.read_text(encoding="utf-8").splitlines() if l.strip()]
             self.assertEqual(len(lines), 1)
@@ -298,7 +397,14 @@ class TestVerifyBuildCli(unittest.TestCase):
             sidecar = json.loads(
                 (out.with_suffix(out.suffix + ".meta.json")).read_text(encoding="utf-8")
             )
-            self.assertEqual(sidecar["build_status"], "skipped")
+            self.assertEqual(sidecar["build_status"], "missing-test-command")
+            self.assertIn("Add a canonical test entry", r.stderr)
+            self.assertIn("`pytest`", r.stderr)
+            self.assertIn("`unittest`", r.stderr)
+            self.assertIn("ERROR: rerun:", r.stderr)
+            self.assertIn(str(RUN_BUILD_VERIFY.resolve()), r.stderr)
+            scope_data = json.loads(scope.read_text(encoding="utf-8"))
+            self.assertFalse(scope_data["build_coverage"]["complete"])
 
     def test_exit_2_on_missing_scope(self):
         with tempfile.TemporaryDirectory() as t:
@@ -316,6 +422,164 @@ class TestVerifyBuildCli(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
         self.assertIn("scope.json not found", r.stderr)
 
+    def test_invalid_package_json_blocks_with_exact_remediation(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text("{broken\n", encoding="utf-8")
+            scope = _write_scope(repo, languages=["typescript"], files=["app.ts"])
+            findings_path = _write_findings(repo / "findings.jsonl", [])
+            output = repo / "out.jsonl"
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(RUN_BUILD_VERIFY),
+                    "--scope",
+                    str(scope),
+                    "--findings",
+                    str(findings_path),
+                    "--output",
+                    str(output),
+                    "--repo",
+                    str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                check=False,
+            )
+
+            scope_data = json.loads(scope.read_text(encoding="utf-8"))
+
+        self.assertEqual(result.returncode, 4)
+        self.assertIn("project manifest is invalid", result.stderr)
+        self.assertIn("Repair package.json so it is valid JSON", result.stderr)
+        self.assertIn("ERROR: rerun:", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+        self.assertEqual(
+            scope_data["build_coverage"]["build_status"],
+            "invalid-manifest",
+        )
+
+    def test_invalid_rerun_input_invalidates_stale_build_state_and_output(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["python"], files=["app.py"])
+            scope_data = json.loads(scope.read_text(encoding="utf-8"))
+            scope_data.update({
+                "tool_coverage": {"complete": True},
+                "axis_coverage": {"complete": True},
+                "validator_coverage": {"complete": True},
+                "build_coverage": {
+                    "complete": True,
+                    "applicable": True,
+                    "build_status": "passed",
+                },
+                "coverage_complete": True,
+            })
+            scope.write_text(json.dumps(scope_data), encoding="utf-8")
+            out = repo / "build-findings.jsonl"
+            out.write_text("stale\n", encoding="utf-8")
+            out.with_suffix(out.suffix + ".meta.json").write_text(
+                '{"complete": true}\n',
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    sys.executable, str(RUN_BUILD_VERIFY),
+                    "--scope", str(scope),
+                    "--findings", str(repo / "missing-findings.jsonl"),
+                    "--output", str(out),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("Rerun the axis and validator phases", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+            mutated = json.loads(scope.read_text(encoding="utf-8"))
+            self.assertFalse(mutated["build_coverage"]["complete"])
+            self.assertEqual(
+                mutated["build_coverage"]["build_status"],
+                "invalid-input",
+            )
+            self.assertFalse(mutated["coverage_complete"])
+            self.assertFalse(out.exists())
+            self.assertFalse(out.with_suffix(out.suffix + ".meta.json").exists())
+
+    def test_detected_unittest_suite_with_zero_collected_tests_blocks(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "test_empty.py").write_text(
+                "import unittest\n# def test_placeholder(): pass\n",
+                encoding="utf-8",
+            )
+            scope = _write_scope(repo, languages=["python"], files=["test_empty.py"])
+            findings_path = _write_findings(repo / "findings.jsonl", [])
+            out = repo / "out.jsonl"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(RUN_BUILD_VERIFY),
+                    "--scope",
+                    str(scope),
+                    "--findings",
+                    str(findings_path),
+                    "--output",
+                    str(out),
+                    "--repo",
+                    str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("no-tests-collected", result.stderr)
+            self.assertIn("Add at least one collectable test", result.stderr)
+            self.assertIn("python3 -m unittest discover", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+
+    def test_detected_failing_suite_prints_direct_fix_and_exact_rerun(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "test_failure.py").write_text(
+                "import unittest\n"
+                "class Failure(unittest.TestCase):\n"
+                "    def test_failure(self):\n"
+                "        self.fail('expected failure')\n",
+                encoding="utf-8",
+            )
+            scope = _write_scope(repo, languages=["python"], files=["test_failure.py"])
+            findings_path = _write_findings(repo / "findings.jsonl", [])
+            out = repo / "out.jsonl"
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(RUN_BUILD_VERIFY),
+                    "--scope",
+                    str(scope),
+                    "--findings",
+                    str(findings_path),
+                    "--output",
+                    str(out),
+                    "--repo",
+                    str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("build verification failed: failed", result.stderr)
+            self.assertIn("Run `python3 -m unittest discover` directly", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+            self.assertIn(str(scope), result.stderr)
+
 
 # ---------------------------------------------------------------------------
 # `--mutation-test` — Phase 2 extension
@@ -323,7 +587,7 @@ class TestVerifyBuildCli(unittest.TestCase):
 
 
 class TestMutationDryRun(unittest.TestCase):
-    """Toggle + graceful-skip pinning for `scripts/run_mutation.sh`."""
+    """Toggle + atomic-preflight contracts for `scripts/run_mutation.sh`."""
 
     def _run(self, repo: Path, *, env: dict | None = None,
              languages: list[str] | None = None,
@@ -349,8 +613,14 @@ class TestMutationDryRun(unittest.TestCase):
     def test_dry_run_exits_clean_with_empty_findings(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
+            _configure_mutmut(repo)
+            bin_dir = repo / "bin"
+            _write_executable(bin_dir / "mutmut")
             r = self._run(
-                repo, env={"MUTATION_DRY_RUN": "1"},
+                repo, env={
+                    "MUTATION_DRY_RUN": "1",
+                    "PATH": f"{bin_dir}:/usr/bin:/bin",
+                },
                 languages=["python"], files=["x.py"],
             )
             self.assertEqual(r.returncode, 0, r.stderr)
@@ -360,20 +630,135 @@ class TestMutationDryRun(unittest.TestCase):
             self.assertTrue(out_file.exists())
             self.assertEqual(out_file.read_text(encoding="utf-8"), "")
             self.assertIn("MUTATION_DRY_RUN=1", r.stderr)
+            coverage = json.loads((repo / "scope.json").read_text())["mutation_coverage"]
+            self.assertFalse(coverage["complete"])
+            self.assertEqual(coverage["status"], "dry-run")
 
-    def test_no_languages_skips_without_failure(self):
-        """Empty scope → no dispatch, exit 0, WARN on stderr."""
+    def test_malformed_scope_blocks_with_exact_recovery(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = repo / "scope.json"
+            scope.write_text("{broken\n", encoding="utf-8")
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("invalid Code Ultrareview scope", result.stderr)
+        self.assertIn("rerun scope.py", result.stderr)
+        self.assertIn("ERROR: rerun:", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_malformed_package_manifest_blocks_before_mutation_output(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["javascript"], files=["x.js"])
+            (repo / "package.json").write_text("{broken\n", encoding="utf-8")
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn("invalid project manifest", result.stderr)
+            self.assertIn("repair package.json", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+            self.assertFalse((out_dir / "mutation-findings.jsonl").exists())
+
+    def test_malformed_python_mutation_manifest_blocks_as_invalid_input(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["python"], files=["x.py"])
+            (repo / "pyproject.toml").write_text(
+                "[tool.mutmut\nsource_paths = [\"src\"]\n",
+                encoding="utf-8",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn("pyproject.toml is not valid TOML", result.stderr)
+            self.assertIn("Python tomllib", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+
+    def test_malformed_pom_blocks_as_invalid_input(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["java"], files=["X.java"])
+            (repo / "pom.xml").write_text("<project>", encoding="utf-8")
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+
+            self.assertEqual(result.returncode, 2, result.stderr)
+            self.assertIn("pom.xml is not valid XML", result.stderr)
+            self.assertIn("ET.parse", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+            self.assertNotIn("Traceback", result.stderr)
+
+    def test_no_languages_is_not_applicable(self):
+        """Empty scope has complete, explicitly not-applicable coverage."""
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             r = self._run(repo, languages=[], files=[])
-        self.assertEqual(r.returncode, 0, r.stderr)
-        # No JS/TS, no Python, no JVM → final fallback WARN should fire.
-        self.assertIn("no JS/TS, Python, or JVM languages detected", r.stderr)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("not applicable", r.stderr)
+            coverage = json.loads((repo / "scope.json").read_text())["mutation_coverage"]
+            self.assertTrue(coverage["complete"])
+            self.assertFalse(coverage["applicable"])
+            self.assertEqual(coverage["status"], "not-applicable")
 
-    def test_python_without_mutmut_skips(self):
-        """When mutmut is absent from PATH, the Python branch skips."""
+    def test_python_without_mutmut_blocks_with_install_command(self):
+        """When mutmut is absent from PATH, mutation coverage cannot start."""
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
+            _configure_mutmut(repo)
             scope = _write_scope(repo, languages=["python"], files=["x.py"])
             out_dir = repo / "out"; out_dir.mkdir()
             # Reset PATH inside the script so mutmut is guaranteed absent.
@@ -385,22 +770,276 @@ class TestMutationDryRun(unittest.TestCase):
                 ],
                 capture_output=True, text=True, timeout=10,
             )
-            self.assertEqual(r.returncode, 0, r.stderr)
-            # /usr/bin + /bin typically ship no mutmut.
-            self.assertIn("mutmut", r.stderr)
+            self.assertEqual(r.returncode, 3, r.stderr)
+            self.assertIn("mutation prerequisite 'mutmut' is missing", r.stderr)
+            self.assertIn("pipx install mutmut", r.stderr)
 
     def test_mutation_source_has_no_runtime_package_resolver(self):
         text = RUN_MUTATION.read_text(encoding="utf-8")
         self.assertNotRegex(text, r"\bnpx\b")
         self.assertNotRegex(text, r"\buvx\b")
 
+    def test_yarn_pnp_preflight_disables_corepack_network_resolution(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "packageManager": "yarn@4.9.2",
+                    "devDependencies": {"@stryker-mutator/core": "9.2.0"},
+                }),
+                encoding="utf-8",
+            )
+            (repo / "yarn.lock").write_text("", encoding="utf-8")
+            (repo / "stryker.config.json").write_text("{}\n", encoding="utf-8")
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "yarn",
+                '[[ "${COREPACK_ENABLE_NETWORK-}" == "0" ]] || exit 66\n'
+                '[[ "${COREPACK_DEFAULT_TO_LATEST-}" == "0" ]] || exit 67\n'
+                '[[ "$3" == "bin" && "$4" == "stryker" ]] || exit 68',
+            )
+
+            result = self._run(
+                repo,
+                env={
+                    "MUTATION_DRY_RUN": "1",
+                    "PATH": f"{bin_dir}:/usr/bin:/bin",
+                },
+                languages=["javascript"],
+                files=["src/app.js"],
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_declared_stryker_never_falls_back_to_global_binary(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "packageManager": "npm@11.4.2",
+                    "devDependencies": {"@stryker-mutator/core": "9.2.0"},
+                }),
+                encoding="utf-8",
+            )
+            (repo / "stryker.config.json").write_text("{}\n", encoding="utf-8")
+            bin_dir = repo / "bin"
+            _write_executable(bin_dir / "stryker")
+
+            result = self._run(
+                repo,
+                env={
+                    "MUTATION_DRY_RUN": "1",
+                    "PATH": f"{bin_dir}:/usr/bin:/bin",
+                },
+                languages=["javascript"],
+                files=["src/app.js"],
+            )
+
+        self.assertEqual(result.returncode, 3, result.stderr)
+        self.assertIn("declared Stryker binary is unavailable", result.stderr)
+
+    def test_invalid_stryker_schema_blocks_atomically(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["javascript"], files=["x.js"])
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "devDependencies": {"@stryker-mutator/core": "1.0.0"},
+                }),
+                encoding="utf-8",
+            )
+            (repo / "stryker.config.json").write_text("{}\n", encoding="utf-8")
+            _write_executable(
+                repo / "node_modules" / ".bin" / "stryker",
+                "mkdir -p reports/mutation\n"
+                "printf '%s\\n' '{}' > reports/mutation/mutation.json",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            findings_text = (out_dir / "mutation-findings.jsonl").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("non-empty files object is required", result.stderr)
+        self.assertEqual(findings_text, "")
+
+    def test_stryker_no_coverage_is_a_finding(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["javascript"], files=["x.js"])
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "devDependencies": {"@stryker-mutator/core": "1.0.0"},
+                }),
+                encoding="utf-8",
+            )
+            (repo / "stryker.config.json").write_text("{}\n", encoding="utf-8")
+            report = json.dumps({
+                "files": {
+                    "x.js": {
+                        "mutants": [{
+                            "status": "NoCoverage",
+                            "mutatorName": "BooleanLiteral",
+                            "description": "flip boolean",
+                            "location": {"start": {"line": 1, "column": 0}},
+                        }],
+                    },
+                },
+            })
+            _write_executable(
+                repo / "node_modules" / ".bin" / "stryker",
+                "mkdir -p reports/mutation\n"
+                f"printf '%s\\n' '{report}' > reports/mutation/mutation.json",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+            )
+            findings_text = (out_dir / "mutation-findings.jsonl").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        finding = json.loads(findings_text)
+        self.assertIn("Uncovered mutant", finding["finding"])
+
+    def test_mutmut_empty_results_are_valid(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["python"], files=["x.py"])
+            _configure_mutmut(repo)
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "mutmut",
+                'case "${1:-}" in run|results) exit 0 ;; *) exit 2 ;; esac',
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+            findings_text = (out_dir / "mutation-findings.jsonl").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(findings_text, "")
+
+    def test_mutmut_malformed_results_block(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["python"], files=["x.py"])
+            _configure_mutmut(repo)
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "mutmut",
+                'if [[ "${1:-}" == "run" ]]; then exit 0; fi\n'
+                'if [[ "${1:-}" == "results" ]]; then echo malformed; exit 0; fi\n'
+                "exit 2",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("invalid mutmut results line", result.stderr)
+
+    def test_mutmut_no_tests_is_a_finding(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["python"], files=["x.py"])
+            _configure_mutmut(repo)
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "mutmut",
+                'if [[ "${1:-}" == "run" ]]; then exit 0; fi\n'
+                'if [[ "${1:-}" == "results" ]]; then\n'
+                '  echo "x.x__mutmut_1: no tests"; exit 0\n'
+                'fi\n'
+                'if [[ "${1:-}" == "show" ]]; then\n'
+                "  printf '%s\\n' '--- a/x.py' '+++ b/x.py' '@@ -1 +1 @@' '-old' '+new'\n"
+                '  exit 0\n'
+                'fi\n'
+                "exit 2",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+            findings_text = (out_dir / "mutation-findings.jsonl").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        finding = json.loads(findings_text)
+        self.assertIn("Uncovered mutmut mutant", finding["finding"])
+
     def test_mutation_timeout_is_portable(self):
-        text = RUN_MUTATION.read_text(encoding="utf-8")
-        self.assertIn("run_with_timeout", text)
-        self.assertIn("subprocess.Popen", text)
-        self.assertIn("start_new_session=True", text)
-        self.assertIn("os.killpg", text)
-        self.assertNotRegex(text, r'(^|\s)timeout "\$TIMEOUT"')
+        mutation_text = RUN_MUTATION.read_text(encoding="utf-8")
+        timeout_text = (SKILL_SCRIPTS / "process_timeout.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("run_with_timeout", mutation_text)
+        self.assertIn("subprocess.Popen", timeout_text)
+        self.assertIn("start_new_session=True", timeout_text)
+        self.assertIn("os.killpg", timeout_text)
+        self.assertNotRegex(mutation_text, r'(^|\s)timeout "\$TIMEOUT"')
 
     def test_mutation_timeout_interrupts_slow_project_tool(self):
         with tempfile.TemporaryDirectory() as t:
@@ -414,6 +1053,7 @@ class TestMutationDryRun(unittest.TestCase):
                 }),
                 encoding="utf-8",
             )
+            (repo / "stryker.config.json").write_text("{}\n", encoding="utf-8")
             tool = repo / "node_modules" / ".bin" / "stryker"
             tool.parent.mkdir(parents=True)
             sentinel = repo / "child-completed"
@@ -446,10 +1086,401 @@ class TestMutationDryRun(unittest.TestCase):
                 timeout=5,
             )
 
-            self.assertEqual(r.returncode, 0, r.stderr)
-            self.assertIn("run failed or timed out", r.stderr)
+            self.assertEqual(r.returncode, 4, r.stderr)
+            self.assertIn("timed out after 1s", r.stderr)
             time.sleep(2)
             self.assertFalse(sentinel.exists(), "timeout left a child process running")
+
+    def test_mutmut_results_timeout_terminates_child_processes(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(repo, languages=["python"], files=["x.py"])
+            _configure_mutmut(repo)
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            sentinel = repo / "results-child-completed"
+            child = repo / "child.py"
+            child.write_text(
+                "import pathlib, time\n"
+                "time.sleep(1.5)\n"
+                f"pathlib.Path({str(sentinel)!r}).write_text('alive')\n",
+                encoding="utf-8",
+            )
+            bin_dir = repo / "bin"
+            mutmut = bin_dir / "mutmut"
+            mutmut.parent.mkdir()
+            mutmut.write_text(
+                "#!/usr/bin/env python3\n"
+                "import subprocess, sys, time\n"
+                "if len(sys.argv) > 1 and sys.argv[1] == 'run':\n"
+                "    raise SystemExit(0)\n"
+                "if len(sys.argv) > 1 and sys.argv[1] == 'results':\n"
+                f"    subprocess.Popen([sys.executable, {str(child)!r}])\n"
+                "    time.sleep(10)\n"
+                "raise SystemExit(2)\n",
+                encoding="utf-8",
+            )
+            mutmut.chmod(0o755)
+
+            r = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--timeout", "1",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+
+            self.assertEqual(r.returncode, 4, r.stderr)
+            self.assertIn("mutmut results timed out after 1s", r.stderr)
+            time.sleep(2)
+            self.assertFalse(
+                sentinel.exists(), "mutmut results timeout left a child running"
+            )
+
+    def test_pitest_nonzero_exit_blocks_even_with_fresh_report(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(
+                repo, languages=["java"], files=["src/main/java/App.java"]
+            )
+            (repo / "pom.xml").write_text(
+                "<project><build><plugins><plugin>"
+                "<groupId>org.pitest</groupId>"
+                "<artifactId>pitest-maven</artifactId>"
+                "</plugin></plugins></build></project>\n",
+                encoding="utf-8",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "mvn",
+                "mkdir -p target/pit-reports/run\n"
+                "printf '%s\\n' '<mutations />' > target/pit-reports/run/mutations.xml\n"
+                "exit 1",
+            )
+
+            r = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                    "--timeout", "5",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+
+            self.assertEqual(r.returncode, 4, r.stderr)
+            self.assertIn("Pitest failed with exit code 1", r.stderr)
+            self.assertEqual(
+                (out_dir / "mutation-findings.jsonl").read_text(encoding="utf-8"),
+                "",
+            )
+            coverage = json.loads(scope.read_text())["mutation_coverage"]
+            self.assertFalse(coverage["complete"])
+            self.assertEqual(coverage["status"], "failed")
+
+    def test_later_language_failure_discards_earlier_findings_atomically(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            scope = _write_scope(
+                repo,
+                languages=["javascript", "python"],
+                files=["x.js", "x.py"],
+            )
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "devDependencies": {"@stryker-mutator/core": "1.0.0"},
+                }),
+                encoding="utf-8",
+            )
+            (repo / "stryker.config.json").write_text("{}\n", encoding="utf-8")
+            stryker_report = json.dumps({
+                "files": {
+                    "x.js": {
+                        "mutants": [{
+                            "status": "Survived",
+                            "mutatorName": "BooleanLiteral",
+                            "description": "flip boolean",
+                            "location": {"start": {"line": 1, "column": 0}},
+                        }],
+                    },
+                },
+            })
+            _write_executable(
+                repo / "node_modules" / ".bin" / "stryker",
+                "mkdir -p reports/mutation\n"
+                f"printf '%s\\n' '{stryker_report}' > reports/mutation/mutation.json",
+            )
+            _configure_mutmut(repo)
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "mutmut",
+                'if [[ "${1:-}" == "run" ]]; then exit 0; fi\n'
+                'if [[ "${1:-}" == "results" ]]; then exit 2; fi\n'
+                "exit 2",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("mutmut results failed", result.stderr)
+            self.assertEqual(
+                (out_dir / "mutation-findings.jsonl").read_text(encoding="utf-8"),
+                "",
+            )
+            self.assertFalse((out_dir / ".mutation-findings.pending.jsonl").exists())
+            coverage = json.loads(scope.read_text())["mutation_coverage"]
+            self.assertFalse(coverage["complete"])
+            self.assertEqual(coverage["status"], "failed")
+
+    def test_invalid_pitest_schema_blocks_atomically(self):
+        reports = (
+            ("<report />", "root element must be mutations"),
+            ("<mutations />", "no mutations were evaluated"),
+        )
+        for report, expected in reports:
+            with self.subTest(report=report), tempfile.TemporaryDirectory() as t:
+                repo = Path(t)
+                scope = _write_scope(
+                    repo,
+                    languages=["java"],
+                    files=["src/main/java/App.java"],
+                )
+                (repo / "pom.xml").write_text(
+                    "<project><build><plugins><plugin>"
+                    "<groupId>org.pitest</groupId>"
+                    "<artifactId>pitest-maven</artifactId>"
+                    "</plugin></plugins></build></project>\n",
+                    encoding="utf-8",
+                )
+                out_dir = repo / "out"
+                out_dir.mkdir()
+                bin_dir = repo / "bin"
+                _write_executable(
+                    bin_dir / "mvn",
+                    "mkdir -p target/pit-reports/run\n"
+                    f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
+                )
+
+                result = subprocess.run(
+                    [
+                        "bash", str(RUN_MUTATION),
+                        "--scope", str(scope),
+                        "--output-dir", str(out_dir),
+                        "--repo", str(repo),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                    env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                )
+                findings_text = (
+                    out_dir / "mutation-findings.jsonl"
+                ).read_text(encoding="utf-8")
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn(expected, result.stderr)
+            self.assertEqual(findings_text, "")
+
+    def test_pitest_no_coverage_is_a_finding(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            changed = "src/main/java/com/example/App.java"
+            scope = _write_scope(repo, languages=["java"], files=[changed])
+            (repo / "pom.xml").write_text(
+                "<project><build><plugins><plugin>"
+                "<groupId>org.pitest</groupId>"
+                "<artifactId>pitest-maven</artifactId>"
+                "</plugin></plugins></build></project>\n",
+                encoding="utf-8",
+            )
+            report = (
+                '<mutations><mutation status="NO_COVERAGE">'
+                "<sourceFile>App.java</sourceFile>"
+                "<mutatedClass>com.example.App</mutatedClass>"
+                "<lineNumber>11</lineNumber>"
+                "<description>removed call</description>"
+                "</mutation></mutations>"
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            bin_dir = repo / "bin"
+            _write_executable(
+                bin_dir / "mvn",
+                "mkdir -p target/pit-reports/run\n"
+                f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+            findings_text = (out_dir / "mutation-findings.jsonl").read_text(
+                encoding="utf-8"
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        finding = json.loads(findings_text)
+        self.assertIn("Uncovered Pitest mutant", finding["finding"])
+
+    def test_pitest_survivor_maps_by_package_path(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            changed = "module-a/src/main/java/com/example/App.java"
+            scope = _write_scope(repo, languages=["java"], files=[changed])
+            (repo / "pom.xml").write_text(
+                "<project><build><plugins><plugin>"
+                "<groupId>org.pitest</groupId>"
+                "<artifactId>pitest-maven</artifactId>"
+                "</plugin></plugins></build></project>\n",
+                encoding="utf-8",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            bin_dir = repo / "bin"
+            report = (
+                '<mutations><mutation status="SURVIVED">'
+                "<sourceFile>App.java</sourceFile>"
+                "<mutatedClass>com.example.App</mutatedClass>"
+                "<lineNumber>17</lineNumber>"
+                "<description>changed conditional boundary</description>"
+                "</mutation></mutations>"
+            )
+            _write_executable(
+                bin_dir / "mvn",
+                "mkdir -p target/pit-reports/run\n"
+                f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            findings = [
+                json.loads(line)
+                for line in (out_dir / "mutation-findings.jsonl").read_text().splitlines()
+            ]
+            self.assertEqual(len(findings), 1)
+            self.assertEqual(findings[0]["location"], f"{changed}:17")
+
+    def test_pitest_ambiguous_multimodule_source_blocks_atomically(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            changed = [
+                "module-a/src/main/java/com/example/App.java",
+                "module-b/src/main/java/com/example/App.java",
+            ]
+            scope = _write_scope(repo, languages=["java"], files=changed)
+            (repo / "pom.xml").write_text(
+                "<project><build><plugins><plugin>"
+                "<groupId>org.pitest</groupId>"
+                "<artifactId>pitest-maven</artifactId>"
+                "</plugin></plugins></build></project>\n",
+                encoding="utf-8",
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            bin_dir = repo / "bin"
+            report = (
+                '<mutations><mutation status="SURVIVED">'
+                "<sourceFile>App.java</sourceFile>"
+                "<mutatedClass>com.example.App</mutatedClass>"
+                "<lineNumber>17</lineNumber>"
+                "<description>changed conditional boundary</description>"
+                "</mutation></mutations>"
+            )
+            _write_executable(
+                bin_dir / "mvn",
+                "mkdir -p target/pit-reports/run\n"
+                f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(RUN_MUTATION),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=10,
+                env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+            )
+
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("ambiguous Pitest source mapping", result.stderr)
+            self.assertIn("maps each package/source pair", result.stderr)
+            self.assertIn("run one module at a time", result.stderr)
+            self.assertIn("ERROR: rerun: bash", result.stderr)
+            self.assertEqual(
+                (out_dir / "mutation-findings.jsonl").read_text(encoding="utf-8"),
+                "",
+            )
+
+    def test_maven_wrapper_satisfies_runner_preflight_without_global_maven(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "pom.xml").write_text(
+                "<project><build><plugins><plugin>"
+                "<groupId>org.pitest</groupId>"
+                "<artifactId>pitest-maven</artifactId>"
+                "</plugin></plugins></build></project>\n",
+                encoding="utf-8",
+            )
+            _write_executable(repo / "mvnw")
+
+            result = self._run(
+                repo,
+                env={"MUTATION_DRY_RUN": "1", "PATH": "/usr/bin:/bin"},
+                languages=["java"],
+                files=["src/main/java/App.java"],
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertNotIn("mutation prerequisite 'mvn' is missing", result.stderr)
 
     def test_mutation_rejects_invalid_timeout(self):
         with tempfile.TemporaryDirectory() as t:
@@ -473,8 +1504,8 @@ class TestMutationDryRun(unittest.TestCase):
             self.assertEqual(r.returncode, 2)
             self.assertIn("timeout must be a positive integer", r.stderr)
 
-    def test_javascript_without_config_skips(self):
-        """JS/TS dispatch requires a stryker config or @stryker-mutator/core in package.json."""
+    def test_javascript_without_config_blocks(self):
+        """JS/TS mutation requires both a declared binary and project config."""
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             (repo / "package.json").write_text(
@@ -482,17 +1513,33 @@ class TestMutationDryRun(unittest.TestCase):
                 encoding="utf-8",
             )
             r = self._run(repo, languages=["javascript"], files=["x.js"])
-        self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertIn("stryker:", r.stderr)
-        self.assertIn("no stryker config", r.stderr)
+        self.assertEqual(r.returncode, 3, r.stderr)
+        self.assertIn("mutation prerequisite 'stryker' is missing", r.stderr)
+        self.assertIn("npm install --save-dev @stryker-mutator/core", r.stderr)
+        self.assertIn("node_modules/.bin/stryker init", r.stderr)
 
-    def test_jvm_without_pom_skips(self):
+    def test_jvm_without_supported_build_manifest_blocks(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             r = self._run(repo, languages=["java"], files=["X.java"])
-        self.assertEqual(r.returncode, 0, r.stderr)
-        self.assertIn("pitest:", r.stderr)
-        self.assertIn("no pom.xml", r.stderr)
+        self.assertEqual(r.returncode, 3, r.stderr)
+        self.assertIn("mutation prerequisite 'pitest-build' is missing", r.stderr)
+        self.assertIn("project's existing build system", r.stderr)
+
+    def test_gradle_remediation_never_suggests_maven(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "build.gradle.kts").write_text(
+                "plugins { java }\n", encoding="utf-8"
+            )
+            _write_executable(repo / "gradlew")
+            r = self._run(repo, languages=["java"], files=["src/App.java"])
+        self.assertEqual(r.returncode, 3, r.stderr)
+        self.assertIn("mutation prerequisite 'pitest-gradle' is missing", r.stderr)
+        self.assertIn("info.solidsoft.pitest", r.stderr)
+        self.assertIn("./gradlew pitest", r.stderr)
+        self.assertNotIn("Maven", r.stderr)
+        self.assertNotIn("pom.xml", r.stderr)
 
     def test_exit_2_on_missing_scope_arg(self):
         with tempfile.TemporaryDirectory() as t:
@@ -526,10 +1573,14 @@ class TestReconcileToggle(unittest.TestCase):
                 "# Spec\n\n## Acceptance criteria\n\n- [ ] Item one is asserted\n",
                 encoding="utf-8",
             )
+            scope = _write_scope(repo, languages=[], files=[])
+            output = repo / "reconcile.json"
             r = subprocess.run(
                 [
                     sys.executable, str(run_py),
                     "--repo", str(repo),
+                    "--scope", str(scope),
+                    "--output", str(output),
                     "--reconcile", str(spec),
                 ],
                 capture_output=True, text=True, timeout=10,
@@ -547,22 +1598,29 @@ class TestReconcileToggle(unittest.TestCase):
         self.assertIn("DECISION-OVERRIDE", rec)
         self.assertIn("CONSISTENT", rec)
 
-    def test_empty_auto_resolves_to_empty_findings(self):
-        """`@auto` in a repo with no planning artifacts → empty findings."""
+    def test_empty_auto_blocks_instead_of_reducing_intent_coverage(self):
         run_py = SKILL_SCRIPTS / "derivation" / "run.py"
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
+            scope = _write_scope(repo, languages=[], files=[])
+            output = repo / "reconcile.json"
             r = subprocess.run(
                 [
                     sys.executable, str(run_py),
-                    "--repo", str(repo), "--reconcile", "@auto",
+                    "--repo", str(repo),
+                    "--scope", str(scope),
+                    "--output", str(output),
+                    "--reconcile", "@auto",
                 ],
                 capture_output=True, text=True, timeout=10,
                 env={**os.environ, "DERIVATION_SKIP_GH": "1"},
             )
-        self.assertEqual(r.returncode, 0, r.stderr)
-        out = json.loads(r.stdout)
-        self.assertEqual(out["findings"], [])
+            self.assertEqual(r.returncode, 3, r.stderr)
+            self.assertIn("@auto found no planning artifact", r.stderr)
+            self.assertIn("then rerun Code Ultrareview", r.stderr)
+            coverage = json.loads(scope.read_text())["reconcile_coverage"]
+            self.assertFalse(coverage["complete"])
+            self.assertEqual(coverage["status"], "blocked")
 
 
 # ---------------------------------------------------------------------------
@@ -619,6 +1677,16 @@ class TestCompositionVerifyAndMutation(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             scope = _write_scope(repo, languages=["python"], files=["x.py"])
+            _configure_mutmut(repo)
+            (repo / "test_gate.py").write_text(
+                "import unittest\n\n"
+                "class TestGate(unittest.TestCase):\n"
+                "    def test_passes(self):\n"
+                "        self.assertTrue(True)\n",
+                encoding="utf-8",
+            )
+            bin_dir = repo / "bin"
+            _write_executable(bin_dir / "mutmut")
             findings_path = _write_findings(repo / "axis.jsonl", [
                 {
                     "axis": "correctness", "severity": "High",
@@ -630,7 +1698,7 @@ class TestCompositionVerifyAndMutation(unittest.TestCase):
             mutation_out_dir = repo / "mut"
             mutation_out_dir.mkdir()
 
-            # 1. Build verification — no build tool detected → pass-through.
+            # 1. Build verification — the canonical Python test gate passes.
             r1 = subprocess.run(
                 [
                     sys.executable, str(RUN_BUILD_VERIFY),
@@ -650,12 +1718,16 @@ class TestCompositionVerifyAndMutation(unittest.TestCase):
                     "--repo", str(repo),
                 ],
                 capture_output=True, text=True, timeout=15,
-                env={**os.environ, "MUTATION_DRY_RUN": "1"},
+                env={
+                    **os.environ,
+                    "MUTATION_DRY_RUN": "1",
+                    "PATH": f"{bin_dir}:/usr/bin:/bin",
+                },
             )
 
             self.assertEqual(r1.returncode, 0, r1.stderr)
             self.assertEqual(r2.returncode, 0, r2.stderr)
-            # Build verification preserved the input.
+            # A passing generic test gate never changes finding confidence.
             verify_lines = [l for l in verify_out.read_text(encoding="utf-8").splitlines() if l.strip()]
             self.assertEqual(len(verify_lines), 1)
             self.assertEqual(json.loads(verify_lines[0])["confidence"], 70)
@@ -666,7 +1738,7 @@ class TestCompositionVerifyAndMutation(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Acceptance criteria — keep CONFIDENCE_THRESHOLD / PROMOTION_BONUS visible
+# Validator promotion constants remain centralized in synthesis_core.
 # ---------------------------------------------------------------------------
 
 
@@ -684,29 +1756,13 @@ class TestPhaseConstants(unittest.TestCase):
     def test_promotion_cap_is_95(self):
         self.assertEqual(synthesis_core.PROMOTION_CAP, 95)
 
-    def test_build_relevant_axes_match_spec(self):
-        """Spec WS-6: build verification promotes bug-class axes only."""
-        self.assertEqual(
-            run_build_verify.BUILD_RELEVANT_AXES,
-            frozenset({"correctness", "tests", "design-api", "performance"}),
-        )
-
-
 # ---------------------------------------------------------------------------
-# Build-verify sub-80 filter — confidence-0 stays excluded
+# Build verification never changes finding confidence.
 # ---------------------------------------------------------------------------
 
 
-class TestBuildVerifyExcludesConfZero(unittest.TestCase):
-    """`apply_a2` drops confidence-0 findings as flagged false positives.
-    `run_build_verification` must NOT re-promote a conf-0 finding above
-    threshold even when the build fails — confidence-0 has carried explicit
-    intent to drop from the rubric.
-    """
-
-    def test_conf_zero_finding_is_not_iterated(self):
-        # A failing build that, if conf-0 leaked into the sub-80 list, would
-        # promote it to threshold via `make_verdict_fn(build_failed=True)`.
+class TestBuildVerifyPreservesConfidence(unittest.TestCase):
+    def test_failed_gate_preserves_zero_and_sub80_findings(self):
         conf_zero = {
             "axis": "correctness",
             "severity": "Medium",
@@ -724,13 +1780,19 @@ class TestBuildVerifyExcludesConfZero(unittest.TestCase):
             "confidence": 60,
         }
 
-        # Bypass the real subprocess — return a non-zero exit (failing build).
+        # Bypass the real subprocess with a deterministic failing gate.
         with mock.patch.object(run_build_verify, "_run_build",
-                               return_value=(1, "ran")):
+                               return_value={
+                                   "build_status": "failed",
+                                   "exit_code": 1,
+                                   "stdout_tail": "",
+                                   "stderr_tail": "failure",
+                               }):
             out, meta = run_build_verify.run(
                 repo=Path("."),
                 findings=[conf_zero, conf_sub80],
                 test_command="true",
+                tool="python3",
                 tool_available=True,
                 timeout=5,
             )
@@ -740,15 +1802,10 @@ class TestBuildVerifyExcludesConfZero(unittest.TestCase):
         survivors_by_loc = {f["location"]: f for f in out}
         self.assertIn("src/a.ts:10", survivors_by_loc)
         self.assertEqual(survivors_by_loc["src/a.ts:10"]["confidence"], 0)
-        # The genuine sub-80 correctness finding WAS promoted to ≥ threshold
-        # (correctness ∈ BUILD_RELEVANT_AXES, build failed → "confirmed").
         self.assertIn("src/b.ts:5", survivors_by_loc)
-        self.assertGreaterEqual(
-            survivors_by_loc["src/b.ts:5"]["confidence"],
-            synthesis_core.CONFIDENCE_THRESHOLD,
-        )
-        # Meta reports a single promotion (only the genuine sub-80).
-        self.assertEqual(meta["promoted_count"], 1)
+        self.assertEqual(survivors_by_loc["src/b.ts:5"]["confidence"], 60)
+        self.assertEqual(meta["promoted_count"], 0)
+        self.assertFalse(meta["complete"])
 
 
 if __name__ == "__main__":

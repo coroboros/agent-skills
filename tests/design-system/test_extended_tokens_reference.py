@@ -4,7 +4,6 @@ the audit-extensions script and the cross-skill convention both depend on
 the file's content matching the names the script encodes.
 """
 
-import re
 import sys
 import unittest
 from pathlib import Path
@@ -98,20 +97,18 @@ class TestSkillMdRulesBullet(unittest.TestCase):
     def test_rules_section_documents_extended_tokens(self):
         # The Rules bullet must name the extension namespaces and the rule.
         self.assertIn("Extended tokens", self.text)
-        self.assertIn("MUST NOT bind to extension namespaces", self.text)
+        self.assertIn("deliberately forbids using them to bind extension semantics", self.text)
+        self.assertIn("accepts unknown component properties with a warning", self.text)
 
     def test_subcommand_routing_includes_audit_extensions(self):
         """The subcommand routing table must register audit-extensions."""
         self.assertIn("audit-extensions", self.text)
         self.assertIn("subcommand-audit-extensions.md", self.text)
 
-    def test_argument_hint_includes_audit_extensions(self):
-        m = re.search(r'argument-hint:\s*"([^"]+)"', self.text)
-        self.assertIsNotNone(m, "argument-hint missing from frontmatter")
-        self.assertIn(
-            "audit-extensions", m.group(1),
-            "audit-extensions must be discoverable via argument-hint",
-        )
+    def test_frontmatter_uses_portable_skill_keys(self):
+        frontmatter = self.text.split("---", 2)[1]
+        for legacy_key in ("argument-hint:", "when_to_use:", "paths:"):
+            self.assertNotIn(legacy_key, frontmatter)
 
 
 class TestSpecMdExtendingRules(unittest.TestCase):
@@ -123,11 +120,8 @@ class TestSpecMdExtendingRules(unittest.TestCase):
 
     def test_components_canonical_rule_documented(self):
         # The bullet must name the closed set rule explicitly.
-        self.assertRegex(
-            self.text,
-            r"closed set of 8 component property tokens|MUST stay within the closed set",
-            "design-md-spec.md must carry the components-canonical-only rule",
-        )
+        self.assertIn("closed set of 8 portable component properties", self.text)
+        self.assertIn("accepts an unknown property with a warning", self.text)
 
     def test_cross_references_extended_tokens_md(self):
         self.assertIn("extended-tokens.md", self.text)

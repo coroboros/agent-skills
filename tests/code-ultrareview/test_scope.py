@@ -392,6 +392,61 @@ class TestDetectLanguages(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Target-side changed line ranges
+# ---------------------------------------------------------------------------
+
+
+class TestChangedLineRanges(unittest.TestCase):
+    def test_dirty_tree_tracks_modified_hunks_and_full_untracked_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            _init_repo(repo)
+            tracked = repo / "src" / "app.py"
+            tracked.parent.mkdir()
+            tracked.write_text(
+                "one\ntwo\nthree\nfour\nfive\nsix\n",
+                encoding="utf-8",
+            )
+            _commit(repo)
+            tracked.write_text(
+                "one\nTWO\nthree\nfour\nFIVE\nsix\n",
+                encoding="utf-8",
+            )
+            untracked = repo / "src" / "new.py"
+            untracked.write_text("alpha\nbeta\n", encoding="utf-8")
+
+            ranges = scope.changed_line_ranges(
+                repo,
+                "HEAD",
+                "HEAD",
+                ["src/app.py", "src/new.py"],
+                dirty_tree=True,
+            )
+
+        self.assertEqual(ranges["src/app.py"], [[2, 2], [5, 5]])
+        self.assertEqual(ranges["src/new.py"], [[1, 2]])
+
+    def test_deletion_only_hunk_has_no_target_lines(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            _init_repo(repo)
+            tracked = repo / "app.py"
+            tracked.write_text("one\ntwo\nthree\n", encoding="utf-8")
+            _commit(repo)
+            tracked.write_text("one\nthree\n", encoding="utf-8")
+
+            ranges = scope.changed_line_ranges(
+                repo,
+                "HEAD",
+                "HEAD",
+                ["app.py"],
+                dirty_tree=True,
+            )
+
+        self.assertEqual(ranges["app.py"], [])
+
+
+# ---------------------------------------------------------------------------
 # End-to-end scope assembly (dirty-tree path — bypasses resolve_base.sh)
 # ---------------------------------------------------------------------------
 
@@ -436,6 +491,10 @@ class TestBuildScopeDirtyTree(unittest.TestCase):
             self.assertTrue(payload["activates_coherence"],
                             "marketplace.json change must trigger coherence")
             self.assertIn(".claude-plugin/marketplace.json", payload["files_touched_list"])
+            self.assertEqual(
+                payload["changed_line_ranges"][".claude-plugin/marketplace.json"],
+                [[1, 1]],
+            )
             self.assertIn("CLAUDE.md", payload["claude_md_chain"])
             self.assertEqual(payload["tools_skipped"], [])
             self.assertEqual(payload["rule"], "dirty-tree")

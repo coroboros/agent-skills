@@ -36,7 +36,7 @@ Smart defaults keep the common case (reviewing local changes before commit) a si
    ```bash
    bash "$SKILL_DIR"/scripts/diff.sh <before> <after>
    ```
-3. Parse `RESULT: regression=true|false` and the JSON at `RESULT: json=<tmp>`.
+3. Parse `RESULT: regression=true|false` and the JSON at `RESULT: json=<tmp>`, then remove that JSON temp file.
 4. Compose the report.
 
 **Git-aware mode** (0 or 1 positional args):
@@ -115,4 +115,4 @@ The skill's `diff` wraps this with a human-readable summary — useful locally, 
 - **`<before>` not tracked by git** (git-aware mode): surface the error, ask the user to provide an explicit `<before>` path.
 - **Identical files**: report `✅ no regression` with empty change lists; suggest no action.
 - **Brand-new file** (no `<before>` in git): suggest running `audit` on the new file instead of `diff`.
-- **CLI unavailable**: the wrapper returns `RESULT: status=designmd-missing`; run the documented manual structural comparison and state that token-level regression detection was not available.
+- **CLI resolution or execution failure**: stop and surface the emitted `status`, optional `install`, `remediation`, and exact `rerun`; a textual comparison cannot establish token-level or lint regression coverage.

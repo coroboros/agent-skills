@@ -132,9 +132,10 @@ class TestAnthropicVerbatimReferenced(unittest.TestCase):
 
 class TestCorrectnessBrief(unittest.TestCase):
 
-    def test_lists_semgrep_as_tool_input(self):
-        body = _brief("correctness")
-        self.assertIn("semgrep", body.lower())
+    def test_has_no_deterministic_tool_input(self):
+        body = _brief("correctness").lower()
+        self.assertIn("no deterministic tool findings route to correctness", body)
+        self.assertIn("every accepted semgrep finding routes to the performance axis", body)
 
     def test_excludes_typechecker_caught_issues(self):
         body = _brief("correctness")
@@ -194,7 +195,9 @@ class TestStyleBrief(unittest.TestCase):
 
     def test_graceful_degradation_when_no_baseline(self):
         body = _brief("style")
-        self.assertIn("no rules baseline", body.lower())
+        self.assertIn("Style axis still runs", body)
+        self.assertIn("repeated neighboring repository evidence", body)
+        self.assertIn("never marked skipped", body)
 
 
 class TestIntentBrief(unittest.TestCase):
@@ -238,6 +241,16 @@ class TestPerformanceBrief(unittest.TestCase):
         body = _brief("performance")
         self.assertIn("benchmarks", body.lower())
         self.assertIn("flamegraph", body.lower())
+
+    def test_code_bearing_skills_are_not_skipped(self):
+        body = _brief("performance")
+        self.assertIn("Review executable scripts", body)
+        self.assertIn('"no_findings":true', body)
+        self.assertNotIn("Skipped — skills repo", body)
+
+    def test_semgrep_rules_require_prefix_and_axis_metadata(self):
+        body = _brief("performance")
+        self.assertIn("starts with `code-ultrareview-` AND", body)
 
 
 class TestCoherenceBrief(unittest.TestCase):

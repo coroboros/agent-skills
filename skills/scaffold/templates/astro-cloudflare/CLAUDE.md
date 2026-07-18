@@ -10,8 +10,8 @@ See @README.md for project overview and @package.json for available scripts.
 
 ## UI
 - Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
-- If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
-- Otherwise validate directly with the installed CLI: `designmd lint DESIGN.md`
+- If `/design-system` is installed (`skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
+- Otherwise validate directly with the installed project CLI: `pnpm design:audit`
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
 - Tailwind utilities mapped to DESIGN.md tokens via `tailwind.config.ts`
 - CSS custom properties in `src/styles/global.css`
@@ -25,6 +25,7 @@ pnpm preview          # Preview built app locally (workerd)
 pnpm deploy           # Build + wrangler deploy
 pnpm check            # biome check --write
 pnpm typecheck        # astro check && tsc --noEmit
+pnpm design:audit     # Validate DESIGN.md with the project-local canonical CLI
 ```
 
 ## Key decisions

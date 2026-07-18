@@ -7,6 +7,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=resolve-designmd.sh
 source "$SCRIPT_DIR/resolve-designmd.sh"
+ORIGINAL_ARGS=("$@")
 
 usage() {
   echo "usage: diff.sh <before> <after>" >&2
@@ -16,6 +17,7 @@ usage() {
 [[ $# -eq 2 ]] || usage
 before="$1"
 after="$2"
+RERUN="$(designmd_format_command bash "$SCRIPT_DIR/diff.sh" "${ORIGINAL_ARGS[@]}")"
 
 if [[ ! -f "$before" ]]; then
   echo "RESULT: status=before-not-found"
@@ -28,24 +30,38 @@ if [[ ! -f "$after" ]]; then
   exit 1
 fi
 
-if ! DESIGNMD="$(resolve_designmd "$after")"; then
-  echo "RESULT: status=designmd-missing"
+if resolve_designmd "$after"; then
+  :
+else
+  resolution_rc=$?
+  emit_designmd_resolution_error "$after" "$resolution_rc" "$RERUN"
   exit 1
 fi
 
-json_tmp="$(mktemp -t design-diff-XXXXXX).json"
-stderr_tmp="$(mktemp -t design-diff-stderr-XXXXXX).log"
+json_tmp="$(mktemp -t design-diff-json-XXXXXX)"
+stderr_tmp="$(mktemp -t design-diff-stderr-XXXXXX)"
 
 # `diff` exits 1 on regression, 0 on no regression. Both are successful CLI runs.
 set +e
-"$DESIGNMD" diff "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
+run_designmd diff --format json "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 
 if [[ $rc -gt 1 ]]; then
+  rm -f "$json_tmp"
   echo "RESULT: status=cli-failed"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: stderr=$stderr_tmp"
+  emit_designmd_runtime_repair "$after" "$RERUN"
+  exit 1
+fi
+
+if ! python3 "$SCRIPT_DIR/validate-output.py" diff "$json_tmp" --exit-code "$rc"; then
+  echo "RESULT: status=cli-invalid-output"
+  echo "RESULT: exit-code=$rc"
+  echo "RESULT: json=$json_tmp"
+  echo "RESULT: stderr=$stderr_tmp"
+  emit_designmd_runtime_repair "$after" "$RERUN"
   exit 1
 fi
 
@@ -61,5 +77,7 @@ echo "RESULT: after=$after"
 echo "RESULT: regression=$regression"
 echo "RESULT: exit-code=$rc"
 echo "RESULT: json=$json_tmp"
+emit_designmd_metadata
+rm -f "$stderr_tmp"
 # Propagate rc so the script is CI-gate friendly: exit 0 no regression, 1 on regression.
 exit "$rc"

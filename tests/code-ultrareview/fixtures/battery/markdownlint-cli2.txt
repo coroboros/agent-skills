@@ -1,0 +1,2 @@
+README.md:5 error MD013/line-length Line length [Expected: 80; Actual: 120]
+docs/guide.md:42 error MD034/no-bare-urls Bare URL used

@@ -4,7 +4,7 @@ The canonical validator for DESIGN.md files. Read this before running the CLI or
 
 - **Package**: [`@google/design.md`](https://github.com/google-labs-code/design.md/tree/main/packages/cli)
 - **Installation**: add `@google/design.md` directly to the project with its package manager (for example, `npm install --save-dev @google/design.md`) or install it so `designmd` is on `PATH`
-- **Invocation**: `designmd <command>`. The bundled wrappers prefer the nearest matching project declaration and its local or workspace-hoisted `node_modules/.bin/designmd`, then `PATH`. Do not resolve the package during agent work.
+- **Invocation**: `designmd <command>`. The bundled wrappers require the nearest matching project declaration through its local or workspace-hoisted `node_modules/.bin/designmd`, or through Yarn for a directly declared Plug'n'Play binary. They check `PATH` only when the project has no `@google/design.md` declaration. Do not resolve the package during agent work.
 - **Status**: alpha — commands, flags, and rules may change between releases
 
 Before running directly, verify availability:
@@ -13,7 +13,7 @@ Before running directly, verify availability:
 command -v designmd && designmd --help
 ```
 
-If unavailable (offline, restricted environment), fall back to manual validation against `references/design-md-spec.md`.
+If unavailable, stop the CLI-backed workflow and run the project-aware install command emitted by the wrapper. `references/design-md-spec.md` remains authoring guidance, not a replacement validator.
 
 ## Commands
 
@@ -45,7 +45,7 @@ Output shape:
       "message": "textColor (#ffffff) on backgroundColor (#1A1C1E) has contrast ratio 15.42:1 — passes WCAG AA."
     }
   ],
-  "summary": { "errors": 0, "warnings": 1, "info": 1 }
+  "summary": { "errors": 0, "warnings": 1, "infos": 1 }
 }
 ```
 
@@ -95,7 +95,7 @@ designmd spec --rules-only --format json
 
 ## Linting rules
 
-Eight rules run against a parsed DESIGN.md. Each produces findings at a fixed severity.
+Nine rules run against a parsed DESIGN.md. Each produces findings at a fixed severity.
 
 | Rule | Severity | What it checks |
 |------|----------|----------------|
@@ -107,6 +107,7 @@ Eight rules run against a parsed DESIGN.md. Each produces findings at a fixed se
 | `missing-sections` | info | Optional sections absent when other tokens exist (e.g. `rounded:` with no `spacing:`) |
 | `missing-typography` | warning | Colors defined but no typography tokens — agents fall back to defaults |
 | `section-order` | warning | Sections appear out of the canonical order defined by the spec |
+| `unknown-key` | warning | A top-level YAML key resembles a misspelling of a known schema key |
 
 Only `broken-ref` is an error — the rest are warnings or info. A clean DESIGN.md (all errors resolved, warnings reviewed) lints with `summary.errors: 0`.
 
@@ -139,7 +140,7 @@ import { lint } from '@google/design.md/linter';
 
 const report = lint(markdownString);
 console.log(report.findings);       // Finding[]
-console.log(report.summary);        // { errors, warnings, info }
+console.log(report.summary);        // { errors, warnings, infos }
 console.log(report.designSystem);   // Parsed DesignSystemState
 ```
 
