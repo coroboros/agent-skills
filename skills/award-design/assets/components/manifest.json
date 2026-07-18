@@ -3649,6 +3649,19 @@
       "deps": [],
       "whenToUse": "The fine pointer DRIVING the scene's reveal — one pointer machine (differential lerp 0.1), two channels. ENGINE: onPoint(nx, ny, engaged) streams the lerped pointer in NDC (-1..1, y up, the Three convention — drive-verified enter at exactly (-0.5, +0.5)) for the delegated scene's reveal-mask uniform / spotlight / camera offset; on leave it eases home and stops after one final (0,0,false) — drive-verified 94 emits then silence. DOM LENS (no engine needed): a circular lens the component builds carries the authored-hidden [data-psr-detail] plate, translating to the pointer while the detail counter-translates — drive-verified registration lensX+detailX=0.00 at every sweep sample, the lerp trailing 82→125px; leave settles to center with the rAF loop verifiably stopped. Compositor-clean (two transforms per frame — a moving mask/clip would repaint) and the root is clipped (the lens never bleeds the hero's bound). Ruled DISTINCT from raycast-object-state (per-MESH verbs via hitTest — the object axis; a page ships both, Hubtown does) and pointer-parallax (DOM-layer depth — this drives the MEDIUM). FINE POINTER ONLY; touch fully DORMANT (the gap's verdict — the scene runs on scroll alone; drive-verified no lens, detail hidden). Reduce: never binds (the pointer-parallax precedent; drive-verified zero emits).",
       "init": "awardPointerSceneReveal.init(root, { selector, onPoint, lerp, radius })"
+    },
+    {
+      "id": "in-scene-ambient-life",
+      "file": "in-scene-ambient-life.js",
+      "global": "awardInSceneAmbientLife",
+      "winner": "ERA (Vide Infra — particle-object cars following the road paths of the city scene); Jordan Breton (butterflies, wind-blown flora, waterfall); Messenger (abeto — a world that never freezes between gestures; its OTHER-PLAYERS drift is ruled OUT to living-presence-layer — no synthetic peers, ever)",
+      "archetypes": [
+        "immersive"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Self-animating life INSIDE the rendered world so the spine never freezes between inputs — the in-canvas sibling of the DOM idle channel. The component owns the CLOCK, GATES and KINEMATICS; the SCENE owns rendering: each population's `apply` callback receives plain agents ({x,y,z,hx,hy,hz,phase}) and the engine paints them (instanceMatrix, sprite, 2D canvas). Three kinematic modes, one per cited register: `path` (ERA's cars — arc-length constant speed on a closed polyline, index-spread, per-agent speed jitter; drive-verified 47.3px of road travel in 0.7s at rest), `wander` (Jordan Breton's butterflies — two incommensurate sines per axis in an AABB, flutter phase clock), `drift` (wind/waterfall/snow — directional flow wrapping its bounds plus lateral sway). DETERMINISTIC by law: zero Math.random — seeded fract-sine hash only, the same populations compose the same world every load; the pose is a pure function of accumulated t, so parking freezes mid-gesture and resuming continues without a jump. Closed-world grounds: populations are DATA fed to a library init (boundary verdict §1.8) — the hand rAF loop a builder would otherwise write is CW-RAF-LOOP. Ruled DISTINCT from ambient-idle (authored DOM breathing, no world) and living-presence-layer (LIVE peer data, never synthetic). Paints nothing, injects no stylesheet, carries no audio. Reduce: the loop never starts — one composed t=0 still of an inhabited world.",
+      "init": "awardInSceneAmbientLife.init(root, { populations, onTick })"
     }
   ]
 }
