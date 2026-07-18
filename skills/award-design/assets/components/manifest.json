@@ -1614,6 +1614,180 @@
       },
       "whenToUse": "No marketing hero, no prose — the 100svh fold IS a dense index of oversized title rows locked to ONE shared grid (--_cols defined once, every row locks to it) over a live ground stage (pointer-events:none decor the builder pairs with shader-surface / webgl-scene(delegated)). The enhancer owns the two mechanics: (1) the BOOT — row cells rise masked translate3d(0,101%,0)->0 under the row's overflow:clip, staggered per row and cell, fire-once on first view via WAAPI fill:backwards (drive-verified from document start: 69 distinct states, row0 mid-rise at 52px while row4 held at its 101% seed, decelerating settle, data-ad-tig-boot cleared at the end; under ?rm zero boot frames — the authored index IS the fold); (2) the BRIDGE — 'the whole page is the index': the hovered row's index publishes on the root as data-ad-tig-hover, a discrete write on change, so the ground keys imagery off it (drive-verified: hover row 1 -> attr '1', the Helix plate faded to 1 while plate 0 dropped to 0; still publishes under rm). The row hover grammar itself is the PAIRED index-row-hover (drive-verified through the pairing: hovered row full, siblings 0.45, meta surfaced, 2px accent material line) — never duplicated in the form. Rows stay REAL links, no click handler exists (drive-verified: click -> #p-helix at viewport top); the on-click route-morph climax is webgl-scene(delegated) territory. Ruled DISTINCT from index-list (the editorial row-list BODY under index-reel-header) while sharing its laws — one shared row grid, a repeated row slot, the same pairing.",
       "init": "awardTypeIndexGrid.init(root, { selector })"
+    },
+    {
+      "id": "about-overlay-footer",
+      "css": "forms/about-overlay-footer.css",
+      "js": "forms/about-overlay-footer.js",
+      "global": "awardAboutOverlayFooter",
+      "winner": "Aristide Benoist Portfolio 2021 (SOTD 2021-06-24 + SOTM June 2021 — the About overlay DOUBLES as the footer: clients wall + awards ledger 'Site of the Day x30, Developer Award x27' + 'ARISTIDE BENOIST 2026®', typeset not templated; already flagged MISSING:about-overlay-footer in recipes.json — the about-overlay `form` of type-index-aristide)",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "close",
+          "element": "button",
+          "required": false
+        },
+        {
+          "name": "identity",
+          "element": "h2",
+          "required": true
+        },
+        {
+          "name": "lede",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "clients",
+          "element": "div",
+          "required": false
+        },
+        {
+          "name": "ledger",
+          "element": "div",
+          "required": false
+        },
+        {
+          "name": "contact",
+          "element": "nav",
+          "required": true
+        },
+        {
+          "name": "signoff",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "density": [
+          "standard",
+          "dense"
+        ]
+      },
+      "pairs": {
+        "identity": [
+          "kinetic-reveal"
+        ],
+        "clients": [
+          "index-row-hover"
+        ],
+        "contact": [
+          "accent-link",
+          "scramble-decode"
+        ]
+      },
+      "whenToUse": "The type-index close: the site's ONE prose surface is BOTH the page's real in-flow footer (a dead script leaves it standing whole — drive-verified under ?nojs: the About anchor jumped to the footer in flow, nothing gated) AND the overlay the enhancer promotes over the live index on an About trigger ([data-ad-aof-open], a real anchor to the footer's fragment). Drive-verified open: data-mode='overlay' + position:fixed inset 0 over the live index, role=dialog + aria-modal, every sibling inert (6 counted), body scroll locked, focus on the un-hidden close control, Tab cycling close→mail→Instagram→close; Esc closed it — mode back to flow, inert released, scroll restored, focus returned to the trigger. Ruled DISTINCT from close-panel (in-flow pre-footer ask, never an overlay), valediction-footer (in-flow bookend with a one-shot palette flip) and gated-splash (a JS-ADDED consent gate authored hidden — the OPPOSITE floor: this form is real page content with no JS; only its overlay costume is JS-added). The stylesheet ships zero motion and hides nothing; the open/close rise is enhancer WAAPI, instant under reduce.",
+      "init": "awardAboutOverlayFooter.init(root, { selector, openSelector })"
+    },
+    {
+      "id": "corner-counter-boot",
+      "css": "forms/corner-counter-boot.css",
+      "js": "forms/corner-counter-boot.js",
+      "global": "awardCornerCounterBoot",
+      "winner": "Aristide Benoist Portfolio 2021 ('a corner counter boots straight into the index — no marketing hero, no prose'; already flagged MISSING:corner-counter-boot in recipes.json — the counter-boot `form` of type-index-aristide. The digit-exit translate3d(-110%,0,0) and the 0-100 range are carried from the reference's winner-verified d.css/d.js read, flagged unverified in the playbook — encoded as defaults, not re-measured law)",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "count",
+          "element": "span",
+          "required": true
+        },
+        {
+          "name": "label",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "corner": [
+          "tl",
+          "tr",
+          "bl",
+          "br"
+        ]
+      },
+      "pairs": {
+        "count": [
+          "counter-odometer"
+        ]
+      },
+      "whenToUse": "The DIEGETIC boot for the type-index arc: a fixed corner counter ticks 0→100 while the page stands VISIBLE and armed behind it — drive-verified from a cold load: the honest roll eased 21→99 over the 1.8s floor, HELD at 99 until the real window load, settled to 100 with data-boot='done' (the accent adopt), then the digits exited translate3d(-110%,0,0) + the label faded (WAAPI; the settle hide an enhancer inline write) and onDone fired the index's own boot; scroll was never locked and the index rows stayed visible the whole run. Ruled DISTINCT from every merged loader on the OVERLAY axis: counter-loader / stepped-counter-loader / branded-preloader / type-forward-intro-loader are all full-viewport overlay CURTAINS that cover the page and lock scroll — the corner boot covers NOTHING (pointer-events:none corner chrome) and shares only their skip contract (drive-verified under ?rm: the authored '100' stood, data-boot='done', onDone at once; the authored text is the RESTING TRUTH, so a dead script shows the settled corner tag). sessionOnce and keep (leave the settled count as corner chrome) are options.",
+      "init": "awardCornerCounterBoot.init(root, { selector, minDuration, sessionOnce, keep, onDone })"
+    },
+    {
+      "id": "in-engine-intro",
+      "css": "forms/in-engine-intro.css",
+      "js": "forms/in-engine-intro.js",
+      "global": "awardInEngineIntro",
+      "winner": "Igloo Inc (SOTY 2024 + Dev SOTY — 'the intro renders in-engine and flows straight into the scene with NO loader boundary and the HUD is live from frame one', the winner-verified case-study arc; already flagged MISSING:in-engine-intro in recipes.json — the intro `form` of engine-world-igloo). arriveMs 2000 is a DEFAULT, not a measured winner value",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-accent",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "poster",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "mount",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "wordmark",
+          "element": "a",
+          "required": false
+        },
+        {
+          "name": "status",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cue",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {},
+      "pairs": {
+        "mount": [
+          "shader-surface"
+        ],
+        "status": [
+          "ambient-idle"
+        ]
+      },
+      "whenToUse": "The engine's own ARRIVAL CHOREOGRAPHY: the first fold is the scene waking — the enhancer hands the builder's engine an arrive(p) driver via ready(arrive) and runs ONE decelerating clock over arriveMs, feeding the engine's choreography and the poster's inline opacity from the same value each frame, so the photographic plate is frame zero and the scene resolves out of it with no cut and no loader DOM. Drive-verified from a cold load: data-engine='arriving' from t≈150ms, 121 arrive() frames 0.022→1 over ~2s, poster opacity decaying on the same clock (0.816→0.001), then the inline visibility hide + data-engine='live' (CSS routes the mount the pointer); HUD chrome (wordmark/status/cue) authored DOM, live from frame one, never gated. Ruled on the seams: DISTINCT from narrative-scene-one-loader (the story-cover HANDOFF — a READ-NOW affordance gates entry, a boundary beat by that winner's design; here arrival IS the first beat) and from in-engine-hero + in-engine-hud-fold (stage SHELLS whose poster→engine swap is a state CUT on first-frame-ready; here the swap is a driven choreography). The stage LAW is shared with both shells, mirrored under its own guard: poster-first LCP, the same mount gate (drive-verified under ?rm: no canvas, no data-engine, zero arrive calls, poster standing at opacity 1), one handle per root. A hidden tab pauses the arrival where it stands.",
+      "init": "awardInEngineIntro.init(root, { selector, mount, arriveMs })"
     }
   ],
   "components": [
@@ -3196,6 +3370,67 @@
       "deps": [],
       "whenToUse": "The archetype's signature text move and cheapest continuation channel — NOTHING else in the manifest executes it (kinetic-reveal/char-assemble/text-emphasis-fill/semantic-accent are discrete/opacity effects; cursor-proximity-typefield drives wght from POINTER distance, a different input). data-ad-vfm binds a REGISTERED variable-font axis (wght default, opsz via the attribute value) to the element's own scroll view-range with native animation-timeline: view() — keyframes interpolate font-variation-settings between per-element --ad-vfm-from/--ad-vfm-to across --ad-vfm-range (default entry 0% cover 40%). Drive-verified with a loaded Fraunces VF: computed font-variation-settings sampled mid-range at wght 465.307 and 557.742, opsz 9->144 with custom endpoints, and EXACT rewind on scroll-back (reversible by construction, zero JS per frame). Honest perf scope in the header: the timeline is native but each step re-rasterizes glyphs — display headings and wordmarks only, never body prose. Degrades every rung to a static cut: no timeline support -> @supports never applies; reduced-motion -> animation:none in the sheet (driven: 'normal' at every scroll position under rm); axis absent from the font -> font-variation-settings ignored, the authored static weight renders.",
       "init": "awardVfScrollMorph.init(root, {})"
+    },
+    {
+      "id": "idle-attract-auto-demo",
+      "file": "idle-attract-auto-demo.js",
+      "global": "awardIdleAttractAutoDemo",
+      "winner": "DESIGN-LOGIC gap, not winner-canon (the playbook's own flag) — derived from the experimental archetype's 30% Usability weighting; Bruno Simon's 'click to start' + floor path is the STATIC discoverability aid this motion-taught variant companions",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The verb-teaching attract mode for a non-standard world: after idleMs of REAL inputless idle (drive-verified engaging at t=5064/5085/5092 on a 5000ms setting) the component runs ONE scripted pass of the scene's core verb through onStart/onFrame(p)/onEnd — drive-verified performing a full 2π lap of the harness craft over the 3s demo clock — then hands control back; the FIRST real input cancels a running pass instantly (drive-verified: a keydown at 2.47s into a 3s pass ended it with completed:false). maxRuns (default 2 — teach twice, then trust) caps engagements. Ruled DISTINCT from ambient-idle and perpetual-tile-machines (décor idle channels animating authored content on period clocks, blind to input) — this is an INPUT-STATE MACHINE driving the scene's PRIMARY VERB only while input is absent; it renders nothing itself. Gated: engages only on-screen (IO) + tab visible; hidden or off-screen mid-pass cancels. Reduce: fully dormant — the static anchor carries discoverability alone.",
+      "init": "awardIdleAttractAutoDemo.init(root, { selector, idleMs, demoMs, maxRuns, onStart, onFrame, onEnd })"
+    },
+    {
+      "id": "in-3d-dom-input-bridge",
+      "file": "in-3d-dom-input-bridge.js",
+      "global": "awardIn3dDomInputBridge",
+      "winner": "Bruno's Portfolio (SOTD 2026-01-21 + Dev Award + SOTM Jan 2026 — 'standard DOM interactions (click/scroll/keyboard/touch/gamepad) are recreated as 3D raycasts', the 30% Usability floor's fallback)",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-accent"
+      ],
+      "deps": [],
+      "whenToUse": "The world-level input bridge, BOTH directions. DOM → 3D: keyboard axes (arrows/WASD; a discrete tap still nudges — drive-caught: a down+up inside one frame produced zero frames until the nudge landed; drive-verified 3×ArrowRight + 2×ArrowDown drove the rover 450,300→466,308 and Enter fired the world verb), touch-drag virtual joystick (drive-verified under the emulated touch device: a 48px drag saturated axes at x=1, rover 450→560, one zero-frame settle on release), wheel advance (the world owns the wheel — no native scroll under this stack), gamepad polling (left stick + primary-button edge). 3D → DOM: handle.setHover writes the engine's raycast hover into real DOM state — drive-verified cursor:pointer + data-ad-bridge-hover='beacon' + the aria-live status text from a real mouse move over the scene mesh. The application focus contract: the surface is a real tab stop, role=application, keys act only while it holds focus; a [data-ad-bridge-start] control ('click to start') arms the bridge and focuses the surface. Ruled DISTINCT + COMPANION to raycast-object-state (the per-MESH pointer state machine — hover/tap cue + focus proxies via the caller's hitTest; the OBJECT axis): this bridge owns the WORLD axis — locomotion channels, focus contract, and the reverse reflection; a page ships both. Loop gated by armed + IO + visibility + a live channel; zero per-frame work at rest. Reduce: the state machine still runs (interaction is not decoration).",
+      "init": "awardIn3dDomInputBridge.init(root, { label, onFrame, onAdvance, onAction, radius })"
+    },
+    {
+      "id": "journey-touch-momentum",
+      "file": "journey-touch-momentum.js",
+      "global": "awardJourneyTouchMomentum",
+      "winner": "Lusion v3 (Dev SOTY 2023, responsive 8.40) + Shader Development Studio (SOTD 2026-04-20, responsive 8.40) — both verified wheel-driven no-native-scroll scenes; Igloo Inc. Exact winner parameters unpublished — every default is a DEFAULT, not a measured value",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-accent"
+      ],
+      "deps": [],
+      "whenToUse": "The scrub for the wheel-driven in-engine journey with touch first-class: touchmove feeds the SAME position the wheel drives, release velocity becomes momentum (sampled over the last ~80ms of the gesture), and the scrub position SURVIVES the gesture — drive-verified under the emulated touch device with a 60Hz accelerating flick: position tracked the finger 0→87px, then momentum carried 87→1397px over ~1.9s with exponential decay (+207/+416/+294/+178/+102/+56/+31/+17/+7/+2 per interval), settling with the position standing. Keyboard rides the same scrub (arrows/PageUp/Down/Home/End on the focused surface — drive-verified End gliding 0→4000 through 89 decelerating camera-lerp frames over ~1.4s). NO native scroll exists and none is created (touch-action:none, wheel preventDefault). Ruled DISTINCT from smooth-scroll (Lenis wraps the NATIVE document scroll — this stack has none), horizontal-scroll-chain (welded to CONSUMED page scroll) and drag-scrub-video (pointer delta → bounded media currentTime, no inertia). Gated: the settle loop runs only on-screen + visible; hidden freezes the scrub in place. Reduce: navigable in discrete steps — drive-verified two ArrowDown → exactly 120/240, zero glide frames.",
+      "init": "awardJourneyTouchMomentum.init(root, { length, wheelRate, touchRate, lerp, decay, keyStep, onProgress })"
+    },
+    {
+      "id": "living-presence-layer",
+      "file": "living-presence-layer.js",
+      "global": "awardLivingPresenceLayer",
+      "winner": "Bruno's Portfolio (up to 30 'Whispers' — flames + country flag + short message drifting in the shared world, moderated feed, global cookie counter); Resn (KPR — a living Web3 world of participants); Messenger (other players visible)",
+      "archetypes": [
+        "experimental"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-mono"
+      ],
+      "deps": [],
+      "whenToUse": "The inhabited idle band: a websocket (or injected source with an onDown death signal) feeds peer marks drifting in a pointer-events:none aria-hidden decor layer, plus a global counter on an authored [data-ad-presence-count]. Drive-verified: 40 joins offered → the cap held at exactly 30 (the Bruno read), counter ticked 412→452, marks drifted at rest (transforms advancing over 1.2s with zero input — the wander + the lerp toward fed reseats). Presence is NEVER faked — the feed dying degrades to the solo world (drive-verified: kill → 30 marks → 0, layer standing for a reconnect; an unreachable ws:// endpoint left a silent solo world, 0 marks, no component throw). Peer label/flag land as textContent ONLY — moderation stays a server duty. In-engine worlds take the feed via onPeers (suppresses the DOM layer; the engine draws the marks). Ruled DISTINCT from ambient-idle (decorative breathing of AUTHORED elements — no data) and perpetual-tile-machines (authored content machines on period clocks): these marks are LIVE PEER DATA. Gated: socket connects only on-screen + visible, hidden/off-screen closes it; drift rAF runs only while marks exist. Reduce: wander and glide dormant — marks stand at fed positions, updates land instantly (drive-verified frozen transforms over 1.3s).",
+      "init": "awardLivingPresenceLayer.init(root, { url, source, max, onPeers })"
     }
   ]
 }

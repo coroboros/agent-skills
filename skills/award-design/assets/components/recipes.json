@@ -1068,7 +1068,7 @@
       "sections": [
         {
           "role": "intro",
-          "form": "MISSING:in-engine-intro",
+          "form": "in-engine-intro",
           "pairs": {
             "ground": "shader-surface"
           },
@@ -1101,7 +1101,7 @@
       "sections": [
         {
           "role": "counter-boot",
-          "form": "MISSING:corner-counter-boot",
+          "form": "corner-counter-boot",
           "pairs": {
             "counter": "counter-odometer"
           },
@@ -1125,7 +1125,7 @@
         },
         {
           "role": "about-overlay",
-          "form": "MISSING:about-overlay-footer",
+          "form": "about-overlay-footer",
           "pairs": {
             "rows": "index-row-hover"
           },

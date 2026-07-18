@@ -1,0 +1,103 @@
+/*
+ * corner-counter-boot — section form (winner: Aristide Benoist Portfolio
+ * 2021 — 'a corner counter boots straight into the index — no marketing
+ * hero, no prose'; already flagged MISSING:corner-counter-boot in
+ * recipes.json — the counter-boot `form` of type-index-aristide. The
+ * digit-exit read translate3d(-110%,0,0) and the 0-100 range are carried
+ * from the reference's winner-verified d.css/d.js read, flagged unverified
+ * in the playbook — encoded as the default, not re-measured law). The
+ * DIEGETIC boot: a small fixed corner counter ticks 0→100 while the page
+ * stands VISIBLE and armed behind it — the count is HUD chrome over the
+ * booting index, then its digits exit and the index's own boot choreography
+ * fires.
+ *
+ * Ruled DISTINCT from every merged loader on the overlay axis:
+ * counter-loader / stepped-counter-loader / branded-preloader are
+ * full-viewport overlay CURTAINS (they cover the page, lock body scroll,
+ * and wipe away); type-forward-intro-loader is the same full-viewport
+ * overlay run as a stylistic beat. The corner boot covers NOTHING and locks
+ * NOTHING — no overlay node, no scroll lock, pointer-events:none chrome; the
+ * page is present from first paint (the type-index arc's 'boots straight
+ * into the index'). What it shares with them is only the skip contract:
+ * reduced-motion (and sessionOnce) skip the count entirely and onDone fires.
+ *
+ * Markup contract — the authored text is the RESTING TRUTH (the finished
+ * count), so a dead script shows the settled corner tag, never a stuck 0:
+ *   <div data-ad-form="corner-counter-boot" data-corner="br">
+ *     <span data-slot="count">100</span>          required
+ *     <p    data-slot="label">ARISTIDE BENOIST</p> optional
+ *   </div>
+ *
+ * Variants: data-corner="tl|tr|bl|br" (default br — the count corner).
+ * Enhancer: forms/corner-counter-boot.js (awardCornerCounterBoot) — owns the
+ * honest roll, the digit exit, and the settle hide (an inline write, never a
+ * stylesheet state; this stylesheet ships zero motion and hides nothing).
+ * Pairs: onDone → the index boot (type-index-grid's masked row rise);
+ * count → counter-odometer (the recipes' counter pairing) when the build
+ * wants the odometer roll instead of the enhancer's plain tick.
+ * Tokens: --ad-space, --ad-ink, --ad-accent, --ad-font-mono.
+ */
+
+[data-ad-form="corner-counter-boot"] {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  display: grid;
+  gap: .35em;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+
+/* the corner variants — br is the count corner default */
+[data-ad-form="corner-counter-boot"],
+[data-ad-form="corner-counter-boot"][data-corner="br"] {
+  right: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  bottom: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  left: auto;
+  top: auto;
+  text-align: right;
+}
+[data-ad-form="corner-counter-boot"][data-corner="bl"] {
+  left: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  bottom: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  right: auto;
+  top: auto;
+  text-align: left;
+}
+[data-ad-form="corner-counter-boot"][data-corner="tr"] {
+  right: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  top: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  left: auto;
+  bottom: auto;
+  text-align: right;
+}
+[data-ad-form="corner-counter-boot"][data-corner="tl"] {
+  left: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  top: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  right: auto;
+  bottom: auto;
+  text-align: left;
+}
+
+/* the count line clips so the digit exit leaves the frame, never the page */
+[data-ad-form="corner-counter-boot"] [data-slot="count"] {
+  display: block;
+  overflow: clip;
+  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .04em;
+}
+
+/* the settled count adopts the accent — the boot's one live signal */
+[data-ad-form="corner-counter-boot"][data-boot="done"] [data-slot="count"] {
+  color: var(--ad-accent, oklch(62% 0.2 25));
+}
+
+[data-ad-form="corner-counter-boot"] [data-slot="label"] {
+  margin: 0;
+  font-size: .68rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  opacity: .75;
+}
