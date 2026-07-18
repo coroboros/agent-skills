@@ -94,6 +94,12 @@ class TestPreflightLetter(unittest.TestCase):
         self.assertIn("## BLOCKED builds — the stop's terminal artifact", self.preflight)
         self.assertIn("FAIL — false gap", self.preflight)
 
+    def test_blocked_is_not_fail_ratified(self):
+        """User-ratified 2026-07-18: a planning stop burns no universe; the
+        banked DESIGN.md feeds the post-growth retry via Phase 2 adoption."""
+        self.assertIn("**BLOCKED is not a FAIL**", self.preflight)
+        self.assertIn("adopting the banked DESIGN.md", self.preflight)
+
     def test_verdict_block_carries_the_provenance_line(self):
         self.assertIn("**Provenance:** mapping rows", self.preflight)
 

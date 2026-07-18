@@ -225,7 +225,7 @@ The final mechanical code pass (`code-review.md`), run across the shipped CSS/JS
 
 ## BLOCKED builds — the stop's terminal artifact
 
-A build BLOCKED at the Phase 1 medium binding or the Phase 4 mapping table never reaches this pre-flight: the verdict block below never runs on it. Its terminal artifact is the BLOCKED report — and BLOCKED is a stop, not a corpse: the design bank (DESIGN.md + design_plan + mapping table + gap orders) is the deliverable, specifying exactly what the library must grow.
+A build BLOCKED at the Phase 1 medium binding or the Phase 4 mapping table never reaches this pre-flight: the verdict block below never runs on it. Its terminal artifact is the BLOCKED report — and BLOCKED is a stop, not a corpse: the design bank (DESIGN.md + design_plan + mapping table + gap orders) is the deliverable, specifying exactly what the library must grow. **BLOCKED is not a FAIL**: the universe is unburned, and once the library grows the missing pieces a fresh one-shot re-runs the same brief adopting the banked DESIGN.md (Phase 2's adoption letter) — the honest stop loses nothing, which is exactly what makes stopping cheaper than improvising or downgrading.
 
 ```markdown
 ## BLOCKED — <build name> (stop-on-gap)
