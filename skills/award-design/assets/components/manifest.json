@@ -3566,6 +3566,89 @@
       "deps": [],
       "whenToUse": "Image hover that reacts to cursor SPEED, not just position: per-frame velocity splatted into a decaying off-screen RG flowmap (ping-pong framebuffers), the image shader splitting RGB along the mouse→pixel vector by the LOCAL flowmap strength, tipping into a rainbow fringe above the velocity threshold. Drive-verified: a fast sweep wrote a directional trail — the flowmap texel on the swept row read fx=0.181 (rightward) with 0 off-row; the trail PERSISTED after pointerleave (energy 0.21 standing) and decayed exponentially to the park floor (0.105→0.004 over ~1.26s, rAF false — the loop parks cold); a circular sweep at velo 0.276 showed the full rainbow split on the plate while the neighboring untouched figure sat clean (screenshot evidence). Context loss dropped the canvas and the plain <img> stood (remount on restore); a tainted plate falls back the same way instead of throwing (drive-caught on the CORS-less file:// run). Ruled DISTINCT from figure-hover (contained 1.1 zoom + cue — its own header names this as the generative-canvas response it cannot execute) and liquid-glass-refraction (a STILL displacement material, zero per-frame work, no memory): this is the canvas/WebGL PERSISTENCE variant — a time-decaying velocity field the cursor writes. Fine pointers only — dormant on touch (drive-verified: no canvas, no stylesheet under the coarse-pointer emulation). Reduce: fully dormant — the authored figure is the state.",
       "init": "awardVelocityFlowmapHover.init(root, { selector, amp })"
+    },
+    {
+      "id": "telemetry-readout",
+      "file": "telemetry-readout.js",
+      "global": "awardTelemetryReadout",
+      "winner": "CORPSE-DERIVED, not winner-canon — MARE ([data-hud-alt]/[data-hud-phase] piecewise altitude + phase readers), CALDERA (descent HUD: 2400M countdown + the 'acquiring a fix' coordinate resolve), AVALANCHE (trace rail: fill + riding 'SIGNAL n%' read). Re-invented in all three dead builds with zero library coverage — the closed-world boundary verdict (§5) promotes the recurring invention",
+      "archetypes": [
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink"
+      ],
+      "deps": [],
+      "whenToUse": "The scroll-progress HUD instrument for a driven descent/procession: builder-authored channels inside [data-ad-telemetry] — [data-tel-value] on a piecewise keyframe map (data-tel-map=\"0:2400|0.9:0\", the MARE altFor grammar, plateaus included; drive-verified 2,400→1,733→1,066→400→0 at stations p=0/.25/.5/.75/1), [data-tel-phase] threshold labels (Approach→Descent→Contact), [data-tel-resolve] the CALDERA acquiring-fix character resolve (alphanumerics masked '·' until progress earns them, punctuation always stands, complete at data-tel-until), and [data-tel-rail] with a fill WELDED to progress plus a riding [data-tel-rail-read] marker (drive-verified identical values at identical stations scrubbing BOTH directions — no easing lag). Transform-only (the corpses wrote style.height/top; promoted to scaleY/translate3d), every write dirty-checked, rail defaults in :where() so builder placement always wins (drive-caught), no overflow clip on the rail (drive-caught: it ate the read whole). Progress = the root's own pin traversal (CALDERA formula, fail-safe 0) or data-tel-span=\"page\" (MARE). IO parks off-screen instruments. Reduce: FINAL STATIC VALUES — apply(1) once, no scroll binding (drive-verified: rail full, alt 0, scrolling moved nothing).",
+      "init": "awardTelemetryReadout.init(root, { selector })"
+    },
+    {
+      "id": "nav-context-ink",
+      "file": "nav-context-ink.js",
+      "global": "awardNavContextInk",
+      "winner": "CORPSE-DERIVED, not winner-canon — CALDERA (footerNavSwap toggling is-over-light when the light dawn footer rises under the bar), AVALANCHE (data-nav-phase set from section [data-phase] via an IO band). Both builds invented the swap because the library had no ink axis for the fixed bar",
+      "archetypes": [
+        "immersive",
+        "editorial-dark",
+        "corporate-luxury"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "Section-driven nav ink/theme adaptation for a fixed bar crossing dark hero → light chapter → dark close. PUBLISH-ONLY: stamps data-ad-nav-ink=\"<theme>\" on the nav from section [data-ink] declarations and touches nothing else — zero classList writes, never near the accumulator's is-hidden/is-scrolled axes (navigation-patterns orthogonality; drive-verified running UNDER awardShowNav with both machines independent). The builder's CSS consumes the attribute and swaps the WHOLE costume — ink AND the is-scrolled ground (drive-caught: ink alone leaves dark text on the dark grounded bar over a light chapter; CALDERA swapped mark, links AND scrim). ZERO-FLIP by the two-line agreement machine: two 1px-line IntersectionObservers, hys px above/below the nav's reference line; ink commits only when both lines agree — drive-verified: a 121-frame ±3px jitter burst straddling a boundary produced 0 ink flips AND 0 hide/show flips, and the glide back up committed exactly one write. Sync geometric seed so deep links paint the correct ink before any observer fires. Reduce: the state machine still runs — ink over the wrong ground is a legibility failure, not decoration; easing is the builder's CSS under its own guard.",
+      "init": "awardNavContextInk.init(root, { navSelector, sectionSelector, line, hys })"
+    },
+    {
+      "id": "procession-wayfinding",
+      "file": "procession-wayfinding.js",
+      "global": "awardProcessionWayfinding",
+      "winner": "Cartier Watches & Wonders 2025 (six discrete rooms walked by one long scroll-jacked procession — the immersive playbook's gap: the spectacle spine mandates the drive but gives it no wayfinding; evidence inferential from the room architecture, MEDIUM); Explore Primland (flythrough beats)",
+      "archetypes": [
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "Orientation chrome for the long driven procession: a room/chapter index of REAL anchor links + a scene counter ('02 / 06', zero-padded into an authored [data-wf-counter]) + a progress rail welded to the procession span (first target top → last target bottom). IT STAYS A NAV — the component mounts aria-hidden chrome around the builder's links and NEVER intercepts a click (drive-verified: the LASERS click navigated natively to #lasers, active=3, no handler in the way); keyboard = the links themselves. Active = the last stop whose target the viewport CENTER has passed (the diegetic-nav zero-flip accumulator), published as aria-current=\"true\" + data-ad-wf-active — drive-verified advancing 0→1→2→3→4 (counter 01/05→05/05, fill 0.086→0.886) and RECEDING symmetrically to identical station values. Ruled DISTINCT from diegetic-nav (steering instrument: dragged avatar scrubs the scroll — this is read-only orientation + jump), from telemetry-readout (continuous instrument panel vs discrete index) and from the corpses' trace rails (riding readout, no jump targets). Target offsets measured at init/resize, never per frame. Reduce: still tracks with instant writes — orientation is state; the one color transition is stripped by the CSS guard.",
+      "init": "awardProcessionWayfinding.init(root, { selector })"
+    },
+    {
+      "id": "brand-object-assembly-loader",
+      "file": "brand-object-assembly-loader.js",
+      "global": "awardBrandObjectAssemblyLoader",
+      "winner": "Lando Norris — the portrait-procession-lando recipe's own loader annotation, flagged MISSING:brand-object-assembly-loader in recipes.json: 'object assembles, ellipse wipe; loader node unmounts'",
+      "archetypes": [
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-dur-reveal",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The brand object that builds itself out of the wait: authored [data-assembly-part]s travel from scatter offsets (data-part-from=\"dx,dy,rot\", or a deterministic golden-angle scatter by index — never Math.random) into the seated mark, each over its own window of the honest progress; the parts ARE the instrument (no bar, no counter — drive-verified part0 at t=297ms measured -13px against the -13.6px eased prediction, aria-valuenow 14→100). The fill stays honest (the loader law): eases toward 90% over minDuration, HOLDS for the real window load (+ opts.track when given), settles, one held beat, then the ellipse WIPE (clip-path ellipse(142%…)→ellipse(0%…), drive-verified 48 frames) and the node UNMOUNTS — removed from the DOM, scroll restored (drive-verified gone at t=3098ms, overflow hidden→free, onDone 3171ms). Ruled DISTINCT from branded-preloader (mark beside a readout, recedes in place), svg-path-fill-loader (fill-as-gauge, in-place dissolve) and flip-handoff-loader (mark travels into the header): here parts travel, the exit wipes, the node ceases to exist. Authored `hidden` — no-JS never covers the page. Reduce: never shows, node removed, onDone immediate (drive-verified 76ms). The rAF clock pauses on visibilitychange.",
+      "init": "awardBrandObjectAssemblyLoader.init(root, { selector, minDuration, track, sessionOnce, onDone })"
+    },
+    {
+      "id": "pointer-scene-reveal",
+      "file": "pointer-scene-reveal.js",
+      "global": "awardPointerSceneReveal",
+      "winner": "Hubtown (Unseen Studio — the cursor uncovers detail in the geometry and lighting, a reveal mask/light bound to pointer position); ERA (Vide Infra — the splash camera reacts to cursor movement giving dynamic angles)",
+      "archetypes": [
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The fine pointer DRIVING the scene's reveal — one pointer machine (differential lerp 0.1), two channels. ENGINE: onPoint(nx, ny, engaged) streams the lerped pointer in NDC (-1..1, y up, the Three convention — drive-verified enter at exactly (-0.5, +0.5)) for the delegated scene's reveal-mask uniform / spotlight / camera offset; on leave it eases home and stops after one final (0,0,false) — drive-verified 94 emits then silence. DOM LENS (no engine needed): a circular lens the component builds carries the authored-hidden [data-psr-detail] plate, translating to the pointer while the detail counter-translates — drive-verified registration lensX+detailX=0.00 at every sweep sample, the lerp trailing 82→125px; leave settles to center with the rAF loop verifiably stopped. Compositor-clean (two transforms per frame — a moving mask/clip would repaint) and the root is clipped (the lens never bleeds the hero's bound). Ruled DISTINCT from raycast-object-state (per-MESH verbs via hitTest — the object axis; a page ships both, Hubtown does) and pointer-parallax (DOM-layer depth — this drives the MEDIUM). FINE POINTER ONLY; touch fully DORMANT (the gap's verdict — the scene runs on scroll alone; drive-verified no lens, detail hidden). Reduce: never binds (the pointer-parallax precedent; drive-verified zero emits).",
+      "init": "awardPointerSceneReveal.init(root, { selector, onPoint, lerp, radius })"
     }
   ]
 }

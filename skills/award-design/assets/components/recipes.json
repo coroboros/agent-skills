@@ -510,7 +510,7 @@
         }
       ],
       "footer": "valediction-fold (the valediction-footer component is the footer; palette flips once)",
-      "loader": "MISSING:brand-object-assembly-loader (object assembles, ellipse wipe; loader node unmounts)",
+      "loader": "brand-object-assembly-loader (object assembles, ellipse wipe; loader node unmounts)",
       "paceNotes": "climax doubled — the mid-page 3D gallery and the inverted valediction close; short bridge rests between facet chapters; palette flips once at the close. Requires a WebGL path",
       "whenToUse": "personality/athlete/ambassador site with a hero portrait, a 3D signature object, and a cinematic inverted close"
     },
