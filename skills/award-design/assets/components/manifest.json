@@ -1237,6 +1237,113 @@
       },
       "pairs": {},
       "whenToUse": "The operable specimen widget — proof-by-operation: native range/select controls write the gap's own axis vars (--ff/--fs/--fw/--lh/--ls) onto the preview block, and the enhancer makes the preview an editable plaintext sample so the visitor sets their own words in the type. The form CSS owns layout and the composed rest (a dead script shows the exact static specimen; keyboard operation comes native with the controls); state rides data attributes (data-tester-live), never role classes. The one styling hook on controls is accent-color on the committed token."
+    },
+    {
+      "id": "in-engine-hero",
+      "css": "forms/in-engine-hero.css",
+      "js": "forms/in-engine-hero.js",
+      "global": "awardInEngineHero",
+      "winner": "Depo Luxe (SOTD Jul 7 2026 — the engine-world hero whose WebGL field is the ground, not a spike); Lusion v3 (the immersive studio-reel live-rendered hero). Already flagged MISSING:in-engine-hero in recipes.json — the hero `form` of BOTH engine-world-depoluxe and studio-reel-lusion",
+      "archetypes": [
+        "corporate-luxury",
+        "immersive"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "poster",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "mount",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "kicker",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "h1",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "cue",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "align": [
+          "start",
+          "center"
+        ]
+      },
+      "pairs": {
+        "h1": [
+          "kinetic-reveal"
+        ],
+        "mount": [
+          "shader-surface"
+        ]
+      },
+      "whenToUse": "The DOM shell for an engine-mounted hero — NOT a 3D scene: the form owns the svh stage (svh deliberately, a dvh stage re-rasterizes the engine's render target on every mobile URL-bar collapse), a REAL photographic poster painted from first paint (the LCP — never a blank canvas wait) under a structural scrim, an empty mount layer the builder's engine takes through the enhancer's gate, and the content grid over both. The enhancer probes the floors — reduced motion, Save-Data, missing WebGL — and only past all three hands the mount to the builder's engine factory; on the engine's first ready frame the poster fades and data-engine='live' lands (drive-verified: poster 1->0 over the reveal token, second ready() a no-op, fail() leaves the poster standing). On every refused floor the poster IS the hero.",
+      "init": "awardInEngineHero.init(root, { selector, mount })"
+    },
+    {
+      "id": "pinned-media-stepthrough",
+      "css": "forms/pinned-media-stepthrough.css",
+      "js": "forms/pinned-media-stepthrough.js",
+      "global": "awardPinnedMediaStepthrough",
+      "winner": "general luxury award canon — the corporate-luxury playbook's own priority-3 order, NOT corpus-source-verified against a specific winner this run (declared in the artifact headers)",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-measure",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "media",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "steps",
+          "element": "div",
+          "required": true
+        }
+      ],
+      "variants": {
+        "stage": [
+          "left",
+          "right"
+        ]
+      },
+      "pairs": {
+        "h3": [
+          "char-assemble"
+        ],
+        "media": [
+          "clip-reveal"
+        ]
+      },
+      "whenToUse": "The 'hold the object still, advance the story' proof beat: ONE media figure pins for a bounded distance (one viewport of runway per step) while caption blocks — and optional inset detail plates — step over it as a pure function of scroll, then the pin releases through the boundary parks. Ruled DISTINCT from pinned-demo-panels (bento's specimen tour, where every panel pairs copy with its OWN demo and the stage content cross-fades panel to panel): here the held object never fades, never swaps — drive-verified media opacity 1 at every sample of a full scrub, both directions, zero overlap onto the neighbor sections. The active step publishes as data-ad-pms-step. Reduce / no JS: the static stacked layout stands, every caption legible.",
+      "init": "awardPinnedMediaStepthrough.init(root, { selector, fade })"
     }
   ],
   "components": [
@@ -2569,6 +2676,77 @@
       "deps": [],
       "whenToUse": "The opt-in audio channel + its designed mute affordance in one component: UI cues and/or an ambient bed (each a URL or a synth factory — zero bytes) behind ONE fixed, always-reachable four-bar toggle (aria-pressed, action-naming label, bars dance on-state via CSS keyframes — static under reduce). The unlock gate is law: the context resumes ONLY inside a real gesture, nothing loads or decodes before the opt-in, play(name) is a silent no-op while muted. Mute RAMPS (0.4s, never a cut) then suspends. The preference persists across visits (localStorage); reduced-motion and Save-Data never auto-restore a persisted ON. getState() exposes an analyser RMS level — the did-it-actually-sound verification readout.",
       "init": "awardSoundChannel.init(root, { cues, bed, storageKey })"
+    },
+    {
+      "id": "contextual-cursor-label",
+      "file": "contextual-cursor-label.js",
+      "global": "awardContextualCursorLabel",
+      "winner": "Louis Vuitton Collectibles (SOTD Feb 2024 — the click-and-hold gesture, Animations 9.4); Cartier WAW 2025 (SOTD Aug 2025, 7.64 + Dev Award — hidden gestures in every alcove scene). The hold band (~600-900ms, default 700) is the LV-band executable default, not source-verified interior numbers",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ink",
+        "--ad-ground-2",
+        "--ad-font-mono",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The gesture-discovery cursor for luxury's hidden gestures: over a declared [data-ad-gesture] object an outline ring grows and a verb label (HOLD / DRAG / VIEW / EXPLORE) surfaces; on a HOLD object, pressing charges the ring's arc over the object's declared data-ad-gesture-hold duration (the LV click-and-hold instrument), retracting 3x on release — a visual affordance ONLY, the object's own gesture logic owns completion. SURFACE-SCOPED: the native cursor stands everywhere off-surface. Ruled DISTINCT from cursor-verb-label (field-scoped label chip, no ring chrome, no hold instrument) and custom-contextual-cursor (page-level pointer costume) — one cursor component per page, ever. Touch and reduce: dormant, on-object hint chips carry the verb; fine-pointer chips surface on :focus-visible so keyboard reaches the gesture.",
+      "init": "awardContextualCursorLabel.init(root, { selector, lerp })"
+    },
+    {
+      "id": "flip-handoff-loader",
+      "file": "flip-handoff-loader.js",
+      "global": "awardFlipHandoffLoader",
+      "winner": "Son Daven (SOTD Jun 5 2026, 7.62 + Developer Award 8.09 — the master-preloader scene whose 'logo Flips into the header' is the winner-verified hook; already flagged MISSING:flip-handoff-loader in recipes.json, argument-scroll-sondaven's loader field). Interior numbers are executable defaults",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-ground-2",
+        "--ad-ink",
+        "--ad-accent",
+        "--ad-font-display",
+        "--ad-dur-reveal",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The master-preloader whose wordmark FLIPs into the header: an honest hairline fill (ease to 90%, hold for the real window load, settle) under the builder's center-stage mark, then First/Last/Invert/Play between the two measured rects — the mark lands ON the header's real wordmark slot (drive-verified at 0.0px delta) while the ground layer dissolves, no hard cut. Ruled DISTINCT from loader-into-navbar (the nav ITSELF is the bar; nothing travels) and branded-preloader (recedes in place; no element continuity). Scene authored hidden (no-JS shows the ordinary header); the header mark waits only via the JS-applied data-ad-flip-wait. Reduce / sessionOnce: skip — the header stands, onDone still fires.",
+      "init": "awardFlipHandoffLoader.init(root, { selector, target, minDuration, sessionOnce, onDone })"
+    },
+    {
+      "id": "infinite-scroll-loop",
+      "file": "infinite-scroll-loop.js",
+      "global": "awardInfiniteScrollLoop",
+      "winner": "Urban Jürgensen (SOTD Oct 2025 — infinite vertical storytelling spine + infinite horizontal product carousel, both named on the award page)",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The track that never bottoms out: data-ad-loop='y' wraps a NATIVE vertical scroller by one content period (the jump lands on identical pixels — momentum carries across the invisible seam, drive-verified over 5+ periods both directions); data-ad-loop='x' runs a drag/wheel transform carousel wrapping modulo the copy width with a friction glide (0.94 — measured, never springy). Index-mapped: the item under the viewport center publishes as data-ad-loop-index (zero-flip). Clones are aria-hidden with focusables at tabindex -1 but stay HIT-TESTABLE (drive-verified: inert dead-zones every wrapped copy); keyboard focus glides the canonical item into view. Vertical-intent wheels are never hijacked; touch keeps pan-y. Ruled DISTINCT from swipe-snap-gallery (finite native-snap by design). Reduce: the finite authored track stands.",
+      "init": "awardInfiniteScrollLoop.init(root, { selector, friction })"
+    },
+    {
+      "id": "line-draw-cta",
+      "file": "line-draw-cta.js",
+      "global": "awardLineDrawCta",
+      "winner": "Brunello Cucinelli AI (SOTD Jul 9 2026); Depo Luxe (SOTD Jul 7 2026 — the appearing hairline underline); Louis Vuitton Collectibles (SOTD Feb 2024)",
+      "archetypes": [
+        "corporate-luxury"
+      ],
+      "tokens": [
+        "--ad-ease-signature",
+        "--ad-ldc-draw",
+        "--ad-ldc-underline"
+      ],
+      "deps": [],
+      "whenToUse": "The CTA move for photographic / 3D / frosted surfaces where a fill or roll reads too heavy: data-ad-line-cta='ring' stroke-draws an SVG ring around a circular CTA (pathLength-normalized dashoffset 1->0 over ~700ms from 12 o'clock, retracting through the same transition on leave — drive-verified draw AND retract, no spill past r=49 in the 100-box); data-ad-line-cta='underline' fades a .5px currentColor :before in over ~160ms — an underline that APPEARS, never grows from a point. NO fill flood, NO label colour flip; :focus-visible mirrors hover; touch answers on :active over a 140ms flash floor. Ruled DISTINCT from fill-invert-cta (flood) and masked-label-swap (roll). Reduce: the line is present at rest, nothing animates.",
+      "init": "awardLineDrawCta.init(root, { selector })"
     }
   ]
 }
