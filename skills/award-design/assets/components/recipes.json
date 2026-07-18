@@ -1145,7 +1145,7 @@
       "sections": [
         {
           "role": "in-engine-fold",
-          "form": "MISSING:in-engine-hud-fold",
+          "form": "in-engine-hud-fold",
           "pairs": {
             "ground": "shader-surface"
           },
@@ -1172,7 +1172,7 @@
       "sections": [
         {
           "role": "marquee-hero",
-          "form": "MISSING:marquee-hero",
+          "form": "marquee-hero",
           "pairs": {
             "h1": "char-assemble",
             "media": "clip-reveal"

@@ -1,0 +1,268 @@
+/*
+ * marquee-hero — section form (winner: Cyd Stumpel — the warm-organic fold
+ * and the spatial-organic archetype's only non-WebGL hero; already flagged
+ * MISSING:marquee-hero in recipes.json — the fold `form` of studio-reel-cyd).
+ * The fold as a repeating variable-font wordmark strip that OVERFLOWS the
+ * viewport edge (the root clips it — overflow:clip, never a horizontal
+ * scrollbar), above a utility row + nav, with a real portrait mounted on an
+ * organic clip-path blob riding an accent-colored shape behind it, the
+ * role-h1, up to two badge stickers over the portrait, and a scroll cue or
+ * email link — NO filled fold CTA, by the winner's own order. Ruled
+ * DISTINCT from hero-masthead (it cannot express the marquee strip, the
+ * clip-path portrait mount, or the scroll-retimed sticker — the recipe's
+ * own annotation), from divided-capability-strip (a mid-page capability
+ * band whose marquee exists only under 768px) and from continuous-idle-carry
+ * (a time-driven décor marquee CHANNEL — this strip is a scroll-welded
+ * texture, driven by the enhancer as a pure function of scroll, and it is
+ * the fold itself, not décor).
+ *
+ * Markup contract (slots in reading order; grid areas own placement):
+ *   <section data-ad-form="marquee-hero" data-portrait="right">
+ *     <div    data-slot="strip" aria-hidden="true">Name — Name — …</div> required
+ *     <div    data-slot="utility">…</div>                                optional
+ *     <nav    data-slot="nav">…</nav>                                    optional
+ *     <h1     data-slot="role">…</h1>                                    required
+ *     <figure data-slot="portrait"><img src="…" alt="…"></figure>        required
+ *     <p      data-slot="badge">…</p>                                    optional ×2
+ *     <p      data-slot="cue">…</p>                                      optional
+ *   </section>
+ *
+ * The strip is authored REPEATED (the builder repeats the wordmark until it
+ * overflows) and aria-hidden — the h1 carries the accessible name of the
+ * fold. Badges: the plain badge scale-ins on load (enhancer WAAPI); a badge
+ * carrying data-retime is scroll-retimed instead (the enhancer writes
+ * --ad-mh-badge-tilt/--ad-mh-badge-shift as a pure function of fold
+ * progress — the animation-timeline idiom, done as inline var writes so
+ * this stylesheet ships zero motion).
+ * Variants: data-portrait="right|left" — which column the figure takes.
+ * Enhancer: forms/marquee-hero.js (awardMarqueeHero) — strip drift under
+ * scroll, badge entrance, badge retime; all dormant under reduced motion,
+ * where this resting layout IS the fold (nothing here hides, ever).
+ * Pairs: role → char-assemble | kinetic-reveal · portrait → clip-reveal ·
+ * cue → accent-link.
+ * Tokens: --ad-space, --ad-accent, --ad-ink, --ad-font-display,
+ * --ad-font-mono.
+ */
+
+[data-ad-form="marquee-hero"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: auto auto 1fr;
+  column-gap: calc(var(--_sp) * 1.5);
+  min-height: 100svh;
+  padding: calc(var(--_sp) * 1.2) calc(var(--_sp) * 2) calc(var(--_sp) * 2);
+  box-sizing: border-box;
+  /* the strip's one law: it overflows the viewport edge, the fold clips —
+     clip, never hidden/auto, so no scroll container and no scrollbar */
+  overflow: clip;
+}
+
+/* ---- the wordmark strip — the fold's own scroll texture ------------------ */
+[data-ad-form="marquee-hero"] > [data-slot="strip"] {
+  grid-row: 1;
+  grid-column: 1 / -1;
+  justify-self: start;
+  /* width 0, never max-content: a max-content strip SIZES the twelve fr
+     tracks (grid blowout — drive-caught at 6000px column span); at width 0
+     the nowrap glyphs paint past the box and the fold's clip owns them */
+  width: 0;
+  min-width: 100%;
+  white-space: nowrap;
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(4rem, 13vw, 11rem);
+  font-weight: 600;
+  line-height: 0.96;
+  letter-spacing: -0.02em;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="marquee-hero"][data-ad-mh-live] > [data-slot="strip"] {
+  will-change: transform;
+}
+
+/* ---- utility row + nav on one line --------------------------------------- */
+[data-ad-form="marquee-hero"] > [data-slot="utility"],
+[data-ad-form="marquee-hero"] > [data-slot="nav"] {
+  grid-row: 2;
+  align-self: start;
+  margin: calc(var(--_sp) * 0.8) 0 0;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 62%, transparent);
+}
+[data-ad-form="marquee-hero"] > [data-slot="utility"] {
+  grid-column: 1 / 8;
+  display: flex;
+  gap: calc(var(--_sp) * 1.5);
+}
+[data-ad-form="marquee-hero"] > [data-slot="nav"] {
+  grid-column: 8 / -1;
+  justify-self: end;
+  display: flex;
+  gap: calc(var(--_sp) * 1.2);
+}
+
+/* ---- the main stage: role-h1 beside the portrait-on-blob ----------------- */
+[data-ad-form="marquee-hero"] > [data-slot="role"] {
+  grid-row: 3;
+  grid-column: 1 / 8;
+  align-self: end;
+  margin: 0;
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2.2rem, 4.6vw, 4.4rem);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  max-inline-size: 18ch;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="marquee-hero"] > [data-slot="portrait"] {
+  grid-row: 3;
+  grid-column: 8 / -1;
+  align-self: center;
+  position: relative;
+  margin: calc(var(--_sp) * 1.5) 0 0;
+  max-width: 34rem;
+  justify-self: end;
+  width: 100%;
+}
+/* the accent-colored organic shape the figure rides — structural, the
+   form's documented portrait mount (the winner's periwinkle blob, read
+   from the build's own accent token) */
+[data-ad-form="marquee-hero"] > [data-slot="portrait"]::before {
+  content: "";
+  position: absolute;
+  inset: 6% -4% -6% 4%;
+  background: var(--ad-accent, oklch(62% 0.2 25));
+  border-radius: 62% 38% 54% 46% / 46% 56% 44% 54%;
+}
+[data-ad-form="marquee-hero"] > [data-slot="portrait"] img {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 58% 42% 55% 45% / 44% 52% 48% 56%;
+}
+[data-ad-form="marquee-hero"][data-portrait="left"] > [data-slot="role"] {
+  grid-column: 6 / -1;
+  justify-self: end;
+  text-align: right;
+}
+[data-ad-form="marquee-hero"][data-portrait="left"] > [data-slot="portrait"] {
+  grid-column: 1 / 6;
+  justify-self: start;
+}
+
+/* ---- badge stickers over the portrait ------------------------------------ */
+[data-ad-form="marquee-hero"] > [data-slot="badge"] {
+  grid-row: 3;
+  grid-column: 8 / -1;
+  align-self: start;
+  justify-self: start;
+  z-index: 1;
+  margin: calc(var(--_sp) * 2) 0 0 calc(var(--_sp) * -1);
+  width: 6.6rem;
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  border: 1px solid var(--ad-ink, oklch(96% 0 0));
+  border-radius: 50%;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  line-height: 1.5;
+  color: var(--ad-ink, oklch(96% 0 0));
+  transform: rotate(var(--ad-mh-badge-tilt, -8deg))
+             translateY(var(--ad-mh-badge-shift, 0px))
+             scale(var(--ad-mh-badge-scale, 1));
+}
+[data-ad-form="marquee-hero"] > [data-slot="badge"] ~ [data-slot="badge"] {
+  align-self: end;
+  justify-self: end;
+  margin: 0 calc(var(--_sp) * -0.6) calc(var(--_sp) * 1.2) 0;
+  --ad-mh-badge-tilt: 7deg;
+}
+
+/* ---- the cue — a scroll hint or email link, never a filled CTA ----------- */
+[data-ad-form="marquee-hero"] > [data-slot="cue"] {
+  grid-row: 3;
+  grid-column: 1 / 8;
+  align-self: end;
+  justify-self: start;
+  margin: 0 0 calc(var(--_sp) * -1.2);
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+}
+[data-ad-form="marquee-hero"] > [data-slot="cue"] a {
+  color: inherit;
+}
+
+/* ---- mobile: one column, the strip still overflows ----------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="marquee-hero"] {
+    /* one slot per row — sharing rows full-width made nav/utility and
+       role/cue overlap (drive-caught at 390px); badges stay over the
+       portrait's row */
+    grid-template-rows: auto auto auto auto auto auto;
+    padding: calc(var(--_sp) * 1) calc(var(--_sp) * 1.2) calc(var(--_sp) * 1.6);
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="strip"],
+  [data-ad-form="marquee-hero"] > [data-slot="nav"],
+  [data-ad-form="marquee-hero"] > [data-slot="utility"],
+  [data-ad-form="marquee-hero"] > [data-slot="portrait"],
+  [data-ad-form="marquee-hero"] > [data-slot="badge"],
+  [data-ad-form="marquee-hero"] > [data-slot="role"],
+  [data-ad-form="marquee-hero"] > [data-slot="cue"],
+  [data-ad-form="marquee-hero"][data-portrait="left"] > [data-slot="role"],
+  [data-ad-form="marquee-hero"][data-portrait="left"] > [data-slot="portrait"] {
+    grid-column: 1 / -1;
+    text-align: left;
+    justify-self: start;
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="nav"] {
+    grid-row: 2;
+    margin-top: calc(var(--_sp) * 0.5);
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="utility"] {
+    grid-row: 3;
+    flex-wrap: wrap;
+    gap: calc(var(--_sp) * 0.6) calc(var(--_sp) * 1.2);
+    margin-top: calc(var(--_sp) * 0.5);
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="portrait"] {
+    grid-row: 4;
+    justify-self: center;
+    margin-top: calc(var(--_sp) * 1.4);
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="badge"] {
+    grid-row: 4;
+    align-self: start;
+    justify-self: end;
+    margin: calc(var(--_sp) * 0.6) calc(var(--_sp) * 0.4) 0 0;
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="badge"] ~ [data-slot="badge"] {
+    align-self: end;
+    justify-self: start;
+    margin: 0 0 calc(var(--_sp) * 0.6) calc(var(--_sp) * 0.2);
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="role"] {
+    grid-row: 5;
+    align-self: start;
+    margin-top: calc(var(--_sp) * 1.4);
+  }
+  [data-ad-form="marquee-hero"] > [data-slot="cue"] {
+    grid-row: 6;
+    align-self: start;
+    margin: calc(var(--_sp) * 1) 0 0;
+  }
+}

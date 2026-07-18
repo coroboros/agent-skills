@@ -1393,6 +1393,148 @@
       },
       "whenToUse": "The SPATIAL WALK as a proof band: an itinerary of stations, each pairing one photographic plate with a place name, prose, and a tabular walk-time counter — the count is the proof grammar (the named place, the number, never adjectives). data-media='alternate' sways the walk (every second station mirrors). The enhancer publishes the station nearest the viewport centre as data-ad-place-station on the root + data-ad-place-active on the station — a pure function of scroll, zero-flip, attributes only (drive-verified 0→1→2 down and 2→1→0 back up). Ruled DISTINCT from pinned-media-stepthrough (ONE held object with stepping captions — here every station owns its OWN plate and the page walks between places) and editorial-split (a single split band — no station rhythm, no counter grammar). No-JS / reduce: the static itinerary stands fully legible; the stylesheet hides nothing.",
       "init": "awardPlaceTour.init(root, { selector })"
+    },
+    {
+      "id": "in-engine-hud-fold",
+      "css": "forms/in-engine-hud-fold.css",
+      "js": "forms/in-engine-hud-fold.js",
+      "global": "awardInEngineHudFold",
+      "winner": "Igloo Inc (SOTY — monospace HUD corners over a live full-viewport scene from frame ~0; already flagged MISSING:in-engine-hud-fold in recipes.json, the in-engine-fold `form` of engine-world-igloo-scrubbed). The in-HUD footer sign-off is refuted — only the HERO HUD chrome is winner-verified",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-accent",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "poster",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "mount",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "wordmark",
+          "element": "a",
+          "required": true
+        },
+        {
+          "name": "sound",
+          "element": "button",
+          "required": false
+        },
+        {
+          "name": "mission",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cue",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "graph",
+          "element": "div",
+          "required": false
+        }
+      ],
+      "variants": {},
+      "pairs": {
+        "mount": [
+          "shader-surface"
+        ],
+        "sound": [
+          "sound-channel"
+        ],
+        "graph": [
+          "ambient-idle"
+        ]
+      },
+      "whenToUse": "The WebGL-register hero: HUD chrome at the four corners — wordmark TL, sound toggle TR, mission line BL, scroll cue bottom-centre, live node-graph BR (drive-verified corner grid at 51/45px insets) — over a shader-surface/webgl-scene ground; NO CTA and no h1, the fold IS the scene, no loader boundary (the recipe's loader is 'none'). Ruled DISTINCT from in-engine-hero (the EDITORIAL engine hero — kicker/h1/cue composed over the stage; this fold has no headline, only corner chrome); the two deliberately SHARE the stage law, not identity: the same poster-first LCP floor and the same enhancer mount gate (mirrored with its own guard — the hero enhancer holds one handle per root, so a page carrying both forms needs both). Drive-verified fold sequence: poster at opacity 1 from t=59ms, decelerating fade, data-engine='live' + poster hidden by the enhancer's inline write; under ?rm the mount never fires and the poster IS the fold. In-scene text effects (glitch/scramble) belong to the engine as SDF offsets, never DOM pairings on HUD slots.",
+      "init": "awardInEngineHudFold.init(root, { selector, mount })"
+    },
+    {
+      "id": "marquee-hero",
+      "css": "forms/marquee-hero.css",
+      "js": "forms/marquee-hero.js",
+      "global": "awardMarqueeHero",
+      "winner": "Cyd Stumpel (the warm-organic fold, the archetype's only non-WebGL hero; already flagged MISSING:marquee-hero in recipes.json, the fold `form` of studio-reel-cyd)",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "strip",
+          "element": "div",
+          "required": true
+        },
+        {
+          "name": "utility",
+          "element": "div",
+          "required": false
+        },
+        {
+          "name": "nav",
+          "element": "nav",
+          "required": false
+        },
+        {
+          "name": "role",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "portrait",
+          "element": "figure",
+          "required": true
+        },
+        {
+          "name": "badge",
+          "element": "p",
+          "required": false
+        },
+        {
+          "name": "cue",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "portrait": [
+          "right",
+          "left"
+        ]
+      },
+      "pairs": {
+        "role": [
+          "char-assemble",
+          "kinetic-reveal"
+        ],
+        "portrait": [
+          "clip-reveal"
+        ],
+        "cue": [
+          "accent-link"
+        ]
+      },
+      "whenToUse": "The warm-organic fold: a repeating variable-font wordmark strip OVERFLOWING the viewport edge (authored repeated, aria-hidden — the h1 names the fold; width:0/min-width:100% so the nowrap strip never sizes the fr tracks, drive-caught grid blowout at 6000px; the root clips, page overflow-x drive-verified 0), above a utility row + nav, a real portrait on an organic border-radius blob riding the accent shape, the role-h1, up to two badge stickers, and a scroll cue or email link — NO filled fold CTA, the winner's own order. The enhancer owns all three mechanics so the stylesheet ships zero motion: strip drift as a pure function of scroll (rate .35, clamped at the far edge; drive-verified -105/-245/-420px at y 300/700/1200, identical back up), the badge entrance (scale 0->1, 400ms at 200ms delay on the bouncy ease, WAAPI fill:backwards so a dead script leaves the badge standing — drive-verified landed at rotate(-8deg) scale(1)), and the data-retime badge scroll-retimed via --ad-mh-badge-tilt/shift inline var writes (the animation-timeline idiom; drive-verified 7->-15deg / 0->-26px keyed to fold exit, reversing exactly). Ruled DISTINCT from hero-masthead (cannot express the strip, the blob mount, or the retimed sticker — the recipe's own annotation), divided-capability-strip (mid-page band, marquee only under 768px) and continuous-idle-carry (a time-driven décor CHANNEL — this strip is scroll-welded and IS the fold). Reduce: enhancer no-op, the authored fold stands whole (drive-verified). Mobile: one slot per row (nav/utility and role/cue overlap drive-caught at 390px).",
+      "init": "awardMarqueeHero.init(root, { selector, rate })"
     }
   ],
   "components": [
@@ -2883,6 +3025,70 @@
       "deps": [],
       "whenToUse": "The mark that fills, then dissolves: the builder's authored SVG wordmark stands center-stage as a faint ghost and its fill RISES through the paths with honest load progress (a clip-path inset on a ghost+fill clone pair; ease to 90% over minDuration, hold for the real window load, settle — drive-verified 22%→82% over the first second, settle at 100, aria-valuenow tracking) — the mark ITSELF is the progress instrument, no bar, no counter — then one held beat and the scene dissolves over the painted hero, no hard cut (drive-verified: scene hidden restored, mark unwrapped, scroll unlocked, onDone at 2893ms). Ruled DISTINCT from branded-preloader (mark BESIDE a readout, recedes), counter-loader / stepped-counter-loader (numeric instruments), flip-handoff-loader (the mark TRAVELS into the header), type-forward-intro-loader (a type intro). Reduce / sessionOnce: the scene never shows, onDone still fires (drive-verified).",
       "init": "awardSvgPathFillLoader.init(root, { selector, minDuration, sessionOnce, onDone })"
+    },
+    {
+      "id": "ambient-orb-field",
+      "file": "ambient-orb-field.js",
+      "global": "awardAmbientOrbField",
+      "winner": "Arc / Granola / Apple Vision Pro (style anchors — the gap's own credential set); Igloo Inc (ambient scene drift — the winner register the field echoes without an engine)",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-ground-2"
+      ],
+      "deps": [],
+      "whenToUse": "The WebGL-free living ground for the warm/dark-glass registers: a FIXED pointer-events:none layer of 2-3 large-radius OKLCH radial-gradient orbs at .15-.25 opacity under blur(80px), each drifting on its own 17-23s ease-in-out alternate cycle (translate a few vw + scale to 1.1) — drive-verified advancing at rest (orb 0 translate 24.6->31.6px over 1.2s). A soft fine-pointer lean rides on top: per-orb depth rates through a decelerating lerp (drive-verified -43.7/+30.6/-19.7px at the three rates toward a bottom-left pointer), dormant on touch. Ruled DISTINCT from ambient-idle (opts single EXISTING elements into glow/float — cannot compose a multi-orb atmosphere layer) and shader-surface (the WebGL ground; this gap explicitly orders the no-WebGL answer). Animations authored paused: IO flips is-drifting per layer, a hidden tab re-pauses all. Reduce: the composed static field stands (drive-verified: transforms frozen, no pointer channel).",
+      "init": "awardAmbientOrbField.init(root, { selector, amplitude })"
+    },
+    {
+      "id": "diegetic-nav",
+      "file": "diegetic-nav.js",
+      "global": "awardDiegeticNav",
+      "winner": "OceanX 2025 (exploration ship steering a free-scroll timeline, forwards or backwards at any point — Awwwards-tagged 'Unusual Navigation' + 'Horizontal Layout', verified on its own Awwwards page); Fluid Glass (Awwwards-tagged 'Unusual Navigation')",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-accent",
+        "--ad-ink",
+        "--ad-font-mono",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "In-world steering as the primary nav: the builder's real <nav> of anchor links becomes a fixed rail with the gap's four slots — a moving avatar/vehicle (authored [data-dnav-avatar] or a component dot), a scrubbable path (dragging the avatar maps 1:1 onto document scroll, both directions, any point — drive-verified rail fractions .8/.5/.2 -> y 2046/1279/512 exact), milestone markers at each target's true document fraction, and the wayfinding minimap (the traveled rail fills behind the avatar). IT STAYS A NAV: clicks are never intercepted (drive-verified: anchor click -> #abyss at viewport top, aria-current advanced), keyboard = the links; the current stop publishes as aria-current + data-ad-dnav-active, discrete writes on change only (zero-flip accumulator; drive-verified 0->1->3 down, ->0 back). Touch/reduce (the gap's own degrade): the drag stays dormant and the SAME rail reads as a conventional anchored nav + progress indicator (drive-verified under touch emulation and ?rm — instant writes, no glide). Re-measures on resize and once on window load (late plates move the anchors).",
+      "init": "awardDiegeticNav.init(root, { selector })"
+    },
+    {
+      "id": "horizontal-scroll-chain",
+      "file": "horizontal-scroll-chain.js",
+      "global": "awardHorizontalScrollChain",
+      "winner": "OceanX 2025 and Fluid Glass — both carrying the Awwwards 'Horizontal Layout' tag, verified on their own Awwwards pages",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [],
+      "deps": [],
+      "whenToUse": "The chained lateral macrostructure: a pinned full-viewport section whose track translates horizontally as vertical scroll is consumed — a PURE function of progress (ease:none; drive-verified 1:1, y-810 == -translateX at every station, identical down and back up), pinned by position:sticky under overflow:clip (never hidden — hidden makes a scroll container and kills the pin; drive-verified stickyTop 0 through the whole run). Vertical intent always escapes because nothing is hijacked — wheel/keyboard/scrollbar stay native and the chain releases at both ends (drive-verified). The panel under the viewport centre publishes as data-ad-hchain-panel, a discrete write on change. Ruled DISTINCT from infinite-scroll-loop (its x-axis is a drag/wheel CAROUSEL recycling modulo one copy width, never bottoms out — the chain is finite, page-scroll-driven, and releasing IS the design), pinned-filmstrip (a native overflow-x row the visitor grabs — no pin, page scroll untouched) and swipe-snap-gallery (the finite native snap row — exactly this component's own touch floor, not its mechanic). Touch/reduce: no pin — native horizontal swipe-snap, vertical swipes pan the page (drive-verified under touch emulation: snap x mandatory, page free mid-pan).",
+      "init": "awardHorizontalScrollChain.init(root, { selector })"
+    },
+    {
+      "id": "liquid-glass-refraction",
+      "file": "liquid-glass-refraction.js",
+      "global": "awardLiquidGlassRefraction",
+      "winner": "Apple Liquid Glass / Vision Pro (style anchor — the WWDC-2025 surface the DNA credentials); Igloo Inc (frost panels — the frost END this component exceeds)",
+      "archetypes": [
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-ground-2",
+        "--ad-ink"
+      ],
+      "deps": [],
+      "whenToUse": "The refraction end of the glass register: an SVG feDisplacementMap lens (red/green ramp map, objectBoundingBox primitives so one filter serves every pane) BENDS the backdrop through backdrop-filter:url() — drive-verified over a real night plate: laser beams kink and S-bend inside the pane and break at the rim at the 0.16 default (0.055 tested imperceptible), wrapped in the Doppelrand shell (outer hairline at 22px, inner inset highlight at the concentric 18px). Ruled DISTINCT from glass-card (blur+saturate frost, 'no displacement/refraction' by its own header) — glass-card IS the declared floor, restated under this namespace as the frost fallback so the two never co-init on one element. Floors (the gap's order — fine-pointer/high-power only): coarse pointer, Save-Data, or an engine that cannot resolve url() in backdrop-filter -> frost (drive-verified: ?coarse -> ad-lgr--frost, no defs, blur(24px) saturate(1.2)); no backdrop-filter at all -> the ground mix rises. A still material: no motion, nothing for reduce to disable, a dead script leaves the builder's panel standing.",
+      "init": "awardLiquidGlassRefraction.init(root, { selector, strength })"
     }
   ]
 }
