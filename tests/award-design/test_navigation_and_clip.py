@@ -111,6 +111,102 @@ class TestNavComponentImplementsTheAccumulator(unittest.TestCase):
                 self.assertIn(prop, self.src)
 
 
+class TestNavOverHeroEncoding(unittest.TestCase):
+    """ARDEN shipped an opaque bone bar over the hero photo — decapitation from
+    pixel 0 — while passing every gate, because the transparent-over-hero rule
+    lived only in prose. This locks the gate that now consumes it: a detector
+    rule, a §8 box, an imposed verdict, and the covering ids the pick-path names."""
+
+    def setUp(self):
+        self.detector_md = _read("detector.md")
+        self.pf = _read("preflight.md")
+        self.body = _body()
+
+    def test_detector_names_both_nav_hero_rules(self):
+        for rule in ("NAV-HERO-OPAQUE", "NAV-HERO-SURFACE"):
+            with self.subTest(rule=rule):
+                self.assertIn(rule, self.detector_md,
+                              "detector.md must name the nav-over-hero rule or the audit cannot route it")
+
+    def test_detector_fatal_set_includes_the_decapitation(self):
+        self.assertIn("fatal six", self.detector_md)
+        self.assertIn("NAV-HERO-OPAQUE", self.detector_md)
+
+    def test_preflight_has_nav_over_hero_box(self):
+        self.assertIn("Nav over the hero", self.pf,
+                      "preflight §8 must carry the nav-over-hero box")
+        self.assertIn("sentinel", self.pf.lower())
+
+    def test_imposed_verdict_row_present(self):
+        self.assertIn("Nav paints no opaque band over a media hero", self.body,
+                      "the imposed-verdicts register must carry the nav-over-hero row")
+
+    def test_pickpath_names_covering_ids(self):
+        # the nav commit must name the covering component per pattern
+        self.assertIn("nav-hero-surface", self.body)
+        self.assertIn("show-on-scroll-up-nav", self.body)
+
+
+class TestNavHeroSurfaceComponent(unittest.TestCase):
+    """The persistent-bar surface axis had no covering id — the winner norm
+    (a quiet persistent bar over the hero) could not be composed, so a build
+    fell back to a hand-authored opaque bar. nav-hero-surface fills it: surface
+    only, hero-bottom sentinel, no visibility hiding."""
+
+    def setUp(self):
+        self.comp = SKILL_DIR / "assets" / "components" / "nav-hero-surface.js"
+        self.src = self.comp.read_text(encoding="utf-8")
+
+    def test_file_exists_and_in_manifest(self):
+        import json
+        self.assertTrue(self.comp.is_file())
+        manifest = json.loads((SKILL_DIR / "assets" / "components" / "manifest.json").read_text(encoding="utf-8"))
+        ids = {c["id"] for c in manifest["components"]}
+        self.assertIn("nav-hero-surface", ids)
+
+    def test_grounds_on_hero_sentinel_not_scrolly(self):
+        self.assertIn("IntersectionObserver", self.src)
+        self.assertIn("sentinel", self.src.lower())
+        self.assertIn("is-grounded", self.src)
+
+    def test_no_hero_forces_solid(self):
+        # navigation-patterns.md: a page with no hero forces the solid state
+        self.assertRegex(self.src, r"setGrounded\(true\)")
+
+    def test_surface_axis_only_never_hides(self):
+        # this component owns surface, not visibility — no is-hidden axis here
+        self.assertNotIn("is-hidden", self.src,
+                         "nav-hero-surface is the surface axis only; hiding belongs to show-on-scroll-up-nav")
+
+    def test_reduced_motion_path(self):
+        self.assertIn("prefers-reduced-motion", self.src)
+
+
+class TestShowNavGainsSentinel(unittest.TestCase):
+    """The surface axis grounded at a fixed 64px scrollY — grounding the bar while
+    it still floated over a full-viewport hero. navigation-patterns.md prescribes a
+    hero-bottom sentinel; the component now implements it (fallback to threshold on
+    a hero-less page)."""
+
+    def setUp(self):
+        comp = SKILL_DIR / "assets" / "components" / "show-on-scroll-up-nav.js"
+        self.src = comp.read_text(encoding="utf-8")
+
+    def test_surface_axis_uses_sentinel_observer(self):
+        self.assertIn("IntersectionObserver", self.src)
+        self.assertIn("sentinel", self.src.lower())
+
+    def test_threshold_is_fallback_only(self):
+        # is-scrolled is threshold-driven only when no sentinel observer runs
+        self.assertRegex(self.src, r"if \(!surfaceObserver\) nav\.classList\.toggle\('is-scrolled'")
+
+    def test_accumulator_visibility_axis_intact(self):
+        # the sentinel upgrade must not touch the flicker-proof visibility machine
+        self.assertIn("downAcc", self.src)
+        self.assertIn("upAcc", self.src)
+        self.assertIn("dy == 0", self.src)
+
+
 class TestOverflowClipDiscipline(unittest.TestCase):
     def test_anti_pattern_tell_present(self):
         ap = _read("anti-patterns.md").lower()

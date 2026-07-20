@@ -1961,8 +1961,30 @@
         "--ad-ease-signature"
       ],
       "deps": [],
-      "whenToUse": "Fixed nav: transparent over the hero, gains ground on scroll, hides on scroll-down and reveals on scroll-up.",
-      "init": "awardShowNav.init(root, { selector, threshold })"
+      "whenToUse": "Scroll-aware fixed nav: transparent over the hero, gains ground when the hero-bottom sentinel crosses (not a scrollY threshold), hides on scroll-down and reveals on scroll-up. Mark the hero [data-ad-hero] or pass { hero }; no hero falls back to the top-guard threshold.",
+      "init": "awardShowNav.init(root, { selector, hero, threshold })"
+    },
+    {
+      "id": "nav-hero-surface",
+      "file": "nav-hero-surface.js",
+      "global": "awardNavHeroSurface",
+      "winner": "Siena Film Foundation, Lando Norris, Gabriel Contassot (persistent-bar surface axis)",
+      "archetypes": [
+        "editorial-dark",
+        "immersive",
+        "minimalist",
+        "corporate-luxury",
+        "spatial-organic",
+        "standfirst-stack"
+      ],
+      "tokens": [
+        "--ad-ground",
+        "--ad-dur-base",
+        "--ad-ease-signature"
+      ],
+      "deps": [],
+      "whenToUse": "The SURFACE axis for a minimal PERSISTENT bar (the winner-norm nav that never hides): floats transparent over the hero, gains owned --ad-ground when the hero-bottom sentinel crosses, faint scrim on hover for legibility. The covering id for a persistent bar over a media hero — pair with nav-context-ink for the ink axis. Mark the hero [data-ad-hero] or pass { hero }; no hero renders permanently grounded.",
+      "init": "awardNavHeroSurface.init(root, { selector, hero })"
     },
     {
       "id": "magnetic-cursor",

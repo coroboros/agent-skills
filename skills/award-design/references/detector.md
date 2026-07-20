@@ -47,6 +47,8 @@ The substrate probe measures the **pointer (`:hover`) response only**. `:focus-v
 | UNCOMPUTABLE-BG | REVIEW | text over an image / gradient / media ground — never OK, never FAIL; judge it in §8 |
 | NAV-BORDER | FAIL | a bar's border-bottom draws a contrasting line (ΔL > 0.05 against its own surface) |
 | NAV-BORDER-HAIRLINE | REVIEW | ΔL ≤ 0.05 — same-ink hairline, allowed only as a written override citing the archetype palette row |
+| NAV-HERO-OPAQUE | FAIL | at rest (scrollY 0), a top bar over hero media paints an opaque (α ≥ 0.9), unblurred surface off the page ground — the decapitation band; transparent, scrim, or frost-with-blur over the hero is the winner norm |
+| NAV-HERO-SURFACE | REVIEW | any other owned surface over hero media at rest (frost + blur, translucent, or opaque same-ground) — judged in §8 against the archetype canon, never auto-cleared |
 | TOKEN-CONFORM | REVIEW | a computed color/background resolves to no `--*` token value (skipped when the page declares no color tokens) |
 | H1-LINES | FAIL | an h1 wraps past 2 line boxes at the current viewport |
 | IDLE-CHANNEL | REVIEW | zero animations running at rest — a running animation proves presence, not perceptibility; skipped entirely under `prefers-reduced-motion: reduce` |
@@ -73,4 +75,4 @@ Every selector in `substrate.selectors.unmeasuredJs` is driven with a **real** h
 
 ## Reading the report
 
-`findings` carry `{ id, severity, box, selector, evidence }`; the box names the preflight line each finding feeds. `substrate` counts probed / ok / dead / homeopathic / unmeasuredJs with capped selector lists per class — or `{ skipped }` under touch emulation. `coverage.opaqueSheets > 0` means cross-origin stylesheets could not be probed — say so in the verdict; that coverage hole is never silent. Severity is binary. **FAIL is fix-only** — the fatal five are SUBSTRATE-DEAD, FONT-RESOLVE, NAV-BORDER (the contrasting line), CONTRAST, and content re-hide verified in tier 2. **REVIEW is judged and recorded**, never auto-cleared and never auto-failed. The report footer restates the doctrine; carry it into the verdict: the detector catches, it never clears.
+`findings` carry `{ id, severity, box, selector, evidence }`; the box names the preflight line each finding feeds. `substrate` counts probed / ok / dead / homeopathic / unmeasuredJs with capped selector lists per class — or `{ skipped }` under touch emulation. `coverage.opaqueSheets > 0` means cross-origin stylesheets could not be probed — say so in the verdict; that coverage hole is never silent. Severity is binary. **FAIL is fix-only** — the fatal six are SUBSTRATE-DEAD, FONT-RESOLVE, NAV-BORDER (the contrasting line), NAV-HERO-OPAQUE (the decapitation band), CONTRAST, and content re-hide verified in tier 2. **REVIEW is judged and recorded**, never auto-cleared and never auto-failed. The report footer restates the doctrine; carry it into the verdict: the detector catches, it never clears.

@@ -39,7 +39,7 @@ class TestPureCore(unittest.TestCase):
         keys = _node("Object.keys(d)")
         for name in ("FLOORS", "RULES", "srgbToOklab", "relativeLuminance",
                      "contrastRatio", "parseTransform", "classifyDelta", "diffChannels",
-                     "classifyContact", "peakChannels"):
+                     "classifyContact", "classifyNavHero", "peakChannels"):
             self.assertIn(name, keys)
 
     def test_floors_values(self):
@@ -180,6 +180,52 @@ class TestClassifyContact(unittest.TestCase):
     def test_under_floor_response_is_none(self):
         self.assertEqual(
             "NONE", self._classify({"scale": 1.02, "opacity": 0.05}, [{"translatePx": 1}]))
+
+
+@unittest.skipUnless(shutil.which("node"), "node not on PATH")
+class TestClassifyNavHero(unittest.TestCase):
+    """The decapitation boundary: at rest, a top bar over hero media. Transparent
+    or a to-transparent scrim is the winner norm; an opaque unblurred band off the
+    page ground is the FAIL that shipped over ARDEN's photo; frost-with-blur,
+    translucent, or an opaque same-ground bar (Cyd's always-solid cream) is judged
+    in §8. FAIL fires only on proof — a resolvable solid colour off the ground."""
+
+    def _classify(self, sample):
+        return _node(f"d.classifyNavHero({json.dumps(sample)})")
+
+    def test_opaque_off_ground_over_media_is_fail(self):
+        # the ARDEN bone strip: opaque, no blur, surface far off the page ground
+        self.assertEqual("FAIL", self._classify(
+            {"hasMediaUnder": True, "isScrim": False, "alpha": 1,
+             "hasBackdropFilter": False, "groundDeltaL": 0.2}))
+
+    def test_transparent_over_hero_is_exempt(self):
+        # show-on-scroll-up-nav at rest — the winner norm
+        self.assertEqual("EXEMPT", self._classify(
+            {"hasMediaUnder": True, "alpha": 0, "hasBackdropFilter": False, "groundDeltaL": 0}))
+
+    def test_gradient_scrim_is_exempt(self):
+        self.assertEqual("EXEMPT", self._classify(
+            {"hasMediaUnder": True, "isScrim": True, "alpha": 0.6, "groundDeltaL": 0.3}))
+
+    def test_no_media_under_bar_is_exempt(self):
+        # text-only hero, or "a page with no hero forces the solid state"
+        self.assertEqual("EXEMPT", self._classify(
+            {"hasMediaUnder": False, "alpha": 1, "hasBackdropFilter": False, "groundDeltaL": 0.3}))
+
+    def test_frost_with_blur_is_review(self):
+        # Terminal's glass pill — winner-normal, judged not failed
+        self.assertEqual("REVIEW", self._classify(
+            {"hasMediaUnder": True, "alpha": 0.8, "hasBackdropFilter": True, "groundDeltaL": 0.2}))
+
+    def test_opaque_same_ground_is_review(self):
+        # Cyd's always-solid cream bar — winner-cited, judged against the canon
+        self.assertEqual("REVIEW", self._classify(
+            {"hasMediaUnder": True, "alpha": 1, "hasBackdropFilter": False, "groundDeltaL": 0.02}))
+
+    def test_translucent_unblurred_is_review(self):
+        self.assertEqual("REVIEW", self._classify(
+            {"hasMediaUnder": True, "alpha": 0.5, "hasBackdropFilter": False, "groundDeltaL": 0.2}))
 
 
 @unittest.skipUnless(shutil.which("node"), "node not on PATH")

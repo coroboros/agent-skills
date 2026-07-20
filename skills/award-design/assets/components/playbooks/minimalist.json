@@ -315,7 +315,8 @@
     "nav": {
       "hover": "growing 5px accent DOT centered below the label (opacity:0 scale(0) -> scale(1.01), transform 1s cubic-bezier(.075,.82,.165,1)) — never an underline, never a colored border-bottom; nav links may also accent-recolor over color .3s. The nav floats fully transparent over the hero, gains ground on scroll",
       "tap": "current-section dot shows as state, not a hover; nav reveals on scroll-up, hides on scroll-down",
-      "focus": ":focus-visible shows the dot + ring; nav order preserved"
+      "focus": ":focus-visible shows the dot + ring; nav order preserved",
+      "component": "show-on-scroll-up-nav (scroll-aware) or nav-hero-surface (persistent bar) — the covering id for the transparent-over-hero surface, grounded at the hero-bottom sentinel; never an opaque band from pixel 0 (NAV-HERO-OPAQUE)"
     },
     "cursor": {
       "hover": "OPTIONAL restraint-compatible pointer signature — a small custom dot that scales/animates over interactive targets, or a lightweight trailing lens/mouse-trail. Verified on Pacome Pertant (Awwwards 'Mouse trail' feature). Keep it quiet (monochrome, no color spectacle) to stay inside the archetype",
