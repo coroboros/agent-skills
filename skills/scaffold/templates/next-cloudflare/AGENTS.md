@@ -2,6 +2,11 @@
 
 See @README.md for project overview and @package.json for available scripts.
 
+## Rule Index
+Read the matching rule before planning or editing that surface:
+
+- `.agents/rules/cloudflare-tooling.md` — Cloudflare CLI scope, authentication, images, and destructive-command policy
+
 ## Architecture
 - Framework: Next.js 16 (App Router) on Cloudflare Workers via @opennextjs/cloudflare
 - Styling: Tailwind CSS v4 — tokens in the `@theme` block of `src/app/globals.css` (Tailwind v4 has no `tailwind.config.ts`)
@@ -56,15 +61,12 @@ pnpm design:audit     # Validate DESIGN.md with the project-local canonical CLI
 - Feature-based colocation: `src/features/[name]/` groups components, actions, schemas, hooks
 - Server Actions + Zod for mutations, NOT API routes (unless consumed by external clients)
 - Default to Server Components — `use client` only when strictly required
-- Images: R2 + custom subdomain + custom `next/image` loader → `/cdn-cgi/image/` (Image Transformations, NOT the Cloudflare Images product — see `.claude/rules/cloudflare-tooling.md` § Images)
+- Images: R2 + custom subdomain + custom `next/image` loader → `/cdn-cgi/image/` (Image Transformations, NOT the Cloudflare Images product — see `.agents/rules/cloudflare-tooling.md` § Images)
 - ISR: OpenNext R2 incremental cache + KV tag cache — bindings use OpenNext's hardcoded names (`NEXT_INC_CACHE_R2_BUCKET`, `NEXT_TAG_CACHE_KV`); wrong names fail silently (see `open-next.config.ts`)
 
 ## Environment
 - `.dev.vars` for local Cloudflare bindings + secrets (gitignored)
 - Regenerate types via `pnpm cf-typegen` after any binding change
-
-## Cloudflare tooling — non-negotiable
-@.claude/rules/cloudflare-tooling.md
 
 ## Testing
 - Vitest for unit/integration, Playwright for E2E (`pnpm test:e2e`)

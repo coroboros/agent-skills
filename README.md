@@ -303,7 +303,7 @@ Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-Runs the official framework CLI, overlays the opinionated config (Biome, Cloudflare Workers, CLAUDE.md, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. Chains to `/award-design` then `/design-system` for design tokens.
+Runs the official framework CLI, overlays the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. Chains to `/award-design` then `/design-system` for design tokens.
 
 ---
 

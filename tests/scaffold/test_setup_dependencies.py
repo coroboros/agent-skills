@@ -47,7 +47,7 @@ class TestDesignSystemRuntime(unittest.TestCase):
                     "designmd lint DESIGN.md",
                 )
                 instructions = (
-                    TEMPLATES / scaffold / "CLAUDE.md"
+                    TEMPLATES / scaffold / "AGENTS.md"
                 ).read_text(encoding="utf-8")
                 self.assertIn("`pnpm design:audit`", instructions)
                 self.assertIn(
@@ -59,6 +59,19 @@ class TestDesignSystemRuntime(unittest.TestCase):
                     instructions,
                     r"\b(?:npx|pnpm\s+dlx|bunx|uvx)\b",
                 )
+                self.assertEqual(
+                    (TEMPLATES / "shared" / "CLAUDE.md").read_text(
+                        encoding="utf-8"
+                    ),
+                    "@AGENTS.md\n",
+                )
+
+    def test_generated_project_references_use_canonical_agents_entrypoint(self):
+        wrangler = (
+            TEMPLATES / "next-cloudflare" / "wrangler.jsonc.template"
+        ).read_text(encoding="utf-8")
+        self.assertIn("See AGENTS.md", wrangler)
+        self.assertNotIn("See CLAUDE.md", wrangler)
 
 
 if __name__ == "__main__":

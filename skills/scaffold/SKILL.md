@@ -43,7 +43,7 @@ Per-scaffold steps (framework CLI, conflict removal, dependency installs, CSS-to
 bash "$SKILL_DIR"/scripts/overlay_templates.sh {scaffold} {project_name} {project_dir}
 ```
 
-Writes opinionated configs (`biome.json`, `.gitignore`, `.worktreeinclude`, `CLAUDE.md`, `wrangler.jsonc`, framework configs), merges `package.json` scripts, sets `"type": "module"` / `"private": true`. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial. Requires `jq`.
+Writes opinionated configs (`biome.json`, `.gitignore`, `.worktreeinclude`, canonical `AGENTS.md`, thin `CLAUDE.md`, `.agents/rules/`, `wrangler.jsonc`, framework configs), merges `package.json` scripts, sets `"type": "module"` / `"private": true`. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial. Requires `jq`.
 
 ### 4. Verify and summarize
 

@@ -31,12 +31,12 @@
       "id": 3,
       "name": "generated-cross-agent-design-handoff",
       "prompt": "Inspect both generated scaffold templates and verify how a user installs the shared Design System skill and audits DESIGN.md afterward.",
-      "expected_output": "Routes to references/setup-next-cloudflare.md and references/setup-astro-cloudflare.md, verifies that both templates use the installed skills CLI for the optional shared skill and the declared project-local designmd dependency, and stops rather than falling back to runtime package resolution when that dependency is unavailable.",
+      "expected_output": "Routes to references/setup-next-cloudflare.md and references/setup-astro-cloudflare.md, verifies the canonical AGENTS.md plus thin Claude adapter, confirms that both templates use the installed skills CLI for the optional shared skill and the declared project-local designmd dependency, and stops rather than falling back to runtime package resolution when that dependency is unavailable.",
       "files": [],
       "expectations": [
+        "Both generated projects use AGENTS.md as the canonical instructions, keep CLAUDE.md as the exact @AGENTS.md adapter, and place shared rules under .agents/rules.",
         "Both generated templates document skills add coroboros/agent-skills --skill design-system without npx.",
         "Both generated package script sets expose design:audit as designmd lint DESIGN.md.",
-        "Both generated command sections document pnpm design:audit rather than a global designmd command.",
         "The setup references and generated templates contain no npx, pnpm dlx, bunx, uvx, or @latest runtime resolution path for Design System."
       ]
     }

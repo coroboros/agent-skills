@@ -2,6 +2,12 @@
 
 See @README.md for project overview and @package.json for available scripts.
 
+## Rule Index
+Read the matching rule before planning or editing that surface:
+
+- `.agents/rules/cloudflare-tooling.md` — Cloudflare CLI scope, authentication, images, and destructive-command policy
+- `.agents/rules/seo.md` — required metadata, structured data, sitemap, robots, and performance budgets
+
 ## Architecture
 - Framework: Astro 6 (SSG-first, islands architecture) on Cloudflare Workers
 - Runtime: workerd — dev and prod use the same engine
@@ -62,12 +68,6 @@ export const GET: APIRoute = () => new Response(JSON.stringify({}), {
 
 The `@astrojs/cloudflare` adapter does not (yet) expose `middlewareMode: 'edge'` or `staticHeaders: true` — these only exist on the Netlify, Vercel, and Node adapters.
 
-## SEO — non-negotiable
-@.claude/rules/seo.md
-
 ## Environment
 - `.dev.vars` for local Cloudflare bindings (gitignored)
 - Types generated via `pnpm cf-typegen`
-
-## Cloudflare tooling — non-negotiable
-@.claude/rules/cloudflare-tooling.md

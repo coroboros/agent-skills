@@ -65,17 +65,43 @@ class TestTokenSubstitution(unittest.TestCase):
     def tearDown(self):
         self._tmp.cleanup()
 
-    def test_project_name_substituted_in_claude_md(self):
-        # CLAUDE.md templates contain `[Project Name]` — the canonical token
+    def test_project_name_substituted_in_agents_md(self):
+        # AGENTS.md templates contain `[Project Name]` — the canonical token
         # used by the substitution pass. Verify it's replaced post-run.
-        src = (TEMPLATES / "astro-cloudflare" / "CLAUDE.md").read_text()
+        src = (TEMPLATES / "astro-cloudflare" / "AGENTS.md").read_text()
         self.assertIn("[Project Name]", src, "template lost its token — test stale")
 
         r = _run("astro-cloudflare", "my-cool-app", str(self.target))
         self.assertEqual(r.returncode, 0, msg=f"stderr={r.stderr}\nstdout={r.stdout}")
-        out = (self.target / "CLAUDE.md").read_text()
+        out = (self.target / "AGENTS.md").read_text()
         self.assertNotIn("[Project Name]", out)
         self.assertIn("my-cool-app", out)
+        self.assertEqual((self.target / "CLAUDE.md").read_text(), "@AGENTS.md\n")
+
+    def test_generated_rules_use_cross_agent_paths(self):
+        for scaffold in ("astro-cloudflare", "next-cloudflare"):
+            with self.subTest(scaffold=scaffold):
+                target = self.target / scaffold
+                target.mkdir()
+                r = _run(scaffold, "demo", str(target))
+                self.assertEqual(
+                    r.returncode,
+                    0,
+                    msg=f"stderr={r.stderr}\nstdout={r.stdout}",
+                )
+                self.assertTrue((target / "AGENTS.md").is_file())
+                self.assertEqual((target / "CLAUDE.md").read_text(), "@AGENTS.md\n")
+                self.assertTrue(
+                    (target / ".agents/rules/cloudflare-tooling.md").is_file()
+                )
+                self.assertEqual((target / ".claude").exists(), False)
+
+        self.assertTrue(
+            (self.target / "astro-cloudflare/.agents/rules/seo.md").is_file()
+        )
+        self.assertFalse(
+            (self.target / "next-cloudflare/.agents/rules/seo.md").exists()
+        )
 
     def test_package_json_name_replaced(self):
         # When a project-name placeholder package.json already exists, the

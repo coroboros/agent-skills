@@ -92,17 +92,18 @@ write_file() {
 write_file "$TEMPLATES_DIR/shared/biome.json.template" "$TARGET_DIR/biome.json"
 write_file "$TEMPLATES_DIR/shared/gitignore"            "$TARGET_DIR/.gitignore"
 write_file "$TEMPLATES_DIR/shared/worktreeinclude"      "$TARGET_DIR/.worktreeinclude"
-write_file "$TEMPLATES_DIR/shared/cloudflare-tooling.md" "$TARGET_DIR/.claude/rules/cloudflare-tooling.md"
+write_file "$TEMPLATES_DIR/shared/CLAUDE.md"             "$TARGET_DIR/CLAUDE.md"
+write_file "$TEMPLATES_DIR/shared/cloudflare-tooling.md" "$TARGET_DIR/.agents/rules/cloudflare-tooling.md"
 
 case "$SCAFFOLD" in
   next-cloudflare)
-    write_file "$TEMPLATES_DIR/next-cloudflare/CLAUDE.md"                    "$TARGET_DIR/CLAUDE.md"
+    write_file "$TEMPLATES_DIR/next-cloudflare/AGENTS.md"                    "$TARGET_DIR/AGENTS.md"
     write_file "$TEMPLATES_DIR/next-cloudflare/wrangler.jsonc.template"      "$TARGET_DIR/wrangler.jsonc"
     write_file "$TEMPLATES_DIR/next-cloudflare/open-next.config.ts.template" "$TARGET_DIR/open-next.config.ts"
     ;;
   astro-cloudflare)
-    write_file "$TEMPLATES_DIR/astro-cloudflare/CLAUDE.md"                "$TARGET_DIR/CLAUDE.md"
-    write_file "$TEMPLATES_DIR/astro-cloudflare/seo.md"                   "$TARGET_DIR/.claude/rules/seo.md"
+    write_file "$TEMPLATES_DIR/astro-cloudflare/AGENTS.md"                "$TARGET_DIR/AGENTS.md"
+    write_file "$TEMPLATES_DIR/astro-cloudflare/seo.md"                   "$TARGET_DIR/.agents/rules/seo.md"
     write_file "$TEMPLATES_DIR/astro-cloudflare/astro.config.mjs.template" "$TARGET_DIR/astro.config.mjs"
     write_file "$TEMPLATES_DIR/astro-cloudflare/wrangler.jsonc.template"  "$TARGET_DIR/wrangler.jsonc"
     ;;
