@@ -351,6 +351,53 @@ class TestCopyLangRule(unittest.TestCase):
         self.assertNotIn("COPY-LANG", _rule_ids(findings))
 
 
+class TestCopyEcho(unittest.TestCase):
+    """The ARDEN copy defect: "THE 2026 SEASON" above "Book your season." — a
+    cross-block word echo META-LABEL/EYEBROW-DENSITY (pattern/count) cannot see.
+    Class-agnostic markup parse, since the skill's own output is vanilla CSS."""
+
+    def _scan_html(self, body):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "page.html"
+            f.write_text(f"<!doctype html><html><body>{body}</body></html>", encoding="utf-8")
+            findings, _ = scan.scan_paths([str(f)])
+        return findings
+
+    def _echoes(self, body):
+        return [f for f in self._scan_html(body) if f.rule_id == "COPY-ECHO"]
+
+    def test_arden_kicker_heading_echo_fires(self):
+        hits = self._echoes('<span class="k">THE 2026 SEASON</span><h2>Book your season.</h2>')
+        self.assertEqual(1, len(hits))
+        self.assertIn("season", hits[0].excerpt)
+
+    def test_severity_is_review(self):
+        hits = self._echoes('<p class="k">The night vigil</p><h2>A vigil at dusk</h2>')
+        self.assertTrue(hits)
+        self.assertEqual("REVIEW", hits[0].severity)
+
+    def test_no_shared_word_is_silent(self):
+        self.assertEqual([], self._echoes('<span class="k">SELECTED WORK</span><h2>Studio index</h2>'))
+
+    def test_long_preceding_paragraph_is_not_a_kicker(self):
+        # a real sentence before a heading is not a kicker — length + punctuation gate
+        body = ('<p>This is a full standfirst sentence about the season ahead and it runs long.</p>'
+                '<h2>The season opens</h2>')
+        self.assertEqual([], self._echoes(body))
+
+    def test_nested_styled_word_stays_part_of_the_heading(self):
+        # a styled span inside the heading must not split "season" out of it
+        hits = self._echoes('<span class="k">2026 SEASON</span><h2>Book your <em>season</em> now</h2>')
+        self.assertEqual(1, len(hits))
+
+    def test_preflight_box_carries_both_pairs_and_exemption(self):
+        pf = PREFLIGHT_MD.read_text(encoding="utf-8")
+        self.assertIn("Adjacent copy read as a pair", pf)
+        self.assertIn("heading+first-line", pf)
+        self.assertIn("brand or product proper noun is exempt", pf)
+
+
 class TestScannerChecklistLockstep(unittest.TestCase):
     """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule, and
     every rule the script ships is reachable from the checklist. One-sided

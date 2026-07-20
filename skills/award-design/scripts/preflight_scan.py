@@ -714,7 +714,7 @@ def iter_files(paths):
 
 
 PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
-                    "FONT-COUNT", "STAMP", "COPY-LANG", "FORM-SLOT"}
+                    "FONT-COUNT", "STAMP", "COPY-LANG", "FORM-SLOT", "COPY-ECHO"}
 
 
 # FORM-SLOT: inside a section-form root ([data-ad-form]) the form owns the
@@ -767,6 +767,93 @@ class _FormSlotParser(HTMLParser):
             if self.stack[i][0] == tag:
                 del self.stack[i:]
                 break
+
+
+# COPY-ECHO: a kicker/eyebrow directly above a heading that repeats one of its
+# content words reads as redundant labelling — "THE 2026 SEASON" over "Book your
+# season." (the ARDEN copy defect). META-LABEL and EYEBROW-DENSITY are pattern/
+# count rules that cannot see a cross-block word echo, so this parses markup
+# structure — class-agnostic, since the skill's own output is vanilla CSS whose
+# kickers carry no Tailwind signature. Scoped to the kicker->heading pair, the
+# high-signal case; the heading->first-line pair is judged in preflight §6 (a body
+# line naturally re-uses the heading's topic, so a mechanical rule there is noise).
+# REVIEW — the brand/product proper noun is a legitimate shared word, judged.
+COPY_ECHO_TAGS = {"h1", "h2", "h3", "h4", "h5", "h6", "p", "span", "small", "strong", "em", "li", "figcaption"}
+COPY_ECHO_HEADINGS = {"h1", "h2", "h3", "h4", "h5", "h6"}
+COPY_ECHO_CONTENT_WORD = re.compile(r"[a-z]{4,}")
+COPY_ECHO_KICKER_MAX = 44
+COPY_ECHO_STOPWORDS = frozenset({
+    "your", "yours", "ours", "with", "from", "this", "that", "these", "those",
+    "into", "onto", "over", "under", "about", "will", "would", "could", "should",
+    "have", "been", "being", "were", "their", "them", "they", "then", "than",
+    "what", "when", "where", "which", "while", "here", "there", "just", "also",
+    "very", "more", "most", "such", "only", "even", "each", "both", "does",
+})
+
+
+def _copy_echo_words(text):
+    return {w for w in COPY_ECHO_CONTENT_WORD.findall(text.lower())
+            if w not in COPY_ECHO_STOPWORDS}
+
+
+class _CopyEchoParser(HTMLParser):
+    """Emits top-level text blocks in reading order, each carrying its full nested
+    text (a styled word inside a heading stays part of the heading, never a
+    separate block). Nesting is resolved by emitting only elements with no tracked
+    ancestor and folding descendant text up into them."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.blocks = []  # (tag, text, line)
+        self.stack = []   # frames: {"tag","line","chunks","top"}
+
+    def handle_starttag(self, tag, attrs):
+        if tag in COPY_ECHO_TAGS:
+            self.stack.append({"tag": tag, "line": self.getpos()[0], "chunks": [], "top": not self.stack})
+
+    def handle_data(self, data):
+        for frame in self.stack:  # fold text into every open frame → parents keep nested text
+            frame["chunks"].append(data)
+
+    def handle_endtag(self, tag):
+        for i in range(len(self.stack) - 1, -1, -1):
+            if self.stack[i]["tag"] == tag:
+                frame = self.stack[i]
+                del self.stack[i:]
+                if frame["top"]:
+                    text = " ".join("".join(frame["chunks"]).split())
+                    if text:
+                        self.blocks.append((frame["tag"], text, frame["line"]))
+                break
+
+
+def _copy_echo_findings(text):
+    parser = _CopyEchoParser()
+    try:
+        parser.feed(text)
+    except Exception:
+        return []  # a malformed document is other rules' problem
+    out = []
+    blocks = parser.blocks
+    for i, (tag, htext, line) in enumerate(blocks):
+        if tag not in COPY_ECHO_HEADINGS or i == 0:
+            continue
+        ptag, ptext, _ = blocks[i - 1]
+        is_kicker = (ptag not in COPY_ECHO_HEADINGS and len(ptext) <= COPY_ECHO_KICKER_MAX
+                     and not re.search(r"[.!?]", ptext))
+        if not is_kicker:
+            continue
+        shared = _copy_echo_words(ptext) & _copy_echo_words(htext)
+        if shared:
+            out.append((line,
+                        f'kicker "{ptext}" and heading "{htext}" share the word '
+                        f'"{sorted(shared)[0]}" — read the pair; cut or reword one '
+                        f'(a brand/product proper noun is exempt, judged in §6)'))
+        if len(out) >= 12:
+            break
+    return out
+
+
 # Rules that fire only when their precondition is met (an argument passed), so
 # they are not expected on a bare dirty-fixture scan — registered for the
 # checklist lockstep, exempt from the "fires on dirty" net.
@@ -923,6 +1010,16 @@ def scan_paths(paths, archetype="", allow=()):
                     "section-form slot violation — the form owns the layout; "
                     "direct children carry data-slot from the form's contract "
                     "(components/README.md, section forms)",
+                    f"{path}:{line_no}", message))
+
+        # COPY-ECHO — a kicker directly above a heading that repeats one of its
+        # content words (the ARDEN "THE 2026 SEASON" / "season" defect).
+        if "COPY-ECHO" not in suppressed and ext in {".html", ".htm"}:
+            for line_no, message in _copy_echo_findings(text):
+                findings.append(Finding(
+                    "COPY-ECHO", REVIEW,
+                    "kicker/heading word echo — a kicker repeating a heading's "
+                    "content word reads as redundant labelling (preflight §6)",
                     f"{path}:{line_no}", message))
 
         # Per-page structural rules — full HTML documents with real content
