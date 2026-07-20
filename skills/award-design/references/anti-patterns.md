@@ -70,6 +70,8 @@ Current models carry a persistent default aesthetic that judges now read as its 
 
 A sibling overexposed cluster is the **premium-consumer palette** — sand/beige base (`#E7DFD3`, `#D8C7B0`), brass or gold accent (`#B08D57`, `#C9A227`), espresso text (`#3B2F2A`). The DTC-luxury monoculture, the Aesop-clone look. The hexes name the *family*, not a blocklist. Rotate at least one of the three roles — swap brass for oxblood, espresso for ink, sand for bone — or justify the palette against the brief.
 
+A third, colder cluster is the **clinical minimal** — a near-neutral bone or off-white ground (`#F5F3EE`, `#FAFAF7`) paired with a single pure signal-primary accent at full chroma (`#FF0000`, `#0000FF`, `#00E000`), often with the accent doing double duty as an underline on links. It clears every AI-slop hue ban (no purple gradient, off-white not pure white) and still reads dead: the pure accent has no world-temperature in it, and accent underlines scan as broken or unvisited links, so the page reads like an error state, not a design (the ARDEN mortuary palette). Rotate away: pull the accent off the pure primary vertex (a real material's red, not `#F00`), warm or cool the ground toward the world's temperature, and make the link treatment a committed hover, not a standing colored underline. This is a *lived-desirability* cluster, not a hex blocklist — judge the composed system beside the exemplar, not the swatches.
+
 Generic negation does not fix it. "Don't use cream", "make it clean and minimal" shift the model to a *different* fixed palette, not to variety. Two counters work:
 
 - **Specify a concrete alternative** — exact palette hexes, typeface, corner radius, motion timing. The model follows explicit specs precisely.

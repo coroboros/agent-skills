@@ -74,11 +74,11 @@ Font stack quality, pairing logic, hierarchy precision.
 
 ### 4. Color
 
-Palette coherence, contrast, role clarity.
+Palette coherence, contrast, role clarity — **and desirability, judged beside the exemplar.** Role-coherence is not appeal: a technically perfect two-color system can read clinical (ARDEN's bone + pure-red passed every hue ban and shipped dead). The composed palette at page proportions is judged beside the archetype exemplar's palette signature (`exemplars.md`), not as equal-size swatches.
 
 - **0** — More than one accent competing. Purple-gradient hero. Pure #000/#FFF everywhere. No role assignment (which color is primary? nobody knows).
-- **5** — Palette is restrained and roles are implicit. Contrast meets AA. No standout accent moment.
-- **10** — Every color has an explicit role (primary, surface, text, accent, semantic). One accent, used as punctuation. Off-blacks and off-whites. Dark mode considered, not bolted on.
+- **5** — Palette is restrained and roles are implicit. Contrast meets AA. No standout accent moment. **Or: roles are perfectly clear but the composed system reads clinical beside the exemplar — a mortuary palette, an accent that scans as broken links — role-coherence cannot lift it past here.**
+- **10** — Every color has an explicit role (primary, surface, text, accent, semantic). One accent, used as punctuation. Off-blacks and off-whites. Dark mode considered, not bolted on. **Beside the exemplar, the palette reads alive — the world's lived temperature is in it, not drained out for taste.**
 
 ### 5. Motion
 
