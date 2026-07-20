@@ -252,6 +252,20 @@ class TestPlaybooks(unittest.TestCase):
                 self.assertIn(b["spectacle_model"]["one_climax_verdict"],
                               {"SUPPORTED", "REFINED", "REFUTED"})
 
+    def test_spectacle_model_is_diffable(self):
+        """The build's spectacle conformance table diffs its shipped beats against
+        the model. That diff target must exist and be non-empty for every playbook:
+        a hero beat and at least one continuation beat. A model with no beats to
+        quote is the gate ARDEN escaped — a hover shipped as the page climax with
+        nothing to check it against."""
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                sm = b["spectacle_model"]
+                self.assertTrue(sm.get("hero"), "spectacle_model.hero is the hero beat to diff against")
+                self.assertIsInstance(sm.get("continuation"), list)
+                self.assertGreaterEqual(len(sm["continuation"]), 1,
+                                        "continuation carries the beats the build maps its sections onto")
+
     def test_gaps_are_buildable_orders(self):
         for name, b in self.books.items():
             for g in b["gaps"]:
@@ -303,6 +317,19 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         # the MERIDIAN v2 lesson: the cap holds peaks, never vocabulary,
         # and a committed beat is never silently cut in cleanup
         self.assertIn("A committed beat survives to ship", self.skill)
+
+    def test_spectacle_conformance_gate(self):
+        """ARDEN shipped a hover as the page climax and passed: the Spectacle-commit
+        box checked the build against its own plan, never against the model. The
+        conformance table + trigger law close it."""
+        self.assertIn("spectacle conformance table", self.skill)
+        self.assertIn("diffs against the playbook's `spectacle_model`", self.skill)
+        # the trigger law — a pointer-gated peak is not a climax
+        self.assertIn("a pointer-gated peak never fills the climax row", self.skill)
+        # preflight consumes it, and the verdict Counts the trigger
+        self.assertIn("Conformance:", self.preflight)
+        self.assertIn("never a pointer-gated peak", self.preflight)
+        self.assertIn("climax trigger <scroll|load|zero-by-canon>", self.preflight)
         self.assertIn("The desktop pointer layer is committed explicitly", self.skill)
         self.assertIn("Optional kicker/eyebrow slots default ABSENT", self.skill)
 
