@@ -151,6 +151,39 @@ class TestComparativeReadIsLive(unittest.TestCase):
         self.assertIn("comparison from description", ar)
 
 
+class TestDesireReadTravels(unittest.TestCase):
+    """ARDEN's review wrote "dishwater" mid-pass, then softened it into a clean
+    conclusion at synthesis — the desire verdict, filed as "declared" evidence,
+    lost to green mechanics. The read is now driven evidence, emitted first in a
+    fixed format, verbatim-travel protected like READY-UNVERIFIED."""
+
+    def setUp(self):
+        self.skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        self.pf = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
+
+    def test_desire_read_is_driven_evidence(self):
+        low = self.skill.lower()
+        self.assertIn("comparative desire read run on the rendered pixels beside the live exemplar is driven evidence",
+                      low)
+        self.assertIn("never outranked by clean mechanical reports", low)
+
+    def test_first_emitted_line_fixed_format(self):
+        # the format token is case-sensitive
+        self.assertIn('DESIRE-READ: BEATS|LOSES <exemplar>', self.skill)
+        self.assertIn("first emitted line is the read", self.skill.lower())
+        self.assertIn("travels verbatim", self.skill.lower())
+
+    def test_verdict_block_carries_the_field(self):
+        self.assertIn("**Desire read:**", self.pf)
+        self.assertIn("DESIRE-READ:", self.pf)
+
+    def test_skip_vs_gap_doctrine(self):
+        low = self.skill.lower()
+        # with a rung present, comparison-from-description is the same fail as a false tick
+        self.assertIn("legal only with no browser rung", low)
+        self.assertIn("the same fail as falsely ticking a box", low)
+
+
 class TestRotationQuotesTheStamp(unittest.TestCase):
     def test_quoted_stamp_or_failed_lookup(self):
         s = _skill()

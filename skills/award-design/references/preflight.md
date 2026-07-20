@@ -247,6 +247,7 @@ Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until t
 **Scanner:** <N files scanned> · <N> FAIL (<all fixed | K justified below>) · <M> REVIEW (judged)
 **Detector:** <N> FAIL (fix-only) · <M> REVIEW · UNMEASURED <n> → driven <m> — or "no JS-evaluating rung"
 **Open with:** <command — a module build needs a server; `file://` runs zero JS>
+**Desire read:** DESIRE-READ: <BEATS|LOSES> <exemplar> — "<raw phrase, verbatim from the read, never softened>"
 **Boxes:** <ticked>/<total> — every unticked, overridden, or gap box listed by its bold name
 **Counts:** eyebrows <n>/<max> · sections <n> · layout families <named, not counted> · marquees <n> · CTA intents <labels listed> · text effects <n≥1 named> · spectacle <1 named> · climax trigger <scroll|load|zero-by-canon> · media coverage <n>/<n>
 **Ledger:** <sections> sections · <iterations> loops · <captures> capture refs · placement rows <n>/<captures> — uniform first-try anomaly: <none | noted>
