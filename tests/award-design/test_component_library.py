@@ -37,6 +37,38 @@ class TestManifestShape(unittest.TestCase):
                     self.assertIn(field, c)
 
 
+class TestSlotRoles(unittest.TestCase):
+    """The anti-monoculture rotation axis: role -> interchangeable component ids.
+    The recipe pairs name the winner default; slot_roles is where the next build
+    finds a same-role substitute so the reading kit rotates instead of re-shipping
+    kinetic-reveal + text-emphasis-fill + semantic-accent + clip-reveal a sixth time.
+    Every id must resolve, or the rotation points at a component that doesn't exist."""
+
+    def test_slot_roles_present(self):
+        m = _manifest()
+        self.assertIn("slot_roles", m)
+        for role in ("h1-entrance", "prose-substrate", "media-uncover", "nav"):
+            self.assertIn(role, m["slot_roles"])
+
+    def test_every_slot_role_id_resolves(self):
+        m = _manifest()
+        ids = {c["id"] for c in m["components"]}
+        for role, candidates in m["slot_roles"].items():
+            if not isinstance(candidates, list):
+                continue  # the note string
+            for cid in candidates:
+                with self.subTest(role=role, component=cid):
+                    self.assertIn(cid, ids, f"slot_roles[{role}] names a component with no file")
+
+    def test_reading_kit_slots_have_alternatives(self):
+        """A rotation axis with one option cannot rotate — the reading-kit slots
+        must offer a real choice."""
+        m = _manifest()
+        for role in ("h1-entrance", "prose-substrate", "media-uncover"):
+            with self.subTest(role=role):
+                self.assertGreaterEqual(len(m["slot_roles"][role]), 2)
+
+
 class TestManifestFilesSync(unittest.TestCase):
     def test_manifest_and_directory_agree(self):
         """No orphan .js on disk and no manifest entry without a file — the two

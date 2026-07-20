@@ -291,6 +291,18 @@ class TestPlaybooks(unittest.TestCase):
                 self.assertIn("never reused across builds", v)
                 self.assertIn("zero winner precedent", v)
 
+    def test_reading_kit_is_a_device_not_dna(self):
+        """ARDEN monoculture: the reading kit shipped identical across five
+        different-brand builds because every playbook's variation field listed
+        "interaction vocabulary" as persisting DNA. The reword scopes it — the
+        motion register persists, the named kit is a device that rotates."""
+        for name, b in self.books.items():
+            with self.subTest(playbook=name):
+                v = b.get("variation", "")
+                self.assertNotIn("motion register + interaction vocabulary", v,
+                                 "the DNA clause must not list the named kit as persisting")
+                self.assertIn("device, rotated per build", v)
+
 
 class TestCompositionFloorsWiring(unittest.TestCase):
     """The floors are inert unless the phases carry them — pin the phrases."""
@@ -317,6 +329,16 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         # the MERIDIAN v2 lesson: the cap holds peaks, never vocabulary,
         # and a committed beat is never silently cut in cleanup
         self.assertIn("A committed beat survives to ship", self.skill)
+
+    def test_reading_kit_rotation_axis(self):
+        """The monoculture had no named rotation axis. The reading kit joins the
+        rotate list, the stamp carries a text: field, and slot_roles is the pick."""
+        self.assertIn("· text:<h1-entrance>/<prose-substrate>", self.skill,
+                      "the stamp must carry the reading-kit field")
+        self.assertIn("the reading kit", self.skill)
+        self.assertIn("slot_roles", self.skill)
+        ap = (SKILL_DIR / "references" / "anti-patterns.md").read_text(encoding="utf-8")
+        self.assertIn("or reading kit", ap)
 
     def test_spectacle_conformance_gate(self):
         """ARDEN shipped a hover as the page climax and passed: the Spectacle-commit
