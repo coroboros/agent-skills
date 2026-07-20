@@ -33,15 +33,15 @@
     {
       "id": 5,
       "name": "reads-declared-base-from-rules",
-      "prompt": "/code-ultrareview (clean tree; the repo CLAUDE.md declares the source branch is `develop`)",
+      "prompt": "/code-ultrareview (clean tree; the repo AGENTS.md declares the source branch is `develop`)",
       "expected_output": "Before running the resolver, the skill reads the rule hierarchy, finds the declared source branch (e.g. develop), and passes it via -b. rule=explicit; base is merge-base(develop, HEAD) — a diffable ancestor SHA. This is the skill-layer rung — resolve_base.sh itself never parses rule files.",
       "files": []
     },
     {
       "id": 6,
-      "name": "style-axis-cites-claude-md-rule",
-      "prompt": "/code-ultrareview (a changed file violates a rule written in .claude/rules/)",
-      "expected_output": "The Style axis reports the violation with the exact rule line quoted verbatim and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not. The Haiku validator (Phase 4) re-checks the cited CLAUDE.md rule actually exists in `claude_md_chain` — if absent at the cited path, the finding is demoted with `CLAUDE.md rule not found at <path>`.",
+      "name": "style-axis-cites-project-instruction-rule",
+      "prompt": "/code-ultrareview (a changed file violates a .agents/rules/ rule indexed from AGENTS.md)",
+      "expected_output": "The Style axis reports the violation with the exact rule line quoted verbatim, its instruction source path, and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not. The fresh-context validator re-checks that the cited rule exists in the applicable `instruction_chain`; if absent at the cited path, the finding is demoted with `Instruction rule not found at <path>`.",
       "files": []
     },
     {
@@ -82,15 +82,15 @@
     {
       "id": 11,
       "name": "graceful-degradation-no-rules-baseline",
-      "prompt": "/code-ultrareview (repo has no CLAUDE.md, no .claude/rules, no ~/.claude/rules)",
-      "expected_output": "The Style axis still runs. With an empty CLAUDE.md chain it may report only changed-line violations backed by repeated neighboring repository evidence; otherwise it emits no findings. The header states `Rules baseline: none — Style used observable repository conventions`. It is never marked skipped and never invents a preference from a single example.",
+      "prompt": "/code-ultrareview (repo and user scopes have no applicable AGENTS.override.md, AGENTS.md, .agents/rules, CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md, or .claude/rules)",
+      "expected_output": "The Style axis still runs. With an empty instruction chain it may report only changed-line violations backed by repeated neighboring repository evidence; otherwise it emits no findings. The header states `Rules baseline: none — Style used observable repository conventions`. It is never marked skipped and never invents a preference from a single example.",
       "files": []
     },
     {
       "id": 12,
       "name": "sub-80-routes-to-unverified-not-dropped",
       "prompt": "/code-ultrareview (changes contain one real high-impact bug at confidence 90 plus a maybe-issue scored at 70)",
-      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue first passes through the Haiku validator (Phase 4); if the validator demotes (stays sub-80), the finding appears in ### ⚠️ Unverified with the prefix [unverified] and the validator's reason in the recommendation (e.g. `CLAUDE.md rule not found at .claude/rules/api.md` or `Sub-80 confidence (70) — verify locally before action`). Neither is dropped — A2 no-silent-drop contract.",
+      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue first passes through the fresh-context validator; if the validator demotes (stays sub-80), the finding appears in ### ⚠️ Unverified with the prefix [unverified] and the validator's reason in the recommendation (e.g. `Instruction rule not found at .agents/rules/api.md` or `Sub-80 confidence (70) — verify locally before action`). Neither is dropped — A2 no-silent-drop contract.",
       "files": []
     },
     {
@@ -173,15 +173,15 @@
     {
       "id": 25,
       "name": "verify-build-flag-is-an-atomic-project-test-gate",
-      "prompt": "/code-ultrareview --verify-build (a sub-80 Correctness finding that the build run confirms via a failing test)",
+      "prompt": "/code-ultrareview --verify-build (a sub-80 Correctness finding exists and the canonical project test command fails)",
       "expected_output": "Phase 3.5 runs `scripts/run_build_verify.py`: `build_detect.py` requires a real canonical test command, marks build coverage incomplete, removes stale output, and runs the command once even when all findings are already at or above 80. A missing command or runner exits 3 with project-aware install/configuration guidance plus the exact Code Ultrareview rerun; zero tests, failure, timeout, execution error, or malformed input exits 4 with the canonical test command and exact rerun. No path changes finding confidence because a generic build result cannot prove a specific finding. Without `--verify-build`, Phase 3.5 does not run.",
       "files": []
     },
     {
       "id": 26,
-      "name": "haiku-validator-demotes-bad-claude-md-citation",
-      "prompt": "/code-ultrareview (a sub-80 Style axis finding cites a CLAUDE.md rule that doesn't exist at the cited path)",
-      "expected_output": "Phase 4 launches one Haiku validator for the finding. The validator re-checks the cited rule against `claude_md_chain` from `scope.json`, finds no matching rule at the cited path, and demotes with `CLAUDE.md rule not found at <path>`. The finding lands in ### ⚠️ Unverified with that reason text verbatim. A2 contract preserved — never silently dropped.",
+      "name": "validator-demotes-bad-instruction-citation",
+      "prompt": "/code-ultrareview (a sub-80 Style axis finding cites an AGENTS.md rule that does not exist at the cited path)",
+      "expected_output": "Phase 4 launches one fresh-context validator for the finding. The validator re-checks the cited rule against `instruction_chain` from `scope.json`, finds no matching rule at the cited path, and demotes with `Instruction rule not found at <path>`. The finding lands in ### ⚠️ Unverified with that reason text verbatim. A2 contract preserved — never silently dropped.",
       "files": []
     },
     {

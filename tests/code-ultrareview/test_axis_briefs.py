@@ -11,7 +11,7 @@ Per-axis tests in this file pin the deterministic surface only:
 - Every brief carries the canonical headings the dispatcher templates against.
 - Every brief references anthropic-verbatim.md.
 - Per-axis specifics: Simplification cites code-simplifier; Performance lists
-  the bundled rules; Style describes the CLAUDE.md chain; Coherence lists
+  the bundled rules; Style describes the instruction chain; Coherence lists
   its six sub-graphs; tool-fed axes name their tool inputs.
 """
 
@@ -175,6 +175,11 @@ class TestTestsBrief(unittest.TestCase):
 
 class TestDocumentationBrief(unittest.TestCase):
 
+    def test_install_context_paths_are_cross_agent(self):
+        body = _brief("documentation")
+        self.assertIn("~/.agents/skills/<other>/", body)
+        self.assertIn("~/.claude/skills/<other>/", body)
+
     def test_lists_ai_vocabulary_terms(self):
         body = _brief("documentation")
         for term in ("delve", "tapestry", "underscore"):
@@ -188,10 +193,12 @@ class TestDocumentationBrief(unittest.TestCase):
 
 class TestStyleBrief(unittest.TestCase):
 
-    def test_describes_claude_md_chain(self):
+    def test_describes_cross_agent_instruction_chain(self):
         body = _brief("style")
+        self.assertIn("AGENTS.md", body)
         self.assertIn("CLAUDE.md", body)
-        self.assertIn("claude_md_chain", body)
+        self.assertIn("instruction_chain", body)
+        self.assertIn("AGENTS.override.md", body)
 
     def test_graceful_degradation_when_no_baseline(self):
         body = _brief("style")

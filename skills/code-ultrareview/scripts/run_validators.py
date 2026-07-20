@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Phase 4 Haiku-validator orchestrator for code-ultrareview.
+"""Phase 4 fresh-context-validator orchestrator for code-ultrareview.
 
-The main thread launches one Haiku validator per still-sub-80 finding
+The main thread launches one fresh-context validator per still-sub-80 finding
 from Phase 3, batched at ten parallel — subagents cannot spawn other
 subagents (Anthropic's documented contract: `Agent` tool is reserved
 for the main thread). This module is the deterministic half:
 
 1. Filter the sub-80 finding set from Phase 3 — confidence-100 tool
    findings skip validation entirely.
-2. Locate the deepest matching CLAUDE.md snippet from the chain so the
+2. Locate the deepest matching project-instruction snippet from the chain so the
    validator can re-check whether the cited rule actually exists.
 3. Build the per-finding validator prompt — citing
    `references/anthropic-verbatim.md` rubric VERBATIM, plus the
-   CLAUDE.md re-check requirement.
+   project-instruction re-check requirement.
 4. Write per-finding input bundles to disk so the main-thread orchestrator
    can `Read` them and fan out `Task` calls in batches of ten.
 
@@ -23,8 +23,8 @@ and reasons, then applies the A2 promote/demote routing on top of
 Canonical schemas:
 
     axis-findings.jsonl            # produced by Phase 3 axis subagents
-    validator-input/{NNNN}.json    # {finding, diff_context, claude_md_*, paths}
-    validator-prompt/{NNNN}.txt    # full Haiku prompt blob
+    validator-input/{NNNN}.json    # {finding, diff_context, instruction_*, paths}
+    validator-prompt/{NNNN}.txt    # full validator prompt blob
     validated-findings.jsonl       # produced by ingest
 
 CLI:
@@ -43,6 +43,8 @@ CLI:
 from __future__ import annotations
 
 import argparse
+import ast
+import fnmatch
 import importlib.util
 import json
 import re
@@ -78,8 +80,8 @@ PROMOTION_CAP = synthesis_core.PROMOTION_CAP
 UNVERIFIED_PREFIX = synthesis_core.UNVERIFIED_PREFIX
 
 # Soft concurrency cap — Anthropic's `code-review` plugin batches one
-# Haiku validator per finding at ten parallel; the deep research echoes
-# the same community-observed limit.
+# Fresh-context validator per finding at ten parallel; Anthropic's Haiku
+# implementation and the deep research echo the same community-observed limit.
 MAX_BATCH_SIZE = 10
 
 # Anthropic-verbatim source — every validator prompt cites it.
@@ -130,12 +132,118 @@ def batch(items: list[_T], size: int = MAX_BATCH_SIZE) -> list[list[_T]]:
     return [items[i:i + size] for i in range(0, len(items), size)]
 
 
-def find_claude_md_snippet(
+def _frontmatter_paths(body: str) -> list[str] | None:
+    """Return a rule's `paths` patterns, or None when it is unscoped."""
+    lines = body.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    try:
+        end = next(i for i, line in enumerate(lines[1:], 1) if line.strip() == "---")
+    except StopIteration:
+        return None
+
+    frontmatter = lines[1:end]
+    for index, line in enumerate(frontmatter):
+        if not re.match(r"^paths\s*:", line):
+            continue
+        value = line.split(":", 1)[1].strip()
+        raw_patterns: list[str] = []
+        if value:
+            if value.startswith("[") and value.endswith("]"):
+                try:
+                    parsed = json.loads(value)
+                except json.JSONDecodeError:
+                    try:
+                        parsed = ast.literal_eval(value)
+                    except (SyntaxError, ValueError):
+                        parsed = None
+                if isinstance(parsed, list) and all(
+                    isinstance(item, str) for item in parsed
+                ):
+                    raw_patterns.extend(parsed)
+                else:
+                    raw_patterns.extend(value[1:-1].split(","))
+            else:
+                raw_patterns.append(value)
+        else:
+            for nested in frontmatter[index + 1:]:
+                if nested and not nested[0].isspace():
+                    break
+                match = re.match(r"^\s*-\s*(.+?)\s*$", nested)
+                if match:
+                    raw_patterns.append(match.group(1))
+        return [
+            pattern.strip().strip("'\"")
+            for pattern in raw_patterns
+            if pattern.strip().strip("'\"")
+        ]
+    return None
+
+
+def _expand_braces(pattern: str) -> list[str]:
+    """Expand simple comma-separated glob braces recursively."""
+    match = re.search(r"\{([^{}]+)\}", pattern)
+    if not match:
+        return [pattern]
+    expanded: list[str] = []
+    for choice in match.group(1).split(","):
+        replacement = pattern[:match.start()] + choice + pattern[match.end():]
+        expanded.extend(_expand_braces(replacement))
+    return expanded
+
+
+def _glob_matches(pattern: str, finding_path: str) -> bool:
+    """Match slash-aware globs with `**` and simple brace expansion."""
+    normalized_path = finding_path.removeprefix("./").strip("/")
+
+    def match_parts(pattern_parts: list[str], path_parts: list[str]) -> bool:
+        if not pattern_parts:
+            return not path_parts
+        head = pattern_parts[0]
+        if head == "**":
+            return match_parts(pattern_parts[1:], path_parts) or (
+                bool(path_parts) and match_parts(pattern_parts, path_parts[1:])
+            )
+        return bool(path_parts) and fnmatch.fnmatchcase(path_parts[0], head) and match_parts(
+            pattern_parts[1:], path_parts[1:]
+        )
+
+    for expanded in _expand_braces(pattern.removeprefix("./").strip("/")):
+        if match_parts(expanded.split("/"), normalized_path.split("/")):
+            return True
+    return False
+
+
+def _instruction_applies(path_str: str, location: str, body: str) -> bool:
+    """Return whether an instruction file can govern the finding."""
+    path = Path(path_str)
+    finding_path = "" if location == "(repo)" else location.split(":", 1)[0]
+    if not path.is_absolute() and finding_path:
+        parts = path.parts
+        scope_parts = parts[:-1]
+        for marker in (".agents", ".claude"):
+            if marker in parts:
+                scope_parts = parts[:parts.index(marker)]
+                break
+        scope = "/".join(scope_parts)
+        if scope and finding_path != scope and not finding_path.startswith(f"{scope}/"):
+            return False
+
+    patterns = _frontmatter_paths(body)
+    if patterns is None:
+        return True
+    return bool(finding_path) and any(
+        _glob_matches(pattern, finding_path) for pattern in patterns
+    )
+
+
+def find_instruction_snippet(
     rule_text: str,
-    claude_md_chain: list[str],
+    instruction_chain: list[str],
     repo_dir: Path,
+    location: str = "",
 ) -> tuple[str | None, str | None]:
-    """Return `(path, snippet)` for the deepest CLAUDE.md file whose body
+    """Return `(path, snippet)` for the deepest instruction file whose body
     contains `rule_text`, case-insensitive substring match.
 
     The chain is ordered root-to-deepest; deepest match wins so nested
@@ -152,7 +260,7 @@ def find_claude_md_snippet(
     if not needle:
         return (None, None)
     best: tuple[str | None, str | None] = (None, None)
-    for path_str in claude_md_chain:
+    for path_str in instruction_chain:
         path = Path(path_str)
         if not path.is_absolute():
             path = repo_dir / path
@@ -161,6 +269,8 @@ def find_claude_md_snippet(
         try:
             body = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
+            continue
+        if not _instruction_applies(path_str, location, body):
             continue
         lower = body.lower()
         idx = lower.find(needle)
@@ -171,6 +281,15 @@ def find_claude_md_snippet(
         snippet = body[start:end].strip()
         best = (path_str, snippet)
     return best
+
+
+def find_claude_md_snippet(
+    rule_text: str,
+    claude_md_chain: list[str],
+    repo_dir: Path,
+) -> tuple[str | None, str | None]:
+    """Compatibility alias for callers using the historical function name."""
+    return find_instruction_snippet(rule_text, claude_md_chain, repo_dir)
 
 
 def extract_diff_context(diff_text: str, location: str) -> str:
@@ -204,18 +323,18 @@ def extract_diff_context(diff_text: str, location: str) -> str:
 PROMPT_TEMPLATE = """\
 # Validator: re-score sub-80 finding
 
-You are a Haiku validator for code-ultrareview Phase 4. One axis
+You are a fresh-context validator for code-ultrareview Phase 4. One axis
 reviewer judged the finding below at sub-80 confidence. Re-score it
-0-100 against the VERBATIM Anthropic rubric and verify the CLAUDE.md
+0-100 against the VERBATIM Anthropic rubric and verify the project-instruction
 citation, if any.
 
 ## Your contract
 
 - Read `{anthropic_verbatim}` and apply the 0-100 confidence rubric VERBATIM.
 - Read `{anthropic_verbatim}` and silence false positives per the documented taxonomy.
-- Re-check the CLAUDE.md citation: if the finding cites a rule, confirm
+- Re-check the project-instruction citation: if the finding cites a rule, confirm
   the rule text is actually present in the snippet below; demote with
-  reason "CLAUDE.md rule not found at {claude_md_path}" when absent.
+  reason "Instruction rule not found at {instruction_path}" when absent.
 - Do NOT check build signal or attempt to build / typecheck. CI does that
   separately (per the verbatim agent-assumption rule).
 - Do NOT propose a new finding. Only re-score the one given.
@@ -232,10 +351,10 @@ citation, if any.
 {diff_context}
 ```
 
-## CLAUDE.md snippet ({claude_md_path})
+## Project instruction snippet ({instruction_path})
 
 ```
-{claude_md_snippet}
+{instruction_snippet}
 ```
 
 ## Output
@@ -259,26 +378,26 @@ tool. Synthesis owns report emission.
 def build_validator_prompt(
     finding: dict,
     diff_context: str,
-    claude_md_snippet: str | None,
-    claude_md_path: str | None,
+    instruction_snippet: str | None,
+    instruction_path: str | None,
     anthropic_verbatim_path: str,
     run_id: str = "direct-call",
 ) -> str:
-    """Build the Haiku validator prompt for a single finding.
+    """Build the fresh-context validator prompt for a single finding.
 
-    Missing CLAUDE.md snippet renders explicit "(not found in
-    claude_md_chain)" placeholders so the validator can apply the
+    Missing instruction snippet renders explicit "(not found in
+    instruction_chain)" placeholders so the validator can apply the
     demote-with-reason rule deterministically.
     """
-    snippet = claude_md_snippet or "(not found in claude_md_chain)"
-    path = claude_md_path or "(none)"
+    snippet = instruction_snippet or "(not found in instruction_chain)"
+    path = instruction_path or "(none)"
     return PROMPT_TEMPLATE.format(
         anthropic_verbatim=anthropic_verbatim_path,
         finding_json=json.dumps(finding, indent=2, sort_keys=False),
         location=finding.get("location", "?"),
         diff_context=diff_context or "(no diff context)",
-        claude_md_snippet=snippet,
-        claude_md_path=path,
+        instruction_snippet=snippet,
+        instruction_path=path,
         run_id=run_id,
     )
 
@@ -300,10 +419,17 @@ def prepare_validator_bundle(
     and `output_dir/validator-prompt/{NNNN}.txt`. The `NNNN` prefix is
     zero-padded so directory listings sort in dispatch order.
     """
-    chain = list(scope.get("claude_md_chain", []))
+    chain = list(
+        scope["instruction_chain"]
+        if "instruction_chain" in scope
+        else scope.get("claude_md_chain") or []
+    )
     rule_text = str(finding.get("rule") or finding.get("finding", ""))
-    claude_md_path, claude_md_snippet = find_claude_md_snippet(
-        rule_text, chain, repo_dir or Path.cwd(),
+    instruction_path, instruction_snippet = find_instruction_snippet(
+        rule_text,
+        chain,
+        repo_dir or Path.cwd(),
+        str(finding.get("location", "")),
     )
 
     diff_context = extract_diff_context(
@@ -327,8 +453,10 @@ def prepare_validator_bundle(
         "index": index,
         "finding": finding,
         "diff_context": diff_context,
-        "claude_md_path": claude_md_path,
-        "claude_md_snippet": claude_md_snippet,
+        "instruction_path": instruction_path,
+        "instruction_snippet": instruction_snippet,
+        "claude_md_path": instruction_path,
+        "claude_md_snippet": instruction_snippet,
         "anthropic_verbatim_path": anthropic_path,
     }
     input_path.write_text(
@@ -338,8 +466,8 @@ def prepare_validator_bundle(
     prompt = build_validator_prompt(
         finding=finding,
         diff_context=diff_context,
-        claude_md_snippet=claude_md_snippet,
-        claude_md_path=claude_md_path,
+        instruction_snippet=instruction_snippet,
+        instruction_path=instruction_path,
         anthropic_verbatim_path=anthropic_path,
         run_id=run_id,
     )
@@ -600,7 +728,7 @@ def _default_skill_dir() -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Phase 4 Haiku-validator orchestrator for code-ultrareview"
+        description="Phase 4 fresh-context-validator orchestrator for code-ultrareview"
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -626,7 +754,7 @@ def main() -> int:
     )
     prep.add_argument(
         "--repo-dir", default=None,
-        help="Repo root for resolving relative CLAUDE.md paths "
+        help="Repo root for resolving relative instruction paths "
         "(default: current working directory)",
     )
 

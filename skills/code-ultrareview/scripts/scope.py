@@ -2,7 +2,7 @@
 """Phase 1 scope detector for code-ultrareview.
 
 Deterministic, no LLM. Resolves the review base + target, classifies the
-repository kind (8 kinds + unknown), reads the CLAUDE.md chain, detects
+repository kind (8 kinds + unknown), reads the project instruction chain, detects
 languages from the diff, and decides whether the conditional Coherence
 axis activates. Emits one JSON object on stdout — `scope.json` — read by
 every downstream phase.
@@ -470,56 +470,94 @@ def classify_repo(repo: Path, override: str | None = None) -> tuple[str, dict]:
     }
 
 
-def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
-    """Return ordered list of CLAUDE.md and `.claude/rules/*.md` files.
+def instruction_chain(repo: Path, files_touched: list[str]) -> list[str]:
+    """Return the cross-agent instruction baseline, broadest to most specific.
 
-    Ordering, root-to-deepest:
-      1. Repo `CLAUDE.md` at root (if present).
-      2. Nested `CLAUDE.md` files in directories that contain a changed file,
-         walking each touched path's ancestor chain (excluding the root,
-         since it is added in step 1).
-      3. Project rules — `.claude/rules/*.md` sorted by filename.
-      4. Global rules — `~/.claude/rules/*.md` sorted by filename.
-
-    All paths are returned relative to `repo` for the first three; global
-    rules use absolute paths.
+    At each relevant directory, `AGENTS.override.md` wins over `AGENTS.md`.
+    Claude-specific entrypoints and recursive rule files follow the shared
+    entrypoint at the same level. Project paths are relative to `repo`; user
+    instruction paths are absolute.
     """
     chain: list[str] = []
+    seen: set[Path] = set()
 
-    root_claude = repo / "CLAUDE.md"
-    if root_claude.is_file():
-        chain.append("CLAUDE.md")
+    def read_nonempty(path: Path) -> str | None:
+        if not path.is_file():
+            return None
+        try:
+            body = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return None
+        return body if body.strip() else None
 
-    seen: set[str] = {"CLAUDE.md"} if root_claude.is_file() else set()
-    nested: list[tuple[int, str]] = []  # (depth, rel_path)
-    for path in files_touched:
-        parts = Path(path).parts
-        for i in range(1, len(parts)):
-            dir_rel = "/".join(parts[:i])
-            candidate = repo / dir_rel / "CLAUDE.md"
-            if not candidate.is_file():
+    def add(path: Path, body: str | None = None) -> bool:
+        if body is None:
+            body = read_nonempty(path)
+        if body is None:
+            return False
+        resolved = path.resolve()
+        if resolved in seen:
+            return True
+        seen.add(resolved)
+        try:
+            chain.append(str(path.relative_to(repo)))
+        except ValueError:
+            chain.append(str(path.resolve()))
+        return True
+
+    def add_rules(directory: Path) -> None:
+        if not directory.is_dir():
+            return
+        for rule in sorted(directory.rglob("*.md")):
+            add(rule)
+
+    def add_agents_level(directory: Path) -> bool:
+        """Add the effective entrypoint; return whether it references shared rules."""
+        for name in ("AGENTS.override.md", "AGENTS.md"):
+            candidate = directory / name
+            body = read_nonempty(candidate)
+            if body is None:
                 continue
-            rel = f"{dir_rel}/CLAUDE.md"
-            if rel in seen:
-                continue
-            seen.add(rel)
-            nested.append((i, rel))
-    nested.sort(key=lambda x: (x[0], x[1]))
-    chain.extend(rel for _, rel in nested)
+            add(candidate, body)
+            return bool(re.search(r"(?:~/)?\.agents/rules(?:/|\b)", body))
+        return False
 
-    rules_dir = repo / ".claude" / "rules"
-    if rules_dir.is_dir():
-        for rule in sorted(rules_dir.glob("*.md")):
-            chain.append(str(rule.relative_to(repo)))
+    relevant_dirs: set[Path] = {repo}
+    for touched in files_touched:
+        parts = Path(touched).parts[:-1]
+        for depth in range(1, len(parts) + 1):
+            relevant_dirs.add(repo.joinpath(*parts[:depth]))
+    ordered_dirs = sorted(
+        relevant_dirs,
+        key=lambda path: (len(path.relative_to(repo).parts), str(path)),
+    )
 
     home = os.environ.get("HOME", "")
     if home:
-        global_rules = Path(home) / ".claude" / "rules"
-        if global_rules.is_dir():
-            for rule in sorted(global_rules.glob("*.md")):
-                chain.append(str(rule.resolve()))
+        home_path = Path(home)
+        if add_agents_level(home_path / ".agents"):
+            add_rules(home_path / ".agents" / "rules")
+        codex_home_value = os.environ.get("CODEX_HOME")
+        codex_home = Path(codex_home_value) if codex_home_value else home_path / ".codex"
+        if add_agents_level(codex_home):
+            add_rules(codex_home / "rules")
+        add(home_path / ".claude" / "CLAUDE.md")
+        add_rules(home_path / ".claude" / "rules")
+
+    for directory in ordered_dirs:
+        if add_agents_level(directory):
+            add_rules(directory / ".agents" / "rules")
+        add(directory / "CLAUDE.md")
+        add(directory / ".claude" / "CLAUDE.md")
+        add(directory / "CLAUDE.local.md")
+        add_rules(directory / ".claude" / "rules")
 
     return chain
+
+
+def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
+    """Compatibility alias for the historical scope schema name."""
+    return instruction_chain(repo, files_touched)
 
 
 def activates_coherence(files_touched: list[str]) -> bool:
@@ -563,7 +601,7 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         dirty_tree=dirty_tree,
     )
     repo_kind, signals = classify_repo(repo, override=repo_kind_override)
-    chain = claude_md_chain(repo, files)
+    chain = instruction_chain(repo, files)
     coherence = activates_coherence(files)
     languages = detect_languages(files)
 
@@ -575,7 +613,8 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         "repo_kind": repo_kind,
         "repo_kind_signals": signals,
         "languages": languages,
-        "claude_md_chain": chain,
+        "instruction_chain": chain,
+        "claude_md_chain": list(chain),  # Backward-compatible schema alias.
         "loc_changed": loc,
         "files_touched": len(files),  # derived count; canonical key is files_touched_list
         "files_touched_list": files,

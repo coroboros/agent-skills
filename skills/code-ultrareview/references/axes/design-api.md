@@ -10,7 +10,7 @@ Public API breakage, DB schema breaking changes, type-strictness regressions, er
 - **Error-handling boundary** — a thrown error that the caller does not catch, an error swallowed silently, a `Promise.catch` that returns nothing meaningful.
 - **Race conditions** — unprotected shared mutable state, missing await, double-fetch, missing lock around critical section.
 - **Concurrency-sensitive code** — `Promise.all` with N+1 underneath, sync I/O inside async, missing back-pressure on a stream.
-- **Public-surface declared in CLAUDE.md** — a rule like "Never break the public API" is High severity when violated.
+- **Public-surface declared in project instructions** — a rule like "Never break the public API" is High severity when violated.
 - **Shallow module** — a public interface that costs more than the behavior behind it: a thin pass-through, a wrapper that only forwards, an abstraction whose signature carries as much as its body. Detect with the deletion test — if the module were inlined at its call sites, does the codebase get simpler? If yes, the interface adds surface without leverage. Deep modules (a narrow interface over substantial hidden complexity) are the goal; shallow ones are the smell. Judge the interface-to-behavior ratio; raw parameter count belongs to the Simplification axis.
 
 ## Out of scope (false positives — silence at source)
@@ -20,8 +20,8 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 - **Internal API changes** that have no downstream consumer — refactors of private functions.
 - **API additions** (new exported function, new endpoint) — additive, not breaking.
 - **Schema additions** (new column with default) — additive, not breaking.
-- **Type-strictness regressions in test files** — tests sometimes need looser typing; not a finding unless CLAUDE.md says otherwise.
-- **Error-handling style preferences** (try/catch vs `.catch()`) without a CLAUDE.md rule.
+- **Type-strictness regressions in test files** — tests sometimes need looser typing; not a finding unless project instructions say otherwise.
+- **Error-handling style preferences** (try/catch vs `.catch()`) without an explicit project instruction.
 - **Deep single-use internals** — a module called once but hiding real complexity behind a narrow interface is deep, not shallow. Not a finding.
 - **Small focused modules** — depth is the interface-to-behavior ratio, not line count; a short module with a narrow interface is fine.
 

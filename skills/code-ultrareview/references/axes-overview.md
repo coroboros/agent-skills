@@ -10,7 +10,7 @@ Eight always-on axes + one conditional axis (`coherence`) comprise the code-ultr
 | 2 | `simplification` | Over-engineering (single-use abstractions, premature factories), dead-code judgment, redundancy beyond duplication, nested ternaries, speculative generality, >3-parameter functions | `references/axes/simplification.md` |
 | 3 | `tests` | Coverage of changed lines, test smells (no-asserts, magic sleeps, `.skip` / `xit` in diff), strictness flags | `references/axes/tests.md` |
 | 4 | `documentation` | Public API doc completeness, README drift on public-surface changes, ADR drift, prose hygiene over PR body + commits + user-facing `*.md` | `references/axes/documentation.md` |
-| 5 | `style` | CLAUDE.md violations, linter-deferred concerns, formatter delegation | `references/axes/style.md` |
+| 5 | `style` | Project-instruction violations, linter-deferred concerns, formatter delegation | `references/axes/style.md` |
 | 6 | `intent` | PR description vs diff, code vs comment drift, code vs spec drift, lockfile drift, generator drift; optional planning-artifact reconciliation via `--reconcile` | `references/axes/intent.md` |
 | 7 | `design-api` | Public API breaking (oasdiff / api-extractor input), DB schema breaking (atlas input), type-strictness regression, error-handling boundaries, race conditions, shallow-module smells (deletion test) | `references/axes/design-api.md` |
 | 8 | `performance` | N+1 patterns (semgrep input), sync I/O in async, bundle-size delta, allocation hot paths; explicit non-goals — no benchmarks, no flamegraphs, no memory profiling | `references/axes/performance.md` |
@@ -47,7 +47,7 @@ Rationale for the order:
 
 An axis is one category of code-review concern, mapped 1:1 to an LLM subagent that owns that concern. Each subagent receives:
 
-- `scope.json` — repo kind, languages, CLAUDE.md chain, files touched.
+- `scope.json` — repo kind, languages, instruction chain, files touched.
 - `tool-findings.jsonl` filtered to its own axis — deterministic tool output (confidence 100) from Phase 2.
 - The diff itself (clean tree → `git diff <base> <target>`; dirty tree → `git diff HEAD` + untracked).
 - Its axis brief (`references/axes/<axis-name>.md`) defining repo-kind branches and HIGH SIGNAL criteria.

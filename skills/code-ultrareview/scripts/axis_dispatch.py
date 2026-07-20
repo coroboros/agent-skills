@@ -200,7 +200,7 @@ stdout.
 - Read `{anthropic_verbatim}` and silence false positives per the documented taxonomy.
 - Read `{brief}` (your axis brief) for scope, severity calibration, and
   repo-kind branches.
-- Read `{input_path}` for: `scope` (repo kind, languages, CLAUDE.md chain),
+- Read `{input_path}` for: `scope` (repo kind, languages, instruction chain),
   `findings` (deterministic tool findings filtered to your axis only),
   and `diff_text` (the diff itself).
 - Score each finding 0-100 against the verbatim rubric.

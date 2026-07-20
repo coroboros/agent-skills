@@ -56,7 +56,7 @@ def _write_scope(path: Path, **overrides) -> None:
         "repo_kind": "app",
         "repo_kind_signals": {},
         "languages": [],
-        "claude_md_chain": [],
+        "instruction_chain": [],
         "loc_changed": 0,
         "files_touched": 0,
         "files_touched_list": [],

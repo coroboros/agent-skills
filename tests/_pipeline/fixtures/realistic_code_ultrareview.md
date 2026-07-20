@@ -2,7 +2,7 @@
 
 **Base:** `49d9a32` · **Target:** `HEAD` · **Rule:** feature-merge-base
 **Repo:** app · **Languages:** typescript, json
-**Rules baseline:** CLAUDE.md chain + 3 files
+**Rules baseline:** instruction chain + 3 files
 **Reviewed:** 6 changed file(s)
 **Coherence axis:** active
 **Findings:** 3 🔴 · 2 🟠 · 0 🟢 (verified) · 1 unverified

@@ -6,12 +6,18 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
+SKILL_MD = REPO_ROOT / "skills" / "scaffold" / "SKILL.md"
 REFERENCES = REPO_ROOT / "skills" / "scaffold" / "references"
 TEMPLATES = REPO_ROOT / "skills" / "scaffold" / "templates"
 EVALS = REPO_ROOT / "skills" / "scaffold" / "evals" / "evals.json"
 
 
 class TestDesignSystemRuntime(unittest.TestCase):
+    def test_skill_body_uses_portable_invocation_arguments(self):
+        body = SKILL_MD.read_text(encoding="utf-8")
+        self.assertNotIn("$ARGUMENTS", body)
+        self.assertIn("invocation arguments", body)
+
     def test_skill_creator_evals_cover_both_scaffolds_and_handoff(self):
         data = json.loads(EVALS.read_text(encoding="utf-8"))
         self.assertEqual(data["skill_name"], "scaffold")
@@ -20,6 +26,10 @@ class TestDesignSystemRuntime(unittest.TestCase):
         self.assertIn("next-cloudflare", prompts)
         self.assertIn("astro-cloudflare", prompts)
         self.assertIn("both generated scaffold templates", prompts)
+        self.assertIn(
+            "declared project-local designmd dependency",
+            data["evals"][1]["expected_output"],
+        )
         for item in data["evals"]:
             with self.subTest(eval_id=item["id"]):
                 self.assertEqual(len(item["expectations"]), 4)

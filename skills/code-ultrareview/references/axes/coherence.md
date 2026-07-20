@@ -89,7 +89,7 @@ A flag appearing in the example but not in the program's parser surfaces as one 
 
 ### 6. spec-conformance
 
-The full spec-conformance sub-graph (`WebFetch` + cache + grammar inference) is a later iteration. The current entrypoint is a stub: detects normative-spec mentions in diff / README / CLAUDE.md using the normative-spec regex and emits a deferred placeholder finding (severity Low, confidence 50).
+The full spec-conformance sub-graph (`WebFetch` + cache + grammar inference) is a later iteration. The current entrypoint is a stub: detects normative-spec mentions in the diff, README, and project instruction entrypoints using the normative-spec regex and emits a deferred placeholder finding (severity Low, confidence 50).
 
 ## `.coherence-ignore` format
 

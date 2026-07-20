@@ -8,9 +8,9 @@ metadata:
 
 # Scaffold
 
-Bootstrap `$ARGUMENTS` with the opinionated stack.
+Bootstrap the requested project with the opinionated stack.
 
-The deterministic work — environment preflight, template overlay, `package.json` merge, post-scaffold verification — happens in three bundled scripts. This skill parses `$ARGUMENTS`, runs the framework CLI, invokes the scripts in order, and turns their `RESULT:` lines into a concise report.
+The deterministic work — environment preflight, template overlay, `package.json` merge, post-scaffold verification — happens in three bundled scripts. Parse the invocation arguments, run the framework CLI, invoke the scripts in order, and turn their `RESULT:` lines into a concise report.
 
 ## Available scaffolds
 
@@ -29,7 +29,7 @@ If the user does not specify a scaffold or is ambiguous, show this table and ask
 
 ### 1. Parse arguments
 
-Extract `{scaffold}` and `{project_name}` from `$ARGUMENTS`. Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`. Missing `{scaffold}` → show the *Available scaffolds* table and ask. Missing `{project_name}` → derive from cwd or ask. `{project_dir}` defaults to `.`.
+Extract `{scaffold}` and `{project_name}` from the invocation arguments. Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`. Missing `{scaffold}` → show the *Available scaffolds* table and ask. Missing `{project_name}` → derive from cwd or ask. `{project_dir}` defaults to `.`.
 
 ### 2. Preflight
 

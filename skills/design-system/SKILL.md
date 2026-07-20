@@ -96,7 +96,7 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 - Never introduce values absent from DESIGN.md — use the closest token and flag to the user
 - **Extended tokens** — values outside the canonical 5 namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers`) live as top-level YAML namespaces, are validated by convention via `/design-system audit-extensions`, and are mirrored to `globals.css` `@theme`. Upstream accepts unknown component properties with a warning, but this skill deliberately forbids using them to bind extension semantics because exporters and consumers do not share a contract for those keys. Reference extensions in prose instead (for example, `{motion.duration-reveal-slow}`). See `references/extended-tokens.md`
 - Dark mode: the Google spec has no dedicated mode concept. Use **semantic tokens** in a single DESIGN.md (e.g., `surface`, `on-surface`, `inverse-surface`, `inverse-on-surface`) and let the framework's CSS custom properties map each semantic name to the right value per mode. The Google-published `atmospheric-glass` example follows this pattern — one file, both modes via semantic naming. Avoid dual-file setups (DESIGN.md + DESIGN.dark.md) unless the brand truly diverges between modes
-- Shared brand across projects: same DESIGN.md, framework-specific implementation. Distribution patterns — pick one and document in each project's CLAUDE.md:
+- Shared brand across projects: same DESIGN.md, framework-specific implementation. Distribution patterns — pick one and document it in the applicable project instructions (`AGENTS.md`, `CLAUDE.md`, or equivalent):
   - **Monorepo** — `packages/brand/DESIGN.md` consumed by all apps; single PR for cross-cutting changes
   - **Git submodule** — canonical brand repo included as submodule; atomic updates via submodule bump
   - **Published package** — `@org/design-tokens` on npm with DESIGN.md + build outputs; versioned, works cross-repo
@@ -125,7 +125,7 @@ Every CLI-backed subcommand resolves a directly declared project `designmd` firs
 
 ## Framework behavior
 
-Detect framework from config files (`astro.config.*`, `next.config.*`, etc.), then follow project instructions (`CLAUDE.md`, `AGENTS.md`, or equivalent) for implementation specifics (component library, font loading, file structure).
+Detect framework from config files (`astro.config.*`, `next.config.*`, etc.), then follow project instructions (`AGENTS.md`, `CLAUDE.md`, or equivalent) for implementation specifics (component library, font loading, file structure).
 
 ## Default workflow — token enforcement
 

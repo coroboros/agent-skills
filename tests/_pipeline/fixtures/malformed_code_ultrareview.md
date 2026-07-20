@@ -1,7 +1,7 @@
 # Code review — add-rate-limiter
 
 **Base:** 49d9a32 · **Target:** HEAD · **Rule:** feature-merge-base
-**Rules baseline:** CLAUDE.md chain + 3 rule files
+**Rules baseline:** instruction chain + 3 rule files
 
 ## Findings
 

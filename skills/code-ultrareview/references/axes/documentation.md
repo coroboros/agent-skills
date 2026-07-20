@@ -67,7 +67,7 @@ The repo's `tests/_meta/test_no_internal_label_leak.py` CI gate blocks these pat
 
 #### Install-context paths (High)
 
-Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill <name>`. A reference inside the skill source to `skills/<other>/...` is a dead link on partial install (sibling skill absent) and a wrong path on full install — the install location is `~/.claude/skills/<other>/`, not `skills/<other>/`. The bulletproof three-layer pattern replaces every bare path.
+Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill <name>`. A reference inside the skill source to `skills/<other>/...` is a dead link on partial install (sibling skill absent) and a wrong path on full install — installed skills live under an agent skill root such as `~/.agents/skills/<other>/` or `~/.claude/skills/<other>/`, not `skills/<other>/`. The bulletproof three-layer pattern replaces every bare path.
 
 | Layer | Anti-pattern | Bulletproof pattern |
 |-------|--------------|---------------------|
@@ -122,7 +122,7 @@ When `humanize-en` is installed on the user's machine (`~/.claude/skills/humaniz
 
 ## Subagent inputs
 
-- `scope.json` — repo kind, languages, files touched, CLAUDE.md chain.
+- `scope.json` — repo kind, languages, files touched, instruction chain.
 - `tool-findings.jsonl` filtered to `axis: documentation` — markdownlint + vale findings.
 - The diff itself.
 - PR title + body via `"$SKILL_DIR"/scripts/fetch_pr_meta.sh`; commit records via `"$SKILL_DIR"/scripts/fetch_commits.sh` (invocations in *Prose hygiene* above).

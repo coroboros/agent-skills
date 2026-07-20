@@ -1,6 +1,6 @@
 # Orchestration
 
-Main-thread orchestration details for Phase 3 (axis review) and Phase 4 (validation). Subagents cannot spawn other subagents; the main thread launches both axis reviewers and Haiku validators.
+Main-thread orchestration details for Phase 3 (axis review) and Phase 4 (validation). Subagents cannot spawn other subagents; the main thread launches both axis reviewers and fresh-context validators.
 
 ## Phase 3 — axis review
 
@@ -44,7 +44,7 @@ Output: `{axes, coherence_active, bundles, run_id, input_hashes}` where each bun
 
 Each subagent receives via its bundle (`axis-input/{axis}.json`):
 
-- `scope` — repo kind, languages, CLAUDE.md chain, files touched.
+- `scope` — repo kind, languages, instruction chain, files touched.
 - `findings` — tool findings filtered to its own axis only (`scripts/battery_ingest.py` axis routing). Other axes' findings are excluded so the subagent's context stays lean.
 - `diff_text` — the diff itself.
 - `brief_path` — its axis brief at `references/axes/{axis}.md`.
@@ -73,7 +73,7 @@ python3 "$SKILL_DIR"/scripts/axis_dispatch.py ingest \
 
 ## Phase 4 — validation
 
-The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one Haiku `Task` per finding in the same message — batched ≤10 parallel.
+The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one fresh-context validator per finding in the same message — a Haiku `Task` on Claude Code or the harness's isolated-agent equivalent — batched ≤10 parallel.
 
 ```bash
 python3 "$SKILL_DIR"/scripts/run_validators.py prepare \
@@ -98,14 +98,14 @@ Prepare refuses incomplete axis coverage. Both commands invalidate any prior val
 Each validator:
 
 1. Re-scores 0-100 against the verbatim rubric.
-2. Re-checks that the cited CLAUDE.md rule actually exists in `claude_md_chain`. Demotes with explicit reason if not found (`CLAUDE.md rule not found at <path>`).
+2. Re-checks that a cited project instruction actually exists in `instruction_chain`. Demotes with explicit reason if not found (`Instruction rule not found at <path>`).
 3. Stays read-only — no Write / Edit / Bash, no nested subagent spawn.
 
 **Confidence threshold = 80** (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic.
 
 Confidence `0` is a valid uncertain finding, not an omission sentinel. It receives a validator bundle and either gets promoted or remains explicit under `### ⚠️ Unverified`.
 
-**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s total. Latency is dominated by Haiku launch overhead, not validator inference; 25+ findings spread over 2-3 batches stay under ~2 min.
+**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s total. Latency is dominated by isolated-validator launch overhead, not inference; 25+ findings spread over 2-3 batches stay under ~2 min.
 
 **A2 contract.** No sub-80 finding silently dropped. Each one is promoted to ≥80, demoted with reason, or surfaced in `### ⚠️ Unverified` with the validator's reason text.
 

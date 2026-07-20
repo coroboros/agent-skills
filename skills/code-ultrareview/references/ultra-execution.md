@@ -1,6 +1,6 @@
 # Opt-in flag execution — `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`
 
-Reference for the four opt-in flags. Defaults are off — these layer on top of the always-on 5-phase pipeline (scope → tool battery → 8 axis reviewers → Haiku validators → synthesis). Each flag has a single load-bearing entry point script; the SKILL.md prose calls these scripts from the orchestrator (main thread).
+Reference for the four opt-in flags. Defaults are off — these layer on top of the always-on 5-phase pipeline (scope → tool battery → 8 axis reviewers → fresh-context validators → synthesis). Each flag has a single load-bearing entry point script; the SKILL.md prose calls these scripts from the orchestrator (main thread).
 
 ## `--verify-build` (Phase 3.5 — build verification)
 

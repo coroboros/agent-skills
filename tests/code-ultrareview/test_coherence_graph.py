@@ -385,6 +385,79 @@ class TestSpecConformanceStub(unittest.TestCase):
         self.assertEqual(findings[0].confidence, 50)
         self.assertIn("spec-conformance", findings[0].recommendation.lower())
 
+    def test_agents_instruction_spec_mention_is_detected(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("RFC 9110", findings[0].finding)
+
+    def test_empty_agents_override_falls_back_to_agents(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.override.md").write_text("\n", encoding="utf-8")
+            (repo / "AGENTS.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("RFC 9110", findings[0].finding)
+
+    def test_nonempty_agents_override_replaces_agents(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.override.md").write_text(
+                "Use project defaults.\n", encoding="utf-8",
+            )
+            (repo / "AGENTS.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
+
+    def test_shared_rule_spec_mention_is_detected(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.md").write_text(
+                "Read `.agents/rules/http.md`.\n", encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "http.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("RFC 9110", findings[0].finding)
+
+    def test_unreferenced_shared_rule_is_not_an_instruction(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.md").write_text(
+                "Use the repository conventions.\n", encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "http.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
+
+    def test_orphaned_shared_rule_is_not_an_instruction(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "http.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
+
     def test_allowlisted_spec_suppressed(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)

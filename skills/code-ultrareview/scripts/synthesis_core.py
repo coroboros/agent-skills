@@ -11,7 +11,7 @@ severity wins; ties resolve via this order:
 Owns A2 no-silent-drop routing, severity markers, build-verification
 iteration, tier classification, ordering, verdict, and precedence dedup.
 Kept separate from Phase 5 (`scripts/synthesize.py`) so axis lenses
-(Phase 3) and Haiku validators (Phase 4) reuse the core contracts without
+(Phase 3) and fresh-context validators (Phase 4) reuse the core contracts without
 pulling in synthesis-layer concerns.
 
 Findings are plain dicts matching the JSON shape axis subagents emit:

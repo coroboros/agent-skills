@@ -290,9 +290,9 @@ class TestRecordShape(unittest.TestCase):
 
     def test_validator_reason_surfaced(self):
         record = ftj.to_record(
-            _finding(meta={"validator_reason": "CLAUDE.md rule confirmed"})
+            _finding(meta={"validator_reason": "Instruction rule confirmed"})
         )
-        self.assertEqual(record["validator_reason"], "CLAUDE.md rule confirmed")
+        self.assertEqual(record["validator_reason"], "Instruction rule confirmed")
 
 
 class TestJsonlValidity(unittest.TestCase):

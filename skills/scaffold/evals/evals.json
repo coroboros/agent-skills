@@ -18,7 +18,7 @@
       "id": 2,
       "name": "astro-target-directory-runtime-contract",
       "prompt": "Scaffold astro-cloudflare into ./sites/docs while the current shell remains at the workspace root.",
-      "expected_output": "Astro setup, dependency installation, helper paths, and the generated design audit all remain scoped to ./sites/docs without runtime package resolution.",
+      "expected_output": "Astro setup, dependency installation, and helper paths remain scoped to ./sites/docs. The generated design audit uses the declared project-local designmd dependency and never resolves that analyzer at audit time.",
       "files": [],
       "expectations": [
         "Astro integration and dependency commands use pnpm --dir with the explicit project directory.",

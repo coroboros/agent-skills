@@ -120,6 +120,12 @@ class TestNoExtractSubcommand(unittest.TestCase):
 
 
 class TestCrossAgentRuntimeContracts(unittest.TestCase):
+    def test_shared_brand_guidance_uses_cross_agent_instructions(self):
+        text = _body()
+        self.assertIn("applicable project instructions", text)
+        self.assertIn("AGENTS.md", text)
+        self.assertIn("CLAUDE.md", text)
+
     def test_strict_mode_probes_shared_agents_install(self):
         text = AUDIT_REFERENCE.read_text(encoding="utf-8")
         self.assertIn(

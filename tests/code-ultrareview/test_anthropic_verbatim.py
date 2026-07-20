@@ -2,7 +2,7 @@
 Anthropic `code-review` plugin source file.
 
 The verbatim blocks must match the upstream source character-for-character so
-that Phase 4 Haiku validators apply the same rubric as Anthropic's own
+that Phase 4 fresh-context validators apply the same rubric as Anthropic's own
 plugin. If the upstream source drifts, these tests fail and the verbatim
 doc must be re-synced (and the `Last verified` date bumped).
 

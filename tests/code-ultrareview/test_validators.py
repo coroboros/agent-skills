@@ -2,8 +2,8 @@
 
 Covers the deterministic Phase 4 orchestrator contracts: sub-80 filter
 (tool findings never validated), batching cap (≤10 parallel),
-CLAUDE.md snippet lookup with deepest-match precedence, validator
-prompt construction (verbatim anthropic rubric, CLAUDE.md re-check,
+instruction snippet lookup with deepest-match precedence, validator
+prompt construction (verbatim Anthropic rubric, instruction re-check,
 agent-assumption rule), per-finding bundle preparation, validator
 stdout parsing, and the A2-preserving ingest contract (promote ≥80 /
 demote <80 / no silent drop).
@@ -244,15 +244,15 @@ class TestBatch(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# find_claude_md_snippet — deepest-match precedence
+# find_instruction_snippet — deepest applicable match
 # ---------------------------------------------------------------------------
 
 
-class TestFindClaudeMdSnippet(unittest.TestCase):
+class TestFindInstructionSnippet(unittest.TestCase):
 
     def test_returns_none_when_chain_empty(self):
         with tempfile.TemporaryDirectory() as td:
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "production grade or nothing", [], Path(td),
             )
             self.assertIsNone(path)
@@ -260,8 +260,8 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
 
     def test_returns_none_when_rule_text_empty(self):
         with tempfile.TemporaryDirectory() as td:
-            path, snippet = run_validators.find_claude_md_snippet(
-                "", ["CLAUDE.md"], Path(td),
+            path, snippet = run_validators.find_instruction_snippet(
+                "", ["AGENTS.md"], Path(td),
             )
             self.assertIsNone(path)
             self.assertIsNone(snippet)
@@ -270,8 +270,8 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
         """Chain ordered root-to-deepest; nested overrides surface correctly."""
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            root = repo / "CLAUDE.md"
-            nested = repo / "src" / "CLAUDE.md"
+            root = repo / "AGENTS.md"
+            nested = repo / "src" / "AGENTS.md"
             nested.parent.mkdir(parents=True)
             root.write_text(
                 "## Behavior\n\nProduction grade or nothing.\n",
@@ -281,23 +281,42 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
                 "## Local override\n\nProduction grade or nothing. Stricter here.\n",
                 encoding="utf-8",
             )
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "production grade or nothing",
-                ["CLAUDE.md", "src/CLAUDE.md"],
+                ["AGENTS.md", "src/AGENTS.md"],
                 repo,
+                "src/auth.py:10",
             )
-            self.assertEqual(path, "src/CLAUDE.md")
+            self.assertEqual(path, "src/AGENTS.md")
             self.assertIn("Stricter here", snippet)
+
+    def test_nested_rule_from_another_subtree_does_not_match(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Use project conventions.\n", encoding="utf-8",
+            )
+            nested = repo / "web" / "AGENTS.md"
+            nested.parent.mkdir()
+            nested.write_text("Use project conventions. Web only.\n", encoding="utf-8")
+            path, snippet = run_validators.find_instruction_snippet(
+                "use project conventions",
+                ["AGENTS.md", "web/AGENTS.md"],
+                repo,
+                "api/routes.py:4",
+            )
+            self.assertEqual(path, "AGENTS.md")
+            self.assertNotIn("Web only", snippet)
 
     def test_returns_none_when_rule_absent_from_all(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text(
+            (repo / "AGENTS.md").write_text(
                 "## Behavior\n\nReadable code.\n", encoding="utf-8",
             )
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "an entirely different rule that does not exist anywhere",
-                ["CLAUDE.md"], repo,
+                ["AGENTS.md"], repo,
             )
             self.assertIsNone(path)
             self.assertIsNone(snippet)
@@ -305,14 +324,14 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
     def test_case_insensitive_match(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text(
+            (repo / "AGENTS.md").write_text(
                 "## Behavior\n\nNEVER COMMIT SECRETS to git.\n",
                 encoding="utf-8",
             )
-            path, _ = run_validators.find_claude_md_snippet(
-                "never commit secrets", ["CLAUDE.md"], repo,
+            path, _ = run_validators.find_instruction_snippet(
+                "never commit secrets", ["AGENTS.md"], repo,
             )
-            self.assertEqual(path, "CLAUDE.md")
+            self.assertEqual(path, "AGENTS.md")
 
     def test_absolute_path_in_chain_resolved_directly(self):
         with tempfile.TemporaryDirectory() as td:
@@ -320,13 +339,97 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
             external.write_text(
                 "Single source of truth for every value.\n", encoding="utf-8",
             )
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "single source of truth",
                 [str(external)],
                 Path(td) / "unrelated-repo",
             )
             self.assertEqual(path, str(external))
             self.assertIn("Single source of truth", snippet)
+
+    def test_path_scoped_rule_does_not_apply_outside_its_glob(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            rule = repo / ".claude" / "rules" / "api.md"
+            rule.parent.mkdir(parents=True)
+            rule.write_text(
+                "---\npaths:\n  - \"src/api/**/*.ts\"\n---\n\nUse schema guards.\n",
+                encoding="utf-8",
+            )
+            path, snippet = run_validators.find_instruction_snippet(
+                "use schema guards",
+                [".claude/rules/api.md"],
+                repo,
+                "src/ui/card.ts:12",
+            )
+            self.assertIsNone(path)
+            self.assertIsNone(snippet)
+
+    def test_double_star_matches_direct_and_nested_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            rule = repo / ".claude" / "rules" / "api.md"
+            rule.parent.mkdir(parents=True)
+            rule.write_text(
+                "---\npaths:\n  - \"src/api/**/*.ts\"\n---\n\nUse schema guards.\n",
+                encoding="utf-8",
+            )
+            for location in ("src/api/route.ts:3", "src/api/v2/route.ts:3"):
+                with self.subTest(location=location):
+                    path, _ = run_validators.find_instruction_snippet(
+                        "use schema guards",
+                        [".claude/rules/api.md"],
+                        repo,
+                        location,
+                    )
+                    self.assertEqual(path, ".claude/rules/api.md")
+
+    def test_brace_expansion_matches_supported_extensions(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            rule = repo / ".agents" / "rules" / "frontend.md"
+            rule.parent.mkdir(parents=True)
+            rule.write_text(
+                "---\npaths: ['{src,lib}/**/*.{ts,tsx}']\n---\n\nUse design tokens.\n",
+                encoding="utf-8",
+            )
+            for location in ("src/card.tsx:8", "lib/theme/tokens.ts:2"):
+                with self.subTest(location=location):
+                    path, _ = run_validators.find_instruction_snippet(
+                        "use design tokens",
+                        [".agents/rules/frontend.md"],
+                        repo,
+                        location,
+                    )
+                    self.assertEqual(path, ".agents/rules/frontend.md")
+
+    def test_global_path_scoped_rule_still_honors_its_glob(self):
+        with tempfile.TemporaryDirectory() as td:
+            external = Path(td) / "global-rule.md"
+            external.write_text(
+                "---\npaths:\n  - \"docs/**/*.md\"\n---\n\nUse sentence case.\n",
+                encoding="utf-8",
+            )
+            path, _ = run_validators.find_instruction_snippet(
+                "use sentence case",
+                [str(external)],
+                Path(td) / "repo",
+                "src/app.ts:4",
+            )
+            self.assertIsNone(path)
+
+    def test_historical_function_name_remains_an_alias(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "CLAUDE.md").write_text("Keep it small.\n", encoding="utf-8")
+            self.assertEqual(
+                run_validators.find_claude_md_snippet(
+                    "keep it small", ["CLAUDE.md"], repo,
+                ),
+                run_validators.find_instruction_snippet(
+                    "keep it small", ["CLAUDE.md"], repo,
+                ),
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -368,18 +471,17 @@ class TestExtractDiffContext(unittest.TestCase):
 
 
 class TestBuildValidatorPrompt(unittest.TestCase):
-    """Spec AC: validator prompt cites the verbatim anthropic rubric + the
-    CLAUDE.md re-check requirement + the agent-assumption rule."""
+    """The prompt cites the rubric, instruction check, and build boundary."""
 
     def _build(self, **overrides):
         finding = overrides.pop("finding", make_unverified_finding())
         return run_validators.build_validator_prompt(
             finding=finding,
             diff_context=overrides.get("diff_context", "@@ -1 +1 @@\n+bad\n"),
-            claude_md_snippet=overrides.get(
-                "claude_md_snippet", "Single source of truth."
+            instruction_snippet=overrides.get(
+                "instruction_snippet", "Single source of truth."
             ),
-            claude_md_path=overrides.get("claude_md_path", "CLAUDE.md"),
+            instruction_path=overrides.get("instruction_path", "AGENTS.md"),
             anthropic_verbatim_path=overrides.get(
                 "anthropic_verbatim_path",
                 str(SKILL_DIR / "references" / "anthropic-verbatim.md"),
@@ -397,12 +499,10 @@ class TestBuildValidatorPrompt(unittest.TestCase):
         self.assertIn("false positives", prompt)
         self.assertIn("documented taxonomy", prompt)
 
-    def test_cites_claude_md_re_check_requirement(self):
-        """Spec AC: validator confirms the rule exists in claude_md_chain
-        AND either promotes or demotes with 'CLAUDE.md rule not found at <path>'."""
+    def test_cites_instruction_re_check_requirement(self):
         prompt = self._build()
-        self.assertIn("CLAUDE.md", prompt)
-        self.assertIn("CLAUDE.md rule not found at", prompt)
+        self.assertIn("Project instruction snippet (AGENTS.md)", prompt)
+        self.assertIn("Instruction rule not found at", prompt)
 
     def test_cites_agent_assumption_rule(self):
         prompt = self._build()
@@ -420,9 +520,9 @@ class TestBuildValidatorPrompt(unittest.TestCase):
         self.assertIn("score:", prompt)
         self.assertIn("reason:", prompt)
 
-    def test_missing_claude_md_renders_placeholder(self):
-        prompt = self._build(claude_md_snippet=None, claude_md_path=None)
-        self.assertIn("not found in claude_md_chain", prompt)
+    def test_missing_instruction_renders_placeholder(self):
+        prompt = self._build(instruction_snippet=None, instruction_path=None)
+        self.assertIn("not found in instruction_chain", prompt)
         self.assertIn("(none)", prompt)
 
     def test_forbids_write_edit_bash(self):
@@ -444,12 +544,12 @@ class TestPrepareValidatorBundle(unittest.TestCase):
     def test_writes_input_and_prompt_files(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text(
+            (repo / "AGENTS.md").write_text(
                 "Production grade or nothing.\n", encoding="utf-8",
             )
             output_dir = repo / "run"
             scope = {
-                "claude_md_chain": ["CLAUDE.md"],
+                "instruction_chain": ["AGENTS.md"],
                 "repo_kind": "app",
             }
             finding = make_unverified_finding(
@@ -469,36 +569,80 @@ class TestPrepareValidatorBundle(unittest.TestCase):
             )
             self.assertEqual(bundle["index"], 0)
             self.assertEqual(bundle["finding"]["location"], "src/auth.ts:42")
-            self.assertEqual(bundle["claude_md_path"], "CLAUDE.md")
-            self.assertIn("Production grade", bundle["claude_md_snippet"])
+            self.assertEqual(bundle["instruction_path"], "AGENTS.md")
+            self.assertIn("Production grade", bundle["instruction_snippet"])
+            self.assertEqual(bundle["claude_md_path"], "AGENTS.md")
+            self.assertEqual(
+                bundle["claude_md_snippet"], bundle["instruction_snippet"],
+            )
             self.assertTrue(bundle["anthropic_verbatim_path"].endswith(
                 "references/anthropic-verbatim.md"
             ))
 
-    def test_bundle_with_no_matching_claude_rule(self):
+    def test_bundle_with_no_matching_instruction_rule(self):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             finding = make_unverified_finding(rule="rule that does not exist")
             result = run_validators.prepare_validator_bundle(
                 index=3, finding=finding,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
             bundle = json.loads(
                 Path(result["input_path"]).read_text(encoding="utf-8")
             )
-            self.assertIsNone(bundle["claude_md_path"])
-            self.assertIsNone(bundle["claude_md_snippet"])
+            self.assertIsNone(bundle["instruction_path"])
+            self.assertIsNone(bundle["instruction_snippet"])
             prompt = Path(result["prompt_path"]).read_text(encoding="utf-8")
-            self.assertIn("not found in claude_md_chain", prompt)
+            self.assertIn("not found in instruction_chain", prompt)
+
+    def test_legacy_scope_key_is_still_read(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "CLAUDE.md").write_text("Use guards.\n", encoding="utf-8")
+            result = run_validators.prepare_validator_bundle(
+                index=0,
+                finding=make_unverified_finding(rule="use guards"),
+                scope={"claude_md_chain": ["CLAUDE.md"]},
+                diff_text="",
+                output_dir=repo / "run",
+                skill_dir=SKILL_DIR,
+                repo_dir=repo,
+            )
+            bundle = json.loads(
+                Path(result["input_path"]).read_text(encoding="utf-8")
+            )
+            self.assertEqual(bundle["instruction_path"], "CLAUDE.md")
+
+    def test_canonical_empty_chain_ignores_stale_legacy_alias(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "CLAUDE.md").write_text("Use guards.\n", encoding="utf-8")
+            result = run_validators.prepare_validator_bundle(
+                index=0,
+                finding=make_unverified_finding(rule="Use guards."),
+                scope={
+                    "instruction_chain": [],
+                    "claude_md_chain": ["CLAUDE.md"],
+                },
+                diff_text="",
+                output_dir=repo / "out",
+                skill_dir=SKILL_DIR,
+                repo_dir=repo,
+            )
+            bundle = json.loads(
+                Path(result["input_path"]).read_text(encoding="utf-8")
+            )
+            self.assertIsNone(bundle["instruction_path"])
+            self.assertIsNone(bundle["instruction_snippet"])
 
     def test_zero_padded_filenames(self):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             result = run_validators.prepare_validator_bundle(
                 index=7, finding=make_unverified_finding(),
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -525,7 +669,7 @@ class TestPrepare(unittest.TestCase):
             ]
             result = run_validators.prepare(
                 findings=findings,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -551,7 +695,7 @@ class TestPrepare(unittest.TestCase):
             ]
             result = run_validators.prepare(
                 findings=findings,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -575,7 +719,7 @@ class TestPrepare(unittest.TestCase):
             findings = [tool_finding, make_unverified_finding(confidence=60)]
             result = run_validators.prepare(
                 findings=findings,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -596,10 +740,10 @@ class TestParseValidatorOutput(unittest.TestCase):
 
     def test_canonical_two_line_output(self):
         score, reason = run_validators.parse_validator_output(
-            "score: 90\nreason: Confirmed via CLAUDE.md citation"
+            "score: 90\nreason: Confirmed via project-instruction citation"
         )
         self.assertEqual(score, 90)
-        self.assertEqual(reason, "Confirmed via CLAUDE.md citation")
+        self.assertEqual(reason, "Confirmed via project-instruction citation")
 
     def test_tolerates_surrounding_chatter(self):
         score, reason = run_validators.parse_validator_output(
@@ -676,7 +820,7 @@ class TestIngestPromote(unittest.TestCase):
     def test_promote_caps_at_promotion_cap(self):
         findings = [make_unverified_finding(confidence=70)]
         # Validators may not exceed PROMOTION_CAP — keeps a ceiling
-        # parallel to build-verification's promotion bonus path.
+        # parallel to the historical build-verification promotion path.
         results = [{"index": 0, "score": 100, "reason": "absolutely certain"}]
         out = run_validators.ingest(results, findings)
         self.assertLessEqual(
@@ -720,17 +864,16 @@ class TestIngestDemote(unittest.TestCase):
         self.assertEqual(out[0]["meta"]["validator_reason"], reason)
 
 
-class TestIngestClaudeMdNotFound(unittest.TestCase):
-    """Spec AC: when the cited CLAUDE.md rule does not exist in
-    claude_md_chain, demote with 'CLAUDE.md rule not found at <path>'."""
+class TestIngestInstructionNotFound(unittest.TestCase):
+    """A missing cited instruction remains visible as a demotion reason."""
 
-    def test_demote_with_claude_md_rule_not_found_reason(self):
+    def test_demote_with_instruction_rule_not_found_reason(self):
         findings = [
             make_unverified_finding(
                 confidence=70, rule="single source of truth",
             ),
         ]
-        reason = "CLAUDE.md rule not found at .claude/rules/behave.md"
+        reason = "Instruction rule not found at .agents/rules/behavior.md"
         results = [{"index": 0, "score": 30, "reason": reason}]
         out = run_validators.ingest(results, findings)
         self.assertEqual(out[0]["meta"]["validator_reason"], reason)
@@ -827,7 +970,7 @@ class TestCliPrepare(unittest.TestCase):
             diff_path.write_text("diff --git", encoding="utf-8")
             findings_identity = _identity(findings_path)
             scope_path.write_text(json.dumps({
-                "claude_md_chain": [],
+                "instruction_chain": [],
                 "repo_kind": "app",
                 "tool_coverage": {"complete": True},
                 "axis_coverage": {

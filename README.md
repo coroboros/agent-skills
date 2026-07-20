@@ -342,7 +342,7 @@ Eight-axis judgment code review at full strength, in-session. The default runs e
 
 **The five phases**
 
-1. **Scope** — deterministic, no LLM: resolves the diff, classifies the repo (one of 9 kinds), reads the CLAUDE.md chain, decides whether Coherence activates.
+1. **Scope** — deterministic, no LLM: resolves the diff, classifies the repo (one of 9 kinds), reads the cross-agent instruction chain, decides whether Coherence activates.
 2. **Tool battery** — per-language static analysis (table below); findings carry `confidence: 100` and skip validation. Never auto-installs.
 3. **Axis review** — 8–9 parallel `Explore` subagents, each scoped to its axis with the diff + filtered tool findings, scoring 0–100 against the verbatim Anthropic rubric.
 4. **Validation** — a fresh-context validator (Haiku on Claude Code) re-scores every sub-80 finding. A2 no-silent-drop: promoted (≥80), demoted with reason, or surfaced in `### ⚠️ Unverified` — never omitted. `--verify-build` runs before this.
@@ -375,7 +375,7 @@ Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO find
 
 - **Zero auto-install** — never runs `brew` / `cargo` / `go` / `pip` / `npm -g`; natives are installed explicitly.
 - **Atomic coverage** — a missing or failed applicable analyzer stops before axis review; fix the printed prerequisite and rerun.
-- **Cite precisely** — every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim.
+- **Cite precisely** — every finding carries `file:line`; instruction-rule findings quote the violated rule verbatim and name its source file.
 
 **Sources**
 
@@ -1222,7 +1222,7 @@ python3 ~/.claude/skills/brand-voice/scripts/lint_all.py .   audit every BRAND-V
 
 <br>
 
-Skill-to-skill links are optional: each skill installs independently. Operations that require an external CLI preflight that runtime and stop with an exact project-local install plus rerun command when it is absent; they never resolve packages while the skill runs.
+Skill-to-skill links are optional: each skill installs independently. Analyzer and converter operations preflight external CLIs and stop with an exact project-local install plus rerun command when one is absent; they never resolve their own tool packages while the skill runs. Project-creation skills may install the project dependencies the user explicitly requested.
 
 ```mermaid
 graph LR

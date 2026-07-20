@@ -474,9 +474,13 @@ def _render_header(
     languages = ", ".join(scope.get("languages") or []) or "—"
     changed_files = scope.get("files_touched_list") or []
     files_count = len(changed_files)
-    chain = scope.get("claude_md_chain") or []
+    chain = (
+        scope["instruction_chain"]
+        if "instruction_chain" in scope
+        else scope.get("claude_md_chain") or []
+    )
     rules_baseline = (
-        f"CLAUDE.md chain + {len(chain)} files" if chain
+        f"instruction chain + {len(chain)} files" if chain
         else "none — Style used observable repository conventions"
     )
     coherence = "active" if scope.get("activates_coherence") else "inactive"

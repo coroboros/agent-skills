@@ -75,7 +75,7 @@ def _write_scope(repo: Path, *, languages: list[str], files: list[str]) -> Path:
         "languages": languages,
         "files_touched_list": files,
         "activates_coherence": False,
-        "claude_md_chain": [],
+        "instruction_chain": [],
         "tools_skipped": [],
     }
     scope_path = repo / "scope.json"

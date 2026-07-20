@@ -2,7 +2,7 @@
 
 **Base:** `{base}` · **Target:** `{target}` · **Rule:** {rung}
 **Repo:** {repo_kind} · **Languages:** {languages}
-**Rules baseline:** {CLAUDE.md chain + N files | none — Style used observable repository conventions}
+**Rules baseline:** {instruction chain + N files | none — Style used observable repository conventions}
 **Reviewed:** {N} changed file(s)
 **Coherence axis:** {active | inactive}
 **Findings:** {n_red} 🔴 · {n_orange} 🟠 · {n_green} 🟢 (verified) · {n_unverified} unverified

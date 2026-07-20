@@ -643,7 +643,7 @@ class TestCliPrepare(unittest.TestCase):
             scope_path.write_text(json.dumps({
                 "repo_kind": "app",
                 "languages": ["typescript"],
-                "claude_md_chain": [],
+                "instruction_chain": [],
                 "activates_coherence": False,
                 "files": ["src/x.ts"],
                 "tools_skipped": [],
@@ -698,7 +698,7 @@ class TestCliPrepare(unittest.TestCase):
                         json.dumps({
                             "repo_kind": "app",
                             "languages": ["typescript"],
-                            "claude_md_chain": [],
+                            "instruction_chain": [],
                             "activates_coherence": coherence,
                             "files": ["src/x.ts"],
                             "tools_skipped": [],

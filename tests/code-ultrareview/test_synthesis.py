@@ -82,7 +82,7 @@ def _scope(**overrides) -> dict:
         "rule": "merge-base",
         "repo_kind": "app",
         "languages": ["typescript"],
-        "claude_md_chain": ["CLAUDE.md"],
+        "instruction_chain": ["AGENTS.md"],
         "activates_coherence": False,
         "tools_skipped": [],
         "tools_missing": [],
@@ -477,7 +477,7 @@ class TestHeaderSeverityCounts(unittest.TestCase):
     def test_empty_rules_chain_does_not_mark_style_skipped(self):
         with tempfile.TemporaryDirectory() as tmp:
             stdout, _, rc = _run_synthesize(
-                _scope(claude_md_chain=[]), [], output_dir=Path(tmp),
+                _scope(instruction_chain=[]), [], output_dir=Path(tmp),
             )
         self.assertEqual(rc, 0, stdout)
         self.assertIn(
@@ -485,6 +485,32 @@ class TestHeaderSeverityCounts(unittest.TestCase):
             stdout,
         )
         self.assertNotIn("Rules baseline:** skipped", stdout)
+
+    def test_canonical_empty_chain_ignores_stale_legacy_alias(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stdout, _, rc = _run_synthesize(
+                _scope(
+                    instruction_chain=[],
+                    claude_md_chain=["CLAUDE.md"],
+                ),
+                [],
+                output_dir=Path(tmp),
+            )
+        self.assertEqual(rc, 0, stdout)
+        self.assertIn(
+            "**Rules baseline:** none — Style used observable repository conventions",
+            stdout,
+        )
+
+    def test_nonempty_rules_chain_uses_generic_label(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            stdout, _, rc = _run_synthesize(
+                _scope(instruction_chain=["AGENTS.md", "CLAUDE.md"]),
+                [],
+                output_dir=Path(tmp),
+            )
+        self.assertEqual(rc, 0, stdout)
+        self.assertIn("**Rules baseline:** instruction chain + 2 files", stdout)
 
 
 # ---------------------------------------------------------------------------

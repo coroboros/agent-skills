@@ -80,7 +80,7 @@ By default, run the 8 axes — Correctness, Simplification, Tests, Documentation
 | `-b <ref>` | Override the review base (skip auto-detection via `scripts/resolve_base.sh`) |
 | `--repo-kind <kind>` | Override the scope classifier. Values: `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo override at `.code-ultrareview.yaml` (`repo_kind: <kind>`); the flag wins on conflict. Invalid value exits 2 |
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` may be `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL. Findings classify as GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT |
-| `--verify-build` | Run the repository's canonical test command as an atomic gate before Haiku validators. Missing command/runner exits 3; failure or timeout exits 4. A generic build result never changes finding confidence |
+| `--verify-build` | Run the repository's canonical test command as an atomic gate before fresh-context validators. Missing command/runner exits 3; failure or timeout exits 4. A generic build result never changes finding confidence |
 | `--mutation-test` | Run Stryker (JS/TS), Pitest (JVM), or mutmut (Python). JS/TS execution targets changed files; project-configured Python/JVM execution is filtered to changed-file findings. Surviving mutants route to the Tests axis as 🟠 Medium |
 | `--apply-safe` | Opt-in writers: auto-apply low-risk fixes (manifest version sync, structured-field description sync with full-agreement guard, one failing test per confirmed bug). Diff preview + per-file confirmation before any write |
 | `--include-prose` | Coherence axis compares README freeform paragraphs as well (default: structured fields only) |
@@ -109,7 +109,7 @@ Runs `scripts/scope.py`. Deterministic, no LLM. Outputs `scope.json`:
 
 - **Diff resolution** — clean tree → `scripts/resolve_base.sh` ladder; dirty tree → `git diff HEAD` + every untracked file inlined as added lines. `changed_line_ranges` records the target-side added/modified hunks for deterministic finding scope. Recipe for producing the `diff.patch` fed to Phase 3's `prepare --diff` (two-dot against the resolved base; untracked files via `git diff --no-index /dev/null <file>`): `references/orchestration.md` § *Produce the diff*.
 - **Repo-kind classification** — 8 kinds (`skills` / `app` / `library` / `docs` / `monorepo` / `python` / `rust` / `go`) + `unknown`. Override via `--repo-kind` or `.code-ultrareview.yaml`.
-- **CLAUDE.md chain** — root `CLAUDE.md` + nested `CLAUDE.md` in changed directories + `.claude/rules/*.md` + `~/.claude/rules/*.md`. Ordered root-to-deepest. Read by axis reviewers and validators.
+- **Instruction chain** — effective `AGENTS.override.md` / `AGENTS.md`, the shared `.agents/rules/**/*.md` they reference, and Claude-specific `CLAUDE.md` / `.claude/CLAUDE.md` / `CLAUDE.local.md` / `.claude/rules/**/*.md` across user, project, and changed-directory scopes. Ordered broadest-to-most-specific in `scope.json["instruction_chain"]`. Read by axis reviewers and validators.
 - **Coherence activation** — any of `package.json`, `.claude-plugin/marketplace.json`, `marketplace.json`, `SKILL.md`, root `README.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod` in the diff → `scope.json["activates_coherence"] = true`.
 - **Languages detection** — from changed-file extensions; drives Phase 2 dispatch.
 
@@ -131,11 +131,11 @@ The 8 always-on axes: **Correctness** · **Simplification** · **Tests** · **Do
 
 ### Phase 4 — Validation
 
-The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one fresh-context validator per finding in the same message — Haiku `Task` on Claude Code, or the harness's isolated-agent equivalent — batched ≤10 parallel. Prepare requires complete axis coverage. Validator ingest invalidates any prior successful state and output before validating the exact prepared count, then publishes atomically. Each validator receives the finding + diff context + the deepest matching CLAUDE.md snippet + the verbatim rubric, re-scores 0-100, and re-checks the cited CLAUDE.md rule actually exists in `claude_md_chain` (demotes with `CLAUDE.md rule not found at <path>` if not). Confidence `0` is valid and must pass through this validation path. Without an isolated-agent primitive, validate sequentially in a fresh pass and keep the same ingest and no-silent-drop contracts.
+The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one fresh-context validator per finding in the same message — Haiku `Task` on Claude Code, or the harness's isolated-agent equivalent — batched ≤10 parallel. Prepare requires complete axis coverage. Validator ingest invalidates any prior successful state and output before validating the exact prepared count, then publishes atomically. Each validator receives the finding + diff context + the deepest applicable instruction snippet + the verbatim rubric, re-scores 0-100, and re-checks that a cited project rule exists in `instruction_chain` (demotes with `Instruction rule not found at <path>` if not). Confidence `0` is valid and must pass through this validation path. Without an isolated-agent primitive, validate sequentially in a fresh pass and keep the same ingest and no-silent-drop contracts.
 
 Confidence threshold = 80 (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic. Validators stay read-only — no Write / Edit / Bash, no nested subagent spawn.
 
-**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s. 25+ findings spread over 2-3 batches stay under ~2 min. Latency is dominated by Haiku launch overhead, not inference.
+**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s. 25+ findings spread over 2-3 batches stay under ~2 min. Latency is dominated by isolated-validator launch overhead, not inference.
 
 **A2 contract.** No sub-80 finding silently dropped. Each one is promoted to ≥80, demoted with reason, or surfaced in `### ⚠️ Unverified` with the validator's reason text.
 
@@ -161,14 +161,14 @@ The closing **"What I did NOT check"** section is mandatory and always present �
 
 ## Trust model
 
-The skill ingests third-party content — CLAUDE.md files, PR bodies, planning artifacts (`--reconcile`), GitHub issue bodies — which can carry indirect prompt-injection. Axis reviewers and validators are read-only (no Write / Edit / Bash mutation). User review of the report is the trust boundary before any `--apply-safe` write; `--apply-safe` itself gates writes behind diff preview + per-file confirmation.
+The skill ingests third-party content — project instruction files, PR bodies, planning artifacts (`--reconcile`), GitHub issue bodies — which can carry indirect prompt-injection. Axis reviewers and validators are read-only (no Write / Edit / Bash mutation). User review of the report is the trust boundary before any `--apply-safe` write; `--apply-safe` itself gates writes behind diff preview + per-file confirmation.
 
 ## Rules
 
 - **Only new findings.** Issues the diff introduces. Pre-existing findings carry the `Pre-existing` tier for context, never flip the verdict.
 - **No silent drop (A2).** Positive sub-80 findings surface in `### ⚠️ Unverified` with the score and validator reason. Validator score `0` rejects the finding during synthesis.
 - **Fail loud.** An unresolvable base, missing prerequisite, analyzer failure, or invalid report stops the review before a verdict.
-- **Cite precisely.** Every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>` (full SHA via `git rev-parse HEAD`).
+- **Cite precisely.** Every finding carries `file:line`; instruction-rule findings quote the violated rule verbatim and name its source file; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>` (full SHA via `git rev-parse HEAD`).
 - **Full report in chat every time.** The complete report prints to the terminal on every invocation. `-s` writes the same bytes to disk; it never gates or summarises chat output.
 - **NEVER auto-install tools.** Missing tools surface exact install commands in preflight stderr and `tool-preflight.json`. The user installs them, then reruns the review.
 - **NEVER modify code without `--apply-safe`.** Default is read-only review. `--apply-safe` writers are surgical and per-file confirmed.
@@ -183,7 +183,7 @@ The closing "What I did NOT check" section always names these — explicit user-
 
 ## Degradation and hard stops
 
-- **No CLAUDE.md / no `.claude/rules`** — Style still runs, but may report only changed-line violations backed by repeated observable neighboring repository evidence. The report states that no project-specific rules baseline was available; Style is not marked skipped.
+- **No project instruction chain** — when no effective AGENTS or Claude instruction file exists, Style still runs but may report only changed-line violations backed by repeated observable neighboring repository evidence. The report states that no project-specific rules baseline was available; Style is not marked skipped.
 - **No project or PATH analyzer** — hard stop with exit 3 and an exact install command. A generic manual code review is a different workflow; it must not claim this skill's full-strength verdict.
 - **Analyzer runtime, timeout, analyzer-reported error, or invalid report** — hard stop with exit 4, captured stderr/report paths, exact repair/install guidance, and a rerun instruction.
 - **Unresolvable base** — fail loud with the resolver's hint line. Do not guess.
