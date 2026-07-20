@@ -1,5 +1,5 @@
 {
-  "about": "Winner-verified composition recipes — the layer between the component palette and a deterministic page. Each recipe is a winner's ordered section chain: form (or MISSING:<build-order>, or webgl-scene(delegated)) + component pairings + intensity 1-10 + at most one climax. The model picks by brief-fit, rotates against the previous stamp's macrostructure, then diverges inside the recipe (variants, alternate pairs). Never re-sequence a winner's ordering to taste.",
+  "about": "Winner-verified composition recipes — the layer between the component palette and a deterministic page. Each recipe is a winner's ordered section chain: form (or MISSING:<build-order>, or webgl-scene(delegated)) + component pairings + intensity 1-10 + at most one climax. The footer is a structured object under the same closed-world grammar: {form:<id>} for a real form, {component:<id>} for a component-backed close (valediction-footer, footer-clone-machine), {inWorld:true} for an engine sign-off, or {form:'MISSING:<costume>-footer'} for a costume the library has not grown yet (tabular-index, contact-first, CTA-reprise) — a MISSING footer is a BLOCKED row until its form ships, exactly like a MISSING section form; note carries the winner's original footer flavor. The model picks by brief-fit, rotates against the previous stamp's macrostructure, then diverges inside the recipe (variants, alternate pairs). Never re-sequence a winner's ordering to taste.",
   "recipes": [
     {
       "id": "gated-reel-siena",
@@ -63,7 +63,7 @@
           "intensity": 6
         }
       ],
-      "footer": "oversized-wordmark",
+      "footer": {"form": "oversized-wordmark", "note": "oversized-wordmark"},
       "loader": "none(the gate is the arrival — gated-splash doubles as loader + sound gate)",
       "paceNotes": "single climax at the masthead right after the gate; the filmstrip sustains proof; rest at the per-work detail before the contact close",
       "whenToUse": "film/festival/institution with a treated-still archive and a ritual-of-entry brief"
@@ -113,7 +113,7 @@
           "intensity": 6
         }
       ],
-      "footer": "tabular-index",
+      "footer": {"form": "MISSING:tabular-index-footer", "note": "tabular-index"},
       "loader": "none(instant paint — winner-verified absence)",
       "paceNotes": "even intensity, no spectacle peak — the chrome carries the voice; rest is inherent to the reading cadence",
       "whenToUse": "institution/research org, reading-first, voice-in-the-chrome, no spectacle brief"
@@ -181,7 +181,7 @@
           "intensity": 6
         }
       ],
-      "footer": "contact-first (social grid, house tagline)",
+      "footer": {"form": "MISSING:contact-first-footer", "note": "contact-first (social grid, house tagline)"},
       "loader": "none(instant paint)",
       "paceNotes": "instant paint, even intensity through the value chapters (maison refuses a spike), rest at the journal teaser before the connect close",
       "whenToUse": "warm editorial commerce / skincare / maison where commerce hides behind Discover and restraint is the register"
@@ -262,7 +262,7 @@
           "intensity": 6
         }
       ],
-      "footer": "oversized-wordmark (the h1 lives here, sticky reveal over a 50vh holder)",
+      "footer": {"form": "oversized-wordmark", "note": "oversized-wordmark (the h1 lives here, sticky reveal over a 50vh holder)"},
       "loader": "counter-loader (curtain + counter recoloring into the footer ground)",
       "paceNotes": "one mid-page climax at the mechanism reveal; the void gap is the rest; the footer is a second quiet peak — the h1 lands last",
       "whenToUse": "product/SaaS with one held promise argued beat by beat; the h1 deferred to the footer"
@@ -296,7 +296,7 @@
           "climax": true
         }
       ],
-      "footer": "bare-cue (SCROLL UP / 2025.)",
+      "footer": {"form": "bare-cue", "note": "bare-cue (SCROLL UP / 2025.)"},
       "loader": "counter-loader (bare 1-100, no curtain)",
       "paceNotes": "the hero holds no image; the first full-bleed still below the fold is the reward and the climax; intensity holds flat-high through the stack; the close is a bare cue",
       "whenToUse": "minimalist portfolio where the work is the whole argument and the hero is a text-only name card"
@@ -344,7 +344,7 @@
           "intensity": 6
         }
       ],
-      "footer": "tabular-index (newsletter + accordion nav + house tagline)",
+      "footer": {"form": "MISSING:tabular-index-footer", "note": "tabular-index (newsletter + accordion nav + house tagline)"},
       "loader": "none(instant paint — winner-verified absence)",
       "paceNotes": "no climax spike — restraint is the register; even intensity; the tabular footer is close and rest at once",
       "whenToUse": "heritage maison / luxury commerce where commerce hides behind Discover and even, restrained intensity is the point"
@@ -413,7 +413,7 @@
           "climax": true
         }
       ],
-      "footer": "contact-first (sales departments by city)",
+      "footer": {"form": "MISSING:contact-first-footer", "note": "contact-first (sales departments by city)"},
       "loader": "flip-handoff-loader",
       "paceNotes": "15+ sections; the late become-part-of-the-legend buy-moment fuses climax and close; place tour and financials build proof; rest at the contact footer",
       "whenToUse": "investment/real-estate/heritage venture with a long argued scroll and a join-the-legend close"
@@ -443,7 +443,7 @@
           "intensity": 6
         }
       ],
-      "footer": "oversized-wordmark (signed: All work (c) DEPO LUXE, 2026)",
+      "footer": {"form": "oversized-wordmark", "note": "oversized-wordmark (signed: All work (c) DEPO LUXE, 2026)"},
       "loader": "svg-path-fill-loader",
       "paceNotes": "the WebGL field is the ground, not a spike; the index's spotlight-dim carries the middle; the signed wordmark footer is the quiet rest-close. Requires a WebGL path",
       "whenToUse": "luxury creative folio wanting a living WebGL ground under a spotlight-dim index"
@@ -509,7 +509,7 @@
           "intensity": 9
         }
       ],
-      "footer": "valediction-fold (the valediction-footer component is the footer; palette flips once)",
+      "footer": {"component": "valediction-footer", "note": "valediction-fold (the valediction-footer component is the footer; palette flips once)"},
       "loader": "brand-object-assembly-loader (object assembles, ellipse wipe; loader node unmounts)",
       "paceNotes": "climax doubled — the mid-page 3D gallery and the inverted valediction close; short bridge rests between facet chapters; palette flips once at the close. Requires a WebGL path",
       "whenToUse": "personality/athlete/ambassador site with a hero portrait, a 3D signature object, and a cinematic inverted close"
@@ -549,7 +549,7 @@
           "intensity": 8
         }
       ],
-      "footer": "bare-cue / costumed-credits",
+      "footer": {"form": "bare-cue", "note": "bare-cue / costumed-credits"},
       "loader": "none(the gate is the arrival; grain-grade + shader-surface run behind)",
       "paceNotes": "gate + masthead stack the attention climax up front; the filmstrip sustains; a thin credits close — the body already spent the spectacle so the footer is a designed refusal",
       "whenToUse": "film foundation / cinema archive in a dark poster grade with a ritual-of-entry gate and operable film stills"
@@ -600,7 +600,7 @@
           "intensity": 7
         }
       ],
-      "footer": "contact-first (Let's talk + real address + socials + newsletter)",
+      "footer": {"form": "MISSING:contact-first-footer", "note": "contact-first (Let's talk + real address + socials + newsletter)"},
       "loader": "none(scroll cue + scene settle — winner-verified)",
       "paceNotes": "even-high intensity carried by the live 3D ground; the manifesto is the one understanding beat; contact-first close. Never commit the live-3D hero without a WebGL path",
       "whenToUse": "3D/interactive studio wanting a live-rendered ground under a manifesto and a discipline-tagged reel"
@@ -667,7 +667,7 @@
           "intensity": 6
         }
       ],
-      "footer": "tabular-index (product variant — sponsor-first block + instant fill-swipe hovers + newsletter)",
+      "footer": {"form": "MISSING:tabular-index-footer", "note": "tabular-index (product variant — sponsor-first block + instant fill-swipe hovers + newsletter)"},
       "loader": "none(zero preloader — the hero stagger is the entrance; a 0-100 counter curtain is an anti-signal here)",
       "paceNotes": "one climax at the pinned demo panels; sponsors are the rest before the get-started close; the footer adds a designed fill-swipe cue, not spectacle",
       "whenToUse": "developer tool / library / API product where the artifact demonstrates itself, one capability per pinned panel"
@@ -716,7 +716,7 @@
           "intensity": 6
         }
       ],
-      "footer": "compact tabular-index (or oversized-wordmark reprise, Linear-shipped)",
+      "footer": {"form": "oversized-wordmark", "note": "compact tabular-index (or oversized-wordmark reprise, Linear-shipped)"},
       "loader": "none(SSR paints copy pre-hydration; a 0-100 counter curtain is an anti-signal)",
       "paceNotes": "climax is diffuse — the 12-col feature grid carries the proof; even build to a single CTA close; compact footer is the rest",
       "whenToUse": "SaaS/AI/enterprise product needing feature cards that carry real product UI in an editorial 12-col grid — the bento-fatigue correction"
@@ -784,7 +784,7 @@
           "intensity": 6
         }
       ],
-      "footer": "CTA-reprise (Get Exat + credits)",
+      "footer": {"form": "MISSING:CTA-reprise-footer", "note": "CTA-reprise (Get Exat + credits)"},
       "loader": "none(the glyph grid is the intro)",
       "paceNotes": "climax at the specimen glyph grid; capability sections quiet after; CTA reprise close; the proximity recolor is the signature (cursor, not scroll)",
       "whenToUse": "type foundry / typography product where the specimen performs itself and type is the image"
@@ -853,7 +853,7 @@
           "intensity": 6
         }
       ],
-      "footer": "contact-first (Have an idea? Tell us + dual real addresses)",
+      "footer": {"form": "MISSING:contact-first-footer", "note": "contact-first (Have an idea? Tell us + dual real addresses)"},
       "loader": "none/instant (single-source — commit none)",
       "paceNotes": "climax early at the featured projects (proof); services then blog quiet the page as rest; the reprise closes",
       "whenToUse": "digital agency / studio with a declarative pitch hero and work-as-proof up front"
@@ -898,7 +898,7 @@
           "intensity": 4
         }
       ],
-      "footer": "bare-cue (minimal legal chrome)",
+      "footer": {"form": "bare-cue", "note": "bare-cue (minimal legal chrome)"},
       "loader": "narrative-scene-one-loader (read-now hands the live cover into the reader)",
       "paceNotes": "the cover is scene one (no separate hero); climax at the chaptered panel scenes with camera moves + physics; About is the rest/close; scroll is a playhead. Requires a WebGL path",
       "whenToUse": "story brand / comic / exhibition where the page is a chaptered world you operate"
@@ -973,7 +973,7 @@
           "intensity": 7
         }
       ],
-      "footer": "CTA-reprise (oversized invitation + newsletter + reprised primary CTA)",
+      "footer": {"form": "MISSING:CTA-reprise-footer", "note": "CTA-reprise (oversized invitation + newsletter + reprised primary CTA)"},
       "loader": "chat-cloud-loader",
       "paceNotes": "climax ~40% at the lineup (proof); FAQ is the rest before the oversized invitation close; no zero-intro instant paint — the loader speaks in character",
       "whenToUse": "event / festival / conference with a lineup-as-proof and a warm-communal in-character voice"
@@ -1021,7 +1021,7 @@
           "climax": true
         }
       ],
-      "footer": "footer-spectacle (footer-clone-machine — the loudest interaction lands last)",
+      "footer": {"component": "footer-clone-machine", "note": "footer-spectacle (footer-clone-machine — the loudest interaction lands last)"},
       "loader": "loader-into-navbar",
       "paceNotes": "peak at the bottom — the footer-as-finale is the climax; even build through identity hero, about, and the hover-charged work index; no in-fold CTA",
       "whenToUse": "brutalist/terminal studio index where the footer is the spectacle finale and the work index carries the proof"
@@ -1055,7 +1055,7 @@
           "intensity": 5
         }
       ],
-      "footer": "in-world sign-off (no DOM footer)",
+      "footer": {"inWorld": true, "note": "in-world sign-off (no DOM footer)"},
       "loader": "gated-splash (start gate doubles as the sound gate; no numeric counter)",
       "paceNotes": "no scroll — funnel jobs collapse into the 3D space; understanding in ten seconds via click-to-start; the world is the climax; an in-world sign-off closes. Never commit without a WebGL path",
       "whenToUse": "creative-developer portfolio or playable brand world where the engine is the page and discovery is the proof"
@@ -1088,7 +1088,7 @@
           "climax": true
         }
       ],
-      "footer": "in-world sign-off (HUD copyright, no DOM footer)",
+      "footer": {"inWorld": true, "note": "in-world sign-off (HUD copyright, no DOM footer)"},
       "loader": "none(no boundary — intro flows into the scene, HUD from frame one, no loader DOM)",
       "paceNotes": "scrollHeight may pin ~1vh; attention/understanding fuse in the engine; late interactive climax at the particle sim; rest at a generative/contact close. Never commit without a WebGL path",
       "whenToUse": "fully in-engine scroll-scrubbed world, one shader-seamed continuous scene, one zone per project"
@@ -1132,7 +1132,7 @@
           "intensity": 5
         }
       ],
-      "footer": "tabular-index (About-overlay: clients wall + awards ledger, typeset)",
+      "footer": {"form": "about-overlay-footer", "note": "tabular-index (About-overlay: clients wall + awards ledger, typeset)"},
       "loader": "counter-loader (corner-counter 0-100 variant — boots straight into the index)",
       "paceNotes": "no marketing hero — the giant-type index over WebGL is the page; climax is on-click (the route morph); the About overlay doubles as the close/footer. Requires a WebGL path",
       "whenToUse": "developer/designer folio where a giant-type index over WebGL is the whole page and a click plays an in-engine route morph"
@@ -1159,7 +1159,7 @@
           "climax": true
         }
       ],
-      "footer": "in-world sign-off (HUD copyright; no DOM footer)",
+      "footer": {"inWorld": true, "note": "in-world sign-off (HUD copyright; no DOM footer)"},
       "loader": "none(no boundary — intro flows into the scene, HUD from frame one, no loader DOM)",
       "paceNotes": "attention and understanding fuse in the engine; the scroll-assembled dark entrance is the climax; rest is ambient drift; scrollHeight pins ~vh. Requires a WebGL path",
       "whenToUse": "fully in-engine, zero-text-node brand world scrubbed by scroll — a single real-time simulation as the whole page"
@@ -1226,7 +1226,7 @@
           "intensity": 6
         }
       ],
-      "footer": "contact-first (project prompt + availability + copy-email pill, offset shadow on the accent, clip-path edge)",
+      "footer": {"form": "MISSING:contact-first-footer", "note": "contact-first (project prompt + availability + copy-email pill, offset shadow on the accent, clip-path edge)"},
       "loader": "none(instant paint + animation-timeline reveals, no 0-100 gate)",
       "paceNotes": "climax at the fold (the marquee hero); the morph-tile grid carries proof; blogs are the rest before services and the contact-first close; View-Transitions shared-element morphs on route",
       "whenToUse": "warm-organic solo/studio portfolio — real portrait on organic clip-path shapes, morph-tile work grid, availability-as-fact copy"
@@ -1254,7 +1254,7 @@
           "climax": true
         }
       ],
-      "footer": "tabular-index (statement + email + (c); socials + clients wall + awards ledger)",
+      "footer": {"form": "MISSING:tabular-index-footer", "note": "tabular-index (statement + email + (c); socials + clients wall + awards ledger)"},
       "loader": "none/instant",
       "paceNotes": "no hero headline — the dense index is the page (proof-by-density); climax is on click; the view toggle is within-page (no route curtain)",
       "whenToUse": "studio/agency index where density is the argument and there is no marketing hero — the index itself is the fold"
@@ -1351,7 +1351,7 @@
           "intensity": 8
         }
       ],
-      "footer": "valediction-fold (the valediction-footer component is the footer; the museum lights come up — palette inverts once at the close)",
+      "footer": {"component": "valediction-footer", "note": "valediction-fold (the valediction-footer component is the footer; the museum lights come up — palette inverts once at the close)"},
       "loader": "branded-preloader(component) (progress tied to real Three.js asset load; hands off to the atrium with a camera move, not a hard cut; doubles as the Web Audio sound-unlock gate)",
       "paceNotes": "Cartier W&W 2025 (Immersive Garden + 60fps, SOTD + SOTM + CSSDA): six self-contained 3D alcoves 'like rooms in a museum after hours', one watch per room, scroll transitioning the CAMERA room-to-room (never a page fade); a persistent Mooders Web Audio score threads the rooms unbroken as a narrative layer, and hidden gestures (raycast-object-state) keep the pointer live throughout. Every room sits at spectacle amplitude — no quiet section (the silence defect); the one capped peak is the centerpiece closest push-in; the valediction inverts the palette once. Expose a room index / progress rail bound to the active-room index for the long scroll-jacked procession (procession-wayfinding), keyboard- and skip-reachable. Requires a WebGL path; rooms-procession owns the scroll->room math, the delegated scene owns rendering.",
       "whenToUse": "A set of discrete artifacts (a collection, a product line, a capsule, a chaptered archive) told as a museum-after-hours walk — each artifact its own staged 3D room sharing one canvas + camera rig, scroll transitioning room-to-room, an optional ambient audio score threading them. Pick over portrait-procession when the subject is a set of objects rather than one person, and over engine-world when the rooms are discrete staged scenes rather than one continuous space. Requires a WebGL path."
@@ -1421,7 +1421,7 @@
           "intensity": 5
         }
       ],
-      "footer": "oversized-wordmark (the quiet signed rest-close)",
+      "footer": {"form": "oversized-wordmark", "note": "oversized-wordmark (the quiet signed rest-close)"},
       "loader": "brand-object-assembly-loader",
       "paceNotes": "walking the pavilion IS mixing the score — the stems cross per room; ONE charged gesture per alcove, never two; the wayfinding recedes between rooms and the score never stops. Requires a WebGL path and a covering scene (closed-world: no scene authoring at build)",
       "whenToUse": "a luxury maison pavilion — a scored procession through staged alcoves, one charged gesture per room, the object held still at the end"
@@ -1470,7 +1470,7 @@
           "intensity": 4
         }
       ],
-      "footer": "about-overlay-footer doubles as the footer (the Aristide close)",
+      "footer": {"form": "about-overlay-footer", "note": "about-overlay-footer doubles as the footer (the Aristide close)"},
       "loader": "none (world-boot is the arrival)",
       "paceNotes": "the primary verb is PLAYED through composed pieces — raycast per object, the bridge for the world's channels, one charged gesture; the attract loop teaches after real idle; the positional score and ambient life keep the world inhabited between actions. Requires a WebGL path and a covering scene (closed-world: no scene authoring at build)",
       "whenToUse": "a playable-world experience whose primary verb is a physical action performed in-engine — the composition recipe the playable-verb-scene ruling ordered"

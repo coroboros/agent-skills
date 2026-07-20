@@ -1852,6 +1852,99 @@
       },
       "whenToUse": "The gated diegetic boot of the playable world — the Bruno spelling of the world-boot-gate gap (the Igloo spelling shipped in rung 8A as in-engine-intro; see the css header for the full alias ruling). The engine mounts and reports ready(boot); ready un-hides the authored-hidden [data-slot='start'] control (the gate appears only over a world that can actually start); the visitor's start gesture fires onStart(event) SYNCHRONOUSLY — the audio carrier unlocks there (spatial-audio-world.unlock(), the start-gate-doubles-as-unlock law) — then ONE decelerating clock feeds boot(p) and the poster's inline opacity together. Drive-verified from a COLD LOAD on native clicks: poster whole at opacity 1, canvas mounted, start un-hidden, ZERO boot frames before the gesture, pointer not routed; the click ran 142 decelerating boot(p) frames 0.013→1 over exactly 2400ms with the harness domes rising from the ground, the audio context running from the same gesture (level 0.268), then poster visibility hidden (inline write) + data-engine='live' routing the mount the pointer and the start spent; under ?slow the one-clock law held at every sample — p + posterOpacity = 1.000 exactly. DISTINCT from in-engine-intro on the GATE axis (the intro has no affordance — arrival auto-runs on first-frame-ready; here nothing moves before the visitor's gesture because the gesture is also the audio unlock and the world is playable) and from every loader curtain (this is the STAGE — the paired gated-splash overlay may front it, its onEnter calling handle.start(); one gate per page, never both). Reduce drive-verified: the choreography is decoration and skipped — ONE boot(1) frame, poster hidden instantly, world live and pointer-routed, audio still silent (interaction is not decoration; the assembly animation is). ?nojs drive-verified: the poster page and HUD chrome stand whole, the start control stays hidden — gating nothing.",
       "init": "awardWorldBoot.init(root, { selector, mount, bootMs, onStart })"
+    },
+    {
+      "id": "oversized-wordmark",
+      "css": "forms/oversized-wordmark.css",
+      "js": null,
+      "global": null,
+      "winner": "Terminal Industries (SOTD 2025-09-03 + SOTM — the argument-scroll close where the page's one deferred <h1> lands on a sticky reveal over a viewport-height holder; previously named MISSING in recipes.json footers)",
+      "archetypes": [
+        "minimalist",
+        "corporate-luxury",
+        "editorial-dark"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-ground",
+        "--ad-font-display",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "wordmark",
+          "element": "h1",
+          "required": true
+        },
+        {
+          "name": "signoff",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "density": [
+          "standard",
+          "dense"
+        ],
+        "align": [
+          "start",
+          "center"
+        ]
+      },
+      "pairs": {
+        "wordmark": [
+          "kinetic-reveal",
+          "char-assemble"
+        ],
+        "signoff": [
+          "scramble-decode"
+        ]
+      },
+      "whenToUse": "The argument-scroll / minimalist footer where the page's ONE deferred <h1> finally lands (Terminal's close): a viewport-height sticky holder with an oversized wordmark pinned to its lower edge, revealed last as the reader scrolls the holder past. Layout only — the reveal is the paired component (wordmark -> kinetic-reveal | char-assemble); the form ships zero motion and no overflow:hidden (it would defeat the sticky reveal). A dead script leaves the footer standing whole."
+    },
+    {
+      "id": "bare-cue",
+      "css": "forms/bare-cue.css",
+      "js": null,
+      "global": null,
+      "winner": "Gabriel Contassot, Stefan Vitasovic (the gallery-stack minimal close: a back-to-top cue + year mark on one slim line, no footer chrome; previously named MISSING in recipes.json footers)",
+      "archetypes": [
+        "minimalist",
+        "experimental",
+        "spatial-organic"
+      ],
+      "tokens": [
+        "--ad-space",
+        "--ad-ink",
+        "--ad-font-mono"
+      ],
+      "slots": [
+        {
+          "name": "cue",
+          "element": "a",
+          "required": true
+        },
+        {
+          "name": "year",
+          "element": "p",
+          "required": false
+        }
+      ],
+      "variants": {
+        "align": [
+          "split",
+          "center"
+        ]
+      },
+      "pairs": {
+        "cue": [
+          "masked-label-swap",
+          "split-rollover"
+        ]
+      },
+      "whenToUse": "The gallery-stack's minimal close (Contassot / Vitasovic): no footer chrome, just a back-to-top cue ('SCROLL UP') and a year/edition mark on one slim baseline row — the page ends on type the way it opened. Layout only; the cue's hover life is the paired component (masked-label-swap | split-rollover). A real link for the cue keeps it working under a dead script."
     }
   ],
   "slot_roles": {

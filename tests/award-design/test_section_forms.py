@@ -166,6 +166,32 @@ class TestRecipes(unittest.TestCase):
                     self.assertIn("intensity", s)
                     self.assertTrue(1 <= s["intensity"] <= 10)
 
+    def test_footer_is_structured_and_resolves(self):
+        """Freeform footers weren't drift — they were forced: the named costumes
+        had no files. Every footer is now a structured object under closed-world:
+        a real form file, a manifest component, an in-world sign-off, or a declared
+        MISSING costume (the BLOCKED-row grammar). Zero free-text footers remain."""
+        form_files = {p.name for p in (COMPONENTS / "forms").glob("*.css")}
+        for r in self.recipes:
+            f = r["footer"]
+            with self.subTest(recipe=r["id"]):
+                self.assertIsInstance(f, dict, "footer must be a structured object, not free text")
+                self.assertIn("note", f)
+                if "form" in f:
+                    form_id = f["form"]
+                    if form_id.startswith("MISSING:"):
+                        self.assertRegex(form_id, r"^MISSING:[A-Za-z].*-footer$",
+                                         "a MISSING footer names its build order")
+                    else:
+                        self.assertIn(f"{form_id}.css", form_files,
+                                      f"footer form {form_id} has no file")
+                elif "component" in f:
+                    self.assertIn(f["component"], self.component_ids,
+                                  f"footer component {f['component']} is not in the manifest")
+                else:
+                    self.assertTrue(f.get("inWorld") is True,
+                                    "a footer with no form/component must be an in-world sign-off")
+
     def test_pairs_reference_real_components(self):
         for r in self.recipes:
             for s in r["sections"]:

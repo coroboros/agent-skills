@@ -1,0 +1,67 @@
+/*
+ * oversized-wordmark — section form (winner: Terminal Industries).
+ * The argument-scroll footer where the page's ONE deferred <h1> finally lands:
+ * a tall holder (a viewport-height sticky field) with an oversized wordmark
+ * pinned to its lower edge, so the name is revealed last as the reader scrolls
+ * the holder past. The form owns ONLY layout — the sticky field and the type
+ * scale; the reveal itself is a paired component (kinetic-reveal | char-assemble),
+ * per the layering law. Linked as a plain stylesheet so the no-JS render keeps
+ * the footer standing whole; zero decoration, zero motion.
+ *
+ * Markup contract (slots in reading order):
+ *   <footer data-ad-form="oversized-wordmark" data-density="standard" data-align="start">
+ *     <h1 data-slot="wordmark">…</h1>       required — the deferred name, oversized
+ *     <p  data-slot="signoff">…</p>         optional — mono legal / year / mark line
+ *   </footer>
+ *
+ * Variants: data-density="standard|dense" · data-align="start|center"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-ground, --ad-font-display,
+ *         --ad-font-mono.
+ */
+
+[data-ad-form="oversized-wordmark"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  position: relative;
+  /* the holder the wordmark reveals across — a full viewport field, so the name
+     lands last as the reader scrolls it past (Terminal's deferred-h1 close) */
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding: calc(var(--_sp) * 3) calc(var(--_sp) * 3) calc(var(--_sp) * 2);
+  box-sizing: border-box;
+  background-color: var(--ad-ground, oklch(97% 0.006 85));
+  color: var(--ad-ink, oklch(22% 0.02 250));
+  /* no overflow:hidden here — it would defeat the sticky wordmark reveal; the
+     conformance loop tunes the clamp against H-OVERFLOW per build word-length */
+}
+
+[data-ad-form="oversized-wordmark"] [data-slot="wordmark"] {
+  /* sticky lower edge — the name holds at the bottom of the field as it scrolls */
+  position: sticky;
+  bottom: calc(var(--_sp) * 1.5);
+  align-self: end;
+  grid-row: 1;
+  margin: 0;
+  font-family: var(--ad-font-display, inherit);
+  /* oversized: the wordmark IS the footer, edge to edge */
+  font-size: clamp(4rem, 22vw, 20rem);
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+}
+
+[data-ad-form="oversized-wordmark"] [data-slot="signoff"] {
+  grid-row: 2;
+  margin: calc(var(--_sp) * 2) 0 0;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  opacity: 0.7;
+}
+
+[data-ad-form="oversized-wordmark"][data-align="center"] [data-slot="wordmark"] {
+  text-align: center;
+}
+
+[data-ad-form="oversized-wordmark"][data-density="dense"] {
+  min-height: 70dvh;
+}
