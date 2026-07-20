@@ -1862,7 +1862,8 @@
       "archetypes": [
         "minimalist",
         "corporate-luxury",
-        "editorial-dark"
+        "editorial-dark",
+        "bento"
       ],
       "tokens": [
         "--ad-space",
@@ -1913,7 +1914,9 @@
       "archetypes": [
         "minimalist",
         "experimental",
-        "spatial-organic"
+        "spatial-organic",
+        "immersive",
+        "bold-maximal"
       ],
       "tokens": [
         "--ad-space",

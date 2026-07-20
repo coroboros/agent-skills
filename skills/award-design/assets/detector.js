@@ -334,8 +334,9 @@
   // surface is off the page ground is the FAIL; frost-with-blur, translucent, or
   // an opaque same-ground bar (winner-cited — Cyd's always-solid cream) is
   // REVIEW, judged in §8 against the archetype canon. FAIL fires only on proof:
-  // a resolvable solid colour ≠ the ground. An image-ground bar reads REVIEW
-  // because its L is uncomputable, never a false decapitation FAIL.
+  // a resolvable solid colour ≠ the ground (groundDeltaL > 0.05). An image-ground
+  // bar, or an unresolvable page ground, leaves groundDeltaL at 0 → REVIEW, never
+  // a false decapitation FAIL (the caller passes 0 when it cannot prove off-ground).
   function classifyNavHero(sample) {
     const s = sample || {};
     if (!s.hasMediaUnder || s.isScrim) return 'EXEMPT';
@@ -758,13 +759,19 @@
     }
   }
 
+  // Returns the page ground rgb, or null when it is unresolvable (a ground
+  // authored via background-image/gradient/wrapper, not a body/html
+  // background-color). A white fallback would inflate groundDeltaL and fatally
+  // fail an opaque SAME-ground bar (the winner-cited Cyd cream) whose real dark
+  // ground is image-based — so the caller leaves groundDeltaL at 0 and the bar
+  // reads REVIEW, matching the "FAIL fires only on proof" doctrine.
   function pageGroundRgb() {
     for (const el of [document.body, document.documentElement]) {
       if (!el) continue;
       const c = parseColor(getComputedStyle(el).backgroundColor);
       if (c && c.alpha >= 1 && c.rgb) return c.rgb;
     }
-    return [255, 255, 255];
+    return null;
   }
 
   // A hero media surface actually passing under the bar's box: a large img /
@@ -802,7 +809,7 @@
       if (rect.top < 100 && rect.width >= window.innerWidth * 0.6 && rect.height <= 200) bars.add(el);
     }
     const ground = pageGroundRgb();
-    const groundLab = srgbToOklab(ground[0], ground[1], ground[2]);
+    const groundLab = ground ? srgbToOklab(ground[0], ground[1], ground[2]) : null;
     for (const bar of bars) {
       if (!isRendered(bar)) continue;
       const cs = getComputedStyle(bar);
@@ -812,16 +819,23 @@
       const mediaSel = heroMediaUnder(bar, rect, all);
       if (!mediaSel) continue;
       const bgImage = cs.backgroundImage && cs.backgroundImage !== 'none' ? cs.backgroundImage : '';
+      // A to-transparent gradient scrim is legal: Chrome serializes the clear
+      // stop as rgba(…,0) (not the "transparent" keyword), so match a zero-alpha
+      // colour stop as well as the keyword / slash-0 form.
       const isScrim = cs.pointerEvents === 'none' ||
-        (/gradient/.test(bgImage) && /transparent|\/\s*0\b/.test(bgImage));
+        (/gradient/.test(bgImage) &&
+          /transparent|\/\s*0(?![.\d])|rgba?\([^)]*[,\s]0(?:\.0+)?\s*\)/.test(bgImage));
       const hasImage = /url\(/.test(bgImage);
       const bg = parseColor(cs.backgroundColor);
       let alpha = bg ? bg.alpha : 0;
       if (hasImage && !isScrim) alpha = 1;
       const bf = cs.backdropFilter || cs.webkitBackdropFilter || 'none';
       const hasBackdropFilter = !!bf && bf !== 'none';
+      // groundDeltaL stays 0 (unprovable → REVIEW) when the page ground is
+      // unresolvable or the bar surface is an image — FAIL needs a resolvable
+      // solid off the ground.
       let groundDeltaL = 0;
-      if (bg && bg.rgb && !hasImage && bg.alpha > 0) {
+      if (groundLab && bg && bg.rgb && !hasImage && bg.alpha > 0) {
         let rgb = bg.rgb;
         if (bg.alpha < 1) rgb = rgb.map((v, k) => Math.round(v * bg.alpha + ground[k] * (1 - bg.alpha)));
         groundDeltaL = Math.abs(srgbToOklab(rgb[0], rgb[1], rgb[2]).L - groundLab.L);

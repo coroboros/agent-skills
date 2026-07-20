@@ -192,6 +192,19 @@ class TestRecipes(unittest.TestCase):
                     self.assertTrue(f.get("inWorld") is True,
                                     "a footer with no form/component must be an in-world sign-off")
 
+    def test_footer_form_archetypes_cover_their_recipes(self):
+        """A footer form's archetypes must include every archetype whose recipe
+        uses it as a footer (the about-overlay-footer convention) — else a builder
+        cross-referencing the field reads "this form doesn't suit my archetype"
+        while the recipe ships it."""
+        forms = {f["id"]: set(f["archetypes"]) for f in json.loads(MANIFEST.read_text(encoding="utf-8"))["forms"]}
+        for r in self.recipes:
+            f = r["footer"]
+            if "form" in f and not f["form"].startswith("MISSING:"):
+                with self.subTest(recipe=r["id"], form=f["form"]):
+                    self.assertIn(r["archetype"], forms.get(f["form"], set()),
+                                  f"{f['form']} archetypes omit {r['archetype']} (used by {r['id']})")
+
     def test_pairs_reference_real_components(self):
         for r in self.recipes:
             for s in r["sections"]:

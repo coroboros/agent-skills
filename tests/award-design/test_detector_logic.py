@@ -223,6 +223,13 @@ class TestClassifyNavHero(unittest.TestCase):
         self.assertEqual("REVIEW", self._classify(
             {"hasMediaUnder": True, "alpha": 1, "hasBackdropFilter": False, "groundDeltaL": 0.02}))
 
+    def test_opaque_unresolvable_ground_is_review_not_fail(self):
+        # the browser layer passes groundDeltaL 0 when the page ground is
+        # unresolvable (image/wrapper-authored) — an opaque same-ground bar over
+        # an image-grounded dark page must not fatally fail on a white fallback
+        self.assertEqual("REVIEW", self._classify(
+            {"hasMediaUnder": True, "alpha": 1, "hasBackdropFilter": False, "groundDeltaL": 0}))
+
     def test_translucent_unblurred_is_review(self):
         self.assertEqual("REVIEW", self._classify(
             {"hasMediaUnder": True, "alpha": 0.5, "hasBackdropFilter": False, "groundDeltaL": 0.2}))
