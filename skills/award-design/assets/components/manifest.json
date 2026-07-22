@@ -1987,11 +1987,12 @@
       "archetypes": [
         "editorial-dark",
         "immersive",
-        "experimental"
+        "experimental",
+        "minimalist"
       ],
       "tokens": [],
       "deps": [],
-      "whenToUse": "A film still the visitor drives — scroll or pointer maps to video currentTime. The operable-spectacle signature; never an autoplay loop.",
+      "whenToUse": "A film still the visitor drives — scroll or pointer maps to video currentTime. The operable-spectacle signature; never an autoplay loop. Minimalist too: Terminal's winner-verified hero is a <canvas> frame-sequence under an SVG gradient mask (minimalist.md) — the golden-curtain dissolve; the restraint archetype wins on motion craft, not stillness.",
       "init": "awardScrubFilm.init(root, { selector, mode, axis, range })"
     },
     {
@@ -2407,7 +2408,8 @@
         "immersive",
         "experimental",
         "corporate-luxury",
-        "spatial-organic"
+        "spatial-organic",
+        "minimalist"
       ],
       "tokens": [
         "--ad-ground",
@@ -2416,7 +2418,7 @@
         "--ad-ink"
       ],
       "deps": [],
-      "whenToUse": "The token-driven WebGL texture layer — gradient-mesh, noise-field, or pointer-ripple painted from the DESIGN.md palette. A living ground behind real DOM content, never the hero; CSS-gradient fallback, static frame under reduced-motion.",
+      "whenToUse": "The token-driven WebGL texture layer — gradient-mesh, noise-field, or pointer-ripple painted from the DESIGN.md palette. A living ground behind real DOM content, never the hero; CSS-gradient fallback, static frame under reduced-motion. Minimalist too, as a quiet living ground (Pacome Pertant's minimalist portfolio ships a Three.js showreel — the WebGL precedent that minimalist carries a rendered medium).",
       "init": "awardShaderSurface.init(root, { selector, mode, speed, alpha })"
     },
     {
@@ -2587,11 +2589,12 @@
       "archetypes": [
         "brutalist",
         "experimental",
-        "bento"
+        "bento",
+        "minimalist"
       ],
       "tokens": [],
       "deps": [],
-      "whenToUse": "Short labels/links/data-chrome decode from charset noise to the true string (entrance once; hover replay variant). Never on paragraphs; mono targets keep width stable.",
+      "whenToUse": "Short labels/links/data-chrome decode from charset noise to the true string (entrance once; hover replay variant). Never on paragraphs; mono targets keep width stable. Minimalist too: the gallery-stack type intro the minimalist playbook already prescribes (Contassot / Vitasovic), on labels and the name-card, never paragraphs.",
       "init": "awardScramble.init(root, { selector, charset, tick })"
     },
     {
@@ -3046,13 +3049,14 @@
       "global": "awardFlickerReveal",
       "winner": "Bisous",
       "archetypes": [
-        "editorial-dark"
+        "editorial-dark",
+        "minimalist"
       ],
       "tokens": [
         "--ad-dur-reveal"
       ],
       "deps": [],
-      "whenToUse": "Stochastic per-letter opacity settle — every letter on its own randomized delay, duration, and mid-flight dips before resting at 1, echoing a 3D render's imperfection / film grain on type. Opacity ONLY: not kinetic-reveal's mask, not char-assemble's positional stagger, not scramble's charset noise. Entrance-once on headings/captions; data-ad-flicker-hover re-fires a short dip-and-settle on menu links. aria-label preserves the accessible name; reduced motion never splits — instant full opacity.",
+      "whenToUse": "Stochastic per-letter opacity settle — every letter on its own randomized delay, duration, and mid-flight dips before resting at 1, echoing a 3D render's imperfection / film grain on type. Opacity ONLY: not kinetic-reveal's mask, not char-assemble's positional stagger, not scramble's charset noise. Entrance-once on headings/captions; data-ad-flicker-hover re-fires a short dip-and-settle on menu links. aria-label preserves the accessible name; reduced motion never splits — instant full opacity. Minimalist too: a restraint-compatible felt-text settle for the reading-kit rotation — subtle, opacity-only, never loud.",
       "init": "awardFlickerReveal.init(root, { selector, spread, threshold })"
     },
     {

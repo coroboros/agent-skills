@@ -302,6 +302,57 @@
       "whenToUse": "minimalist portfolio where the work is the whole argument and the hero is a text-only name card"
     },
     {
+      "id": "scene-scroll-terminal",
+      "archetype": "minimalist",
+      "winner": "Terminal Industries (winner-verified: the hero is a <canvas> frame-sequence under an SVG gradient mask \u2014 the golden-curtain dissolve), Pacome Pertant (minimalist Three.js showreel)",
+      "macrostructure": "scene-scroll",
+      "sections": [
+        {
+          "role": "hero",
+          "form": "hero-masthead",
+          "media": "back",
+          "align": "start",
+          "pairs": { "h1": "kinetic-reveal", "cta-row": "masked-label-swap", "media": "scrub-film" },
+          "intensity": 9,
+          "climax": true
+        },
+        {
+          "role": "proof-strip",
+          "form": "logo-wall",
+          "pairs": {},
+          "intensity": 4
+        },
+        {
+          "role": "operable-proof",
+          "form": "type-tester",
+          "pairs": {},
+          "intensity": 6
+        },
+        {
+          "role": "stat-band",
+          "form": "stat-band",
+          "pairs": { "stat": "counter-odometer" },
+          "intensity": 5
+        },
+        {
+          "role": "chapters",
+          "form": "editorial-split (x2, media alternating)",
+          "pairs": { "h2": "kinetic-reveal", "prose": ["text-emphasis-fill", "semantic-accent"], "media": "clip-reveal" },
+          "intensity": 5
+        },
+        {
+          "role": "close",
+          "form": "close-panel",
+          "pairs": { "ask": "kinetic-reveal", "channels": ["accent-link", "masked-label-swap"] },
+          "intensity": 6
+        }
+      ],
+      "footer": {"form": "oversized-wordmark", "note": "the deferred wordmark lands on a sticky reveal (Terminal)"},
+      "loader": "counter-loader (curtain + counter recoloring into the footer ground)",
+      "paceNotes": "the rendered-medium transformation IS the hero climax (intensity 9, scroll-driven; a composed static first frame, the dissolve on scroll); the operable type-tester and the odometer band carry the mid-page; one loud peak, the void gap is the rest",
+      "whenToUse": "a minimalist product or brand whose signature is a real rendered medium \u2014 a canvas frame-sequence, a scrubbed real sequence, or a WebGL scene (Terminal, Pacome). Restraint stays in the type and palette; the richness is the medium and one operable beat. The structural alternative to the two sparse minimalist recipes \u2014 reach here when the brief has a transformation to show, not only an argument to make."
+    },
+    {
       "id": "maison-scroll-delvaux",
       "archetype": "corporate-luxury",
       "winner": "Delvaux",

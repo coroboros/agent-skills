@@ -192,6 +192,25 @@ class TestRecipes(unittest.TestCase):
                     self.assertTrue(f.get("inWorld") is True,
                                     "a footer with no form/component must be an in-world sign-off")
 
+    def test_minimalist_reaches_the_ambitious_medium(self):
+        """Terminal (our minimalist exemplar) ships a canvas frame-sequence + a
+        Three.js showreel (Pacome); the skill had locked the rendered medium out of
+        minimalist, so builds stayed sparse. The exemplar-proven pieces are now
+        minimalist-reachable, and a minimalist scene recipe carries a medium climax."""
+        man = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        arche = {c["id"]: set(c["archetypes"]) for c in man["components"]}
+        for cid in ("scrub-film", "shader-surface", "scramble-decode", "flicker-reveal"):
+            with self.subTest(component=cid):
+                self.assertIn("minimalist", arche[cid],
+                              f"{cid} must be reachable in minimalist (exemplar-proven)")
+        scene = [r for r in self.recipes
+                 if r["archetype"] == "minimalist" and r["macrostructure"] == "scene-scroll"]
+        self.assertTrue(scene, "a minimalist scene recipe (rendered-medium climax) must exist")
+        hero = scene[0]["sections"][0]
+        self.assertTrue(hero.get("climax"), "the scene recipe's hero carries the loud climax")
+        self.assertEqual("scrub-film", hero["pairs"].get("media"),
+                         "the scene hero's medium is the canvas frame-sequence (Terminal's mechanic)")
+
     def test_footer_form_archetypes_cover_their_recipes(self):
         """A footer form's archetypes must include every archetype whose recipe
         uses it as a footer (the about-overlay-footer convention) — else a builder
