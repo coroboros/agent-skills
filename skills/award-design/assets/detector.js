@@ -10,6 +10,7 @@
     { id: 'SUBSTRATE-DEAD', severity: 'FAIL', box: 'live-substrate' },
     { id: 'DEAD', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'HOMEOPATHIC', severity: 'REVIEW', box: 'live-substrate' },
+    { id: 'SECTION-DEAD', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'UNMEASURED-JS', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'CONTACT-GLOBAL-SQUASH', severity: 'FAIL', box: 'contact-response' },
     { id: 'CONTRAST', severity: 'FAIL', box: 'a11y-floor' },
@@ -346,7 +347,52 @@
     return 'REVIEW';
   }
 
-  const api = { FLOORS, RULES, srgbToOklab, relativeLuminance, contrastRatio, parseColor, parseTransform, classifyDelta, classifyContact, classifyNavHero, diffChannels, peakChannels };
+  // A tall section whose largest empty region swallows most of it is the
+  // "empty and dead" beat — sparse text stranded in a corner over a void, the
+  // occluded / near-invisible background bed contributing nothing. VOID_FLOORS
+  // is separate from FLOORS (perceptibility) so the exact-equality FLOORS test
+  // holds; sectionMinVh keeps ~1-viewport heroes and short beats out of scope.
+  const VOID_FLOORS = { sectionMinVh: 1.4, voidFraction: 0.45 };
+
+  function largestRectInHistogram(h) {
+    const stack = [];
+    let best = 0;
+    for (let i = 0; i <= h.length; i++) {
+      const cur = i === h.length ? 0 : h[i];
+      while (stack.length && h[stack[stack.length - 1]] >= cur) {
+        const height = h[stack.pop()];
+        const width = stack.length ? i - stack[stack.length - 1] - 1 : i;
+        if (height * width > best) best = height * width;
+      }
+      stack.push(i);
+    }
+    return best;
+  }
+
+  // Largest all-empty (0) axis-aligned rectangle in a 0/1 grid, as a fraction of
+  // the whole grid. Histogram method, O(rows·cols).
+  function largestEmptyFraction(grid) {
+    const rows = grid.length;
+    if (!rows) return 0;
+    const cols = grid[0].length;
+    if (!cols) return 0;
+    const hist = new Array(cols).fill(0);
+    let best = 0;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) hist[c] = grid[r][c] ? 0 : hist[c] + 1;
+      const rect = largestRectInHistogram(hist);
+      if (rect > best) best = rect;
+    }
+    return best / (rows * cols);
+  }
+
+  function classifyVoid(sample, floors) {
+    const f = floors || VOID_FLOORS;
+    if ((sample.heightVh || 0) < f.sectionMinVh) return 'SKIP';
+    return (sample.emptyFraction || 0) > f.voidFraction ? 'DEAD' : 'ALIVE';
+  }
+
+  const api = { FLOORS, VOID_FLOORS, RULES, srgbToOklab, relativeLuminance, contrastRatio, parseColor, parseTransform, classifyDelta, classifyContact, classifyNavHero, largestEmptyFraction, classifyVoid, diffChannels, peakChannels };
 
   if (typeof window === 'undefined') {
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -970,6 +1016,53 @@
     }
   }
 
+  function markCells(rect, sec, grid, cols, rows) {
+    const top = rect.top + window.scrollY - sec.top;
+    const left = rect.left + window.scrollX - sec.left;
+    const x0 = Math.max(0, left), y0 = Math.max(0, top);
+    const x1 = Math.min(sec.w, left + rect.width), y1 = Math.min(sec.h, top + rect.height);
+    if (x1 <= x0 || y1 <= y0) return;
+    const c0 = Math.floor(x0 / sec.w * cols), c1 = Math.min(cols, Math.ceil(x1 / sec.w * cols));
+    const r0 = Math.floor(y0 / sec.h * rows), r1 = Math.min(rows, Math.ceil(y1 / sec.h * rows));
+    for (let r = r0; r < r1; r++) for (let c = c0; c < c1; c++) grid[r][c] = 1;
+  }
+
+  function liveMedium(el) {
+    if (!isRendered(el)) return false;
+    const cs = getComputedStyle(el);
+    if (parseFloat(cs.opacity) < 0.6) return false;  // the occluded / near-invisible bed carries nothing
+    if (el.tagName === 'VIDEO') return !el.paused || el.readyState >= 2;
+    return true;
+  }
+
+  // SECTION-DEAD — the "empty and dead" beat. Rasterize each tall top-level
+  // section, mark cells that carry text or a perceptible medium, and flag when
+  // the largest empty rectangle swallows most of it: sparse text stranded in a
+  // corner over a void is what a code-read misses and the eye names dead.
+  function checkSectionDead(findings) {
+    const vh = window.innerHeight, cols = 24;
+    for (const section of document.querySelectorAll('section, article')) {
+      if (section.parentElement && section.parentElement.closest('section, article')) continue;
+      const r = section.getBoundingClientRect();
+      if (r.width < 1 || r.height < vh * VOID_FLOORS.sectionMinVh) continue;
+      const rows = Math.max(6, Math.min(160, Math.round(cols * r.height / r.width)));
+      const grid = Array.from({ length: rows }, () => new Array(cols).fill(0));
+      const sec = { top: r.top + window.scrollY, left: r.left + window.scrollX, w: r.width, h: r.height };
+      for (const el of section.querySelectorAll('*')) {
+        if (hasDirectText(el) && isRendered(el)) markCells(el.getBoundingClientRect(), sec, grid, cols, rows);
+      }
+      for (const el of section.querySelectorAll('img, video, canvas, picture, svg, [style*="background-image"]')) {
+        if (liveMedium(el)) markCells(el.getBoundingClientRect(), sec, grid, cols, rows);
+      }
+      const emptyFraction = largestEmptyFraction(grid);
+      if (classifyVoid({ heightVh: r.height / vh, emptyFraction }, VOID_FLOORS) === 'DEAD') {
+        findings.push(finding('SECTION-DEAD', cssPath(section),
+          (r.height / vh).toFixed(1) + 'vp tall and ' + Math.round(emptyFraction * 100) +
+          '% of it is one continuous empty void — a rich page carries a figure or motion into its longest beats, not text stranded in a corner'));
+      }
+    }
+  }
+
   async function run(options) {
     options = options || {};
     const floors = Object.assign({}, FLOORS, options.floors || {});
@@ -996,6 +1089,7 @@
     checkImages(findings);
     checkOverflow(findings);
     checkTapTargets(findings);
+    checkSectionDead(findings);
 
     return {
       detector: 'award-design',

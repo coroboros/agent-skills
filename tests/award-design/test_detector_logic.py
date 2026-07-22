@@ -37,9 +37,10 @@ def _node(expr):
 class TestPureCore(unittest.TestCase):
     def test_module_exports(self):
         keys = _node("Object.keys(d)")
-        for name in ("FLOORS", "RULES", "srgbToOklab", "relativeLuminance",
+        for name in ("FLOORS", "VOID_FLOORS", "RULES", "srgbToOklab", "relativeLuminance",
                      "contrastRatio", "parseTransform", "classifyDelta", "diffChannels",
-                     "classifyContact", "classifyNavHero", "peakChannels"):
+                     "classifyContact", "classifyNavHero", "peakChannels",
+                     "largestEmptyFraction", "classifyVoid"):
             self.assertIn(name, keys)
 
     def test_floors_values(self):
@@ -266,6 +267,43 @@ class TestFixtureExpectations(unittest.TestCase):
                 self.assertTrue((FIXTURES / name / "index.html").is_file())
                 self.assertTrue((FIXTURES / name / "styles.css").is_file())
         self.assertTrue((FIXTURES / "README.md").is_file())
+
+
+@unittest.skipUnless(shutil.which("node"), "node not on PATH")
+class TestSectionVoid(unittest.TestCase):
+    """SECTION-DEAD's geometry: the largest empty rectangle in a section's
+    occupancy grid, and the tall-section void threshold. This is the mechanical
+    floor under the density/aliveness bar — the 'empty and dead' beat, sparse
+    text stranded in a corner over a void, that a :hover code-read never sees."""
+
+    def _frac(self, grid):
+        return _node(f"d.largestEmptyFraction({json.dumps(grid)})")
+
+    def test_all_empty_is_one(self):
+        self.assertAlmostEqual(self._frac([[0, 0], [0, 0]]), 1.0, delta=1e-6)
+
+    def test_all_filled_is_zero(self):
+        self.assertEqual(self._frac([[1, 1], [1, 1]]), 0)
+
+    def test_left_half_filled_is_half(self):
+        self.assertAlmostEqual(self._frac([[1, 0], [1, 0], [1, 0], [1, 0]]), 0.5, delta=1e-6)
+
+    def test_corner_text_leaves_a_large_void(self):
+        # a 2×2 text block in a 6×6 section is the "stranded in a corner" shape
+        grid = [[1 if (r < 2 and c < 2) else 0 for c in range(6)] for r in range(6)]
+        self.assertGreater(self._frac(grid), 0.6)
+
+    def test_classify_void_skips_short_sections(self):
+        self.assertEqual("SKIP", _node("d.classifyVoid({heightVh:1.0, emptyFraction:0.9})"))
+
+    def test_classify_void_flags_tall_void(self):
+        self.assertEqual("DEAD", _node("d.classifyVoid({heightVh:2.0, emptyFraction:0.6})"))
+
+    def test_classify_void_spares_dense_tall_section(self):
+        self.assertEqual("ALIVE", _node("d.classifyVoid({heightVh:2.0, emptyFraction:0.3})"))
+
+    def test_void_floors_shape(self):
+        self.assertEqual({"sectionMinVh": 1.4, "voidFraction": 0.45}, _node("d.VOID_FLOORS"))
 
 
 if __name__ == "__main__":

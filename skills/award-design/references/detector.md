@@ -8,7 +8,7 @@
 
 | Tier | Owner | Scope |
 |---|---|---|
-| 1 — measured | `awardDetector.run()` | state-rule deltas vs floors, font resolution, contrast on solid grounds, nav border ink, token conformance, h1 wrap, ambient animations at rest, broken images, horizontal overflow, tap targets |
+| 1 — measured | `awardDetector.run()` | state-rule deltas vs floors, font resolution, contrast on solid grounds, nav border ink, token conformance, h1 wrap, ambient animations at rest, broken images, horizontal overflow, tap targets, per-section void |
 | 2 — driven | you + the browser tooling | real hovers on every UNMEASURED-JS selector, then `awardDetector.measure(sel)`; contact presses via `measureContact`; the open-drawer recount; scroll-up persistence; reduced-motion rerun; taps under touch emulation |
 | judged | you, preflight §8 | composition, desire, fidelity, copy, pacing, seams — never delegated to the detector |
 
@@ -41,6 +41,7 @@ The substrate probe measures the **pointer (`:hover`) response only**. `:focus-v
 | SUBSTRATE-DEAD | FAIL | among measured interactive elements, zero classify OK, or DEAD + HOMEOPATHIC exceed half — the page-wide dead pattern |
 | DEAD | REVIEW | per element: pointer affordance, no state rule, zero delta, no JS to drive it |
 | HOMEOPATHIC | REVIEW | per element: state rules fire but every channel lands under the floors — imperceptible, not restrained |
+| SECTION-DEAD | REVIEW | a tall top-level section (≥ 1.4 viewports) whose largest empty rectangle swallows > 45% of it — sparse text stranded in a corner over a void, the "empty and dead" beat a code-read never sees |
 | UNMEASURED-JS | REVIEW | affordance with zero CSS delta on a scripted page — possibly JS-driven; queued for tier 2 |
 | CONTACT-GLOBAL-SQUASH | FAIL | tier 2 only, via `measureContact`: the struck object's peak response is a whole-element scale/opacity and nothing else — no secondary above a floor, no structural channel — the paper-cutout squash; `run()` never fires it |
 | CONTRAST | FAIL | WCAG ratio under 4.5:1 (3:1 at ≥24px, or bold ≥18.66px) against the composited solid ground |
