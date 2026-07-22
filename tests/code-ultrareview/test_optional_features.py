@@ -30,6 +30,7 @@ import importlib.util
 import io
 import json
 import os
+import shutil
 import subprocess
 import stat
 import sys
@@ -102,6 +103,32 @@ def _configure_mutmut(repo: Path) -> None:
     (repo / "setup.cfg").write_text(
         '[mutmut]\nsource_paths = .\n', encoding="utf-8"
     )
+
+
+def _mutation_preflight_path(root: Path) -> str:
+    """Build a deterministic PATH with no project mutation runner."""
+    bin_dir = root / "preflight-bin"
+    bin_dir.mkdir()
+    for command in (
+        "bash",
+        "cat",
+        "dirname",
+        "find",
+        "grep",
+        "mkdir",
+        "mktemp",
+        "mv",
+        "python3",
+        "rm",
+        "sed",
+        "sort",
+        "tail",
+    ):
+        resolved = sys.executable if command == "python3" else shutil.which(command)
+        if resolved is None:
+            raise RuntimeError(f"required test utility is unavailable: {command}")
+        (bin_dir / command).symlink_to(resolved)
+    return str(bin_dir)
 
 
 def _write_findings(path: Path, findings: list[dict]) -> Path:
@@ -2371,7 +2398,10 @@ class TestMutationDryRun(unittest.TestCase):
 
             result = self._run(
                 repo,
-                env={"MUTATION_DRY_RUN": "1", "PATH": "/usr/bin:/bin"},
+                env={
+                    "MUTATION_DRY_RUN": "1",
+                    "PATH": _mutation_preflight_path(repo),
+                },
                 languages=["java"],
                 files=["src/main/java/App.java"],
             )
@@ -2433,7 +2463,7 @@ class TestMutationDryRun(unittest.TestCase):
             _write_executable(repo / "gradlew")
             r = self._run(
                 repo,
-                env={"PATH": "/usr/bin:/bin"},
+                env={"PATH": _mutation_preflight_path(repo)},
                 languages=["java"],
                 files=["src/App.java"],
             )
@@ -2456,7 +2486,10 @@ class TestMutationDryRun(unittest.TestCase):
 
             result = self._run(
                 repo,
-                env={"MUTATION_DRY_RUN": "1", "PATH": "/usr/bin:/bin"},
+                env={
+                    "MUTATION_DRY_RUN": "1",
+                    "PATH": _mutation_preflight_path(repo),
+                },
                 languages=["java"],
                 files=["src/main/java/App.java"],
             )
