@@ -4,7 +4,8 @@
  * [data-ad-index] containers get .ad-idx and their rows .ad-idx__row; CSS draws
  * hairline dividers (14% ink border-top per row, border-bottom on the container),
  * dims every row to 45% while the container is hovered except the hovered row,
- * grows a 2px accent rule up the hovered row's left edge (::before scaleY), and
+ * grows a 2px accent rule up the hovered row, seated in a reserved left gutter
+ * (--ad-idx-gutter) so it stays clear of the row number (::before scaleY), and
  * cross-fades any [data-ad-row-meta] inside it from 55% to full ink with a 4px
  * shift right. :focus-within mirrors hover so a focused row link gets the same
  * spotlight; keyboard order is untouched. Coarse pointers see the clean, fully
@@ -18,8 +19,8 @@
  *                                  when it matches nothing, direct children are used
  * Returns { destroy() }. Idempotent. destroy() untags and removes the stylesheet.
  *
- * Tokens: --ad-accent, --ad-ink, --ad-dur-base (420ms),
- *         --ad-ease-signature (cubic-bezier(.16,1,.3,1)).
+ * Tokens: --ad-accent, --ad-ink, --ad-idx-gutter (1.5rem — the accent-rule gutter),
+ *         --ad-dur-base (420ms), --ad-ease-signature (cubic-bezier(.16,1,.3,1)).
  */
 (function (global) {
   'use strict';
@@ -35,7 +36,11 @@
     s.id = CSS_ID;
     s.textContent =
       '.ad-idx{border-bottom:1px solid ' + HAIR + ';}' +
+      // A reserved left gutter seats the accent rule clear of the row number:
+      // the ::before sits at the padding-box edge (left:0) while padding-inline-start
+      // insets the row content, so the rule never butts the numeral.
       '.ad-idx__row{position:relative;border-top:1px solid ' + HAIR + ';' +
+      'padding-inline-start:var(--ad-idx-gutter,1.5rem);' +
       'transition:opacity ' + TRANSIT + ';}' +
       '.ad-idx__row::before{content:"";position:absolute;left:0;top:0;bottom:0;' +
       'width:2px;background:' + ACCENT + ';transform:scaleY(0);' +

@@ -207,6 +207,24 @@ class TestShowNavGainsSentinel(unittest.TestCase):
         self.assertIn("dy == 0", self.src)
 
 
+class TestIndexRowAccentGutter(unittest.TestCase):
+    """The recurring craft nit the owner flagged 2-3 times: the index-row accent
+    rule (::before at left:0) butted the row numeral because neither the component
+    nor the form reserved a gutter. The rule now sits in a reserved left gutter."""
+
+    def setUp(self):
+        comp = SKILL_DIR / "assets" / "components" / "index-row-hover.js"
+        self.src = comp.read_text(encoding="utf-8")
+
+    def test_row_reserves_an_accent_gutter(self):
+        # the row insets its content so the left accent rule clears the numeral
+        self.assertIn("padding-inline-start:var(--ad-idx-gutter", self.src,
+                      "the row must reserve a gutter for the left accent rule")
+
+    def test_gutter_token_documented(self):
+        self.assertIn("--ad-idx-gutter", self.src)
+
+
 class TestOverflowClipDiscipline(unittest.TestCase):
     def test_anti_pattern_tell_present(self):
         ap = _read("anti-patterns.md").lower()
