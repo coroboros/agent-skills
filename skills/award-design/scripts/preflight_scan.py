@@ -657,12 +657,20 @@ MOTION_SIGNAL = re.compile(
     r"|framer-motion|motion/react|whileInView")
 MOTION_GUARD = re.compile(r"prefers-reduced-motion|useReducedMotion")
 FOCUS_VISIBLE = re.compile(r":focus-visible")
-# Markup-side signature only: a stylesheet's `text-transform: uppercase`
-# defines a treatment once, so counting it can never register a removed
-# eyebrow. Vanilla-CSS eyebrows escape this count (false-negative bias) —
-# the pre-flight box still judges the rendered page.
+# Eyebrow/kicker density signature — counts each eyebrow opening tag once, by
+# any marker so the closed-world library's own output is seen, not only Tailwind
+# builds: the library slot `data-slot="kicker"`, a semantic `class` carrying
+# `kicker`/`eyebrow`, or the Tailwind uppercase+tracking utility pair. Keying
+# only off `tracking-` counted zero on every `<p class="kicker">` build — the
+# false negative that let a mono-caps kicker stamped over every section ship
+# unflagged (COPY-ECHO is already class-agnostic for the same reason).
 EYEBROW_SIGNATURE = re.compile(
-    r"uppercase[^\"'`]*tracking-|tracking-\[[^\]]*\][^\"'`]*uppercase")
+    r"<[a-z][^>]*?(?:"
+    r"data-slot=[\"']kicker[\"']"
+    r"|class=[\"'][^\"']*\b(?:kicker|eyebrow)\b[^\"']*[\"']"
+    r"|uppercase[^>\"'`]*tracking-|tracking-\[[^\]]*\][^>\"'`]*uppercase"
+    r")[^>]*>",
+    re.IGNORECASE)
 SECTION_TAG = re.compile(r"<section\b")
 H1_TAG = re.compile(r"<h1\b")
 MAIN_TAG = re.compile(r"<main\b")

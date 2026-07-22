@@ -398,6 +398,47 @@ class TestCopyEcho(unittest.TestCase):
         self.assertIn("brand or product proper noun is exempt", pf)
 
 
+class TestEyebrowDensityLibraryAware(unittest.TestCase):
+    """EYEBROW-DENSITY must count the closed-world library's own eyebrows —
+    `<p class="kicker">` / `data-slot="kicker"`, uppercase from vanilla CSS —
+    not only Tailwind `tracking-` utilities. Keying off `tracking-` alone counts
+    zero on every library build, which let a mono-caps kicker stamped over every
+    section ship unflagged (the regression the owner flagged on Aubry)."""
+
+    def _rule_ids(self, body):
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "page.html"
+            f.write_text(f"<!doctype html><html><body>{body}</body></html>", encoding="utf-8")
+            findings, _ = scan.scan_paths([str(f)])
+        return {fd.rule_id for fd in findings}
+
+    @staticmethod
+    def _sections(kicker, n_sections, n_kickers):
+        parts = []
+        for i in range(n_sections):
+            head = kicker if i < n_kickers else ""
+            parts.append(f"<section>{head}<h2>Heading {i}</h2><p>Body copy for section {i}.</p></section>")
+        return "".join(parts)
+
+    def test_vanilla_css_class_kicker_over_every_section_fires(self):
+        body = self._sections('<p class="kicker">The going train</p>', 4, 4)
+        self.assertIn("EYEBROW-DENSITY", self._rule_ids(body))
+
+    def test_data_slot_kicker_signature_counts(self):
+        body = self._sections('<p data-slot="kicker">The jewels</p>', 4, 4)
+        self.assertIn("EYEBROW-DENSITY", self._rule_ids(body))
+
+    def test_rationed_kickers_stay_silent(self):
+        # one informative kicker across four sections is within ceil(4/3)=2
+        body = self._sections('<p class="kicker">Specification</p>', 4, 1)
+        self.assertNotIn("EYEBROW-DENSITY", self._rule_ids(body))
+
+    def test_tailwind_signature_still_counts(self):
+        body = self._sections('<span class="uppercase tracking-[0.2em]">Selected work</span>', 4, 4)
+        self.assertIn("EYEBROW-DENSITY", self._rule_ids(body))
+
+
 class TestScannerChecklistLockstep(unittest.TestCase):
     """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule, and
     every rule the script ships is reachable from the checklist. One-sided
