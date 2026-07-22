@@ -398,6 +398,17 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         ap = (SKILL_DIR / "references" / "anti-patterns.md").read_text(encoding="utf-8")
         self.assertIn("or reading kit", ap)
 
+    def test_felt_text_effect_gate(self):
+        """Cennini shipped "zero text effect" because the gate accepted a static
+        colour accent / an imperceptible heading wipe, and the anti-monoculture
+        rotation was read as licence to drop the kinetic headline. The text effect
+        must now be felt + kinetic; the rotation stays among felt effects."""
+        self.assertIn("felt and kinetic", self.preflight)
+        self.assertIn("not the felt effect", self.preflight)
+        self.assertIn("rotates AMONG felt kinetic effects", self.skill)
+        te = (SKILL_DIR / "references" / "text-effects.md").read_text(encoding="utf-8")
+        self.assertIn("DISPLAY entrance still carries a felt reveal", te)
+
     def test_spectacle_conformance_gate(self):
         """ARDEN shipped a hover as the page climax and passed: the Spectacle-commit
         box checked the build against its own plan, never against the model. The
