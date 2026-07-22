@@ -194,11 +194,11 @@ Locate `/award-design`'s reference files via this order:
 
 Use `Glob` to check each location. First match wins. Same probe pattern for `exemplars.md`.
 
-If neither anti-patterns.md nor exemplars.md is found at any location, report to the user:
+Resolve `anti-patterns.md` and `exemplars.md` independently. If either catalog is absent at every allowed location, list the missing catalog name(s) and report to the user:
 
-> `--strict` requires `/award-design` installed. Install with `skills add coroboros/agent-skills --skill award-design`, or run the standard audit (drop `--strict`).
+> `--strict` requires the complete `/award-design` catalogs (`anti-patterns.md` and `exemplars.md`). Install with `skills add coroboros/agent-skills --skill award-design`, repair the incomplete install, or run the standard audit (drop `--strict`).
 
-Stop the strict audit. The user requested the anti-pattern catalog as part of the result, so a standard audit is not an equivalent fallback.
+Stop the strict audit when either catalog is missing. Never emit a partial strict result: the anti-pattern scan and exemplar calibration are both part of the requested contract, so a standard audit is not an equivalent fallback.
 
 ### Strict findings block
 

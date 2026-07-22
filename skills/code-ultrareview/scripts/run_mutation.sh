@@ -10,6 +10,7 @@ set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROCESS_TIMEOUT="$SCRIPT_DIR/process_timeout.py"
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=install-guidance.sh
 source "$SCRIPT_DIR/install-guidance.sh"
 
@@ -90,31 +91,33 @@ if ! scope_error="$(validate_review_scope "$SCOPE")"; then
   emit_rerun
   exit 2
 fi
-if [[ -f "$REPO/package.json" ]] \
-  && ! package_error="$(validate_package_manifest "$REPO/package.json")"; then
-  echo "ERROR: invalid project manifest: $package_error" >&2
-  echo "ERROR: remediation: repair package.json so it is valid JSON with object dependency maps, then rerun Code Ultrareview." >&2
-  emit_rerun
-  exit 2
-fi
-mkdir -p "$OUTPUT_DIR/raw"
 FINDINGS_FINAL="$OUTPUT_DIR/mutation-findings.jsonl"
 FINDINGS_OUT="$OUTPUT_DIR/.mutation-findings.pending.jsonl"
-: >"$FINDINGS_FINAL"
-: >"$FINDINGS_OUT"
+PREFLIGHT_FINAL="$OUTPUT_DIR/mutation-preflight.json"
+PREFLIGHT_STDOUT="$OUTPUT_DIR/raw/mutation-preflight.stdout"
+PREFLIGHT_ERROR="$OUTPUT_DIR/raw/mutation-preflight.stderr"
+PREFLIGHT_STDOUT_PENDING=""
 
-cleanup_pending_findings() {
+# shellcheck disable=SC2329 # Invoked by the EXIT trap below.
+cleanup_pending_outputs() {
   rm -f "$FINDINGS_OUT"
+  [[ -z "$PREFLIGHT_STDOUT_PENDING" ]] || rm -f "$PREFLIGHT_STDOUT_PENDING"
 }
-trap cleanup_pending_findings EXIT
+trap cleanup_pending_outputs EXIT
 
-commit_findings() {
-  mv -f "$FINDINGS_OUT" "$FINDINGS_FINAL"
+invalidate_mutation_outputs() {
+  rm -f \
+    "$FINDINGS_FINAL" \
+    "$FINDINGS_OUT" \
+    "$PREFLIGHT_FINAL" \
+    "$PREFLIGHT_STDOUT" \
+    "$PREFLIGHT_ERROR"
 }
 
 set_mutation_coverage() {
   local status="$1" complete="$2" applicable="$3"
-  python3 - "$SCOPE" "$status" "$complete" "$applicable" "$FINDINGS_FINAL" <<'PY'
+  python3 - "$SCOPE" "$status" "$complete" "$applicable" \
+    "$FINDINGS_FINAL" <<'PY'
 import hashlib
 import json
 import os
@@ -144,16 +147,90 @@ if complete and applicable:
 if not complete:
     scope["coverage_complete"] = False
 temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-temporary.write_text(
-    json.dumps(scope, indent=2, sort_keys=False) + "\n",
-    encoding="utf-8",
-)
-os.replace(temporary, path)
+try:
+    temporary.write_text(
+        json.dumps(scope, indent=2, sort_keys=False) + "\n",
+        encoding="utf-8",
+    )
+    os.replace(temporary, path)
+finally:
+    temporary.unlink(missing_ok=True)
 PY
 }
 
+publish_findings() {
+  local status="$1" complete="$2" applicable="$3"
+  if ! commit_findings; then
+    set_mutation_coverage "failed" 0 "$applicable" || true
+    echo "ERROR: mutation findings could not be published atomically to $FINDINGS_FINAL." >&2
+    echo "ERROR: remediation: verify that $OUTPUT_DIR is writable and supports same-directory rename, then rerun Code Ultrareview." >&2
+    emit_rerun
+    return 1
+  fi
+  if ! set_mutation_coverage "$status" "$complete" "$applicable"; then
+    rm -f "$FINDINGS_FINAL"
+    set_mutation_coverage "failed" 0 "$applicable" || true
+    echo "ERROR: mutation findings were discarded because coverage state could not be persisted to $SCOPE." >&2
+    echo "ERROR: remediation: verify that the scope directory is writable and supports atomic replacement, then rerun Code Ultrareview." >&2
+    emit_rerun
+    return 1
+  fi
+}
+
 if ! set_mutation_coverage "preflight" 0 unknown; then
+  if ! invalidate_mutation_outputs; then
+    echo "ERROR: stale mutation outputs could not be fully invalidated under $OUTPUT_DIR" >&2
+  fi
   echo "ERROR: could not initialize mutation coverage in $SCOPE" >&2
+  echo "ERROR: remediation: verify that the scope directory is writable and supports atomic replacement, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! rm -f "$FINDINGS_FINAL"; then
+  set_mutation_coverage "failed" 0 unknown || true
+  echo "ERROR: stale mutation findings could not be removed from $FINDINGS_FINAL" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, remove the stale findings file, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! mkdir -p "$OUTPUT_DIR/raw"; then
+  set_mutation_coverage "failed" 0 unknown || true
+  echo "ERROR: mutation output directory could not be created: $OUTPUT_DIR/raw" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! rm -f "$PREFLIGHT_FINAL" "$PREFLIGHT_STDOUT" "$PREFLIGHT_ERROR"; then
+  set_mutation_coverage "failed" 0 unknown || true
+  echo "ERROR: stale mutation preflight output could not be removed from $OUTPUT_DIR" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, remove the stale preflight files, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! PREFLIGHT_STDOUT_PENDING="$(mktemp "$OUTPUT_DIR/raw/.mutation-preflight.stdout.XXXXXX")"; then
+  set_mutation_coverage "failed" 0 unknown || true
+  echo "ERROR: pending mutation preflight output could not be created in $OUTPUT_DIR/raw" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR/raw is writable and supports same-directory temporary files, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! : >"$FINDINGS_OUT"; then
+  set_mutation_coverage "failed" 0 unknown || true
+  echo "ERROR: pending mutation findings could not be created in $OUTPUT_DIR" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+
+commit_findings() {
+  mv -f "$FINDINGS_OUT" "$FINDINGS_FINAL"
+}
+
+if [[ -f "$REPO/package.json" ]] \
+  && ! package_error="$(validate_package_manifest "$REPO/package.json")"; then
+  echo "ERROR: invalid project manifest: $package_error" >&2
+  echo "ERROR: remediation: repair package.json so it is valid JSON with object dependency maps, then rerun Code Ultrareview." >&2
+  emit_rerun
   exit 2
 fi
 
@@ -210,6 +287,12 @@ if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
     esac
   done
 fi
+# shellcheck disable=SC2034 # install-guidance.sh consumes this sourced-state array.
+JS_RELEVANT_FILES=()
+if [[ ${#JS_FILES[@]} -gt 0 ]]; then
+  # shellcheck disable=SC2034 # install-guidance.sh consumes this sourced-state array.
+  JS_RELEVANT_FILES=("${JS_FILES[@]}")
+fi
 
 JS_APPLICABLE=0
 PY_APPLICABLE=0
@@ -230,35 +313,18 @@ run_with_timeout() {
   python3 "$PROCESS_TIMEOUT" --timeout "$seconds" -- "$@"
 }
 
-package_declares() {
-  local package="$1"
-  [[ -f "$REPO/package.json" ]] || return 1
-  python3 - "$REPO/package.json" "$package" <<'PY' >/dev/null 2>&1
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as handle:
-    package_json = json.load(handle)
-declared = any(
-    sys.argv[2] in (package_json.get(field) or {})
-    for field in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies")
-)
-raise SystemExit(0 if declared else 1)
-PY
-}
-
 has_stryker_config() {
-  local config
+  local project_dir="$1" config
   for config in \
     stryker.config.js stryker.config.mjs stryker.config.cjs stryker.config.json \
     stryker.conf.js stryker.conf.mjs stryker.conf.cjs stryker.conf.json; do
-    [[ -f "$REPO/$config" ]] && return 0
+    [[ -f "$project_dir/$config" ]] && return 0
   done
   return 1
 }
 
 validate_stryker_json_configs() {
-  python3 - "$REPO" <<'PY'
+  python3 - "$1" <<'PY'
 import json
 from pathlib import Path
 import sys
@@ -302,7 +368,11 @@ if pyproject.is_file():
     try:
         import tomllib
     except ModuleNotFoundError:
-        raise SystemExit(0)
+        print(
+            "Python 3.11+ is required to validate pyproject.toml with "
+            "the standard-library tomllib parser"
+        )
+        raise SystemExit(1)
     try:
         with pyproject.open("rb") as handle:
             payload = tomllib.load(handle)
@@ -351,13 +421,7 @@ if pyproject.is_file():
         if (data.get("tool", {}).get("mutmut", {}).get("source_paths")):
             raise SystemExit(0)
     except ModuleNotFoundError:
-        import re
-        text = pyproject.read_text(encoding="utf-8")
-        section = re.search(
-            r"(?ms)^\[tool\.mutmut\]\s*(.*?)(?=^\[|\Z)", text
-        )
-        if section and re.search(r"(?m)^source_paths\s*=", section.group(1)):
-            raise SystemExit(0)
+        raise SystemExit(1)
     except (OSError, ValueError):
         pass
 raise SystemExit(1)
@@ -390,27 +454,31 @@ has_gradle_pitest_plugin() {
 }
 
 STRYKER_COMMAND=()
+STRYKER_PROJECT_DIR=""
+STRYKER_PROJECT_REL=""
 resolve_stryker() {
-  local yarn_bin
   STRYKER_COMMAND=()
-  if [[ -x "$REPO/node_modules/.bin/stryker" ]] && package_declares "@stryker-mutator/core"; then
-    STRYKER_COMMAND=("$REPO/node_modules/.bin/stryker")
+  STRYKER_PROJECT_DIR=""
+  STRYKER_PROJECT_REL=""
+  if resolve_declared_js_binary "$REPO" "@stryker-mutator/core" stryker; then
+    STRYKER_COMMAND=("${DECLARED_JS_COMMAND[@]}")
+    STRYKER_PROJECT_DIR="$DECLARED_JS_PROJECT_DIR"
+    if [[ "$STRYKER_PROJECT_DIR" != "$REPO" ]]; then
+      STRYKER_PROJECT_REL="${STRYKER_PROJECT_DIR#"$REPO"/}"
+      [[ "$STRYKER_PROJECT_REL" != "$STRYKER_PROJECT_DIR" ]] || return 1
+    fi
     return 0
   fi
-  if package_declares "@stryker-mutator/core" \
-    && [[ "$(detect_js_package_manager "$REPO")" == "yarn" ]]; then
-    yarn_bin="$(command -v yarn 2>/dev/null || true)"
-    if [[ -n "$yarn_bin" ]] \
-      && env COREPACK_ENABLE_NETWORK=0 COREPACK_DEFAULT_TO_LATEST=0 \
-        "$yarn_bin" --cwd "$REPO" bin stryker >/dev/null 2>&1; then
-      STRYKER_COMMAND=(
-        env COREPACK_ENABLE_NETWORK=0 COREPACK_DEFAULT_TO_LATEST=0
-        "$yarn_bin" --cwd "$REPO" run -B stryker
-      )
-      return 0
-    fi
-  fi
   return 1
+}
+
+stryker_scope_is_complete() {
+  local path
+  [[ -n "$STRYKER_PROJECT_DIR" ]] || return 1
+  [[ -z "$STRYKER_PROJECT_REL" ]] && return 0
+  for path in "${JS_FILES[@]}"; do
+    [[ "$path" == "$STRYKER_PROJECT_REL/"* ]] || return 1
+  done
 }
 
 MISSING_ROWS=()
@@ -429,28 +497,54 @@ invalid_mutation_input() {
 }
 
 if [[ $JS_APPLICABLE -eq 1 ]]; then
-  if ! config_error="$(validate_stryker_json_configs)"; then
-    invalid_mutation_input "$config_error" \
-      "repair the reported JSON file, verify it with 'python3 -m json.tool <file>', then rerun Code Ultrareview"
+  if ! manifest_error="$(validate_relevant_package_manifests "$REPO")"; then
+    invalid_mutation_input "$manifest_error" \
+      "repair the reported package.json, then rerun Code Ultrareview"
     exit $?
   fi
-  if ! package_declares "@stryker-mutator/core"; then
-    record_missing "stryker" "@stryker-mutator/core is not declared in package.json" \
-      "$(tool_install_command "$REPO" stryker)"
+  if ! js_declaration_dir "$REPO" "@stryker-mutator/core"; then
+    case "$JS_DECLARATION_STATE" in
+      ambiguous)
+        record_missing "stryker-scope" \
+          "changed JavaScript files map to multiple Stryker declarations: ${JS_DECLARATION_DIRS[*]}" \
+          "$(tool_repair_command "$REPO" stryker)"
+        ;;
+      partial)
+        record_missing "stryker-scope" \
+          "changed JavaScript files are only partially covered by Stryker declaration(s): ${JS_DECLARATION_DIRS[*]}; uncovered inputs: ${JS_UNCOVERED_FILES[*]}" \
+          "$(tool_repair_command "$REPO" stryker)"
+        ;;
+      *)
+        record_missing "stryker" "@stryker-mutator/core is not declared for the changed JavaScript files" \
+          "$(tool_install_command "$REPO" stryker)"
+        ;;
+    esac
   elif ! resolve_stryker; then
     record_missing "stryker" "the declared Stryker binary is unavailable" \
-      "$(tool_install_command "$REPO" stryker)"
-  fi
-  if ! has_stryker_config; then
-    record_missing "stryker-config" "no stryker.config.* file is present" \
-      "$(js_exec_command "$REPO" stryker) init"
+      "$(tool_repair_command "$REPO" stryker)"
+  else
+    if ! stryker_scope_is_complete; then
+      record_missing "stryker-scope" \
+        "not every changed JavaScript file belongs to $STRYKER_PROJECT_DIR" \
+        "$(tool_repair_command "$REPO" stryker)"
+    fi
+    if ! config_error="$(validate_stryker_json_configs "$STRYKER_PROJECT_DIR")"; then
+      invalid_mutation_input "$config_error" \
+        "repair the reported JSON file, verify it with 'python3 -m json.tool <file>', then rerun Code Ultrareview"
+      exit $?
+    fi
+    if ! has_stryker_config "$STRYKER_PROJECT_DIR"; then
+      record_missing "stryker-config" \
+        "no stryker.config.* file is present in $STRYKER_PROJECT_DIR" \
+        "$(js_exec_command "$STRYKER_PROJECT_DIR" stryker "$REPO") init"
+    fi
   fi
 fi
 
 if [[ $PY_APPLICABLE -eq 1 ]]; then
   if ! config_error="$(validate_python_mutation_manifests)"; then
     invalid_mutation_input "$config_error" \
-      "repair the reported manifest, validate setup.cfg with Python configparser or pyproject.toml with Python tomllib, then rerun Code Ultrareview"
+      "repair the reported manifest; when pyproject.toml is present, run this skill with Python 3.11+ so standard-library tomllib can validate it, then rerun Code Ultrareview"
     exit $?
   fi
   if ! command -v mutmut >/dev/null 2>&1; then
@@ -475,24 +569,25 @@ if [[ $JVM_APPLICABLE -eq 1 ]]; then
       record_missing "pitest" "org.pitest:pitest-maven is not declared in pom.xml" \
         "declare org.pitest:pitest-maven under pom.xml build.plugins"
     fi
-    if [[ -x "$REPO/mvnw" ]]; then
-      JVM_RUNNER="$REPO/mvnw"
-    elif JVM_RUNNER="$(command -v mvn 2>/dev/null)"; then
+    if JVM_RUNNER="$(command -v mvn 2>/dev/null)"; then
       :
     else
       JVM_RUNNER=""
       record_missing "mvn" "Maven is not installed on PATH" \
-        "restore the project's executable mvnw wrapper or $(tool_install_command "$REPO" mvn)"
+        "$(tool_install_command "$REPO" mvn)"
     fi
   elif [[ -f "$REPO/build.gradle" || -f "$REPO/build.gradle.kts" ]]; then
     JVM_BUILD="gradle"
     if ! has_gradle_pitest_plugin; then
       record_missing "pitest-gradle" "the Gradle Pitest plugin is not declared" \
-        "add the 'info.solidsoft.pitest' plugin to build.gradle(.kts), run './gradlew pitest' once, then rerun Code Ultrareview"
+        "add the 'info.solidsoft.pitest' plugin to build.gradle(.kts), provision its dependencies, then rerun Code Ultrareview"
     fi
-    if [[ ! -x "$REPO/gradlew" ]]; then
-      record_missing "gradlew" "the project Gradle wrapper is missing or not executable" \
-        "restore the project's executable gradlew wrapper, run './gradlew pitest' once, then rerun Code Ultrareview"
+    if JVM_RUNNER="$(command -v gradle 2>/dev/null)"; then
+      :
+    else
+      JVM_RUNNER=""
+      record_missing "gradle" "Gradle is not installed on PATH" \
+        "$(tool_install_command "$REPO" gradle)"
     fi
   else
     record_missing "pitest-build" "no supported JVM build manifest was found" \
@@ -501,13 +596,16 @@ if [[ $JVM_APPLICABLE -eq 1 ]]; then
 fi
 
 render_preflight() {
-  python3 - "$OUTPUT_DIR/mutation-preflight.json" \
+  python3 - "$PREFLIGHT_FINAL" \
     "$JS_APPLICABLE" "$PY_APPLICABLE" "$JVM_APPLICABLE" "$JVM_BUILD" \
     "${#MISSING_ROWS[@]}" ${MISSING_ROWS[@]+"${MISSING_ROWS[@]}"} <<'PY'
 import json
+import os
+from pathlib import Path
 import sys
+import tempfile
 
-path = sys.argv[1]
+path = Path(sys.argv[1])
 applicable = {
     "javascript-typescript": sys.argv[2] == "1",
     "python": sys.argv[3] == "1",
@@ -525,14 +623,51 @@ payload = {
     "complete": not missing,
     "status": "not-applicable" if not any(applicable.values()) else ("blocked" if missing else "ready"),
 }
-with open(path, "w", encoding="utf-8") as handle:
-    json.dump(payload, handle, indent=2)
-    handle.write("\n")
+temporary = None
+try:
+    with tempfile.NamedTemporaryFile(
+        mode="w",
+        encoding="utf-8",
+        dir=path.parent,
+        prefix=f".{path.name}.",
+        suffix=".tmp",
+        delete=False,
+    ) as handle:
+        temporary = Path(handle.name)
+        json.dump(payload, handle, indent=2)
+        handle.write("\n")
+    os.replace(temporary, path)
+except Exception:
+    if temporary is not None:
+        try:
+            temporary.unlink()
+        except FileNotFoundError:
+            pass
+    raise
 print(json.dumps(payload, indent=2))
 PY
 }
 
-render_preflight >"$OUTPUT_DIR/raw/mutation-preflight.stdout"
+if ! render_preflight >"$PREFLIGHT_STDOUT_PENDING" 2>"$PREFLIGHT_ERROR"; then
+  rm -f "$PREFLIGHT_FINAL" "$PREFLIGHT_STDOUT" "$PREFLIGHT_STDOUT_PENDING"
+  PREFLIGHT_STDOUT_PENDING=""
+  set_mutation_coverage "failed" 0 unknown || true
+  sed -n '1,20p' "$PREFLIGHT_ERROR" >&2
+  echo "ERROR: mutation preflight could not be published atomically to $PREFLIGHT_FINAL." >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable and supports same-directory atomic replacement, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! mv -f "$PREFLIGHT_STDOUT_PENDING" "$PREFLIGHT_STDOUT"; then
+  rm -f "$PREFLIGHT_FINAL" "$PREFLIGHT_STDOUT" "$PREFLIGHT_STDOUT_PENDING"
+  PREFLIGHT_STDOUT_PENDING=""
+  set_mutation_coverage "failed" 0 unknown || true
+  echo "ERROR: mutation preflight diagnostics could not be published atomically to $PREFLIGHT_STDOUT." >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR/raw is writable and supports same-directory atomic replacement, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+PREFLIGHT_STDOUT_PENDING=""
 
 if [[ ${#MISSING_ROWS[@]} -gt 0 ]]; then
   set_mutation_coverage "blocked" 0 1 || true
@@ -550,66 +685,72 @@ if [[ ${#MISSING_ROWS[@]} -gt 0 ]]; then
 fi
 
 if [[ $JS_APPLICABLE -eq 0 && $PY_APPLICABLE -eq 0 && $JVM_APPLICABLE -eq 0 ]]; then
-  commit_findings
-  set_mutation_coverage "not-applicable" 1 0 || exit 4
+  publish_findings "not-applicable" 1 0 || exit 4
   echo "INFO: mutation testing is not applicable to the changed files." >&2
   exit 0
 fi
 
 if [[ "${MUTATION_DRY_RUN:-}" == "1" ]]; then
-  commit_findings
-  set_mutation_coverage "dry-run" 0 1 || exit 4
+  publish_findings "dry-run" 0 1 || exit 4
   echo "INFO: MUTATION_DRY_RUN=1; prerequisites are complete and no mutation process was started." >&2
   exit 0
 fi
 
 runtime_error() {
+  local message="$1" remediation="$2"
   set_mutation_coverage "failed" 0 1 || true
-  echo "ERROR: $1" >&2
+  echo "ERROR: $message" >&2
+  echo "ERROR: repair/install: $remediation" >&2
   emit_rerun
   return 4
 }
 
 run_stryker() {
-  local report marker raw err mutate rc path
+  local report raw err mutate rc path relative repair_command
   local mutate_files=()
   if ! resolve_stryker; then
-    runtime_error "Stryker disappeared after preflight. Install with $(tool_install_command "$REPO" stryker)"
+    runtime_error "Stryker disappeared after preflight." \
+      "$(tool_repair_command "$REPO" stryker)"
     return $?
   fi
-  report="$REPO/reports/mutation/mutation.json"
-  marker="$(mktemp -t stryker_report_XXXX)"
+  repair_command="$(tool_repair_command "$REPO" stryker)"
+  report="$STRYKER_PROJECT_DIR/reports/mutation/mutation.json"
   raw="$OUTPUT_DIR/raw/stryker.log"
   err="$OUTPUT_DIR/raw/stryker.stderr"
   for path in "${JS_FILES[@]}"; do
-    mutate_files+=("./$path")
+    relative="$path"
+    [[ -z "$STRYKER_PROJECT_REL" ]] || relative="${path#"$STRYKER_PROJECT_REL"/}"
+    mutate_files+=("./$relative")
   done
   mutate="$(IFS=,; printf '%s' "${mutate_files[*]}")"
+  rm -f "$report"
 
   (
-    cd "$REPO" && run_with_timeout "$TIMEOUT" "${STRYKER_COMMAND[@]}" run \
+    cd "$STRYKER_PROJECT_DIR" && run_with_timeout "$TIMEOUT" "${STRYKER_COMMAND[@]}" run \
       --reporters json --mutate "$mutate"
   ) >"$raw" 2>"$err"
   rc=$?
   if [[ $rc -eq 124 ]]; then
-    rm -f "$marker"
-    runtime_error "Stryker timed out after ${TIMEOUT}s; its process group was terminated. See $err"
+    runtime_error \
+      "Stryker timed out after ${TIMEOUT}s; its process group was terminated. See $err" \
+      "$repair_command"
     return $?
   fi
   if [[ $rc -ne 0 && $rc -ne 1 ]]; then
-    rm -f "$marker"
-    runtime_error "Stryker failed with exit code $rc. See $err"
+    runtime_error "Stryker failed with exit code $rc. See $err" "$repair_command"
     return $?
   fi
-  if [[ ! -f "$report" || ! "$report" -nt "$marker" ]]; then
-    rm -f "$marker"
-    runtime_error "Stryker did not produce a fresh JSON report at reports/mutation/mutation.json. See $err"
+  if [[ ! -f "$report" ]]; then
+    runtime_error \
+      "Stryker did not produce a fresh JSON report at reports/mutation/mutation.json. See $err" \
+      "$repair_command"
     return $?
   fi
-  rm -f "$marker"
 
-  python3 - "$report" "$FINDINGS_OUT" <<'PY' 2>>"$err"
+  python3 - "$report" "$FINDINGS_OUT" "$STRYKER_PROJECT_REL" \
+    "${JS_FILES[@]}" <<'PY' 2>>"$err"
 import json
+from pathlib import PurePosixPath
 import sys
 
 try:
@@ -627,119 +768,165 @@ if not isinstance(files, dict) or not files:
     print("invalid Stryker JSON report: non-empty files object is required", file=sys.stderr)
     raise SystemExit(4)
 
-mutant_count = 0
-with open(sys.argv[2], "a", encoding="utf-8") as handle:
-    for file_path, payload in files.items():
-        if not isinstance(file_path, str) or not file_path or not isinstance(payload, dict):
-            print("invalid Stryker JSON report: malformed file entry", file=sys.stderr)
+prefix = PurePosixPath(sys.argv[3]) if sys.argv[3] else None
+changed = {PurePosixPath(path).as_posix() for path in sys.argv[4:]}
+terminal_statuses = {
+    "Killed",
+    "Survived",
+    "NoCoverage",
+    "Timeout",
+    "RuntimeError",
+    "CompileError",
+}
+incomplete_statuses = {"Ignored", "Pending"}
+evaluated = 0
+incomplete = []
+findings = []
+for file_path, payload in files.items():
+    if not isinstance(file_path, str) or not file_path or not isinstance(payload, dict):
+        print("invalid Stryker JSON report: malformed file entry", file=sys.stderr)
+        raise SystemExit(4)
+    reported = PurePosixPath(file_path)
+    if reported.is_absolute() or ".." in reported.parts:
+        print(f"invalid Stryker JSON report path: {file_path}", file=sys.stderr)
+        raise SystemExit(4)
+    repo_path = (prefix / reported).as_posix() if prefix else reported.as_posix()
+    if repo_path not in changed:
+        continue
+    mutants = payload.get("mutants")
+    if not isinstance(mutants, list):
+        print(f"invalid Stryker JSON report: {file_path} has no mutants list", file=sys.stderr)
+        raise SystemExit(4)
+    for mutant in mutants:
+        if not isinstance(mutant, dict):
+            print(f"invalid Stryker JSON report: malformed mutant in {file_path}", file=sys.stderr)
             raise SystemExit(4)
-        mutants = payload.get("mutants")
-        if not isinstance(mutants, list):
-            print(f"invalid Stryker JSON report: {file_path} has no mutants list", file=sys.stderr)
+        status = mutant.get("status")
+        if not isinstance(status, str) or not status:
+            print(f"invalid Stryker JSON report: mutant in {file_path} has no status", file=sys.stderr)
             raise SystemExit(4)
-        for mutant in mutants:
-            mutant_count += 1
-            if not isinstance(mutant, dict):
-                print(f"invalid Stryker JSON report: malformed mutant in {file_path}", file=sys.stderr)
-                raise SystemExit(4)
-            status = mutant.get("status")
-            if not isinstance(status, str) or not status:
-                print(f"invalid Stryker JSON report: mutant in {file_path} has no status", file=sys.stderr)
-                raise SystemExit(4)
-            if status not in {"Survived", "NoCoverage"}:
-                continue
-            location_payload = mutant.get("location")
-            if not isinstance(location_payload, dict):
-                print(f"invalid Stryker JSON report: mutant in {file_path} has no location", file=sys.stderr)
-                raise SystemExit(4)
-            start = location_payload.get("start")
-            if not isinstance(start, dict):
-                print(f"invalid Stryker JSON report: mutant in {file_path} has no start location", file=sys.stderr)
-                raise SystemExit(4)
-            line = start.get("line", 0)
-            column = start.get("column", 0)
-            location = f"{file_path}:{line}:{column}" if line else file_path
-            if status == "NoCoverage":
-                finding_text = f"Uncovered mutant ({mutant.get('mutatorName', '?')}): {mutant.get('description', 'no description')}"
-                recommendation = "Add a test that executes this code path and asserts the intended behavior."
-            else:
-                finding_text = f"Surviving mutant ({mutant.get('mutatorName', '?')}): {mutant.get('description', 'no description')}"
-                recommendation = "Add an assertion that fails when the mutated code path executes."
-            finding = {
-                "axis": "tests",
-                "severity": "Medium",
-                "location": location,
-                "finding": finding_text,
-                "recommendation": recommendation,
-                "confidence": 100,
-                "source_tool": "stryker",
-            }
-            handle.write(json.dumps(finding) + "\n")
-if mutant_count == 0:
-    print("invalid Stryker JSON report: no mutants were evaluated", file=sys.stderr)
+        if status in incomplete_statuses:
+            incomplete.append(f"{repo_path}: {status}")
+            continue
+        if status not in terminal_statuses:
+            print(
+                f"invalid Stryker JSON report: unsupported mutant status {status!r} in {file_path}",
+                file=sys.stderr,
+            )
+            raise SystemExit(4)
+        evaluated += 1
+        if status not in {"Survived", "NoCoverage"}:
+            continue
+        location_payload = mutant.get("location")
+        if not isinstance(location_payload, dict):
+            print(f"invalid Stryker JSON report: mutant in {file_path} has no location", file=sys.stderr)
+            raise SystemExit(4)
+        start = location_payload.get("start")
+        if not isinstance(start, dict):
+            print(f"invalid Stryker JSON report: mutant in {file_path} has no start location", file=sys.stderr)
+            raise SystemExit(4)
+        line = start.get("line", 0)
+        column = start.get("column", 0)
+        location = f"{repo_path}:{line}:{column}" if line else repo_path
+        if status == "NoCoverage":
+            finding_text = f"Uncovered mutant ({mutant.get('mutatorName', '?')}): {mutant.get('description', 'no description')}"
+            recommendation = "Add a test that executes this code path and asserts the intended behavior."
+        else:
+            finding_text = f"Surviving mutant ({mutant.get('mutatorName', '?')}): {mutant.get('description', 'no description')}"
+            recommendation = "Add an assertion that fails when the mutated code path executes."
+        findings.append({
+            "axis": "tests",
+            "severity": "Medium",
+            "location": location,
+            "finding": finding_text,
+            "recommendation": recommendation,
+            "confidence": 100,
+            "source_tool": "stryker",
+        })
+if incomplete:
+    print(
+        "incomplete Stryker results: " + ", ".join(incomplete[:5]),
+        file=sys.stderr,
+    )
     raise SystemExit(4)
+if evaluated == 0:
+    print("invalid Stryker JSON report: no changed-file mutants were evaluated", file=sys.stderr)
+    raise SystemExit(4)
+with open(sys.argv[2], "a", encoding="utf-8") as handle:
+    for finding in findings:
+        handle.write(json.dumps(finding) + "\n")
 PY
   rc=$?
   if [[ $rc -ne 0 ]]; then
     sed -n '1,20p' "$err" >&2
-    echo "ERROR: remediation: run '$(js_exec_command "$REPO" stryker) run --reporters json' directly; ensure Stryker evaluates at least one mutant in the changed files and writes the canonical reports/mutation/mutation.json schema, then rerun Code Ultrareview." >&2
-    runtime_error "Stryker report could not be parsed reliably. See $err"
+    echo "ERROR: diagnostic: run '$(js_exec_command "$STRYKER_PROJECT_DIR" stryker "$REPO") run --reporters json' directly and verify the canonical reports/mutation/mutation.json schema." >&2
+    runtime_error "Stryker report could not be parsed reliably. See $err" \
+      "$repair_command"
     return $?
   fi
 }
 
 run_mutmut() {
-  local command raw err results actionable shows rc status mutant show_rc
+  local command raw err results terminals shows rc status mutant show_rc repair_command
+  repair_command="$(tool_install_command "$REPO" mutmut)"
   command="$(command -v mutmut 2>/dev/null || true)"
   if [[ -z "$command" ]]; then
-    runtime_error "mutmut disappeared after preflight. Install with $(tool_install_command "$REPO" mutmut)"
+    runtime_error "mutmut disappeared after preflight." "$repair_command"
     return $?
   fi
   raw="$OUTPUT_DIR/raw/mutmut.log"
   err="$OUTPUT_DIR/raw/mutmut.stderr"
   results="$OUTPUT_DIR/raw/mutmut-results.log"
-  actionable="$OUTPUT_DIR/raw/mutmut-actionable.tsv"
+  terminals="$OUTPUT_DIR/raw/mutmut-terminal.tsv"
   shows="$OUTPUT_DIR/raw/mutmut-shows.txt"
 
   (cd "$REPO" && run_with_timeout "$TIMEOUT" "$command" run) >"$raw" 2>"$err"
   rc=$?
   if [[ $rc -eq 124 ]]; then
-    runtime_error "mutmut timed out after ${TIMEOUT}s; its process group was terminated. See $err"
+    runtime_error \
+      "mutmut timed out after ${TIMEOUT}s; its process group was terminated. See $err" \
+      "$repair_command"
     return $?
   fi
   if [[ $rc -ne 0 ]]; then
-    runtime_error "mutmut failed with exit code $rc. See $err"
+    runtime_error "mutmut failed with exit code $rc. See $err" "$repair_command"
     return $?
   fi
-  (cd "$REPO" && run_with_timeout "$TIMEOUT" "$command" results) >"$results" 2>>"$err"
+  (cd "$REPO" && run_with_timeout "$TIMEOUT" "$command" results --all) >"$results" 2>>"$err"
   rc=$?
   if [[ $rc -eq 124 ]]; then
-    runtime_error "mutmut results timed out after ${TIMEOUT}s; its process group was terminated. See $err"
+    runtime_error \
+      "mutmut results timed out after ${TIMEOUT}s; its process group was terminated. See $err" \
+      "$repair_command"
     return $?
   fi
   if [[ $rc -ne 0 ]]; then
-    runtime_error "mutmut results failed with exit code $rc. See $err"
+    runtime_error "mutmut results failed with exit code $rc. See $err" \
+      "$repair_command"
     return $?
   fi
-  python3 - "$results" "$actionable" <<'PY' 2>>"$err"
+  python3 - "$results" "$terminals" <<'PY' 2>>"$err"
 import pathlib
 import sys
 
-valid_statuses = {
+terminal_statuses = {
+    "caught by type check",
     "killed",
     "survived",
     "no tests",
-    "skipped",
     "suspicious",
     "timeout",
-    "check was interrupted by user",
-    "not checked",
     "segfault",
 }
-actionable_statuses = {"survived", "no tests", "suspicious"}
-incomplete_statuses = {"check was interrupted by user", "not checked"}
+incomplete_statuses = {
+    "skipped",
+    "check was interrupted by user",
+    "not checked",
+}
+valid_statuses = terminal_statuses | incomplete_statuses
 rows = []
 incomplete = []
+evaluated = 0
 for number, raw_line in enumerate(
     pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines(), start=1
 ):
@@ -755,13 +942,17 @@ for number, raw_line in enumerate(
         raise SystemExit(4)
     if status in incomplete_statuses:
         incomplete.append(f"{mutant}: {status}")
-    if status in actionable_statuses:
-        rows.append((status, mutant))
+        continue
+    evaluated += 1
+    rows.append((status, mutant))
 if incomplete:
     print(
         "incomplete mutmut results: " + ", ".join(incomplete[:5]),
         file=sys.stderr,
     )
+    raise SystemExit(4)
+if evaluated == 0:
+    print("incomplete mutmut results: no mutants were evaluated", file=sys.stderr)
     raise SystemExit(4)
 with pathlib.Path(sys.argv[2]).open("w", encoding="utf-8") as handle:
     for status, mutant in rows:
@@ -770,8 +961,9 @@ PY
   rc=$?
   if [[ $rc -ne 0 ]]; then
     sed -n '1,20p' "$err" >&2
-    echo "ERROR: remediation: run 'mutmut results' directly; repair or update mutmut with '$(tool_install_command "$REPO" mutmut)' until every non-empty result line has a documented status, then rerun Code Ultrareview." >&2
-    runtime_error "mutmut results output is incomplete or malformed. See $err"
+    echo "ERROR: remediation: run 'mutmut results --all' directly; repair the mutation scope or update mutmut with '$(tool_install_command "$REPO" mutmut)' until at least one mutant is evaluated and every result line has a documented status, then rerun Code Ultrareview." >&2
+    runtime_error "mutmut results output is incomplete or malformed. See $err" \
+      "$repair_command"
     return $?
   fi
   : >"$shows"
@@ -781,14 +973,18 @@ PY
     (cd "$REPO" && run_with_timeout 15 "$command" show "$mutant") >>"$shows" 2>>"$err"
     show_rc=$?
     if [[ $show_rc -eq 124 ]]; then
-      runtime_error "mutmut show timed out after 15s for '$mutant'; its process group was terminated. See $err"
+      runtime_error \
+        "mutmut show timed out after 15s for '$mutant'; its process group was terminated. See $err" \
+        "$repair_command"
       return $?
     fi
     if [[ $show_rc -ne 0 ]]; then
-      runtime_error "mutmut show failed for '$mutant' with exit code $show_rc. See $err"
+      runtime_error \
+        "mutmut show failed for '$mutant' with exit code $show_rc. See $err" \
+        "$repair_command"
       return $?
     fi
-  done <"$actionable"
+  done <"$terminals"
 
   python3 - "$shows" "$FINDINGS_OUT" "${PY_FILES[@]}" <<'PY' 2>>"$err"
 import json
@@ -800,9 +996,12 @@ text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
 changed = {pathlib.PurePosixPath(path).as_posix() for path in sys.argv[3:]}
 blocks = re.split(r"^=== ([^\t]+)\t(.+) ===$", text, flags=re.MULTILINE)
 if len(blocks) == 1:
-    raise SystemExit(0)
+    print("invalid mutmut show output: no terminal mutant blocks were produced", file=sys.stderr)
+    raise SystemExit(4)
 
 findings = []
+mapped_mutations = 0
+actionable_statuses = {"survived", "no tests", "suspicious"}
 for index in range(1, len(blocks), 3):
     status = blocks[index]
     mutant = blocks[index + 1]
@@ -810,10 +1009,13 @@ for index in range(1, len(blocks), 3):
     file_match = re.search(r"^---\s+(?:a/)?([^\t\n]+)", body, re.MULTILINE)
     line_match = re.search(r"^@@\s+-\d+(?:,\d+)?\s+\+(\d+)", body, re.MULTILINE)
     if not file_match:
-        print(f"cannot locate source file for mutmut survivor {mutant}", file=sys.stderr)
+        print(f"cannot locate source file for mutmut mutant {mutant}", file=sys.stderr)
         raise SystemExit(4)
     file_path = pathlib.PurePosixPath(file_match.group(1).strip()).as_posix()
     if file_path not in changed:
+        continue
+    mapped_mutations += 1
+    if status not in actionable_statuses:
         continue
     line = line_match.group(1) if line_match else "?"
     if status == "no tests":
@@ -835,6 +1037,10 @@ for index in range(1, len(blocks), 3):
         "source_tool": "mutmut",
     })
 
+if mapped_mutations == 0:
+    print("invalid mutmut results: no changed-file mutants were evaluated", file=sys.stderr)
+    raise SystemExit(4)
+
 with open(sys.argv[2], "a", encoding="utf-8") as handle:
     for finding in findings:
         handle.write(json.dumps(finding) + "\n")
@@ -842,42 +1048,51 @@ PY
   rc=$?
   if [[ $rc -ne 0 ]]; then
     sed -n '1,20p' "$err" >&2
-    runtime_error "mutmut survivor output could not be mapped reliably. See $err"
+    runtime_error "mutmut terminal output could not be mapped reliably. See $err" \
+      "$repair_command"
     return $?
   fi
 }
 
 run_pitest() {
-  local raw err marker rc report report_root
+  local raw err marker rc report report_root repair_command
   raw="$OUTPUT_DIR/raw/pitest.log"
   err="$OUTPUT_DIR/raw/pitest.stderr"
   marker="$(mktemp -t pitest_report_XXXX)"
   if [[ "$JVM_BUILD" == "maven" ]]; then
     report_root="$REPO/target/pit-reports"
-    (cd "$REPO" && run_with_timeout "$TIMEOUT" "$JVM_RUNNER" -q -B pitest:mutationCoverage) >"$raw" 2>"$err"
+    repair_command="$(format_command "$JVM_RUNNER" --offline -q -B pitest:mutationCoverage)"
+    (cd "$REPO" && run_with_timeout "$TIMEOUT" "$JVM_RUNNER" --offline -q -B pitest:mutationCoverage) >"$raw" 2>"$err"
   elif [[ "$JVM_BUILD" == "gradle" ]]; then
     report_root="$REPO/build/reports/pitest"
-    (cd "$REPO" && run_with_timeout "$TIMEOUT" "$REPO/gradlew" --no-daemon pitest) >"$raw" 2>"$err"
+    repair_command="$(format_command "$JVM_RUNNER" --offline --no-daemon pitest)"
+    (cd "$REPO" && run_with_timeout "$TIMEOUT" "$JVM_RUNNER" --offline --no-daemon pitest) >"$raw" 2>"$err"
   else
     rm -f "$marker"
-    runtime_error "Pitest has no validated JVM build runner. Rerun mutation preflight."
+    runtime_error \
+      "Pitest has no validated JVM build runner." \
+      "configure Pitest in Maven or Gradle, install the matching runner, then rerun: $MUTATION_RERUN"
     return $?
   fi
   rc=$?
   if [[ $rc -eq 124 ]]; then
     rm -f "$marker"
-    runtime_error "Pitest timed out after ${TIMEOUT}s; its process group was terminated. See $err"
+    runtime_error \
+      "Pitest timed out after ${TIMEOUT}s; its process group was terminated. See $err" \
+      "$repair_command"
     return $?
   fi
   if [[ $rc -ne 0 ]]; then
     rm -f "$marker"
-    runtime_error "Pitest failed with exit code $rc. See $err"
+    runtime_error "Pitest failed with exit code $rc. See $err" "$repair_command"
     return $?
   fi
   report="$(find "$report_root" -type f -name mutations.xml -newer "$marker" -print 2>/dev/null | sort | tail -n 1)"
   rm -f "$marker"
   if [[ -z "$report" || ! -f "$report" ]]; then
-    runtime_error "Pitest did not produce a fresh mutations.xml report under $report_root. See $err"
+    runtime_error \
+      "Pitest did not produce a fresh mutations.xml report under $report_root. See $err" \
+      "$repair_command"
     return $?
   fi
 
@@ -895,6 +1110,16 @@ except (OSError, ET.ParseError) as error:
 
 changed = [pathlib.PurePosixPath(path).as_posix() for path in sys.argv[3:]]
 findings = []
+mapped_mutations = 0
+terminal_statuses = {
+    "KILLED",
+    "SURVIVED",
+    "NO_COVERAGE",
+    "NON_VIABLE",
+    "TIMED_OUT",
+    "MEMORY_ERROR",
+    "RUN_ERROR",
+}
 root = tree.getroot()
 if root.tag.rsplit("}", 1)[-1] != "mutations":
     print("invalid Pitest XML report: root element must be mutations", file=sys.stderr)
@@ -911,8 +1136,6 @@ for mutation in mutations:
     if not status:
         print("invalid Pitest XML report: mutation has no status", file=sys.stderr)
         raise SystemExit(4)
-    if status not in {"SURVIVED", "NO_COVERAGE"}:
-        continue
     source_name = mutation.findtext("sourceFile") or ""
     mutated_class = (mutation.findtext("mutatedClass") or "").split("$", 1)[0]
     if not source_name:
@@ -937,6 +1160,16 @@ for mutation in mutations:
     if not matches:
         continue
 
+    if status not in terminal_statuses:
+        print(
+            f"invalid Pitest XML report: unsupported changed-file status {status!r}",
+            file=sys.stderr,
+        )
+        raise SystemExit(4)
+    mapped_mutations += 1
+    if status not in {"SURVIVED", "NO_COVERAGE"}:
+        continue
+
     if status == "NO_COVERAGE":
         finding_text = f"Uncovered Pitest mutant: {mutation.findtext('description') or 'no description'}"
         recommendation = "Add a test that executes this code path and asserts the intended behavior."
@@ -953,6 +1186,13 @@ for mutation in mutations:
         "source_tool": "pitest",
     })
 
+if mapped_mutations == 0:
+    print(
+        "invalid Pitest XML report: no changed-file mutations were evaluated",
+        file=sys.stderr,
+    )
+    raise SystemExit(4)
+
 with open(sys.argv[2], "a", encoding="utf-8") as handle:
     for finding in findings:
         handle.write(json.dumps(finding) + "\n")
@@ -960,12 +1200,9 @@ PY
   rc=$?
   if [[ $rc -ne 0 ]]; then
     sed -n '1,20p' "$err" >&2
-    if [[ "$JVM_BUILD" == "maven" ]]; then
-      echo "ERROR: remediation: run '$JVM_RUNNER -q -B pitest:mutationCoverage' directly; ensure Pitest evaluates at least one mutant, emits canonical mutations.xml, and maps each package/source pair to one changed file (run one module at a time when needed), then rerun Code Ultrareview." >&2
-    else
-      echo "ERROR: remediation: run '$REPO/gradlew --no-daemon pitest' directly; ensure Pitest evaluates at least one mutant, emits canonical mutations.xml, and maps each package/source pair to one changed file (run one module at a time when needed), then rerun Code Ultrareview." >&2
-    fi
-    runtime_error "Pitest report could not be mapped reliably to changed files. See $err"
+    echo "ERROR: remediation: run '$repair_command' directly; ensure Pitest evaluates at least one mutant, emits canonical mutations.xml, and maps each package/source pair to one changed file (run one module at a time when needed), then rerun Code Ultrareview." >&2
+    runtime_error "Pitest report could not be mapped reliably to changed files. See $err" \
+      "$repair_command"
     return $?
   fi
 }
@@ -980,10 +1217,7 @@ if [[ $JVM_APPLICABLE -eq 1 ]]; then
   run_pitest || exit $?
 fi
 
-commit_findings
-if ! set_mutation_coverage "complete" 1 1; then
-  echo "ERROR: mutation findings completed but coverage state could not be persisted." >&2
-  emit_rerun
+if ! publish_findings "complete" 1 1; then
   exit 4
 fi
 exit 0

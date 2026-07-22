@@ -334,7 +334,9 @@ class TestVersionGraph(unittest.TestCase):
                 json.dumps({"metadata": {"version": "1.25.0"}}), encoding="utf-8"
             )
             # Real git repo with tag at 1.24.0 — _from_git_tag needs `.git`.
-            env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
+            env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull,
+                   "GIT_CONFIG_SYSTEM": os.devnull,
+                   "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
                    "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
             subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
@@ -353,7 +355,9 @@ class TestVersionGraph(unittest.TestCase):
             (repo / ".claude-plugin" / "marketplace.json").write_text(
                 json.dumps({"metadata": {"version": "1.24.0"}}), encoding="utf-8"
             )
-            env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
+            env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull,
+                   "GIT_CONFIG_SYSTEM": os.devnull,
+                   "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
                    "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
             subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)

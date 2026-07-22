@@ -40,16 +40,30 @@
     {
       "id": 6,
       "name": "canonical-cli-integrity-and-yarn-pnp-resolution",
-      "prompt": "Audit and then migrate a legacy DESIGN.md in a Yarn Plug'n'Play workspace that declares @google/design.md. On the first attempt the declared binary cannot execute. After repairing the PnP environment, the CLI emits malformed JSON. After repairing the CLI output, rerun the migration and audit.",
+      "prompt": "Audit and then migrate a legacy DESIGN.md in a Yarn Plug'n'Play workspace that declares @google/design.md. On the first attempt the declared binary cannot execute and yarn.lock is absent. After repairing the PnP environment, the CLI emits malformed JSON. After repairing the CLI output, rerun the migration and audit.",
       "expected_output": "The declared Yarn PnP binary is authoritative and every missing/runtime/schema failure blocks atomically with exact remediation. Only a healthy canonical CLI may migrate and audit the file.",
       "files": [],
       "expectations": [
         "The resolver uses the project's Yarn PnP execution path with offline Corepack settings and never falls back to an unrelated PATH binary after a declared project command fails.",
-        "The first attempt stops before mutation, names the failing declared command, and prints an exact project-aware repair plus rerun instruction.",
+        "The first attempt stops before mutation, names the failing declared command, requires restoring or deliberately creating and reviewing yarn.lock, then uses Yarn's immutable install plus the exact rerun instruction; it never suggests yarn add for an already-declared dependency.",
         "Malformed CLI JSON fails schema validation and stops without an audit verdict or partial migration.",
         "The successful migration produces canonical YAML tokens plus the eight ordered prose sections and publishes the result only after validation.",
         "The migrated file passes the canonical audit before the response considers the work complete."
       ]
+    },
+    {
+      "id": 7,
+      "name": "strict-audit-requires-award-design",
+      "prompt": "Run /design-system audit DESIGN.md --strict, but award-design is not installed.",
+      "expected_output": "Stops before presenting any standard or strict audit verdict. It states that `--strict` requires award-design, prints `skills add coroboros/agent-skills --skill award-design`, and tells the user to install it or drop `--strict`. It does not emit a degraded strict result.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "strict-audit-requires-both-catalogs",
+      "prompt": "Run /design-system audit DESIGN.md --strict when only anti-patterns.md is present in the award-design install and exemplars.md is missing.",
+      "expected_output": "Stops before presenting any standard or strict audit verdict, names exemplars.md as the missing catalog, and prints `skills add coroboros/agent-skills --skill award-design` with the alternatives to repair the install or drop `--strict`. It emits no partial strict result. The same hard stop applies when exemplars.md exists but anti-patterns.md is missing.",
+      "files": []
     }
   ]
 }

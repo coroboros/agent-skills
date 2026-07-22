@@ -846,13 +846,19 @@ def filter_to_changed_files(
         normalized = Path(path).as_posix()
         return normalized[2:] if normalized.startswith("./") else normalized
 
+    def with_canonical_file(finding: dict, path: str) -> dict:
+        normalized = dict(finding)
+        normalized["file"] = path
+        return normalized
+
     allowed = {canonical(path) for path in changed_files}
     if changed_line_ranges is None:
-        return [
-            finding
-            for finding in findings
-            if canonical(str(finding.get("file") or "")) in allowed
-        ]
+        filtered: list[dict] = []
+        for finding in findings:
+            path = canonical(str(finding.get("file") or ""))
+            if path in allowed:
+                filtered.append(with_canonical_file(finding, path))
+        return filtered
 
     ranges_by_path = {
         canonical(path): ranges for path, ranges in changed_line_ranges.items()
@@ -863,7 +869,7 @@ def filter_to_changed_files(
         if path not in allowed:
             continue
         if finding.get("source_tool") in PATH_LEVEL_TOOLS:
-            filtered.append(finding)
+            filtered.append(with_canonical_file(finding, path))
             continue
         ranges = ranges_by_path.get(path, [])
         line_start = finding.get("line_start")
@@ -871,7 +877,7 @@ def filter_to_changed_files(
         if not isinstance(line_start, int) or not isinstance(line_end, int):
             continue
         if any(line_start <= end and line_end >= start for start, end in ranges):
-            filtered.append(finding)
+            filtered.append(with_canonical_file(finding, path))
     return filtered
 
 

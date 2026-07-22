@@ -24,6 +24,7 @@ INGEST="$SCRIPT_DIR/battery_ingest.py"
 PROCESS_TIMEOUT="$SCRIPT_DIR/process_timeout.py"
 PERF_RULES_DIR="$SCRIPT_DIR/../references/perf-rules"
 MARKDOWNLINT_BASE_CONFIG="$SCRIPT_DIR/../references/markdownlint-base.markdownlint-cli2.jsonc"
+# shellcheck source-path=SCRIPTDIR
 # shellcheck source=install-guidance.sh
 source "$SCRIPT_DIR/install-guidance.sh"
 
@@ -142,15 +143,64 @@ if ! scope_error="$(validate_review_scope "$SCOPE")"; then
   exit 2
 fi
 
-if [[ -f "$REPO/package.json" ]] \
-  && ! package_error="$(validate_package_manifest "$REPO/package.json")"; then
-  echo "ERROR: invalid project manifest: $package_error" >&2
-  echo "ERROR: remediation: repair package.json so it is valid JSON with object dependency maps, then rerun Code Ultrareview." >&2
-  emit_rerun
-  exit 2
-fi
+FINDINGS_FINAL="$OUTPUT_DIR/tool-findings.jsonl"
+PREFLIGHT_FINAL="$OUTPUT_DIR/tool-preflight.json"
 
-mkdir -p "$OUTPUT_DIR/raw"
+# Invalidate the previous public result before validating project manifests or
+# resolving analyzers. A failed rerun must never leave a stale complete verdict.
+if ! python3 - "$SCOPE" "$AXES" <<'PY'
+import json
+import os
+from pathlib import Path
+import sys
+
+scope_path = Path(sys.argv[1])
+selected_axes = [axis.strip() for axis in sys.argv[2].split(",") if axis.strip()]
+with scope_path.open(encoding="utf-8") as handle:
+    scope = json.load(handle)
+scope["tools_dispatched"] = []
+scope["tools_missing"] = []
+scope["tools_skipped"] = []
+scope["tool_coverage"] = {
+    "complete": False,
+    "selected_axes": selected_axes,
+    "explicit_scope": bool(selected_axes),
+    "applicable": [],
+    "executed": [],
+}
+scope["coverage_complete"] = False
+temporary = scope_path.with_name(f".{scope_path.name}.{os.getpid()}.tmp")
+temporary.write_text(
+    json.dumps(scope, indent=2, sort_keys=False) + "\n",
+    encoding="utf-8",
+)
+os.replace(temporary, scope_path)
+PY
+then
+  rm -f "$FINDINGS_FINAL" 2>/dev/null || true
+  echo "ERROR: tool coverage state could not be invalidated in $SCOPE" >&2
+  echo "ERROR: remediation: verify that the scope directory is writable and supports atomic replacement, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! rm -f "$FINDINGS_FINAL"; then
+  echo "ERROR: stale analyzer findings could not be removed from $FINDINGS_FINAL" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, remove the stale findings file, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! rm -f "$PREFLIGHT_FINAL"; then
+  echo "ERROR: stale analyzer preflight could not be removed from $PREFLIGHT_FINAL" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, remove the stale preflight path, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+if ! mkdir -p "$OUTPUT_DIR/raw"; then
+  echo "ERROR: analyzer output directory could not be created: $OUTPUT_DIR/raw" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
 
 # scope.json field extraction via python3 — already a hard dependency.
 _scope_field() {
@@ -190,6 +240,19 @@ FILES_TOUCHED=()
 while IFS= read -r _line; do
   [[ -n "$_line" ]] && FILES_TOUCHED+=("$_line")
 done < <(_scope_field files_touched_list)
+
+# shellcheck disable=SC2034 # install-guidance.sh consumes this sourced-state array.
+JS_RELEVANT_FILES=()
+if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
+  # shellcheck disable=SC2034 # install-guidance.sh consumes this sourced-state array.
+  JS_RELEVANT_FILES=("${FILES_TOUCHED[@]}")
+fi
+if ! package_error="$(validate_relevant_package_manifests "$REPO")"; then
+  echo "ERROR: invalid project manifest: $package_error" >&2
+  echo "ERROR: remediation: repair package.json at the reported path so it is valid JSON with object dependency maps, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 2
+fi
 
 has_lang() {
   local target="$1" l
@@ -324,7 +387,7 @@ want_tool() {
 }
 
 install_cmd() {
-  tool_install_command "$REPO" "$1"
+  tool_repair_command "$REPO" "$1"
 }
 
 DISPATCHED=()
@@ -339,10 +402,27 @@ mark_dispatched() {
 RESOLVED_COMMAND=()
 RESOLVED_WRAPPER=""
 
+set_js_relevant_files_for_tool() {
+  local tool="$1" file pattern=""
+  JS_RELEVANT_FILES=()
+  case "$tool" in
+    knip) pattern='\.(js|jsx|ts|tsx|mjs|cjs)$' ;;
+    jscpd) pattern='\.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$' ;;
+    markdownlint-cli2) pattern='\.md$' ;;
+    api-extractor) pattern='\.(ts|tsx)$' ;;
+  esac
+  for file in "${FILES_TOUCHED[@]}"; do
+    [[ -n "$pattern" && "$file" =~ $pattern ]] \
+      && JS_RELEVANT_FILES+=("$file")
+  done
+  if [[ "$tool" == "api-extractor" && -f "$REPO/api-extractor.json" ]]; then
+    JS_RELEVANT_FILES+=("api-extractor.json")
+  fi
+}
+
 resolve_tool() {
   local tool="$1"
-  local project_bin="$REPO/node_modules/.bin/$tool"
-  local package="" declared=0 path_tool yarn_bin
+  local package="" path_tool
   RESOLVED_COMMAND=()
   RESOLVED_WRAPPER=""
   case "$tool" in
@@ -351,43 +431,17 @@ resolve_tool() {
     markdownlint-cli2) package="markdownlint-cli2" ;;
     api-extractor) package="@microsoft/api-extractor" ;;
   esac
-  if [[ -n "$package" && -f "$REPO/package.json" ]] \
-    && python3 - "$REPO/package.json" "$package" <<'PY' >/dev/null 2>&1
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as handle:
-    package_json = json.load(handle)
-declared = any(
-    sys.argv[2] in (package_json.get(field) or {})
-    for field in ("dependencies", "devDependencies", "optionalDependencies", "peerDependencies")
-)
-raise SystemExit(0 if declared else 1)
-PY
-  then
-    declared=1
-  fi
-  if [[ "$declared" -eq 1 && -x "$project_bin" ]]; then
-    RESOLVED_COMMAND=("$project_bin")
-    RESOLVED_WRAPPER="project"
-    return 0
-  fi
-  if [[ "$declared" -eq 1 && "$(detect_js_package_manager "$REPO")" == "yarn" ]]; then
-    yarn_bin="$(command -v yarn 2>/dev/null || true)"
-    if [[ -n "$yarn_bin" ]] \
-      && env COREPACK_ENABLE_NETWORK=0 COREPACK_DEFAULT_TO_LATEST=0 \
-        "$yarn_bin" --cwd "$REPO" bin "$tool" >/dev/null 2>&1; then
-      RESOLVED_COMMAND=(
-        env COREPACK_ENABLE_NETWORK=0 COREPACK_DEFAULT_TO_LATEST=0
-        "$yarn_bin" --cwd "$REPO" run -B "$tool"
-      )
-      RESOLVED_WRAPPER="yarn-pnp"
+  if [[ -n "$package" ]]; then
+    set_js_relevant_files_for_tool "$tool"
+    if resolve_declared_js_binary "$REPO" "$package" "$tool"; then
+      RESOLVED_COMMAND=("${DECLARED_JS_COMMAND[@]}")
+      RESOLVED_WRAPPER="$DECLARED_JS_WRAPPER"
       return 0
     fi
+    # A declared dependency is authoritative. Do not replace a missing project
+    # install with a potentially different global analyzer version.
+    package_declares_js_dependency "$REPO" "$package" && return 1
   fi
-  # A declared dependency is authoritative. Do not replace a missing project
-  # install with a potentially different global analyzer version.
-  [[ "$declared" -eq 0 ]] || return 1
   path_tool="$(command -v "$tool" 2>/dev/null || true)"
   [[ -n "$path_tool" ]] || return 1
   RESOLVED_COMMAND=("$path_tool")
@@ -448,6 +502,8 @@ require_json_file() {
   local tool="$1" path="$2" err="${3:-}"
   if ! python3 - "$tool" "$path" <<'PY' >/dev/null 2>&1
 import json
+import os
+from pathlib import Path
 import sys
 
 tool, path = sys.argv[1:3]
@@ -499,6 +555,8 @@ require_semgrep_without_errors() {
   local report="$1" err="$2"
   if ! python3 - "$report" <<'PY' >&2
 import json
+import os
+from pathlib import Path
 import sys
 
 with open(sys.argv[1], encoding="utf-8") as handle:
@@ -641,7 +699,7 @@ run_markdownlint() {
   local f
   if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
     for f in "${FILES_TOUCHED[@]}"; do
-      [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("./$f")
+      [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("$REPO/$f")
     done
   fi
   [[ ${#md_files[@]} -gt 0 ]] || return 0
@@ -793,6 +851,8 @@ run_oasdiff() {
       fi
       if ! python3 - "$out" "$current_out" <<'PY'
 import json
+import os
+from pathlib import Path
 import sys
 
 with open(sys.argv[1], encoding="utf-8") as handle:
@@ -912,6 +972,8 @@ render_plan() {
     "${#AVAILABLE_ROWS[@]}" ${AVAILABLE_ROWS[@]+"${AVAILABLE_ROWS[@]}"} \
     "${#MISSING_ROWS[@]}" ${MISSING_ROWS[@]+"${MISSING_ROWS[@]}"} <<'PY'
 import json
+import os
+from pathlib import Path
 import sys
 
 scope_path, axes, destination = sys.argv[1:4]
@@ -957,8 +1019,20 @@ rendered = json.dumps(payload, indent=2) + "\n"
 if destination == "-":
     sys.stdout.write(rendered)
 else:
-    with open(destination, "w", encoding="utf-8") as handle:
-        handle.write(rendered)
+    destination_path = Path(destination)
+    temporary = destination_path.with_name(
+        f".{destination_path.name}.{os.getpid()}.tmp"
+    )
+    try:
+        temporary.write_text(rendered, encoding="utf-8")
+        os.replace(temporary, destination_path)
+    except OSError as error:
+        try:
+            temporary.unlink(missing_ok=True)
+        except OSError:
+            pass
+        print(f"tool preflight could not be published atomically: {error}", file=sys.stderr)
+        raise SystemExit(1)
 PY
 }
 
@@ -968,12 +1042,22 @@ if [[ "$DRY_RUN" -eq 1 ]]; then
   exit 0
 fi
 
-render_plan "$OUTPUT_DIR/tool-preflight.json"
+if ! render_plan "$PREFLIGHT_FINAL"; then
+  rm -f "$PREFLIGHT_FINAL" 2>/dev/null || true
+  echo "ERROR: analyzer preflight could not be published atomically at $PREFLIGHT_FINAL" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable and supports same-directory rename, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
 
-FINDINGS_FINAL="$OUTPUT_DIR/tool-findings.jsonl"
 FINDINGS_PENDING="$OUTPUT_DIR/.tool-findings.pending.jsonl"
-rm -f "$FINDINGS_FINAL"
-: >"$FINDINGS_PENDING"
+if ! : >"$FINDINGS_PENDING"; then
+  echo "ERROR: pending analyzer findings could not be created in $OUTPUT_DIR" >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
+# shellcheck disable=SC2329 # Invoked by the EXIT trap below.
 cleanup_pending_findings() {
   rm -f "$FINDINGS_PENDING"
 }
@@ -1085,9 +1169,15 @@ then
 fi
 rm -f "$INGEST_ERROR"
 
-mv -f "$FINDINGS_PENDING" "$FINDINGS_FINAL"
+if ! mv -f "$FINDINGS_PENDING" "$FINDINGS_FINAL"; then
+  echo "ERROR: analyzer findings could not be published atomically." >&2
+  echo "ERROR: remediation: verify that $OUTPUT_DIR is writable and supports same-directory rename, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 4
+fi
 
-if ! python3 - "$OUTPUT_DIR/tools-skipped.json" "$SCOPE" "$OUTPUT_DIR/tool-preflight.json" "$FINDINGS_FINAL" \
+if ! python3 - "$OUTPUT_DIR/tools-skipped.json" "$SCOPE" \
+  "$OUTPUT_DIR/tool-preflight.json" "$FINDINGS_FINAL" \
   ${DISPATCHED[@]+"${DISPATCHED[@]}"} <<'PY'
 import hashlib
 import json
@@ -1130,7 +1220,9 @@ temporary.write_text(
 os.replace(temporary, scope_path)
 PY
 then
+  rm -f "$FINDINGS_FINAL"
   echo "ERROR: analyzer findings completed but tool coverage state could not be persisted." >&2
+  echo "ERROR: remediation: verify that the scope directory is writable and supports atomic replacement, then rerun Code Ultrareview." >&2
   emit_rerun
   exit 4
 fi

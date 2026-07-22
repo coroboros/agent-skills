@@ -188,8 +188,14 @@
       "id": 27,
       "name": "mutation-test-flag-routes-surviving-mutants-to-tests-axis",
       "prompt": "/code-ultrareview --mutation-test (changed file in a JS/TS repo with Stryker config)",
-      "expected_output": "Phase 2 extension runs `scripts/run_mutation.sh` per applicable language: Stryker targets changed JS/TS files, while project-configured mutmut and Pitest runs are filtered to changed Python/JVM findings. Every applicable language is preflighted before execution. Missing project config or tools exits 3 with exact language- and build-system-aware remediation; failure, timeout, stale/missing report, or malformed report exits 4. Surviving mutants publish atomically through an independently manifested stream, route to the Tests axis as 🟠 Medium with confidence 100, and reach final synthesis only after digest/run verification. Runtime can exceed 10 minutes; default 600 s timeout is overridable via `MUTATION_TIMEOUT`. The script never installs or resolves packages at runtime.",
-      "files": []
+      "expected_output": "Phase 2 extension runs `scripts/run_mutation.sh` per applicable language: Stryker targets changed JS/TS files, while project-configured mutmut and Pitest runs are filtered to changed Python/JVM findings. Every applicable language is preflighted before execution. Only documented terminal statuses count as evaluated: Stryker Ignored/Pending and mutmut skipped/interrupted/not checked block, as does any unknown changed-file Pitest status. Missing project config or tools exits 3 with exact language- and build-system-aware remediation; failure, timeout, stale/missing report, incomplete status, or malformed report exits 4. Surviving mutants publish atomically through an independently manifested stream, route to the Tests axis as 🟠 Medium with confidence 100, and reach final synthesis only after digest/run verification. Runtime can exceed 10 minutes; default 600 s timeout is overridable via `MUTATION_TIMEOUT`. The script never installs or resolves packages at runtime.",
+      "files": [],
+      "expectations": [
+        "Stryker Killed, Survived, NoCoverage, Timeout, RuntimeError, and CompileError are terminal; Ignored or Pending changed-file mutants block the mutation gate.",
+        "mutmut maps every killed, caught by type check, survived, no tests, suspicious, timeout, and segfault terminal row with `mutmut show`; only survived, no tests, and suspicious rows become findings, while skipped, interrupted, or not checked results block the mutation gate.",
+        "Pitest accepts only its documented terminal status set for changed-file mutations; an unknown status blocks rather than being counted.",
+        "No mutation findings stream or repository verdict is published while any applicable mutation result remains incomplete or unsupported."
+      ]
     },
     {
       "id": 28,
@@ -309,10 +315,23 @@
       "expected_output": "Mutation and explicitly requested intent evidence are both atomic gates; after remediation, stale explicit evidence keeps its claims with the documented severity cap.",
       "files": [],
       "expectations": [
-        "The missing Gradle plugin exits 3 before mutation, axis review, or synthesis; guidance names info.solidsoft.pitest, ./gradlew pitest, and the exact Code Ultrareview rerun without suggesting Maven.",
+        "The missing Gradle plugin exits 3 before mutation, axis review, or synthesis; guidance names info.solidsoft.pitest, the PATH-installed `gradle --offline --no-daemon pitest` runner, and the exact Code Ultrareview rerun without suggesting Maven or a project wrapper.",
         "The skill never installs or resolves a mutation package at runtime and emits no verdict while mutation coverage is incomplete.",
         "The unavailable explicit gh:pr:42 source exits 3 with gh installation, authentication, and reference checks plus an instruction to rerun with the same --reconcile value.",
         "No Intent synthesis or verdict is emitted while the requested source is missing; once fetched, stale explicit evidence retains extracted claims instead of becoming summary-only, and stale-derived severity remains capped by policy."
+      ]
+    },
+    {
+      "id": 43,
+      "name": "workspace-mutation-resolution-is-explicit-and-offline",
+      "prompt": "Run /code-ultrareview --mutation-test on a Yarn Plug'n'Play monorepo where packages/a and packages/b each declare @stryker-mutator/core and both contain changed JavaScript. Then narrow the review to packages/a, first without a Stryker config and then with a config whose run exits 7.",
+      "expected_output": "Stryker resolution follows the changed files to one authoritative declaration, never guesses across workspaces, and never resolves a package at review time. Every blocked or failed run prints exact recovery and publishes no final mutation stream.",
+      "files": [],
+      "expectations": [
+        "The first preflight exits 3 before any analyzer starts, names both declaring workspaces, and prints the exact package-manager command that declares @stryker-mutator/core once at the repository root.",
+        "The narrowed preflight resolves packages/a through Yarn Plug'n'Play with COREPACK_ENABLE_NETWORK=0, COREPACK_DEFAULT_TO_LATEST=0, YARN_ENABLE_NETWORK=0, an explicit --cwd packages/a, and `run -B stryker`; a missing config prints that same offline command with `init`.",
+        "After the config exists, Stryker runs from packages/a and report paths are normalized back to repository-relative packages/a paths.",
+        "Exit 7 fails the mutation gate with the exact lockfile restore or install command plus the exact Code Ultrareview rerun; no mutation-findings.jsonl or repository verdict is published."
       ]
     }
   ]

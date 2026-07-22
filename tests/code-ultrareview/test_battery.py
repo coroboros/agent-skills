@@ -255,6 +255,120 @@ class TestInputIntegrity(unittest.TestCase):
         self.assertIn("repair package.json", result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
+    def test_invalid_root_manifest_invalidates_stale_success(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["src/foo.ts"],
+                tool_coverage={
+                    "complete": True,
+                    "selected_axes": ["simplification"],
+                    "applicable": ["knip"],
+                    "executed": ["knip"],
+                },
+                coverage_complete=True,
+            )
+            (repo / "package.json").write_text("{broken\n", encoding="utf-8")
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            stale = out_dir / "tool-findings.jsonl"
+            stale.write_text('{"message":"stale"}\n', encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                env={**os.environ, "PATH": "/usr/bin:/bin:/usr/local/bin"},
+            )
+            mutated = json.loads(scope.read_text(encoding="utf-8"))
+            stale_exists = stale.exists()
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertFalse(mutated["tool_coverage"]["complete"])
+        self.assertFalse(mutated["coverage_complete"])
+        self.assertEqual(mutated["tool_coverage"]["executed"], [])
+        self.assertFalse(stale_exists)
+
+    def test_invalid_relevant_workspace_manifest_fails_before_dispatch(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/app/src/index.ts"],
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            (repo / "packages" / "app" / "package.json").write_text(
+                "{broken\n", encoding="utf-8"
+            )
+
+            result = self._run(repo, scope)
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertIn("packages/app/package.json", result.stderr)
+        self.assertIn("invalid project manifest", result.stderr)
+        self.assertNotIn("Traceback", result.stderr)
+
+    def test_invalid_workspace_manifest_invalidates_stale_success(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/app/src/index.ts"],
+                tool_coverage={
+                    "complete": True,
+                    "selected_axes": ["simplification"],
+                    "applicable": ["knip"],
+                    "executed": ["knip"],
+                },
+                coverage_complete=True,
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            (repo / "packages" / "app" / "package.json").write_text(
+                "{broken\n", encoding="utf-8"
+            )
+            out_dir = repo / "out"
+            out_dir.mkdir()
+            stale = out_dir / "tool-findings.jsonl"
+            stale.write_text('{"message":"stale"}\n', encoding="utf-8")
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+                env={**os.environ, "PATH": "/usr/bin:/bin:/usr/local/bin"},
+            )
+            mutated = json.loads(scope.read_text(encoding="utf-8"))
+            stale_exists = stale.exists()
+
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertFalse(mutated["tool_coverage"]["complete"])
+        self.assertFalse(mutated["coverage_complete"])
+        self.assertEqual(mutated["tool_coverage"]["executed"], [])
+        self.assertFalse(stale_exists)
+
 
 # ---------------------------------------------------------------------------
 # Dispatch — per language / repo kind.
@@ -474,13 +588,243 @@ class TestToolResolution(unittest.TestCase):
                 '{"devDependencies":{"markdownlint-cli2":"0.18.1"}}\n',
                 encoding="utf-8",
             )
+            (repo / "package-lock.json").write_text("{}\n", encoding="utf-8")
             bin_dir = repo / "bin"
             _make_shim(bin_dir, "markdownlint-cli2")
 
             plan = _run_dry(scope, repo, bin_dir)
+            install = next(
+                entry["install"] for entry in plan["missing"]
+                if entry["tool"] == "markdownlint-cli2"
+            )
+            expected = f"npm --prefix {repo.resolve()} ci"
 
         self.assertIn("markdownlint-cli2", _skipped_tools(plan))
         self.assertNotIn("markdownlint-cli2", _dispatched_tools(plan))
+        self.assertEqual(install, expected)
+        self.assertNotIn("--save-dev", install)
+
+    def test_workspace_declaration_uses_hoisted_project_binary(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/app/src/foo.ts"],
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            (repo / "packages" / "app" / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            _make_shim(repo / "node_modules" / ".bin", "knip")
+
+            plan = _run_dry(scope, repo)
+
+        wrappers = {entry["tool"]: entry["wrapper"] for entry in plan["available"]}
+        self.assertEqual(wrappers.get("knip"), "project")
+
+    def test_pnpm_workspace_declaration_uses_hoisted_project_binary(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/app/src/foo.ts"],
+            )
+            (repo / "pnpm-workspace.yaml").write_text(
+                "packages:\n  - 'packages/*'\n", encoding="utf-8"
+            )
+            (repo / "packages" / "app" / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            _make_shim(repo / "node_modules" / ".bin", "knip")
+
+            plan = _run_dry(scope, repo)
+
+        wrappers = {entry["tool"]: entry["wrapper"] for entry in plan["available"]}
+        self.assertEqual(wrappers.get("knip"), "project")
+
+    def test_missing_workspace_binary_restores_root_lockfile(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/app/src/foo.ts"],
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            (repo / "package-lock.json").write_text("{}\n", encoding="utf-8")
+            (repo / "packages" / "app" / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            path_bin = repo / "path-bin"
+            _make_shim(path_bin, "knip")
+
+            plan = _run_dry(scope, repo, path_bin)
+
+        missing = {entry["tool"]: entry["install"] for entry in plan["missing"]}
+        self.assertEqual(missing["knip"], f"npm --prefix {repo.resolve()} ci")
+        self.assertNotIn("knip", _dispatched_tools(plan))
+
+    def test_unrelated_root_lock_does_not_claim_nested_package(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["vendor/tool/src/foo.ts"],
+            )
+            (repo / "package.json").write_text(
+                '{"name":"root-app"}\n', encoding="utf-8"
+            )
+            (repo / "package-lock.json").write_text("{}\n", encoding="utf-8")
+            nested = repo / "vendor" / "tool"
+            (nested / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+
+            plan = _run_dry(scope, repo)
+
+        missing = {entry["tool"]: entry["install"] for entry in plan["missing"]}
+        self.assertEqual(missing["knip"], f"npm --prefix {nested.resolve()} install")
+
+    def test_unrelated_root_binary_does_not_claim_nested_package(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["vendor/tool/src/foo.ts"],
+            )
+            nested = repo / "vendor" / "tool"
+            (nested / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            _make_shim(repo / "node_modules" / ".bin", "knip")
+
+            plan = _run_dry(scope, repo)
+
+        self.assertIn("knip", _skipped_tools(plan))
+        self.assertNotIn("knip", _dispatched_tools(plan))
+
+    def test_pnpm_workspace_exclusion_rejects_hoisted_binary(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/private/app/src/foo.ts"],
+            )
+            (repo / "pnpm-workspace.yaml").write_text(
+                "packages:\n  - 'packages/**'\n  - '!packages/private/**'\n",
+                encoding="utf-8",
+            )
+            nested = repo / "packages" / "private" / "app"
+            (nested / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            _make_shim(repo / "node_modules" / ".bin", "knip")
+
+            plan = _run_dry(scope, repo)
+
+        self.assertIn("knip", _skipped_tools(plan))
+        self.assertNotIn("knip", _dispatched_tools(plan))
+
+    def test_multiple_workspace_declarations_block_without_choosing_a_version(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=[
+                    "packages/a/src/foo.ts",
+                    "packages/b/src/bar.ts",
+                ],
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            for name in ("a", "b"):
+                (repo / "packages" / name / "package.json").write_text(
+                    '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+                )
+            path_bin = repo / "path-bin"
+            _make_shim(path_bin, "knip")
+
+            plan = _run_dry(scope, repo, path_bin)
+
+        missing = {entry["tool"]: entry["install"] for entry in plan["missing"]}
+        self.assertIn("Declare knip once at the repository root", missing["knip"])
+        self.assertIn("npm install --save-dev knip", missing["knip"])
+        self.assertIn("packages/a", missing["knip"])
+        self.assertIn("packages/b", missing["knip"])
+        self.assertNotIn("knip", _dispatched_tools(plan))
+
+    def test_partial_workspace_declaration_blocks_global_path_fallback(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=[
+                    "packages/a/src/foo.ts",
+                    "packages/b/src/bar.ts",
+                ],
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            (repo / "packages/a/package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            (repo / "packages/b/package.json").write_text(
+                '{}\n', encoding="utf-8"
+            )
+            path_bin = repo / "path-bin"
+            _make_shim(path_bin, "knip")
+
+            plan = _run_dry(scope, repo, path_bin)
+
+        missing = {entry["tool"]: entry["install"] for entry in plan["missing"]}
+        self.assertIn("covers only", missing["knip"])
+        self.assertIn("packages/b/src/bar.ts", missing["knip"])
+        self.assertIn("repository root", missing["knip"])
+        self.assertIn("npm install --save-dev knip", missing["knip"])
+        self.assertNotIn("knip", _dispatched_tools(plan))
+
+    def test_unrelated_markdown_does_not_expand_knip_workspace_scope(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/a/src/foo.ts", "README.md"],
+            )
+            (repo / "package.json").write_text(
+                '{"workspaces":["packages/*"]}\n', encoding="utf-8"
+            )
+            (repo / "packages/a/package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            _make_shim(repo / "packages/a/node_modules/.bin", "knip")
+
+            plan = _run_dry(scope, repo)
+
+        wrappers = {entry["tool"]: entry["wrapper"] for entry in plan["available"]}
+        self.assertEqual(wrappers.get("knip"), "project")
 
     def test_declared_yarn_pnp_binary_dispatches_without_node_modules(self):
         with tempfile.TemporaryDirectory() as td:
@@ -504,6 +848,7 @@ class TestToolResolution(unittest.TestCase):
                 "yarn",
                 '[[ "${COREPACK_ENABLE_NETWORK-}" == "0" ]] || exit 66\n'
                 '[[ "${COREPACK_DEFAULT_TO_LATEST-}" == "0" ]] || exit 67\n'
+                '[[ "${YARN_ENABLE_NETWORK-}" == "0" ]] || exit 68\n'
                 'if [[ "$3" == "bin" && "$4" == "knip" ]]; then\n'
                 '  printf "/virtual/.yarn/knip\\n"\n'
                 "  exit 0\n"
@@ -515,6 +860,116 @@ class TestToolResolution(unittest.TestCase):
 
             dispatched = {e["tool"]: e["wrapper"] for e in plan["available"]}
             self.assertEqual(dispatched.get("knip"), "yarn-pnp")
+
+    def test_workspace_yarn_pnp_binary_dispatches_from_declaring_package(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                languages=["typescript"],
+                files_touched_list=["packages/app/src/foo.ts"],
+            )
+            (repo / "package.json").write_text(
+                '{"packageManager":"yarn@4.9.2","workspaces":["packages/*"]}\n',
+                encoding="utf-8",
+            )
+            (repo / "yarn.lock").write_text("", encoding="utf-8")
+            package_dir = repo / "packages" / "app"
+            (package_dir / "package.json").write_text(
+                '{"devDependencies":{"knip":"5.61.2"}}\n', encoding="utf-8"
+            )
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "yarn",
+                f'[[ "$2" == "{package_dir.resolve()}" ]] || exit 65\n'
+                '[[ "${{COREPACK_ENABLE_NETWORK-}}" == "0" ]] || exit 66\n'
+                '[[ "${{COREPACK_DEFAULT_TO_LATEST-}}" == "0" ]] || exit 67\n'
+                '[[ "${{YARN_ENABLE_NETWORK-}}" == "0" ]] || exit 68\n'
+                '[[ "$3" == "bin" && "$4" == "knip" ]] || exit 69',
+            )
+
+            plan = _run_dry(scope, repo, bin_dir)
+
+        wrappers = {entry["tool"]: entry["wrapper"] for entry in plan["available"]}
+        self.assertEqual(wrappers.get("knip"), "yarn-pnp")
+
+    def test_workspace_yarn_pnp_markdownlint_receives_absolute_input(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            relative_markdown = "packages/docs/README.md"
+            _write_scope(
+                scope,
+                languages=["markdown"],
+                files_touched_list=[relative_markdown],
+            )
+            (repo / "package.json").write_text(
+                '{"packageManager":"yarn@4.9.2","workspaces":["packages/*"]}\n',
+                encoding="utf-8",
+            )
+            (repo / "yarn.lock").write_text("", encoding="utf-8")
+            package_dir = repo / "packages" / "docs"
+            (package_dir / "package.json").write_text(
+                '{"devDependencies":{"markdownlint-cli2":"0.18.1"}}\n',
+                encoding="utf-8",
+            )
+            bin_dir = repo / "bin"
+            marker = repo / "markdownlint-args.txt"
+            _make_shim(
+                bin_dir,
+                "yarn",
+                f'[[ "$2" == "{package_dir.resolve()}" ]] || exit 65\n'
+                '[[ "${COREPACK_ENABLE_NETWORK-}" == "0" ]] || exit 66\n'
+                '[[ "${COREPACK_DEFAULT_TO_LATEST-}" == "0" ]] || exit 67\n'
+                '[[ "${YARN_ENABLE_NETWORK-}" == "0" ]] || exit 68\n'
+                'if [[ "$3" == "bin" && "$4" == "markdownlint-cli2" ]]; then\n'
+                "  exit 0\n"
+                "fi\n"
+                '[[ "$3" == "run" && "$4" == "-B" && '
+                '"$5" == "markdownlint-cli2" ]] || exit 69\n'
+                "shift 5\n"
+                f'printf "%s\\n" "$@" > "{marker}"\n'
+                'target="${!#}"\n'
+                "printf '%s:1 error MD001/heading-increment Heading levels "
+                "should only increment by one level at a time\\n' \"$target\"",
+            )
+            out_dir = repo / "out"
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    str(SCRIPT),
+                    "--scope",
+                    str(scope),
+                    "--output-dir",
+                    str(out_dir),
+                    "--repo",
+                    str(repo),
+                    "--axes",
+                    "documentation",
+                ],
+                capture_output=True,
+                text=True,
+                env={
+                    **os.environ,
+                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
+                },
+                check=False,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            args = marker.read_text(encoding="utf-8").splitlines()
+            self.assertIn(str((repo / relative_markdown).resolve()), args)
+            self.assertNotIn(f"./{relative_markdown}", args)
+            findings = [
+                json.loads(line)
+                for line in (out_dir / "tool-findings.jsonl").read_text(
+                    encoding="utf-8"
+                ).splitlines()
+            ]
+            self.assertEqual([finding["file"] for finding in findings], [relative_markdown])
 
     def test_yarn_pnp_binary_executes_through_yarn_run(self):
         with tempfile.TemporaryDirectory() as td:
@@ -539,6 +994,7 @@ class TestToolResolution(unittest.TestCase):
                 "yarn",
                 '[[ "${COREPACK_ENABLE_NETWORK-}" == "0" ]] || exit 66\n'
                 '[[ "${COREPACK_DEFAULT_TO_LATEST-}" == "0" ]] || exit 67\n'
+                '[[ "${YARN_ENABLE_NETWORK-}" == "0" ]] || exit 68\n'
                 'if [[ "$3" == "bin" ]]; then\n'
                 '  case "$4" in knip|jscpd) exit 0 ;; esac\n'
                 "  exit 1\n"
@@ -646,6 +1102,18 @@ class TestToolResolution(unittest.TestCase):
 class TestAtomicPreflight(unittest.TestCase):
     """Missing applicable analyzers block before any analyzer executes."""
 
+    def test_preflight_plan_is_published_with_same_directory_replace(self):
+        text = SCRIPT.read_text(encoding="utf-8")
+        render_plan = text.split("render_plan() {", 1)[1].split(
+            "\n}\n\nif [[ \"$DRY_RUN\"",
+            1,
+        )[0]
+
+        self.assertIn("destination_path.with_name(", render_plan)
+        self.assertIn("os.replace(temporary, destination_path)", render_plan)
+        self.assertIn("temporary.unlink(missing_ok=True)", render_plan)
+        self.assertNotIn("destination_path.write_text(", render_plan)
+
     def test_missing_oasdiff_blocks_with_exact_remediation(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
@@ -705,6 +1173,78 @@ class TestAtomicPreflight(unittest.TestCase):
             installs = {entry["tool"]: entry["install"] for entry in plan["missing"]}
             self.assertEqual(installs["knip"], "pnpm add -Dw knip")
 
+    def test_declared_js_guidance_restores_each_lockfile(self):
+        cases = {
+            "npm": ("package-lock.json", "npm --prefix {repo} ci"),
+            "pnpm": ("pnpm-lock.yaml", "pnpm --dir {repo} install --frozen-lockfile"),
+            "yarn": ("yarn.lock", "yarn --cwd {repo} install --immutable"),
+            "bun": ("bun.lock", "bun --cwd {repo} install --frozen-lockfile"),
+        }
+        for manager, (lockfile, expected_template) in cases.items():
+            with self.subTest(manager=manager), tempfile.TemporaryDirectory() as td:
+                repo = Path(td)
+                (repo / "package.json").write_text(
+                    json.dumps({
+                        "packageManager": f"{manager}@1.0.0",
+                        "devDependencies": {"knip": "1.0.0"},
+                    }),
+                    encoding="utf-8",
+                )
+                (repo / lockfile).write_text("\n", encoding="utf-8")
+                result = subprocess.run(
+                    [
+                        "bash",
+                        "-c",
+                        'source "$1"; tool_repair_command "$2" knip',
+                        "test",
+                        str(INSTALL_GUIDANCE),
+                        str(repo),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(
+                    result.stdout.strip(),
+                    expected_template.format(repo=repo.resolve()),
+                )
+
+    def test_declared_yarn_without_lockfile_requires_reviewed_restore(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "package.json").write_text(
+                json.dumps({
+                    "packageManager": "yarn@4.9.2",
+                    "devDependencies": {"knip": "5.61.2"},
+                }),
+                encoding="utf-8",
+            )
+
+            result = subprocess.run(
+                [
+                    "bash",
+                    "-c",
+                    'source "$1"; tool_repair_command "$2" knip',
+                    "test",
+                    str(INSTALL_GUIDANCE),
+                    str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f"Restore {repo.resolve()}/yarn.lock", result.stdout)
+        self.assertIn("create and review it deliberately", result.stdout)
+        self.assertIn(
+            f"yarn --cwd {repo.resolve()} install --immutable",
+            result.stdout,
+        )
+        self.assertNotIn("yarn add", result.stdout)
+
     def test_battery_blocks_when_all_native_tools_missing(self):
         with tempfile.TemporaryDirectory() as td:
             tdp = Path(td)
@@ -762,8 +1302,81 @@ class TestAtomicPreflight(unittest.TestCase):
                  "--repo", str(tdp)],
                 capture_output=True, text=True, env=env, check=False,
             )
-            self.assertEqual(r.returncode, 0)
+            self.assertEqual(r.returncode, 0, r.stderr)
             self.assertTrue((out_dir / "tool-findings.jsonl").is_file())
+
+    def test_findings_publish_failure_keeps_coverage_incomplete(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(scope, languages=[], files_touched_list=[])
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "mv",
+                'target="${!#}"\n'
+                '[[ "$target" == */tool-findings.jsonl ]] && exit 73\n'
+                'exec /bin/mv "$@"',
+            )
+
+            result = subprocess.run(
+                [
+                    "bash", str(SCRIPT),
+                    "--scope", str(scope),
+                    "--output-dir", str(out_dir),
+                    "--repo", str(repo),
+                ],
+                capture_output=True,
+                text=True,
+                env={**os.environ, "PATH": f"{bin_dir}:/usr/bin:/bin"},
+                check=False,
+            )
+
+            coverage = json.loads(scope.read_text(encoding="utf-8"))["tool_coverage"]
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("could not be published atomically", result.stderr)
+            self.assertIn("same-directory rename", result.stderr)
+            self.assertIn("ERROR: rerun:", result.stderr)
+            self.assertFalse(coverage["complete"])
+            self.assertFalse((out_dir / "tool-findings.jsonl").exists())
+            self.assertFalse((out_dir / ".tool-findings.pending.jsonl").exists())
+
+    def test_coverage_persist_failure_discards_published_findings(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(scope, languages=[], files_touched_list=[])
+            out_dir = repo / "out"
+            bin_dir = repo / "bin"
+            _make_shim(
+                bin_dir,
+                "mv",
+                f'/bin/mv "$@" || exit $?\nchmod 0555 {str(repo)!r}',
+            )
+
+            try:
+                result = subprocess.run(
+                    [
+                        "bash", str(SCRIPT),
+                        "--scope", str(scope),
+                        "--output-dir", str(out_dir),
+                        "--repo", str(repo),
+                    ],
+                    capture_output=True,
+                    text=True,
+                    env={**os.environ, "PATH": f"{bin_dir}:/usr/bin:/bin"},
+                    check=False,
+                )
+            finally:
+                repo.chmod(0o755)
+
+            coverage = json.loads(scope.read_text(encoding="utf-8"))["tool_coverage"]
+            self.assertEqual(result.returncode, 4, result.stderr)
+            self.assertIn("coverage state could not be persisted", result.stderr)
+            self.assertIn("atomic replacement", result.stderr)
+            self.assertFalse(coverage["complete"])
+            self.assertFalse((out_dir / "tool-findings.jsonl").exists())
 
     def test_scope_json_records_missing_tools_without_claiming_skips(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1692,10 +2305,9 @@ class TestDefaultRunSafety(unittest.TestCase):
         self.assertNotRegex(body, r'semgrep[^|]+"\$REPO"')
 
     def test_changed_paths_cannot_be_parsed_as_analyzer_options(self):
-        """Changed-file analyzers receive explicit repository-relative paths."""
+        """Changed-file analyzers receive option-safe explicit paths."""
         for function_name, array_name in (
             ("run_jscpd", "code_files"),
-            ("run_markdownlint", "md_files"),
             ("run_semgrep", "code_files"),
             ("run_vale", "prose_files"),
         ):
@@ -1705,6 +2317,8 @@ class TestDefaultRunSafety(unittest.TestCase):
                 body,
                 f"{function_name} does not protect leading-hyphen paths",
             )
+        markdownlint = self._function_body("run_markdownlint")
+        self.assertIn('md_files+=("$REPO/$f")', markdownlint)
 
 
 if __name__ == "__main__":

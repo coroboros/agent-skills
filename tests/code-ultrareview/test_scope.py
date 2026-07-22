@@ -40,6 +40,7 @@ def _init_repo(repo: Path) -> None:
     subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.com"], check=True)
     subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
     subprocess.run(["git", "-C", str(repo), "config", "commit.gpgsign", "false"], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "core.hooksPath", os.devnull], check=True)
 
 
 def _commit(repo: Path, msg: str = "init") -> None:
@@ -325,6 +326,39 @@ class TestInstructionChain(unittest.TestCase):
             (rules / "behavior.md").write_text("# behavior\n", encoding="utf-8")
 
             self.assertEqual(scope.instruction_chain(repo, []), ["AGENTS.md"])
+
+    def test_only_explicitly_referenced_shared_rule_is_loaded(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Read `.agents/rules/a.md` before reviewing.\n",
+                encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "a.md").write_text("# a\n", encoding="utf-8")
+            (rules / "b.md").write_text("# b\n", encoding="utf-8")
+
+            self.assertEqual(scope.instruction_chain(repo, []), [
+                "AGENTS.md",
+                ".agents/rules/a.md",
+            ])
+
+    def test_explicit_dot_slash_shared_rule_is_loaded(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Read `./.agents/rules/a.md` before reviewing.\n",
+                encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "a.md").write_text("# a\n", encoding="utf-8")
+
+            self.assertEqual(scope.instruction_chain(repo, []), [
+                "AGENTS.md",
+                ".agents/rules/a.md",
+            ])
 
     def test_claude_alternate_and_local_entrypoints_are_included(self):
         with tempfile.TemporaryDirectory() as td:

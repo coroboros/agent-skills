@@ -1,6 +1,6 @@
 # Project: [Project Name]
 
-See @README.md for project overview and @package.json for available scripts.
+See @package.json for available scripts.
 
 ## Rule Index
 Read the matching rule before planning or editing that surface:

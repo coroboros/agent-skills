@@ -281,8 +281,9 @@ Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
 **Requirements**
 
-- `pnpm` — enable via Corepack: `corepack enable && corepack prepare pnpm@latest --activate`
-- Node.js ≥ 22
+- stable even-numbered Node.js >= 22.12.0
+- `pnpm` — provision a reviewed version via Corepack (`corepack enable && corepack install --global pnpm@<reviewed-version>`) or the official pnpm installer
+- `jq` — https://jqlang.org/download/
 
 **Usage**
 
@@ -296,14 +297,14 @@ Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
 | Scaffold | Framework | Infra | Key stack |
 |----------|-----------|-------|-----------|
-| `next-cloudflare` | Next.js (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
-| `astro-cloudflare` | Astro (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
+| `next-cloudflare` | Next.js 16 (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
+| `astro-cloudflare` | Astro 6 (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
 
 Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-Runs the official framework CLI, overlays the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. Chains to `/award-design` then `/design-system` for design tokens.
+Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` and `/design-system` are optional follow-on handoffs for design tokens.
 
 ---
 
@@ -334,7 +335,7 @@ Eight-axis judgment code review at full strength, in-session. The default runs e
 | `--repo-kind <kind>` | Override the scope classifier. `<kind>` ∈ `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo at `.code-ultrareview.yaml`; the flag wins on conflict. Invalid value exits 2 |
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
 | `--verify-build` | Run the canonical project test command as an atomic gate. Missing prerequisites, failures, and timeouts block; generic results never re-score findings |
-| `--mutation-test` | Stryker targets changed JS/TS files; configured Pitest/mutmut runs emit changed-file survivors and uncovered mutations. Missing config/tool, incomplete evaluation, or a failed run blocks the review |
+| `--mutation-test` | Stryker targets changed JS/TS files; configured Pitest/mutmut runs emit changed-file survivors and uncovered mutations. Maven and Gradle run from `PATH` in offline mode; `pyproject.toml` mutation config requires Python 3.11+. Missing config/tool, incomplete evaluation, or a failed run blocks the review |
 | `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), one failing test per confirmed bug. Diff preview + per-file confirmation |
 | `--include-prose` | Coherence axis compares README freeform paragraphs (default: structured fields only) |
 | `--axes <list>` | Comma-separated axes subset (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
@@ -350,14 +351,14 @@ Eight-axis judgment code review at full strength, in-session. The default runs e
 
 **Tool battery — tool → axis**
 
-The battery resolves every applicable analyzer before running the first one. It uses directly declared project binaries first, including Yarn Plug'n'Play binaries through Yarn, then installed `PATH` commands, and never resolves packages at runtime. Line-aware findings must overlap a target-side changed hunk; manifest/API findings remain path-scoped. Missing tools block with exit 3 and exact project-aware install plus rerun commands; runtime or invalid-report failures block with exit 4 and repair plus rerun guidance. No axis reviewer or verdict runs with partial deterministic coverage. Run `/code-ultrareview --preflight` to validate the current repo.
+The battery resolves every applicable analyzer before running the first one. A JavaScript declaration at the repository root or one workspace covering every input relevant to that tool is authoritative: the battery runs that direct or hoisted binary. In a Yarn Plug'n'Play project, where `node_modules/.bin` is intentionally absent, it invokes the declared binary through Yarn with network access disabled. Multiple declarations or mixed declared and undeclared package scopes block until the analyzer is declared once at the repository root. Without a declaration, it may use an installed `PATH` command. It never resolves packages at runtime. Missing or failed analyzers block with exact remediation and rerun commands before any axis reviewer or verdict. Run `/code-ultrareview --preflight` to validate the current repo.
 
 | Tool | Axis | Source |
 |------|------|--------|
-| `knip` | Simplification (JS/TS dead code) | declared project / Yarn PnP / PATH |
-| `jscpd` | Simplification (structural cross-language clones; default 15 lines / 100 tokens) | declared project / Yarn PnP / PATH |
-| `markdownlint-cli2` | Documentation (project-overridable structural lint; neutral line-length and compact-table base) | declared project / Yarn PnP / PATH |
-| `api-extractor` | Design/API (TS public surface) | declared project / Yarn PnP / PATH |
+| `knip` | Simplification (JS/TS dead code) | declared project (node_modules/PnP), else PATH |
+| `jscpd` | Simplification (structural cross-language clones; default 15 lines / 100 tokens) | declared project (node_modules/PnP), else PATH |
+| `markdownlint-cli2` | Documentation (project-overridable structural lint; neutral line-length and compact-table base) | declared project (node_modules/PnP), else PATH |
+| `api-extractor` | Design/API (TS public surface) | declared project (node_modules/PnP), else PATH |
 | `lizard` | Simplification (cyclomatic complexity) | PATH |
 | `vulture` | Simplification (dead Python code) | PATH |
 | `semgrep` | Performance (bundled perf-rules only) | PATH |
@@ -506,7 +507,7 @@ It is also invocable directly via `/design-system` with one of seven subcommands
 | `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `~/.agents/output/{project}/design-system/{sub}/report.md` |
 | `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
 | `--json` | `audit`, `diff`, `spec`, `audit-extensions` | Raw JSON instead of the formatted report |
-| `--strict` | `audit`, `audit-extensions` | `audit`: cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
+| `--strict` | `audit`, `audit-extensions` | `audit`: require both `/award-design` catalogs (`anti-patterns.md` and `exemplars.md`); if either is absent, stop with the install command or instruct the user to drop `--strict`. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
 | `--rules` | `spec` | Append the active lint rules table |
 | `--rules-only` | `spec` | Output only the lint rules |
 | `--format tailwind\|dtcg` | `export` | Target format (default: `tailwind`) |
@@ -1134,7 +1135,7 @@ Companion repos install by `owner/repo` shorthand.
 
 ## Pipeline
 
-Skills chain together by design. Each works standalone; chaining covers longer workflows without extra tooling.
+Each skill works standalone. When the referenced companion skills are installed, the optional handoffs below cover longer workflows without extra integration.
 
 ### Thinking → Planning → Building
 
@@ -1222,7 +1223,7 @@ python3 ~/.claude/skills/brand-voice/scripts/lint_all.py .   audit every BRAND-V
 
 <br>
 
-Skill-to-skill links are optional: each skill installs independently. Analyzer and converter operations preflight external CLIs and stop with an exact project-local install plus rerun command when one is absent; they never resolve their own tool packages while the skill runs. Project-creation skills may install the project dependencies the user explicitly requested.
+Skill-to-skill links are optional: each skill installs independently. Declared JavaScript tools restore the existing dependency graph; undeclared JavaScript tools and native CLIs get an exact add/install command. Skills never resolve tool packages while they run. Project-creation skills may install the dependencies the user requested.
 
 ```mermaid
 graph LR

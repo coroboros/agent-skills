@@ -110,7 +110,7 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 
 The canonical `@google/design.md` CLI powers the `audit`, `diff`, `export`, and `spec` subcommands. Each subcommand wraps one CLI invocation with richer UX (fix proposals, git-awareness, human-readable reports). Raw invocations:
 
-Install it as a direct project dependency with the project's package manager (for example, `npm install --save-dev @google/design.md`) or provide `designmd` on `PATH` when the project has no declaration. The wrappers search upward from the target `DESIGN.md` for the nearest matching declaration, then require its local or workspace-hoisted `node_modules/.bin/designmd` or its declared Yarn Plug'n'Play binary. A declared but unavailable project dependency blocks instead of falling back to a different global version. They never invoke a package resolver or download at runtime.
+Install it as a direct project dependency with the project's package manager (for example, `npm install --save-dev @google/design.md`) or provide `designmd` on `PATH` when the project has no declaration. The wrappers search upward from the target `DESIGN.md` for the nearest matching declaration and support local, workspace-hoisted, and Yarn Plug'n'Play binaries. A declared but unavailable project dependency blocks instead of falling back to a different global version. They never invoke a package resolver or download at runtime.
 
 ```bash
 designmd lint DESIGN.md                    # validate
@@ -121,7 +121,7 @@ designmd spec --rules                      # emit spec + lint rules
 
 Nine linting rules: `broken-ref` (error), `missing-primary`, `contrast-ratio`, `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`, `unknown-key`. Full table with severity, interpretation, and fix strategies: `references/cli-reference.md`.
 
-Every CLI-backed subcommand resolves a directly declared project `designmd` first, including Yarn Plug'n'Play projects, then checks `PATH`. A malformed `package.json`, an unavailable declared dependency, a failed command, or malformed CLI output blocks before mutation or success. The wrapper emits a machine-readable status, exact remediation, and rerun command; follow those fields and never fall back to a different global version or a manual structural read.
+Every CLI-backed subcommand resolves the directly declared project `designmd` first, then checks `PATH`. A malformed `package.json`, an unavailable declared dependency, a failed command, or malformed CLI output blocks before mutation or success. The wrapper emits a machine-readable status, exact remediation, and rerun command; follow those fields and never fall back to a different global version or a manual structural read.
 
 ## Framework behavior
 

@@ -1,6 +1,6 @@
 # Project: [Project Name] — Acquisition Site
 
-See @README.md for project overview and @package.json for available scripts.
+See @package.json for available scripts.
 
 ## Rule Index
 Read the matching rule before planning or editing that surface:
@@ -19,8 +19,7 @@ Read the matching rule before planning or editing that surface:
 - If `/design-system` is installed (`skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
 - Otherwise validate directly with the installed project CLI: `pnpm design:audit`
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
-- Tailwind utilities mapped to DESIGN.md tokens via `tailwind.config.ts`
-- CSS custom properties in `src/styles/global.css`
+- Tailwind v4 theme tokens and CSS custom properties in `src/styles/global.css`
 - No component library — Astro components are the components
 
 ## Commands

@@ -24,12 +24,13 @@ if [[ ! -f "$path" ]]; then
   echo "RESULT: path=$path"
   exit 1
 fi
+path_for_cli="$(designmd_absolute_file "$path")"
 
-if resolve_designmd "$path"; then
+if resolve_designmd "$path_for_cli"; then
   :
 else
   resolution_rc=$?
-  emit_designmd_resolution_error "$path" "$resolution_rc" "$RERUN"
+  emit_designmd_resolution_error "$path_for_cli" "$resolution_rc" "$RERUN"
   exit 1
 fi
 
@@ -39,7 +40,7 @@ stderr_tmp="$(mktemp -t design-audit-stderr-XXXXXX)"
 # `lint` exits 1 on findings but still writes valid JSON; only exits >1 are real
 # failures.
 set +e
-run_designmd lint --format json "$path" >"$json_tmp" 2>"$stderr_tmp"
+run_designmd lint --format json "$path_for_cli" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 
@@ -48,7 +49,7 @@ if [[ $rc -gt 1 ]]; then
   echo "RESULT: status=cli-failed"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$path" "$RERUN"
+  emit_designmd_runtime_repair "$path_for_cli" "$RERUN"
   exit 1
 fi
 
@@ -57,7 +58,7 @@ if ! python3 "$SCRIPT_DIR/validate-output.py" lint "$json_tmp" --exit-code "$rc"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: json=$json_tmp"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$path" "$RERUN"
+  emit_designmd_runtime_repair "$path_for_cli" "$RERUN"
   exit 1
 fi
 

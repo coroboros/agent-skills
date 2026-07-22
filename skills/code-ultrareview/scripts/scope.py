@@ -474,9 +474,9 @@ def instruction_chain(repo: Path, files_touched: list[str]) -> list[str]:
     """Return the cross-agent instruction baseline, broadest to most specific.
 
     At each relevant directory, `AGENTS.override.md` wins over `AGENTS.md`.
-    Claude-specific entrypoints and recursive rule files follow the shared
-    entrypoint at the same level. Project paths are relative to `repo`; user
-    instruction paths are absolute.
+    Claude-specific entrypoints and referenced shared rule files follow the
+    shared entrypoint at the same level. Project paths are relative to `repo`;
+    user instruction paths are absolute.
     """
     chain: list[str] = []
     seen: set[Path] = set()
@@ -511,16 +511,41 @@ def instruction_chain(repo: Path, files_touched: list[str]) -> list[str]:
         for rule in sorted(directory.rglob("*.md")):
             add(rule)
 
-    def add_agents_level(directory: Path) -> bool:
-        """Add the effective entrypoint; return whether it references shared rules."""
+    def add_agents_level(directory: Path) -> str | None:
+        """Add and return the effective shared entrypoint at one level."""
         for name in ("AGENTS.override.md", "AGENTS.md"):
             candidate = directory / name
             body = read_nonempty(candidate)
             if body is None:
                 continue
             add(candidate, body)
-            return bool(re.search(r"(?:~/)?\.agents/rules(?:/|\b)", body))
-        return False
+            return body
+        return None
+
+    def add_referenced_shared_rules(body: str, relative_root: Path) -> None:
+        """Add only rule files or directories named by the shared entrypoint."""
+        pattern = re.compile(
+            r"(?<![\w/])(?:(?P<home>~/)|\./)?\.agents/rules"
+            r"(?P<suffix>(?:/[A-Za-z0-9._-]+)*)/?"
+        )
+        for match in pattern.finditer(body):
+            if match.group("home"):
+                home_value = os.environ.get("HOME")
+                if not home_value:
+                    continue
+                root = Path(home_value) / ".agents" / "rules"
+            else:
+                root = relative_root
+            parts = tuple(
+                part for part in match.group("suffix").split("/") if part
+            )
+            if ".." in parts:
+                continue
+            target = root.joinpath(*parts)
+            if parts and target.suffix == ".md":
+                add(target)
+            elif target.is_dir():
+                add_rules(target)
 
     relevant_dirs: set[Path] = {repo}
     for touched in files_touched:
@@ -535,18 +560,21 @@ def instruction_chain(repo: Path, files_touched: list[str]) -> list[str]:
     home = os.environ.get("HOME", "")
     if home:
         home_path = Path(home)
-        if add_agents_level(home_path / ".agents"):
-            add_rules(home_path / ".agents" / "rules")
+        body = add_agents_level(home_path / ".agents")
+        if body is not None:
+            add_referenced_shared_rules(body, home_path / ".agents" / "rules")
         codex_home_value = os.environ.get("CODEX_HOME")
         codex_home = Path(codex_home_value) if codex_home_value else home_path / ".codex"
-        if add_agents_level(codex_home):
-            add_rules(codex_home / "rules")
+        body = add_agents_level(codex_home)
+        if body is not None:
+            add_referenced_shared_rules(body, codex_home / "rules")
         add(home_path / ".claude" / "CLAUDE.md")
         add_rules(home_path / ".claude" / "rules")
 
     for directory in ordered_dirs:
-        if add_agents_level(directory):
-            add_rules(directory / ".agents" / "rules")
+        body = add_agents_level(directory)
+        if body is not None:
+            add_referenced_shared_rules(body, directory / ".agents" / "rules")
         add(directory / "CLAUDE.md")
         add(directory / ".claude" / "CLAUDE.md")
         add(directory / "CLAUDE.local.md")

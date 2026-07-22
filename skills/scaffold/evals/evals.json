@@ -18,10 +18,10 @@
       "id": 2,
       "name": "astro-target-directory-runtime-contract",
       "prompt": "Scaffold astro-cloudflare into ./sites/docs while the current shell remains at the workspace root.",
-      "expected_output": "Astro setup, dependency installation, and helper paths remain scoped to ./sites/docs. The generated design audit uses the declared project-local designmd dependency and never resolves that analyzer at audit time.",
+      "expected_output": "Astro setup removes the minimal generator's empty astro.config.mjs before the controlled overlay, preserves but does not rewrite its README, and keeps dependency installation plus helper paths scoped to ./sites/docs. The generated design audit uses the declared project-local designmd dependency and never resolves that analyzer at audit time.",
       "files": [],
       "expectations": [
-        "Astro integration and dependency commands use pnpm --dir with the explicit project directory.",
+        "Astro integration and dependency commands use pnpm --dir with the explicit project directory; the known generator astro.config.mjs conflict is removed before overlay publication.",
         "The development dependencies include @google/design.md alongside the existing Astro scaffold tooling.",
         "Generated helper-file and CSS paths are explicitly rooted under the project directory.",
         "The generated project exposes pnpm design:audit and contains no npx, pnpm dlx, bunx, uvx, or runtime package resolution instruction."
@@ -38,6 +38,56 @@
         "Both generated templates document skills add coroboros/agent-skills --skill design-system without npx.",
         "Both generated package script sets expose design:audit as designmd lint DESIGN.md.",
         "The setup references and generated templates contain no npx, pnpm dlx, bunx, uvx, or @latest runtime resolution path for Design System."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "occupied-target-hard-stop",
+      "prompt": "Scaffold next-cloudflare into an existing project that already has package.json.",
+      "expected_output": "The preflight reports target=occupied and exits nonzero. The skill stops without asking to overlay, migrate, or overwrite the existing project.",
+      "files": [],
+      "expectations": [
+        "The workflow treats target=occupied as a hard stop rather than a confirmation prompt.",
+        "No framework CLI, dependency install, template overlay, or file write runs after the occupied-target result."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "safe-name-path-and-generator-contracts",
+      "prompt": "Scaffold next-cloudflare into `./customer portals/customer-portal`, then explain the equivalent Astro generator contract. Reject unsafe package and target names before running either generator.",
+      "expected_output": "Quotes every project directory and project name interpolation, preserves a parent path containing spaces, rejects invalid final target names plus `node_modules` and `favicon.ico` before environment checks, and uses deterministic non-interactive generator flags. Next.js stays on create-next-app 16 with --no-linter, --no-react-compiler, --use-pnpm, --disable-git, --no-agents-md, and --yes. Astro uses create-astro 5 only as the compatible generator, then explicitly installs the Astro 6 runtime stack into the quoted target.",
+      "files": [],
+      "expectations": [
+        "A valid target under a parent path containing spaces is passed as one argument through preflight, generation, overlay, dependency installation, and verification; an invalid final target directory name fails before generation.",
+        "Reserved npm names node_modules and favicon.ico fail before pnpm, node, or target-state checks.",
+        "The Next.js generator suppresses its own instructions, React Compiler, linter, and git initialization with documented flags and runs without prompts.",
+        "The Astro generator/runtime major split is explicit: create-astro 5 scaffolds, then astro 6 and its compatible Cloudflare adapter are installed."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "prerequisites-fail-before-generation-or-overlay",
+      "prompt": "Scaffold astro-cloudflare when Node 22.11.0 is active and jq is unavailable. Explain how the strict TypeScript config is applied after prerequisites are repaired.",
+      "expected_output": "Preflight requires stable even-numbered Node >=22.12.0, pnpm, and jq and exits nonzero before generation when any prerequisite is missing. Odd-numbered Node releases report node=unsupported. The overlay requires and validates jq and both JSON inputs before writing templates. create-astro 5 is invoked without the unsupported --typescript flag; the shared overlay installs the strict Astro tsconfig deterministically.",
+      "files": [],
+      "expectations": [
+        "Node 22.11.0 is reported as too old with required=22.12.0; prerelease and odd-numbered versions report node=unsupported.",
+        "A missing jq result blocks before the framework generator; overlay validation also occurs before any template or package.json write.",
+        "The Astro generator command has no --typescript flag, and the overlay writes a tsconfig extending astro/tsconfigs/strict.",
+        "The generated project records Node 22.12.0 in .node-version and provides .dev.vars.example without overwriting user secrets."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "generated-ui-baseline-contracts",
+      "prompt": "Inspect the generated Tailwind, shadcn/ui, and package-name contracts for both scaffolds, including a scoped npm project name.",
+      "expected_output": "Both scaffolds retain a working Tailwind v4 import. Astro generates a page that imports its global stylesheet and never references tailwind.config. Next initializes the declared shadcn 4 project dependency through pnpm exec without an ephemeral package runner. The validated npm package name, including a scoped name, is written to package.json while the derived Cloudflare slug remains machine-safe.",
+      "files": [],
+      "expectations": [
+        "The shared overlay ensures exactly one @import \"tailwindcss\" statement while preserving existing CSS content.",
+        "The generated Astro page imports src/styles/global.css, and generated Astro instructions use Tailwind v4 CSS-first tokens without tailwind.config.",
+        "Next declares shadcn@4 and runs the project-local CLI through pnpm exec with explicit non-interactive defaults; it uses no npx or pnpm dlx path.",
+        "package.json receives the validated npm name verbatim, while Wrangler templates continue to use the derived Cloudflare-safe slug."
       ]
     }
   ]

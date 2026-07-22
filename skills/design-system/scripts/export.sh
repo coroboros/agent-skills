@@ -32,12 +32,13 @@ if [[ ! -f "$path" ]]; then
   echo "RESULT: path=$path"
   exit 1
 fi
+path_for_cli="$(designmd_absolute_file "$path")"
 
-if resolve_designmd "$path"; then
+if resolve_designmd "$path_for_cli"; then
   :
 else
   resolution_rc=$?
-  emit_designmd_resolution_error "$path" "$resolution_rc" "$RERUN"
+  emit_designmd_resolution_error "$path_for_cli" "$resolution_rc" "$RERUN"
   exit 1
 fi
 
@@ -56,11 +57,11 @@ else
 fi
 stderr_tmp="$(mktemp -t design-export-stderr-XXXXXX)"
 
-if ! run_designmd export --format "$format" "$path" >"$work_out" 2>"$stderr_tmp"; then
+if ! run_designmd export --format "$format" "$path_for_cli" >"$work_out" 2>"$stderr_tmp"; then
   rm -f "$work_out"
   echo "RESULT: status=cli-failed"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$path" "$RERUN"
+  emit_designmd_runtime_repair "$path_for_cli" "$RERUN"
   exit 1
 fi
 
@@ -68,7 +69,7 @@ if ! python3 "$SCRIPT_DIR/validate-output.py" "export-$format" "$work_out"; then
   rm -f "$work_out"
   echo "RESULT: status=cli-invalid-output"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$path" "$RERUN"
+  emit_designmd_runtime_repair "$path_for_cli" "$RERUN"
   exit 1
 fi
 

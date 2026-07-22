@@ -527,7 +527,8 @@ class TestDiffScope(unittest.TestCase):
             [finding], ["Cargo.toml"], Path("/project")
         )
 
-        self.assertEqual(filtered, [finding])
+        self.assertEqual(filtered[0]["file"], "Cargo.toml")
+        self.assertEqual(finding["file"], "/project/Cargo.toml")
 
     def test_empty_changed_file_set_drops_repository_wide_findings(self):
         findings = bi.parse_knip(_read("knip.json"))

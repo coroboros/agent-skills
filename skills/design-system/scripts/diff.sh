@@ -29,12 +29,14 @@ if [[ ! -f "$after" ]]; then
   echo "RESULT: path=$after"
   exit 1
 fi
+before_for_cli="$(designmd_absolute_file "$before")"
+after_for_cli="$(designmd_absolute_file "$after")"
 
-if resolve_designmd "$after"; then
+if resolve_designmd "$after_for_cli"; then
   :
 else
   resolution_rc=$?
-  emit_designmd_resolution_error "$after" "$resolution_rc" "$RERUN"
+  emit_designmd_resolution_error "$after_for_cli" "$resolution_rc" "$RERUN"
   exit 1
 fi
 
@@ -43,7 +45,7 @@ stderr_tmp="$(mktemp -t design-diff-stderr-XXXXXX)"
 
 # `diff` exits 1 on regression, 0 on no regression. Both are successful CLI runs.
 set +e
-run_designmd diff --format json "$before" "$after" >"$json_tmp" 2>"$stderr_tmp"
+run_designmd diff --format json "$before_for_cli" "$after_for_cli" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 
@@ -52,7 +54,7 @@ if [[ $rc -gt 1 ]]; then
   echo "RESULT: status=cli-failed"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$after" "$RERUN"
+  emit_designmd_runtime_repair "$after_for_cli" "$RERUN"
   exit 1
 fi
 
@@ -61,7 +63,7 @@ if ! python3 "$SCRIPT_DIR/validate-output.py" diff "$json_tmp" --exit-code "$rc"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: json=$json_tmp"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$after" "$RERUN"
+  emit_designmd_runtime_repair "$after_for_cli" "$RERUN"
   exit 1
 fi
 

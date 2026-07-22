@@ -104,6 +104,35 @@ DTCG_EXPORT = json.dumps(
 )
 
 
+def _make_yarn_pnp_stub(bin_dir: Path) -> None:
+    _make_stub(
+        bin_dir,
+        "yarn",
+        "#!/bin/bash\n"
+        '[[ "$COREPACK_ENABLE_NETWORK" == "0" ]] || exit 65\n'
+        '[[ "$COREPACK_DEFAULT_TO_LATEST" == "0" ]] || exit 66\n'
+        '[[ "$YARN_ENABLE_NETWORK" == "0" ]] || exit 67\n'
+        'if [[ "$3" == "bin" && "$4" == "designmd" ]]; then exit 0; fi\n'
+        '[[ "$3" == "run" && "$4" == "-B" && "$5" == "designmd" ]] || exit 64\n'
+        'if [[ "$6" == "--version" ]]; then printf "0.3.0\\n"; exit 0; fi\n'
+        'case "$6" in\n'
+        '  lint)\n'
+        '    [[ "$9" == /* && -f "$9" ]] || exit 68\n'
+        f"    printf '%s\\n' '{LINT_CLEAN}'\n"
+        '    ;;\n'
+        '  diff)\n'
+        '    [[ "$9" == /* && -f "$9" && "${10}" == /* && -f "${10}" ]] || exit 69\n'
+        f"    printf '%s\\n' '{DIFF_CLEAN}'\n"
+        '    ;;\n'
+        '  export)\n'
+        '    [[ "$9" == /* && -f "$9" ]] || exit 70\n'
+        f"    printf '%s\\n' '{TAILWIND_EXPORT}'\n"
+        '    ;;\n'
+        '  *) exit 71 ;;\n'
+        'esac\n',
+    )
+
+
 def _make_json_stub(bin_dir: Path, payload: str, rc: int = 0) -> None:
     _make_stub(
         bin_dir,
@@ -141,6 +170,22 @@ class _TmpMixin:
         p = self.tmp / name
         p.write_text("# DESIGN\n")
         return p
+
+    def _nested_yarn_pnp_project(self) -> tuple[Path, Path]:
+        root = self.tmp / "workspace"
+        nested = root / "packages" / "web"
+        nested.mkdir(parents=True)
+        (root / "package.json").write_text(
+            '{"private":true,"packageManager":"yarn@4.9.2",'
+            '"workspaces":["packages/*"]}\n',
+            encoding="utf-8",
+        )
+        (root / "yarn.lock").write_text("", encoding="utf-8")
+        (nested / "package.json").write_text(
+            '{"name":"web","devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        return root, nested
 
 
 # ---------- audit.sh ----------
@@ -190,6 +235,23 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("status"), "ok")
         self.assertEqual(kv.get("exit-code"), "1")
 
+    def test_nested_yarn_pnp_accepts_caller_relative_path(self):
+        root, nested = self._nested_yarn_pnp_project()
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_yarn_pnp_stub(self.fake_bin)
+
+        result = _run(
+            "audit.sh",
+            str(design.relative_to(root)),
+            fake_bin=self.fake_bin,
+            cwd=root,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "ok")
+        self.assertEqual(_result_kv(result.stdout).get("cli-wrapper"), "yarn-pnp")
+
     def test_invalid_json_schema_blocks_the_audit(self):
         _make_json_stub(self.fake_bin, "{}")
         design = self._design_md()
@@ -237,7 +299,11 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         kv = _result_kv(r.stdout)
         self.assertEqual(kv.get("status"), "designmd-missing")
-        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+        self.assertEqual(
+            kv.get("install"),
+            f"npm --prefix {self.tmp.resolve()} install --save-dev "
+            "@google/design.md",
+        )
         self.assertEqual(
             kv.get("rerun"),
             f"bash {SCRIPTS / 'audit.sh'} {design}",
@@ -292,10 +358,10 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
 
     def test_missing_cli_install_command_matches_project_package_manager(self):
         cases = (
-            ("pnpm", '{"packageManager":"pnpm@10.0.0"}\n', "pnpm add -D @google/design.md"),
-            ("yarn", '{"packageManager":"yarn@4.0.0"}\n', "yarn add -D @google/design.md"),
-            ("bun", '{"packageManager":"bun@1.2.0"}\n', "bun add -d @google/design.md"),
-            ("npm", '{"packageManager":"npm@11.0.0"}\n', "npm install --save-dev @google/design.md"),
+            ("pnpm", '{"packageManager":"pnpm@10.0.0"}\n', "pnpm --dir {project} add -D @google/design.md"),
+            ("yarn", '{"packageManager":"yarn@4.0.0"}\n', "yarn --cwd {project} add -D @google/design.md"),
+            ("bun", '{"packageManager":"bun@1.2.0"}\n', "bun --cwd {project} add -d @google/design.md"),
+            ("npm", '{"packageManager":"npm@11.0.0"}\n', "npm --prefix {project} install --save-dev @google/design.md"),
         )
         for name, package_json, expected in cases:
             with self.subTest(package_manager=name):
@@ -306,7 +372,10 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
                 design.write_text("# DESIGN\n", encoding="utf-8")
                 result = _run("audit.sh", str(design))
                 self.assertEqual(result.returncode, 1)
-                self.assertEqual(_result_kv(result.stdout).get("install"), expected)
+                self.assertEqual(
+                    _result_kv(result.stdout).get("install"),
+                    expected.format(project=project.resolve()),
+                )
 
     def test_pnpm_workspace_install_targets_the_workspace_root(self):
         (self.tmp / "pnpm-workspace.yaml").write_text(
@@ -323,7 +392,75 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertEqual(
             _result_kv(result.stdout).get("install"),
-            "pnpm add -Dw @google/design.md",
+            f"pnpm --dir {self.tmp.resolve()} add -Dw @google/design.md",
+        )
+
+    def test_nested_package_install_command_makes_exact_rerun_succeed(self):
+        root = self.tmp / "workspace"
+        root.mkdir()
+        root_manifest = root / "package.json"
+        root_manifest.write_text('{"name":"unrelated-root"}\n', encoding="utf-8")
+        nested = root / "vendor" / "design"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"name":"vendored-design"}\n', encoding="utf-8"
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_stub(
+            self.fake_bin,
+            "npm",
+            "#!/bin/bash\n"
+            '[[ "$1" == "--prefix" && "$3" == "install" ]] || exit 61\n'
+            '[[ "$4" == "--save-dev" && "$5" == "@google/design.md" ]] || exit 62\n'
+            'project="$2"\n'
+            'mkdir -p "$project/node_modules/.bin"\n'
+            'printf \'%s\\n\' \'{"name":"vendored-design","devDependencies":{"@google/design.md":"0.3.0"}}\' > "$project/package.json"\n'
+            'cat > "$project/node_modules/.bin/designmd" <<\'SHIM\'\n'
+            "#!/bin/sh\n"
+            'if [ "$1" = "--version" ]; then printf \'0.3.0\\n\'; exit 0; fi\n'
+            f"printf '%s\\n' '{LINT_CLEAN}'\n"
+            "SHIM\n"
+            'chmod +x "$project/node_modules/.bin/designmd"\n',
+        )
+        workspace_env = {"DESIGNMD_WORKSPACE_ROOT": str(root)}
+
+        first = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env=workspace_env,
+        )
+        install = _result_kv(first.stdout).get("install", "")
+        installed = subprocess.run(
+            ["bash", "-c", install],
+            capture_output=True,
+            text=True,
+            env={
+                **os.environ,
+                "PATH": f"{self.fake_bin}:/usr/bin:/bin:/usr/sbin:/sbin",
+            },
+            timeout=10,
+        )
+        rerun = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env=workspace_env,
+        )
+
+        self.assertEqual(first.returncode, 1, first.stdout + first.stderr)
+        self.assertEqual(
+            install,
+            f"npm --prefix {nested.resolve()} install --save-dev "
+            "@google/design.md",
+        )
+        self.assertEqual(installed.returncode, 0, installed.stderr)
+        self.assertEqual(rerun.returncode, 0, rerun.stdout + rerun.stderr)
+        self.assertEqual(_result_kv(rerun.stdout).get("status"), "ok")
+        self.assertEqual(
+            root_manifest.read_text(encoding="utf-8"),
+            '{"name":"unrelated-root"}\n',
         )
 
     def test_project_local_cli_precedes_path(self):
@@ -368,6 +505,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
             "#!/bin/bash\n"
             '[[ "$COREPACK_ENABLE_NETWORK" == "0" ]] || exit 65\n'
             '[[ "$COREPACK_DEFAULT_TO_LATEST" == "0" ]] || exit 66\n'
+            '[[ "$YARN_ENABLE_NETWORK" == "0" ]] || exit 67\n'
             'if [[ "$3" == "bin" && "$4" == "designmd" ]]; then exit 0; fi\n'
             'if [[ "$3" != "run" || "$4" != "-B" || "$5" != "designmd" ]]; then exit 64; fi\n'
             f'printf "%s\\n" "$*" >> "{marker}"\n'
@@ -409,6 +547,61 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertIn("install --immutable", metadata.get("install", ""))
         self.assertIn("audit.sh", metadata.get("rerun", ""))
 
+    def test_declared_yarn_without_lockfile_requires_reviewed_restore(self):
+        project = self.tmp / "yarn-no-lock"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text(
+            '{"packageManager":"yarn@4.9.2",'
+            '"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        _make_stub(self.fake_bin, "yarn", "#!/bin/sh\nexit 1\n")
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "yarn-runtime-unavailable")
+        install = metadata.get("install", "")
+        self.assertIn(f"Restore {project.resolve()}/yarn.lock", install)
+        self.assertIn("create and review it deliberately", install)
+        self.assertIn(
+            f"yarn --cwd {project.resolve()} install --immutable",
+            install,
+        )
+        self.assertNotIn("yarn add", install)
+        self.assertIn("audit.sh", metadata.get("rerun", ""))
+
+    def test_yarn_repair_ignores_unrelated_ancestor_package_manager(self):
+        ancestor = self.tmp / "unrelated"
+        ancestor.mkdir()
+        (ancestor / "package.json").write_text(
+            '{"packageManager":"yarn@9.9.9"}\n', encoding="utf-8"
+        )
+        project = ancestor / "project"
+        project.mkdir()
+        design = project / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        (project / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        (project / "yarn.lock").write_text("", encoding="utf-8")
+        _make_stub(self.fake_bin, "yarn", "#!/bin/sh\nexit 1\n")
+
+        result = _run("audit.sh", str(design), fake_bin=self.fake_bin)
+
+        self.assertEqual(result.returncode, 1)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "yarn-runtime-unavailable")
+        install = metadata.get("install", "")
+        self.assertNotIn("yarn@9.9.9", install)
+        self.assertIn('"packageManager": "yarn@<reviewed-version>"', install)
+        self.assertIn(str((project / "package.json").resolve()), install)
+        self.assertIn("install --immutable", install)
+
     def test_declared_node_modules_dependency_never_falls_back_to_global_cli(self):
         project = self.tmp / "npm-project"
         project.mkdir()
@@ -418,6 +611,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
             '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
             encoding="utf-8",
         )
+        (project / "package-lock.json").write_text("{}\n", encoding="utf-8")
         marker = self.tmp / "global-ran"
         _make_stub(
             self.fake_bin,
@@ -434,8 +628,9 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(metadata.get("status"), "designmd-missing")
         self.assertEqual(
             metadata.get("install"),
-            "npm install --save-dev @google/design.md",
+            f"npm --prefix {project.resolve()} ci",
         )
+        self.assertNotIn("@google/design.md", metadata.get("install", ""))
         self.assertFalse(marker.exists())
 
     def test_undeclared_project_binary_does_not_shadow_path(self):
@@ -456,6 +651,10 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         _make_json_stub(local_bin, LINT_CLEAN)
         project_dir = self.tmp / "packages" / "web"
         project_dir.mkdir(parents=True)
+        (self.tmp / "package.json").write_text(
+            '{"private":true,"workspaces":["packages/*"]}\n',
+            encoding="utf-8",
+        )
         (project_dir / "package.json").write_text(
             '{"devDependencies":{"@google/design.md":"0.1.1"}}\n',
             encoding="utf-8",
@@ -471,6 +670,31 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
 
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(_result_kv(r.stdout).get("status"), "ok")
+
+    def test_pnpm_workspace_dependency_can_use_hoisted_binary(self):
+        root = self.tmp / "workspace"
+        local_bin = root / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_json_stub(local_bin, LINT_CLEAN)
+        (root / "pnpm-workspace.yaml").write_text(
+            "packages:\n  - 'packages/*'\n", encoding="utf-8"
+        )
+        project_dir = root / "packages" / "web"
+        project_dir.mkdir(parents=True)
+        (project_dir / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        design = project_dir / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(
+            Path(_result_kv(result.stdout)["cli"]).resolve(),
+            (local_bin / "designmd").resolve(),
+        )
 
     def test_configured_workspace_root_rejects_external_input(self):
         workspace = self.tmp / "workspace"
@@ -541,6 +765,168 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
             (local_bin / "designmd").resolve(),
         )
 
+    def test_nested_npm_declaration_restores_from_workspace_lock(self):
+        root = self.tmp / "workspace"
+        root.mkdir()
+        (root / "package.json").write_text(
+            '{"private":true,"workspaces":["packages/*"]}\n',
+            encoding="utf-8",
+        )
+        (root / "package-lock.json").write_text("{}\n", encoding="utf-8")
+        nested = root / "packages" / "web"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(
+            _result_kv(result.stdout).get("install"),
+            f"npm --prefix {root.resolve()} ci",
+        )
+
+    def test_unrelated_root_npm_lock_does_not_claim_nested_package(self):
+        root = self.tmp / "workspace"
+        root.mkdir()
+        (root / "package.json").write_text(
+            '{"name":"root-app"}\n', encoding="utf-8"
+        )
+        (root / "package-lock.json").write_text("{}\n", encoding="utf-8")
+        nested = root / "vendor" / "design"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 1)
+        self.assertEqual(
+            _result_kv(result.stdout).get("install"),
+            f"npm --prefix {nested.resolve()} install",
+        )
+
+    def test_unrelated_root_binary_does_not_claim_nested_package(self):
+        root = self.tmp / "workspace"
+        local_bin = root / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        _make_json_stub(local_bin, LINT_CLEAN)
+        (root / "package.json").write_text(
+            '{"name":"root-app"}\n', encoding="utf-8"
+        )
+        nested = root / "vendor" / "design"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+
+        result = _run("audit.sh", str(design))
+
+        self.assertEqual(result.returncode, 1)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "designmd-missing")
+        self.assertEqual(
+            metadata.get("install"),
+            f"npm --prefix {nested.resolve()} install",
+        )
+
+    def test_unrelated_root_declaration_and_binary_do_not_claim_nested_package(self):
+        root = self.tmp / "workspace"
+        local_bin = root / "node_modules" / ".bin"
+        local_bin.mkdir(parents=True)
+        marker = self.tmp / "unrelated-root-ran"
+        _make_stub(
+            local_bin,
+            "designmd",
+            "#!/bin/sh\n"
+            f'touch "{marker}"\n'
+            "printf '%s\\n' '0.3.0'\n",
+        )
+        (root / "package.json").write_text(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+            encoding="utf-8",
+        )
+        nested = root / "vendor" / "design"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"name":"vendored-design"}\n', encoding="utf-8"
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+
+        result = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env={"DESIGNMD_WORKSPACE_ROOT": str(root)},
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "ok")
+        self.assertEqual(metadata.get("cli-wrapper"), "path")
+        self.assertFalse(marker.exists())
+
+    def test_malformed_unrelated_root_manifest_does_not_block_nested_package(self):
+        root = self.tmp / "workspace"
+        root.mkdir()
+        (root / "package.json").write_text("{broken\n", encoding="utf-8")
+        nested = root / "vendor" / "design"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"name":"vendored-design"}\n', encoding="utf-8"
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+
+        result = _run(
+            "audit.sh",
+            str(design),
+            fake_bin=self.fake_bin,
+            extra_env={"DESIGNMD_WORKSPACE_ROOT": str(root)},
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        metadata = _result_kv(result.stdout)
+        self.assertEqual(metadata.get("status"), "ok")
+        self.assertEqual(metadata.get("cli-wrapper"), "path")
+
+    def test_unrelated_non_npm_lock_does_not_claim_nested_package(self):
+        for lockfile in ("pnpm-lock.yaml", "yarn.lock", "bun.lock"):
+            with self.subTest(lockfile=lockfile):
+                root = self.tmp / lockfile.replace(".", "-")
+                root.mkdir()
+                (root / lockfile).write_text("\n", encoding="utf-8")
+                nested = root / "vendor" / "design"
+                nested.mkdir(parents=True)
+                (nested / "package.json").write_text(
+                    '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
+                    encoding="utf-8",
+                )
+                design = nested / "DESIGN.md"
+                design.write_text("# DESIGN\n", encoding="utf-8")
+
+                result = _run("audit.sh", str(design))
+
+                self.assertEqual(result.returncode, 1)
+                self.assertEqual(
+                    _result_kv(result.stdout).get("install"),
+                    f"npm --prefix {nested.resolve()} install",
+                )
+
     def test_broken_cli_reports_repair_instruction(self):
         _make_stub(self.fake_bin, "designmd", "#!/bin/sh\nexit 9\n")
         design = self._design_md()
@@ -550,7 +936,11 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         kv = _result_kv(result.stdout)
         self.assertEqual(kv.get("status"), "designmd-unsupported")
-        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+        self.assertEqual(
+            kv.get("install"),
+            f"npm --prefix {self.tmp.resolve()} install --save-dev "
+            "@google/design.md",
+        )
 
     def test_success_removes_stderr_temp_file(self):
         _make_json_stub(self.fake_bin, LINT_CLEAN)
@@ -629,7 +1019,11 @@ class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         kv = _result_kv(result.stdout)
         self.assertEqual(kv.get("status"), "designmd-missing")
-        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+        self.assertEqual(
+            kv.get("install"),
+            f"npm --prefix {self.tmp.resolve()} install --save-dev "
+            "@google/design.md",
+        )
 
     def test_no_regression_exit_0(self):
         _make_json_stub(self.fake_bin, DIFF_CLEAN)
@@ -649,6 +1043,26 @@ class TestDiffCliPropagation(_TmpMixin, unittest.TestCase):
         kv = _result_kv(r.stdout)
         self.assertEqual(kv.get("status"), "ok")
         self.assertEqual(kv.get("regression"), "true")
+
+    def test_nested_yarn_pnp_accepts_caller_relative_paths(self):
+        root, nested = self._nested_yarn_pnp_project()
+        before = nested / "before.md"
+        after = nested / "after.md"
+        before.write_text("# Before\n", encoding="utf-8")
+        after.write_text("# After\n", encoding="utf-8")
+        _make_yarn_pnp_stub(self.fake_bin)
+
+        result = _run(
+            "diff.sh",
+            str(before.relative_to(root)),
+            str(after.relative_to(root)),
+            fake_bin=self.fake_bin,
+            cwd=root,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "ok")
+        self.assertEqual(_result_kv(result.stdout).get("cli-wrapper"), "yarn-pnp")
 
     def test_payload_and_exit_code_disagreement_blocks_the_diff(self):
         _make_json_stub(self.fake_bin, DIFF_REGRESSION, rc=0)
@@ -727,7 +1141,11 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         kv = _result_kv(result.stdout)
         self.assertEqual(kv.get("status"), "designmd-missing")
-        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+        self.assertEqual(
+            kv.get("install"),
+            f"npm --prefix {self.tmp.resolve()} install --save-dev "
+            "@google/design.md",
+        )
 
     def test_success_emits_full_schema(self):
         # Stub writes to stdout, which the script redirects into the output file.
@@ -743,6 +1161,24 @@ class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("bytes"), str(len(payload) + 1))
         out = kv.get("output", "")
         self.assertEqual(Path(out).read_text(), payload + "\n")
+
+    def test_nested_yarn_pnp_accepts_caller_relative_path(self):
+        root, nested = self._nested_yarn_pnp_project()
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_yarn_pnp_stub(self.fake_bin)
+
+        result = _run(
+            "export.sh",
+            "tailwind",
+            str(design.relative_to(root)),
+            fake_bin=self.fake_bin,
+            cwd=root,
+        )
+
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(_result_kv(result.stdout).get("status"), "ok")
+        self.assertEqual(_result_kv(result.stdout).get("cli-wrapper"), "yarn-pnp")
 
     def test_explicit_output_path_honoured(self):
         _make_json_stub(self.fake_bin, DTCG_EXPORT)
@@ -866,7 +1302,11 @@ class TestSpecCliResolution(_TmpMixin, unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         kv = _result_kv(r.stdout)
         self.assertEqual(kv.get("status"), "designmd-missing")
-        self.assertEqual(kv.get("install"), "npm install --save-dev @google/design.md")
+        self.assertEqual(
+            kv.get("install"),
+            f"npm --prefix {self.tmp.resolve()} install --save-dev "
+            "@google/design.md",
+        )
 
     def test_project_local_cli_receives_flags(self):
         local_bin = self.tmp / "node_modules" / ".bin"
