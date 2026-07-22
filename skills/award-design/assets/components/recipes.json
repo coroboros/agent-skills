@@ -277,7 +277,7 @@
           "role": "name-card",
           "form": "name-card",
           "pairs": {
-            "h1": "char-assemble"
+            "h1": "scramble-decode"
           },
           "intensity": 6
         },
@@ -298,8 +298,8 @@
       ],
       "footer": {"form": "bare-cue", "note": "bare-cue (SCROLL UP / 2025.)"},
       "loader": "counter-loader (bare 1-100, no curtain)",
-      "paceNotes": "the hero holds no image; the first full-bleed still below the fold is the reward and the climax; intensity holds flat-high through the stack; the close is a bare cue",
-      "whenToUse": "minimalist portfolio where the work is the whole argument and the hero is a text-only name card"
+      "paceNotes": "the scramble-decode type intro assembles over the opening gallery figures; each full-bleed still reveals on its masked inverse-scale carry; intensity holds flat-high through the stack; the close is a bare cue",
+      "whenToUse": "minimalist portfolio where the work is the argument \u2014 a type-forward name/index intro over a MAIN GALLERY of full-bleed figures (Contassot, Vitasovic). The earlier text-only, imageless, withholding-hero framing was refuted by the Codrops case study; the intro assembles over the opening gallery, it does not withhold it"
     },
     {
       "id": "scene-scroll-terminal",

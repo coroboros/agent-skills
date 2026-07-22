@@ -192,6 +192,18 @@ class TestRecipes(unittest.TestCase):
                     self.assertTrue(f.get("inWorld") is True,
                                     "a footer with no form/component must be an in-world sign-off")
 
+    def test_minimalist_structural_variety(self):
+        """Two rigid recipes meant the same page shape every build. Minimalist now
+        carries three macrostructures, and gallery-stack no longer contradicts its
+        own playbook (the 'imageless withholding hero' framing was refuted)."""
+        macros = {r["macrostructure"] for r in self.recipes if r["archetype"] == "minimalist"}
+        self.assertGreaterEqual(len(macros), 3,
+                                "minimalist needs structural variety, not one skeleton")
+        gs = [r for r in self.recipes if r["id"] == "gallery-stack-contassot"][0]
+        self.assertNotIn("text-only name card", gs["whenToUse"])
+        self.assertNotIn("holds no image", gs["paceNotes"])
+        self.assertIn("MAIN GALLERY", gs["whenToUse"])
+
     def test_minimalist_reaches_the_ambitious_medium(self):
         """Terminal (our minimalist exemplar) ships a canvas frame-sequence + a
         Three.js showreel (Pacome); the skill had locked the rendered medium out of
