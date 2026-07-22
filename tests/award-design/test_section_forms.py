@@ -398,6 +398,16 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         ap = (SKILL_DIR / "references" / "anti-patterns.md").read_text(encoding="utf-8")
         self.assertIn("or reading kit", ap)
 
+    def test_density_aliveness_bar(self):
+        """Cennini cleared every floor and shipped "empty and dead" because no gate
+        measured richness. The floor is not the ceiling; the exemplar is the bar,
+        and a sparse/static build fails the density/aliveness read comparatively."""
+        self.assertIn("This is the FLOOR a quiet build clears, never the ceiling", self.skill)
+        self.assertIn("never the experiential richness", self.skill)
+        self.assertIn("The density/aliveness bar", self.preflight)
+        self.assertIn("empty and dead", self.preflight)
+        self.assertIn("does the build carry as many live channels", self.rubric)
+
     def test_felt_text_effect_gate(self):
         """Cennini shipped "zero text effect" because the gate accepted a static
         colour accent / an imperceptible heading wipe, and the anti-monoculture
