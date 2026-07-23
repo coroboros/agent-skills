@@ -171,6 +171,24 @@ class _TmpMixin:
         p.write_text("# DESIGN\n")
         return p
 
+    def _nested_independent_design(
+        self,
+        root_manifest: str,
+    ) -> tuple[Path, Path]:
+        root = self.tmp / "workspace"
+        root.mkdir()
+        (root / "package.json").write_text(root_manifest, encoding="utf-8")
+        nested = root / "vendor" / "design"
+        nested.mkdir(parents=True)
+        (nested / "package.json").write_text(
+            '{"name":"vendored-design"}\n',
+            encoding="utf-8",
+        )
+        design = nested / "DESIGN.md"
+        design.write_text("# DESIGN\n", encoding="utf-8")
+        _make_json_stub(self.fake_bin, LINT_CLEAN)
+        return root, design
+
     def _nested_yarn_pnp_project(self) -> tuple[Path, Path]:
         root = self.tmp / "workspace"
         nested = root / "packages" / "web"
@@ -842,7 +860,9 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         )
 
     def test_unrelated_root_declaration_and_binary_do_not_claim_nested_package(self):
-        root = self.tmp / "workspace"
+        root, design = self._nested_independent_design(
+            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n'
+        )
         local_bin = root / "node_modules" / ".bin"
         local_bin.mkdir(parents=True)
         marker = self.tmp / "unrelated-root-ran"
@@ -853,18 +873,6 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
             f'touch "{marker}"\n'
             "printf '%s\\n' '0.3.0'\n",
         )
-        (root / "package.json").write_text(
-            '{"devDependencies":{"@google/design.md":"0.3.0"}}\n',
-            encoding="utf-8",
-        )
-        nested = root / "vendor" / "design"
-        nested.mkdir(parents=True)
-        (nested / "package.json").write_text(
-            '{"name":"vendored-design"}\n', encoding="utf-8"
-        )
-        design = nested / "DESIGN.md"
-        design.write_text("# DESIGN\n", encoding="utf-8")
-        _make_json_stub(self.fake_bin, LINT_CLEAN)
 
         result = _run(
             "audit.sh",
@@ -880,17 +888,7 @@ class TestAuditCliPropagation(_TmpMixin, unittest.TestCase):
         self.assertFalse(marker.exists())
 
     def test_malformed_unrelated_root_manifest_does_not_block_nested_package(self):
-        root = self.tmp / "workspace"
-        root.mkdir()
-        (root / "package.json").write_text("{broken\n", encoding="utf-8")
-        nested = root / "vendor" / "design"
-        nested.mkdir(parents=True)
-        (nested / "package.json").write_text(
-            '{"name":"vendored-design"}\n', encoding="utf-8"
-        )
-        design = nested / "DESIGN.md"
-        design.write_text("# DESIGN\n", encoding="utf-8")
-        _make_json_stub(self.fake_bin, LINT_CLEAN)
+        root, design = self._nested_independent_design("{broken\n")
 
         result = _run(
             "audit.sh",

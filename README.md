@@ -283,7 +283,7 @@ Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
 - stable even-numbered Node.js >= 22.12.0
 - `pnpm` — provision a reviewed version via Corepack (`corepack enable && corepack install --global pnpm@<reviewed-version>`) or the official pnpm installer
-- `jq` — https://jqlang.org/download/
+- [`jq`](https://jqlang.org/download/)
 
 **Usage**
 
@@ -354,7 +354,7 @@ Eight-axis judgment code review at full strength, in-session. The default runs e
 The battery resolves every applicable analyzer before running the first one. A JavaScript declaration at the repository root or one workspace covering every input relevant to that tool is authoritative: the battery runs that direct or hoisted binary. In a Yarn Plug'n'Play project, where `node_modules/.bin` is intentionally absent, it invokes the declared binary through Yarn with network access disabled. Multiple declarations or mixed declared and undeclared package scopes block until the analyzer is declared once at the repository root. Without a declaration, it may use an installed `PATH` command. It never resolves packages at runtime. Missing or failed analyzers block with exact remediation and rerun commands before any axis reviewer or verdict. Run `/code-ultrareview --preflight` to validate the current repo.
 
 | Tool | Axis | Source |
-|------|------|--------|
+| --- | --- | --- |
 | `knip` | Simplification (JS/TS dead code) | declared project (node_modules/PnP), else PATH |
 | `jscpd` | Simplification (structural cross-language clones; default 15 lines / 100 tokens) | declared project (node_modules/PnP), else PATH |
 | `markdownlint-cli2` | Documentation (project-overridable structural lint; neutral line-length and compact-table base) | declared project (node_modules/PnP), else PATH |

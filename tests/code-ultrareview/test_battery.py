@@ -75,32 +75,88 @@ def _write_scope(path: Path, **overrides) -> None:
             )
 
 
+def _prepare_stale_success(
+    repo: Path,
+    *,
+    files_touched: list[str],
+) -> tuple[Path, Path, Path]:
+    scope = repo / "scope.json"
+    _write_scope(
+        scope,
+        languages=["typescript"],
+        files_touched_list=files_touched,
+        tool_coverage={
+            "complete": True,
+            "selected_axes": ["simplification"],
+            "applicable": ["knip"],
+            "executed": ["knip"],
+        },
+        coverage_complete=True,
+    )
+    output_dir = repo / "out"
+    output_dir.mkdir()
+    stale = output_dir / "tool-findings.jsonl"
+    stale.write_text('{"message":"stale"}\n', encoding="utf-8")
+    return scope, output_dir, stale
+
+
+def _run_battery(
+    scope: Path,
+    repo: Path,
+    *,
+    output_dir: Path | None = None,
+    bin_dir: Path | None = None,
+    axes: str | None = None,
+    dry_run: bool = False,
+    timeout: int = 15,
+) -> subprocess.CompletedProcess:
+    args = [
+        "bash",
+        str(SCRIPT),
+        "--scope",
+        str(scope),
+        "--output-dir",
+        str(output_dir or repo / "out"),
+        "--repo",
+        str(repo),
+    ]
+    if axes:
+        args.extend(["--axes", axes])
+    if dry_run:
+        args.append("--dry-run")
+
+    base_path = "/usr/bin:/bin:/usr/local/bin"
+    path = f"{bin_dir}:{base_path}" if bin_dir is not None else base_path
+    return subprocess.run(
+        args,
+        capture_output=True,
+        text=True,
+        env={**os.environ, "PATH": path},
+        check=False,
+        timeout=timeout,
+    )
+
+
 def _run_dry(scope: Path, repo: Path, bin_dir: Path | None = None) -> dict:
     """Run the script in --dry-run mode under the given controlled PATH.
 
     The shim bin dir is appended to a minimal base PATH so basic shell
     commands (cd, mktemp, etc.) still resolve.
     """
-    base_path = "/usr/bin:/bin:/usr/local/bin"
-    env = os.environ.copy()
-    if bin_dir is not None:
-        env["PATH"] = f"{bin_dir}:{base_path}"
-    else:
-        env["PATH"] = base_path
     with tempfile.TemporaryDirectory() as td:
-        out_dir = Path(td) / "out"
-        r = subprocess.run(
-            ["bash", str(SCRIPT),
-             "--scope", str(scope),
-             "--output-dir", str(out_dir),
-             "--repo", str(repo),
-             "--dry-run"],
-            capture_output=True, text=True, env=env, check=False,
+        result = _run_battery(
+            scope,
+            repo,
+            output_dir=Path(td) / "out",
+            bin_dir=bin_dir,
+            dry_run=True,
         )
-    if r.returncode not in (0, 3):
-        raise AssertionError(f"run_battery --dry-run failed ({r.returncode})\n"
-                             f"stdout:\n{r.stdout}\nstderr:\n{r.stderr}")
-    return json.loads(r.stdout)
+    if result.returncode not in (0, 3):
+        raise AssertionError(
+            f"run_battery --dry-run failed ({result.returncode})\n"
+            f"stdout:\n{result.stdout}\nstderr:\n{result.stderr}"
+        )
+    return json.loads(result.stdout)
 
 
 def _dispatched_tools(plan: dict) -> set[str]:
@@ -123,23 +179,7 @@ def _wanted_tools(plan: dict) -> set[str]:
 
 class TestInputIntegrity(unittest.TestCase):
     def _run(self, repo: Path, scope: Path) -> subprocess.CompletedProcess:
-        return subprocess.run(
-            [
-                "bash",
-                str(SCRIPT),
-                "--scope",
-                str(scope),
-                "--output-dir",
-                str(repo / "out"),
-                "--repo",
-                str(repo),
-                "--dry-run",
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-            env={**os.environ, "PATH": "/usr/bin:/bin:/usr/local/bin"},
-        )
+        return _run_battery(scope, repo, dry_run=True)
 
     def test_malformed_scope_fails_without_traceback_and_prints_rerun(self):
         with tempfile.TemporaryDirectory() as td:
@@ -258,37 +298,13 @@ class TestInputIntegrity(unittest.TestCase):
     def test_invalid_root_manifest_invalidates_stale_success(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            scope = repo / "scope.json"
-            _write_scope(
-                scope,
-                languages=["typescript"],
-                files_touched_list=["src/foo.ts"],
-                tool_coverage={
-                    "complete": True,
-                    "selected_axes": ["simplification"],
-                    "applicable": ["knip"],
-                    "executed": ["knip"],
-                },
-                coverage_complete=True,
+            scope, out_dir, stale = _prepare_stale_success(
+                repo,
+                files_touched=["src/foo.ts"],
             )
             (repo / "package.json").write_text("{broken\n", encoding="utf-8")
-            out_dir = repo / "out"
-            out_dir.mkdir()
-            stale = out_dir / "tool-findings.jsonl"
-            stale.write_text('{"message":"stale"}\n', encoding="utf-8")
 
-            result = subprocess.run(
-                [
-                    "bash", str(SCRIPT),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                env={**os.environ, "PATH": "/usr/bin:/bin:/usr/local/bin"},
-            )
+            result = _run_battery(scope, repo, output_dir=out_dir)
             mutated = json.loads(scope.read_text(encoding="utf-8"))
             stale_exists = stale.exists()
 
@@ -324,18 +340,9 @@ class TestInputIntegrity(unittest.TestCase):
     def test_invalid_workspace_manifest_invalidates_stale_success(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            scope = repo / "scope.json"
-            _write_scope(
-                scope,
-                languages=["typescript"],
-                files_touched_list=["packages/app/src/index.ts"],
-                tool_coverage={
-                    "complete": True,
-                    "selected_axes": ["simplification"],
-                    "applicable": ["knip"],
-                    "executed": ["knip"],
-                },
-                coverage_complete=True,
+            scope, out_dir, stale = _prepare_stale_success(
+                repo,
+                files_touched=["packages/app/src/index.ts"],
             )
             (repo / "package.json").write_text(
                 '{"workspaces":["packages/*"]}\n', encoding="utf-8"
@@ -343,23 +350,8 @@ class TestInputIntegrity(unittest.TestCase):
             (repo / "packages" / "app" / "package.json").write_text(
                 "{broken\n", encoding="utf-8"
             )
-            out_dir = repo / "out"
-            out_dir.mkdir()
-            stale = out_dir / "tool-findings.jsonl"
-            stale.write_text('{"message":"stale"}\n', encoding="utf-8")
 
-            result = subprocess.run(
-                [
-                    "bash", str(SCRIPT),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                env={**os.environ, "PATH": "/usr/bin:/bin:/usr/local/bin"},
-            )
+            result = _run_battery(scope, repo, output_dir=out_dir)
             mutated = json.loads(scope.read_text(encoding="utf-8"))
             stale_exists = stale.exists()
 
@@ -385,6 +377,7 @@ class TestDispatchPerLanguage(unittest.TestCase):
             scope = tdp / "scope.json"
             _write_scope(scope, repo_kind="app", languages=["typescript"],
                          files_touched_list=["src/foo.ts", "README.md"])
+            (tdp / "package.json").write_text("{}\n", encoding="utf-8")
             bin_dir = tdp / "bin"
             for tool in ALL_TOOLS:
                 _make_shim(bin_dir, tool)
@@ -539,12 +532,30 @@ class TestToolResolution(unittest.TestCase):
             scope = tdp / "scope.json"
             _write_scope(scope, repo_kind="app", languages=["typescript"],
                          files_touched_list=["src/foo.ts", "README.md"])
+            (tdp / "package.json").write_text("{}\n", encoding="utf-8")
             bin_dir = tdp / "bin"
             _make_shim(bin_dir, "npx")
             plan = _run_dry(scope, tdp, bin_dir)
             skipped = _skipped_tools(plan)
             for tool in ("knip", "jscpd", "markdownlint-cli2"):
                 self.assertIn(tool, skipped)
+
+    def test_knip_is_not_applicable_without_a_package_manifest(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            scope = repo / "scope.json"
+            _write_scope(
+                scope,
+                repo_kind="unknown",
+                languages=["javascript"],
+                files_touched_list=["scripts/tool.js"],
+            )
+            bin_dir = repo / "bin"
+            _make_shim(bin_dir, "knip")
+
+            plan = _run_dry(scope, repo, bin_dir)
+
+        self.assertNotIn("knip", _wanted_tools(plan))
 
     def test_uvx_only_does_not_dispatch_python_tools(self):
         with tempfile.TemporaryDirectory() as td:
@@ -1059,6 +1070,7 @@ class TestToolResolution(unittest.TestCase):
             scope = tdp / "scope.json"
             _write_scope(scope, repo_kind="app", languages=["typescript"],
                          files_touched_list=["src/foo.ts"])
+            (tdp / "package.json").write_text("{}\n", encoding="utf-8")
             _make_shim(tdp / "node_modules" / ".bin", "knip")
             path_bin = tdp / "path-bin"
             _make_shim(path_bin, "knip")
@@ -1674,22 +1686,12 @@ class TestAnalyzerExecution(unittest.TestCase):
                 "printf '%s\\n' 'unrecognized analyzer output'",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(SCRIPT),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                    "--axes", "documentation",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=15,
-                env={
-                    **os.environ,
-                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
-                },
+            result = _run_battery(
+                scope,
+                repo,
+                output_dir=out_dir,
+                bin_dir=bin_dir,
+                axes="documentation",
             )
 
             self.assertEqual(result.returncode, 4, result.stderr)
@@ -1731,27 +1733,12 @@ class TestAnalyzerExecution(unittest.TestCase):
                 f"printf '%s\\n' \"$@\" > {marker!s}",
             )
 
-            result = subprocess.run(
-                [
-                    "bash",
-                    str(SCRIPT),
-                    "--scope",
-                    str(scope),
-                    "--output-dir",
-                    str(out_dir),
-                    "--repo",
-                    str(repo),
-                    "--axes",
-                    "documentation",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=15,
-                env={
-                    **os.environ,
-                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
-                },
+            result = _run_battery(
+                scope,
+                repo,
+                output_dir=out_dir,
+                bin_dir=bin_dir,
+                axes="documentation",
             )
             self.assertEqual(result.returncode, 0, result.stderr)
             args = marker.read_text(encoding="utf-8").splitlines()
@@ -1786,27 +1773,12 @@ class TestAnalyzerExecution(unittest.TestCase):
             )
             _make_shim(bin_dir, "vale", "printf '{}\\n'")
 
-            result = subprocess.run(
-                [
-                    "bash",
-                    str(SCRIPT),
-                    "--scope",
-                    str(scope),
-                    "--output-dir",
-                    str(out_dir),
-                    "--repo",
-                    str(repo),
-                    "--axes",
-                    "documentation",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=15,
-                env={
-                    **os.environ,
-                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
-                },
+            result = _run_battery(
+                scope,
+                repo,
+                output_dir=out_dir,
+                bin_dir=bin_dir,
+                axes="documentation",
             )
 
         self.assertEqual(result.returncode, 4, result.stderr)
@@ -1829,22 +1801,12 @@ class TestAnalyzerExecution(unittest.TestCase):
             bin_dir = repo / "bin"
             _make_shim(bin_dir, "markdownlint-cli2", "exit 1")
 
-            result = subprocess.run(
-                [
-                    "bash", str(SCRIPT),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                    "--axes", "documentation",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=15,
-                env={
-                    **os.environ,
-                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
-                },
+            result = _run_battery(
+                scope,
+                repo,
+                output_dir=out_dir,
+                bin_dir=bin_dir,
+                axes="documentation",
             )
 
         self.assertEqual(result.returncode, 4, result.stderr)
@@ -1949,22 +1911,12 @@ class TestAnalyzerExecution(unittest.TestCase):
                 "printf '%s\\n' 'unrecognized analyzer output'",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(SCRIPT),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                    "--axes", "documentation",
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
-                timeout=15,
-                env={
-                    **os.environ,
-                    "PATH": f"{bin_dir}:/usr/bin:/bin:/usr/local/bin",
-                },
+            result = _run_battery(
+                scope,
+                repo,
+                output_dir=out_dir,
+                bin_dir=bin_dir,
+                axes="documentation",
             )
 
             self.assertEqual(result.returncode, 4, result.stderr)
@@ -2277,6 +2229,14 @@ class TestDefaultRunSafety(unittest.TestCase):
         body = self._function_body("run_semgrep")
         self.assertIn("--metrics=off", body)
         self.assertIn("--disable-version-check", body)
+
+    def test_semgrep_writes_logs_to_the_battery_output(self):
+        """Sandboxed scans keep Semgrep state inside the declared output."""
+        body = self._function_body("run_semgrep")
+        self.assertIn(
+            'SEMGREP_LOG_FILE="$OUTPUT_DIR/raw/semgrep.log"',
+            body,
+        )
 
     def test_semgrep_preserves_bundled_rule_ids(self):
         """Local config paths must not leak into the reported rule IDs."""

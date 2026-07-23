@@ -233,6 +233,36 @@ def _run_synthesize(
     return result.stdout, result.stderr, result.returncode
 
 
+def _run_synthesize_invalid_scope(
+    scope_text: str,
+    *,
+    output_dir: Path,
+) -> subprocess.CompletedProcess:
+    scope_path = output_dir / "scope.json"
+    findings_path = output_dir / "findings.jsonl"
+    tool_path = output_dir / "tool-findings.jsonl"
+    scope_path.write_text(scope_text, encoding="utf-8")
+    findings_path.write_text("", encoding="utf-8")
+    tool_path.write_text("", encoding="utf-8")
+    return subprocess.run(
+        [
+            sys.executable,
+            str(SYNTHESIZE),
+            "--scope",
+            str(scope_path),
+            "--findings",
+            str(findings_path),
+            "--tool-findings",
+            str(tool_path),
+            "--output-dir",
+            str(output_dir),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
 # ---------------------------------------------------------------------------
 # 1. Inter-axis precedence
 # ---------------------------------------------------------------------------
@@ -783,29 +813,9 @@ class TestRenderLayerRegression(unittest.TestCase):
     def test_malformed_scope_fails_without_traceback(self):
         with tempfile.TemporaryDirectory() as tmp:
             workdir = Path(tmp)
-            scope_path = workdir / "scope.json"
-            findings_path = workdir / "findings.jsonl"
-            tool_path = workdir / "tool-findings.jsonl"
-            scope_path.write_text("{broken\n", encoding="utf-8")
-            findings_path.write_text("", encoding="utf-8")
-            tool_path.write_text("", encoding="utf-8")
-
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(SYNTHESIZE),
-                    "--scope",
-                    str(scope_path),
-                    "--findings",
-                    str(findings_path),
-                    "--tool-findings",
-                    str(tool_path),
-                    "--output-dir",
-                    str(workdir),
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
+            result = _run_synthesize_invalid_scope(
+                "{broken\n",
+                output_dir=workdir,
             )
 
         self.assertEqual(result.returncode, 4)
@@ -818,29 +828,9 @@ class TestRenderLayerRegression(unittest.TestCase):
         scope["axis_coverage"] = "complete"
         with tempfile.TemporaryDirectory() as tmp:
             workdir = Path(tmp)
-            scope_path = workdir / "scope.json"
-            findings_path = workdir / "findings.jsonl"
-            tool_path = workdir / "tool-findings.jsonl"
-            scope_path.write_text(json.dumps(scope), encoding="utf-8")
-            findings_path.write_text("", encoding="utf-8")
-            tool_path.write_text("", encoding="utf-8")
-
-            result = subprocess.run(
-                [
-                    sys.executable,
-                    str(SYNTHESIZE),
-                    "--scope",
-                    str(scope_path),
-                    "--findings",
-                    str(findings_path),
-                    "--tool-findings",
-                    str(tool_path),
-                    "--output-dir",
-                    str(workdir),
-                ],
-                capture_output=True,
-                text=True,
-                check=False,
+            result = _run_synthesize_invalid_scope(
+                json.dumps(scope),
+                output_dir=workdir,
             )
 
         self.assertEqual(result.returncode, 4)

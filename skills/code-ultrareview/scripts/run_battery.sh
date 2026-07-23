@@ -283,6 +283,14 @@ has_repo_file() {
   [[ -f "$REPO/$1" ]]
 }
 
+has_relevant_js_package() {
+  local manifest
+  while IFS= read -r manifest; do
+    [[ -n "$manifest" ]] && return 0
+  done < <(js_relevant_package_manifests "$REPO")
+  return 1
+}
+
 # Dispatch decision — mirrors SKILL.md Phase 2 description.
 SELECTED_AXES=()
 if [[ -n "$AXES" ]]; then
@@ -339,7 +347,8 @@ want_tool() {
   axis_selected_for_tool "$tool" || return 1
   case "$tool" in
     knip)
-      has_lang typescript || has_lang javascript
+      (has_lang typescript || has_lang javascript) \
+        && has_relevant_js_package
       ;;
     jscpd)
       has_existing_file_match '\.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$'
@@ -783,7 +792,9 @@ run_semgrep() {
     return 0
   fi
   resolve_required_tool semgrep || return $?
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" --json --quiet --metrics=off \
+  _capture "$out" "$err" -- env \
+    SEMGREP_LOG_FILE="$OUTPUT_DIR/raw/semgrep.log" \
+    "${RESOLVED_COMMAND[@]}" --json --quiet --metrics=off \
     --disable-version-check --no-rewrite-rule-ids \
     "${configs[@]}" "${code_files[@]}"
   capture_succeeded semgrep "$CAPTURE_RC" "$err" || return $?

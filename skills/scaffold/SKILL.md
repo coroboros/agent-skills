@@ -33,7 +33,7 @@ Extract `{scaffold}` and `{project_name}` from the invocation arguments. Aliases
 
 ### 2. Preflight
 
-`bash "$SKILL_DIR"/scripts/preflight.sh "{project_dir}" "{project_name}"` → check `RESULT:` lines. Stop-conditions: `error=invalid-project-name` → ask for a valid lowercase npm package name whose Cloudflare slug is at most 63 characters; `error=invalid-target-name` → ask for a target whose final directory name is a valid lowercase npm package name; `pnpm=no` → provide the official pnpm installation command and stop; `jq=no` → point to https://jqlang.org/download/ and stop; `node=too-old` or `node=unsupported` → require a stable even-numbered Node release at 22.12.0 or newer; `target=occupied` → stop because this skill does not modify existing projects; `ok=true` → continue.
+`bash "$SKILL_DIR"/scripts/preflight.sh "{project_dir}" "{project_name}"` → check `RESULT:` lines. Stop-conditions: `error=invalid-project-name` → ask for a valid lowercase npm package name whose Cloudflare slug is at most 63 characters; `error=invalid-target-name` → ask for a target whose final directory name is a valid lowercase npm package name; `pnpm=no` → provide the official pnpm installation command and stop; `jq=no` → point to the [`jq` downloads](https://jqlang.org/download/) and stop; `node=too-old` or `node=unsupported` → require a stable even-numbered Node release at 22.12.0 or newer; `target=occupied` → stop because this skill does not modify existing projects; `ok=true` → continue.
 
 ### 3. Install
 

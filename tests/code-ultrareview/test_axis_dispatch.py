@@ -15,6 +15,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
@@ -33,6 +34,35 @@ def _load_module():
 
 
 axis_dispatch = _load_module()
+
+
+def _run_prepare(scope: dict) -> subprocess.CompletedProcess:
+    with tempfile.TemporaryDirectory() as td:
+        workdir = Path(td)
+        scope_path = workdir / "scope.json"
+        findings_path = workdir / "tool-findings.jsonl"
+        diff_path = workdir / "diff.patch"
+        scope_path.write_text(json.dumps(scope), encoding="utf-8")
+        findings_path.write_text("", encoding="utf-8")
+        diff_path.write_text("diff --git a/x.ts b/x.ts", encoding="utf-8")
+        return subprocess.run(
+            [
+                "python3",
+                str(SCRIPT),
+                "prepare",
+                "--scope",
+                str(scope_path),
+                "--findings",
+                str(findings_path),
+                "--diff",
+                str(diff_path),
+                "--output-dir",
+                str(workdir / "run"),
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -557,71 +587,25 @@ class TestAxisKeyParity(unittest.TestCase):
 
 class TestCliPrepare(unittest.TestCase):
     def test_prepare_rejects_mistyped_coverage_without_traceback(self):
-        import subprocess
-
-        with tempfile.TemporaryDirectory() as td:
-            tdir = Path(td)
-            scope_path = tdir / "scope.json"
-            findings_path = tdir / "tool-findings.jsonl"
-            diff_path = tdir / "diff.patch"
-            scope_path.write_text(
-                json.dumps({
-                    "repo_kind": "app",
-                    "languages": ["typescript"],
-                    "tool_coverage": "complete",
-                }),
-                encoding="utf-8",
-            )
-            findings_path.write_text("", encoding="utf-8")
-            diff_path.write_text("diff --git a/x.ts b/x.ts", encoding="utf-8")
-
-            result = subprocess.run(
-                [
-                    "python3", str(SCRIPT), "prepare",
-                    "--scope", str(scope_path),
-                    "--findings", str(findings_path),
-                    "--diff", str(diff_path),
-                    "--output-dir", str(tdir / "run"),
-                ],
-                capture_output=True, text=True, check=False,
-            )
+        result = _run_prepare({
+            "repo_kind": "app",
+            "languages": ["typescript"],
+            "tool_coverage": "complete",
+        })
 
         self.assertEqual(result.returncode, 4)
         self.assertIn("tool_coverage must be an object", result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
     def test_prepare_rejects_non_object_mutation_manifest_without_traceback(self):
-        import subprocess
-
-        with tempfile.TemporaryDirectory() as td:
-            tdir = Path(td)
-            scope_path = tdir / "scope.json"
-            findings_path = tdir / "tool-findings.jsonl"
-            diff_path = tdir / "diff.patch"
-            scope_path.write_text(
-                json.dumps({
-                    "repo_kind": "app",
-                    "languages": ["typescript"],
-                    "tools_skipped": [],
-                    "tools_missing": [],
-                    "tool_coverage": {"complete": True},
-                    "mutation_coverage": "complete",
-                }),
-                encoding="utf-8",
-            )
-            findings_path.write_text("", encoding="utf-8")
-            diff_path.write_text("diff --git a/x.ts b/x.ts", encoding="utf-8")
-
-            result = subprocess.run(
-                [
-                    "python3", str(SCRIPT), "prepare",
-                    "--scope", str(scope_path),
-                    "--findings", str(findings_path),
-                    "--diff", str(diff_path),
-                    "--output-dir", str(tdir / "run"),
-                ],
-                capture_output=True, text=True, check=False,
-            )
+        result = _run_prepare({
+            "repo_kind": "app",
+            "languages": ["typescript"],
+            "tools_skipped": [],
+            "tools_missing": [],
+            "tool_coverage": {"complete": True},
+            "mutation_coverage": "complete",
+        })
 
         self.assertEqual(result.returncode, 4)
         self.assertIn("mutation_coverage must be an object", result.stderr)
@@ -631,8 +615,6 @@ class TestCliPrepare(unittest.TestCase):
     when invoked from the shell."""
 
     def test_cli_prepare_writes_bundles(self):
-        import subprocess
-
         with tempfile.TemporaryDirectory() as td:
             tdir = Path(td)
             scope_path = tdir / "scope.json"

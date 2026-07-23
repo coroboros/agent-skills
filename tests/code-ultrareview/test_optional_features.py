@@ -131,6 +131,51 @@ def _mutation_preflight_path(root: Path) -> str:
     return str(bin_dir)
 
 
+def _run_mutation(
+    repo: Path,
+    scope: Path,
+    output_dir: Path,
+    *,
+    env: dict | None = None,
+    timeout: int = 15,
+) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [
+            "bash",
+            str(RUN_MUTATION),
+            "--scope",
+            str(scope),
+            "--output-dir",
+            str(output_dir),
+            "--repo",
+            str(repo),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        env=env,
+        check=False,
+    )
+
+
+def _configure_npm_workspace_stryker(repo: Path) -> Path:
+    package_dir = repo / "packages" / "app"
+    (repo / "package.json").write_text(
+        json.dumps({"workspaces": ["packages/*"]}),
+        encoding="utf-8",
+    )
+    (repo / "package-lock.json").write_text("{}\n", encoding="utf-8")
+    package_dir.mkdir(parents=True)
+    (package_dir / "package.json").write_text(
+        json.dumps({
+            "devDependencies": {"@stryker-mutator/core": "9.2.0"},
+        }),
+        encoding="utf-8",
+    )
+    (package_dir / "stryker.config.json").write_text("{}\n", encoding="utf-8")
+    return package_dir
+
+
 def _write_findings(path: Path, findings: list[dict]) -> Path:
     """Write a JSONL findings file."""
     with path.open("w", encoding="utf-8") as fh:
@@ -641,14 +686,11 @@ class TestMutationDryRun(unittest.TestCase):
         out_dir = repo / "out"
         out_dir.mkdir()
         merged_env = {**os.environ, **(env or {})}
-        return subprocess.run(
-            [
-                "bash", str(RUN_MUTATION),
-                "--scope", str(scope),
-                "--output-dir", str(out_dir),
-                "--repo", str(repo),
-            ],
-            capture_output=True, text=True, timeout=15, env=merged_env,
+        return _run_mutation(
+            repo,
+            scope,
+            out_dir,
+            env=merged_env,
         )
 
     def test_dry_run_exits_clean_with_empty_findings(self):
@@ -1250,21 +1292,7 @@ class TestMutationDryRun(unittest.TestCase):
     def test_workspace_stryker_uses_hoisted_binary_and_normalizes_report_path(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
-            package_dir = repo / "packages" / "app"
-            (repo / "package.json").write_text(
-                json.dumps({"workspaces": ["packages/*"]}), encoding="utf-8"
-            )
-            (repo / "package-lock.json").write_text("{}\n", encoding="utf-8")
-            package_dir.mkdir(parents=True)
-            (package_dir / "package.json").write_text(
-                json.dumps({
-                    "devDependencies": {"@stryker-mutator/core": "9.2.0"},
-                }),
-                encoding="utf-8",
-            )
-            (package_dir / "stryker.config.json").write_text(
-                "{}\n", encoding="utf-8"
-            )
+            package_dir = _configure_npm_workspace_stryker(repo)
             report = json.dumps({
                 "files": {
                     "src/app.js": {
@@ -1392,21 +1420,7 @@ class TestMutationDryRun(unittest.TestCase):
     def test_nested_stryker_runtime_failure_prints_exact_restore_and_rerun(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
-            package_dir = repo / "packages" / "app"
-            (repo / "package.json").write_text(
-                json.dumps({"workspaces": ["packages/*"]}), encoding="utf-8"
-            )
-            (repo / "package-lock.json").write_text("{}\n", encoding="utf-8")
-            package_dir.mkdir(parents=True)
-            (package_dir / "package.json").write_text(
-                json.dumps({
-                    "devDependencies": {"@stryker-mutator/core": "9.2.0"},
-                }),
-                encoding="utf-8",
-            )
-            (package_dir / "stryker.config.json").write_text(
-                "{}\n", encoding="utf-8"
-            )
+            package_dir = _configure_npm_workspace_stryker(repo)
             _write_executable(repo / "node_modules" / ".bin" / "stryker", "exit 7")
 
             result = self._run(
@@ -1603,16 +1617,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
         self.assertEqual(result.returncode, 4, result.stderr)
@@ -1641,16 +1649,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
             findings_text = (out_dir / "mutation-findings.jsonl").read_text(
@@ -1682,16 +1684,10 @@ class TestMutationDryRun(unittest.TestCase):
                 out_dir = repo / "out"
                 out_dir.mkdir()
 
-                result = subprocess.run(
-                    [
-                        "bash", str(RUN_MUTATION),
-                        "--scope", str(scope),
-                        "--output-dir", str(out_dir),
-                        "--repo", str(repo),
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=15,
+                result = _run_mutation(
+                    repo,
+                    scope,
+                    out_dir,
                     env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
                 )
 
@@ -1732,16 +1728,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
             coverage = json.loads(scope.read_text(encoding="utf-8"))[
@@ -1770,16 +1760,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
 
@@ -1803,16 +1787,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
 
@@ -1842,16 +1820,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
             findings_text = (out_dir / "mutation-findings.jsonl").read_text(
@@ -2062,16 +2034,10 @@ class TestMutationDryRun(unittest.TestCase):
             out_dir = repo / "out"
             out_dir.mkdir()
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=15,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
             )
 
@@ -2120,17 +2086,12 @@ class TestMutationDryRun(unittest.TestCase):
                     f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
                 )
 
-                result = subprocess.run(
-                    [
-                        "bash", str(RUN_MUTATION),
-                        "--scope", str(scope),
-                        "--output-dir", str(out_dir),
-                        "--repo", str(repo),
-                    ],
-                    capture_output=True,
-                    text=True,
-                    timeout=10,
+                result = _run_mutation(
+                    repo,
+                    scope,
+                    out_dir,
                     env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                    timeout=10,
                 )
             self.assertEqual(result.returncode, 4, result.stderr)
             self.assertIn(expected, result.stderr)
@@ -2164,17 +2125,12 @@ class TestMutationDryRun(unittest.TestCase):
                 f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                timeout=10,
             )
             findings_text = (out_dir / "mutation-findings.jsonl").read_text(
                 encoding="utf-8"
@@ -2211,17 +2167,12 @@ class TestMutationDryRun(unittest.TestCase):
                 f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                timeout=10,
             )
 
         self.assertEqual(result.returncode, 4, result.stderr)
@@ -2259,17 +2210,12 @@ class TestMutationDryRun(unittest.TestCase):
                 f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                timeout=10,
             )
             findings_text = (out_dir / "mutation-findings.jsonl").read_text(
                 encoding="utf-8"
@@ -2310,17 +2256,12 @@ class TestMutationDryRun(unittest.TestCase):
                 f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                timeout=10,
             )
 
             self.assertEqual(result.returncode, 0, result.stderr)
@@ -2363,17 +2304,12 @@ class TestMutationDryRun(unittest.TestCase):
                 f"printf '%s\\n' '{report}' > target/pit-reports/run/mutations.xml",
             )
 
-            result = subprocess.run(
-                [
-                    "bash", str(RUN_MUTATION),
-                    "--scope", str(scope),
-                    "--output-dir", str(out_dir),
-                    "--repo", str(repo),
-                ],
-                capture_output=True,
-                text=True,
-                timeout=10,
+            result = _run_mutation(
+                repo,
+                scope,
+                out_dir,
                 env={**os.environ, "PATH": f"{bin_dir}:{os.environ['PATH']}"},
+                timeout=10,
             )
 
             self.assertEqual(result.returncode, 4, result.stderr)
