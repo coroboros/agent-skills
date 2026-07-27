@@ -15,12 +15,11 @@
  * elements (CSS keyframes over glow/float/shimmer/pulse — no world, no
  * agents); living-presence-layer renders LIVE PEER DATA (marks join,
  * move and leave with a socket, capped, never synthetic); THIS is
- * authored in-world life on a deterministic clock. The closed-world law
- * is why it is library machinery at all: a builder adding scene life by
- * hand writes a rAF loop — CW-RAF-LOOP, an illegal invention; here the
- * loop lives in the library and the builder ships populations as DATA
- * (boundary verdict §1.8: content arrays fed to library inits are legal
- * composition; the hand loop that consumes them is not).
+ * authored in-world life on a deterministic clock. Why this is library
+ * machinery at all: a scene owns ONE rAF loop — ambient life lives
+ * inside it (onTick is the engine's frame hook), never in a second
+ * hand-rolled loop beside the render. The builder ships populations as
+ * DATA fed to init; the loop, gates and kinematics come debugged.
  *
  * THE SEAM: the SCENE owns rendering — no THREE import (no engine import
  * of any kind) ever crosses this boundary, the raycast-object-state

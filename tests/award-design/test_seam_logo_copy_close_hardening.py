@@ -1,10 +1,10 @@
 """award-design — the BOREALIS-test hardening: real brand mark, graded image seams,
-adversarial copy pass, responsive signature text, and a real overlay close control.
+the copy re-read pass, and a real overlay close control.
 
 The BOREALIS build shipped a decorative green dot as its logo, a hard-cut hero seam
 that "faded too brutally" into the next section, registration-meta copy (READING 01),
 a hero reading overlay that broke responsively, and a mobile overlay menu with no
-clearly-visible close. These lock the fixes."""
+clearly-visible close. These lock the fixes that survived the floor rewrite."""
 
 import re
 import unittest
@@ -45,7 +45,7 @@ class TestRealBrandMark(unittest.TestCase):
 
     def test_preflight_gates_mark_and_favicon(self):
         pf = _read("preflight.md")
-        self.assertIn("brand mark + favicon real", pf)
+        self.assertIn("the same mark drives the favicon, both verified rendered", pf)
 
 
 class TestGradedSeams(unittest.TestCase):
@@ -62,30 +62,20 @@ class TestGradedSeams(unittest.TestCase):
 
     def test_phase4_loop_gates_graded_seam(self):
         p4 = _phase(4)
-        self.assertIn("graded, never a hard cut", p4)
+        self.assertIn("seams grade instead of hard-cutting", p4)
 
 
 class TestAdversarialCopyPass(unittest.TestCase):
-    def test_preflight_has_adversarial_copy_pass(self):
+    def test_preflight_rereads_every_string(self):
         pf = _read("preflight.md")
-        self.assertIn("adversarial copy pass", pf)
-        self.assertIn("what does this add here", pf)
+        self.assertIn("re-read every visible string", pf)
+        self.assertIn("no self-narration", pf)
 
     def test_registration_meta_has_teeth(self):
         pf = _read("preflight.md")
-        # numbered diegetic labels + atmospheric stat strips called out by example
-        self.assertIn("reading 01", pf)
-        self.assertTrue("stat strip" in pf or "set-dressing" in pf)
-
-
-class TestResponsiveSignatureText(unittest.TestCase):
-    def test_preflight_gates_signature_text_responsive(self):
-        pf = _read("preflight.md")
-        self.assertIn("signature text driven responsive", pf)
-
-    def test_phase4_loop_drives_signature_text_at_every_width(self):
-        p4 = _phase(4)
-        self.assertIn("signature's own text overlay", p4)
+        # numbered diegetic labels (READING 01) are now the scanner's META-LABEL class
+        self.assertIn("zero `section 01` / index meta-labels", pf)
+        self.assertIn("`(scanner: meta-label)`", pf)
 
 
 class TestOverlayClose(unittest.TestCase):
@@ -100,7 +90,8 @@ class TestOverlayClose(unittest.TestCase):
 
     def test_preflight_gates_overlay_toggle(self):
         pf = _read("preflight.md")
-        self.assertIn("overlay menu toggle", pf)
+        self.assertIn("icon-only toggle", pf)
+        self.assertIn("`esc` closes, focus returns", pf)
 
 
 if __name__ == "__main__":

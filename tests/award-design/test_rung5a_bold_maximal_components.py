@@ -155,7 +155,7 @@ class TestRung5aFormDiscipline(unittest.TestCase):
         self.assertNotRegex(src, r"\binsertAdjacentHTML\b")
 
     def test_forms_style_attributes_never_role_classes(self):
-        """ROLE-RESTYLE gate: grab/drag state rides data attributes on the
+        """class-role uniformity rule: grab/drag state rides data attributes on the
         form root — a .ad-*/.is-* selector in a form stylesheet is the
         class-role drift the scanner fails."""
         for form_id, (css, _js, _g) in RUNG5A_FORMS.items():

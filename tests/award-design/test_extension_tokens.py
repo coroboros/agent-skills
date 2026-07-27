@@ -200,10 +200,10 @@ class TestSkillBodyStaysLean(unittest.TestCase):
     test — the body keeps only the pointer."""
 
     def test_body_routes_to_extended_tokens(self):
-        """The body names the extension-token convention as a route, not an inline
-        link — the anatomy reference holds the actual extended-tokens.md link."""
-        self.assertIn("extension-token", _body(),
-                      "SKILL.md must name the extension-token convention as a route")
+        """The body names the token-namespace requirement as a route, not an
+        inline contract — the anatomy reference holds the actual detail."""
+        self.assertIn("token namespaces", _body(),
+                      "SKILL.md must name the token-namespace requirement as a route")
 
     def test_body_points_at_token_authority(self):
         self.assertIn("design-md-anatomy.md", _body(),

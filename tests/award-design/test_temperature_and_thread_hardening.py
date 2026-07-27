@@ -21,6 +21,10 @@ def _read(rel):
     return (REFS / rel).read_text(encoding="utf-8").lower()
 
 
+def _skill():
+    return SKILL_MD.read_text(encoding="utf-8").lower()
+
+
 def _phase(n):
     body = SKILL_MD.read_text(encoding="utf-8")
     m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
@@ -49,12 +53,12 @@ class TestAmbientChannel(unittest.TestCase):
 
     def test_phase4_commits_the_idle_channel(self):
         p4 = _phase(4)
-        self.assertIn("the ambient idle channel that keeps the page breathing", p4)
+        self.assertIn("one ambient idle channel", p4)
 
-    def test_preflight_breathes_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("the page breathes at rest", pf)
-        self.assertIn("zero motion between interactions is the embalmed page", pf)
+    def test_review_density_read_carries_the_channel(self):
+        s = _skill()
+        self.assertIn("the density/aliveness read", s)
+        self.assertIn("live channels", s)
 
 
 class TestTravellingThread(unittest.TestCase):
@@ -63,9 +67,9 @@ class TestTravellingThread(unittest.TestCase):
         self.assertIn("at least one signature element *travels* that distance", ix)
         self.assertIn("entrance-only echoes are episodes, not a thread", ix)
 
-    def test_preflight_carry_box_extended(self):
-        pf = _read("preflight.md")
-        self.assertIn("persists, accumulates, or progresses across sections", pf)
+    def test_carry_mechanics_named(self):
+        ix = _read("interaction-signatures.md")
+        self.assertIn("persists, accumulates, or progresses section by section", ix)
 
 
 class TestWorldsOwnColour(unittest.TestCase):
@@ -81,16 +85,6 @@ class TestDiegeticLegibility(unittest.TestCase):
         ap = _read("anti-patterns.md")
         self.assertIn("drawn whole with its real anatomy", ap)
         self.assertIn("a sleeve at *both* ends", ap)
-
-    def test_preflight_decode_box_extended(self):
-        pf = _read("preflight.md")
-        self.assertIn("a barbell has both sleeves", pf)
-
-
-class TestTextLinkTapFloor(unittest.TestCase):
-    def test_code_review_names_bare_text_links(self):
-        pf = _read("preflight.md")
-        self.assertIn("bare text links — footer, contact, inline mailto — are measured too", pf)
 
 
 if __name__ == "__main__":

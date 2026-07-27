@@ -37,21 +37,17 @@ class TestDesireArc(unittest.TestCase):
     def test_phase1_forces_the_five_answers(self):
         p1 = _phase(1)
         self.assertIn("**desire arc**", p1)
-        self.assertIn("why this exists (the belief), for whom, who is there", p1)
-        self.assertIn("this binds every landing, whatever the archetype", p1)
+        self.assertIn("why this exists, for whom, who is already there", p1)
+        self.assertIn("why come now", p1)
 
     def test_phase1_artifact_carries_the_arc(self):
         p1 = _phase(1)
-        self.assertIn("desire arc (the five answers)", p1)
+        self.assertIn("**artifact:** spine + desire arc", p1)
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
         self.assertIn("a landing that describes and never asks you in", ap)
         self.assertIn("description informs; desire moves", ap)
-
-    def test_preflight_copy_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("the page answers the desire arc", pf)
 
 
 class TestPromiseHero(unittest.TestCase):
@@ -72,16 +68,12 @@ class TestInhabitedWorld(unittest.TestCase):
         self.assertIn("human, animal, machine, vegetal, or the moving element itself", ap)
         self.assertIn("a quiet reading register may earn stillness — declared, never defaulted", ap)
 
-    def test_preflight_assets_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("the world is inhabited", pf)
-        self.assertIn("wind through dust", pf)
-
 
 class TestWorldsGestures(unittest.TestCase):
     def test_spine_plays_the_gestures(self):
         p1 = _phase(1)
-        self.assertIn("the world's own gestures supply structure and motion", p1)
+        self.assertIn("the world's gestures supply structure and motion", p1)
+        self.assertIn("its rituals become the chapters", p1)
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
@@ -92,16 +84,16 @@ class TestWorldsGestures(unittest.TestCase):
 class TestSpectacleFloor(unittest.TestCase):
     def test_phase1_signature_floor(self):
         p1 = _phase(1)
-        self.assertIn("the spectacle floor", p1)
         self.assertIn("passage a judge would replay", p1)
+        self.assertIn("a quiet second-read detail", p1)
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
         self.assertIn("tasteful competence with no spectacle", ap)
 
-    def test_preflight_desire_read_extended(self):
-        pf = _read("preflight.md")
-        self.assertIn("clean everywhere, spectacular nowhere is the structural 6.5", pf)
+    def test_structural_ceiling_in_the_catalog(self):
+        ap = _read("anti-patterns.md")
+        self.assertIn("spectacular nowhere is the structural 6.5", ap)
 
 
 class TestGenerosityAndCategoryBar(unittest.TestCase):
@@ -116,8 +108,7 @@ class TestGenerosityAndCategoryBar(unittest.TestCase):
 
     def test_review_compares_against_the_subject_category(self):
         body = _skill()
-        self.assertIn("the subject category's current best", body)
-        self.assertIn("judged beside the sport sotds, not only the archetype's canon", body)
+        self.assertIn("the category's recent award winners", body)
 
 
 if __name__ == "__main__":

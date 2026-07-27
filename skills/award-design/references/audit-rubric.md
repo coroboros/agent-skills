@@ -4,7 +4,7 @@ Quantitative scoring rubric review mode (R1/R2 and standalone) applies. Use alon
 
 Anti-patterns is the binary filter — "did I do X?" The rubric forces calibration — "how well did I do X, 3/10 or 8/10?" A 6/10 on Typography with a 9/10 on Motion ships differently than the reverse. Scoring surfaces what to fix first.
 
-**This rubric is advisory** — the calibrated half of the review pass. It is commentary that points at the next pass — never a pass/fail verdict, and never a self-graded number presented as "shipped at 9/10". The pass/fail decision belongs to the stop-and-fix filter (the axiomatic rejections in `anti-patterns.md` + the countable boxes in `preflight.md` §4, plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
+**This rubric scores R1/R2, and the concept veto binds** — a Concept ≤ 5 caps the overall score whatever the other categories earn. The category numbers are calibration that points at the next pass — never a self-graded number presented as "shipped at 9/10". Defect-level pass/fail belongs to the stop-and-fix filter (the axiomatic rejections in `anti-patterns.md` + the countable boxes in `preflight.md` §4, plus tooling thresholds). Invoked standalone by the user, it scores an existing page the same way: a diagnosis, not a certificate.
 
 ## When to run this
 

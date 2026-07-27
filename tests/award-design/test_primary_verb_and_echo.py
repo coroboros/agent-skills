@@ -43,7 +43,8 @@ class TestPrimaryVerb(unittest.TestCase):
 
     def test_rule_in_skill_phase_1(self):
         s = _skill()
-        self.assertIn("**the primary verb, not the cleverest edge.**", s)
+        self.assertIn("**verb the world invites**", s)
+        self.assertIn("signature, named by its verb", s)
 
     def test_r1_check_in_rubric(self):
         ar = _read("audit-rubric.md")
@@ -62,7 +63,7 @@ class TestPlayableObjectDecision(unittest.TestCase):
             "a silent css-metaphor default is a skipped decision", si)
 
     def test_skill_phase_1_carries_the_decision(self):
-        self.assertIn("**the playable-object decision.**", _skill())
+        self.assertIn("**the medium is chosen for desirability, not safety.**", _skill())
 
 
 class TestMediumScopedDelegation(unittest.TestCase):
@@ -71,11 +72,11 @@ class TestMediumScopedDelegation(unittest.TestCase):
         self.assertIn("this steers the *default*, never a prohibition", mp)
         self.assertIn("playable-object decision", mp)
 
-    def test_delegation_names_dna_and_perf(self):
+    def test_delegation_contract_names_scope_and_perf(self):
         s = _skill()
-        self.assertIn(
-            "the archetype's dna governs the scene's *aesthetic*", s)
-        self.assertIn("poster-first lcp", s)
+        self.assertIn("with the design.md quoted verbatim", s)
+        self.assertIn("never co-write a file", s)
+        self.assertIn("via the poster-first path", _read("signature-invention.md"))
 
 
 class TestEchoLaw(unittest.TestCase):
@@ -93,9 +94,10 @@ class TestEchoLaw(unittest.TestCase):
             "a fire-once spectacle that leaves a static frame after its first "
             "play is an entrance, not a signature", ix)
 
-    def test_preflight_drives_the_echoes(self):
-        pf = _read("preflight.md")
-        self.assertIn("**echoes driven as the mechanic transformed**", pf)
+    def test_skill_carries_the_echo_law(self):
+        s = _skill()
+        self.assertIn("recurs, transformed, in later sections", s)
+        self.assertIn("a dominant climax plus section-tied echoes", s)
 
     def test_richness_is_budget_scoped(self):
         self.assertIn("richness stays inside the budget by construction",
@@ -103,21 +105,17 @@ class TestEchoLaw(unittest.TestCase):
 
 
 class TestDiscoveryBeat(unittest.TestCase):
-    def test_driven_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("**the discovery beat, driven fresh**", pf)
-        self.assertIn("name the gesture within 10 s", pf)
-        self.assertIn(
-            "a written instruction label stays the under-tuned tell", pf)
+    def test_driven_at_r2(self):
+        ar = _read("audit-rubric.md")
+        self.assertIn("the discovery beat is driven fresh", ar)
+        self.assertIn("nameable within 10 s", ar)
 
 
 class TestScrollTextureSlot(unittest.TestCase):
-    def test_preflight_drives_the_texture(self):
-        pf = _read("preflight.md")
-        self.assertIn("**the scroll texture carries the eye**", pf)
-
     def test_skill_commits_the_texture(self):
-        self.assertIn("committed **scroll texture**", _skill())
+        s = _skill()
+        self.assertIn("a scroll texture", s)
+        self.assertIn("one ambient idle channel", s)
 
     def test_every_palette_carries_the_rows(self):
         for a in ARCHETYPES:

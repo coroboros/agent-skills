@@ -1,12 +1,10 @@
-"""award-design — the enforceability round: the 5-lens adversarial audit's adopted
-closings. The panel's convergent P0: a lazy run could declare the browser and the
-subagents absent, narrate the conformance loop, and ship a 5/10 as READY — every
-load-bearing gate was self-attested prose. These lock the closings: capability
-probes with verbatim evidence, a status ceiling on browserless runs, the per-section
-conformance ledger, the detector beside the scanner (fix-only FAILs, binding
-UNMEASURED accounting), the ranked pre-emit critique, isolated dual assessors, the
-predictability probe, the live-winner comparative read, and the gate-over-palette
-precedence rule."""
+"""award-design — the enforceability survivors. The rebuild retired the
+self-attested machinery (pre-emit critique, conformance ledger, capability
+lines, axiomatic-box suppressions) and kept the gates a lazy run cannot narrate
+around: the status ceiling on browserless runs, probe-before-declaring-a-gap,
+the detector beside the scanner with fix-only FAILs, isolated dual assessors,
+the predictability probe, the desire read as driven evidence, the rotation
+stamp, and perf-number provenance."""
 
 import re
 import unittest
@@ -37,45 +35,32 @@ class TestStatusCeiling(unittest.TestCase):
     def test_blocking_is_defined(self):
         pf = _read("preflight.md")
         self.assertIn("blocking is defined, not felt", pf)
-        self.assertIn("fatal-class fail", pf)
+        self.assertIn("any unticked box or any fail without a written justification", pf)
 
-    def test_override_pressure_routes_to_r2(self):
+    def test_overrides_written_and_brief_tied(self):
         pf = _read("preflight.md")
-        self.assertIn("any override on an axiomatic box", pf)
-        self.assertIn("**suppressions:**", pf)
+        self.assertIn("**justified overrides:**", pf)
+        self.assertIn("an unstated override is a fail", pf)
 
 
 class TestCapabilityProbes(unittest.TestCase):
-    def test_review_capability_line(self):
+    def test_degraded_review_is_labeled(self):
         s = _skill()
-        self.assertIn("subagents: present | absent (checked:", s)
-        self.assertIn(
-            "a claimed absence on a harness whose subagent tool answers the check "
-            "is a skipped gate", s)
+        self.assertIn("degraded: same-context", s)
+        self.assertIn('a bare "re-read, looks fine" clears nothing', s)
 
-    def test_degraded_label_travels(self):
-        s = _skill()
-        self.assertIn("travels verbatim into the final ship report", s)
-        self.assertIn("a refutation with no anchor is theater", s)
-
-
-class TestConformanceLedger(unittest.TestCase):
-    def test_ledger_replaces_narration(self):
-        s = _skill()
-        self.assertIn("ledger row", s)
-        self.assertIn("never a narration", s)
-
-    def test_uniform_first_try_is_an_anomaly(self):
-        self.assertIn("uniform-verdict anomaly", _skill())
-        self.assertIn("**ledger:**", _read("preflight.md"))
+    def test_probe_before_declaring_gap(self):
+        pf = _read("preflight.md")
+        self.assertIn("toolsearch for the browser mcp is the mandatory first probe", pf)
+        self.assertIn("declaring a gap the harness could have closed is the same fail", pf)
 
 
 class TestDetectorWiring(unittest.TestCase):
     def test_detector_beside_the_scanner(self):
         pf = _read("preflight.md")
-        self.assertIn("the detector catches, it never clears", pf)
-        self.assertIn("unmeasured: n → driven: m", pf)
+        self.assertIn("the detector runs beside the scanner", pf)
         self.assertIn("detector fails are fix-only", pf)
+        self.assertIn("no prose override clears one", pf)
 
     def test_skill_invokes_detector_at_phase_5(self):
         self.assertIn("assets/detector.js", _skill())
@@ -91,33 +76,13 @@ class TestDetectorWiring(unittest.TestCase):
             missing, f"preflight tags with no detector rule: {sorted(missing)}")
 
 
-class TestPreEmitCritique(unittest.TestCase):
-    def test_section_zero_axes(self):
-        pf = _read("preflight.md")
-        self.assertIn("## 0. pre-emit critique", pf)
-        for axis in ("world", "hierarchy", "craft", "specificity",
-                     "restraint", "aliveness"):
-            with self.subTest(axis=axis):
-                self.assertIn(f"**{axis}**", pf)
-
-    def test_ranking_not_threshold(self):
-        # A threshold teaches the passing constant (score everything 4); a
-        # ranking cannot be scored around — there is always a lowest.
-        self.assertIn(
-            "the lowest axis always takes one named, targeted revision",
-            _read("preflight.md"))
-        s = _skill()
-        self.assertIn(
-            "there is always a lowest, so the gate cannot be scored around", s)
-        self.assertIn("· critique: w4 h3 c4 s4 r5 a3", s)
-
-
 class TestDualAssessors(unittest.TestCase):
     def test_isolation_invariant(self):
         s = _skill()
-        self.assertIn("both assessors are subagents by definition", s)
-        self.assertIn(
-            "never sees scanner output, detector output, or the preflight verdict", s)
+        self.assertIn("two isolated assessors", s)
+        self.assertIn("never sees the reports", s)
+        self.assertIn("never sees the pixels", s)
+        self.assertIn("driven > computed > declared", s)
 
     def test_rubric_supersedes_ordering(self):
         self.assertIn("isolation supersedes ordering", _read("audit-rubric.md"))
@@ -127,20 +92,12 @@ class TestPredictabilityProbe(unittest.TestCase):
     def test_r1_opens_with_the_probe(self):
         s = _skill()
         self.assertIn("predictability probe", s)
-        self.assertIn(
-            "a matched prediction means the direction is still a default", s)
+        self.assertIn("a match means the direction is still a default", s)
 
     def test_probe_void_in_degraded_run(self):
         ar = _read("audit-rubric.md")
         self.assertIn("the predictability probe (r1)", ar)
         self.assertIn("void in a degraded same-context run", ar)
-
-
-class TestPrecedence(unittest.TestCase):
-    def test_gate_over_palette(self):
-        s = _skill()
-        self.assertIn("a phase 5 gate wins over an archetype palette row", s)
-        self.assertIn("never a licence", s)
 
 
 class TestComparativeReadIsLive(unittest.TestCase):
@@ -153,9 +110,9 @@ class TestComparativeReadIsLive(unittest.TestCase):
 
 class TestDesireReadTravels(unittest.TestCase):
     """ARDEN's review wrote "dishwater" mid-pass, then softened it into a clean
-    conclusion at synthesis — the desire verdict, filed as "declared" evidence,
-    lost to green mechanics. The read is now driven evidence, emitted first in a
-    fixed format, verbatim-travel protected like READY-UNVERIFIED."""
+    conclusion at synthesis — the desire verdict lost to green mechanics. The
+    read is driven evidence, emitted first in a fixed format, and travels
+    verbatim into the ship report."""
 
     def setUp(self):
         self.skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
@@ -163,32 +120,31 @@ class TestDesireReadTravels(unittest.TestCase):
 
     def test_desire_read_is_driven_evidence(self):
         low = self.skill.lower()
-        self.assertIn("comparative desire read run on the rendered pixels beside the live exemplar is driven evidence",
-                      low)
-        self.assertIn("never outranked by clean mechanical reports", low)
+        self.assertIn("the desire read is driven evidence", low)
+        self.assertIn("outranks clean mechanical reports", low)
+        self.assertIn("never softened", low)
 
-    def test_first_emitted_line_fixed_format(self):
+    def test_first_line_fixed_format(self):
         # the format token is case-sensitive
         self.assertIn('DESIRE-READ: BEATS|LOSES <exemplar>', self.skill)
-        self.assertIn("first emitted line is the read", self.skill.lower())
-        self.assertIn("travels verbatim", self.skill.lower())
-
-    def test_verdict_block_carries_the_field(self):
-        self.assertIn("**Desire read:**", self.pf)
-        self.assertIn("DESIRE-READ:", self.pf)
+        low = self.skill.lower()
+        self.assertIn("the review's first line", low)
+        self.assertIn("travels verbatim", low)
 
     def test_skip_vs_gap_doctrine(self):
-        low = self.skill.lower()
-        # with a rung present, comparison-from-description is the same fail as a false tick
-        self.assertIn("legal only with no browser rung", low)
-        self.assertIn("the same fail as falsely ticking a box", low)
+        # a false tick and a lazily declared gap are the same fail
+        self.assertIn("Falsely ticking a browser box is worse than declaring the gap",
+                      self.pf)
+        self.assertIn("declaring a gap the harness could have closed is the same fail",
+                      self.pf)
 
 
-class TestRotationQuotesTheStamp(unittest.TestCase):
-    def test_quoted_stamp_or_failed_lookup(self):
+class TestRotationStamp(unittest.TestCase):
+    def test_stamp_written_and_read(self):
         s = _skill()
-        self.assertIn("quotes the stamp line it found, verbatim", s)
         self.assertIn("nav:<pattern>", s)
+        self.assertIn("read the previous build's stamp", s)
+        self.assertIn("the rotation ledger the next build reads", s)
 
 
 class TestProvenance(unittest.TestCase):
@@ -196,9 +152,9 @@ class TestProvenance(unittest.TestCase):
         self.assertIn("freshness token", _read("preflight.md"))
 
     def test_perf_numbers_carry_provenance(self):
-        self.assertIn(
-            "a number with no provenance is an asserted number",
-            _read("preflight.md"))
+        pf = _read("preflight.md")
+        self.assertIn("an asserted number is a fail", pf)
+        self.assertIn("provenance", pf)
 
 
 if __name__ == "__main__":

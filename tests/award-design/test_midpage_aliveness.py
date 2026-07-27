@@ -72,7 +72,7 @@ class TestScoreRealityCalibration(unittest.TestCase):
     def test_skill_names_the_measured_ceiling(self):
         s = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8").lower()
         self.assertIn("routine sotd lands 7.2–7.9", s)
-        self.assertIn("never against an imagined 9", s)
+        self.assertIn("never an imagined 9", s)
 
 
 if __name__ == "__main__":

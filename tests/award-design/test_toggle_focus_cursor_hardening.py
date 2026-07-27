@@ -34,15 +34,15 @@ class TestInPlaceIconOnlyToggle(unittest.TestCase):
 
     def test_preflight_box(self):
         pf = _read("preflight.md")
-        self.assertIn("icon-only hamburger", pf)
-        self.assertIn("the exact point of the hamburger", pf)
+        self.assertIn("icon-only toggle", pf)
+        self.assertIn("every drawer link driven", pf)
 
 
 class TestKeyboardOnlyCustomFocus(unittest.TestCase):
     def test_preflight_focus_box(self):
         pf = _read("preflight.md")
-        self.assertIn("a mouse click or tap never shows an outline", pf)
-        self.assertIn("designed focus state in the committed accent", pf)
+        self.assertIn("designed, keyboard-only, instant", pf)
+        self.assertIn("no `outline: none` without replacement", pf)
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
@@ -64,11 +64,6 @@ class TestWordmarkHomeBehavior(unittest.TestCase):
         ap = _read("anti-patterns.md")
         self.assertIn("the unfinished-anchor tell", ap)
 
-    def test_preflight_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("wordmark home behavior", pf)
-        self.assertIn("no `#fragment` appearing in the url", pf)
-
 
 class TestSpecialCursorFamilyBan(unittest.TestCase):
     def test_code_review_covers_the_family(self):
@@ -83,7 +78,7 @@ class TestSpecialCursorFamilyBan(unittest.TestCase):
 
     def test_preflight_lint_box(self):
         pf = _read("preflight.md")
-        self.assertIn("any special-state native cursor", pf)
+        self.assertIn("native-control and cursor lint", pf)
 
 
 if __name__ == "__main__":

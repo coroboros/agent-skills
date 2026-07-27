@@ -43,9 +43,11 @@ class TestPerceptibleSubstrate(unittest.TestCase):
         isig = _read("interaction-signatures.md")
         self.assertIn("quiet is the tempo, not the invisibility", isig)
 
-    def test_preflight_substrate_driven_and_perceptible(self):
-        pf = _read("preflight.md")
-        self.assertIn("live substrate — every element responds, perceptibly", pf)
+    def test_substrate_measured_and_routed_to_r2(self):
+        # the perceptibility floor is the detector's job now; the gate routes
+        # its homeopathic findings to R2 instead of carrying its own box
+        self.assertIn("perceptibility floors", _read("detector.md"))
+        self.assertIn("homeopathic responses", _read("preflight.md"))
 
 
 class TestCarriedSignature(unittest.TestCase):
@@ -53,9 +55,10 @@ class TestCarriedSignature(unittest.TestCase):
         isig = _read("interaction-signatures.md")
         self.assertIn("the signature must carry, not merely recur", isig)
 
-    def test_preflight_one_signature_carries(self):
-        pf = _read("preflight.md")
-        self.assertIn("one signature carries the whole scroll", pf)
+    def test_rubric_one_signature_carries(self):
+        ar = _read("audit-rubric.md")
+        self.assertIn("**carry:** one signature behaviour recurs and builds "
+                      "through the *whole* scroll", ar)
 
 
 class TestReviewJudgedDriven(unittest.TestCase):
@@ -91,12 +94,12 @@ class TestTextEffectRecipe(unittest.TestCase):
 class TestKickerAndFooter(unittest.TestCase):
     def test_default_no_kicker(self):
         self.assertIn("the default is no kicker", _read("anti-patterns.md"))
-        self.assertIn("default is no kicker; the h1 stands alone", _read("preflight.md"))
+        self.assertIn("**eyebrows** — default none", _read("preflight.md"))
         self.assertIn("default is no kicker — the section title stands alone", _read("editorial.md"))
 
     def test_footer_no_story_copy(self):
         self.assertIn("story copy orphaned in the footer", _read("anti-patterns.md"))
-        self.assertIn("footer carries no presentation copy", _read("preflight.md"))
+        self.assertIn("footer carries no presentation copy", _read("page-anatomy.md"))
 
 
 if __name__ == "__main__":

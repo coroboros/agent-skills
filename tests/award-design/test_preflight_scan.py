@@ -3,9 +3,9 @@
 The scanner exists so the countable anti-slop tells are machine-checked instead
 of self-attested. These tests pin four contracts: a dirty build trips every
 wired rule, a clean build exits 0 with zero findings, a zero-file scan exits 2
-instead of printing a perfect summary, and the rule IDs stay in lockstep
-between the script and the preflight.md checklist (drift there orphans either
-the box or the rule)."""
+instead of printing a perfect summary, and every `(scanner: RULE-ID)` tag in
+the preflight.md checklist names a rule the script actually ships (a tag
+naming a dead rule lies about its mechanical help)."""
 
 import contextlib
 import importlib.util
@@ -82,9 +82,8 @@ class TestCleanFixturePasses(unittest.TestCase):
 
 
 class TestSuppressions(unittest.TestCase):
-    """--archetype and --allow are the override paths; both must actually
-    suppress, and both must be visible in the suppression notes so the verdict
-    can cite them."""
+    """--archetype is the override path; it must actually suppress, and be
+    visible in the suppression notes so the verdict can cite it."""
 
     def test_editorial_archetype_suppresses_emdash_only(self):
         findings, notes = scan.scan_paths([str(FIXTURES / "dirty")], archetype="editorial")
@@ -118,11 +117,6 @@ class TestSuppressions(unittest.TestCase):
             (Path(tmp) / "index.html").write_text(html, encoding="utf-8")
             findings, _ = scan.scan_paths([tmp])
         self.assertNotIn("PURE-BW", _rule_ids(findings))
-
-    def test_allow_suppresses_named_rule(self):
-        findings, notes = scan.scan_paths([str(FIXTURES / "dirty")], allow=["IMG-ALT"])
-        self.assertNotIn("IMG-ALT", _rule_ids(findings))
-        self.assertTrue(any("IMG-ALT" in note for note in notes))
 
     def test_outline_none_downgrades_when_focus_visible_exists(self):
         """OUTLINE-NONE is a fail only when the project ships no :focus-visible
@@ -393,17 +387,17 @@ class TestCopyEcho(unittest.TestCase):
 
     def test_preflight_box_carries_both_pairs_and_exemption(self):
         pf = PREFLIGHT_MD.read_text(encoding="utf-8")
-        self.assertIn("Adjacent copy read as a pair", pf)
+        self.assertIn("kicker+heading", pf)
         self.assertIn("heading+first-line", pf)
-        self.assertIn("brand or product proper noun is exempt", pf)
+        self.assertIn("brand proper nouns exempt", pf)
 
 
-class TestEyebrowDensityLibraryAware(unittest.TestCase):
-    """EYEBROW-DENSITY must count the closed-world library's own eyebrows —
-    `<p class="kicker">` / `data-slot="kicker"`, uppercase from vanilla CSS —
-    not only Tailwind `tracking-` utilities. Keying off `tracking-` alone counts
-    zero on every library build, which let a mono-caps kicker stamped over every
-    section ship unflagged (the regression the owner flagged on Aubry)."""
+class TestEyebrowDensityMarkupForms(unittest.TestCase):
+    """EYEBROW-DENSITY must count vanilla-CSS eyebrows — `<p class="kicker">` /
+    `data-slot="kicker"`, uppercase from plain CSS — not only Tailwind
+    `tracking-` utilities. Keying off `tracking-` alone counts zero on every
+    vanilla-CSS build, which let a mono-caps kicker stamped over every section
+    ship unflagged (the regression the owner flagged on Aubry)."""
 
     def _rule_ids(self, body):
         import tempfile
@@ -440,30 +434,28 @@ class TestEyebrowDensityLibraryAware(unittest.TestCase):
 
 
 class TestScannerChecklistLockstep(unittest.TestCase):
-    """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule, and
-    every rule the script ships is reachable from the checklist. One-sided
-    drift means a box lies about its mechanical help, or a rule runs with no
-    box to feed."""
+    """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule — a tag
+    naming a dead rule lies about its mechanical help. The reverse does not
+    hold: pure defect rules fire without a checklist box, so not every rule
+    needs a tag."""
 
     @classmethod
     def setUpClass(cls):
         cls.preflight = PREFLIGHT_MD.read_text(encoding="utf-8")
         cls.md_ids = set()
-        for tag in re.findall(r"\(scanner:\s*([A-Z0-9-,\s]+)\)", cls.preflight):
+        # A tag may carry trailing prose ("EMDASH — suppressed for …"); only
+        # the leading comma-separated rule IDs are the citation.
+        for tag in re.findall(r"\(scanner:\s*([A-Z][A-Z0-9-]*(?:,\s*[A-Z][A-Z0-9-]*)*)",
+                              cls.preflight):
             cls.md_ids.update(part.strip() for part in tag.split(","))
         cls.script_ids = scan.known_rule_ids()
 
     def test_every_checklist_tag_names_a_real_rule(self):
+        self.assertTrue(self.md_ids, "preflight.md carries no scanner tags — extraction broke")
         for rule_id in sorted(self.md_ids):
             with self.subTest(rule=rule_id):
                 self.assertIn(rule_id, self.script_ids,
                               f"preflight.md cites unknown scanner rule: {rule_id}")
-
-    def test_every_script_rule_is_reachable_from_the_checklist(self):
-        for rule_id in sorted(self.script_ids):
-            with self.subTest(rule=rule_id):
-                self.assertIn(rule_id, self.md_ids,
-                              f"scanner rule {rule_id} has no `(scanner: …)` tag in preflight.md")
 
 
 if __name__ == "__main__":

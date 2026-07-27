@@ -51,11 +51,6 @@ class TestTimestampedArbitration(unittest.TestCase):
         self.assertIn("declared-vs-code check", ar)
         self.assertIn("the arbitration is fiction", ar)
 
-    def test_roster_box_never_self_ticked(self):
-        pf = _read("preflight.md")
-        self.assertIn("**medium arbitration anchored**", pf)
-        self.assertIn("this box is never self-ticked alone", pf)
-
     def test_single_product_exempt_but_not_a_world(self):
         """The exemption narrowed (world-medium round): a single displayed hero
         PRODUCT stays exempt under real-media-first, but an immersive WORLD is
@@ -129,7 +124,7 @@ class TestInstrumentAndInvitation(unittest.TestCase):
         ix = _read("interaction-signatures.md")
         self.assertIn("a cursor-only invitation abandons the touch audience", ix)
         pf = _read("preflight.md")
-        self.assertIn("the beat is also driven under touch emulation", pf)
+        self.assertIn("discovery beat is also driven under touch emulation", pf)
 
 
 class TestDrawerFloorCeiling(unittest.TestCase):
@@ -146,8 +141,7 @@ class TestDrawerFloorCeiling(unittest.TestCase):
         nav = _read("navigation-patterns.md")
         self.assertIn("the detector runs with the drawer open", nav)
         pf = _read("preflight.md")
-        self.assertIn("**drawer floor — every link driven, with the drawer "
-                      "open**", pf)
+        self.assertIn("every drawer link driven with the drawer open", pf)
 
     def test_anti_pattern_tell(self):
         self.assertIn("**the dead-list drawer**", _read("anti-patterns.md"))

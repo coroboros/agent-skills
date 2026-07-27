@@ -1,8 +1,0 @@
-@keyframes drift {
-  from { transform: translateY(0); }
-  to { transform: translateY(-12px); }
-}
-
-.haze {
-  animation: drift 6s linear infinite;
-}

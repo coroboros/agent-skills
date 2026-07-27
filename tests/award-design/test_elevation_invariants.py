@@ -35,9 +35,9 @@ class TestNamedTrapsAndCountableChecks(unittest.TestCase):
         self.preflight = _read(REFS / "preflight.md")
 
     def _countable_table(self):
-        m = re.search(r"## 4\. Countable boxes(.*?)(?=^## )", self.preflight,
+        m = re.search(r"## 4\. Countable(.*?)(?=^## )", self.preflight,
                       re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "preflight.md §4 Countable boxes missing")
+        self.assertIsNotNone(m, "preflight.md §4 Countable missing")
         return m.group(1)
 
     def test_anti_patterns_points_to_the_moved_table(self):
@@ -49,57 +49,61 @@ class TestNamedTrapsAndCountableChecks(unittest.TestCase):
 
     def test_harvested_countable_checks_present(self):
         table = self._countable_table()
-        for check in ("Hero-stack cap", "CTA-intent consistency", "Zigzag cap",
-                      "Marquee cap", "Layout-family variety"):
+        for check in ("Hero stack", "CTA intent", "Zigzag",
+                      "Marquees", "Layout variety"):
             with self.subTest(check=check):
                 self.assertIn(f"**{check}**", table,
                               f"countable check missing: {check}")
 
-    def test_checks_declare_scope(self):
-        """Every countable check declares Global vs archetype-conditional —
-        the scope column is the override mechanism for the gate."""
-        for check in ("Hero-stack cap", "CTA-intent consistency", "Zigzag cap",
-                      "Marquee cap", "Layout-family variety", "Em-dash density"):
-            row = next((ln for ln in self.preflight.splitlines()
-                        if f"**{check}**" in ln), "")
-            with self.subTest(check=check):
-                self.assertTrue(row, f"row missing for {check}")
-                self.assertTrue(
-                    "Global" in row or "Archetype-conditional" in row,
-                    f"{check} must declare a scope",
-                )
+    def test_overrides_are_verdict_written_and_archetype_scoped(self):
+        """The scope column died with the table format; the override mechanism
+        is now file-level (a written, brief-tied override in the verdict) plus
+        inline archetype suppressions on the rows that need them."""
+        self.assertIn(
+            "the override is written into the verdict and tied to the brief; "
+            "an unstated override is a fail", self.preflight,
+            "the file-level override law must be stated in the preflight intro")
+        emdash = next((ln for ln in self.preflight.splitlines()
+                       if "**Em-dash density**" in ln), "")
+        self.assertIn("suppressed for editorial / corporate-luxury", emdash,
+                      "the em-dash cap must keep its archetype suppression")
 
     def test_layout_family_exempts_single_fold(self):
-        """Layout-family variety must not fire on single-fold portfolios / docs —
+        """Layout variety must not fire on single-fold portfolios / docs —
         that exemption is what keeps it from smothering minimal builds."""
         row = next((ln for ln in self.preflight.splitlines()
-                    if "Layout-family variety" in ln), "")
+                    if "**Layout variety**" in ln), "")
         self.assertIn("single-fold", row.lower(),
-                      "layout-family check must exempt single-fold portfolios / docs")
+                      "layout-variety check must exempt single-fold pages")
 
-    def test_countable_only_checks_carry_inline_override(self):
-        """The global-scope caps with no archetype exception must still offer a
-        brief-tied path (an 'Override:' clause or an explicit 'is fine' allowance)
-        so no ban is a dead end."""
-        for check in ("Hero-stack cap", "CTA-intent consistency", "Zigzag cap"):
-            row = next((ln for ln in self.preflight.splitlines()
-                        if f"**{check}**" in ln), "")
-            with self.subTest(check=check):
-                self.assertTrue(
-                    "Override" in row or "is fine" in row,
-                    f"{check} must carry an override / allowance clause",
-                )
+    def test_caps_keep_a_brief_tied_path(self):
+        """No ban is a dead end: the zigzag cap keeps its inline allowance and
+        the verdict block carries the written-override line for the rest."""
+        row = next((ln for ln in self.preflight.splitlines()
+                    if "**Zigzag**" in ln), "")
+        self.assertIn("a third only if it inverts composition", row,
+                      "the zigzag cap must keep its inline allowance")
+        self.assertIn("**Justified overrides:**", self.preflight,
+                      "the verdict block must carry the justified-overrides line")
 
     def test_imported_production_checks_present(self):
         """The taste-skill/hallmark import round added rules the catalog lacked;
-        each must land as a countable box so the gate can count it."""
+        the countable ones stay §4 boxes, the rest moved to their tell / pattern
+        homes — each must survive somewhere the protocol still loads."""
         table = self._countable_table()
-        for check in ("Hero top padding", "Nav discipline", "CTA wrap",
-                      "Quote length", "Middle-dot rationing", "Split-header",
-                      "Long-list component", "Italic descenders"):
+        for check in ("CTA wrap", "Middle dots", "Long lists",
+                      "Italic descenders"):
             with self.subTest(check=check):
                 self.assertIn(f"**{check}**", table,
                               f"imported countable check missing: {check}")
+        for phrase in ("Hero top padding past `pt-24`", "Split-header sections",
+                       "Quotes running past 3 lines"):
+            with self.subTest(tell=phrase):
+                self.assertIn(phrase, self.anti,
+                              f"imported tell missing from anti-patterns.md: {phrase}")
+        nav = _read(REFS / "navigation-patterns.md")
+        self.assertIn("desktop under 10% of viewport", nav,
+                      "the nav height discipline must survive in navigation-patterns.md")
 
     def test_split_screen_hero_banned_with_override(self):
         line = next((ln for ln in self.anti.splitlines()
@@ -281,26 +285,25 @@ class TestShipReadyFloor(unittest.TestCase):
         self.assertIsNotNone(m, f"## Phase {n} section missing")
         return m.group(1)
 
-    def test_impose_tier_auto_authored_in_build(self):
-        """The protocol splits the floor: Impose is auto-authored while building
-        (Phase 4)."""
-        phase4 = self._phase(4)
-        self.assertIn("ship-ready-floor.md", phase4,
-                      "Phase 4 must cite the ship-ready floor's Impose tier")
-        self.assertIn("auto-authored as you build", phase4.lower(),
-                      "the Impose tier must be auto-authored during the build")
-        self.assertIn("8-state contract", phase4,
-                      "the 8-state interactive contract rides the Impose tier")
+    def test_impose_tier_rides_the_preflight_floor(self):
+        """The protocol splits the floor: the Impose tier binds at the Phase 5
+        craft floor, which cites it as its catalog and carries the 8-state
+        contract box."""
+        preflight = _read(REFS / "preflight.md")
+        self.assertIn("`ship-ready-floor.md` (Impose tier)", preflight,
+                      "the craft floor must cite the ship-ready floor's Impose tier")
+        self.assertIn("**8-state contract**", preflight,
+                      "the 8-state interactive contract rides the craft floor")
 
     def test_offer_tier_is_per_brief_never_auto_built(self):
-        """…and Offer is surfaced per brief at ship time (Phase 6)."""
+        """…and Offer is surfaced per brief at ship time (Phase 6); the
+        never-auto-built and single-fold exemptions live in the tier itself,
+        pinned by TestShipReadyFloor.test_offer_tier_is_opt_in_production_weight."""
         phase6 = self._phase(6).lower()
-        self.assertIn("offer production plumbing", phase6,
-                      "the Offer tier must be surfaced as production plumbing")
-        self.assertIn("never auto-built", phase6,
-                      "the Offer tier must never be auto-built")
-        self.assertIn("single-fold build needs none", phase6,
-                      "the Offer tier must exempt a single-fold build")
+        self.assertIn("offer production plumbing per brief", phase6,
+                      "the Offer tier must be surfaced as production plumbing, per brief")
+        self.assertIn("ship-ready-floor.md", phase6,
+                      "Phase 6 must route the offer to the ship-ready floor")
 
     def test_signature_moment_outranks_floor_in_prominence(self):
         sig = self.skill.lower().find("signature moment")

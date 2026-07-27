@@ -1,8 +1,8 @@
 # Award component library
 
-Real, drop-in, production-grade components the model **composes** into a build — not prose describing what winners did. Each is derived from a specific award winner, framework-agnostic (vanilla JS + CSS custom properties, GSAP/Lenis used only when present), token-driven so it adopts the build's `DESIGN.md` palette, and ships accessible + reduced-motion-safe + perf-budgeted by construction.
+Real, drop-in, production-grade components — winner-derived **vocabulary** the model builds with, not prose describing what winners did. Each is derived from a specific award winner, framework-agnostic (vanilla JS + CSS custom properties, GSAP/Lenis used only when present), token-driven so it adopts the build's `DESIGN.md` palette, and ships accessible + reduced-motion-safe + perf-budgeted by construction.
 
-This is the studio model: a curated palette of ingredients that already win, so the model can only pick a sub-optimal *combination*, never a bad ingredient. Composition (which 3–5 fit this world, in restraint) stays the model's job under the existing forcing; the human gives the composition verdict.
+This is the studio model: a curated palette of ingredients that already win. Reach for the library first — a proven ingredient beats a reinvented one — bend it through the token contract until it belongs to the build's world, and author beyond it at the same quality bar (init/destroy lifecycle, token-driven, reduced-motion-safe) when the world needs something the shelf lacks. A gap is something you author, never a stop. Which 3–5 fit this world, in restraint, stays the model's call; quality is judged by fresh-context review beside the exemplar.
 
 ## The token contract
 
@@ -36,7 +36,7 @@ A build maps its `DESIGN.md` tokens onto these once (an alias block), or sets th
 
 ## Manifest
 
-`manifest.json` lists every component: `id`, `file`, `winner` (the site it's derived from), `archetypes` (where it fits), `tokens` (which it reads), `deps` (optional libs it enhances with), `whenToUse`, `init` (the exported init signature). The model reads the manifest to compose; it imports only the components its recipe names.
+`manifest.json` lists every component: `id`, `file`, `winner` (the site it's derived from), `archetypes` (where it fits), `tokens` (which it reads), `deps` (optional libs it enhances with), `whenToUse`, `init` (the exported init signature). The model reads the manifest to choose; a build imports only the components it actually initializes.
 
 ## Init contract
 
@@ -50,8 +50,8 @@ A section form owns what freeform builders keep getting wrong: the layout. Each 
 
 **The layering law.** The form owns the box; interaction components own the slot's contents. The builder initializes interaction components on slot hooks (`awardKineticReveal.init(document, { selector: '[data-ad-form="hero-masthead"] [data-slot="h1"]' })`); a form's enhancer may toggle classes/attributes on the slot element itself but never restructures a slot's inner DOM — inner-DOM surgery (line wrapping, mask spans) is the exclusive right of interaction components. Forms never auto-init interaction components.
 
-**Variants.** `data-media` / `data-align` / `data-density` on the root, consumed by CSS attribute selectors. Variants × tokens × content × pairings keep two builds from cloning; only the placement discipline is shared. Freeform section CSS stays legal only where no form fits — declared in the design_plan with the reason.
+**Variants.** `data-media` / `data-align` / `data-density` on the root, consumed by CSS attribute selectors. Variants × tokens × content × pairings keep two builds from cloning; only the placement discipline is shared. Where no form fits, author the section's CSS freeform at the same bar — declared in the design_plan with the reason.
 
 ## Playbooks (`playbooks/`)
 
-One JSON per archetype: the winner-derived decision layer above `recipes.json`. Each playbook carries a verified winner `corpus`, the archetype's `story` and `spectacle_model` (with its verdict on the motion-continuity question), an ordered `algorithm` of deterministic decision steps (story → signature thread → macrostructure → momentum map → per-section pairing → per-element states → mobile → copy), a `section_playbook`, `element_states` per element class, a `mobile_answer`, prioritized `gaps` (winner-evidenced components the library lacks — pre-authorized build orders), and an `unverified` bucket for claims that survived research but not verification. Every file is `revision: 2` — the state after an independent adversarial refuter attacked the draft and a reviser applied the verdicts; revision-1 (unrefuted) playbooks never ship here. Phase 4 follows the `algorithm` steps in order; taste is pre-decided by the evidence, only content varies.
+One JSON per archetype: the winner-derived decision layer above `recipes.json`. Each playbook carries a verified winner `corpus`, the archetype's `story` and `spectacle_model` (with its verdict on the motion-continuity question), an ordered `algorithm` of deterministic decision steps (story → signature thread → macrostructure → momentum map → per-section pairing → per-element states → mobile → copy), a `section_playbook`, `element_states` per element class, a `mobile_answer`, prioritized `gaps` (winner-evidenced mechanics the library lacks — each spec a build recipe you may author directly at library quality), and an `unverified` bucket for claims that survived research but not verification. Every file is `revision: 2` — the state after an independent adversarial refuter attacked the draft and a reviser applied the verdicts; revision-1 (unrefuted) playbooks never ship here. Phase 4 reads the `algorithm` as corpus evidence — how winners structured this archetype; steal the shapes, diverge with reasons.

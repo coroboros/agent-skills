@@ -5,7 +5,7 @@ procession-wayfinding, brand-object-assembly-loader, pointer-scene-reveal.
 Two are corpse-derived (the campaign's own record, not winner citations):
 telemetry-readout is the scroll-progress HUD three dead builds each
 re-invented (MARE alt/phase readers, CALDERA acquiring-fix HUD, AVALANCHE
-signal rail — the closed-world boundary verdict promotes the recurring
+signal rail — the library-quality boundary verdict promotes the recurring
 invention); nav-context-ink is the section-driven nav ink swap (CALDERA
 footerNavSwap is-over-light, AVALANCHE data-nav-phase), IO-based and
 zero-flip compliant with show-on-scroll-up-nav's accumulator — it PUBLISHES
@@ -144,7 +144,7 @@ class TestTelemetryReadout(unittest.TestCase):
         self.src = _src("telemetry-readout.js")
 
     def test_corpse_derived_evidence_in_header(self):
-        for token in ("MARE", "CALDERA", "AVALANCHE", "closed-world"):
+        for token in ("MARE", "CALDERA", "AVALANCHE", "promotes a pattern into the library"):
             self.assertIn(token, self.src)
 
     def test_piecewise_map_and_phase_grammar(self):

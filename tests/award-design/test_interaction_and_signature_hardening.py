@@ -63,7 +63,7 @@ class TestDistributedSignature(unittest.TestCase):
 
     def test_skill_phase4_motion_has_coverage_not_amplitude(self):
         p4 = _phase(4)
-        self.assertIn("full coverage at minimal amplitude", p4)
+        self.assertIn("restraint lowers amplitude, never coverage", p4)
 
     def test_anti_pattern_bans_dead_after_hero(self):
         ap = _read("anti-patterns.md")
@@ -97,9 +97,10 @@ class TestTextEffects(unittest.TestCase):
         tx = _read("text-effects.md")
         self.assertIn("semantic accent", tx)
 
-    def test_preflight_gates_text_emphasis_legible_first(self):
-        pf = _read("preflight.md")
-        self.assertIn("text emphasis is legible-first", pf)
+    def test_phase4_gates_text_emphasis_legible_first(self):
+        p4 = _phase(4)
+        self.assertIn("scroll emphasis on already-legible copy, "
+                      "never a reveal from invisible", p4)
 
 
 class TestNativeControlsAndCursor(unittest.TestCase):
@@ -118,9 +119,9 @@ class TestNativeControlsAndCursor(unittest.TestCase):
         self.assertIn("never prescribes a tell", dm)
 
     def test_preflight_gates_uplift_and_cursor(self):
-        # the mechanical control/cursor check lives once, in the §9 code-craft home
+        # the mechanical control/cursor check lives once, in the code-pass home
         pf = _read("preflight.md")
-        self.assertIn("native-control + cursor lint", pf)
+        self.assertIn("native-control and cursor lint", pf)
 
 
 class TestOklchAndRem(unittest.TestCase):
@@ -163,13 +164,13 @@ class TestCodeReviewGate(unittest.TestCase):
 
     def test_skill_phase5_runs_code_craft(self):
         p5 = _phase(5)
-        self.assertIn("code-craft review", p5)
-        self.assertIn("overrides the design.md", p5)
+        self.assertIn("code-review.md", p5)
+        self.assertIn("the code pass", p5)
 
     def test_preflight_has_code_craft_section(self):
         pf = _read("preflight.md")
-        self.assertIn("code-craft review", pf)
-        self.assertIn("native-control + cursor lint", pf)
+        self.assertIn("the final code pass (`code-review.md`)", pf)
+        self.assertIn("its result is one line in the verdict", pf)
 
 
 class TestPalettesWiredIntoProtocol(unittest.TestCase):

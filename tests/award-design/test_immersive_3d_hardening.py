@@ -56,10 +56,10 @@ class TestAxis1FidelityRouting(unittest.TestCase):
         self.assertIn("fidelity governs the medium", imm)
         self.assertIn("scrubbed real", imm)
 
-    def test_phase3_commits_the_medium_by_fidelity(self):
-        p3 = _phase(3).lower()
-        self.assertIn("chosen for fidelity", p3)
-        self.assertIn("scroll-scrubbed real video", p3)
+    def test_phase1_commits_the_medium_for_desirability(self):
+        p1 = _phase(1).lower()
+        self.assertIn("chosen for desirability, not safety", p1)
+        self.assertIn("author it at the same quality bar", p1)
 
 
 class TestAxis2FidelityFloor(unittest.TestCase):
@@ -77,10 +77,11 @@ class TestAxis2FidelityFloor(unittest.TestCase):
         self.assertIn("no primitive geometry as the hero object", self.low)
         self.assertIn("silhouette test", self.low)
 
-    def test_preflight_gates_used_well(self):
-        pf = _read("preflight.md").lower()
-        self.assertTrue("physical material" in pf and "hdri" in pf,
-                        "preflight §7 must gate the WebGL scene's material + HDRI fidelity")
+    def test_phase4_delegation_gates_used_well(self):
+        p4 = _phase(4).lower()
+        self.assertTrue("physical material" in p4 and "hdri" in p4,
+                        "the Phase 4 delegation must gate the scene's material + HDRI fidelity")
+        self.assertIn("no primitive geometry as the hero object", p4)
 
     def test_two_tier_streaming_hold_gate(self):
         self.assertIn("two-tier texture streaming", self.low)
@@ -116,13 +117,14 @@ class TestSequenceFidelityFloor(unittest.TestCase):
 
     def test_preflight_asset_fidelity_box(self):
         pf = _read("preflight.md")
-        self.assertIn("**Asset fidelity — measured, one row per signature asset**", pf)
-        self.assertIn("rendered device px at the worst moment", pf)
+        self.assertIn("**Asset fidelity, measured**", pf)
+        self.assertIn("device pixels at its worst rendered moment, "
+                      "numbers from the machine readout", pf)
 
-    def test_phase1_wires_floor_and_source_clause(self):
-        p1 = _phase(1)
-        self.assertIn("sequence-fidelity floor", p1)
-        self.assertIn("constrains SOURCES, never the engine", p1)
+    def test_phase3_wires_the_fidelity_floor(self):
+        p3 = _phase(3)
+        self.assertIn("holds ≥ device pixels at its worst rendered moment", p3)
+        self.assertIn("sub-CSS resolution on a signature surface is disqualifying", p3)
 
     def test_immersive_playbook_carries_the_floor(self):
         import json
@@ -158,13 +160,14 @@ class TestAxis3InputCorrectness(unittest.TestCase):
         self.assertIn("native drag-ghost", ap)
         self.assertTrue("grab-hand cursor" in ap or "cursor: grab" in ap)
 
-    def test_preflight_drives_a_real_drag(self):
+    def test_preflight_drives_the_signature_live(self):
         pf = _read("preflight.md").lower()
-        self.assertIn("interactive signature driven as a real user", pf)
-        self.assertIn("real mouse drag", pf)
+        self.assertIn("the signature driven live: fires, completes, holds frame", pf)
 
-    def test_phase4_loop_drives_a_real_drag(self):
-        self.assertIn("real mouse drag", _phase(4).lower())
+    def test_phase4_delegation_input_floor(self):
+        p4 = _phase(4).lower()
+        self.assertIn("no native drag-ghost", p4)
+        self.assertIn("hit-area on the object", p4)
 
 
 class TestAxis4SourcedNotUsedWell(unittest.TestCase):
@@ -173,15 +176,15 @@ class TestAxis4SourcedNotUsedWell(unittest.TestCase):
         self.assertTrue("using the medium well" in w or "used the medium well" in w
                         or "using it well" in w or "low-effort" in w)
 
-    def test_phase3_says_sourcing_is_not_using_well(self):
-        self.assertIn("not using it well", _phase(3).lower())
+    def test_r2_judges_execution_not_presence(self):
+        self.assertIn("not just that it runs", _review_mode().lower())
 
 
 class TestAxis5ExecutionReview(unittest.TestCase):
     def test_r2_drives_signature_as_real_user(self):
         r = _review_mode().lower()
         self.assertIn("drive the signature as a real user", r)
-        self.assertIn("reads cheap", r)
+        self.assertIn("reads cgi", r)
 
     def test_imperative_one_execution_fidelity(self):
         imp = _read("award-imperatives.md").lower()
@@ -193,9 +196,6 @@ class TestAxis6SignatureServesIdentity(unittest.TestCase):
         sig = _read("signature-invention.md").lower()
         self.assertIn("serves the identity, never the reverse", sig)
         self.assertIn("non-negotiable attribute", sig)
-
-    def test_r2_checks_the_identity(self):
-        self.assertIn("non-negotiable attribute", _review_mode().lower())
 
     def test_imperative_one_identity(self):
         self.assertIn("serves the identity", _read("award-imperatives.md").lower())

@@ -108,10 +108,11 @@ class TestInSceneAmbientLife(unittest.TestCase):
         for token in ("ambient-idle", "living-presence-layer", "never faked"):
             self.assertIn(token, self.src)
 
-    def test_closed_world_grounds_in_header(self):
-        """Why this is library machinery at all: the hand loop is
-        CW-RAF-LOOP; populations-as-DATA are legal composition."""
-        self.assertIn("CW-RAF-LOOP", self.src)
+    def test_single_raf_loop_grounds_in_header(self):
+        """Why this is library machinery at all: a scene owns ONE rAF loop;
+        populations-as-DATA are legal composition."""
+        self.assertIn("a scene owns ONE rAF loop", self.src)
+        self.assertIn("never in a second", self.src)
 
     def test_no_engine_import_crosses_the_boundary(self):
         """The raycast-object-state seam: the scene owns rendering — the

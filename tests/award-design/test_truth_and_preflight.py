@@ -3,9 +3,9 @@ protocol rebuild added as gates.
 
 external-truth.md keeps heavy layers (GSAP, Three/R3F, Lenis, View Transitions,
 Web Audio, modern CSS) off training memory via a three-rung resolution ladder;
-preflight.md is the single ship gate Phase 5 runs box by box. These tests pin
+preflight.md is the mechanical floor Phase 5 ticks box by box. These tests pin
 the ladder order, the verified install commands, the stale-signature
-tripwires, and the gate's section spine + verdict block."""
+tripwires, and the floor's section spine + verdict block."""
 
 import re
 import unittest
@@ -91,18 +91,18 @@ class TestCapabilityMap(unittest.TestCase):
 
 
 class TestPreflightGateStructure(unittest.TestCase):
-    """The gate's spine: scan first, then axiomatic boxes, locks, countables,
-    craft floor, copy audit, truth & assets, browser proof, verdict."""
+    """The floor's spine: scan first, then tells, locks, countables,
+    craft floor, copy floor, assets, driven browser checks, verdict."""
 
     SECTIONS = [
         "## 1. Mechanical scan",
-        "## 2. Axiomatic boxes",
+        "## 2. Tells",
         "## 3. Consistency locks",
-        "## 4. Countable boxes",
+        "## 4. Countable",
         "## 5. Craft floor",
-        "## 6. Copy audit",
-        "## 7. Truth & assets",
-        "## 8. Browser proof",
+        "## 6. Copy floor",
+        "## 7. Assets",
+        "## 8. Driven in the browser",
         "## Verdict block",
     ]
 
@@ -117,18 +117,18 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertEqual(positions, sorted(positions),
                          "preflight sections out of the contracted order")
 
-    def test_binary_no_compression_framing(self):
+    def test_binary_no_taste_framing(self):
         head = self.preflight[:800]
-        self.assertIn("every box ticks or the build is not done", head)
-        self.assertIn("No sampling, no compression", head)
+        self.assertIn("countable or binary — no taste lives in this file", head)
+        self.assertIn("Every box ticks or the build is not done", head)
 
-    def test_fourteen_axiomatic_boxes(self):
-        m = re.search(r"## 2\. Axiomatic boxes(.*?)(?=^## )", self.preflight,
+    def test_tells_section_boxes(self):
+        m = re.search(r"## 2\. Tells(.*?)(?=^## )", self.preflight,
                       re.DOTALL | re.MULTILINE)
         self.assertIsNotNone(m)
         boxes = re.findall(r"^- \[ \]", m.group(1), re.MULTILINE)
-        self.assertEqual(len(boxes), 14,
-                         "the axiomatic boxes must mirror the catalog's 14 rejections")
+        self.assertGreaterEqual(len(boxes), 12,
+                                "the tells section must keep its catalog breadth")
 
     def test_five_consistency_locks(self):
         m = re.search(r"## 3\. Consistency locks(.*?)(?=^## )", self.preflight,
@@ -147,30 +147,27 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertIn("resolves to the committed face", self.preflight,
                       "browser proof must carry the computed-font-resolution box")
 
-    def test_conformance_loop_box_in_browser_proof(self):
-        self.assertIn("conformance loop exited clean", self.preflight.lower())
-        self.assertIn("5-loop cap", self.preflight)
+    def test_section_loop_moved_to_phase_4(self):
+        # the per-section conformance loop lives in the build phase now, capped
+        skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("fix and loop until both widths pass in the same iteration", skill)
+        self.assertIn("cap 5 — file what still stands", skill)
 
-    def test_mcp_measurements_are_mandatory_when_connected(self):
-        """'Where the tooling offers' was a latitude hole — a connected MCP
-        makes the trace mandatory; a miss is a finding, not a gap."""
-        self.assertIn("performance trace is mandatory", self.preflight)
-        self.assertIn("a miss is a finding, not a gap", self.preflight)
-
-    def test_pacing_and_quiet_layer_boxes(self):
-        for box in ("**Pacing curve**", "**Quiet layer**"):
-            with self.subTest(box=box):
-                self.assertIn(box, self.preflight, f"countable box missing: {box}")
-        self.assertIn("optical-craft.md", self.preflight,
-                      "the quiet-layer box must route to the optical-craft menu")
+    def test_measurements_are_mandatory_when_connected(self):
+        """'Where the tooling offers' was a latitude hole — a connected harness
+        cannot declare a gap it could have closed, and asserted numbers never
+        count as measurements."""
+        self.assertIn("an asserted number is a fail", self.preflight)
+        self.assertIn("declaring a gap the harness could have closed is the same fail",
+                      self.preflight)
 
     def test_verdict_block_fields(self):
         m = re.search(r"## Verdict block(.*)\Z", self.preflight, re.DOTALL)
         self.assertIsNotNone(m)
         verdict = m.group(1)
         for field in ("**Scanner:**", "**Detector:**", "**Open with:**", "**Boxes:**",
-                      "**Counts:**", "**Ledger:**", "**Justified overrides:**",
-                      "**Suppressions:**", "**Tooling gaps:**", "**Status:**"):
+                      "**Perf:**", "**Justified overrides:**",
+                      "**Tooling gaps:**", "**Status:**"):
             with self.subTest(field=field):
                 self.assertIn(field, verdict, f"verdict block missing field: {field}")
         # Three-status model from the enforceability audit: browserless runs cap
@@ -186,8 +183,11 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertIn("static fallback", self.preflight)
 
     def test_rotation_stamp_box_matches_phase_4_format(self):
-        self.assertIn("/* award-design ·", self.preflight,
-                      "the stamp box must carry the Phase 4 stamp format")
+        self.assertIn("The rotation stamp is the stylesheet's first line", self.preflight)
+        self.assertIn("(scanner: STAMP)", self.preflight)
+        skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("`/* award-design · <archetype>", skill,
+                      "Phase 4 must define the stamp format the box points at")
 
 
 if __name__ == "__main__":

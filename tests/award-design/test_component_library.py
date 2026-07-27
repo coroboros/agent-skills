@@ -136,10 +136,10 @@ class TestSkillWiring(unittest.TestCase):
         self.assertIn("assets/components/manifest.json", self.skill)
 
     def test_compose_grammar_present(self):
-        self.assertIn("Compose from the component library", self.skill)
-        # the DESIGN.md -> --ad-* alias-block instruction, and compose-in-restraint
+        self.assertIn("Compose with the library", self.skill)
+        # the --ad-* token contract and the open-world authoring clause
         self.assertIn("--ad-*", self.skill)
-        self.assertIn("three-to-five", self.skill)
+        self.assertIn("author what this world needs beyond it", self.skill)
 
 
 class TestNoAuthoringTraces(unittest.TestCase):

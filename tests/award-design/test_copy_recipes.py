@@ -88,19 +88,14 @@ class TestPreflightCopyFloor(unittest.TestCase):
         self.assertIn("**specificity floor** — every headline and subhead carries "
                       "≥1 concrete from the build's world", pf)
 
-    def test_voice_formula_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("**voice formula named** — the design.md names the voice formula "
-                      "(person, length habit, punctuation, refusals)", pf)
-
     def test_no_exemplar_reuse_box(self):
         pf = _read("preflight.md")
-        self.assertIn("**no exemplar reuse** — no quoted catalog string ships verbatim", pf)
+        self.assertIn("no quoted catalog string ships verbatim", pf)
         self.assertIn("`(scanner: quoted-exemplar)`", pf)
 
     def test_cliche_box_carries_scanner_tag(self):
         pf = _read("preflight.md")
-        self.assertIn("no ai copy clichés in site copy (elevate, seamless, unleash, "
+        self.assertIn("no ai copy clichés (elevate, seamless, unleash, "
                       "next-gen, delve) `(scanner: cliche-copy)`", pf)
 
 
@@ -123,8 +118,7 @@ class TestLanguageLaw(unittest.TestCase):
 
     def test_preflight_box(self):
         pf = _read("preflight.md")
-        self.assertIn("**one copy language — english unless asked**", pf)
-        self.assertIn("is not an ask *for* french copy", pf)
+        self.assertIn("one copy language, english unless the brief asks — and then total", pf)
         self.assertIn("`(scanner: copy-lang)`", pf)
 
 

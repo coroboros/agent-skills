@@ -44,16 +44,17 @@ class TestMovingWindowLaw(unittest.TestCase):
 
 
 class TestDrivenTraceBox(unittest.TestCase):
-    def test_compositor_clean_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("**moving window is compositor-clean**", pf)
-        self.assertIn("zero per-frame paint/raster/recalc-style events", pf)
-        self.assertIn("a paint-per-frame during the sweep is the pop", pf)
+    # the dedicated preflight box died in the floor rewrite; the driven-trace
+    # law survives in the motion-palette canon
+    def test_compositor_clean_trace_law(self):
+        mp = _read("motion-palette.md")
+        self.assertIn("verified compositor-clean at phase 5 with a performance trace", mp)
+        self.assertIn("zero per-frame paint/raster", mp)
 
     def test_screenshots_cannot_prove_no_pop(self):
         self.assertIn(
-            "a single composited frame cannot prove the absence of a pop",
-            _read("preflight.md"))
+            "screenshots cannot prove the absence of a pop",
+            _read("motion-palette.md"))
 
 
 if __name__ == "__main__":

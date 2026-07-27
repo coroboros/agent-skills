@@ -1,5 +1,5 @@
 {
-  "about": "Winner-verified composition recipes — the layer between the component palette and a deterministic page. Each recipe is a winner's ordered section chain: form (or MISSING:<build-order>, or webgl-scene(delegated)) + component pairings + intensity 1-10 + at most one climax. The footer is a structured object under the same closed-world grammar: {form:<id>} for a real form, {component:<id>} for a component-backed close (valediction-footer, footer-clone-machine), {inWorld:true} for an engine sign-off, or {form:'MISSING:<costume>-footer'} for a costume the library has not grown yet (tabular-index, contact-first, CTA-reprise) — a MISSING footer is a BLOCKED row until its form ships, exactly like a MISSING section form; note carries the winner's original footer flavor. The model picks by brief-fit, rotates against the previous stamp's macrostructure, then diverges inside the recipe (variants, alternate pairs). Never re-sequence a winner's ordering to taste.",
+  "about": "Winner-verified composition recipes — the layer between the component palette and a deterministic page. Each recipe is a winner's ordered section chain: form (or MISSING:<build-order>, or webgl-scene(delegated)) + component pairings + intensity 1-10 + at most one climax. The footer is a structured object under the same structured grammar: {form:<id>} for a real form, {component:<id>} for a component-backed close (valediction-footer, footer-clone-machine), {inWorld:true} for an engine sign-off, or {form:'MISSING:<costume>-footer'} for a costume the library has not grown yet (tabular-index, contact-first, CTA-reprise) — a MISSING footer names the costume — author it from the named costume at library quality, exactly like a MISSING section form; note carries the winner's original footer flavor. The model picks by brief-fit, rotates against the previous stamp's macrostructure, then diverges inside the recipe (variants, alternate pairs). Never re-sequence a winner's ordering to taste.",
   "recipes": [
     {
       "id": "gated-reel-siena",
@@ -1474,7 +1474,7 @@
       ],
       "footer": {"form": "oversized-wordmark", "note": "oversized-wordmark (the quiet signed rest-close)"},
       "loader": "brand-object-assembly-loader",
-      "paceNotes": "walking the pavilion IS mixing the score — the stems cross per room; ONE charged gesture per alcove, never two; the wayfinding recedes between rooms and the score never stops. Requires a WebGL path and a covering scene (closed-world: no scene authoring at build)",
+      "paceNotes": "walking the pavilion IS mixing the score — the stems cross per room; ONE charged gesture per alcove, never two; the wayfinding recedes between rooms and the score never stops. Requires a WebGL path and a covering scene (a covering reference scene first; author the scene at library quality via the delegated WebGL build when none covers)",
       "whenToUse": "a luxury maison pavilion — a scored procession through staged alcoves, one charged gesture per room, the object held still at the end"
     },
     {
@@ -1494,7 +1494,7 @@
         {
           "role": "playable-world",
           "media": "back",
-          "form": "in-engine-hero (the stage) + webgl-scene(delegated — the covering reference scene per the closed-world law)",
+          "form": "in-engine-hero (the stage) + webgl-scene(delegated — the covering reference scene)",
           "pairs": {
             "verb": "raycast-object-state",
             "world-input": "in-3d-dom-input-bridge",
@@ -1523,7 +1523,7 @@
       ],
       "footer": {"form": "about-overlay-footer", "note": "about-overlay-footer doubles as the footer (the Aristide close)"},
       "loader": "none (world-boot is the arrival)",
-      "paceNotes": "the primary verb is PLAYED through composed pieces — raycast per object, the bridge for the world's channels, one charged gesture; the attract loop teaches after real idle; the positional score and ambient life keep the world inhabited between actions. Requires a WebGL path and a covering scene (closed-world: no scene authoring at build)",
+      "paceNotes": "the primary verb is PLAYED through composed pieces — raycast per object, the bridge for the world's channels, one charged gesture; the attract loop teaches after real idle; the positional score and ambient life keep the world inhabited between actions. Requires a WebGL path and a covering scene (a covering reference scene first; author the scene at library quality via the delegated WebGL build when none covers)",
       "whenToUse": "a playable-world experience whose primary verb is a physical action performed in-engine — the composition recipe the playable-verb-scene ruling ordered"
     }
   ]

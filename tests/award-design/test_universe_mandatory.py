@@ -1,14 +1,13 @@
 """award-design universe-mandatory contract — now carried by protocol phases.
 
 The universe remains MANDATORY: no frontend ships without a committed one.
-The protocol rebuild moved its enforcement into phases — Phase 0 reads the
-room (Design Read, archetype, declared dials), Phase 1 conceives the universe
+The rebuilt skill carries its enforcement in phases — Phase 0 reads the room
+(design read, archetype, declared dials), Phase 1 conceives the universe
 (spine, two-altitude anti-default, rotation, signature, R1 refutation),
-Phase 2 writes it as a DESIGN.md, Phase 4 commits-and-proves before any markup
-and carries the WebGL one-subagent carve-out. Review mode stays the always-on
-refuter. These tests pin those contracts at their new homes; each would FAIL
-on the pre-protocol SKILL.md (different sections) AND on the pre-rebuild one
-(no universe forcing at all)."""
+Phase 2 writes it as a DESIGN.md, Phase 4 commits a binding design_plan before
+any markup and carries the WebGL one-subagent delegation. Review mode stays
+the always-on refuter. These tests pin those contracts at their current homes;
+each would FAIL on a SKILL.md with no universe forcing at all."""
 
 import re
 import unittest
@@ -17,6 +16,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_MD = REPO_ROOT / "skills" / "award-design" / "SKILL.md"
 FOUNDATIONS_MD = REPO_ROOT / "skills" / "award-design" / "references" / "foundations.md"
+PREFLIGHT_MD = REPO_ROOT / "skills" / "award-design" / "references" / "preflight.md"
 
 
 def _body():
@@ -56,21 +56,20 @@ class TestUniverseIsMandatory(unittest.TestCase):
 
 class TestForcedConcepting(unittest.TestCase):
     """Phase 1 forces the moves that push a model past its lazy defaults:
-    a Concept Spine, the two-altitude anti-default, an out-loud rotation, a
-    signature moment, and a regenerate-on-thin self-check capped by the
-    concept veto."""
+    a concept spine, the two-altitude anti-default, an out-loud rotation, a
+    signature moment, and the regenerate-on-thin R1 gate."""
 
     def setUp(self):
         self.phase1 = _phase(1)
 
     def test_design_read_declared_at_phase_0(self):
         phase0 = _phase(0)
-        self.assertIn("Design Read", phase0)
+        self.assertIn("Design read", phase0)
         self.assertIn("Reading this as:", phase0,
-                      "Phase 0 must force the committed one-line Design Read")
+                      "Phase 0 must force the committed one-line design read")
 
     def test_concept_spine_forced(self):
-        self.assertIn("Concept Spine", self.phase1)
+        self.assertIn("Concept spine", self.phase1)
         self.assertIn("ONE world", self.phase1,
                       "the spine commits to one world, not a literal restatement")
 
@@ -82,7 +81,8 @@ class TestForcedConcepting(unittest.TestCase):
         self.assertIn("Anti-default at two altitudes", phase1)
         self.assertRegex(phase1.lower(), r"reject.*reject that too|reject it; then name",
                          "both altitudes must be named and rejected")
-        self.assertIn("never the first option", phase1)
+        self.assertIn("survives both cuts", phase1,
+                      "what survives both cuts is the committed direction")
 
     def test_rotation_is_stated_and_ledgered(self):
         phase1 = self.phase1
@@ -90,21 +90,22 @@ class TestForcedConcepting(unittest.TestCase):
         self.assertIn("stamp", phase1,
                       "rotation must read the previous build's stylesheet stamp")
         self.assertRegex(phase1.lower(), r"palette family, type pairing, hero layout",
-                         "rotation must name the three rotated axes")
-        self.assertIn("≥1 mechanic", phase1,
-                      "every build must invent at least one fresh mechanic")
+                         "rotation must name its rotated axes")
+        self.assertIn("≥2 named axes", phase1,
+                      "every build must rotate at least two named axes")
+        self.assertIn("old→new stated", phase1)
 
     def test_signature_moment_forced(self):
         self.assertIn("Signature moment", self.phase1)
-        self.assertIn("removing every effect", self.phase1.lower(),
-                      "the signature keeps its falsifiable removing-every-effect test")
+        self.assertIn("sit unchanged on a rival's site", self.phase1,
+                      "the signature keeps its falsifiable bespoke test")
 
     def test_thin_universe_regenerated_and_veto_wired(self):
         phase1 = self.phase1
-        self.assertIn("regenerated before proceeding", phase1,
+        self.assertIn("is regenerated", phase1,
                       "a thin / literal / safe spine must be regenerated")
-        self.assertIn("concept veto", phase1.lower(),
-                      "concept quality must cap the build via the rubric's veto")
+        self.assertIn("concept quality caps the build", phase1,
+                      "concept quality must cap the build — polish cannot rescue it")
 
     def test_r1_refutes_before_any_file(self):
         self.assertIn("before any file is written", self.phase1,
@@ -123,7 +124,7 @@ class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
         phase2 = self.phase2
         self.assertRegex(phase2, r"Author the complete DESIGN\.md")
         self.assertIn("Google format", phase2)
-        self.assertIn("eight prose sections", phase2)
+        self.assertIn("all eight sections", phase2)
 
     def test_adapts_to_existing_design_md(self):
         phase2 = self.phase2
@@ -131,7 +132,7 @@ class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
         self.assertRegex(phase2.lower(), r"adopt it|build consistent")
 
     def test_alerts_when_existing_design_md_is_thin(self):
-        self.assertIn("Alert", self.phase2)
+        self.assertIn("alert when thin", self.phase2)
         self.assertIn("never silently re-author", self.phase2.lower())
 
     def test_design_system_governs_after_the_build(self):
@@ -146,9 +147,10 @@ class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
         self.assertIn("every subagent", phase2)
 
 
-class TestCommitAndProve(unittest.TestCase):
-    """Phase 4 emits a binding design_plan before any markup: explicit
-    per-element commitments, each load-bearing one paired with a proof line."""
+class TestDesignPlanCommit(unittest.TestCase):
+    """Phase 4 commits a binding design_plan before any markup — explicit
+    per-element commitments, paced like a score, mobile as its own
+    performance — then builds section by section under a browser loop."""
 
     def setUp(self):
         self.phase4 = _phase(4)
@@ -157,87 +159,69 @@ class TestCommitAndProve(unittest.TestCase):
         phase4 = self.phase4
         self.assertIn("design_plan", phase4)
         self.assertIn("before any markup", phase4.lower())
-        self.assertRegex(phase4.lower(),
-                         r"follow it exactly|drifting to a default.*forbidden")
+        self.assertIn("binding, amendable in writing", phase4,
+                      "amendments happen in writing, never by silent drift")
 
     def test_commits_explicit_per_element_selections(self):
         phase4 = self.phase4
-        self.assertRegex(phase4, r"\*\*Commit\*\*")
-        for element in ("hero", "type", "color", "motion", "signature"):
+        self.assertIn("Commit a design_plan", phase4)
+        for element in ("hero architecture", "navigation pattern", "type stack",
+                        "color roles", "motion register", "signature"):
             with self.subTest(element=element):
                 self.assertIn(element, phase4.lower())
 
-    def test_each_commitment_carries_a_proof(self):
-        phase4 = self.phase4
-        self.assertRegex(phase4, r"\*\*Prove\*\*")
-        self.assertIn("clamp()", phase4)
-        self.assertRegex(phase4.lower(), r"≤2 lines|≤ 2 lines|2 lines")
-        self.assertIn("Name the ≥3 axes", phase4,
-                      "the push-3-axes claim must be named in the plan, not vibed")
-
-    def test_foundations_pull_is_declared(self):
-        """'As each layer demands' was a latitude hole — the pull list is
-        named in the design_plan, with a stated minimum."""
-        phase4 = self.phase4
-        self.assertIn("list what was pulled in the design_plan", phase4)
-        self.assertIn("the locked craft layer at minimum", phase4)
+    def test_sections_carry_funnel_jobs(self):
+        self.assertIn("attention → understanding → proof → close", self.phase4,
+                      "every section commits its funnel job in the design_plan")
 
     def test_claimed_equals_shown(self):
         phase4 = self.phase4
         self.assertIn("Claimed = shown", phase4)
-        self.assertIn("not just promised", phase4.lower())
+        self.assertIn("Every universe claim is in the code", phase4)
 
     def test_per_section_browser_gate(self):
         phase4 = self.phase4
-        self.assertRegex(phase4, r"375px and 1440px",
-                         "the per-section browser gate must name its widths")
+        self.assertIn("Per-section browser loop", phase4)
+        self.assertIn("375px", phase4)
+        self.assertIn("1440px", phase4)
         self.assertIn("console clean", phase4.lower())
-        self.assertIn("before starting the next section", phase4.lower())
-
-    def test_conformance_loop_is_the_gate(self):
-        """The gate is a loop, not a single look: screenshot → hunt drift →
-        fix → re-render, both widths every iteration, exit only when both pass
-        in the same iteration, capped with declared residue."""
-        phase4 = self.phase4
-        self.assertIn("loop until conformant", phase4.lower())
-        self.assertIn("*every* iteration", phase4)
-        self.assertIn("*same* iteration", phase4)
-        self.assertIn("Cap: 5 loops", phase4)
-        self.assertIn("never silently accepted", phase4)
-
-    def test_browser_tooling_is_install_gated(self):
-        """No tooling → the skill offers the install once; only a declined
-        offer degrades to the code-level fallback."""
-        phase4 = self.phase4
-        self.assertIn("npm install -g dev-browser && dev-browser install", phase4)
-        self.assertIn("declined offer", phase4.lower())
+        self.assertIn("Resolve the browser rung", phase4)
         self.assertIn("references/external-truth.md", phase4,
                       "the browser ladder lives in external-truth.md")
 
+    def test_conformance_loop_is_the_gate(self):
+        """The gate is a loop, not a single look: screenshot → hunt drift →
+        fix → re-render, exit only when both widths pass in the same iteration,
+        capped with declared residue."""
+        phase4 = self.phase4
+        self.assertIn("until both widths pass in the same iteration", phase4)
+        self.assertIn("cap 5", phase4)
+        self.assertIn("file what still stands", phase4,
+                      "residue past the cap is filed, never silently accepted")
+
     def test_font_resolution_proof(self):
         """A display font silently falling back to a system font is invisible
-        in the code and destroys the whole design — the browser gate must
-        verify the computed face."""
-        phase4 = self.phase4.lower()
-        self.assertIn("font-family", phase4)
-        self.assertIn("resolves to the committed face", phase4)
+        in the code and destroys the whole design — the loop hunts the
+        committed face, and pre-flight verifies the computed value."""
+        self.assertIn("the committed display face renders", self.phase4)
+        preflight = PREFLIGHT_MD.read_text(encoding="utf-8")
+        self.assertIn("resolves to the committed face", preflight)
+        self.assertIn("(detector: FONT-RESOLVE)", preflight)
 
     def test_pacing_map_committed(self):
         """Models compose section by section — locally fine, globally flat.
-        The design_plan must pace the page like a score: at most one climax
-        (the R4 verdict — verified quiet winners run zero), one rest, never a
-        flat curve."""
+        The design_plan must pace the page like a score: at most one climax,
+        at least one rest, never a flat curve."""
         phase4 = self.phase4
-        self.assertIn("**Pace**", phase4)
-        self.assertIn("at most one climax", phase4)
+        self.assertIn("Pace like a score", phase4)
+        self.assertIn("At most one climax", phase4)
         self.assertIn("at least one rest", phase4)
         self.assertIn("flat curve", phase4.lower())
 
     def test_mobile_intent_committed(self):
         phase4 = self.phase4
-        self.assertIn("mobile intent", phase4.lower())
-        self.assertIn("beyond stacking", phase4)
-        self.assertIn("not a smaller screen", phase4)
+        self.assertIn("Mobile is a different performance of the same universe", phase4)
+        self.assertIn("below 768px beyond stacking", phase4)
 
     def test_phase_4_loads_optical_craft(self):
         self.assertIn("references/optical-craft.md", self.phase4,
@@ -271,80 +255,72 @@ class TestReviewMode(unittest.TestCase):
 
     def test_review_judges_pixels_before_scanner(self):
         review = self._review().lower()
-        self.assertIn("pixels are the evidence", review)
-        self.assertRegex(review, r"judgment first.*mechanical results second",
-                         "the anti-anchoring order must hold in standalone review too")
+        self.assertIn("judge from pixels", review)
+        self.assertIn("run the scanner second", review,
+                      "the anti-anchoring order must hold in standalone review too")
 
-    def test_review_runs_against_rubric_catalog_and_gate(self):
+    def test_review_runs_against_rubric_and_exemplars(self):
         review = self._review()
-        for ref in ("references/audit-rubric.md", "references/anti-patterns.md",
-                    "references/preflight.md"):
+        for ref in ("references/audit-rubric.md", "references/exemplars.md"):
             with self.subTest(ref=ref):
                 self.assertIn(ref, review)
 
 
-class TestWebGLOneSubagentCarveOut(unittest.TestCase):
+class TestWebGLDelegation(unittest.TestCase):
     """The single delegation carve-out lives in Phase 4: one subagent for a
-    self-contained WebGL/R3F scene, integrated by the skill itself — scoped by
-    the committed MEDIUM, not the archetype (the old 'never for other
-    archetypes' steered a brutalist arcade build away from its own playable
-    machine while signature-invention prescribed the 3D path for real objects
-    — the post-TILT round resolved that contradiction), never a shared file."""
+    self-contained WebGL/3D scene, briefed with the DESIGN.md verbatim and the
+    ingredients cheat, integrated by the skill itself — never a co-written
+    file."""
 
     def setUp(self):
-        m = re.search(r"\*\*WebGL / 3D — the one delegation\.\*\*(.*?)(?=\n- \*\*|\n\n\*\*|\n##)",
+        m = re.search(r"\*\*WebGL/3D delegation\.\*\*(.*?)(?=\n- \*\*|\n\n|\n##)",
                       _body(), re.DOTALL)
-        self.assertIsNotNone(m, "WebGL / 3D — the one delegation clause missing")
+        self.assertIsNotNone(m, "WebGL/3D delegation clause missing")
         self.carve = m.group(1)
 
     def test_single_subagent_only(self):
         self.assertIn("ONE subagent", self.carve)
-        self.assertIn("never more than one parallel writer", self.carve.lower())
 
-    def test_delegation_is_deterministic_not_optional(self):
-        """'May go to a subagent' was a latitude hole — the path is decided by
-        the harness, never by the model's mood."""
-        self.assertIn("when the harness has subagents", self.carve)
-        self.assertIn("inline otherwise", self.carve.lower())
+    def test_scene_is_self_contained(self):
+        self.assertIn("self-contained scene", self.carve.lower())
 
-    def test_medium_scoped_not_archetype_locked(self):
-        self.assertTrue("Immersive" in self.carve and "Experimental" in self.carve)
-        self.assertIn("playable-object decision", self.carve.lower())
-        self.assertIn(
-            "never fires for a signature whose committed medium is not a scene",
-            self.carve.lower())
-
-    def test_clean_boundary_and_self_integration(self):
+    def test_fidelity_and_input_floors(self):
         carve = self.carve.lower()
-        self.assertIn("props in, canvas out", carve)
-        self.assertIn("integrate the returned module yourself", carve)
+        self.assertIn("fidelity floor", carve)
+        self.assertIn("no primitive geometry as the hero object", carve)
+        self.assertIn("drag-ghost", carve,
+                      "the input-correctness floor must name the drag-ghost defect")
+
+    def test_self_integration(self):
+        self.assertIn("integrate the returned module yourself", self.carve.lower())
 
     def test_no_shared_file_co_authoring(self):
-        self.assertIn("never co-write a shared file", self.carve.lower())
+        self.assertIn("never co-write a file", self.carve.lower())
 
-    def test_briefed_with_design_md_and_truth_source(self):
+    def test_briefed_with_design_md_and_ingredients(self):
         carve = self.carve
-        self.assertIn("DESIGN.md", carve, "the subagent's brief is the DESIGN.md")
-        self.assertIn("Phase 3", carve,
-                      "the subagent must ride the truth source resolved at Phase 3")
+        self.assertIn("DESIGN.md quoted verbatim", carve,
+                      "the subagent's brief is the DESIGN.md, verbatim")
+        self.assertIn("references/ingredients/", carve,
+                      "the subagent must ride the matching ingredients cheat")
 
 
 class TestStackMapping(unittest.TestCase):
-    """The stack is keyed to the archetype in Phase 4 (terse) with the detail
-    in foundations.md — Astro for content archetypes, TanStack Start for
-    motion/3D, locked universal craft, existing stack wins."""
+    """The stack detail lives in foundations.md — Astro for content
+    archetypes, TanStack Start for motion/3D, locked universal craft, existing
+    stack wins — and the SKILL.md routes to its Stack map at bootstrap."""
 
     def _stack_detail(self):
         m = re.search(r"^## Stack\b.*?\n(.*?)(?=^##\s)", _foundations(), re.DOTALL | re.MULTILINE)
         self.assertIsNotNone(m, "foundations.md ## Stack section missing")
         return m.group(1)
 
-    def test_phase_4_keys_stack_and_routes(self):
-        phase4 = _phase(4)
-        self.assertIn("Astro", phase4)
-        self.assertIn("TanStack Start", phase4)
-        self.assertIn("foundations.md", phase4)
-        self.assertIn("existing project's stack always wins", phase4.lower())
+    def test_routing_points_at_stack_map(self):
+        body = _body()
+        self.assertIn("`references/foundations.md` §Stack", body,
+                      "bootstrap must route through the foundations Stack section")
+        self.assertIn("prescribes its own stack wins", body,
+                      "a brief that prescribes its own stack overrides the routing")
 
     def test_locked_universal_craft(self):
         stack = self._stack_detail()

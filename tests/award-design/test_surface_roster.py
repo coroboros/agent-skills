@@ -2,9 +2,9 @@
 that competent builds leave unconsidered (loader, nav, cursor, hero architecture,
 footer moment, route transitions, sound). The empirical 6.5 ceiling includes
 surfaces the model never decided on — an arrival with no loader decision, a
-template footer, a hard route cut. The roster forces one commitment per surface,
-by catalog name or declared out with a reason, and routes catalog loading to the
-moment of commitment instead of front-loading Phase 4."""
+template footer, a hard route cut. The roster catalog lives in
+award-imperatives.md; Phase 4 commits each surface from it or declares it out
+with a reason — an unconsidered surface is a gap, never a style choice."""
 
 import unittest
 from pathlib import Path
@@ -52,42 +52,17 @@ class TestRosterCatalog(unittest.TestCase):
 class TestPhase4Commit(unittest.TestCase):
     def test_commit_sentence(self):
         s = _skill()
-        self.assertIn("commit the **award surface roster**", s)
-        self.assertIn("the committed surface's catalog loads at this commit", s)
+        self.assertIn("**the award surfaces**", s)
+        self.assertIn("declared out with a reason", s)
+        self.assertIn("an unconsidered surface is a gap", s)
 
-    def test_roster_routed_references_load_at_commit(self):
-        # premium-patterns and navigation-patterns moved out of the Phase 4
-        # Load-now (context-economy audit) into roster-commit routing —
-        # navigation-patterns was previously in NO Load-now line at all.
-        s = _skill()
-        self.assertIn(
-            "`references/premium-patterns.md` and `references/navigation-patterns.md` "
-            "load at their roster commits", s)
+    def test_footer_closes_live(self):
+        self.assertIn("winners close on a live footer", _skill())
 
     def test_page_catalogs_load_at_phase_4(self):
         s = _skill()
         self.assertIn("references/page-anatomy.md", s)
         self.assertIn("references/copy-recipes.md", s)
-
-
-class TestPreflightRosterBoxes(unittest.TestCase):
-    def test_roster_boxes(self):
-        pf = _read("preflight.md")
-        self.assertIn("## surface roster", pf)
-        for surface in SURFACES:
-            with self.subTest(surface=surface):
-                self.assertIn(f"**{surface}**", pf)
-
-    def test_loader_handoff_driven(self):
-        pf = _read("preflight.md")
-        self.assertIn(
-            "the fold behind the curtain or counter is already composed when it lifts",
-            pf)
-
-    def test_route_change_driven(self):
-        pf = _read("preflight.md")
-        self.assertIn("drove one real route change live", pf)
-        self.assertIn("back-button and scroll restoration hold", pf)
 
 
 if __name__ == "__main__":

@@ -111,7 +111,7 @@ class TestModelSplitWired(unittest.TestCase):
         p4 = _phase(4).lower()
         self.assertIn("motion-palette.md", p4)
         self.assertIn("fire once and persist", p4)
-        self.assertIn("reversible", p4)
+        self.assertIn("reverses with scroll", p4)
 
     def test_skill_loads_the_palette(self):
         # loaded at Phase 4, where the palette binds (the Phase 3 copy was dead weight)
@@ -124,7 +124,7 @@ class TestModelSplitWired(unittest.TestCase):
 
     def test_preflight_checks_the_split(self):
         pf = _read("preflight.md")
-        self.assertIn("content persists", pf)
+        self.assertIn("content reveals persist on scroll-up", pf)
 
 
 class TestNavbarSettleFix(unittest.TestCase):
@@ -144,7 +144,7 @@ class TestNavbarSettleFix(unittest.TestCase):
 
     def test_preflight_gates_no_flash_on_stop(self):
         pf = _read("preflight.md")
-        self.assertIn("nav holds on scroll-stop", pf)
+        self.assertIn("the bar stays hidden on scroll-stop", pf)
 
     def test_imperative_two_names_the_stop_vs_up_gate(self):
         imp = _read("award-imperatives.md")
@@ -159,7 +159,7 @@ class TestAxis8SignatureOnMakeOrBreakSurface(unittest.TestCase):
         self.assertIn("below the fold", sig)
 
     def test_skill_phase1_and_r1_bind_placement(self):
-        self.assertIn("make-or-break surface", _phase(1))
+        self.assertIn("lands on the hero", _phase(1))
         r1 = _review_mode().lower()
         self.assertIn("make-or-break surface", r1)
         self.assertIn("placement", r1)

@@ -71,10 +71,11 @@ class TestClosureRecipes(unittest.TestCase):
         for piece in ("raycast-object-state", "in-3d-dom-input-bridge", "press-hold-reveal"):
             self.assertIn(piece, climax["pairs"].values())
 
-    def test_closed_world_clause_stated(self):
+    def test_scene_grammar_stated(self):
         for rid in CLOSURE_RECIPES:
             with self.subTest(recipe=rid):
-                self.assertIn("closed-world", self.recipes[rid]["paceNotes"])
+                self.assertIn("author the scene at library quality",
+                              self.recipes[rid]["paceNotes"])
 
 
 class TestWordmarkEnrollmentRule(unittest.TestCase):

@@ -13,9 +13,8 @@ self-review and a fresh refuter under-weighted it. This locks:
   the fix is opsz instancing / SVG masthead / type-as-composition;
 - the hide-reveal reframed (interaction-signatures): cut is the default, the reveal is
   rare / subtle / justified and not itself a marker of award quality;
-- the two mobile gates (preflight §5/§8/§9 + code-review): tap-target measured at each
-  breakpoint (label-hidden shrink), and an absolutely-positioned hero affordance that
-  overlaps the H1.
+- the mobile gate (preflight §5 + code-review): tap-target measured at each
+  breakpoint (label-hidden shrink).
 """
 
 import unittest
@@ -49,10 +48,11 @@ class TestCopyLaw(unittest.TestCase):
         self.assertIn("over-written reading copy", ap)
 
     def test_preflight_copy_boxes(self):
+        # the label-layer and copy-volume laws live in their editorial /
+        # anti-patterns homes, pinned above; the gate keeps self-narration
         pf = _read("preflight.md")
-        self.assertIn("no self-narration / no process credits", pf)
-        self.assertIn("label-layer collapse", pf)
-        self.assertIn("copy volume — composed, not poured", pf)
+        self.assertIn("no self-narration — the site never describes itself "
+                      "or credits its own fonts and tools", pf)
 
 
 class TestCopyWeightedInDesireRead(unittest.TestCase):
@@ -98,19 +98,15 @@ class TestMobileGates(unittest.TestCase):
     def test_tap_target_measured_at_breakpoint(self):
         cr = _read("code-review.md")
         self.assertIn("tap targets are measured at each breakpoint", cr)
+        self.assertIn("under 24×24", cr)
         pf = _read("preflight.md")
-        self.assertIn("shrunk under 24×24", pf)
-        self.assertIn("tap targets measured at each breakpoint", pf)
-
-    def test_hero_affordance_overlaps_h1(self):
-        pf = _read("preflight.md")
-        self.assertIn("no absolute affordance over the h1", pf)
+        self.assertIn("touch targets ≥ 44×44 at every breakpoint", pf)
 
     def test_design_css_token_drift(self):
         cr = _read("code-review.md")
         self.assertIn("drifts from its design.md declaration", cr)
         pf = _read("preflight.md")
-        self.assertIn("drifting from its design.md declaration", pf)
+        self.assertIn("resolves to a named token", pf)
 
 
 if __name__ == "__main__":

@@ -6,8 +6,8 @@
  * coordinate resolve where digits stand masked as '·' until progress earns
  * them, AVALANCHE's trace rail — the vermilion thread filling with descent and
  * a 'SIGNAL n%' read riding it. Three dead builds each re-invented this HUD
- * with zero library coverage — the closed-world boundary verdict (§5) promotes
- * the recurring invention into the library). Scroll progress through a tracked
+ * with zero library coverage — recurring invention across builds is what
+ * promotes a pattern into the library). Scroll progress through a tracked
  * span drives builder-authored readout channels; the component only writes
  * textContent and transforms — it never invents chrome, copy, or units.
  *

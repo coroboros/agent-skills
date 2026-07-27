@@ -1,15 +1,12 @@
-"""award-design SKILL.md top-level structure — the mandatory-protocol contract.
+"""award-design SKILL.md top-level structure — the phase-spine contract.
 
-The protocol rebuild reversed the "ambient forcing, not a checklist" posture:
-the skill is now a sequential protocol (phases 0–6, in order, every build) with
-per-phase mandatory reference loads, stated artifacts, and binary gates —
-ambient art-director judgment rides on top, it no longer substitutes for the
-path. This module pins the phase spine, the forcing header, the routing
-boundary, the judging-criteria numbers, and the remix/atmosphere pointers.
-
-Each spine assertion would FAIL on the pre-protocol SKILL.md, which carried
-`## Ambient forcing, not a checklist` and explicitly declared the rules "not
-phases to clear"."""
+The rebuilt skill runs on a fixed division of labor: machines catch defects
+(scanner/detector + the mechanical floor), fresh-context reviews judge quality
+(R1/R2, desire read), and the builder designs freely between the two. Seven
+phases (0–6) remain the load-bearing sequence, each closing on a stated
+artifact, with per-phase reference loads and the R1/R2 gates. This module pins
+the phase spine, the working-header contract, the routing boundary, the
+scoped-run path, and the judging-criteria numbers."""
 
 import re
 import unittest
@@ -17,6 +14,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_MD = REPO_ROOT / "skills" / "award-design" / "SKILL.md"
+PREFLIGHT_MD = REPO_ROOT / "skills" / "award-design" / "references" / "preflight.md"
 
 
 def _body():
@@ -31,15 +29,17 @@ def _phase(n):
 
 # The protocol spine — H2/H3 sections, in document order.
 EXPECTED_SECTIONS = [
-    "## The protocol is mandatory",
-    "### Routing — before Phase 0",
+    "## How this skill works",
+    "### Routing",
+    "### Scoped changes — scale, never skip",
     "## Phase 0 — Read the room",
     "## Phase 1 — Conceive the universe",
     "## Phase 2 — Write the universe as DESIGN.md",
     "## Phase 3 — Source the truth",
     "## Phase 4 — Commit, then build",
-    "## Phase 5 — Pre-flight",
-    "## Phase 6 — Adversarial review, then ship",
+    "## Phase 5 — Verify: the mechanical floor",
+    "## Phase 6 — Review, then ship",
+    "## Hard constraints",
     "## Review mode",
     "## Judging criteria",
     "## Output discipline",
@@ -49,8 +49,8 @@ EXPECTED_SECTIONS = [
 
 class TestProtocolSpine(unittest.TestCase):
     """Phases 0–6 in order is the load-bearing structure: the sequence is what
-    converts taste into gates. A missing or reordered phase is the rebuild
-    half-landing."""
+    forces taste commitments early, while they cost nothing to change. A
+    missing or reordered phase is the rebuild half-landing."""
 
     def test_each_section_present(self):
         body = _body()
@@ -66,71 +66,61 @@ class TestProtocolSpine(unittest.TestCase):
                          "spine sections are out of the contracted order")
 
     def test_ambient_substitute_posture_is_gone(self):
-        """The reversal: ambient judgment stays, but it no longer replaces the
-        path. The old framing phrases must not survive."""
+        """The old framing — ambient judgment replacing the path — must not
+        survive."""
         body = _body().lower()
         for stale in ("ambient forcing, not a checklist", "not phases to clear"):
             with self.subTest(phrase=stale):
                 self.assertNotIn(stale, body,
                                  f"the ambient-substitute posture must not survive: {stale!r}")
 
-    def test_ambient_judgment_still_declared(self):
-        """Ambient discipline rides on top of the protocol — losing it would
-        overcorrect into a checklist-only skill."""
-        self.assertIn("Art-director judgment stays ambient", _body(),
-                      "the protocol header must keep ambient judgment alongside the phases")
+    def test_builder_keeps_design_authority(self):
+        """Machines catch defects, fresh eyes judge quality — and between the
+        two the builder designs with full authority. Losing that line
+        overcorrects into a checklist-only skill."""
+        body = _body()
+        self.assertIn("you design with full authority", body)
+        self.assertIn("none is a script", body,
+                      "references, library, and playbooks are evidence, never scripts")
 
 
-class TestForcingHeader(unittest.TestCase):
-    """The four forcing rules are why the protocol works on a lazy path:
-    no compression, mandatory loads, stated artifacts, binary gates."""
+class TestHowThisSkillWorks(unittest.TestCase):
+    """The working header states the contract the phases enforce: every phase
+    runs on every build, each closes on a stated artifact, and three
+    instruments keep the builder's freedom honest."""
 
     def _header(self):
-        m = re.search(r"^## The protocol is mandatory\b(.*?)(?=^###\s)", _body(),
+        m = re.search(r"^## How this skill works\b(.*?)(?=^##\s)", _body(),
                       re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## The protocol is mandatory section missing")
+        self.assertIsNotNone(m, "## How this skill works section missing")
         return m.group(1)
 
-    def test_no_compression_names_the_failure_mode(self):
+    def test_every_phase_runs_on_every_build(self):
         header = self._header()
-        self.assertIn("Every phase runs. No compression.", header)
-        self.assertIn("dominant failure mode", header,
-                      "gate-compression must be named as the dominant failure mode")
-        self.assertIn("A phase without its stated artifact did not happen", header)
+        self.assertIn("Every phase runs on every build", header)
+        self.assertIn("each closing on a small stated artifact", header)
 
-    def test_reference_loads_are_mandatory(self):
+    def test_three_instruments_named(self):
         header = self._header()
-        self.assertIn("Load what the phase names, when it names it", header)
-        self.assertIn("skipping one produces generic output", header)
-
-    def test_artifacts_are_stated_out_loud(self):
-        header = self._header()
-        self.assertIn("State artifacts out loud", header)
-        self.assertRegex(header.lower(), r"not in your head",
-                         "committing on the page (not in your head) is the anti-default mechanism")
+        self.assertIn("Scanner + detector", header)
+        self.assertIn("Fresh-context reviews", header)
+        self.assertIn("rotation stamp", header.lower())
 
     def test_gates_are_binary_with_written_overrides(self):
-        header = self._header()
-        self.assertIn("Gates are binary", header)
-        self.assertRegex(header.lower(), r"override is written down",
-                         "overrides must be written down and tied to the brief")
-
-    def test_no_model_choice_on_capabilities(self):
-        """Every 'when available' is a future laziness hole: capabilities
-        resolve through deterministic ladders, and the model never picks the
-        comfortable rung."""
-        header = self._header()
-        self.assertIn("The harness varies; the path never does.", header)
-        self.assertIn("first rung present wins", header)
-        self.assertIn("never picks the comfortable rung", header.lower())
+        """The binary-gate discipline lives in the mechanical floor: countable
+        or binary, and every override written into the verdict."""
+        preflight = PREFLIGHT_MD.read_text(encoding="utf-8")
+        self.assertIn("countable or binary", preflight)
+        self.assertIn("the override is written into the verdict and tied to the brief",
+                      preflight)
 
     def test_every_phase_has_load_and_artifact(self):
-        """Phases 0–5 each name their mandatory loads; phases 0–6 each end with
+        """Phases 0–5 each name their reference loads; phases 0–6 each end with
         a stated artifact. A phase without either is unenforceable."""
         for n in range(6):
-            with self.subTest(phase=n, clause="Load now"):
-                self.assertIn("**Load now:**", _phase(n),
-                              f"Phase {n} must name its mandatory reference loads")
+            with self.subTest(phase=n, clause="Load"):
+                self.assertIn("**Load:**", _phase(n),
+                              f"Phase {n} must name its reference loads")
         for n in range(7):
             with self.subTest(phase=n, clause="Artifact"):
                 self.assertIn("**Artifact:**", _phase(n),
@@ -144,7 +134,7 @@ class TestForcingHeader(unittest.TestCase):
 
 
 class TestScopedPath(unittest.TestCase):
-    """A bounded change on a healthy DESIGN.md scales the artifacts instead of
+    """A bounded change on a healthy DESIGN.md scales the phases instead of
     running the full ceremony — without this declared short path, the protocol's
     authority dies the first time a model reasonably bails on it."""
 
@@ -154,14 +144,14 @@ class TestScopedPath(unittest.TestCase):
         self.assertIsNotNone(m, "### Scoped changes section missing")
         return m.group(1)
 
-    def test_scaling_keeps_every_gate(self):
+    def test_scaling_keeps_every_phase(self):
         scoped = self._scoped()
-        self.assertIn("the artifacts shrink, the gates hold", scoped)
+        self.assertIn("every phase at the scale of the touched surface", scoped)
         self.assertIn("never silently regenerate", scoped)
 
     def test_full_protocol_triggers_enumerated(self):
         scoped = self._scoped()
-        for trigger in ("no DESIGN.md", "redesign brief", "new page family", "thin DESIGN.md"):
+        for trigger in ("redesign brief", "missing or thin DESIGN.md", "new page family"):
             with self.subTest(trigger=trigger):
                 self.assertIn(trigger, scoped)
 
@@ -177,9 +167,9 @@ class TestRoutingBoundary(unittest.TestCase):
     directory to /scaffold."""
 
     def _routing(self):
-        m = re.search(r"^### Routing — before Phase 0\b(.*?)(?=^##\s)", _body(),
+        m = re.search(r"^### Routing\b(.*?)(?=^##\s)", _body(),
                       re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "### Routing — before Phase 0 section missing")
+        self.assertIsNotNone(m, "### Routing section missing")
         return m.group(1)
 
     def test_single_token_routes_to_design_system(self):
@@ -242,8 +232,7 @@ class TestJudgingCriteria(unittest.TestCase):
 
 class TestPhase0Calibration(unittest.TestCase):
     """Phase 0 loads atmosphere-calibration.md and DECLARES the three dial
-    values — the reversal of the old 'calibrate internally' posture. Silent
-    dials cannot arbitrate later choices."""
+    values — silent dials cannot arbitrate later choices."""
 
     def test_phase_0_loads_calibration_reference(self):
         self.assertIn("references/atmosphere-calibration.md", _phase(0))
@@ -252,10 +241,10 @@ class TestPhase0Calibration(unittest.TestCase):
         phase0 = _phase(0)
         self.assertRegex(phase0, r"Density / Variance / Motion",
                          "Phase 0 must name the three dials")
-        self.assertIn("Declared, never internal", phase0,
-                      "the dials must be declared, never calibrated silently")
-        self.assertNotIn("internally", _body().lower().replace("declared, never internal", ""),
-                         "no residual 'calibrate internally' instruction may survive")
+        self.assertIn("land in the DESIGN.md Overview prose", phase0,
+                      "the dials must land in the DESIGN.md, never stay silent")
+        self.assertIn("declared in output", _body().lower(),
+                      "the dials are declared in output, never calibrated silently")
 
     def test_remix_routes_to_reference(self):
         self.assertIn("references/remixing.md", _phase(0),
@@ -263,9 +252,9 @@ class TestPhase0Calibration(unittest.TestCase):
 
 
 class TestPhase3ExternalTruth(unittest.TestCase):
-    """Phase 3 is the new gate: heavy layers resolve through the ladder
-    (installed skill → offer install → fetch docs) before any of their code is
-    written, and assets are secured before the build."""
+    """Phase 3 is the truth gate: heavy layers resolve through the ladder
+    (installed skill → offered install → current docs) before any of their code
+    is written, and assets are secured before the build."""
 
     def test_loads_external_truth_and_imagery(self):
         phase3 = _phase(3)
@@ -282,19 +271,15 @@ class TestPhase3ExternalTruth(unittest.TestCase):
     def test_ladder_is_the_gate(self):
         phase3 = _phase(3)
         self.assertRegex(
-            phase3, r"installed skill → offer .* → fetch current docs",
+            phase3, r"installed skill → offered install .* → current docs",
             "Phase 3 must state the three-rung resolution ladder in order")
-        self.assertIn("Phase 5 fail", phase3,
-                      "an undeclared heavy-layer source must be wired to the pre-flight fail")
-
-    def test_browser_rung_is_a_phase_3_artifact(self):
-        self.assertIn("browser-tooling rung", _phase(3),
-                      "the browser rung and presence check must be a declared artifact")
+        self.assertIn("name the source", phase3,
+                      "each heavy layer's resolved source must be named")
 
 
 class TestPhase5Preflight(unittest.TestCase):
-    """Phase 5 is the single ship gate: scanner first, then every box, and an
-    unticked box blocks 'done'."""
+    """Phase 5 is the mechanical floor: scanner and detector first, then every
+    box, and an unticked box blocks 'done'."""
 
     def test_loads_preflight_and_runs_scanner(self):
         phase5 = _phase(5)
@@ -308,8 +293,8 @@ class TestPhase5Preflight(unittest.TestCase):
 
     def test_unticked_box_blocks_done(self):
         phase5 = _phase(5)
-        self.assertIn("cannot be honestly ticked", phase5)
-        self.assertIn("No sampling, no compression", phase5)
+        self.assertIn("An unticked box means not done", phase5)
+        self.assertIn("fix and re-run", phase5)
 
     def test_verdict_block_is_the_artifact(self):
         self.assertIn("verdict block", _phase(5))
@@ -322,12 +307,12 @@ class TestPhase6AntiAnchoring(unittest.TestCase):
     def test_reviewer_judges_before_reading_scanner(self):
         phase6 = _phase(6)
         self.assertIn("Anti-anchoring order", phase6)
-        self.assertRegex(phase6.lower(), r"screenshots first.*never the reverse",
+        self.assertRegex(phase6.lower(), r"pixels first.*mechanical reports second",
                          "the reviewer must form judgment first, read reports second")
 
     def test_concept_veto_wired(self):
-        self.assertIn("concept veto", _phase(6).lower(),
-                      "Phase 6 scoring must include the concept veto")
+        self.assertIn("concept veto included", _body().lower(),
+                      "R2 scoring must include the rubric's concept veto")
 
 
 if __name__ == "__main__":

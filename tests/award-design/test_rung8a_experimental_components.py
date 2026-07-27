@@ -191,7 +191,7 @@ class TestRung8aFormDiscipline(unittest.TestCase):
                 self.assertNotIn("display: none", src)
 
     def test_form_styles_attributes_never_role_classes(self):
-        """ROLE-RESTYLE gate: form state rides data attributes — a
+        """class-role uniformity rule: form state rides data attributes — a
         .ad-*/.is-* selector in a form stylesheet is class-role drift."""
         for form_id, (css, _js, _g) in RUNG8A_FORMS.items():
             src = _form(css)

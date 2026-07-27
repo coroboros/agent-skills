@@ -18,13 +18,11 @@ channel fires at 2 distinct non-English month names — date chrome is the
 cheapest bleed vector and a closed vocabulary.
 
 Usage:
-    python3 preflight_scan.py <path> [<path>...] [--archetype NAME] [--allow RULE-ID]...
+    python3 preflight_scan.py <path> [<path>...] [--archetype NAME]
 
 `--archetype` applies declared archetype grammar: editorial and
 corporate-luxury suppress EMDASH (a deliberate typographic choice there);
 brutalist suppresses META-LABEL (ASCII process flags are its register).
-`--allow RULE-ID` suppresses a rule for this run — each use requires a
-written justification in the pre-flight verdict.
 
 Exit codes: 0 = no FAIL findings, 1 = FAIL findings present, 2 = usage error
 or zero files scanned (a wrong path must never read as a clean build).
@@ -48,116 +46,24 @@ CODE_EXTS = TEXT_EXTS | {".js", ".ts", ".css", ".scss"}
 EXCLUDED_DIRS = {"node_modules", ".git", ".next", ".astro", "coverage", "vendor", "__pycache__",
                  "dist", "build", ".output", ".nuxt", ".svelte-kit", ".vercel"}
 
-# ── Closed-world provenance (CW rules) ──────────────────────────────────────
-# The boundary is provenance first, content second: the library's own files
-# legitimately carry every machinery pattern, so the machinery rules apply
-# only to what the builder wrote. Partition: a file whose basename matches a
-# library file is byte-compared (verbatim → exempt; edited → CW-LIB-EDIT — a
-# library defect is a defect order, never an edit); a delimiter-chunked bundle
-# is checked chunk-by-chunk; declared vendor engines are out of scope; the
-# rest is build-authored and the CW rules apply. Excluded dirs are never a
-# blind spot for library copies: a library basename is checked wherever it
-# ships (an edited nav component once hid under js/vendor/components/).
-CW_LIBRARY_DIR = Path(__file__).resolve().parent.parent / "assets" / "components"
-CW_BUNDLE_CHUNK_RE = re.compile(r"/\*\s*====\s*([\w-]+)\s*====\s*\*/")
-CW_VENDOR_NAME_RE = re.compile(r"^(?:three|lenis|gsap)[.\-]", re.IGNORECASE)
-CW_JS_EXTS = {".js", ".mjs", ".html", ".htm"}
-CW_CSS_EXTS = {".css", ".scss"}
-
-CW_RULES = [
-    ("CW-ENGINE",
-     "build-authored engine use (THREE/WebGL/Lenis/GSAP) — worlds and drives come from the "
-     "library's covering piece; a missing world is a BLOCKED row, never a from-scratch scene",
-     re.compile(r"\bnew\s+THREE\.|import\s+\*\s+as\s+THREE|from\s+['\"]three"
-                r"|WebGLRenderer|ShaderMaterial|RawShaderMaterial|BufferGeometry"
-                r"|PMREMGenerator|onBeforeCompile"
-                r"|getContext\(\s*['\"](?:webgl2?|webgpu)"
-                r"|new\s+Lenis\s*\(|gsap\.(?:to|from|fromTo|timeline|set)\s*\("
-                r"|ScrollTrigger\.create"), CW_JS_EXTS),
-    ("CW-SHADER",
-     "build-authored shader code (GLSL) — shader work is library-level only",
-     re.compile(r"gl_FragColor|gl_Position|/\*\s*glsl\s*\*/"
-                r"|precision\s+(?:high|medium|low)p"
-                r"|^\s*uniform\s+(?:float|vec[234]|mat[234]|sampler\w*)"), CW_JS_EXTS),
-    ("CW-RAF-LOOP",
-     "build-authored requestAnimationFrame loop — drive loops live in library components",
-     re.compile(r"requestAnimationFrame\s*\("), CW_JS_EXTS),
-    ("CW-CANVAS-DRAW",
-     "build-authored canvas drawing — frame engines are library components (scrub-film et al.)",
-     re.compile(r"getContext\(\s*['\"]2d|\.drawImage\(|putImageData"
-                r"|createElement\(\s*['\"]canvas"), CW_JS_EXTS),
-    ("CW-INPUT-DRIVE",
-     "build-authored input-drive listener — pointer/scroll/wheel coupling comes from the library",
-     re.compile(r"addEventListener\(\s*['\"](?:pointermove|mousemove|touchmove|wheel|scroll"
-                r"|pointerenter|pointerleave|mouseenter|mouseleave|pointerdown|touchstart)['\"]"),
-     CW_JS_EXTS),
-    ("CW-OBSERVER",
-     "build-authored observer state machine — IO/RO/MO machinery is a library component",
-     re.compile(r"new\s+(?:IntersectionObserver|ResizeObserver|MutationObserver)\b"), CW_JS_EXTS),
-    ("CW-STYLE-DRIVE",
-     "build-authored per-frame style write — style driving belongs to library components",
-     re.compile(r"\.style\.(?:setProperty|transform|left|top|width|height|opacity|display"
-                r"|backgroundPosition)\s*[=(]|\.style\["), CW_JS_EXTS),
-    ("CW-CSS-BEHAVIOR",
-     "build-authored CSS behavior (@keyframes / animation / scroll-timeline) — ambient and "
-     "scroll-driven motion ships as library components, never hand CSS",
-     re.compile(r"@keyframes|\banimation(?:-name)?\s*:|animation-timeline\s*:|scroll-timeline"),
-     CW_CSS_EXTS),
-]
-CW_RULE_IDS = {rule[0] for rule in CW_RULES} | {"CW-LIB-EDIT"}
-
-CLASS_LIB_VERBATIM = "LIB-VERBATIM"
-CLASS_LIB_EDIT = "LIB-EDIT"
-CLASS_VENDOR = "VENDOR"
-CLASS_BUILD = "BUILD-AUTHORED"
+# Vendor engines (three/lenis/gsap bundles, vendor/ trees) are not build-
+# authored surface — per-file rules skip them; their text stays in the project
+# blob so guard detection (REDUCED-MOTION, :focus-visible) still sees them.
+VENDOR_NAME_RE = re.compile(r"^(?:three|lenis|gsap)[.\-]", re.IGNORECASE)
 
 
-def _load_library_index():
-    """basename → list of source texts for every library component/form file."""
-    index = {}
-    if not CW_LIBRARY_DIR.is_dir():
-        return index
-    for path in sorted(CW_LIBRARY_DIR.rglob("*")):
-        if path.is_file() and path.suffix.lower() in {".js", ".css"}:
-            try:
-                index.setdefault(path.name, []).append(
-                    path.read_text(encoding="utf-8", errors="replace"))
-            except OSError:
-                continue
-    return index
-
-
-def _classify_provenance(path, text, lib_index):
-    """Returns (class, mismatched_chunk_ids). Order matters: a library
-    basename wins over a vendor path (the hidden-copy lesson)."""
-    if path.name in lib_index:
-        if any(text == src for src in lib_index[path.name]):
-            return CLASS_LIB_VERBATIM, []
-        return CLASS_LIB_EDIT, []
-    parts = CW_BUNDLE_CHUNK_RE.split(text)
-    if len(parts) >= 3:
-        bad = []
-        for i in range(1, len(parts) - 1, 2):
-            chunk_id, body = parts[i], parts[i + 1]
-            sources = (lib_index.get(chunk_id + ".js", [])
-                       + lib_index.get(chunk_id + ".css", []))
-            if not any(body.strip() == src.strip() for src in sources):
-                bad.append(chunk_id)
-        return (CLASS_LIB_EDIT, bad) if bad else (CLASS_LIB_VERBATIM, [])
-    if (any(part.lower() == "vendor" for part in path.parts)
-            or CW_VENDOR_NAME_RE.match(path.name)):
-        return CLASS_VENDOR, []
-    return CLASS_BUILD, []
+def _is_vendor(path):
+    return (any(part.lower() == "vendor" for part in path.parts)
+            or bool(VENDOR_NAME_RE.match(path.name)))
 
 # ── Tooling gates — static proxies (REVIEW-only: a proxy never FAILs on a guess) ──
 # EASE-OVERSHOOT: the page runs ONE declared motion register (decelerating-
 # mechanical, playful-elastic, or cinematic — the effect-grammar verdict). The
 # scanner cannot read the DESIGN.md (excluded), so it names every overshoot/
-# elastic curve in build-authored code for the reviewer to judge against the
-# declared register. Provenance-gated like the CW rules: the library's own
-# easing tokens never re-litigate the library.
+# elastic curve in build code for the reviewer to judge against the declared
+# register.
 EASE_RULE_ID = "EASE-OVERSHOOT"
-EASE_EXTS = CW_JS_EXTS | CW_CSS_EXTS
+EASE_EXTS = {".js", ".mjs", ".html", ".htm", ".css", ".scss"}
 CUBIC_BEZIER_RE = re.compile(
     r"cubic-bezier\(\s*(-?\d*\.?\d+)\s*,\s*(-?\d*\.?\d+)\s*,"
     r"\s*(-?\d*\.?\d+)\s*,\s*(-?\d*\.?\d+)\s*\)")
@@ -361,13 +267,13 @@ def _sequence_groups(dirpath):
     return {key: paths for key, paths in groups.items() if len(paths) >= IMG_SEQUENCE_MIN}
 
 
-def _img_native_res_findings(texts, classes, roots):
+def _img_native_res_findings(texts, roots):
     findings = []
     groups = {}     # (file, stem) → {floor, signal, loc, paths}
     seq_seen = set()      # resolved dirs already walked
     seq_emitted = set()   # (parent, prefix) groups already reported
     for path, text in sorted(texts.items()):
-        if classes.get(path) != CLASS_BUILD:
+        if _is_vendor(path):
             continue
         ext = path.suffix.lower()
         refs = []
@@ -516,23 +422,6 @@ LINE_RULES = [
      "translated layer instead (motion-palette.md, moving windows)",
      re.compile(r"""\.style\.backgroundPosition|setProperty\(\s*['"]background-position"""),
      CODE_EXTS),
-    # Library components inject their CSS from JS strings and form stylesheets ship
-    # zero decoration, so any .css file that SELECTS a component role class is build
-    # CSS re-styling a role the library already owns — the class-role drift that put
-    # two hover verbs on one primary label (CALDERA close vs arrival).
-    ("ROLE-RESTYLE", FAIL,
-     "build CSS styles a library component role (.ad-* / .is-primary) — the role's "
-     "treatment comes from its library instance, page-wide; a section or form never "
-     "redefines it, in class, attribute-substring, or selector-list form "
-     "(class-role uniformity)",
-     # Three branches: role class with the brace on the line; role class on a
-     # selector-list line (trailing comma — CALDERA's `.is-primary:hover,`);
-     # attribute-substring selection of a role class ([class*="ad-"]). `\\?`
-     # tolerates the CSS-escaped hyphen dodge (.ad\-cta); the lookbehind keeps
-     # [class*="grad-"] and [class*="-ad-"] silent.
-     re.compile(r"\.(?:ad\\?-[a-z][\w\\-]*|is\\?-primary)\b[^{}]*(?:\{|,\s*$)"
-                r"|\[\s*class\s*[~^$*|]?=\s*['\"]?(?<![\w-])(?:ad-|is-primary)"),
-     {".css", ".scss"}),
     ("BG-ATTACH-FIXED", REVIEW,
      "background-attachment: fixed — the mobile banding/repaint tell; translate "
      "a layer instead (motion-palette.md, moving windows)",
@@ -658,8 +547,8 @@ MOTION_SIGNAL = re.compile(
 MOTION_GUARD = re.compile(r"prefers-reduced-motion|useReducedMotion")
 FOCUS_VISIBLE = re.compile(r":focus-visible")
 # Eyebrow/kicker density signature — counts each eyebrow opening tag once, by
-# any marker so the closed-world library's own output is seen, not only Tailwind
-# builds: the library slot `data-slot="kicker"`, a semantic `class` carrying
+# any marker so vanilla-CSS builds are seen, not only Tailwind ones: a
+# `data-slot="kicker"` slot, a semantic `class` carrying
 # `kicker`/`eyebrow`, or the Tailwind uppercase+tracking utility pair. Keying
 # only off `tracking-` counted zero on every `<p class="kicker">` build — the
 # false negative that let a mono-caps kicker stamped over every section ship
@@ -686,18 +575,7 @@ class Finding:
         self.excerpt = excerpt
 
 
-_LIB_INDEX_CACHE = None
-
-
-def _library_index():
-    global _LIB_INDEX_CACHE
-    if _LIB_INDEX_CACHE is None:
-        _LIB_INDEX_CACHE = _load_library_index()
-    return _LIB_INDEX_CACHE
-
-
 def iter_files(paths):
-    lib_names = _library_index().keys()
     for raw in paths:
         root = Path(raw)
         if root.is_file():
@@ -708,10 +586,7 @@ def iter_files(paths):
             print(f"warning: path not found, skipped: {root}", file=sys.stderr)
             continue
         for path in sorted(root.rglob("*")):
-            # A library basename is provenance-checked wherever it ships —
-            # excluded dirs never hide an edited copy (the js/vendor lesson).
-            if (any(part in EXCLUDED_DIRS for part in path.relative_to(root).parts[:-1])
-                    and path.name not in lib_names):
+            if any(part in EXCLUDED_DIRS for part in path.relative_to(root).parts[:-1]):
                 continue
             # DESIGN.md is the spec, not the build — its Don'ts legitimately
             # quote banned phrases as prohibitions and would never scan clean.
@@ -870,15 +745,13 @@ CONDITIONAL_RULE_IDS = {"STAMP-ARCHETYPE-MISMATCH"}
 
 def known_rule_ids():
     return ({rule[0] for rule in LINE_RULES} | PROJECT_RULE_IDS | CONDITIONAL_RULE_IDS
-            | CW_RULE_IDS | {EASE_RULE_ID, IMG_RULE_ID})
+            | {EASE_RULE_ID, IMG_RULE_ID})
 
 
-def scan_paths(paths, archetype="", allow=()):
+def scan_paths(paths, archetype=""):
     """Returns (findings, suppressed) — findings is a list of Finding."""
-    suppressed = {rule_id.upper() for rule_id in allow}
-    for rule_id in sorted(suppressed - known_rule_ids()):
-        print(f"warning: --allow {rule_id} matches no rule (typo?)", file=sys.stderr)
-    suppression_notes = [f"{rid} (--allow)" for rid in sorted(suppressed)]
+    suppressed = set()
+    suppression_notes = []
     archetype_key = archetype.strip().lower()
     for rule_id in sorted(ARCHETYPE_SUPPRESSIONS.get(archetype_key, ())):
         suppressed.add(rule_id)
@@ -902,38 +775,13 @@ def scan_paths(paths, archetype="", allow=()):
     has_focus_visible = bool(FOCUS_VISIBLE.search(project_blob))
     form_contracts = _load_form_contracts()
 
-    # Closed-world provenance partition — classification precedes content rules.
-    lib_index = _library_index()
-    classes = {}
-    for path, text in texts.items():
-        cls, bad_chunks = _classify_provenance(path, text, lib_index)
-        classes[path] = cls
-        if cls == CLASS_LIB_EDIT and "CW-LIB-EDIT" not in suppressed:
-            edit_description = ("edited library copy — ship the library file verbatim; a library "
-                               "defect is a defect order + a justified --allow note, never an edit "
-                               "(closed-world)")
-            if bad_chunks:
-                for chunk_id in bad_chunks:
-                    findings.append(Finding(
-                        "CW-LIB-EDIT", FAIL, edit_description, str(path),
-                        f"bundle chunk `{chunk_id}` differs from the library source"))
-            else:
-                findings.append(Finding(
-                    "CW-LIB-EDIT", FAIL, edit_description, str(path),
-                    f"content differs from the library's {path.name}"))
-
     emdash_count = 0
     emdash_hits = []
     text_words = 0
 
     for path, text in texts.items():
         ext = path.suffix.lower()
-        cls = classes.get(path, CLASS_BUILD)
-        if cls in (CLASS_VENDOR, CLASS_LIB_VERBATIM):
-            # Vendor engines are out of scope; verbatim library copies are
-            # gated at library level — scanning them re-litigates the library
-            # (the SCROLL-LISTENER / injected-CSS false-positive class). They
-            # stay in the project blob, so guard detection still sees them.
+        if _is_vendor(path):
             continue
         for line_no, line in enumerate(text.splitlines(), 1):
             if ext in TEXT_EXTS and not HTML_COMMENT_LINE.match(line):
@@ -950,27 +798,19 @@ def scan_paths(paths, archetype="", allow=()):
                     findings.append(Finding(
                         rule_id, severity, description,
                         f"{path}:{line_no}", line.strip()[:120]))
-            if cls == CLASS_BUILD:
-                for rule_id, description, pattern, exts in CW_RULES:
-                    if rule_id in suppressed or ext not in exts:
-                        continue
-                    if pattern.search(line):
-                        findings.append(Finding(
-                            rule_id, FAIL, description,
-                            f"{path}:{line_no}", line.strip()[:120]))
-                if EASE_RULE_ID not in suppressed and ext in EASE_EXTS:
-                    for match in CUBIC_BEZIER_RE.finditer(line):
-                        y1, y2 = float(match.group(2)), float(match.group(4))
-                        if not (0.0 <= y1 <= 1.0 and 0.0 <= y2 <= 1.0):
-                            findings.append(Finding(
-                                EASE_RULE_ID, REVIEW, EASE_DESCRIPTION,
-                                f"{path}:{line_no}",
-                                f"{match.group(0)} — {_bezier_character(y1, y2)}"))
-                    for match in SPRING_TOKEN_RE.finditer(line):
+            if EASE_RULE_ID not in suppressed and ext in EASE_EXTS:
+                for match in CUBIC_BEZIER_RE.finditer(line):
+                    y1, y2 = float(match.group(2)), float(match.group(4))
+                    if not (0.0 <= y1 <= 1.0 and 0.0 <= y2 <= 1.0):
                         findings.append(Finding(
                             EASE_RULE_ID, REVIEW, EASE_DESCRIPTION,
                             f"{path}:{line_no}",
-                            f"`{match.group(0)}` — spring/elastic token"))
+                            f"{match.group(0)} — {_bezier_character(y1, y2)}"))
+                for match in SPRING_TOKEN_RE.finditer(line):
+                    findings.append(Finding(
+                        EASE_RULE_ID, REVIEW, EASE_DESCRIPTION,
+                        f"{path}:{line_no}",
+                        f"`{match.group(0)}` — spring/elastic token"))
 
         if ext in TEXT_EXTS:
             text_words += len(TAG_RE.sub(" ", text).split())
@@ -1055,7 +895,7 @@ def scan_paths(paths, archetype="", allow=()):
 
     # IMG-NATIVE-RES — dims-vs-layout, measured from headers (REVIEW-only proxy).
     if IMG_RULE_ID not in suppressed:
-        findings.extend(_img_native_res_findings(texts, classes, dir_roots))
+        findings.extend(_img_native_res_findings(texts, dir_roots))
 
     # Project-level rules.
     motion_signals = len(MOTION_SIGNAL.findall(project_blob))
@@ -1158,14 +998,12 @@ def main(argv=None):
     parser.add_argument("paths", nargs="+", help="build files or directories to scan")
     parser.add_argument("--archetype", default="",
                         help="build archetype; editorial / corporate-luxury suppress EMDASH")
-    parser.add_argument("--allow", action="append", default=[], metavar="RULE-ID",
-                        help="suppress a rule for this run (repeatable; justify in the verdict)")
     args = parser.parse_args(argv)
 
     files = list(iter_files(args.paths))
     # scan_paths gets the raw paths, not the file list — directory roots anchor
     # root-relative image refs (IMG-NATIVE-RES); it re-derives the same files.
-    findings, suppression_notes = scan_paths(args.paths, args.archetype, args.allow)
+    findings, suppression_notes = scan_paths(args.paths, args.archetype)
     print(format_report(findings, suppression_notes, files))
     if not files:
         return 2

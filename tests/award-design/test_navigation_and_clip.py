@@ -115,7 +115,7 @@ class TestNavOverHeroEncoding(unittest.TestCase):
     """ARDEN shipped an opaque bone bar over the hero photo — decapitation from
     pixel 0 — while passing every gate, because the transparent-over-hero rule
     lived only in prose. This locks the gate that now consumes it: a detector
-    rule, a §8 box, an imposed verdict, and the covering ids the pick-path names."""
+    rule, a §8 box, and the SKILL.md hard constraint."""
 
     def setUp(self):
         self.detector_md = _read("detector.md")
@@ -137,14 +137,10 @@ class TestNavOverHeroEncoding(unittest.TestCase):
                       "preflight §8 must carry the nav-over-hero box")
         self.assertIn("sentinel", self.pf.lower())
 
-    def test_imposed_verdict_row_present(self):
-        self.assertIn("Nav paints no opaque band over a media hero", self.body,
-                      "the imposed-verdicts register must carry the nav-over-hero row")
-
-    def test_pickpath_names_covering_ids(self):
-        # the nav commit must name the covering component per pattern
-        self.assertIn("nav-hero-surface", self.body)
-        self.assertIn("show-on-scroll-up-nav", self.body)
+    def test_hard_constraint_names_the_band(self):
+        self.assertIn("paints an opaque unblurred band over a media hero", self.body,
+                      "the hard-constraints list must carry the nav-over-hero refusal")
+        self.assertIn("(detector: NAV-HERO-OPAQUE)", self.body)
 
 
 class TestNavHeroSurfaceComponent(unittest.TestCase):
@@ -236,8 +232,8 @@ class TestOverflowClipDiscipline(unittest.TestCase):
 
     def test_preflight_craft_box(self):
         pf = _read("preflight.md").lower()
-        self.assertIn("fill / overlay clip", pf,
-                      "preflight §5 must carry a fill/overlay clip craft-floor box")
+        self.assertIn("clips to its container's shape", pf,
+                      "preflight §5 must carry the fill/overlay clip craft-floor box")
 
 
 class TestVerifyGranularity(unittest.TestCase):
@@ -261,12 +257,12 @@ class TestVerifyGranularity(unittest.TestCase):
                       "the degraded check names the scroll-timeline @supports guard")
 
     def test_phase4_loop_mirrors_the_checks(self):
+        # the modern-CSS-degraded render moved to the §8 box alone,
+        # pinned above by test_preflight_degraded_render_box
         self.assertIn("hover→leave", self.p4,
                       "the Phase 4 conformance loop must drive hover→leave")
         self.assertTrue("seam" in self.p4,
                         "the Phase 4 loop must capture the section seam")
-        self.assertTrue("@supports" in _phase(4) or "modern-css-degraded" in self.p4,
-                        "the Phase 4 loop must run the modern-CSS-degraded render")
 
 
 if __name__ == "__main__":

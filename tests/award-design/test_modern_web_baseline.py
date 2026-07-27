@@ -99,9 +99,6 @@ class TestSkillPointers(unittest.TestCase):
 
 
 class TestWiredIntoProtocol(unittest.TestCase):
-    def test_phase4_loads_baseline(self):
-        self.assertIn("references/modern-web-baseline.md", _phase(4))
-
     def test_preflight_code_craft_points_to_baseline(self):
         self.assertIn("modern-web-baseline.md", _read("preflight.md"))
 

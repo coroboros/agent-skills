@@ -6,7 +6,7 @@ fills contracted slots. These tests lock the drift surface: manifest ↔ forms/
 sync, every contracted slot styled by its stylesheet, the no-JS floor (a form
 that hides a slot at rest blacks out content when the script dies), the
 layering law on any form enhancer, and the Phase 4/preflight/audit wiring that
-makes the floors and the placement pass binding rather than decorative."""
+keeps the surviving composition laws binding rather than decorative."""
 
 import json
 import unittest
@@ -168,7 +168,7 @@ class TestRecipes(unittest.TestCase):
 
     def test_footer_is_structured_and_resolves(self):
         """Freeform footers weren't drift — they were forced: the named costumes
-        had no files. Every footer is now a structured object under closed-world:
+        had no files. Every footer is now a structured object under library-quality:
         a real form file, a manifest component, an in-world sign-off, or a declared
         MISSING costume (the BLOCKED-row grammar). Zero free-text footers remain."""
         form_files = {p.name for p in (COMPONENTS / "forms").glob("*.css")}
@@ -246,22 +246,22 @@ class TestRecipes(unittest.TestCase):
                             self.assertIn(v, self.component_ids)
 
     def test_skill_wires_recipes(self):
+        # recipes are evidence now, never law — the library composes, the vision leads
         skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("assets/components/recipes.json", skill)
-        self.assertIn("Pick the recipe, then diverge inside it", skill)
-        self.assertIn("never re-sequences a winner's ordering to taste", skill)
+        self.assertIn("28 recipes", skill)
+        self.assertIn("none is a script", skill)
+        self.assertIn("the catalog never picks the vision", skill)
 
     def test_skill_carries_the_mobile_commit(self):
         """The R-D research's load-bearing finding: winners let pointer classes
-        go DORMANT on touch, and the tap-flash on press-class elements is the
+        go dormant on touch, and the tap answer on press-class elements is the
         floor — a hover-only substrate reads dead under hover:none."""
         skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("The mobile commit", skill)
-        self.assertIn("go DORMANT", skill)
-        self.assertIn("answer the TAP", skill)
-        self.assertIn("an honest dormant state is a winner answer", skill)
+        self.assertIn("go dormant on touch", skill)
+        self.assertIn("answer the tap on `:active`", skill)
         preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
-        self.assertIn("the press-class elements answer the TAP", preflight)
+        self.assertIn("pointer-only classes rest dormant (that is the winner answer, not a gap)",
+                      preflight)
 
 
 PLAYBOOKS = COMPONENTS / "playbooks"
@@ -345,7 +345,7 @@ class TestPlaybooks(unittest.TestCase):
 
     def test_skill_wires_playbooks(self):
         skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("assets/components/playbooks/<archetype>.json", skill)
+        self.assertIn("9 archetype playbooks", skill)
 
     def test_variation_axes_present(self):
         """CALDERA postmortem: two same-archetype builds shipped isomorphic
@@ -382,108 +382,51 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         self.preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
         self.rubric = (SKILL_DIR / "references" / "audit-rubric.md").read_text(encoding="utf-8")
 
-    def test_phase4_forms_grammar(self):
-        self.assertIn("Section layout composes the same way", self.skill)
-        self.assertIn("an undeclared freeform section is drift", self.skill)
-
-    def test_phase4_coverage_floor(self):
-        self.assertIn("The coverage floor binds here, not at review", self.skill)
-
-    def test_phase4_text_effect_and_spectacle(self):
-        self.assertIn("≥1 named text effect", self.skill)
-        # the R4 sauce verdict: "exactly one" was refuted (3/6 verified winners
-        # run zero peak) — the surviving invariant is the cap plus placement
-        self.assertIn("at most one climax", self.skill)
-        self.assertIn("never a restraint choice", self.skill)
-        self.assertIn("declared archetype-canon citation", self.skill)
-        # the MERIDIAN v2 lesson: the cap holds peaks, never vocabulary,
-        # and a committed beat is never silently cut in cleanup
-        self.assertIn("A committed beat survives to ship", self.skill)
-
-    def test_reading_kit_rotation_axis(self):
-        """The monoculture had no named rotation axis. The reading kit joins the
-        rotate list, the stamp carries a text: field, and slot_roles is the pick."""
-        self.assertIn("· text:<h1-entrance>/<prose-substrate>", self.skill,
-                      "the stamp must carry the reading-kit field")
-        self.assertIn("the reading kit", self.skill)
-        self.assertIn("slot_roles", self.skill)
-        ap = (SKILL_DIR / "references" / "anti-patterns.md").read_text(encoding="utf-8")
-        self.assertIn("or reading kit", ap)
+    def test_phase4_pace_like_a_score(self):
+        # the surviving spectacle law: the climax cap plus the trigger law —
+        # ARDEN's hover-as-climax stays impossible without the conformance table
+        self.assertIn("At most one climax", self.skill)
+        self.assertIn("never pointer-gated", self.skill)
+        self.assertIn("at least one rest", self.skill)
+        self.assertIn("a flat curve is a template", self.skill)
 
     def test_density_aliveness_bar(self):
         """Cennini cleared every floor and shipped "empty and dead" because no gate
         measured richness. The floor is not the ceiling; the exemplar is the bar,
         and a sparse/static build fails the density/aliveness read comparatively."""
-        self.assertIn("This is the FLOOR a quiet build clears, never the ceiling", self.skill)
-        self.assertIn("never the experiential richness", self.skill)
-        self.assertIn("The density/aliveness bar", self.preflight)
-        self.assertIn("empty and dead", self.preflight)
+        self.assertIn("empty and dead", self.skill)
+        self.assertIn("Aim at the exemplar's ceiling, never at the floor the checks define",
+                      self.skill)
+        self.assertIn("does this carry as many live channels", self.skill)
+        self.assertIn("necessary, never sufficient", self.preflight)
         self.assertIn("does the build carry as many live channels", self.rubric)
 
-    def test_felt_text_effect_gate(self):
-        """Cennini shipped "zero text effect" because the gate accepted a static
-        colour accent / an imperceptible heading wipe, and the anti-monoculture
-        rotation was read as licence to drop the kinetic headline. The text effect
-        must now be felt + kinetic; the rotation stays among felt effects."""
-        self.assertIn("felt and kinetic", self.preflight)
-        self.assertIn("not the felt effect", self.preflight)
-        self.assertIn("rotates AMONG felt kinetic effects", self.skill)
+    def test_felt_text_effect_law(self):
+        """Cennini shipped "zero text effect" because a static colour accent
+        cleared the old gate. The commit box died with the floor rewrite; the
+        law survives in the text-effects canon and Phase 4's motion rules."""
+        self.assertIn("Text is a motion surface too", self.skill)
         te = (SKILL_DIR / "references" / "text-effects.md").read_text(encoding="utf-8")
         self.assertIn("DISPLAY entrance still carries a felt reveal", te)
+        self.assertIn("the Cennini failure", te)
 
-    def test_spectacle_conformance_gate(self):
-        """ARDEN shipped a hover as the page climax and passed: the Spectacle-commit
-        box checked the build against its own plan, never against the model. The
-        conformance table + trigger law close it."""
-        self.assertIn("spectacle conformance table", self.skill)
-        self.assertIn("diffs against the playbook's `spectacle_model`", self.skill)
-        # the trigger law — a pointer-gated peak is not a climax
-        self.assertIn("a pointer-gated peak never fills the climax row", self.skill)
-        # preflight consumes it, and the verdict Counts the trigger
-        self.assertIn("Conformance:", self.preflight)
-        self.assertIn("never a pointer-gated peak", self.preflight)
-        self.assertIn("climax trigger <scroll|load|zero-by-canon>", self.preflight)
-        self.assertIn("The desktop pointer layer is committed explicitly", self.skill)
-        self.assertIn("Optional kicker/eyebrow slots default ABSENT", self.skill)
-
-    def test_phase4_motion_continuity(self):
-        """The R4 motion-continuity law: never silent after the hero — the
-        signature vocabulary recurs in every section, the footer closes live,
-        and reduced-motion is a legitimate static state judged on composition.
-        MARE's UAT sharpened it: a live canvas over dead DOM is the same
-        failure in costume."""
-        self.assertIn("no section goes fully static in the default render, footer included", self.skill)
-        self.assertIn("footer closes on the live signature", self.skill)
-        self.assertIn("static-frame integrity", self.skill)
-        self.assertIn("never discharges the floor alone", self.skill)
-        self.assertIn("FELT mid-scroll", self.skill)
-
-    def test_phase4_effect_cohesion(self):
-        """MARE's UAT + the effect-grammar adversarial verdict: no numeric
-        family cap is evidenced (winners run 2-5, mode 4) — the cap is on
-        LINEAGES, exactly one; the primary verb is one full-strength treatment
-        repeated verbatim, and the product-UI default hovers are banned as the
-        primary."""
-        self.assertIn("PICKED from the library's winner-verified palette", self.skill)
-        self.assertIn("The cap is on lineages, never on families", self.skill)
-        self.assertIn("repeated verbatim on every primary instance", self.skill)
-        self.assertIn("legal only on a ghost/tertiary", self.skill)
+    def test_motion_continuity_law(self):
+        """The R4 motion-continuity law survives compressed: never silent after
+        the hero — live channels run page-deep and the footer closes live."""
+        self.assertIn("their footers close on the live signature", self.skill)
+        self.assertIn("winners close on a live footer, never a static contact block", self.skill)
+        self.assertIn("never one hero moment then a dead page", self.skill)
 
     def test_phase4_non_contradiction(self):
-        self.assertIn("Restraint and the floors never trade", self.skill)
+        self.assertIn("Sparse-and-static is not restraint", self.skill)
+        self.assertIn("restraint lowers amplitude, never coverage", self.skill)
 
     def test_preflight_countable_boxes(self):
-        for name in ("**Text-effect commit**", "**Spectacle commit**",
-                     "**Media-response coverage**", "**Form-slot integrity**",
-                     "**Motion continuity**", "**Static-frame integrity**",
-                     "**Legibility floor**", "**Nav under momentum**",
-                     "**Primary-verb consistency**", "**Class-role uniformity**"):
+        for name in ("**Eyebrows**", "**Legibility floor**", "**Layout variety**",
+                     "**Zigzag**", "**Grid fill**", "**Hero stack**",
+                     "**CTA wrap**", "**Italic descenders**"):
             with self.subTest(box=name):
                 self.assertIn(name, self.preflight)
-
-    def test_preflight_placement_pass_box(self):
-        self.assertIn("**Placement pass — one placement row per standard capture**", self.preflight)
-        self.assertIn("placement rows <n>/<captures>", self.preflight)
 
     def test_rubric_placement_pass(self):
         self.assertIn("**The placement pass — composition is judged in stills, beside the exemplar.**", self.rubric)
@@ -504,8 +447,8 @@ class TestCompositionFloorsWiring(unittest.TestCase):
 
 class TestImposedVerdicts(unittest.TestCase):
     """CALDERA postmortem: the builder treated corpus verdicts as improvable
-    defaults ('I know a better way'). The imposed register converts them to
-    non-negotiable rows, each gate-carried, with one narrow written override."""
+    defaults ('I know a better way'). The imposed-verdicts table died with the
+    library-quality; these pin its load-bearing rows where they live on as law."""
 
     @classmethod
     def setUpClass(cls):
@@ -514,55 +457,46 @@ class TestImposedVerdicts(unittest.TestCase):
         cls.interactions = (SKILL_DIR / "references" / "interaction-signatures.md").read_text(encoding="utf-8")
         cls.navpat = (SKILL_DIR / "references" / "navigation-patterns.md").read_text(encoding="utf-8")
 
-    def test_register_exists_with_override_protocol(self):
-        self.assertIn("### The imposed verdicts — never negotiated", self.skill)
-        self.assertIn('OVERRIDE: <verdict> — "<the clause>"', self.skill)
-        self.assertIn("No override exists for nav flicker or sub-CSS assets", self.skill)
+    def test_hard_constraints_override_protocol(self):
+        self.assertIn("each match-and-refuse", self.skill)
+        self.assertIn("The only override is an explicit client clause quoted in the DESIGN.md",
+                      self.skill)
 
-    def test_verdict_rows_present(self):
-        for token in ("dense and moving",
-                      "zero hide/show flips under scroll jitter",
-                      "sources, never the engine",
-                      "One library treatment per role, page-wide",
-                      "One motion register page-wide",
-                      "Structure is story-native"):
-            with self.subTest(verdict=token):
-                self.assertIn(token, self.skill)
+    def test_surviving_verdict_laws(self):
+        self.assertIn("registers never mix on a page", self.skill)
+        self.assertIn("Mixed motion registers on one page", self.skill)
+        self.assertIn("A nav that flickers under scroll jitter", self.skill)
+        self.assertIn("zero hide/show flips", self.preflight)
+        self.assertIn("the absence of a grammar", self.interactions)
 
     def test_story_native_law_in_phase1(self):
-        self.assertIn("**Structure is story-native.**", self.skill)
-        self.assertIn("story reason", self.skill)
-        self.assertIn("never reused across builds — the clearest law in the data", self.skill)
+        self.assertIn("its rituals become the chapters and the effect vocabulary", self.skill)
+        self.assertIn("only forced variance prevents it", self.skill)
 
     def test_motion_register_amendment(self):
         # R-imposed live measurement: a SOTD winner runs 9 timing tokens across
         # 4 curve families, all one register — the cap moved from family to register.
-        self.assertIn("motion register + accent role", self.preflight)
+        self.assertIn("one motion register page-wide", self.preflight)
         self.assertIn("What no winner does is cross registers", self.interactions)
-        self.assertIn("all decelerating-mechanical", self.skill)
+        self.assertIn("all decelerating-mechanical", self.interactions)
 
     def test_nav_winner_norm(self):
         self.assertIn("**The winner norm is not hiding at all.**", self.navpat)
         self.assertIn("zero visible hide/show flips under scroll jitter", self.navpat)
 
     def test_loophole_closures(self):
-        """Red-team round (2026-07-17): a lazy builder defeats prose gates through
-        self-defined predicates, self-graded evidence, and escape hatches. Pin the
-        closures for the four BREAKS-class findings."""
-        # #1/#2 — the Siena route never satisfies the immersive hero; re-scope
-        # needs evidence + the user.
-        self.assertIn("never the immersive hero-medium verdict", self.skill)
-        self.assertIn("the re-scope is not the builder's call", self.skill)
+        """Red-team round (2026-07-17): the closures that survived the rewrite —
+        the Siena route on an immersive brief, provenance on asset numbers, the
+        fixed probe order, and the instrumented flip count."""
+        # #1 — a stills procession never satisfies the immersive hero-medium bar.
+        self.assertIn("zero winner precedent on an immersive brief", self.skill)
         # #3 — asset numbers carry provenance; the builder cannot narrow the class.
-        self.assertIn("a dimension with no provenance is an asserted number", self.preflight)
-        self.assertIn("**Signature asset = every full-bleed surface and every scrubbed/zoomed surface**",
-                      self.preflight)
-        # #5 — the OVERRIDE form is re-adjudicated, not self-satisfied.
-        self.assertIn("Every OVERRIDE line is a standing refutation target", self.skill)
+        self.assertIn("(full-bleed, scrubbed, zoomed) holds ≥ device pixels", self.preflight)
+        self.assertIn("an asserted number is a fail", self.preflight)
         # #4 — probe order is fixed; a chosen-to-fail probe is the escape, not a gap.
         self.assertIn("ToolSearch for the browser MCP is the mandatory first probe", self.preflight)
         # #6 — the instrumented count is the pass, the mechanism is the implementation.
-        self.assertIn("the recorded zero-flip count is the pass", self.preflight)
+        self.assertIn("the sampled flip count pasted", self.preflight)
 
 
 if __name__ == "__main__":

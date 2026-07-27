@@ -121,18 +121,16 @@ class TestRubricRecalibration(unittest.TestCase):
 
 
 class TestSkillWiring(unittest.TestCase):
-    def test_phases_3_4_5_load_imperatives(self):
-        for n in (3, 4, 5):
-            with self.subTest(phase=n):
-                self.assertIn("award-imperatives.md", _phase(n),
-                              f"Phase {n} must reference award-imperatives.md")
+    def test_phase_4_loads_imperatives(self):
+        self.assertIn("award-imperatives.md", _phase(4),
+                      "Phase 4 must reference award-imperatives.md")
 
     def test_phase4_commits_nav_and_signature(self):
         p4 = _phase(4).lower()
         self.assertIn("navigation pattern", p4,
                       "the nav pattern must be an explicit design_plan commit")
-        self.assertIn("signature interaction", p4,
-                      "the signature interaction must be an explicit commit")
+        self.assertIn("the signature (verb, medium, trigger)", p4,
+                      "the signature must be an explicit commit, named by verb and medium")
 
     def test_phase4_hero_micro_loop(self):
         p4 = _phase(4)
@@ -147,8 +145,8 @@ class TestSkillWiring(unittest.TestCase):
         m = re.search(r"^## Review mode.*?(?=^## )", body, re.DOTALL | re.MULTILINE)
         self.assertIsNotNone(m, "Review mode section missing")
         review = m.group(0).lower()
-        self.assertIn("premise veto", review,
-                      "R1 must run the premise veto")
+        self.assertIn("restraint veto", review,
+                      "R1 must run the premise/restraint veto")
         self.assertIn("multi-lens panel", review,
                       "Review mode must offer the multi-lens adversarial panel")
         self.assertIn("comparative desire read", review,

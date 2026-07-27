@@ -183,7 +183,7 @@ class TestRung6aFormDiscipline(unittest.TestCase):
         self.assertIn("document.createElement('canvas')", hero)
 
     def test_forms_style_attributes_never_role_classes(self):
-        """ROLE-RESTYLE gate: form state rides data attributes — a
+        """class-role uniformity rule: form state rides data attributes — a
         .ad-*/.is-* selector in a form stylesheet is the class-role drift
         the scanner fails."""
         for form_id, (css, _js, _g) in RUNG6A_FORMS.items():

@@ -75,16 +75,16 @@ class TestMediumDecisionUngated(unittest.TestCase):
         self.assertIn("an immersive world is not a product and is never exempt", sig)
 
     def test_skill_medium_decision_extended(self):
+        # The medium commitment fires at Phase 1, mapped by world kind — objects,
+        # space, process all route to a driven medium, not to displayed stills.
         s = _skill()
-        self.assertIn("the brief commits an immersive world", s)
-        # Amended 2026-07-17 (imposed-register verdict): film loops joined the driven
-        # set — the ban is on displayed stills, not on any specific driven mechanism.
-        self.assertIn("rendered, scrubbed, or looping real footage — never displayed stills", s)
-        self.assertIn("cinematic film loop", s)
+        self.assertIn("a world of objects invites a real-time 3d scene", s)
+        self.assertIn("a world of process invites a scrubbed sequence", s)
 
-    def test_delegation_trigger_ungated_from_object(self):
+    def test_stills_procession_named_precedent_free(self):
         s = _skill()
-        self.assertIn("the rendered environment/world an immersive scroll/scrub brief moves through", s)
+        self.assertIn("a stills procession dressed with décor has zero winner "
+                      "precedent on an immersive brief", s)
 
 
 class TestFingerprintPresenceOnly(unittest.TestCase):
@@ -99,10 +99,10 @@ class TestFingerprintPresenceOnly(unittest.TestCase):
         ar = _ref("audit-rubric.md")
         self.assertIn("b's fingerprint is a presence gate, not the liveness clear", ar)
 
-    def test_preflight_medium_box_splits_presence_and_liveness(self):
+    def test_preflight_drives_medium_and_loop(self):
         pf = _ref("preflight.md")
-        self.assertIn("**immersive medium is live, driven**", pf)
-        self.assertIn("**looping video loops seamlessly**", pf)
+        self.assertIn("looping video watched through ≥2 cycles", pf)
+        self.assertIn("no seam jump", pf)
 
 
 class TestArchetypeReviewerSupplied(unittest.TestCase):
@@ -124,8 +124,8 @@ class TestUnverifiedRenderCapArchetypeWired(unittest.TestCase):
 
     def test_cap_wired_to_archetype(self):
         pf = _ref("preflight.md")
-        self.assertIn("any immersive-cinematic / experimental build, wired to the archetype "
-                      "and not to the self-classified verb", pf)
+        self.assertIn("any immersive-cinematic / experimental build, caps at "
+                      "**not done — unverified render**", pf)
 
 
 class TestR1RefutesMediumAmbition(unittest.TestCase):

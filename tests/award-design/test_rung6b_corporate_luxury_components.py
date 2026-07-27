@@ -163,7 +163,7 @@ class TestRung6bFormDiscipline(unittest.TestCase):
         self.assertIn("data-ad-place-active", self.js)
 
     def test_form_styles_attributes_never_role_classes(self):
-        """ROLE-RESTYLE gate: form state rides data attributes — a
+        """class-role uniformity rule: form state rides data attributes — a
         .ad-*/.is-* selector in a form stylesheet is class-role drift."""
         self.assertNotRegex(self.css, r"\.ad-")
         self.assertNotRegex(self.css, r"\.is-")

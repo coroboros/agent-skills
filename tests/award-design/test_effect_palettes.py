@@ -70,20 +70,16 @@ class TestCompositionForcing(unittest.TestCase):
         self.assertIn("the grammar is what makes the variety cohere", ix)
         self.assertIn("it is the absence of a grammar", ix)
 
-    def test_phase4_commits_one_recipe_per_class(self):
-        p4 = _phase(4)
-        self.assertIn("one named recipe per element class", p4)
-        self.assertIn("effect palette", p4)
-        self.assertIn("one mechanic recycled across every class is a default in costume", p4)
+    def test_design_plan_picks_one_recipe_per_class(self):
+        ix = _read("interaction-signatures.md")
+        self.assertIn("the design_plan picks one per class and names the grammar", ix)
+        self.assertIn("is a default in costume", ix,
+                      "one trick stamped on every class must stay named as the fail")
 
-    def test_phase4_reloads_the_palette(self):
+    def test_phase4_loads_the_palette(self):
         p4 = _phase(4)
-        self.assertIn("the ingredient-set commit draws from it", p4)
-
-    def test_preflight_distinctness_box(self):
-        pf = _read("preflight.md")
-        self.assertIn("interaction-palette distinctness", pf)
-        self.assertIn("one mechanic recycled across classes is the fail", pf)
+        self.assertIn("*effect palette*", p4)
+        self.assertIn("*page recipe*", p4)
 
 
 if __name__ == "__main__":

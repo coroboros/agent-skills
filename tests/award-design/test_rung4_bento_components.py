@@ -150,7 +150,7 @@ class TestRung4FormDiscipline(unittest.TestCase):
                 self.assertNotRegex(src, r"\binsertAdjacentHTML\b")
 
     def test_forms_style_attributes_never_role_classes(self):
-        """Driven finding (ROLE-RESTYLE gate): live/park/marquee state rides
+        """Driven finding (class-role uniformity rule): live/park/marquee state rides
         data attributes on the form root — a .ad-*/.is-primary selector in a
         form stylesheet is the class-role drift the scanner fails."""
         for form_id, (css, _js, _g) in RUNG4_FORMS.items():
