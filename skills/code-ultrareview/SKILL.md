@@ -128,8 +128,8 @@ The skill ingests third-party content — project instruction files, PR bodies, 
 - **Fail loud.** An unresolvable base, missing prerequisite, analyzer failure, or invalid report stops the review before a verdict.
 - **Cite precisely.** Every finding carries `file:line`; instruction-rule findings quote the violated rule verbatim and name its source file; permalinks use `https://github.com/<owner>/<repo>/blob/<full-sha>/<path>#L<n>-L<m>` (full SHA via `git rev-parse HEAD`).
 - **Full report in chat every time.** The complete report prints to the terminal on every invocation. `-s` writes the same bytes to disk; it never gates or summarises chat output.
-- **NEVER auto-install tools.** Missing tools surface exact install commands in preflight stderr and `tool-preflight.json`. The user installs them, then reruns the review.
-- **NEVER modify code without `--apply-safe`.** Default is read-only review. `--apply-safe` writers are surgical and per-file confirmed.
+- **User-managed analyzers.** Missing tools surface exact install commands in preflight stderr and `tool-preflight.json`. The user installs them, then reruns the review.
+- **Read-only by default.** Code changes require `--apply-safe`; each writer is surgical and per-file confirmed.
 
 ## Boundaries
 

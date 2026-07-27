@@ -51,12 +51,11 @@ Writes opinionated configs (`biome.json`, `.worktreeinclude`, canonical `AGENTS.
 
 ## Rules
 
-- NEVER install ESLint or Prettier — Biome handles everything.
-- NEVER use CommonJS — ES modules only (`"type": "module"`).
-- ALWAYS use pnpm as package manager.
-- `target=occupied` is a hard stop. Never overlay or migrate an existing project with this skill.
-- Do NOT author or replace `README.md` — preserve a framework-generated README; the user owns project-specific documentation.
-- Do NOT initialize git — the user manages their own git workflow.
+- Use Biome for linting and formatting.
+- Use ES modules (`"type": "module"`).
+- Use pnpm.
+- Treat `target=occupied` as a hard stop; this skill creates new projects only.
+- Preserve framework-generated `README.md`; leave project-specific documentation and Git initialization to the user.
 - For project-level decisions the scaffold deliberately does not make (i18n, dual auth, search, rich text, OG, MT, theme persistence, cache invalidation, admin uploads, CRM sync), read `"$SKILL_DIR"/references/decisions.md` and surface the relevant ones to the user after the summary report.
 
 ### astro-cloudflare specifics

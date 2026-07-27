@@ -106,7 +106,7 @@ class TestDesignSystemRuntime(unittest.TestCase):
             astro_setup.index("`astro.config.mjs`"),
             astro_setup.index("## 5. Shared overlay"),
         )
-        self.assertIn("preserve a framework-generated README", skill)
+        self.assertIn("preserve framework-generated `readme.md`", skill.lower())
         self.assertNotIn("@README.md", astro_instructions)
         self.assertNotIn("@README.md", next_instructions)
 
