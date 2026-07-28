@@ -15,7 +15,10 @@ COPY-LANG is per-file density: it fires only past 4 distinct + 6 total
 non-English function words in a file's visible text, so a register device
 ("Maison"), a "Des Moines", or an AUX label never trips it; its month
 channel fires at 2 distinct non-English month names — date chrome is the
-cheapest bleed vector and a closed vocabulary.
+cheapest bleed vector and a closed vocabulary. The OPTICAL-* family reads
+the craft pass back off the stylesheet (REVIEW-only) and stays silent unless
+the project is a real built page — a stylesheet with no document, or a
+document with no stylesheet, has no craft pass to have skipped.
 
 Usage:
     python3 preflight_scan.py <path> [<path>...] [--archetype NAME]
@@ -34,6 +37,7 @@ import math
 import re
 import struct
 import sys
+from datetime import date
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -737,15 +741,267 @@ def _copy_echo_findings(text):
     return out
 
 
-# Rules that fire only when their precondition is met (an argument passed), so
-# they are not expected on a bare dirty-fixture scan — registered for the
-# checklist lockstep, exempt from the "fires on dirty" net.
+# ── OPTICAL-* — the craft pass as decidable stylesheet facts (REVIEW-only) ──
+# optical-craft.md is *installed* at build time, never detected, so these five
+# rules only read back the mechanical half of it: a tracking value that never
+# moved across the ramp, headline balance never asked for, statistics that
+# jitter, a shadow with no temperature, an unstyled selection. Every one is a
+# fact about the stylesheet, so every one is decidable — and every one is
+# REVIEW, because the judgment (is this register deliberate?) is the reviewer's.
+#
+# All five share one precondition: a real built page — at least one stylesheet
+# AND a document carrying real copy. A stylesheet-only tree or a markup
+# fragment has no craft pass to have skipped, and flagging one would be the
+# scanner guessing.
+OPTICAL_RULE_IDS = {"OPTICAL-TRACKING", "OPTICAL-BALANCE", "OPTICAL-TABULAR",
+                    "OPTICAL-SHADOW", "OPTICAL-SELECTION"}
+OPTICAL_STYLE_EXTS = {".css", ".scss"}
+# Astro is this skill's default framework for four archetypes and routinely
+# ships every rule inside a component `<style>` block with no .css file at all —
+# so the family reads those too, or it is blind on the stack it recommends.
+OPTICAL_STYLE_BLOCK_RE = re.compile(r"<style\b[^>]*>(.*?)</style\s*>", re.DOTALL | re.IGNORECASE)
+# Document extensions only — a README beside a stylesheet is not a page.
+OPTICAL_PAGE_EXTS = TEXT_EXTS - {".md", ".mdx"}
+# optical-craft.md: body tracks at 0, headings 24–48px at -0.01/-0.02em, display
+# ≥64px at -0.03/-0.045em. So the curve must have moved by the heading band —
+# below it, a shared value is legitimately correct.
+OPTICAL_DISPLAY_FLOOR_PX = 24
+OPTICAL_MIN_DISPLAY_SIZES = 3
+CSS_BLOCK_RE = re.compile(r"[^{}]*\{([^{}]*)\}")
+FONT_SIZE_DECL_RE = re.compile(r"(?<![-\w])font-size\s*:\s*([^;}]+)")
+LETTER_SPACING_DECL_RE = re.compile(r"(?<![-\w])letter-spacing\s*:\s*([^;}]+)")
+# em is relative to the element's own parent font-size and unknowable statically.
+CSS_LENGTH_RE = re.compile(r"(-?\d*\.?\d+)\s*(rem|px)\b")
+HEADLINE_TAG_RE = re.compile(r"<h[1-3]\b", re.IGNORECASE)
+TEXT_WRAP_RE = re.compile(r"text-wrap\s*:\s*(?:balance|pretty)|\btext-(?:balance|pretty)\b")
+# A stat surface, not a stray numeral: a named stat/metric/price slot whose own
+# text carries a digit, or a counter element declaring its target as data.
+STAT_SIGNATURE_RE = re.compile(
+    r"<[a-z][^>]*?(?:class|data-slot)=[\"'][^\"']*\b(?:stat|stats|metric|metrics|counter"
+    r"|kpi|price|pricing|figure-number|numeral|tally)\b[^\"']*[\"'][^>]*>\s*[^<]*\d"
+    r"|<[a-z][^>]*\bdata-(?:count|target|value)\s*=\s*[\"']?-?\d",
+    re.IGNORECASE)
+TABULAR_RE = re.compile(r"tabular-nums|font-variant-numeric\s*:[^;}]*\btabular\b")
+PURE_BLACK_SHADOW_RE = re.compile(
+    r"box-shadow\s*:[^;}]*(?:rgba?\(\s*0\s*[,\s]\s*0\s*[,\s]\s*0\b|#000(?:000)?\b)",
+    re.IGNORECASE)
+SELECTION_RE = re.compile(r"::selection\b", re.IGNORECASE)
+GROUND_TOKEN_RE = re.compile(
+    r"--[\w-]*(?:bg|background|surface|paper|ground|canvas|shell|page|base|ink)[\w-]*"
+    r"\s*:\s*([^;{}]+)", re.IGNORECASE)
+# Channel spread that reads as a hue rather than a neutral, per space.
+GROUND_NEUTRAL_RGB_SPREAD = 8      # of 255
+GROUND_NEUTRAL_CHROMA = 0.01       # oklch C / oklab |a|,|b|
+GROUND_NEUTRAL_SATURATION = 3.0    # hsl S%
+
+
+def _css_decl_blocks(text):
+    """(line_no, declaration_body) for every brace-delimited block. At-rule
+    wrappers fold into the selector half, which is fine — only declarations
+    are read."""
+    for match in CSS_BLOCK_RE.finditer(text):
+        yield text.count("\n", 0, match.start(1)) + 1, match.group(1)
+
+
+def _max_length_px(value):
+    """Largest px-equivalent length in a declaration value (clamp() included),
+    or None when every term is a var() / em / keyword the scan cannot resolve."""
+    lengths = [float(num) * (16.0 if unit == "rem" else 1.0)
+               for num, unit in CSS_LENGTH_RE.findall(value)]
+    return max(lengths) if lengths else None
+
+
+def _is_chromatic(value):
+    """True when a colour carries a hue rather than sitting on the grey axis."""
+    value = value.strip().lower()
+    match = re.search(r"oklch\(\s*[\d.%]+\s+([\d.]+)", value)
+    if match:
+        return float(match.group(1)) > GROUND_NEUTRAL_CHROMA
+    match = re.search(r"oklab\(\s*[\d.%]+\s+(-?[\d.]+)\s+(-?[\d.]+)", value)
+    if match:
+        return (abs(float(match.group(1))) > GROUND_NEUTRAL_CHROMA
+                or abs(float(match.group(2))) > GROUND_NEUTRAL_CHROMA)
+    match = re.search(r"hsla?\(\s*[\d.]+(?:deg)?\s*[,\s]\s*([\d.]+)%", value)
+    if match:
+        return float(match.group(1)) > GROUND_NEUTRAL_SATURATION
+    match = re.search(r"#([0-9a-f]{3}|[0-9a-f]{6})\b", value)
+    if match:
+        digits = match.group(1)
+        if len(digits) == 3:
+            digits = "".join(c * 2 for c in digits)
+        channels = [int(digits[i:i + 2], 16) for i in (0, 2, 4)]
+        return max(channels) - min(channels) > GROUND_NEUTRAL_RGB_SPREAD
+    match = re.search(r"rgba?\(\s*(\d+)\s*[,\s]\s*(\d+)\s*[,\s]\s*(\d+)", value)
+    if match:
+        channels = [int(g) for g in match.groups()]
+        return max(channels) - min(channels) > GROUND_NEUTRAL_RGB_SPREAD
+    return False
+
+
+def _ground_is_chromatic(style_blob):
+    return any(_is_chromatic(match.group(1)) for match in GROUND_TOKEN_RE.finditer(style_blob))
+
+
+def _stylesheets(texts):
+    """(path, first_line, css) for every stylesheet file and every embedded
+    `<style>` block. first_line anchors a finding back to the real line."""
+    sheets = []
+    for path, text in sorted(texts.items()):
+        if _is_vendor(path):
+            continue
+        ext = path.suffix.lower()
+        if ext in OPTICAL_STYLE_EXTS:
+            sheets.append((path, 1, text))
+        elif ext in TEXT_EXTS or ext == ".astro":
+            for match in OPTICAL_STYLE_BLOCK_RE.finditer(text):
+                sheets.append((path, text.count("\n", 0, match.start(1)) + 1, match.group(1)))
+    return sheets
+
+
+def _optical_findings(texts):
+    """The five craft facts. Silent unless the project is a real built page."""
+    sheets = _stylesheets(texts)
+    # The markup half of the precondition: a document extension (never .md —
+    # a README beside a stylesheet is not a page) carrying a body's worth of
+    # copy. Its `<style>` blocks are already counted as stylesheets above, so
+    # they are stripped here rather than read twice.
+    pages = [OPTICAL_STYLE_BLOCK_RE.sub(" ", text)
+             for path, text in texts.items()
+             if path.suffix.lower() in OPTICAL_PAGE_EXTS and not _is_vendor(path)
+             and len(TAG_RE.sub(" ", text).split()) >= PAGE_MIN_WORDS]
+    if not sheets or not pages:
+        return []
+
+    style_blob = "\n".join(css for _, _, css in sheets)
+    page_blob = "\n".join(pages)
+    findings = []
+
+    # OPTICAL-TRACKING — the ramp that never moved.
+    tracking = {}   # display px → set of letter-spacing values
+    for _, _, css in sheets:
+        for _, body in _css_decl_blocks(css):
+            size_decl = FONT_SIZE_DECL_RE.search(body)
+            track_decl = LETTER_SPACING_DECL_RE.search(body)
+            if not size_decl or not track_decl:
+                continue
+            size = _max_length_px(size_decl.group(1))
+            if size is None or size < OPTICAL_DISPLAY_FLOOR_PX:
+                continue
+            tracking.setdefault(size, set()).add(" ".join(track_decl.group(1).split()).lower())
+    values = {value for group in tracking.values() for value in group}
+    if len(tracking) >= OPTICAL_MIN_DISPLAY_SIZES and len(values) == 1:
+        sizes = ", ".join(f"{int(s) if s == int(s) else s}px" for s in sorted(tracking))
+        findings.append(Finding(
+            "OPTICAL-TRACKING", REVIEW,
+            "one letter-spacing value across the whole display ramp — tracking is a curve "
+            "that tightens as size grows, and a single value is the tell that no optical "
+            "pass happened (optical-craft.md, Type optics)",
+            "project",
+            f"letter-spacing: {values.pop()} on all {len(tracking)} display sizes ({sizes})"))
+
+    # OPTICAL-BALANCE — the cheapest line of typographic polish, unasked for.
+    if HEADLINE_TAG_RE.search(page_blob) and not TEXT_WRAP_RE.search(style_blob):
+        findings.append(Finding(
+            "OPTICAL-BALANCE", REVIEW,
+            "headlines ship with no text-wrap: balance (and body with no pretty) — widows "
+            "and lonely last words are left to the line-breaker (optical-craft.md, Type optics)",
+            "project",
+            f"{len(HEADLINE_TAG_RE.findall(page_blob))} h1–h3 element(s), "
+            f"zero text-wrap balance/pretty declarations in {len(sheets)} stylesheet(s)"))
+
+    # OPTICAL-TABULAR — proportional figures in a column never line up.
+    if STAT_SIGNATURE_RE.search(page_blob) and not TABULAR_RE.search(style_blob):
+        findings.append(Finding(
+            "OPTICAL-TABULAR", REVIEW,
+            "numeric stat surfaces with no font-variant-numeric: tabular-nums — proportional "
+            "figures jitter as values change and never align in a column "
+            "(optical-craft.md, Type optics)",
+            "project",
+            f"{len(STAT_SIGNATURE_RE.findall(page_blob))} stat/counter signature(s), "
+            "zero tabular-nums declarations"))
+
+    # OPTICAL-SHADOW — elevation reads as light, and light has a temperature.
+    if _ground_is_chromatic(style_blob):
+        for path, first_line, css in sheets:
+            for offset, line in enumerate(css.splitlines()):
+                if PURE_BLACK_SHADOW_RE.search(line):
+                    line_no = first_line + offset
+                    findings.append(Finding(
+                        "OPTICAL-SHADOW", REVIEW,
+                        "pure-black shadow over a hued ground — tint every shadow with the "
+                        "surface hue at low alpha, or the elevation reads as a sticker "
+                        "(optical-craft.md, Spatial optics)",
+                        f"{path}:{line_no}", line.strip()[:120]))
+
+    # OPTICAL-SELECTION — the quiet layer's cheapest second-read detail.
+    if not SELECTION_RE.search(style_blob):
+        findings.append(Finding(
+            "OPTICAL-SELECTION", REVIEW,
+            "no ::selection rule — the drag-highlight ships the browser default on a page "
+            "that authored everything else (optical-craft.md, The quiet layer)",
+            "project",
+            f"zero ::selection rules across {len(sheets)} stylesheet(s)"))
+
+    return findings
+
+
+# ── STACK-FACTS-STALE — the skill auditing its own dated facts ──
+# stack-facts.md is the single source for every version, package, and support
+# number the references cite; each row carries `checked: YYYY-MM`. Past the
+# window, the fetch-class rows are assertions again. Scoped to the CLI report
+# (main) rather than scan_paths: the freshness of the skill's own facts is not
+# a property of the build being scanned, and folding it in would make a clean
+# build start reporting a maintenance notice it cannot act on.
+STACK_FACTS_RULE_ID = "STACK-FACTS-STALE"
+STACK_FACTS_MAX_AGE_DAYS = 180
+STACK_FACTS_CHECKED_RE = re.compile(r"checked:\s*(\d{4})-(\d{2})(?:-(\d{2}))?")
+
+
+def stack_facts_findings(path=None, today=None):
+    """One REVIEW line when any dated row is past the window. Silent when the
+    file is absent — an installed skill may ship without it, and a guess is
+    worse than nothing."""
+    path = Path(path) if path else (
+        Path(__file__).resolve().parent.parent / "references" / "stack-facts.md")
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return []
+    today = today or date.today()
+    oldest = None
+    stale = 0
+    for match in STACK_FACTS_CHECKED_RE.finditer(text):
+        year, month, day = int(match.group(1)), int(match.group(2)), int(match.group(3) or 1)
+        try:
+            checked = date(year, month, day)
+        except ValueError:
+            continue
+        if (today - checked).days > STACK_FACTS_MAX_AGE_DAYS:
+            stale += 1
+            if oldest is None or checked < oldest:
+                oldest = checked
+    if not stale:
+        return []
+    return [Finding(
+        STACK_FACTS_RULE_ID, REVIEW,
+        f"stack-facts.md rows are past {STACK_FACTS_MAX_AGE_DAYS} days — re-verify the "
+        "fetch-class rows (Three.js, SplitText, support numbers) before any reference "
+        "cites them again",
+        str(path),
+        f"{stale} stale row(s); oldest checked {oldest.isoformat()}, "
+        f"{(today - oldest).days} days ago")]
+
+
+# Rules that fire only when their precondition is met (an argument passed, a
+# built page, the skill's own reference tree), so they are not expected on a
+# bare dirty-fixture scan — registered for the checklist lockstep, exempt from
+# the "fires on dirty" net.
 CONDITIONAL_RULE_IDS = {"STAMP-ARCHETYPE-MISMATCH"}
 
 
 def known_rule_ids():
     return ({rule[0] for rule in LINE_RULES} | PROJECT_RULE_IDS | CONDITIONAL_RULE_IDS
-            | {EASE_RULE_ID, IMG_RULE_ID})
+            | OPTICAL_RULE_IDS | {EASE_RULE_ID, IMG_RULE_ID, STACK_FACTS_RULE_ID})
 
 
 def scan_paths(paths, archetype=""):
@@ -897,6 +1153,9 @@ def scan_paths(paths, archetype=""):
     if IMG_RULE_ID not in suppressed:
         findings.extend(_img_native_res_findings(texts, dir_roots))
 
+    # OPTICAL-* — the craft pass read back off the stylesheet (REVIEW-only).
+    findings.extend(f for f in _optical_findings(texts) if f.rule_id not in suppressed)
+
     # Project-level rules.
     motion_signals = len(MOTION_SIGNAL.findall(project_blob))
     if ("REDUCED-MOTION" not in suppressed and motion_signals
@@ -1004,6 +1263,7 @@ def main(argv=None):
     # scan_paths gets the raw paths, not the file list — directory roots anchor
     # root-relative image refs (IMG-NATIVE-RES); it re-derives the same files.
     findings, suppression_notes = scan_paths(args.paths, args.archetype)
+    findings.extend(stack_facts_findings())
     print(format_report(findings, suppression_notes, files))
     if not files:
         return 2

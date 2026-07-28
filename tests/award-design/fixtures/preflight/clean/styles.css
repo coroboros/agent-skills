@@ -12,6 +12,20 @@ a:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 2px;
 }
+/* the optical floor the OPTICAL-* family reads back: balanced headlines, a
+   selection drawn from the palette */
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
 .hero {
   min-height: 100dvh;
 }

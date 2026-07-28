@@ -12,7 +12,7 @@ A scroll-linked text effect is award-grade only inside these constraints. They c
 
 ## Browser reality — the Firefox tax
 
-CSS scroll-driven animation is **not Baseline**: Blink since Chrome 115, WebKit since Safari 26, but Firefox stable still gates it behind a flag (~82% global, an Interop priority, not shipped). So a CSS-only scroll-emphasis effect needs a progressive-enhancement fallback, and **GSAP SplitText + ScrollTrigger, smoothed with Lenis, is the cross-engine path** when the effect must run everywhere. Either way the resting, emphasized state is the base (above); the animation lives only inside `@supports (animation-timeline: view())` or behind the JS feature check.
+CSS scroll-driven animation is **not Baseline** — Firefox stable is the hold-out, and the engine versions and current support figure are one dated row in `stack-facts.md`. So a CSS-only scroll-emphasis effect needs a progressive-enhancement fallback, and **GSAP SplitText + ScrollTrigger, smoothed with Lenis, is the cross-engine path** when the effect must run everywhere. Either way the resting, emphasized state is the base (above); the animation lives only inside `@supports (animation-timeline: view())` or behind the JS feature check.
 
 ## The palette — text mechanics
 

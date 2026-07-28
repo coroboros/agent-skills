@@ -13,7 +13,7 @@ Lock the craft layer; derive the framework from the archetype; adapt to existing
 - **Locked universal craft** (every build, every framework): GSAP + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere. Lenis is the tier norm where the archetype's palette line commits wheel smoothing — never universal: Bento's canon is native scroll, and the archetype line governs (`award-imperatives.md` #3).
 - **Framework by archetype**: Astro for content/perf archetypes (Minimalist, Editorial, Corporate-Luxury, Bento) — zero-JS by default is the LCP win; TanStack Start (React on Vite + Nitro) for motion/3D archetypes (Immersive, Experimental, Bold, Spatial-Organic) — React Three Fiber and Motion are native there. Motion (Framer) and R3F belong to the TanStack path only; on Astro, motion is GSAP + CSS scroll-driven inside islands.
 - **Existing project's stack wins** — adapt, never migrate. A content archetype whose signature is sustained interactive 3D promotes to the TanStack path (the signature outranks the perf default).
-- **Pin** the TanStack Start version (v1 RC as of mid-2026 — feature-complete, API-stable, production-capable). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
+- **Pin** the TanStack Start version — resolve the current release line before scaffolding (`external-truth.md`'s ladder; `stack-facts.md` holds the row and says why it is not carried as a number). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
 - **Host orthogonal** via Nitro (40+ deploy presets). `/scaffold` is one optional Cloudflare deploy preset, never assumed.
 
 ## Typography Systems
@@ -51,22 +51,7 @@ Single file containing all weights, widths, styles — real-time animation of `f
 
 ### Kinetic typography
 
-GSAP SplitText (free since Webflow acquisition) — the standard:
-
-```javascript
-SplitText.create(".headline", {
-  type: "lines, words",
-  mask: "lines",
-  autoSplit: true,
-  onSplit(self) {
-    return gsap.from(self.words, {
-      y: 100, autoAlpha: 0, stagger: 0.05,
-      duration: 1, ease: "power3.out",
-      scrollTrigger: { trigger: self.elements[0], start: "top 80%" }
-    });
-  }
-});
-```
+GSAP SplitText is the standard. Executable form — `SplitText.create`, `autoSplit`, `mask: 'lines'`, and the returned-tween `onSplit` that survives a late font swap — is `skeletons.md` §D; licensing and version facts are `stack-facts.md`.
 
 ## Color Theory
 
@@ -119,14 +104,7 @@ For cross-browser production gotchas (scroll-restoration traps in Chrome/Firefox
 
 ### Broken grids
 
-```css
-.broken-grid {
-  display: grid;
-  grid-template-columns: 1fr 2fr 10fr 3fr 3fr 3fr 3fr 3fr 6fr 6fr 3fr;
-}
-.hero-image { grid-column: 3/9; grid-row: 2/7; }
-.overlay-text { grid-column: 4/11; grid-row: 4/6; z-index: 2; }
-```
+An asymmetric column ramp (`1fr 2fr 10fr 3fr 3fr …`, eleven-ish uneven tracks) with content spanning arbitrary `grid-column` / `grid-row` ranges and deliberate overlap via `z-index`. The break out of the 12-column default is the point — even tracks read as a template no matter what sits in them.
 
 ### CSS Subgrid
 
@@ -177,109 +155,31 @@ Bias toward slightly more whitespace between sections than feels natural. Defaul
 
 ## Animation Toolkit
 
-### GSAP + ScrollTrigger (industry standard)
+These are the wirings a build reproduces wrong from memory. Each whole-file form, with the failure it closes, is in `skeletons.md` — load the section, not the file. Every version, bundle size, and support number they depend on is in `stack-facts.md`.
 
-```javascript
-const tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: '.section', start: 'top top', end: '+=1000',
-    scrub: 1, pin: true
-  }
-});
-tl.to('.title', { opacity: 1, y: 0 })
-  .to('.image', { scale: 1.2 })
-  .to('.text', { opacity: 1 });
-```
+| Mechanic | What it is | Skeleton |
+|---|---|---|
+| GSAP + ScrollTrigger | the pin/scrub choreography engine | §B |
+| Lenis | smooth scroll on native `scrollTo`, so `position: sticky` and Intersection Observer keep working (it replaced Locomotive) | §A — with the GSAP ticker wiring |
+| GSAP SplitText | line/word/char splitting that survives a late font swap | §D |
+| Three.js | the 3D signature, WebGPU path with the WebGL fallback | §E |
+| View Transitions API | native page and element morphs, both document scopes | §F |
+| IntersectionObserver reveal | the fire-once content reveal that persists | §G |
 
-### Lenis (~2KB, smooth scrolling)
+### CSS Scroll-Driven Animations (off the main thread)
 
-Replaced Locomotive Scroll. Uses native `scrollTo`, preserves `position: sticky` and Intersection Observer:
-
-```javascript
-const lenis = new Lenis({ autoRaf: true });
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => lenis.raf(time * 1000));
-gsap.ticker.lagSmoothing(0);
-```
-
-### View Transitions API (native page transitions)
-
-Cross-document transitions:
-
-```css
-@view-transition { navigation: auto; }
-```
-
-Named element morph (thumbnail → full hero):
-
-```css
-.thumbnail { view-transition-name: product-hero; }
-.full-image { view-transition-name: product-hero; }
-```
-
-Scoped transitions (Chrome 140+), React `<ViewTransition />` integration.
-
-### CSS Scroll-Driven Animations (off main thread, guaranteed 60fps)
-
-```css
-/* Decorative layers only — content reveals fire once via IntersectionObserver
-   and persist (motion-palette.md). Base state stays visible; the hidden state
-   lives only inside the guard. */
-@supports (animation-timeline: view()) {
-  .deco-layer {
-    animation: fade-in linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 100%;
-  }
-  @keyframes fade-in {
-    from { opacity: 0; transform: translateY(50px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-}
-```
-
-`animation-trigger` (Chrome 145) enables scroll-triggered time-based animations.
+`animation-timeline: view()` / `scroll()` with `animation: <name> linear both` and an `animation-range` — the right tool for *decorative* motion, reversible for free because progress *is* scroll position. The canonical code and the load-bearing details (`linear` deliberate, `both` fill, stagger by range not delay, `view()` vs `scroll(root block)`) are `motion-palette.md`; content reveals never scrub — bound to visibility they re-hide on scroll-up — and route to `skeletons.md` §G. The emerging `animation-trigger` primitive and every support figure: `stack-facts.md`.
 
 ### Signature scroll skeletons
 
-Two scroll choreographies cover most signature moments. Both are GSAP — reach for it only when the signature needs it; default to CSS Scroll-Driven Animations (above) for routine *decorative* motion, and route content reveals to a fire-once IntersectionObserver (motion-palette.md). No library is mandated and no build-time `npx` step is introduced; GSAP loads at runtime only when a signature moment calls for it.
+Two choreographies cover most signature moments, both GSAP.
 
-**Sticky-stack** (panels pin and stack as you scroll):
+- **Sticky-stack** — panels pin and stack as you scroll. `pinSpacing: false` is what makes them share scroll space instead of pushing the page taller; it is the defining detail of the pattern.
+- **Horizontal-pan** — vertical scroll drives horizontal travel. `ease: 'none'` with an `end` equal to the travel distance locks the pan to the scrollbar, and the wrapper is pinned while the track moves; pinning the element you animate produces jitter and offset drift (the official GSAP caveat).
 
-```javascript
-ScrollTrigger.create({
-  trigger: '.panel',
-  start: 'top top',          // pin the moment its top hits the viewport top
-  end: '+=100%',
-  pin: true,
-  pinSpacing: false,         // stacked panels share scroll space — no taller page
-});
-```
+Both, with the full pin-gotcha list — `'top top'` and nothing else, one cleanup path, `ScrollTrigger.refresh()` after any late layout move, no nesting inside a parent timeline, `scrub` never sharing a trigger with `toggleActions`, no shipped markers, one sticky per stacking context — are `skeletons.md` §B and §C.
 
-`pinSpacing: false` is what makes panels stack instead of pushing the page taller — the defining detail of the pattern.
-
-**Horizontal-pan** (vertical scroll drives horizontal travel):
-
-```javascript
-const track = document.querySelector('.track');
-gsap.to(track, {
-  x: () => -(track.scrollWidth - innerWidth),
-  ease: 'none',              // 1:1 with scroll, never an eased curve
-  scrollTrigger: {
-    trigger: '.track-wrap',
-    pin: '.track-wrap',      // pin the wrapper — never the element being animated
-    scrub: 1,
-    start: 'top top',
-    end: () => '+=' + (track.scrollWidth - innerWidth),  // distance == travel
-    invalidateOnRefresh: true,
-  },
-});
-document.fonts.ready.then(() => ScrollTrigger.refresh());  // trigger positions move when the font lands
-```
-
-`ease: 'none'` with an `end` equal to the travel distance keeps the pan locked to the scrollbar. Pin the wrapper and animate the child — pinning the element you animate produces jitter and offset drift (the official GSAP caveat).
-
-Common failures, both patterns: `start: 'top center'` or `'top 80%'` instead of `'top top'` — the pin fires halfway down the viewport and the user sees half a slide; missing cleanup — in React, wrap the timeline in `gsap.context()` inside `useEffect` and `return () => ctx.revert()`, or the trigger survives unmount and stacks on remount; missing `ScrollTrigger.refresh()` after anything that moves layout post-measure (`font-display: swap` landing, lazy content, accordions) — positions silently drift; ScrollTriggers live on the timeline or a top-level tween, never nested inside a parent timeline; `scrub` and `toggleActions` never share a trigger (scrub silently wins); `markers: true` never ships; and a second `position: sticky; top: 0` under a sticky nav paints over it — offset the later element by the nav height (`top: var(--nav-height)`) and split the z-index scale.
+Reach for GSAP only when the signature needs it; default to CSS scroll-driven animations for routine *decorative* motion, and route content reveals to the fire-once IntersectionObserver. No library is mandated and no build-time author step is introduced; GSAP loads at runtime only when a signature moment calls for it.
 
 ### Signature easing lexicon
 
@@ -347,19 +247,7 @@ Small contextual photos embedded between words at type-height, acting as visual 
 
 Best for high-Variance archetypes (Editorial, Bold/Maximal, Experimental). Avoid on Minimalist or Corporate Luxury where it competes with whitespace.
 
-**Custom cursors** (creative agency staple):
-
-```javascript
-const lerp = (a, b, n) => (1 - n) * a + n * b;
-let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
-function animate() {
-  cursorX = lerp(cursorX, mouseX, 0.15);
-  cursorY = lerp(cursorY, mouseY, 0.15);
-  cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-  requestAnimationFrame(animate);
-}
-```
+**Custom cursors** (creative agency staple): a lerped follower — pointer position read on `pointermove`, the visual eased toward it inside one rAF, written as `transform` only, `aria-hidden`, and disabled under `(hover: none)`. Shipped implementations rather than a re-derivation: `assets/components/custom-contextual-cursor.js`, `magnetic-cursor.js`, `minimal-cursor-signature.js`.
 
 **Magnetic buttons**: Distance from cursor to element center → proportional displacement.
 
@@ -367,33 +255,15 @@ function animate() {
 
 ### Image techniques
 
-**Clip-path reveals** (hardware-accelerated):
-
-```css
-.image-reveal {
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-}
-.image-reveal.visible { clip-path: inset(0 0 0 0); }
-```
+**Clip-path reveals**: an `inset()` curtain transitioned from one edge, fired once by IntersectionObserver. Cheap because the clip's parameters are not tracked per input frame — a `clip-path` that chases the pointer repaints every frame instead (`motion-palette.md`, moving windows). Shipped: `assets/components/clip-reveal.js`, `image-curtain.js`.
 
 **Mix-blend-mode**: `difference` on text overlaying images.
 
 ### Advanced CSS
 
-**Container queries** for self-aware components:
+**Container queries** for self-aware components: `container-type: inline-size` on the wrapper, `@container (min-width: …)` on the child. A card that reads its own slot beats one that reads the viewport.
 
-```css
-.card-container { container-type: inline-size; }
-@container (min-width: 400px) { .card { display: flex; gap: 1rem; } }
-```
-
-**`:has()` for conditional styling** without JS:
-
-```css
-.grid:has(:nth-child(4):last-child) { grid-template-columns: repeat(2, 1fr); }
-:root:has(#dark-mode:checked) { color-scheme: dark; --bg: #111; }
-```
+**`:has()` for conditional styling** without JS: the count-aware grid (`.grid:has(:nth-child(4):last-child)`), the state-driven root (`:root:has(#dark-mode:checked)`), the sibling dim on a hovered row.
 
 **`@property` for animatable gradients**:
 
@@ -408,15 +278,7 @@ function animate() {
 
 ### WebGL
 
-**Three.js** for maximum control (~150KB). **React Three Fiber + Drei** for React. **OGL** (29KB) for lightweight shaders. **WebGPU** (Three.js r171+): 200K objects at 60fps vs 15K at 15fps with WebGL.
-
-| Library | Size | Best for |
-|---------|------|----------|
-| GSAP | ~23KB | Complex timelines, scroll |
-| Motion (Framer) | 34KB / 4.6KB lazy | React UI transitions |
-| Lenis | ~2KB | Smooth scrolling |
-| Locomotive v5 | 9.4KB | Parallax + detection |
-| Motion One | 3.8KB | Lightweight vanilla |
+**Three.js** for maximum control. **React Three Fiber + Drei** for React. **OGL** for lightweight shaders. The WebGPU renderer is the current path for object counts a WebGL scene cannot hold; it falls back to WebGL2 on its own, and the bootstrap is `skeletons.md` §E. Every revision number, package name, and bundle size for this row and the motion libraries below it: `stack-facts.md` — none of them is stable enough to carry here.
 
 Locked universal layer (every framework): GSAP + CSS scroll-driven + View Transitions + variable fonts + OKLCH; Lenis joins where the archetype's palette line commits wheel smoothing (Bento's canon is native scroll — the archetype line governs). Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
 
@@ -466,29 +328,15 @@ Judges read the headline before they see the grid — the words are half the des
 
 ### GPU compositing
 
-Only animate: `transform`, `opacity`, `filter`, `backdrop-filter`:
-
-```css
-/* Never */ .box:hover { width: 200px; left: 100px; }
-/* Always */ .box:hover { transform: translateX(100px) scale(1.05); }
-```
+Only animate `transform`, `opacity`, `filter`, `backdrop-filter`. Never `width` / `height` / `top` / `left` — a hover that moves an element `left: 100px` relayouts the page every frame; the same move as `transform: translateX(100px)` never leaves the compositor.
 
 `will-change` only on elements actively animating — blanket `will-change`/`force3D` "just in case" costs memory and repaints. Kill or pause tweens the moment their element leaves the viewport.
 
 ### Lazy loading
 
 - `content-visibility: auto` on below-fold sections
-- Intersection Observer for images and animation init
-- Dynamic imports for heavy libraries when section enters viewport
-
-```javascript
-const observer = new IntersectionObserver(([entry]) => {
-  if (entry.isIntersecting) {
-    import('gsap').then(({ gsap }) => { /* init */ });
-    observer.disconnect();
-  }
-});
-```
+- Intersection Observer for images and animation init (the observer shape is `skeletons.md` §G — `disconnect()` or `unobserve()` on first intersection, always)
+- Dynamic imports for heavy libraries when the section enters the viewport: `import('gsap').then(…)` inside that observer, so the bundle is fetched on approach rather than on load
 
 ### Image optimization
 

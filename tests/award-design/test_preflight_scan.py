@@ -433,6 +433,177 @@ class TestEyebrowDensityMarkupForms(unittest.TestCase):
         self.assertIn("EYEBROW-DENSITY", self._rule_ids(body))
 
 
+class TestOpticalCraftFamily(unittest.TestCase):
+    """The OPTICAL-* family reads the craft pass back off the stylesheet. Two
+    fixtures carry the same page: `optical-dirty` skipped the pass, and
+    `optical-clean` made every one of the five decisions. Both are real built
+    pages, because the family's precondition is exactly that — a stylesheet
+    with no document (or a document with no stylesheet) has no craft pass to
+    have skipped, and flagging one would be the scanner guessing.
+
+    Every finding is REVIEW: whether a shared tracking value or an unstyled
+    selection is deliberate is the reviewer's call, and a proxy never FAILs
+    on a guess."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.dirty, _ = scan.scan_paths([str(FIXTURES / "tooling" / "optical-dirty")])
+        cls.dirty_ids = _rule_ids(cls.dirty)
+
+    def test_every_optical_rule_fires_on_the_skipped_pass(self):
+        for rule_id in sorted(scan.OPTICAL_RULE_IDS):
+            with self.subTest(rule=rule_id):
+                self.assertIn(rule_id, self.dirty_ids)
+
+    def test_review_only_never_fail(self):
+        optical = [f for f in self.dirty if f.rule_id in scan.OPTICAL_RULE_IDS]
+        self.assertTrue(all(f.severity == scan.REVIEW for f in optical))
+
+    def test_clean_fixture_is_silent(self):
+        findings, _ = scan.scan_paths([str(FIXTURES / "tooling" / "optical-clean")])
+        self.assertEqual([], [(f.rule_id, f.excerpt) for f in findings])
+
+    def test_tracking_finding_cites_the_value_and_the_sizes(self):
+        hit = [f for f in self.dirty if f.rule_id == "OPTICAL-TRACKING"][0]
+        self.assertIn("-0.02em", hit.excerpt, "the shared value must be named")
+        self.assertIn("3 display sizes", hit.excerpt)
+
+    def test_tracking_ignores_body_sizes(self):
+        """optical-craft's curve says body tracks at 0 — a shared value below
+        the heading band is correct, not a skipped pass."""
+        css = "\n".join(f".t{i} {{ font-size: {12 + i}px; letter-spacing: 0; }}" for i in range(5))
+        self.assertNotIn("OPTICAL-TRACKING", self._ids(css))
+
+    def test_tracking_silent_once_the_curve_moves(self):
+        css = ("h1 { font-size: 4rem; letter-spacing: -0.04em; }"
+               "h2 { font-size: 2.5rem; letter-spacing: -0.02em; }"
+               "h3 { font-size: 32px; letter-spacing: -0.01em; }")
+        self.assertNotIn("OPTICAL-TRACKING", self._ids(css))
+
+    def test_shadow_needs_a_hued_ground(self):
+        """A pure-black shadow on a genuinely neutral ground is not a
+        temperature mismatch — the rule is about light having a colour."""
+        neutral = (":root { --surface: #f4f4f4; }"
+                   ".card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }")
+        hued = (":root { --surface: oklch(96% 0.03 82); }"
+                ".card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); }")
+        self.assertNotIn("OPTICAL-SHADOW", self._ids(neutral))
+        self.assertIn("OPTICAL-SHADOW", self._ids(hued))
+
+    def test_tabular_needs_a_stat_surface_not_a_stray_numeral(self):
+        """A percentage inside a sentence is prose; a named stat slot is a
+        column that has to line up."""
+        prose = "<p>Ledgerline reads it back at 47.2% less cost.</p>"
+        stats = '<dl><dd class="stat">1284</dd></dl>'
+        self.assertNotIn("OPTICAL-TABULAR", self._ids("body { color: #222; }", prose))
+        self.assertIn("OPTICAL-TABULAR", self._ids("body { color: #222; }", stats))
+
+    def test_astro_style_blocks_count_as_stylesheets(self):
+        """Astro is the skill's own default for four archetypes and routinely
+        ships every rule in a component <style> block with no .css file — a
+        family blind to that is blind on the stack the skill recommends."""
+        import tempfile
+        words = " ".join(f"w{i}" for i in range(40))
+        astro = ("---\nconst x = 1;\n---\n"
+                 f"<main><h1>Kiln</h1><p>{words}</p></main>\n"
+                 "<style>body { color: #222; }</style>\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "index.astro").write_text(astro, encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        self.assertIn("OPTICAL-SELECTION", _rule_ids(findings))
+
+    def test_a_readme_beside_a_stylesheet_is_not_a_page(self):
+        """Markdown is in TEXT_EXTS for the copy rules, but a README next to a
+        stylesheet is a repo, not a built page — judging its craft would be the
+        scanner inventing a surface."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "README.md").write_text(
+                "Docs " + " ".join(f"w{i}" for i in range(40)), encoding="utf-8")
+            (Path(tmp) / "site.css").write_text("body { color: #222; }", encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        self.assertFalse(scan.OPTICAL_RULE_IDS & _rule_ids(findings))
+
+    def test_family_is_silent_without_a_built_page(self):
+        """A stylesheet alone, or markup alone, is a fragment — the family
+        must not judge a craft pass that has no page to have happened on."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "site.css").write_text("body { color: #222; }", encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        self.assertFalse(scan.OPTICAL_RULE_IDS & _rule_ids(findings))
+
+    def test_family_is_registered_for_the_checklist_lockstep(self):
+        self.assertLessEqual(scan.OPTICAL_RULE_IDS, scan.known_rule_ids())
+
+    @staticmethod
+    def _ids(css, body=None):
+        import tempfile
+        body = body or "<h1>Heading</h1>"
+        page = ("<!doctype html><html><body><main>" + body
+                + "<p>" + " ".join(f"w{i}" for i in range(40)) + "</p></main></body></html>")
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "site.css").write_text(css, encoding="utf-8")
+            (Path(tmp) / "index.html").write_text(page, encoding="utf-8")
+            findings, _ = scan.scan_paths([tmp])
+        return _rule_ids(findings)
+
+
+class TestStackFactsStale(unittest.TestCase):
+    """The skill auditing its own dated facts. Scoped to the CLI report rather
+    than scan_paths: the freshness of stack-facts.md is not a property of the
+    build being scanned, so a clean build never starts reporting a maintenance
+    notice it cannot act on."""
+
+    ROW = "| Three.js current release | r185 | checked: {date} | fetch | releases |\n"
+
+    def _findings(self, dates, today):
+        import tempfile
+        from datetime import date
+        text = "".join(self.ROW.format(date=d) for d in dates)
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "stack-facts.md"
+            path.write_text(text, encoding="utf-8")
+            return scan.stack_facts_findings(path, date(*today))
+
+    def test_fresh_rows_are_silent(self):
+        self.assertEqual([], self._findings(["2026-07", "2026-05"], (2026, 7, 28)))
+
+    def test_a_row_past_the_window_fires_once(self):
+        findings = self._findings(["2026-07", "2025-01", "2024-06"], (2026, 7, 28))
+        self.assertEqual(1, len(findings), "one notice, however many rows went stale")
+        self.assertEqual("STACK-FACTS-STALE", findings[0].rule_id)
+        self.assertEqual(scan.REVIEW, findings[0].severity)
+
+    def test_the_notice_cites_the_count_and_the_oldest_row(self):
+        finding = self._findings(["2025-01", "2024-06"], (2026, 7, 28))[0]
+        self.assertIn("2 stale row(s)", finding.excerpt)
+        self.assertIn("2024-06-01", finding.excerpt, "the oldest check date is the one cited")
+
+    def test_the_boundary_is_the_window_not_a_guess(self):
+        from datetime import date, timedelta
+        today = date(2026, 7, 28)
+        edge = today - timedelta(days=scan.STACK_FACTS_MAX_AGE_DAYS)
+        past = today - timedelta(days=scan.STACK_FACTS_MAX_AGE_DAYS + 1)
+        self.assertEqual([], self._findings([edge.isoformat()], (2026, 7, 28)))
+        self.assertEqual(1, len(self._findings([past.isoformat()], (2026, 7, 28))))
+
+    def test_absent_file_is_silent(self):
+        """An installed skill may ship without the reference tree — silence,
+        never a guessed staleness."""
+        self.assertEqual([], scan.stack_facts_findings(Path("/nonexistent/stack-facts.md")))
+
+    def test_the_shipped_file_parses(self):
+        """The real reference must be readable by the rule — a table the parser
+        cannot see would make the notice permanently, silently unreachable."""
+        shipped = SKILL_DIR / "references" / "stack-facts.md"
+        dated = scan.STACK_FACTS_CHECKED_RE.findall(shipped.read_text(encoding="utf-8"))
+        self.assertGreaterEqual(len(dated), 50, "every stack-facts row carries a checked date")
+
+    def test_rule_is_registered(self):
+        self.assertIn(scan.STACK_FACTS_RULE_ID, scan.known_rule_ids())
+
+
 class TestScannerChecklistLockstep(unittest.TestCase):
     """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule — a tag
     naming a dead rule lies about its mechanical help. The reverse does not

@@ -62,6 +62,8 @@ CROSS_CUTTING = [
     "retrofit.md",
     "ship-ready-floor.md",
     "signature-invention.md",
+    "skeletons.md",
+    "stack-facts.md",
     "text-effects.md",
 ]
 

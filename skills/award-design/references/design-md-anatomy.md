@@ -58,7 +58,7 @@ The signature moment is specified as choreography before it is coded — a beat 
 For Immersive, Experimental, Bold, and Spatial-Organic builds, the universe carries enough motion and dimensional detail to specify the signature in full. When that signature is a self-contained WebGL/R3F scene — the one delegation, reserved for Immersive and Experimental per the main SKILL.md — this file is the subagent's sole brief:
 
 - **Signature scene spec** — what renders, the camera or material behavior, and the scroll/pointer linkage that drives it (Section 1 Overview + Section 7 Components).
-- **Scroll choreography** — the pacing and the skeleton (sticky-stack, horizontal-pan, scrub) keyed to `scrollTriggers.*`, named in Section 4 Layout. Patterns: `foundations.md` *Signature scroll skeletons*.
+- **Scroll choreography** — the pacing and the skeleton (sticky-stack, horizontal-pan, scrub) keyed to `scrollTriggers.*`, named in Section 4 Layout. Which one and why: `foundations.md` *Signature scroll skeletons*; the runnable form: `skeletons.md` §B and §C.
 - **View-Transitions morphs** — named element morphs (thumbnail → hero) and the reduced-motion fallback, in Section 4.
 - **Easing lexicon** — the signature curve(s) pinned to `motion.ease-*`, never ad-hoc per component (`foundations.md` *Signature easing lexicon*).
 - **3D / shader build notes** — when the signature is WebGL, point the builder to `references/ingredients/web3d-for-sites.md` (or `ogl-shaders.md`); the scene expresses these tokens, never generic defaults.
