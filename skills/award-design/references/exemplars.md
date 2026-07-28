@@ -122,7 +122,7 @@ Quiet sophistication, custom serifs, generous whitespace. Range spans flat edito
 
 | Brand | URL | Signature |
 |---|---|---|
-| **Cartier WAW 2025** *(canonical, SOTM Aug 2025)* | cartier-waw-0225.dev.60fps.fr | Cinematic 3D pavilion — six contemplative alcove universes, slow tasteful motion |
+| **Cartier WAW 2025** *(canonical, SOTD 2025-08-18, 7.64)* | cartier-waw-0225.dev.60fps.fr | Cinematic 3D pavilion — six contemplative alcove universes, slow tasteful motion |
 | Son Daven *(SOTD Jun 2026)* | sondaven.com/en | Argument long-scroll — KTF Metro serif, preloader→GSAP-Flip hero, magnetic circular CTAs, Carpathian photo/film |
 | Delvaux Digital Flagship *(HM Jun 2026)* | delvaux.com | Editorial maison — Genath on Atlas Grotesk, fullscreen home-slider, roll-swap/stroke CTAs, "Since 1829" |
 | Depo Luxe *(SOTD Jul 2026)* | depoluxe.xyz | Cinematic folio — monochrome #fff/#000, EB Garamond, video-preloader + SVG-logo fill, WebGL nav index |

@@ -126,12 +126,13 @@ class TestSequenceFidelityFloor(unittest.TestCase):
         self.assertIn("holds ≥ device pixels at its worst rendered moment", p3)
         self.assertIn("sub-CSS resolution on a signature surface is disqualifying", p3)
 
-    def test_immersive_playbook_carries_the_floor(self):
-        import json
-        pb = SKILL_DIR / "assets" / "components" / "playbooks" / "immersive.json"
-        d = json.loads(pb.read_text(encoding="utf-8"))
-        self.assertGreaterEqual(d["revision"], 3)
-        hero = d["spectacle_model"]["hero"]
+    def test_the_archetype_hero_beat_carries_the_floor(self):
+        """The floor moved with its evidence: the immersive playbook's
+        spectacle_model merged into the archetype's tier-2 Spectacle menu, which
+        is what the design_plan commit actually loads."""
+        body = (SKILL_DIR / "references" / "immersive-cinematic.md").read_text(encoding="utf-8")
+        menu = body[body.index("## Spectacle menu"):]
+        hero = menu[menu.index("**The hero beat.**"):menu.index("**The continuation beats**")]
         self.assertIn("sequence-fidelity floor", hero)
         self.assertIn("ZERO winner precedent", hero)
 

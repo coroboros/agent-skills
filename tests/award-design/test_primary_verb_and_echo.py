@@ -121,8 +121,9 @@ class TestScrollTextureSlot(unittest.TestCase):
         for a in ARCHETYPES:
             body = _read(f"{a}.md")
             with self.subTest(archetype=a):
-                self.assertIn("**scroll texture**", body)
-                self.assertIn("**idle band**", body)
+                # tier 2 loads by heading — each channel row is its own `##` section
+                self.assertIn("## scroll texture", body)
+                self.assertIn("## idle band", body)
                 self.assertIn("channel calibration —", body)
 
 

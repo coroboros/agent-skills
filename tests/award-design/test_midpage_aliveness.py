@@ -29,10 +29,11 @@ class TestMidPageLifeRows(unittest.TestCase):
         for a in ARCHETYPES:
             body = _read(f"{a}.md")
             with self.subTest(archetype=a):
-                self.assertIn("**mid-page life**", body)
-                # the row precedes the pinned Scroll texture row
-                self.assertLess(body.index("**mid-page life**"),
-                                body.index("**scroll texture**"))
+                # tier 2 loads by heading, so the row is a `##` section of its own
+                self.assertIn("## mid-page life", body)
+                # the section precedes the pinned Scroll texture section
+                self.assertLess(body.index("## mid-page life"),
+                                body.index("## scroll texture"))
 
 
 class TestDeadMiddleLaw(unittest.TestCase):

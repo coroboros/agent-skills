@@ -21,7 +21,9 @@ ARCHETYPES = ("minimalist", "brutalist", "editorial", "bold-maximal",
 RECIPE_HEADING = "## page recipe — how this line's winners build the page"
 RECIPE_ROWS = ("**anatomy**", "**hero architectures**", "**footer**",
                "**arrival**", "**copy voice**", "**imagery art direction**",
-               "**spectacle menu**", "**anti-signals**")
+               # the spectacle menu became its own `##` section so tier 2 can load
+               # it by heading; the slice below still pins it after the page recipe
+               "## spectacle menu", "**anti-signals**")
 CALIBRATE_LAW = ("quoted to calibrate, never to ship — imitate the specificity "
                  "(the named place, the count, the refusal), never the wording.")
 

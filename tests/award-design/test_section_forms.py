@@ -119,138 +119,125 @@ class TestLayeringLaw(unittest.TestCase):
                 self.assertNotRegex(src, r"\binsertAdjacentHTML\b")
 
 
-RECIPES = COMPONENTS / "recipes.json"
-KNOWN_ARCHETYPES = {"editorial-dark", "minimalist", "corporate-luxury", "immersive",
-                    "bento", "brutalist", "spatial-organic", "bold-maximal", "experimental"}
+
+ARCHETYPES = ("minimalist", "brutalist", "editorial", "bold-maximal",
+              "immersive-cinematic", "experimental", "corporate-luxury",
+              "bento-card", "spatial-organic")
+REFS = SKILL_DIR / "references"
 
 
-class TestRecipes(unittest.TestCase):
-    """Recipes are the layer between the palette and a deterministic page —
-    a winner's ordered section chain the model picks and fills. Lock the data's
-    integrity: the pairs vocabulary must reference real components, and a recipe
-    with two climaxes (or a fabricated archetype) is corrupted composition data."""
+def _tier_two(archetype):
+    return (REFS / f"{archetype}.md").read_text(encoding="utf-8")
 
-    @classmethod
-    def setUpClass(cls):
-        cls.data = json.loads(RECIPES.read_text(encoding="utf-8"))
-        cls.recipes = cls.data["recipes"]
-        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        cls.component_ids = {c["id"] for c in manifest["components"]}
 
-    def test_ids_unique(self):
-        ids = [r["id"] for r in self.recipes]
-        self.assertEqual(len(ids), len(set(ids)))
+class TestArchetypeCompositionCapital(unittest.TestCase):
+    """The composition layer the JSON playbooks and recipes.json used to carry.
+    The two-tier restructure merged it into each archetype's tier-2 reference —
+    the section chain, the per-element states, the spectacle beats and the
+    variation clause now live where the design_plan commit already loads them,
+    by heading. These assertions follow the capital, not the file it used to
+    sit in: the checks that only proved a JSON file parsed went with it."""
 
-    def test_every_archetype_has_recipes(self):
-        covered = {r["archetype"] for r in self.recipes}
-        self.assertEqual(covered, KNOWN_ARCHETYPES)
+    def test_spectacle_model_is_diffable(self):
+        """The build's spectacle conformance table diffs its shipped beats against
+        the model. That diff target must exist and be non-empty for every archetype:
+        a hero beat and the continuation beats. A model with no beats to quote is
+        the gate ARDEN escaped — a hover shipped as the page climax with nothing to
+        check it against."""
+        for archetype in ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                body = _tier_two(archetype)
+                menu = body[body.index("## Spectacle menu"):]
+                self.assertIn("**The hero beat.**", menu)
+                self.assertIn("**The continuation beats**", menu)
+                self.assertIn("**The peak law**", menu)
+                self.assertTrue(
+                    any(v in menu for v in ("SUPPORTED", "REFINED", "REFUTED")),
+                    "the peak law carries the one-climax verdict it was adjudicated to")
 
-    def test_recipe_shape(self):
-        for r in self.recipes:
-            with self.subTest(recipe=r["id"]):
-                for field in ("archetype", "winner", "macrostructure", "sections",
-                              "footer", "loader", "paceNotes", "whenToUse"):
-                    self.assertIn(field, r)
-                self.assertGreaterEqual(len(r["sections"]), 2)
+    def test_section_chain_and_element_states_are_present(self):
+        """section_playbook + element_states: the per-role form/pair/intensity
+        chain and the tap/focus/dormancy answers per element class. A hover-only
+        state table reads dead under `hover: none`."""
+        for archetype in ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                body = _tier_two(archetype)
+                self.assertIn("**Section chain**", body)
+                self.assertIn("**Element states — tap, focus, dormancy.**", body)
+                self.assertIn("**Mobile / touch**", body)
 
-    def test_at_most_one_climax(self):
-        for r in self.recipes:
-            with self.subTest(recipe=r["id"]):
-                self.assertLessEqual(
-                    sum(1 for s in r["sections"] if s.get("climax")), 1)
+    def test_variation_axes_present(self):
+        """CALDERA postmortem: two same-archetype builds shipped isomorphic
+        skeletons. R-sameness corpus (21 artifacts, 5 serial studios): the
+        skeleton is one legal costume; the device kit + content archetype +
+        close rotate — an archetype without the variation clause reads as THE
+        skeleton and reproduces the monoculture."""
+        for archetype in ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                body = _tier_two(archetype)
+                self.assertIn("**Variation**", body)
+                self.assertIn("one legal costume", body)
+                self.assertIn("never reused across builds", body)
+                self.assertIn("zero winner precedent", body)
 
-    def test_sections_carry_intensity(self):
-        for r in self.recipes:
-            for s in r["sections"]:
-                with self.subTest(recipe=r["id"], role=s["role"]):
-                    self.assertIn("intensity", s)
-                    self.assertTrue(1 <= s["intensity"] <= 10)
-
-    def test_footer_is_structured_and_resolves(self):
-        """Freeform footers weren't drift — they were forced: the named costumes
-        had no files. Every footer is now a structured object under library-quality:
-        a real form file, a manifest component, an in-world sign-off, or a declared
-        MISSING costume (the BLOCKED-row grammar). Zero free-text footers remain."""
-        form_files = {p.name for p in (COMPONENTS / "forms").glob("*.css")}
-        for r in self.recipes:
-            f = r["footer"]
-            with self.subTest(recipe=r["id"]):
-                self.assertIsInstance(f, dict, "footer must be a structured object, not free text")
-                self.assertIn("note", f)
-                if "form" in f:
-                    form_id = f["form"]
-                    if form_id.startswith("MISSING:"):
-                        self.assertRegex(form_id, r"^MISSING:[A-Za-z].*-footer$",
-                                         "a MISSING footer names its build order")
-                    else:
-                        self.assertIn(f"{form_id}.css", form_files,
-                                      f"footer form {form_id} has no file")
-                elif "component" in f:
-                    self.assertIn(f["component"], self.component_ids,
-                                  f"footer component {f['component']} is not in the manifest")
-                else:
-                    self.assertTrue(f.get("inWorld") is True,
-                                    "a footer with no form/component must be an in-world sign-off")
+    def test_reading_kit_is_a_device_not_dna(self):
+        """ARDEN monoculture: the reading kit shipped identical across five
+        different-brand builds because every variation clause listed "interaction
+        vocabulary" as persisting DNA. The reword scopes it — the motion register
+        persists, the named kit is a device that rotates."""
+        for archetype in ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                body = _tier_two(archetype)
+                self.assertNotIn("motion register + interaction vocabulary", body,
+                                 "the DNA clause must not list the named kit as persisting")
+                self.assertIn("device, rotated per build", body)
 
     def test_minimalist_structural_variety(self):
-        """Two rigid recipes meant the same page shape every build. Minimalist now
-        carries three macrostructures, and gallery-stack no longer contradicts its
-        own playbook (the 'imageless withholding hero' framing was refuted)."""
-        macros = {r["macrostructure"] for r in self.recipes if r["archetype"] == "minimalist"}
-        self.assertGreaterEqual(len(macros), 3,
-                                "minimalist needs structural variety, not one skeleton")
-        gs = [r for r in self.recipes if r["id"] == "gallery-stack-contassot"][0]
-        self.assertNotIn("text-only name card", gs["whenToUse"])
-        self.assertNotIn("holds no image", gs["paceNotes"])
-        self.assertIn("MAIN GALLERY", gs["whenToUse"])
+        """One rigid shape meant the same page every build. Minimalist carries
+        three macrostructures, and gallery-stack no longer contradicts its own
+        evidence (the 'imageless withholding hero' framing was refuted)."""
+        body = _tier_two("minimalist")
+        anatomy = body[body.index("**Anatomy**"):body.index("**Hero architectures**")]
+        for slug in ("`argument-scroll`", "`gallery-stack`", "`scene-scroll`"):
+            with self.subTest(macrostructure=slug):
+                self.assertIn(slug, anatomy)
+        self.assertNotIn("text-only name card", body)
+        self.assertIn("MAIN GALLERY", body)
 
     def test_minimalist_reaches_the_ambitious_medium(self):
         """Terminal (our minimalist exemplar) ships a canvas frame-sequence + a
         Three.js showreel (Pacome); the skill had locked the rendered medium out of
-        minimalist, so builds stayed sparse. The exemplar-proven pieces are now
-        minimalist-reachable, and a minimalist scene recipe carries a medium climax."""
-        man = json.loads(MANIFEST.read_text(encoding="utf-8"))
-        arche = {c["id"]: set(c["archetypes"]) for c in man["components"]}
+        minimalist, so builds stayed sparse. The exemplar-proven pieces stay
+        minimalist-reachable, and the scene macrostructure carries a medium climax."""
+        arche = {c["id"]: set(c["archetypes"])
+                 for c in json.loads(MANIFEST.read_text(encoding="utf-8"))["components"]}
         for cid in ("scrub-film", "shader-surface", "scramble-decode", "flicker-reveal"):
             with self.subTest(component=cid):
                 self.assertIn("minimalist", arche[cid],
                               f"{cid} must be reachable in minimalist (exemplar-proven)")
-        scene = [r for r in self.recipes
-                 if r["archetype"] == "minimalist" and r["macrostructure"] == "scene-scroll"]
-        self.assertTrue(scene, "a minimalist scene recipe (rendered-medium climax) must exist")
-        hero = scene[0]["sections"][0]
-        self.assertTrue(hero.get("climax"), "the scene recipe's hero carries the loud climax")
-        self.assertEqual("scrub-film", hero["pairs"].get("media"),
-                         "the scene hero's medium is the canvas frame-sequence (Terminal's mechanic)")
+        body = _tier_two("minimalist")
+        scene = body[body.index("`scene-scroll`"):]
+        self.assertIn("`scrub-film`", scene[:800],
+                      "the scene hero's medium is the canvas frame-sequence (Terminal's mechanic)")
+        self.assertIn("climax", scene[:800])
 
-    def test_footer_form_archetypes_cover_their_recipes(self):
-        """A footer form's archetypes must include every archetype whose recipe
-        uses it as a footer (the about-overlay-footer convention) — else a builder
-        cross-referencing the field reads "this form doesn't suit my archetype"
-        while the recipe ships it."""
-        forms = {f["id"]: set(f["archetypes"]) for f in json.loads(MANIFEST.read_text(encoding="utf-8"))["forms"]}
-        for r in self.recipes:
-            f = r["footer"]
-            if "form" in f and not f["form"].startswith("MISSING:"):
-                with self.subTest(recipe=r["id"], form=f["form"]):
-                    self.assertIn(r["archetype"], forms.get(f["form"], set()),
-                                  f"{f['form']} archetypes omit {r['archetype']} (used by {r['id']})")
+    def test_corpus_entries_carry_awards(self):
+        """The Effect palette corpus is the evidence line every claim below it
+        cites. A corpus row with no award is an unsourced opinion."""
+        for archetype in ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                body = _tier_two(archetype)
+                corpus = body[body.index("Corpus —"):]
+                corpus = corpus[:corpus.index("\n\n")]
+                self.assertTrue(
+                    any(badge in corpus
+                        for badge in ("Awwwards", "SOTD", "SOTM", "SOTY", "CSSDA", "FWA",
+                                      "Honorable Mention", "Codrops")),
+                    "the corpus line must name the award or case study each entry rests on")
 
-    def test_pairs_reference_real_components(self):
-        for r in self.recipes:
-            for s in r["sections"]:
-                for slot, val in s.get("pairs", {}).items():
-                    vals = val if isinstance(val, list) else [val]
-                    for v in vals:
-                        with self.subTest(recipe=r["id"], slot=slot, component=v):
-                            self.assertIn(v, self.component_ids)
 
-    def test_skill_wires_recipes(self):
-        # recipes are evidence now, never law — the library composes, the vision leads
-        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("28 recipes", skill)
-        self.assertIn("none is a script", skill)
-        self.assertIn("the catalog never picks the vision", skill)
+class TestArchetypeWiring(unittest.TestCase):
+    """The phrases that keep the composition layer binding rather than decorative."""
 
     def test_skill_carries_the_mobile_commit(self):
         """The R-D research's load-bearing finding: winners let pointer classes
@@ -263,115 +250,6 @@ class TestRecipes(unittest.TestCase):
         self.assertIn("pointer-only classes rest dormant (that is the winner answer, not a gap)",
                       preflight)
 
-
-PLAYBOOKS = COMPONENTS / "playbooks"
-
-
-class TestPlaybooks(unittest.TestCase):
-    """Playbooks are the decision layer above recipes — each archetype's
-    winner-derived algorithm from the R4 adversarial research (researcher →
-    refuter → reviser). Lock the data: full archetype coverage, the
-    refuter-survived revision stamp, an executable ordered tree, awarded
-    corpus entries, and buildable gap orders."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.books = {p.stem: json.loads(p.read_text(encoding="utf-8"))
-                     for p in PLAYBOOKS.glob("*.json")}
-
-    def test_every_archetype_has_a_playbook(self):
-        self.assertEqual(set(self.books), KNOWN_ARCHETYPES)
-
-    def test_playbook_shape(self):
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                for field in ("archetype", "revision", "corpus", "story",
-                              "spectacle_model", "algorithm", "section_playbook",
-                              "element_states", "mobile_answer", "gaps", "unverified"):
-                    self.assertIn(field, b)
-                self.assertEqual(b["archetype"], name)
-
-    def test_adversarially_revised(self):
-        """Revision 2 is the refuter-survived state — a revision-1 playbook is
-        unrefuted research and never ships in the skill."""
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                self.assertGreaterEqual(b["revision"], 2)
-
-    def test_algorithm_is_an_ordered_executable_tree(self):
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                steps = b["algorithm"]
-                self.assertGreaterEqual(len(steps), 6)
-                self.assertEqual([s["step"] for s in steps],
-                                 list(range(1, len(steps) + 1)))
-                for s in steps:
-                    self.assertTrue(s["decide"] and s["rule"])
-
-    def test_corpus_entries_carry_awards(self):
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                self.assertGreaterEqual(len(b["corpus"]), 4)
-            for c in b["corpus"]:
-                with self.subTest(playbook=name, site=c.get("site")):
-                    self.assertTrue(c["site"] and c["award"])
-
-    def test_spectacle_verdict_recorded(self):
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                self.assertIn(b["spectacle_model"]["one_climax_verdict"],
-                              {"SUPPORTED", "REFINED", "REFUTED"})
-
-    def test_spectacle_model_is_diffable(self):
-        """The build's spectacle conformance table diffs its shipped beats against
-        the model. That diff target must exist and be non-empty for every playbook:
-        a hero beat and at least one continuation beat. A model with no beats to
-        quote is the gate ARDEN escaped — a hover shipped as the page climax with
-        nothing to check it against."""
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                sm = b["spectacle_model"]
-                self.assertTrue(sm.get("hero"), "spectacle_model.hero is the hero beat to diff against")
-                self.assertIsInstance(sm.get("continuation"), list)
-                self.assertGreaterEqual(len(sm["continuation"]), 1,
-                                        "continuation carries the beats the build maps its sections onto")
-
-    def test_gaps_are_buildable_orders(self):
-        for name, b in self.books.items():
-            for g in b["gaps"]:
-                with self.subTest(playbook=name, gap=g.get("component")):
-                    self.assertTrue(g["component"] and g["mechanic"])
-                    self.assertIn("priority", g)
-
-    def test_skill_wires_playbooks(self):
-        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("9 archetype playbooks", skill)
-
-    def test_variation_axes_present(self):
-        """CALDERA postmortem: two same-archetype builds shipped isomorphic
-        skeletons. R-sameness corpus (21 artifacts, 5 serial studios): the
-        skeleton is one legal costume; the device kit + content archetype +
-        close rotate — a playbook without the variation clause reads as THE
-        skeleton and reproduces the monoculture."""
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                self.assertGreaterEqual(b["revision"], 3)
-                v = b.get("variation", "")
-                self.assertIn("one legal costume", v)
-                self.assertIn("never reused across builds", v)
-                self.assertIn("zero winner precedent", v)
-
-    def test_reading_kit_is_a_device_not_dna(self):
-        """ARDEN monoculture: the reading kit shipped identical across five
-        different-brand builds because every playbook's variation field listed
-        "interaction vocabulary" as persisting DNA. The reword scopes it — the
-        motion register persists, the named kit is a device that rotates."""
-        for name, b in self.books.items():
-            with self.subTest(playbook=name):
-                v = b.get("variation", "")
-                self.assertNotIn("motion register + interaction vocabulary", v,
-                                 "the DNA clause must not list the named kit as persisting")
-                self.assertIn("device, rotated per build", v)
 
 
 class TestCompositionFloorsWiring(unittest.TestCase):

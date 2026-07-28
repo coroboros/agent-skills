@@ -210,14 +210,34 @@ class TestRerollNotice(unittest.TestCase):
 
 
 class TestArchetypeBlock(unittest.TestCase):
-    """Tier-1 archetype content arrives with the two-tier restructure; until it
-    is on disk the roll degrades to a pointer, never to a crash."""
+    """Tier-1 archetype content ships with the two-tier restructure; a name whose
+    file is absent degrades to a pointer, never to a crash."""
 
     def test_missing_tier_one_file_degrades_gracefully(self):
-        block = roll.archetype_block("editorial")
+        with tempfile.TemporaryDirectory() as tmp:
+            original = roll.ARCHETYPE_DIR
+            roll.ARCHETYPE_DIR = Path(tmp)
+            try:
+                block = roll.archetype_block("editorial")
+            finally:
+                roll.ARCHETYPE_DIR = original
         self.assertEqual(len(block), 1)
         self.assertIn("not on disk yet", block[0])
         self.assertIn("references/editorial.md", block[0])
+
+    def test_every_archetype_ships_a_tier_one_file(self):
+        """The roll's push-don't-pull delivery is only real if every name in
+        ARCHETYPES resolves; a missing file silently downgrades the mechanism to
+        the pointer branch and the model never sees the DNA."""
+        for archetype in roll.ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                path = roll.ARCHETYPE_DIR / f"{archetype}.md"
+                self.assertTrue(path.is_file(), f"references/archetype/{archetype}.md")
+                body = path.read_text(encoding="utf-8")
+                for row in ("**Voice.**", "**Register licence.**",
+                            "**Anti-signals", "**Macrostructures it runs.**",
+                            "**Exemplar.**", "**Reflexes"):
+                    self.assertIn(row, body, f"{archetype} tier 1 lacks {row}")
 
     def test_present_tier_one_file_is_printed_whole(self):
         with tempfile.TemporaryDirectory() as tmp:
