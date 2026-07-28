@@ -25,7 +25,7 @@ def _read(path):
 
 class TestNamedTrapsAndCountableChecks(unittest.TestCase):
     """The harvest added falsifiable named traps the catalog lacked, and the
-    protocol rebuild moved the countable table to its single home — the Phase 5
+    protocol rebuild moved the countable table to its single home — the verify-phase
     gate (preflight.md §4). Each check keeps a brief-tied override (or a
     declared archetype scope) so it raises the floor without manufacturing a
     new monoculture; anti-patterns.md keeps the rationale and a pointer."""
@@ -222,17 +222,14 @@ class TestImageryProtocol(unittest.TestCase):
                       "hero-visual axiom must carry the deliberate-typographic-hero override")
 
     def test_skill_md_wires_imagery_into_the_protocol(self):
-        """The protocol front-loads assets: Phase 3 loads the imagery protocol
-        and secures assets before the build; the pre-flight gate carries the
-        hero-real-visual box so a placeholder hero cannot ship."""
-        m = re.search(r"^## Phase 3 — .*?\n(.*?)(?=^## )", self.skill,
-                      re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## Phase 3 section missing")
-        phase3 = m.group(1)
-        self.assertIn("references/imagery.md", phase3,
-                      "Phase 3 must load the imagery acquisition protocol")
-        self.assertIn("asset list", phase3.lower(),
-                      "Phase 3's artifact must include the asset list")
+        """The path front-loads assets: the DESIGN.md-and-truth step loads the
+        imagery protocol and secures assets before the build; the pre-flight
+        gate carries the hero-real-visual box so a placeholder hero cannot
+        ship."""
+        self.assertIn("Secure assets now (`references/imagery.md`)", self.skill,
+                      "the path must load the imagery acquisition protocol before the build")
+        self.assertIn("a named brand's real assets are searched before anything is invented",
+                      self.skill, "assets are secured, never improvised mid-build")
         preflight = _read(REFS / "preflight.md")
         self.assertIn("Hero carries a real visual", preflight,
                       "the pre-flight gate must carry the hero-real-visual box")
@@ -279,14 +276,11 @@ class TestShipReadyFloor(unittest.TestCase):
         self.assertIn("never auto-generated", tmpl,
                       "JSON-LD must be a template, never auto-generated with placeholder data")
 
-    def _phase(self, n):
-        m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", self.skill,
-                      re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, f"## Phase {n} section missing")
-        return m.group(1)
+    def _review_gate(self):
+        return _read(REFS / "gate" / "review.md")
 
     def test_impose_tier_rides_the_preflight_floor(self):
-        """The protocol splits the floor: the Impose tier binds at the Phase 5
+        """The protocol splits the floor: the Impose tier binds at the verify-phase
         craft floor, which cites it as its catalog and carries the 8-state
         contract box."""
         preflight = _read(REFS / "preflight.md")
@@ -296,22 +290,27 @@ class TestShipReadyFloor(unittest.TestCase):
                       "the 8-state interactive contract rides the craft floor")
 
     def test_offer_tier_is_per_brief_never_auto_built(self):
-        """…and Offer is surfaced per brief at ship time (Phase 6); the
+        """…and Offer is surfaced per brief once the verdict is in; the
         never-auto-built and single-fold exemptions live in the tier itself,
         pinned by TestShipReadyFloor.test_offer_tier_is_opt_in_production_weight."""
-        phase6 = self._phase(6).lower()
-        self.assertIn("offer production plumbing per brief", phase6,
+        review = self._review_gate().lower()
+        self.assertIn("production plumbing is offered per brief", review,
                       "the Offer tier must be surfaced as production plumbing, per brief")
-        self.assertIn("ship-ready-floor.md", phase6,
-                      "Phase 6 must route the offer to the ship-ready floor")
+        self.assertIn("never auto-built", review,
+                      "the Offer tier is the user's call, never built unasked")
+        self.assertIn("ship-ready-floor.md", review,
+                      "the ship step must route the offer to the ship-ready floor")
 
     def test_signature_moment_outranks_floor_in_prominence(self):
-        sig = self.skill.lower().find("signature moment")
-        floor_ref = self.skill.find("ship-ready-floor.md")
-        self.assertNotEqual(sig, -1, "signature moment must appear in SKILL.md")
-        self.assertNotEqual(floor_ref, -1, "ship-ready-floor must be referenced in SKILL.md")
+        """The plumbing never outranks the thing it plumbs: the review drives
+        the signature before it offers the floor."""
+        review = self._review_gate()
+        sig = review.find("The signature as a real user")
+        floor_ref = review.find("ship-ready-floor.md")
+        self.assertNotEqual(sig, -1, "the driven signature must appear in the review gate")
+        self.assertNotEqual(floor_ref, -1, "ship-ready-floor must be referenced in the review gate")
         self.assertLess(sig, floor_ref,
-                        "the signature moment must precede (outrank) the ship-ready floor")
+                        "the signature must precede (outrank) the ship-ready floor")
 
 
 class TestMotionVocabulary(unittest.TestCase):

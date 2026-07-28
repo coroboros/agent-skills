@@ -3,7 +3,7 @@ protocol rebuild added as gates.
 
 external-truth.md keeps heavy layers (GSAP, Three/R3F, Lenis, View Transitions,
 Web Audio, modern CSS) off training memory via a three-rung resolution ladder;
-preflight.md is the mechanical floor Phase 5 ticks box by box. These tests pin
+preflight.md is the mechanical floor the verify phase ticks box by box. These tests pin
 the ladder order, the verified install commands, the stale-signature
 tripwires, and the floor's section spine + verdict block."""
 
@@ -147,11 +147,11 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertIn("resolves to the committed face", self.preflight,
                       "browser proof must carry the computed-font-resolution box")
 
-    def test_section_loop_moved_to_phase_4(self):
-        # the per-section conformance loop lives in the build phase now, capped
+    def test_section_loop_lives_in_the_build_step(self):
+        # the conformance loop runs per chapter as it lands, not once at the end
         skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("fix and loop until both widths pass in the same iteration", skill)
-        self.assertIn("cap 5 — file what still stands", skill)
+        self.assertIn("After each chapter, inject `assets/render-floor.js` and fix what it names",
+                      skill)
 
     def test_measurements_are_mandatory_when_connected(self):
         """'Where the tooling offers' was a latitude hole — a connected harness
@@ -181,13 +181,6 @@ class TestPreflightGateStructure(unittest.TestCase):
         exist so the artifact the user opens is the artifact that was verified."""
         self.assertIn("**No-JS floor**", self.preflight)
         self.assertIn("static fallback", self.preflight)
-
-    def test_rotation_stamp_box_matches_phase_4_format(self):
-        self.assertIn("The rotation stamp is the stylesheet's first line", self.preflight)
-        self.assertIn("(scanner: STAMP)", self.preflight)
-        skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("`/* award-design · <archetype>", skill,
-                      "Phase 4 must define the stamp format the box points at")
 
 
 if __name__ == "__main__":

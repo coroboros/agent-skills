@@ -3,8 +3,8 @@ that competent builds leave unconsidered (loader, nav, cursor, hero architecture
 footer moment, route transitions, sound). The empirical 6.5 ceiling includes
 surfaces the model never decided on — an arrival with no loader decision, a
 template footer, a hard route cut. The roster catalog lives in
-award-imperatives.md; Phase 4 commits each surface from it or declares it out
-with a reason — an unconsidered surface is a gap, never a style choice."""
+award-imperatives.md; the build step commits each surface from it or declares it
+out with a reason — an unconsidered surface is a gap, never a style choice."""
 
 import unittest
 from pathlib import Path
@@ -45,24 +45,24 @@ class TestRosterCatalog(unittest.TestCase):
         self.assertIn("load its catalog then, not before", ai)
 
     def test_quiet_constraints_outrank(self):
-        self.assertIn("quiet-constraints briefs (phase 0) outrank the roster",
+        self.assertIn("quiet-constraints briefs from the read-the-room step outrank the roster",
                       _read("award-imperatives.md"))
 
 
-class TestPhase4Commit(unittest.TestCase):
+class TestBuildStepCommit(unittest.TestCase):
     def test_commit_sentence(self):
         s = _skill()
-        self.assertIn("**the award surfaces**", s)
-        self.assertIn("declared out with a reason", s)
-        self.assertIn("an unconsidered surface is a gap", s)
+        self.assertIn("commit the award surfaces", s)
+        self.assertIn("declare each out with a reason", s)
 
     def test_footer_closes_live(self):
-        self.assertIn("winners close on a live footer", _skill())
+        review = (REFS / "gate" / "review.md").read_text(encoding="utf-8").lower()
+        self.assertIn("their footers close on the live signature", review)
 
-    def test_page_catalogs_load_at_phase_4(self):
+    def test_page_catalogs_are_priced_in_the_load_map(self):
         s = _skill()
-        self.assertIn("references/page-anatomy.md", s)
-        self.assertIn("references/copy-recipes.md", s)
+        self.assertIn("`page-anatomy.md`", s)
+        self.assertIn("`copy-recipes.md`", s)
 
 
 if __name__ == "__main__":

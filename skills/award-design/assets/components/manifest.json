@@ -1951,7 +1951,7 @@
     }
   ],
   "slot_roles": {
-    "note": "Role -> interchangeable winner-verified component ids. The recipe's `pairs` name the winner DEFAULT; the anti-monoculture rotation (SKILL.md Phase 1) substitutes a SAME-ROLE id here so two consecutive different-brand builds do not re-ship the same reading kit (the monoculture: kinetic-reveal + text-emphasis-fill + semantic-accent + clip-reveal shipped across 5 builds). Substituting within a role under the rotation law is conformant, never drift.",
+    "note": "Role -> interchangeable winner-verified component ids. The recipe's `pairs` name the winner DEFAULT; the anti-monoculture rotation (`anti-patterns.md` §Cross-build anti-default) substitutes a SAME-ROLE id here so two consecutive different-brand builds do not re-ship the same reading kit (the monoculture: kinetic-reveal + text-emphasis-fill + semantic-accent + clip-reveal shipped across 5 builds). Substituting within a role under the rotation law is conformant, never drift.",
     "h1-entrance": ["kinetic-reveal", "char-assemble", "kinetic-splittext-maximal", "flicker-reveal", "glitch-type", "scramble-decode"],
     "prose-substrate": ["text-emphasis-fill", "semantic-accent", "full-page-scrub-recolor-carry", "vf-scroll-morph"],
     "media-uncover": ["clip-reveal", "image-curtain", "scrubbed-inverse-scale-figure", "crt-dissolve-figure"],

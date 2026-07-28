@@ -7,7 +7,6 @@ classes, bound by one declared grammar (easing family + accent role + metaphor).
 the research round that answered the recurring cross-build defect: one pale fill-sweep
 recycled on every control of every build."""
 
-import re
 import unittest
 from pathlib import Path
 
@@ -33,11 +32,8 @@ def _read(rel):
     return (REFS / rel).read_text(encoding="utf-8").lower()
 
 
-def _phase(n):
-    body = SKILL_MD.read_text(encoding="utf-8")
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
-    return m.group(1).lower()
+def _skill():
+    return SKILL_MD.read_text(encoding="utf-8")
 
 
 class TestEffectPalettesExist(unittest.TestCase):
@@ -76,10 +72,17 @@ class TestCompositionForcing(unittest.TestCase):
         self.assertIn("is a default in costume", ix,
                       "one trick stamped on every class must stay named as the fail")
 
-    def test_phase4_loads_the_palette(self):
-        p4 = _phase(4)
-        self.assertIn("*effect palette*", p4)
-        self.assertIn("*page recipe*", p4)
+    def test_tier_two_palette_and_recipe_load_at_the_design_plan_commit(self):
+        """The palette binds because the design_plan commit loads the archetype's
+        tier-2 file by heading — an unloaded palette composes nothing."""
+        self.assertIn(
+            "tier-2 `references/<name>.md` — by heading via its Contents index | step 9, committing the section list",
+            _skill(), "the load map must price the tier-2 load at the section-list commit")
+        for a in ARCHETYPES:
+            with self.subTest(archetype=a):
+                tier2 = _read(f"{a}.md")
+                self.assertIn("## effect palette", tier2)
+                self.assertIn("## page recipe", tier2)
 
 
 if __name__ == "__main__":

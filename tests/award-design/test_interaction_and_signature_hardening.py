@@ -27,11 +27,11 @@ def _skill():
     return SKILL_MD.read_text(encoding="utf-8").lower()
 
 
-def _phase(n):
+def _load_map():
     body = SKILL_MD.read_text(encoding="utf-8")
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
-    return m.group(1).lower()
+    m = re.search(r"^## The load map — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
+    assert m is not None, "## The load map section missing"
+    return m.group(1)
 
 
 class TestNewPalettesExist(unittest.TestCase):
@@ -55,15 +55,14 @@ class TestDistributedSignature(unittest.TestCase):
         ix = _read("interaction-signatures.md")
         self.assertIn("restraint lowers amplitude, never coverage", ix)
 
-    def test_skill_judging_criteria_reframed(self):
-        body = _skill()
-        self.assertIn("distributed signature", body)
+    def test_judging_criteria_reframed(self):
+        self.assertIn("distributed signature", _read("signature-invention.md"))
         # the old "one signature interaction (not scattered micro-animations)" is gone
-        self.assertNotIn("one signature interaction (not scattered micro-animations)", body)
+        self.assertNotIn("one signature interaction (not scattered micro-animations)", _skill())
 
-    def test_skill_phase4_motion_has_coverage_not_amplitude(self):
-        p4 = _phase(4)
-        self.assertIn("restraint lowers amplitude, never coverage", p4)
+    def test_motion_has_coverage_not_amplitude(self):
+        self.assertIn("restraint lowers the substrate's **amplitude**, never its **coverage**",
+                      _read("signature-invention.md"))
 
     def test_anti_pattern_bans_dead_after_hero(self):
         ap = _read("anti-patterns.md")
@@ -97,10 +96,9 @@ class TestTextEffects(unittest.TestCase):
         tx = _read("text-effects.md")
         self.assertIn("semantic accent", tx)
 
-    def test_phase4_gates_text_emphasis_legible_first(self):
-        p4 = _phase(4)
-        self.assertIn("scroll emphasis on already-legible copy, "
-                      "never a reveal from invisible", p4)
+    def test_text_emphasis_is_legible_first(self):
+        tx = _read("text-effects.md")
+        self.assertIn("never reveal from invisible", tx)
 
 
 class TestNativeControlsAndCursor(unittest.TestCase):
@@ -162,10 +160,16 @@ class TestCodeReviewGate(unittest.TestCase):
         self.assertIn("lifecycle refutation", cr)
         self.assertIn("in the viewport", cr)
 
-    def test_skill_phase5_runs_code_craft(self):
-        p5 = _phase(5)
-        self.assertIn("code-review.md", p5)
-        self.assertIn("the code pass", p5)
+    def test_verify_runs_the_code_craft_pass(self):
+        """The verify sequence enters through the scanner; the code-craft pass
+        rides the mechanical floor that sequence works from."""
+        body = SKILL_MD.read_text(encoding="utf-8")
+        m = re.search(r"^## Verify, then ship\b(.*?)(?=^##\s)", body, re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "## Verify, then ship section missing")
+        self.assertIn("scripts/preflight_scan.py", m.group(1),
+                      "the verify sequence enters through the scanner")
+        self.assertIn("code-review.md", _read("preflight.md"),
+                      "the code-craft pass must stay reachable from the mechanical floor")
 
     def test_preflight_has_code_craft_section(self):
         pf = _read("preflight.md")
@@ -174,11 +178,13 @@ class TestCodeReviewGate(unittest.TestCase):
 
 
 class TestPalettesWiredIntoProtocol(unittest.TestCase):
-    def test_phase4_loads_new_palettes(self):
-        # Phase 4 is where the palettes bind; the Phase 3 copy was dead weight
-        body = _phase(4)
-        self.assertIn("references/interaction-signatures.md", body)
-        self.assertIn("references/text-effects.md", body)
+    def test_load_map_prices_the_palettes(self):
+        # the palettes bind as the build commits the surface — priced, pulled by
+        # heading, never loaded whole ahead of a commit
+        row = _load_map()
+        self.assertIn("`interaction-signatures.md`", row)
+        self.assertIn("`text-effects.md`", row)
+        self.assertIn("pull by heading as the build commits the surface", row)
 
     def test_motion_palette_cross_links_siblings(self):
         mp = _read("motion-palette.md")

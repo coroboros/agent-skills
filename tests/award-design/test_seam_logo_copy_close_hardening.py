@@ -6,25 +6,16 @@ that "faded too brutally" into the next section, registration-meta copy (READING
 a hero reading overlay that broke responsively, and a mobile overlay menu with no
 clearly-visible close. These lock the fixes that survived the floor rewrite."""
 
-import re
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_DIR = REPO_ROOT / "skills" / "award-design"
-SKILL_MD = SKILL_DIR / "SKILL.md"
 REFS = SKILL_DIR / "references"
 
 
 def _read(rel):
     return (REFS / rel).read_text(encoding="utf-8").lower()
-
-
-def _phase(n):
-    body = SKILL_MD.read_text(encoding="utf-8")
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
-    return m.group(1).lower()
 
 
 class TestRealBrandMark(unittest.TestCase):
@@ -59,10 +50,6 @@ class TestGradedSeams(unittest.TestCase):
     def test_preflight_seam_box_gates_graded(self):
         pf = _read("preflight.md")
         self.assertIn("grades into its neighbour", pf)
-
-    def test_phase4_loop_gates_graded_seam(self):
-        p4 = _phase(4)
-        self.assertIn("seams grade instead of hard-cutting", p4)
 
 
 class TestAdversarialCopyPass(unittest.TestCase):

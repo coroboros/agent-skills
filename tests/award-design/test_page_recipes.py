@@ -6,7 +6,7 @@ winner corpus live, twelve fresh-context refuters re-opened every load-bearing
 claim (one fabricated quote cut, one skill-encoded belief refuted), and the
 surviving recipes landed as a Page recipe section per archetype plus the
 cross-archetype page-anatomy catalog whose shape slugs are the committable
-macrostructure vocabulary (design_plan + rotation stamp)."""
+macrostructure vocabulary (design_plan + contract)."""
 
 import unittest
 from pathlib import Path
@@ -58,7 +58,7 @@ class TestPageRecipeSections(unittest.TestCase):
                 self.assertIn(CALIBRATE_LAW, _read(f"{a}.md"))
 
     def test_anatomy_shapes_carry_a_catalog_slug(self):
-        # The stamp and the design_plan commit macrostructure by catalog name;
+        # The contract and the design_plan commit macrostructure by catalog name;
         # a local shape name with no slug is uncommittable vocabulary.
         for a in ARCHETYPES:
             body = _read(f"{a}.md")

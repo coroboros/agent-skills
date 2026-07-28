@@ -4,7 +4,7 @@ Seven wirings a build gets wrong from memory. Each is the whole file, not a frag
 
 Versions, support percentages, and package names are **not** repeated here — every such fact lives once in `stack-facts.md`, dated. Read that file before pinning a dependency.
 
-Load at Phase 4, by heading, for the mechanics the design_plan committed. The *what* (which mechanic serves the world) is `motion-palette.md` and `signature-invention.md`; this file is only the *how*.
+Loads when the first technique is wired, by heading, for the mechanics the design_plan committed. The *what* (which mechanic serves the world) is `motion-palette.md` and `signature-invention.md`; this file is only the *how*.
 
 ## Rules that bind every skeleton below
 

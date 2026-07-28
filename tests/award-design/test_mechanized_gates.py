@@ -2,9 +2,9 @@
 self-attested machinery (pre-emit critique, conformance ledger, capability
 lines, axiomatic-box suppressions) and kept the gates a lazy run cannot narrate
 around: the status ceiling on browserless runs, probe-before-declaring-a-gap,
-the detector beside the scanner with fix-only FAILs, isolated dual assessors,
-the predictability probe, the desire read as driven evidence, the rotation
-stamp, and perf-number provenance."""
+the detector beside the scanner with fix-only FAILs, reviewer isolation,
+the predictability probe, the desire read as driven evidence, and perf-number
+provenance."""
 
 import re
 import unittest
@@ -21,6 +21,10 @@ def _read(rel):
 
 def _skill():
     return (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8").lower()
+
+
+def _gate(rel):
+    return (REFS / "gate" / rel).read_text(encoding="utf-8").lower()
 
 
 class TestStatusCeiling(unittest.TestCase):
@@ -45,9 +49,10 @@ class TestStatusCeiling(unittest.TestCase):
 
 class TestCapabilityProbes(unittest.TestCase):
     def test_degraded_review_is_labeled(self):
-        s = _skill()
-        self.assertIn("degraded: same-context", s)
-        self.assertIn('a bare "re-read, looks fine" clears nothing', s)
+        c = _gate("concept.md")
+        self.assertIn("degraded: same-context", c)
+        self.assertIn("a probe that vanishes without one is a skipped gate", c,
+                      "a review that emits no written verdict clears nothing")
 
     def test_probe_before_declaring_gap(self):
         pf = _read("preflight.md")
@@ -76,13 +81,18 @@ class TestDetectorWiring(unittest.TestCase):
             missing, f"preflight tags with no detector rule: {sorted(missing)}")
 
 
-class TestDualAssessors(unittest.TestCase):
+class TestReviewerIsolation(unittest.TestCase):
     def test_isolation_invariant(self):
-        s = _skill()
-        self.assertIn("two isolated assessors", s)
-        self.assertIn("never sees the reports", s)
-        self.assertIn("never sees the pixels", s)
-        self.assertIn("driven > computed > declared", s)
+        """One driven audit replaced the A/B assessor pair, so isolation is
+        carried by the reviewer's own discipline: fresh context, read-only, its
+        own browser session, and the render inventoried before any report or
+        contract is read. Driven evidence still outranks declared."""
+        r = _gate("review.md")
+        self.assertIn("fresh-context subagent, read-only", r)
+        self.assertIn("parallel reviewers never share a browser session", r)
+        self.assertIn("before reading the direction contract", r)
+        self.assertIn("spec fiction", r,
+                      "a declared beat that does not render is a finding, whatever the code claims")
 
     def test_rubric_supersedes_ordering(self):
         self.assertIn("isolation supersedes ordering", _read("audit-rubric.md"))
@@ -90,9 +100,9 @@ class TestDualAssessors(unittest.TestCase):
 
 class TestPredictabilityProbe(unittest.TestCase):
     def test_r1_opens_with_the_probe(self):
-        s = _skill()
-        self.assertIn("predictability probe", s)
-        self.assertIn("a match means the direction is still a default", s)
+        c = _gate("concept.md")
+        self.assertIn("predictability probe", c)
+        self.assertIn("means it is still a default", c)
 
     def test_probe_void_in_degraded_run(self):
         ar = _read("audit-rubric.md")
@@ -115,21 +125,21 @@ class TestDesireReadTravels(unittest.TestCase):
     verbatim into the ship report."""
 
     def setUp(self):
-        self.skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
+        self.review = (REFS / "gate" / "review.md").read_text(encoding="utf-8")
         self.pf = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
 
     def test_desire_read_is_driven_evidence(self):
-        low = self.skill.lower()
-        self.assertIn("the desire read is driven evidence", low)
-        self.assertIn("outranks clean mechanical reports", low)
+        low = self.review.lower()
+        self.assertIn("a loses read is driven evidence", low)
+        self.assertIn("it outranks every clean mechanical report", low)
         self.assertIn("never softened", low)
 
     def test_first_line_fixed_format(self):
         # the format token is case-sensitive
-        self.assertIn('DESIRE-READ: BEATS|LOSES <exemplar>', self.skill)
-        low = self.skill.lower()
-        self.assertIn("the review's first line", low)
-        self.assertIn("travels verbatim", low)
+        self.assertIn('DESIRE-READ: BEATS|LOSES <exemplar>', self.review)
+        low = self.review.lower()
+        self.assertIn("first emitted line", low)
+        self.assertIn("travels into the ship report", low)
 
     def test_skip_vs_gap_doctrine(self):
         # a false tick and a lazily declared gap are the same fail
@@ -137,14 +147,6 @@ class TestDesireReadTravels(unittest.TestCase):
                       self.pf)
         self.assertIn("declaring a gap the harness could have closed is the same fail",
                       self.pf)
-
-
-class TestRotationStamp(unittest.TestCase):
-    def test_stamp_written_and_read(self):
-        s = _skill()
-        self.assertIn("nav:<pattern>", s)
-        self.assertIn("read the previous build's stamp", s)
-        self.assertIn("the rotation ledger the next build reads", s)
 
 
 class TestProvenance(unittest.TestCase):

@@ -1,6 +1,6 @@
 # Optical Craft — the last 10%
 
-What separates 7.5 from 8+ once the universe, layout, and motion are right: decisions measured in optical units, not tokens. Model defaults are geometrically correct and optically wrong — none of this gets applied unless it is applied deliberately. Load at Phase 4; build with it, never retrofit it.
+What separates 7.5 from 8+ once the universe, layout, and motion are right: decisions measured in optical units, not tokens. Model defaults are geometrically correct and optically wrong — none of this gets applied unless it is applied deliberately. Loads at the build step; build with it, never retrofit it.
 
 ## Type optics
 

@@ -31,16 +31,10 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-def _phase(n):
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
+def _load_map():
+    m = re.search(r"^## The load map — .*?\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
+    assert m is not None, "## The load map section missing"
     return m.group(1)
-
-
-def _review_mode():
-    m = re.search(r"^## Review mode.*?(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, "Review mode section missing"
-    return m.group(0)
 
 
 class TestMotionPaletteFile(unittest.TestCase):
@@ -107,15 +101,17 @@ class TestModelSplitWired(unittest.TestCase):
         self.assertTrue("nn/g" in imp or "usability failure" in imp)
         self.assertIn("reversible", imp)
 
-    def test_phase4_motion_splits(self):
-        p4 = _phase(4).lower()
-        self.assertIn("motion-palette.md", p4)
-        self.assertIn("fire once and persist", p4)
-        self.assertIn("reverses with scroll", p4)
+    def test_core_binds_the_persist_half_as_a_hard_constraint(self):
+        # the fire-once half is unconditional in the core; the reversible half
+        # loads from the palette when the build commits the surface
+        self.assertIn("content that re-hides on scroll-up", _body(),
+                      "content reveals persist — re-hiding is a hard constraint, not a preference")
+        self.assertIn("`motion-palette.md`", _body())
 
-    def test_skill_loads_the_palette(self):
-        # loaded at Phase 4, where the palette binds (the Phase 3 copy was dead weight)
-        self.assertIn("motion-palette.md", _phase(4))
+    def test_load_map_prices_the_palette(self):
+        row = _load_map()
+        self.assertIn("`motion-palette.md`", row)
+        self.assertIn("pull by heading as the build commits the surface", row)
 
     def test_anti_pattern_names_rehide_on_scroll_up(self):
         ap = _read("anti-patterns.md")
@@ -158,11 +154,12 @@ class TestAxis8SignatureOnMakeOrBreakSurface(unittest.TestCase):
         self.assertIn("make-or-break surface", sig)
         self.assertIn("below the fold", sig)
 
-    def test_skill_phase1_and_r1_bind_placement(self):
-        self.assertIn("lands on the hero", _phase(1))
-        r1 = _review_mode().lower()
-        self.assertIn("make-or-break surface", r1)
-        self.assertIn("placement", r1)
+    def test_placement_binds_at_r1(self):
+        sig = _read("signature-invention.md")
+        self.assertIn("the signature belongs there", sig,
+                      "the signature lands on the hero, not section four")
+        self.assertIn("r1 scores it off-track", sig,
+                      "a category-hero build is refuted at R1, whatever waits below")
 
     def test_imperative_one_binds_placement(self):
         imp = _read("award-imperatives.md")

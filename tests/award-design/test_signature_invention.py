@@ -9,7 +9,6 @@ and buildability removed as an excuse.
 
 Each assertion would FAIL before this hardening."""
 
-import re
 import unittest
 from pathlib import Path
 
@@ -27,16 +26,8 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-def _phase(n):
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
-    return m.group(1)
-
-
-def _review_mode():
-    m = re.search(r"^## Review mode.*?(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, "Review mode section missing"
-    return m.group(0)
+def _gate(name):
+    return (REFS / "gate" / name).read_text(encoding="utf-8")
 
 
 class TestSignatureInventionReference(unittest.TestCase):
@@ -79,27 +70,26 @@ class TestSignatureWiring(unittest.TestCase):
         self.assertIn("signature-invention.md", imp,
                       "imperative #1 must route to the invention method")
 
-    def test_phase1_loads_and_forces_the_signature(self):
-        p1 = _phase(1)
-        self.assertIn("signature-invention.md", p1,
-                      "Phase 1 must load the signature-invention method")
-        low = p1.lower()
-        self.assertIn("bespoke test", low,
-                      "the Phase 1 signature step must apply the bespoke test")
-        self.assertIn("verb", low,
-                      "the signature is derived from the world's verb")
+    def test_core_routes_the_signature_method(self):
+        """The whole method — verb derivation, the placement law, the medium
+        arbitration, the echo law — lives in signature-invention.md, so the core
+        has to point at it or the file is unreachable: R1's Inputs list excludes
+        it and the tier-1 archetype files do not carry it."""
+        self.assertIn("references/signature-invention.md", _body(),
+                      "the core must route the signature-invention method")
 
-    def test_phase1_artifact_includes_signature_rejected_default(self):
-        p1 = _phase(1).lower()
-        # the artifact line names the signature's own rejected default + its verb
-        self.assertTrue("signature's own rejected default" in p1 or "rejected default" in p1,
-                        "the Phase 1 artifact must include the signature's rejected default")
+    def test_contract_forces_the_signature_declaration(self):
+        body = _body()
+        self.assertIn("**SIGNATURE** (verb · medium · trigger · replay behavior", body,
+                      "the contract block names the signature by verb, medium and trigger")
+        self.assertIn("a fire-once effect leaving a static frame is an entrance, not a signature",
+                      body, "the replay behavior is declared, not implied")
 
     def test_r1_gates_a_category_signature(self):
-        review = _review_mode().lower()
-        self.assertIn("bespoke test", review,
+        gate = _gate("concept.md").lower()
+        self.assertIn("bespoke test", gate,
                       "R1 must refute the signature against the bespoke test")
-        self.assertTrue("off-track" in review and "regenerate" in review,
+        self.assertTrue("off-track" in gate and "regenerate" in gate,
                         "a category signature is OFF-TRACK at R1 — regenerate, never file")
 
 

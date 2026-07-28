@@ -1,6 +1,6 @@
 # Text Effects — type as a motion surface
 
-Type is a first-class interaction surface, not static copy waiting for a layout. The mechanics here are the award vocabulary for making text *read to* the visitor — the scroll-emphasis fill that recurs down a copy-heavy page, the per-letter reveals of a kinetic build — paced so the eye is guided, never fought. Load at Phase 3/4 with `motion-palette.md`; a text-emphasis moment is a distributed-signature echo (`interaction-signatures.md`), not a blanket effect on every paragraph.
+Type is a first-class interaction surface, not static copy waiting for a layout. The mechanics here are the award vocabulary for making text *read to* the visitor — the scroll-emphasis fill that recurs down a copy-heavy page, the per-letter reveals of a kinetic build — paced so the eye is guided, never fought. Loads from truth sourcing through the build step with `motion-palette.md`; a text-emphasis moment is a distributed-signature echo (`interaction-signatures.md`), not a blanket effect on every paragraph.
 
 ## The safe framing — binding
 

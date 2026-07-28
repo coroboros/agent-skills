@@ -4,7 +4,7 @@ Award winners are not separated from AI-generated code by spectacle. They are se
 
 These are **best practices to adopt**, not tells to ban — the opposite list from `anti-patterns.md`. Adopt: OKLCH, `rem` + fluid `clamp()`, CSS custom properties, factorization, modern CSS primitives, semantic HTML, GPU-composited motion. Ban (separate list, `anti-patterns.md`): native controls, `not-allowed`, the AI-purple gradient, `#000`/`#fff`. This file is the adopt side; the code-craft pass (`code-review.md`) enforces it.
 
-Load at Phase 4 with `foundations.md` (the deep implementation is there — this file is the discipline and the adopt-vs-guard law, not a re-derivation).
+Loads at the build step with `foundations.md` (the deep implementation is there — this file is the discipline and the adopt-vs-guard law, not a re-derivation).
 
 ## The adopt-vs-guard law — follow current Baseline, never memory
 
@@ -49,7 +49,7 @@ Animate only the GPU-composited set (above); offscreen work goes behind `content
 
 ## React builds
 
-Composition and factorization carry over: extract a component when markup repeats, keep motion values off the render cycle (`useMotionValue`/`useTransform`, not `useState` per frame — `anti-patterns.md` Technical), and lazy-load heavy client components. The current React/Next patterns are the `vercel-react-best-practices` and `vercel-composition-patterns` skills — resolve them by name when installed, the same ladder the heavy layers use (`SKILL.md` Phase 3).
+Composition and factorization carry over: extract a component when markup repeats, keep motion values off the render cycle (`useMotionValue`/`useTransform`, not `useState` per frame — `anti-patterns.md` Technical), and lazy-load heavy client components. The current React/Next patterns are the `vercel-react-best-practices` and `vercel-composition-patterns` skills — resolve them by name when installed, the same ladder the heavy layers use (`SKILL.md`, truth sourcing).
 
 ## The AI-code gap (inference, confirmed on real builds)
 

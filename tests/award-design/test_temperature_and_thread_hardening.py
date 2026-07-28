@@ -7,7 +7,6 @@ echoes were entrance-only episodes ("a stronger through-line"), calibrated plate
 colour-coded in the real sport — shipped ink-black ("more joy and colour"), and the bar
 drawing had one sleeve, unreadable as a barbell at a glance. These lock the laws."""
 
-import re
 import unittest
 from pathlib import Path
 
@@ -25,11 +24,8 @@ def _skill():
     return SKILL_MD.read_text(encoding="utf-8").lower()
 
 
-def _phase(n):
-    body = SKILL_MD.read_text(encoding="utf-8")
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
-    return m.group(1).lower()
+def _gate(rel):
+    return (REFS / "gate" / rel).read_text(encoding="utf-8").lower()
 
 
 class TestSubjectTemperature(unittest.TestCase):
@@ -39,10 +35,13 @@ class TestSubjectTemperature(unittest.TestCase):
         self.assertIn("never the world's pulse", at)
         self.assertIn("a brochure *about* the thing", at)
 
-    def test_phase0_reads_the_temperature(self):
-        p0 = _phase(0)
-        self.assertIn("the subject's lived temperature", p0)
-        self.assertIn("floors motion above the archetype's resting default", p0)
+    def test_the_dials_reference_carries_the_floor(self):
+        """Step 0 reads the dials through atmosphere-calibration.md, which is
+        where the temperature floor outranks the archetype's resting default."""
+        self.assertIn("references/atmosphere-calibration.md", _skill())
+        at = _read("atmosphere-calibration.md")
+        self.assertIn("the subject's lived temperature floors the dials", at)
+        self.assertIn("the floor outranks the archetype's resting default", at)
 
 
 class TestAmbientChannel(unittest.TestCase):
@@ -51,14 +50,13 @@ class TestAmbientChannel(unittest.TestCase):
         self.assertIn("the page breathes at rest", ix)
         self.assertIn("reads embalmed between interactions", ix)
 
-    def test_phase4_commits_the_idle_channel(self):
-        p4 = _phase(4)
-        self.assertIn("one ambient idle channel", p4)
+    def test_density_read_commits_the_idle_channel(self):
+        self.assertIn("one ambient idle channel", _gate("review.md"))
 
     def test_review_density_read_carries_the_channel(self):
-        s = _skill()
-        self.assertIn("the density/aliveness read", s)
-        self.assertIn("live channels", s)
+        r = _gate("review.md")
+        self.assertIn("the density read follows", r)
+        self.assertIn("live channels", r)
 
 
 class TestTravellingThread(unittest.TestCase):

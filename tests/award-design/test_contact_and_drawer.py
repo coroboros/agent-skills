@@ -12,7 +12,7 @@ substrate, the instrument form with its no-cursor carve-out and dual invitation,
 and the drawer floor/ceiling split.
 
 Honesty note: prose-presence regression locks. The bite lives in the pre-build
-R1 verdict quote, Assessor B's artifact reads, the driven §8 boxes, and the
+R1 verdict quote, the code pass's artifact reads, the driven §8 boxes, and the
 detector's census — no test here verifies a build obeyed a judgment rule."""
 
 import unittest
@@ -76,7 +76,7 @@ class TestContactLocality(unittest.TestCase):
     def test_enforcement_split_is_honest(self):
         si = _read("signature-invention.md")
         self.assertIn(
-            "canvas-side deformation fidelity is assessor-a driven judgment", si)
+            "canvas-side deformation fidelity is the reviewer's driven judgment", si)
         self.assertIn("contact-global-squash", si)
 
     def test_media_routing_three_buckets(self):

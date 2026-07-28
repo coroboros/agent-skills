@@ -93,52 +93,36 @@ class TestCrossCuttingReferences(unittest.TestCase):
                                 f"references/{ref} missing")
 
 
-class TestArchetypeTable(unittest.TestCase):
-    """The archetype table in SKILL.md (Phase 0 — Read the room) must list all
-    9 archetypes and reference each archetype's `references/<name>.md` file.
-    This is the direction layer the Concept Spine draws its line from — a
-    missing row silently strands a brief."""
+class TestArchetypeSignalMap(unittest.TestCase):
+    """The signal map is the direction layer a brief lands on: one inline line
+    in SKILL.md routing every brief signal to one of the 9 archetypes, each
+    owning a tier-1 file the roll's stdout pushes. A missing arm silently
+    strands a brief."""
 
-    def _table_section(self):
+    def _signal_map(self):
         text = SKILL_MD.read_text(encoding="utf-8")
-        m = re.search(r"^## Phase 0 — Read the room\b.*?\n(.*?)(?=^##\s)",
-                      text, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## Phase 0 — Read the room section missing")
-        return m.group(1)
+        m = re.search(r"(?m)^\*\*Signal map:\*\*.*$", text)
+        self.assertIsNotNone(m, "**Signal map:** line missing from SKILL.md")
+        return m.group(0)
 
-    def test_table_lists_every_archetype(self):
+    def test_tier_one_archetype_route_is_priced(self):
+        """Every archetype resolves through the same tier-1 path, and the load
+        map prices that load — an archetype reachable by signal but not by path
+        strands the same brief one step later."""
         text = SKILL_MD.read_text(encoding="utf-8")
-        for archetype in ARCHETYPES:
-            with self.subTest(archetype=archetype):
-                # Each archetype's reference path appears in a table cell
-                self.assertIn(f"references/{archetype}.md", text,
-                              f"{archetype}: not referenced in SKILL.md")
-
-    def test_table_row_count_matches(self):
-        """Count rows in the archetype table — should be 9 (one per archetype)."""
-        section = self._table_section()
-        # Body rows: lines whose first cell is a bold archetype name, excluding
-        # header and separator.
-        rows = re.findall(r"^\|\s*\*\*[\w/ -]+\*\*\s*\|", section, re.MULTILINE)
-        self.assertEqual(len(rows), 9, f"expected 9 archetype rows, found {len(rows)}")
+        self.assertIn("references/archetype/<name>.md", text,
+                      "the load map must route and price the tier-1 archetype file")
 
     def test_brief_signal_routing_is_inline_prose(self):
-        """Brief-signal → archetype routing is now inline prose under the table,
-        not its own section. Every archetype must still be reachable by a brief
-        signal — otherwise a vocabulary lookup routes nowhere."""
-        section = self._table_section()
-        m = re.search(r"Brief signal → first-pass archetype(.*?)(?=^##\s|\Z)",
-                      section, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "inline brief-signal routing prose missing under the table")
-        routing = m.group(1)
-        for display in (
-            "Corporate Luxury", "Minimalist", "Editorial", "Brutalist",
-            "Bold/Maximal", "Immersive", "Experimental", "Bento", "Spatial Organic",
-        ):
-            with self.subTest(target=display):
+        """Brief-signal → archetype routing is inline prose, not its own
+        section. Every archetype must stay reachable by a brief signal —
+        otherwise a vocabulary lookup routes nowhere."""
+        signal_map = self._signal_map()
+        for archetype in ARCHETYPES:
+            with self.subTest(target=archetype):
                 self.assertRegex(
-                    routing, rf"→\s*{re.escape(display)}\b",
-                    f"brief-signal routing must reach the {display} archetype",
+                    signal_map, rf"→\s*{re.escape(archetype)}\b",
+                    f"brief-signal routing must reach the {archetype} archetype",
                 )
 
 

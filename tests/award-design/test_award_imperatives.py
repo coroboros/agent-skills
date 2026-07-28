@@ -29,10 +29,14 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-def _phase(n):
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
+def _path():
+    m = re.search(r"^## The path\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
+    assert m is not None, "## The path section missing"
     return m.group(1)
+
+
+def _gate(name):
+    return (REFS / "gate" / name).read_text(encoding="utf-8").lower()
 
 
 class TestAwardImperativesReference(unittest.TestCase):
@@ -121,36 +125,40 @@ class TestRubricRecalibration(unittest.TestCase):
 
 
 class TestSkillWiring(unittest.TestCase):
-    def test_phase_4_loads_imperatives(self):
-        self.assertIn("award-imperatives.md", _phase(4),
-                      "Phase 4 must reference award-imperatives.md")
+    def test_build_step_commits_the_award_surfaces(self):
+        """The imperatives bind through the roster: the build step commits each
+        award surface by name or declares it out, and award-imperatives.md is
+        the catalog those names come from."""
+        path = _path()
+        self.assertIn("commit the award surfaces", path)
+        self.assertIn("declare each out with a reason", path,
+                      "an unconsidered surface is a gap, never a style choice")
+        for surface in ("loader", "nav", "cursor", "footer moment",
+                        "route transitions", "sound"):
+            with self.subTest(surface=surface):
+                self.assertIn(surface, path, f"award surface missing: {surface}")
+        self.assertIn("award surface roster", _read("award-imperatives.md").lower(),
+                      "the roster catalog must survive in award-imperatives.md")
 
-    def test_phase4_commits_nav_and_signature(self):
-        p4 = _phase(4).lower()
-        self.assertIn("navigation pattern", p4,
-                      "the nav pattern must be an explicit design_plan commit")
-        self.assertIn("the signature (verb, medium, trigger)", p4,
-                      "the signature must be an explicit commit, named by verb and medium")
+    def test_contract_commits_nav_and_signature(self):
+        path = _path()
+        self.assertIn("commit the award surfaces (loader, nav, cursor", path,
+                      "the nav pattern must be an explicit award-surface commit")
+        self.assertIn("**SIGNATURE** (verb · medium · trigger", path,
+                      "the signature must be a contract block, named by verb and medium")
 
-    def test_phase4_hero_micro_loop(self):
-        p4 = _phase(4)
-        self.assertIn("Hero first", p4,
-                      "Phase 4 must gate the hero first, comparatively, before the rest")
-        low = p4.lower()
-        self.assertTrue("panel" in low and "canonical winner" in low,
-                        "the hero gate compares against the archetype's canonical winner")
+    def test_hero_gate_is_comparative(self):
+        path = _path()
+        self.assertIn("Hero first", path,
+                      "the path must gate the hero first, comparatively, before the rest")
+        self.assertIn("A fresh-context judge picks beside the archetype's live exemplar",
+                      path, "the hero gate compares against the archetype's exemplar")
 
-    def test_review_mode_premise_veto_and_panel(self):
-        body = _body()
-        m = re.search(r"^## Review mode.*?(?=^## )", body, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "Review mode section missing")
-        review = m.group(0).lower()
-        self.assertIn("restraint veto", review,
+    def test_gates_carry_the_veto_and_the_comparative_read(self):
+        self.assertIn("premise veto", _gate("concept.md"),
                       "R1 must run the premise/restraint veto")
-        self.assertIn("multi-lens panel", review,
-                      "Review mode must offer the multi-lens adversarial panel")
-        self.assertIn("comparative desire read", review,
-                      "the desire read in Review mode must be comparative")
+        self.assertIn("comparative desire read", _gate("review.md"),
+                      "the desire read that opens R2 must be comparative")
 
 
 if __name__ == "__main__":

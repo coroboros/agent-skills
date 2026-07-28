@@ -8,7 +8,7 @@ Award-grade builds live or die on library APIs that move faster than any trainin
 2. **Offer the install.** No skill present and the layer is load-bearing for the signature → offer the user the install once, as one line with the exact command. Yes → install, load, follow. No, or no answer → next rung. Never stall the build on the offer. In a non-interactive run the offer is still *emitted* in the output — the user reads it later — and silence resolves it immediately.
 3. **Fetch current docs.** Resolve and read official documentation before coding — its own mini-ladder, first present wins: the `find-docs` skill → the `context7-cli` skill / `ctx7` CLI → the official URL below via web fetch. Cite what was actually read.
 
-The rung used is stated per layer in the Phase 3 artifact; the pre-flight fails any heavy layer without a declared source. The bundled `references/ingredients/` cheats are the offline floor — read them for architecture and patterns; they never replace current docs for API signatures.
+The rung used is stated per layer at truth sourcing (step 7); the pre-flight fails any heavy layer without a declared source. The bundled `references/ingredients/` cheats are the offline floor — read them for architecture and patterns; they never replace current docs for API signatures.
 
 ## Capability map — gate only what the build actually uses
 
@@ -26,17 +26,17 @@ A static minimalist page loads none of this; an Immersive scrolltelling build ma
 
 ## Browser verification — a gated capability too
 
-Rendering proof is not optional tooling — resolve it like a heavy layer, before Phase 4 opens. A build that never rendered is a build nobody looked at.
+Rendering proof is not optional tooling — resolve it like a heavy layer, before the build step opens. A build that never rendered is a build nobody looked at.
 
 | Capability | Candidates (first present wins) | Install offer | Fallback |
 |---|---|---|---|
 | Screenshot · drive · console · traces | Chrome DevTools MCP (adds performance traces and LCP) · `dev-browser` CLI · `webwright` plugin | `npm install -g dev-browser && dev-browser install` | only a *declined* offer degrades to the code-level read + a declared gap in the verdict |
 
-The conformance loop (Phase 4) and the browser proof (pre-flight §8) ride on this rung. State the rung and the presence check in the Phase 3 artifact. `dev-browser` is the sufficient default; a connected Chrome DevTools MCP makes its measurements *mandatory* — LCP and the signature's frame rate stop being declarable gaps (pre-flight §8).
+The conformance loop at the build step and the browser proof (pre-flight §8) ride on this rung. State the rung and the presence check at truth sourcing. `dev-browser` is the sufficient default; a connected Chrome DevTools MCP makes its measurements *mandatory* — LCP and the signature's frame rate stop being declarable gaps (pre-flight §8).
 
 ## Product facts are gated too
 
-A brief naming a real product, brand, or place gates its facts like a heavy layer: verify existence, release status, current version, and price via live web sources before designing claims around them — never assert from training memory. One documented failure: a build claimed a shipped product was unreleased; it had launched four days earlier — two hours of rework. Record verified facts beside the Phase 3 artifact; the copy audit (§6) checks the page against them.
+A brief naming a real product, brand, or place gates its facts like a heavy layer: verify existence, release status, current version, and price via live web sources before designing claims around them — never assert from training memory. One documented failure: a build claimed a shipped product was unreleased; it had launched four days earlier — two hours of rework. Record verified facts beside the truth-sourcing artifact; the copy audit (§6) checks the page against them.
 
 ## Stale-signature tripwires
 

@@ -1,6 +1,6 @@
 # Page Anatomy
 
-Whole-page shapes, funnel pacing, and closes, consolidated from the nine archetype page recipes (winner corpus, adversarially refuted). Load at Phase 4, before the design_plan commits a macrostructure and a footer; the archetype's page recipe refines the committed entry.
+Whole-page shapes, funnel pacing, and closes, consolidated from the nine archetype page recipes (winner corpus, adversarially refuted). Loads at the build step, before the design_plan commits a macrostructure and a footer; the archetype's page recipe refines the committed entry.
 
 ## Macrostructures — the page shapes winners ship
 
@@ -21,6 +21,8 @@ Commit one by name. Jobs: attention (A), understanding (U), proof (P), close (C)
 - **`engine-world`** — the engine is the page; never commit without a WebGL path. Free-roam mode: no scroll — funnel jobs collapse into space: the world renders (A), secrets are discovered (P), an in-world sign-off closes (C) (winner-verified copy — Bruno Simon; technique — Messenger, Active Theory). Scroll-scrubbed mode: one continuous engine, shader seams, `scrollHeight` may pin at ~1vh, climax late and interactive, rest at a generative or contact close (winner-verified — Igloo Inc; single-source — Rogier de Boevé); variants: DOM type over a live 3D field (Lusion), pavilion glide (shipped — Cartier WAW). Experimental / Spatial Organic / Immersive / Corporate Luxury.
 
 ## The funnel — section jobs and pacing
+
+**Every section commits its funnel job before it is built** — attention → understanding → proof → close — along with its intensity and its real visual. Sections composed one at a time without those commitments come out locally fine and globally level: a flat curve is a template however good each section looks alone.
 
 Per-job rules, corpus-wide:
 

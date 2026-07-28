@@ -10,6 +10,8 @@ Real-world sites that exemplify each archetype. Use them as visual anchors durin
 
 Do not copy tokens from these sites directly — copy the *character*. Token copying produces generic clones. Atmosphere capture produces fresh systems that feel like the reference without imitating it.
 
+**The tier's real ceiling, not an imagined one.** Honorable Mention starts at 6.5+, Site of the Day at ~7.5+. Routine SOTD lands 7.2–7.9 and 8+ is the year's handful — aim at that ceiling, never an imagined 9. The published overall scores below are Awwwards' own; where a widely-quoted figure did not survive re-verification the row says so, and an unconfirmed number never becomes a target.
+
 ## Exemplars by archetype
 
 ### Minimalist

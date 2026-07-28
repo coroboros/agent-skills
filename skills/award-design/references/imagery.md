@@ -2,7 +2,7 @@
 
 The largest single imposition most AI builds miss. Judges read empty visual zones as "unfinished" before they read anything else, so a page with no real images is a placeholder, not a design. This protocol is asset discipline: what to use, in what priority, and what never to fake.
 
-Load while building under the universe, and again at the Phase 5 gate before ship.
+Loads while building under the universe, and again at the verify-phase gate before ship.
 
 ## Zero images is a bug
 
@@ -79,7 +79,7 @@ Sourcing is half the job; unification is the other half. Every image on the page
 
 ## The art-direction brief
 
-Every asset is acquired under a one-sentence art-direction brief — subject, crop, light, grade — taken from the archetype's Page recipe imagery formula and recorded in the asset list (Phase 3). An asset sourced without its brief is improvised art direction: the scatter the one-treatment rule then has to rescue in CSS. The brief comes first; the filter is the fallback.
+Every asset is acquired under a one-sentence art-direction brief — subject, crop, light, grade — taken from the archetype's Page recipe imagery formula and recorded in the asset list at truth sourcing. An asset sourced without its brief is improvised art direction: the scatter the one-treatment rule then has to rescue in CSS. The brief comes first; the filter is the fallback.
 
 ## Seams grade, never cut
 

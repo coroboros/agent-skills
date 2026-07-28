@@ -2,6 +2,12 @@
 
 You author ONE self-contained scene module — props in, canvas out, no shared files. The build is a marketing or portfolio site, not a game: the 3D earns the page memory, then gets out of the way. You are handed the project's `DESIGN.md`. The scene is an expression of that committed universe — its palette, easing, mood, and type — never generic 3D defaults. A studio-lit chrome torus on a `#202020` stage with `OrbitControls` is the slop tell judges read in seconds.
 
+## The delegation contract
+
+This section is the caller's half of the contract; everything after it is the specialist's.
+
+ONE subagent owns the scene, and only the scene. Its brief is the project's `DESIGN.md` quoted verbatim plus the matching cheat under `references/ingredients/` (`web3d-for-sites.md`, `ogl-shaders.md`, `web-audio.md`); it returns a self-contained scene module — props in, canvas out. The scene clears the fidelity floor below (physical materials, an HDRI environment, no primitive geometry as the hero object) and the input-correctness floor further down (no native drag-ghost, hit-area on the object), and it meets the measured perf budget through the poster-first path. Integrate the returned module yourself; never co-write a file — a shared file is where the scene's disposal and the page's lifecycle silently disagree.
+
 ## Read the universe first
 
 Before any geometry, pull from `DESIGN.md` and bind to it:
@@ -160,7 +166,7 @@ A rotate/drag/pointer signature that fights the browser reads as broken, however
 - **`touch-action: none`** on the interactive element so a drag rotates instead of scrolling the page on touch; `preventDefault()` on `pointerdown` / `touchstart` in the handler.
 - **The hit-area is the object, not the neighbourhood.** The listener target (canvas or an overlay) covers the *visible object* and does not bleed onto the headline or CTAs. A grab cursor that responds over the title while the object ignores the pointer is a mislaid hit-area — size and position the interactive layer to the object, and verify by dragging *on the object* and *on the title*.
 - **A designed affordance, not the native grab-hand.** The system `cursor: grab`/`grabbing` hand is a tell on a luxury surface — ship a custom cursor, a one-time hint that fades on first interaction, or a subtle rig in the DESIGN.md voice.
-- **Verified as a real user drags.** Synthetic pointer events bypass native drag-and-drop and hide the ghost bug; the Phase 4 loop drives a *real* mouse drag and a touch drag (`SKILL.md`) and confirms no native ghost, no text selection, the object (not the title) responding, smooth on both.
+- **Verified as a real user drags.** Synthetic pointer events bypass native drag-and-drop and hide the ghost bug; the build loop drives a *real* mouse drag and a touch drag (`SKILL.md`) and confirms no native ghost, no text selection, the object (not the title) responding, smooth on both.
 
 ## Reduced motion + accessibility
 
@@ -178,7 +184,7 @@ A rotate/drag/pointer signature that fights the browser reads as broken, however
 
 If an official GSAP or R3F skill is installed, use it for the motion layer rather than re-deriving timelines and scroll wiring here — `github.com/greensock/gsap-skills` for GSAP/ScrollTrigger, the pmndrs R3F skill for scene scaffolding. This cheat is the fallback and the integration contract; a maintained skill is the current source for that library's API.
 
-Sourcing the API is not the same as *using the medium well*. A scene that imports Three.js but ships a primitive on three point-lights has consulted the docs and ignored their craft. Use the premium path the docs and Drei give you — `<Environment>`, `MeshPhysicalMaterial`, `<Instances>`, post-processing — never the first-example primitive. "Sourced but low-effort" fails the fidelity floor above, and Phase 5 judges the craft level, not the citation.
+Sourcing the API is not the same as *using the medium well*. A scene that imports Three.js but ships a primitive on three point-lights has consulted the docs and ignored their craft. Use the premium path the docs and Drei give you — `<Environment>`, `MeshPhysicalMaterial`, `<Instances>`, post-processing — never the first-example primitive. "Sourced but low-effort" fails the fidelity floor above, and the verify phase judges the craft level, not the citation.
 
 ## Contact rigs — the object that reacts where you touch it
 

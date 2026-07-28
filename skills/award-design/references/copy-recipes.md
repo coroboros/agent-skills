@@ -2,6 +2,12 @@
 
 Winner copy decomposed into committable structure — headline shapes, CTA families, concrete anchors, and voice mechanics read live from 22 award winners (Awwwards SOTD/SOTM/SOTY, FWA, CSSDA) and re-verified against the served pages. Three laws govern this file. The formula law: "A voice formula is structural, never lexical — its slots are filled only from the build's world-lexicon; a formula filled with category words is a template." The calibration law: "Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording." The language law: "Copy ships in English unless the brief's exact ask names another language — one language, chosen once, page-wide; the brief's own language is never the ask." Every quote below is scanner-banned from shipping `(scanner: QUOTED-EXEMPLAR)`.
 
+## The desire arc — the five answers the content owes
+
+Before any shape below is chosen, the page owes five answers in its *content*: why this exists, for whom, who is already there, what makes it exceptional, why come now. Each is a named section with real material behind it, never a tone — the arc is committed in the direction contract's STORY block, which is why it is decided before a headline is written. A landing missing one of the five reads informative and inert (`anti-patterns.md`).
+
+**The hero leads with the promise, never the category description.** A description names what the thing is — the venue, the discipline, the product class; a promise names where the reader is taken. The A2, A3 and A5 forms below are promise shapes and the U forms are description shapes: the hero draws from the first group, the section under it from the second. The make-or-break surface is no place to spend a label.
+
 ## Headline structures by section job
 
 Four funnel jobs — attention, understanding, proof, close. Each form is a slot structure; fill the slots from the world-lexicon only.

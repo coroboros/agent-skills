@@ -30,9 +30,9 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-def _phase(n):
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
+def _path():
+    m = re.search(r"^## The path\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
+    assert m is not None, "## The path section missing"
     return m.group(1)
 
 
@@ -240,7 +240,7 @@ class TestVerifyGranularity(unittest.TestCase):
     def setUp(self):
         self.pf = _read("preflight.md")
         self.pf_low = self.pf.lower()
-        self.p4 = _phase(4).lower()
+        self.path = _path()
 
     def test_preflight_hover_leave_box(self):
         self.assertIn("hover→leave", self.pf,
@@ -256,13 +256,13 @@ class TestVerifyGranularity(unittest.TestCase):
         self.assertIn("animation-timeline", self.pf,
                       "the degraded check names the scroll-timeline @supports guard")
 
-    def test_phase4_loop_mirrors_the_checks(self):
-        # the modern-CSS-degraded render moved to the §8 box alone,
-        # pinned above by test_preflight_degraded_render_box
-        self.assertIn("hover→leave", self.p4,
-                      "the Phase 4 conformance loop must drive hover→leave")
-        self.assertTrue("seam" in self.p4,
-                        "the Phase 4 loop must capture the section seam")
+    def test_build_loop_runs_per_chapter(self):
+        """The conformance loop is per chapter now: the render-floor payload
+        sweeps each chapter as it lands, and the driven hover→leave / seam /
+        degraded-render boxes above are what it feeds. A loop deferred to the
+        end is the mobile collapse nobody re-drove."""
+        self.assertIn("After each chapter, inject `assets/render-floor.js` and fix what it names",
+                      self.path)
 
 
 if __name__ == "__main__":

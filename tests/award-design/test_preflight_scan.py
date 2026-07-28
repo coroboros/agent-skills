@@ -1,4 +1,4 @@
-"""award-design pre-flight scanner — the deterministic half of the Phase 5 gate.
+"""award-design pre-flight scanner — the deterministic half of the verify-phase gate.
 
 The scanner exists so the countable anti-slop tells are machine-checked instead
 of self-attested. These tests pin four contracts: a dirty build trips every
@@ -211,33 +211,9 @@ class TestZeroFileScan(unittest.TestCase):
         self.assertIn("2 files scanned (1 text / 1 code)", out.getvalue())
 
 
-class TestStampRule(unittest.TestCase):
-    """STAMP is the mechanical half of the §7 rotation-stamp box: a scanned
-    stylesheet set where no first line opens with `/* award-design ·` gets one
-    project-level REVIEW finding; a stamped set stays silent, and a build with
-    no stylesheet at all is out of the rule's reach."""
-
-    def test_missing_stamp_fires_once_as_review(self):
-        findings, _ = scan.scan_paths([str(FIXTURES / "dirty")])
-        stamp = [f for f in findings if f.rule_id == "STAMP"]
-        self.assertEqual(len(stamp), 1, "STAMP emits exactly one project finding")
-        self.assertEqual(stamp[0].severity, scan.REVIEW)
-        self.assertEqual(stamp[0].location, "project")
-        self.assertIn("missing rotation stamp", stamp[0].description)
-
-    def test_stamped_stylesheet_is_silent(self):
-        findings, _ = scan.scan_paths([str(FIXTURES / "clean")])
-        self.assertNotIn("STAMP", _rule_ids(findings))
-
-    def test_zero_css_files_skip_the_rule(self):
-        import tempfile
-        html = ('<!doctype html><html><body><main><h1>Page</h1>'
-                '<p>' + " ".join(f"w{i}" for i in range(40)) + '</p>'
-                '</main></body></html>')
-        with tempfile.TemporaryDirectory() as tmp:
-            (Path(tmp) / "index.html").write_text(html, encoding="utf-8")
-            findings, _ = scan.scan_paths([tmp])
-        self.assertNotIn("STAMP", _rule_ids(findings))
+# Adjudicated (v3 stamp retirement): TestStampRule pinned the STAMP rule, which
+# scanned for a rotation stamp no v3 file defines — the roll's SEED carries the
+# variance ledger now, so the rule could only ever REVIEW-fail every build.
 
 
 class TestExtendedRuleForms(unittest.TestCase):

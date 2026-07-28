@@ -70,10 +70,12 @@ class TestSmoothScrollRuling(unittest.TestCase):
 
 
 class TestScoreRealityCalibration(unittest.TestCase):
-    def test_skill_names_the_measured_ceiling(self):
-        s = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8").lower()
-        self.assertIn("routine sotd lands 7.2–7.9", s)
-        self.assertIn("never an imagined 9", s)
+    def test_exemplars_name_the_measured_ceiling(self):
+        ex = _read("exemplars.md")
+        self.assertIn("routine sotd lands 7.2–7.9", ex)
+        self.assertIn("never an imagined 9", ex)
+        self.assertIn("an unconfirmed number never becomes a target", ex,
+                      "a figure that failed re-verification cannot set the bar")
 
 
 if __name__ == "__main__":

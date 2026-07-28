@@ -125,21 +125,21 @@ class TestComponentContract(unittest.TestCase):
 
 
 class TestSkillWiring(unittest.TestCase):
-    """The library is inert unless Phase 4 tells the build to compose from it —
-    lock the composition-grammar wiring so a SKILL.md rewrite cannot silently
-    strand the components as unused files."""
+    """The library is inert unless the build step tells the build to compose
+    from it — lock the composition-grammar wiring so a SKILL.md rewrite cannot
+    silently strand the components as unused files."""
 
     def setUp(self):
         self.skill = (REPO_ROOT / "skills" / "award-design" / "SKILL.md").read_text(encoding="utf-8")
 
-    def test_phase4_loads_the_manifest(self):
+    def test_build_step_loads_the_manifest(self):
         self.assertIn("assets/components/manifest.json", self.skill)
 
     def test_compose_grammar_present(self):
         self.assertIn("Compose with the library", self.skill)
         # the --ad-* token contract and the open-world authoring clause
         self.assertIn("--ad-*", self.skill)
-        self.assertIn("author what this world needs beyond it", self.skill)
+        self.assertIn("author beyond the library at its quality bar", self.skill)
 
 
 class TestNoAuthoringTraces(unittest.TestCase):

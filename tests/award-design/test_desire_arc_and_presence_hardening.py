@@ -8,7 +8,6 @@ Beside the category's own SOTDs (Capitolium's "Qui se Ressemble, Rassemble", Rad
 "A new era of enduro starts here", Balmoral's runners mid-stride) the gap was content:
 the skill forced the form and never the persuasion. These lock the desire layer."""
 
-import re
 import unittest
 from pathlib import Path
 
@@ -26,23 +25,21 @@ def _skill():
     return SKILL_MD.read_text(encoding="utf-8").lower()
 
 
-def _phase(n):
-    body = SKILL_MD.read_text(encoding="utf-8")
-    m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", body, re.DOTALL | re.MULTILINE)
-    assert m is not None, f"## Phase {n} section missing"
-    return m.group(1).lower()
+def _gate(rel):
+    return (REFS / "gate" / rel).read_text(encoding="utf-8").lower()
 
 
 class TestDesireArc(unittest.TestCase):
-    def test_phase1_forces_the_five_answers(self):
-        p1 = _phase(1)
-        self.assertIn("**desire arc**", p1)
-        self.assertIn("why this exists, for whom, who is already there", p1)
-        self.assertIn("why come now", p1)
+    def test_copy_recipes_force_the_five_answers(self):
+        cr = _read("copy-recipes.md")
+        self.assertIn("why this exists, for whom, who is already there", cr)
+        self.assertIn("why come now", cr)
 
-    def test_phase1_artifact_carries_the_arc(self):
-        p1 = _phase(1)
-        self.assertIn("**artifact:** spine + desire arc", p1)
+    def test_the_contract_carries_the_arc(self):
+        """The arc has to land in a committed block, not a mood: the direction
+        contract's STORY block is where it binds."""
+        self.assertIn("**story** (the desire arc's five content answers", _skill())
+        self.assertIn("the direction contract's story block", _read("copy-recipes.md"))
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
@@ -51,9 +48,8 @@ class TestDesireArc(unittest.TestCase):
 
 
 class TestPromiseHero(unittest.TestCase):
-    def test_phase1_promise_over_description(self):
-        p1 = _phase(1)
-        self.assertIn("the hero leads with the promise", p1)
+    def test_copy_recipes_promise_over_description(self):
+        self.assertIn("the hero leads with the promise", _read("copy-recipes.md"))
 
     def test_anti_pattern_brochure_hero(self):
         ap = _read("anti-patterns.md")
@@ -71,9 +67,9 @@ class TestInhabitedWorld(unittest.TestCase):
 
 class TestWorldsGestures(unittest.TestCase):
     def test_spine_plays_the_gestures(self):
-        p1 = _phase(1)
-        self.assertIn("the world's gestures supply structure and motion", p1)
-        self.assertIn("its rituals become the chapters", p1)
+        si = _read("signature-invention.md")
+        self.assertIn("the world's gestures supply structure and motion", si)
+        self.assertIn("its rituals become the chapters", si)
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
@@ -82,10 +78,10 @@ class TestWorldsGestures(unittest.TestCase):
 
 
 class TestSpectacleFloor(unittest.TestCase):
-    def test_phase1_signature_floor(self):
-        p1 = _phase(1)
-        self.assertIn("passage a judge would replay", p1)
-        self.assertIn("a quiet second-read detail", p1)
+    def test_signature_floor(self):
+        si = _read("signature-invention.md")
+        self.assertIn("passage a judge would replay", si)
+        self.assertIn("a quiet second-read detail", si)
 
     def test_anti_pattern_entry(self):
         ap = _read("anti-patterns.md")
@@ -97,9 +93,8 @@ class TestSpectacleFloor(unittest.TestCase):
 
 
 class TestGenerosityAndCategoryBar(unittest.TestCase):
-    def test_phase4_generous_page(self):
-        p4 = _phase(4)
-        self.assertIn("an award landing is generous", p4)
+    def test_generous_page(self):
+        self.assertIn("award landings are generous", _read("anti-patterns.md"))
 
     def test_anti_pattern_thin_landing(self):
         ap = _read("anti-patterns.md")
@@ -107,8 +102,7 @@ class TestGenerosityAndCategoryBar(unittest.TestCase):
         self.assertIn("thin reads empty, not minimal", ap)
 
     def test_review_compares_against_the_subject_category(self):
-        body = _skill()
-        self.assertIn("the category's recent award winners", body)
+        self.assertIn("the category's recent award winners", _gate("review.md"))
 
 
 if __name__ == "__main__":

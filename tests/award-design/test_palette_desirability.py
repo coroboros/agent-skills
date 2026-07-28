@@ -19,10 +19,6 @@ def _read(name):
     return (REFS / name).read_text(encoding="utf-8")
 
 
-def _skill():
-    return (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-
-
 class TestDesignMdCarriesTheLivedAB(unittest.TestCase):
     def setUp(self):
         self.md = _read("design-md-anatomy.md")
@@ -48,9 +44,9 @@ class TestDesignMdCarriesTheLivedAB(unittest.TestCase):
 
 class TestR1RefutesThePalette(unittest.TestCase):
     def test_r1_gate_refutes_palette_ab(self):
-        s = _skill()
-        self.assertIn("R1 refutes the palette's lived A/B", s)
-        self.assertIn("role-coherence is not desirability", s)
+        gate = (REFS / "gate" / "concept.md").read_text(encoding="utf-8")
+        self.assertIn("**Palette lived A/B.**", gate)
+        self.assertIn("role-coherence is not desirability", gate)
 
 
 class TestRubricScoresDesirability(unittest.TestCase):

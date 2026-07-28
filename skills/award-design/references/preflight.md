@@ -1,6 +1,6 @@
 # Pre-flight — the mechanical floor
 
-Phase 5 of the protocol. Runs on the built site, before the fresh-context review (R2). Everything here is countable or binary — no taste lives in this file: quality is R2's job, and clearing this floor is necessary, never sufficient. Every box ticks or the build is not done — fix, re-run, then proceed. Where a rule offers an override, the override is written into the verdict and tied to the brief; an unstated override is a fail.
+The verify phase of the path. Runs on the built site, before the fresh-context review (R2). Everything here is countable or binary — no taste lives in this file: quality is R2's job, and clearing this floor is necessary, never sufficient. Every box ticks or the build is not done — fix, re-run, then proceed. Where a rule offers an override, the override is written into the verdict and tied to the brief; an unstated override is a fail.
 
 `anti-patterns.md` is the catalog behind the tells (rationale, fixes, failure modes). When a box is unclear, read its catalog entry — never guess it away.
 
@@ -10,7 +10,7 @@ Phase 5 of the protocol. Runs on the built site, before the fresh-context review
 python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>
 ```
 
-(Path relative to this skill's root. `--archetype` applies declared archetype grammar: `editorial` and `corporate-luxury` suppress EMDASH; `brutalist` suppresses META-LABEL. The scanner skips `DESIGN.md` — the spec legitimately quotes banned phrases as prohibitions.)
+(Path relative to this skill's root. **The archetype is reviewer-supplied — `--archetype` is its only source**, derived from the brief and the DESIGN.md and passed on the command line, so the audited build never chooses which archetype-scoped checks run. It applies declared archetype grammar: `editorial` and `corporate-luxury` suppress EMDASH; `brutalist` suppresses META-LABEL. The scanner skips `DESIGN.md` — the spec legitimately quotes banned phrases as prohibitions.)
 
 - Read the `N files scanned` line before the summary: zero files scanned means the path was wrong — the run proves nothing; rerun on the real build dir.
 - The gate rides the hit report, not the shell: a piped `$?` reports the pipe's last command — read the exit code from a direct invocation, or trust the printed summary.
@@ -104,11 +104,10 @@ Re-read every visible string — headlines, buttons, captions, alt text, errors.
 
 ## 7. Assets
 
-- [ ] Every heavy layer cites its Phase 3 source with one checkable freshness token (current version or a recently-changed API fact)
+- [ ] Every heavy layer cites the source it was truth-sourced from (step 7) with one checkable freshness token (current version or a recently-changed API fact)
 - [ ] Assets follow the acquisition protocol; no stock hotlinks — downloaded, optimized, graded `(scanner: UNSPLASH)`
 - [ ] **Asset fidelity, measured** — every signature asset (full-bleed, scrubbed, zoomed) holds ≥ device pixels at its worst rendered moment, numbers from the machine readout `(scanner: IMG-NATIVE-RES)`; scrubbed sequences are distinct real frames at ~90+ per section
 - [ ] Brand logos are real SVG marks with light + dark variants; the same mark drives the favicon, both verified rendered
-- [ ] The rotation stamp is the stylesheet's first line `(scanner: STAMP)`; its archetype field agrees with the reviewer-derived archetype `(scanner: STAMP-ARCHETYPE-MISMATCH)`
 
 ## 8. Driven in the browser
 
@@ -133,7 +132,7 @@ No browser tooling on the harness → this section's boxes convert to **declared
 
 ## Verdict block
 
-Emit this block, filled, as the Phase 5 artifact. `NOT DONE` blocks ship until the listed items clear.
+Emit this block, filled, as the verify phase's artifact. `NOT DONE` blocks ship until the listed items clear.
 
 ```markdown
 ## Pre-flight verdict — <build name>

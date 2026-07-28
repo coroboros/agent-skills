@@ -33,6 +33,10 @@ def _skill():
     return (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8").lower()
 
 
+def _gate(rel):
+    return (REFS / "gate" / rel).read_text(encoding="utf-8").lower()
+
+
 class TestPrimaryVerb(unittest.TestCase):
     def test_rule_in_signature_invention(self):
         si = _read("signature-invention.md")
@@ -41,10 +45,11 @@ class TestPrimaryVerb(unittest.TestCase):
         self.assertIn(
             "an edge-verb signature takes a written justification", si)
 
-    def test_rule_in_skill_phase_1(self):
-        s = _skill()
-        self.assertIn("**verb the world invites**", s)
-        self.assertIn("signature, named by its verb", s)
+    def test_rule_in_the_contract_and_the_method(self):
+        self.assertIn("**signature** (verb · medium · trigger", _skill(),
+                      "the contract block names the signature by its verb")
+        self.assertIn("ask what the world invites the user to **do**",
+                      _read("signature-invention.md"))
 
     def test_r1_check_in_rubric(self):
         ar = _read("audit-rubric.md")
@@ -62,8 +67,9 @@ class TestPlayableObjectDecision(unittest.TestCase):
         self.assertIn(
             "a silent css-metaphor default is a skipped decision", si)
 
-    def test_skill_phase_1_carries_the_decision(self):
-        self.assertIn("**the medium is chosen for desirability, not safety.**", _skill())
+    def test_signature_invention_carries_the_decision(self):
+        self.assertIn("**the medium is chosen for desirability, not safety.**",
+                      _read("signature-invention.md"))
 
 
 class TestMediumScopedDelegation(unittest.TestCase):
@@ -73,9 +79,10 @@ class TestMediumScopedDelegation(unittest.TestCase):
         self.assertIn("playable-object decision", mp)
 
     def test_delegation_contract_names_scope_and_perf(self):
-        s = _skill()
-        self.assertIn("with the design.md quoted verbatim", s)
-        self.assertIn("never co-write a file", s)
+        w = _read("ingredients/web3d-for-sites.md")
+        self.assertIn("quoted verbatim plus the matching cheat", w)
+        self.assertIn("never co-write a file", w)
+        self.assertIn("meets the measured perf budget through the poster-first path", w)
         self.assertIn("via the poster-first path", _read("signature-invention.md"))
 
 
@@ -94,10 +101,10 @@ class TestEchoLaw(unittest.TestCase):
             "a fire-once spectacle that leaves a static frame after its first "
             "play is an entrance, not a signature", ix)
 
-    def test_skill_carries_the_echo_law(self):
-        s = _skill()
-        self.assertIn("recurs, transformed, in later sections", s)
-        self.assertIn("a dominant climax plus section-tied echoes", s)
+    def test_echo_law_at_its_home(self):
+        si = _read("signature-invention.md")
+        self.assertIn("the dominant bespoke moment carries the make-or-break surface", si)
+        self.assertIn("recur down the scroll", si)
 
     def test_richness_is_budget_scoped(self):
         self.assertIn("richness stays inside the budget by construction",
@@ -112,10 +119,10 @@ class TestDiscoveryBeat(unittest.TestCase):
 
 
 class TestScrollTextureSlot(unittest.TestCase):
-    def test_skill_commits_the_texture(self):
-        s = _skill()
-        self.assertIn("a scroll texture", s)
-        self.assertIn("one ambient idle channel", s)
+    def test_density_read_names_the_channels(self):
+        r = _gate("review.md")
+        self.assertIn("a scroll texture", r)
+        self.assertIn("one ambient idle channel", r)
 
     def test_every_palette_carries_the_rows(self):
         for a in ARCHETYPES:

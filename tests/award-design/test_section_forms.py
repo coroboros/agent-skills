@@ -5,7 +5,7 @@ data-strips, sprawling meta-lines): a form's CSS owns placement, the builder
 fills contracted slots. These tests lock the drift surface: manifest ↔ forms/
 sync, every contracted slot styled by its stylesheet, the no-JS floor (a form
 that hides a slot at rest blacks out content when the script dies), the
-layering law on any form enhancer, and the Phase 4/preflight/audit wiring that
+layering law on any form enhancer, and the build/preflight/audit wiring that
 keeps the surviving composition laws binding rather than decorative."""
 
 import json
@@ -239,13 +239,15 @@ class TestArchetypeCompositionCapital(unittest.TestCase):
 class TestArchetypeWiring(unittest.TestCase):
     """The phrases that keep the composition layer binding rather than decorative."""
 
-    def test_skill_carries_the_mobile_commit(self):
+    def test_touch_dormancy_is_the_winner_answer(self):
         """The R-D research's load-bearing finding: winners let pointer classes
         go dormant on touch, and the tap answer on press-class elements is the
         floor — a hover-only substrate reads dead under hover:none."""
-        skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("go dormant on touch", skill)
-        self.assertIn("answer the tap on `:active`", skill)
+        ix = (REFS / "interaction-signatures.md").read_text(encoding="utf-8").lower()
+        self.assertIn("a coarse pointer (touch) gets the element in a considered resting state",
+                      ix)
+        self.assertIn("on touch this law is the invitation's floor: "
+                      "the tap works where a cursor does not", ix)
         preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
         self.assertIn("pointer-only classes rest dormant (that is the winner answer, not a gap)",
                       preflight)
@@ -257,47 +259,55 @@ class TestCompositionFloorsWiring(unittest.TestCase):
 
     def setUp(self):
         self.skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        self.preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
-        self.rubric = (SKILL_DIR / "references" / "audit-rubric.md").read_text(encoding="utf-8")
+        self.preflight = (REFS / "preflight.md").read_text(encoding="utf-8")
+        self.rubric = (REFS / "audit-rubric.md").read_text(encoding="utf-8")
+        self.review = (REFS / "gate" / "review.md").read_text(encoding="utf-8")
+        self.signature = (REFS / "signature-invention.md").read_text(encoding="utf-8")
 
-    def test_phase4_pace_like_a_score(self):
+    def test_pace_like_a_score(self):
         # the surviving spectacle law: the climax cap plus the trigger law —
-        # ARDEN's hover-as-climax stays impossible without the conformance table
-        self.assertIn("At most one climax", self.skill)
+        # ARDEN's hover-as-climax stays impossible
+        self.assertIn("Pace like a score", self.skill)
+        self.assertIn("with one climax", self.skill)
         self.assertIn("never pointer-gated", self.skill)
         self.assertIn("at least one rest", self.skill)
-        self.assertIn("a flat curve is a template", self.skill)
+        self.assertIn("a flat curve is a template however good each section looks alone",
+                      (REFS / "page-anatomy.md").read_text(encoding="utf-8"),
+                      "the diagnostic that names why a locally-good page still fails")
 
     def test_density_aliveness_bar(self):
-        """Cennini cleared every floor and shipped "empty and dead" because no gate
-        measured richness. The floor is not the ceiling; the exemplar is the bar,
-        and a sparse/static build fails the density/aliveness read comparatively."""
-        self.assertIn("empty and dead", self.skill)
-        self.assertIn("Aim at the exemplar's ceiling, never at the floor the checks define",
+        """Cennini cleared every floor and shipped dead because no gate measured
+        richness. The floor is not the ceiling; the exemplar is the bar, and a
+        sparse/static build fails the density read comparatively."""
+        self.assertIn("clears every check and ships dead", self.skill)
+        self.assertIn("aim at the exemplar's ceiling, never at the floor the checks define",
                       self.skill)
-        self.assertIn("does this carry as many live channels", self.skill)
+        self.assertIn("does the page carry as many live channels", self.review)
         self.assertIn("necessary, never sufficient", self.preflight)
         self.assertIn("does the build carry as many live channels", self.rubric)
 
     def test_felt_text_effect_law(self):
         """Cennini shipped "zero text effect" because a static colour accent
         cleared the old gate. The commit box died with the floor rewrite; the
-        law survives in the text-effects canon and Phase 4's motion rules."""
-        self.assertIn("Text is a motion surface too", self.skill)
-        te = (SKILL_DIR / "references" / "text-effects.md").read_text(encoding="utf-8")
+        law survives in the text-effects canon the build pulls by heading."""
+        self.assertIn("`text-effects.md`", self.skill,
+                      "the text-effects canon must stay loadable from the core")
+        te = (REFS / "text-effects.md").read_text(encoding="utf-8")
         self.assertIn("DISPLAY entrance still carries a felt reveal", te)
         self.assertIn("the Cennini failure", te)
 
     def test_motion_continuity_law(self):
         """The R4 motion-continuity law survives compressed: never silent after
         the hero — live channels run page-deep and the footer closes live."""
-        self.assertIn("their footers close on the live signature", self.skill)
-        self.assertIn("winners close on a live footer, never a static contact block", self.skill)
-        self.assertIn("never one hero moment then a dead page", self.skill)
+        self.assertIn("their footers close on the live signature", self.review)
+        self.assertIn("the link-columns-only template footer",
+                      (REFS / "page-anatomy.md").read_text(encoding="utf-8"))
+        self.assertIn("a loud hero, then static editorial to the footer", self.signature)
 
-    def test_phase4_non_contradiction(self):
-        self.assertIn("Sparse-and-static is not restraint", self.skill)
-        self.assertIn("restraint lowers amplitude, never coverage", self.skill)
+    def test_non_contradiction(self):
+        self.assertIn("Sparse-and-static is a `concept` cause, never a token fix", self.review)
+        self.assertIn("Restraint lowers the substrate's **amplitude**, never its **coverage**",
+                      self.signature)
 
     def test_preflight_countable_boxes(self):
         for name in ("**Eyebrows**", "**Legibility floor**", "**Layout variety**",
@@ -331,25 +341,27 @@ class TestImposedVerdicts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.skill = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
-        cls.preflight = (SKILL_DIR / "references" / "preflight.md").read_text(encoding="utf-8")
-        cls.interactions = (SKILL_DIR / "references" / "interaction-signatures.md").read_text(encoding="utf-8")
-        cls.navpat = (SKILL_DIR / "references" / "navigation-patterns.md").read_text(encoding="utf-8")
+        cls.preflight = (REFS / "preflight.md").read_text(encoding="utf-8")
+        cls.interactions = (REFS / "interaction-signatures.md").read_text(encoding="utf-8")
+        cls.navpat = (REFS / "navigation-patterns.md").read_text(encoding="utf-8")
+        cls.signature = (REFS / "signature-invention.md").read_text(encoding="utf-8")
 
     def test_hard_constraints_override_protocol(self):
-        self.assertIn("each match-and-refuse", self.skill)
+        self.assertIn("Match-and-refuse — rewrite the element rather than ship it", self.skill)
         self.assertIn("The only override is an explicit client clause quoted in the DESIGN.md",
                       self.skill)
 
     def test_surviving_verdict_laws(self):
-        self.assertIn("registers never mix on a page", self.skill)
         self.assertIn("Mixed motion registers on one page", self.skill)
         self.assertIn("A nav that flickers under scroll jitter", self.skill)
         self.assertIn("zero hide/show flips", self.preflight)
         self.assertIn("the absence of a grammar", self.interactions)
 
-    def test_story_native_law_in_phase1(self):
-        self.assertIn("its rituals become the chapters and the effect vocabulary", self.skill)
-        self.assertIn("only forced variance prevents it", self.skill)
+    def test_story_native_law_and_forced_variance(self):
+        self.assertIn("its rituals become the chapters and the effect vocabulary",
+                      self.signature)
+        self.assertIn("a model's own ranking converges on the same direction every run",
+                      self.skill, "the roll is the variance mechanism convergence forces")
 
     def test_motion_register_amendment(self):
         # R-imposed live measurement: a SOTD winner runs 9 timing tokens across
@@ -367,7 +379,7 @@ class TestImposedVerdicts(unittest.TestCase):
         the Siena route on an immersive brief, provenance on asset numbers, the
         fixed probe order, and the instrumented flip count."""
         # #1 — a stills procession never satisfies the immersive hero-medium bar.
-        self.assertIn("zero winner precedent on an immersive brief", self.skill)
+        self.assertIn("zero winner precedent on an immersive brief", self.signature)
         # #3 — asset numbers carry provenance; the builder cannot narrow the class.
         self.assertIn("(full-bleed, scrubbed, zoomed) holds ≥ device pixels", self.preflight)
         self.assertIn("an asserted number is a fail", self.preflight)

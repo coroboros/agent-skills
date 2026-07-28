@@ -199,12 +199,6 @@ class TestSkillBodyStaysLean(unittest.TestCase):
     contract. These assertions guard against re-bloating the body to satisfy a
     test — the body keeps only the pointer."""
 
-    def test_body_routes_to_extended_tokens(self):
-        """The body names the token-namespace requirement as a route, not an
-        inline contract — the anatomy reference holds the actual detail."""
-        self.assertIn("token namespaces", _body(),
-                      "SKILL.md must name the token-namespace requirement as a route")
-
     def test_body_points_at_token_authority(self):
         self.assertIn("design-md-anatomy.md", _body(),
                       "SKILL.md must point at the token-namespace authority reference")
