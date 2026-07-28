@@ -46,7 +46,7 @@ award-design/
     pixel-metrics.js          NEW payload: quadrant emptiness, ink profile,
                               ground commitment, accent-frequency per viewport,
                               idle/scroll pixel-diff — EVIDENCE ONLY
-  reference/
+  references/
     register/  brand.md · product.md            (per-surface, not per-project)
     archetype/                9 files, TWO-TIER (economics fix):
                               tier 1 ~40 lines (DNA, anti-signals, macrostructures)
