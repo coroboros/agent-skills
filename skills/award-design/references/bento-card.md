@@ -15,6 +15,7 @@ A canonical modern bento layout. A modular asymmetric grid of self-contained fea
 
 - Modular asymmetric tiles — never uniform 3-equal-cards-in-a-row (the "feature row" cliché)
 - Each tile is a self-contained information unit with its own visual treatment
+- Every tile *demonstrates* its claim — live, animated, or visual — never a mini spec-sheet of labels and rows; describing is the failure this archetype exists to avoid (the canonical reference demos every card)
 - Container queries (`container-type: inline-size`) make tiles self-aware
 - Consistent corner radii across the grid; equal gutter widths (12–24px) — visual rhythm holds
 - Hero cards (2×2 spans, or `col-span: 2 row-span: 2`) carry primary features
@@ -27,11 +28,11 @@ Three stacks fit the DNA. Pick the one matching product type and personality.
 
 ### Structural-pure — Apple / Linear feature grid profile
 
-Light foundation (`#F9FAFB` to `#FFFFFF`) or dark foundation (`#0A0A0F` to `#12121A`). Cards in pure white or `#1A1A24`. Hairline borders (`#E5E7EB` light / `rgba(255,255,255,0.08)` dark). Per-card accent colors for visual differentiation. Content-first, motion restrained. Ideal for SaaS product pages, feature comparison, dashboard previews, technical product marketing.
+Light foundation (`#F9FAFB` to `#FCFCFC`) or dark foundation (`#0A0A0F` to `#12121A`). Cards in off-white (`#FCFCFC`) or `#1A1A24`. Hairline borders (`#E5E7EB` light / `rgba(255,255,255,0.08)` dark). Per-card accent colors for visual differentiation. Content-first, motion restrained. Ideal for SaaS product pages, feature comparison, dashboard previews, technical product marketing.
 
 ### Motion-engine premium — Bento 2.0 (Vercel-core meets Dribbble) profile
 
-Light foundation (`#F9FAFB`) with white cards (`#FFFFFF`), 1px borders at `border-slate-200/50`, generous `rounded-[2.5rem]` corners, "diffusion shadow" (`box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05)` — wide, low-opacity, tinted). Labels (titles, descriptions) sit OUTSIDE and BELOW the cards in a gallery-style presentation. Cards contain perpetual micro-interactions — every tile is "alive". Uses Geist, Satoshi, or Cabinet Grotesk with `tracking-tight`. Padding `p-8` to `p-10`. Ideal for premium SaaS, AI products, modern dashboards, agency-built marketing pages.
+Light foundation (`#F9FAFB`) with off-white cards (`#FCFCFC`), 1px borders at `border-slate-200/50`, generous `rounded-[2.5rem]` corners, "diffusion shadow" (`box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05)` — wide, low-opacity, tinted). Labels (titles, descriptions) sit OUTSIDE and BELOW the cards in a gallery-style presentation. Cards contain perpetual micro-interactions — every tile is "alive". Uses Geist, Satoshi, or Cabinet Grotesk with `tracking-tight`. Padding `p-8` to `p-10`. Ideal for premium SaaS, AI products, modern dashboards, agency-built marketing pages.
 
 ### Brutalist-bento hybrid — Anime.js profile
 
@@ -44,7 +45,7 @@ When the project calls for the premium motion-rich expression, follow the Bento 
 ### Architecture
 
 - **Background**: `#F9FAFB` (light) or `#0A0A0F` (dark)
-- **Card surface**: pure `#FFFFFF` (light) or `#1A1A24` (dark) with 1px hairline border at `rgba(0,0,0,0.05)` (light) or `rgba(255,255,255,0.06)` (dark)
+- **Card surface**: `#FCFCFC` (light) or `#1A1A24` (dark) with 1px hairline border at `rgba(0,0,0,0.05)` (light) or `rgba(255,255,255,0.06)` (dark)
 - **Corner radius**: `rounded-[2.5rem]` (40px) for major containers; nested elements use concentric smaller radii (`rounded-[calc(2.5rem-0.375rem)]`) — the Doppelrand pattern, see `premium-patterns.md`
 - **Diffusion shadow**: wide, low-opacity, tinted to background hue — `box-shadow: 0 20px 40px -15px rgba(0,0,0,0.05)`. Creates depth without clutter
 - **Padding**: `p-8` or `p-10` (32–40px) inside cards
@@ -58,14 +59,14 @@ Each Bento 2.0 grid mixes these tile-types. The goal is variance — never all f
 1. **The Intelligent List** — vertical stack of items with infinite auto-sorting loop. Items swap positions via Framer Motion `layoutId`, simulating real-time prioritization.
 2. **The Command Input** — search or AI bar with multi-step typewriter effect. Cycles through complex prompts, blinking cursor, "processing" shimmer state.
 3. **The Live Status** — scheduling or telemetry interface with "breathing" status indicators. Pop-up notification badge emerges with overshoot-spring, holds 3 seconds, vanishes.
-4. **The Wide Data Stream** — horizontal infinite carousel of data cards or metrics. Seamless loop via `x: ["0%", "-100%"]`. Speed feels effortless.
+4. **The Wide Data Stream** — horizontal infinite carousel of data cards or metrics. Gapless loop via `x: ["0%", "-100%"]`. Speed feels effortless.
 5. **The Contextual UI (Focus Mode)** — document view animating staggered text-block highlight, followed by float-in floating action toolbar with micro-icons.
 
 ### Choreography
 
 - **Spring physics** (Framer Motion): `type: "spring", stiffness: 100, damping: 20` for premium weight. Linear easing reads as cheap.
 - **Layout transitions**: heavy use of `layout` and `layoutId` props for re-ordering, resizing, shared element transitions.
-- **Perpetual micro-interactions**: every card carries one infinite loop (Pulse, Typewriter, Float, Carousel, Shimmer). Dashboard feels alive.
+- **Perpetual micro-interactions**: every card carries one infinite loop (Pulse, Typewriter, Float, Carousel, Shimmer). Dashboard feels alive. The loops share one physics and one focal hierarchy — two may reinforce one focal point, never compete (the premium-patterns.md one-per-fold cap applies outside the grid).
 - **Performance lock**: any perpetual motion or infinite loop MUST be memoized (`React.memo`) and isolated in its own microscopic Client Component. Re-rendering the parent layout from a perpetual animation breaks 60fps on mid-range mobile.
 - **Magnetic micro-physics** for hover: never use React `useState` for magnetic hover or continuous animation. Use exclusively Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle.
 
@@ -101,7 +102,7 @@ Container widths bind to `containers.bento-grid`. Card sizes bind to `aspectRati
 
 ## Typography
 
-- **Headlines**: Geist, Satoshi, Cabinet Grotesk, Inter Display — 24–48px, weight 600, `tracking-tight`
+- **Headlines**: Geist, Cabinet Grotesk, PP Neue Montreal — 24–48px, weight 600, `tracking-tight`. Satoshi works but is an overexposed kit pick — rotate or justify (`inspiration.md`)
 - **Body**: same family at 14–16px, weight 400
 - **Metrics and data**: monospace (Geist Mono, JetBrains Mono) for numbers and data points; `font-variant-numeric: tabular-nums`
 - **Per-tile contrast**: each tile can shift typographic register — one tile uses display serif, another monospace metric — variance signals that each tile is its own world
@@ -136,8 +137,78 @@ The archetype loses identity when bento becomes "3 equal cards in a row" with ro
 
 ## Ideal for
 
-SaaS product pages (Notion, Linear, Supabase, Vercel adjacency), feature comparison pages, product launches with multiple capabilities to showcase, dashboard previews, AI-product feature grids, developer-tooling marketing.
+SaaS product pages (Notion, Linear, Supabase, Vercel adjacency), feature comparison pages, product launches with multiple capabilities to demo, dashboard previews, AI-product feature grids, developer-tooling marketing.
 
 ## Cross-references
 
 Read alongside `foundations.md` (container queries, OKLCH per-card accents, animation toolkit), `premium-patterns.md` (Doppelrand for nested card architecture, button-in-button trailing icon, eyebrow tags above cards), `anti-patterns.md` (3-equal-cards-in-a-row is axiomatic; bento fatigue is real), `audit-rubric.md` (Hierarchy 8+, Spacing 9+ are entry bars), `exemplars.md` (Apple product pages, Linear feature grid, Vercel platform features).
+
+## Effect palette — what this line's winners ship
+
+The one hard-awarded whole-site anchor is Anime.js v4 (Awwwards SOTD May 6 + Site of the Month, May 2025; Animations/Transitions 9.00). The rest of the repertoire is drawn from design-canonical feature grids — Vercel, Supabase, Linear (design-canonical, award unverified) — where bento lives as a *section*, not a whole site.
+
+**The grammar** — cohesion is a single through-line expressed differently across element classes, never one gesture stamped everywhere. Anime.js binds everything with *motion* — the button presses, the link brightens, the tile animates, the demo scrubs, all anime.js primitives. Vercel binds everything with *edge-catching light* — the same streak rides the card border, glints the CTA, frosts the nav. Button, card, and nav differ in mechanism yet obey one physics. One hover on every tile is sameness mistaken for consistency — the failure to break.
+
+**Buttons / CTA**
+- **Ghost outline + transform-press** — hairline border at a mid-neutral token (Anime.js `#625d5b` on `#252423`), background never fills; animate `transform` only — a sub-pixel mechanical press, `transition: transform 0.125s ease-out`, radius `4px`. Pick for brutalist and dev-tool grids where restraint is the brand. (Anime.js, SOTM May 2025 — live)
+- **Token-step solid / inversion** — a solid pill (`border-radius: 100px`) advances one full step through the ramp or inverts fg/bg on hover, never a translucent tint — a crisp `~0.15s` token change. Pick for premium SaaS with a disciplined color system. (Vercel/Geist, design-canonical, award unverified; corroborated by Anime.js solid-accent button — live)
+
+**Links**
+- **Underline draw** — pseudo-element underline scales `scaleX(0)→1` from the left over `~0.3s` with an expo-out ease. (single-source for the exact mechanism; the effect itself is near-universal)
+- **Neutral→foreground brighten** — muted links (`--fg-3`, Anime.js `#b4b1af`) lift to `--fg-1` on hover, `transition: all`, no underline. Pick for dense link lists, footers, in-card links. (Anime.js — live)
+
+**Cards** — the heart: one hover affordance per grid, never a universal lift; let tiles differ by content.
+- **Cursor-tracked conic border-shine** — a conic gradient in the border via `mask` + `mask-composite: intersect`; JS drives `--x/--y` (plus a `--start` angle) so a light streak rides the edge under the pointer. Pick for dark, flat panel grids. (Vercel + Supabase, design-canonical, award unverified)
+- **Spotlight expand + reveal** — hovered tile expands across its row, siblings reflow, a de-saturated preview restores to color, copy fades up — layout-aware, not a scale. Verified Codrops params: GSAP paused timeline, `ease: power2.inOut`; siblings shift `2.5vw` inward; a 12-point clip-path cross morphs open; preview scales `(dim − 5vw)/dim`. Pick for feature grids with real imagery per tile. (Vercel spotlight + Codrops technique)
+- **Border-glow bloom** — a blurred accent gradient in a pseudo-element behind the card fades `opacity 0→1` as a soft under-glow, not a hard shadow; accent = the tile's own OKLCH token. Pick for dark grounds (`--bg` ~`#0A0A0F`). (Supabase + Linear, design-canonical, award unverified)
+- **Live-demo tile (no lift at all)** — the tile is a running canvas/WebGL demo; hover or drag drives the actual animation, so the content reacts and there is no card chrome. Pick when the demo IS the product. (Anime.js — live; single-source but the anchor's core claim)
+
+The AI-default `translateY(-4px) scale(1.02)` + grey `box-shadow` on every tile is the flattening trick to break.
+
+**Nav**
+- **Transparent overlay, unchanged on scroll** — header stays fully transparent (`background: rgba(0,0,0,0)`, `backdrop-filter: none`, `border-bottom: 0`) at the top and scrolled — works over one flat ground. (Anime.js — live-verified)
+- **Transparent→frosted hairline on scroll** — gains `backdrop-filter: blur()` over a semi-opaque surface plus a same-family hairline (`rgba(255,255,255,0.06)` dark / `rgba(0,0,0,0.05)` light), never a contrasting accent line. Pick for light/product bento over shifting sections. This row is the ONE sanctioned exception path to the zero-nav-`border-bottom` gate — reusing it takes a written override in the design_plan citing this row; same-family at ≤5–6% alpha only, never a contrasting line. (Apple + Vercel — documented)
+- Nav items brighten muted→foreground; no background pill.
+
+**Text**
+- **Per-char / per-word stagger — signature, gated to motion brands** — split the display headline and stagger it in only when motion IS the product; elsewhere it fights the content. (Anime.js — live; single-source by design)
+- **Tight-tracked static display** — the supporting default: sentence-case headline, weight `600`, negative tracking (Vercel `-2.4px` / `tracking-tight`), no animation beyond the section reveal. (Vercel documented + Anime.js — live)
+- **Mono eyebrow + tabular metrics** — labels and in-tile numbers in mono (Geist Mono / JetBrains Mono) with `font-variant-numeric: tabular-nums`; numbers can count-up on reveal. The per-tile register shift is the effect.
+
+**Cursor** — keep the native pointer deliberately (`body { cursor: auto }`); the grid is scan-and-click and a laggy dot fights it. A custom cursor appears only inside an interactive demo tile, never sitewide. The pointer powers surface effects — feeding `--x/--y` into border-shine or glow — rather than being dressed up. (Anime.js — live)
+
+**Loader / intro** — instant first paint; no preloader element (Anime.js ships none in the DOM — live-verified). The entrance IS the card stagger — `opacity 0→1` + a short `translateY`, `40–80ms` per tile — so the page assembles itself. A blocking curtain with a `0→100%` counter is an anti-signal here; reserve it for immersive/WebGL archetypes.
+
+**Mid-page life** — carried by one of three non-text engines, never by animated headings or scroll-scrubbed paragraphs: the pinned demo reel — eight `100lvh` panels over a persistent `position:fixed` demo layer, copy cross-fading against it, page-wide `--hex-current-*` recolor per section (Anime.js 7.62, Animations 9.00, winner-verified); ambient perpetual objects — a WebGL sphere, a footer globe, logo marquees, a drag-parallax Swiper — over enter-once IntersectionObserver reveals (Meridian 8.05, winner-verified); or real product-UI slices in the tiles with near-zero décor — one `.4s` reveal class in the whole build; density and rhythm carry it (Endex 7.91, Content 8.27, winner-verified). Hover-on-text stays a three-move vocabulary — link/nav brighten to foreground or accent, underline/bar draw `0→1` at `~0.3–0.5s`, icon nudge `~.125rem` — headings, paragraphs, and metrics get nothing on hover (winner-verified across all three, single research pass).
+
+**Scroll texture** — pinned `100lvh` demo panels cross-fading as scroll advances, each panel holding while its demo runs before handing off (Anime.js, winner-verified), or lag-based grid scroll — columns easing at offset rates so the grid itself has drag. The design_plan names one; without a carry between tiles the grid reads as a static poster. The tier does NOT smooth the wheel — native scroll is the canon: 0/3 winners ship a smoother (Anime.js reads native scroll through its own ScrollObserver; Meridian and Endex carry no Lenis/Locomotive string in any served bundle, winner-verified) — adding Lenis fights the scan-and-click grid.
+
+**Idle band** — perpetual micro-loops inside the tiles: the red-dot period loop, the clockwork counter — small machines that never stop (Anime.js, winner-verified). Commit one or two; the idle life lives inside the tiles, never on the page ground.
+
+**Anti-signals** — absent from every winner examined: the washed pale-tint button fill (`accent @ ~10% alpha` fading in, reads as a disabled hover); a contrasting-colored `border-bottom` under the nav (winners' borders, when present, are same-family hairlines); one universal card hover on every tile; a global custom cursor (lagging dot/ring sitewide); a per-letter kinetic headline on a non-motion brand; heavy hero parallax (substitute lag-based grid scroll); and uniform `fade-up-on-everything` with linear per-element delays.
+
+Channel calibration — this line's winners run 3–4 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
+
+## Page recipe — how this line's winners build the page
+
+Corpus — Anime.js v4 (SOTM May 2025 + Dev/Product Honors, live), Endex (HM Mar 2025, live), Apple MacBook Air, Vercel, Linear (live, shipped/design-canonical). Only the first two carry hard awards.
+
+**Anatomy** — *Pinned demo reel* (`specimen-tour`; Anime.js, winner-verified): left-copy/right-demo hero [attention] → toolbox grid [understanding] → 8 pinned `100lvh` demo panels [proof, climax] → modules bento, `24.50 KB` bundle stat [proof] → sponsors [rest] → get-started [close] → newsletter footer; 12–16 viewport-heights. *Highlights bento + deep-dive scroll* (`specimen-tour`; Apple, shipped): render hero [attention] → "Get the highlights." 6-tile bento, six claims in one screen [understanding] → per-theme full-bleed long-form [proof] → mega-footer [close]; climax diffuse. *Editorial 12-col feature grid* (`capability-grid`; Endex, winner-verified; Vercel/Linear shipped): dark hero [attention] → divided capability strip (`divide-x`, marquee on mobile) [understanding] → `lg:grid-cols-12` cards carrying slices of product UI [proof] → CTA close [close] → compact footer [rest].
+
+**Hero architectures** — *Left-copy / right-demo split* (Anime.js, winner-verified): the visible headline is an `<h2>` at `--text-xxxxl` — the `<h1>` is the logo; the sticky header's same-family hairline (`var(--hex-bg-4)` #353433 on `#site-header-content`) ships only via the Effect palette Nav row's written override; the red `:before` pill marks the Sponsor item, not Docs. Entrance beats (shipped; durations not read): headline chars stagger → red-dot period color/scale loop → "the web" swap loop — these ARE the intro. *Centered display over dark* (Endex, winner-verified): H1 `text-[88px] leading-[0.92] text-white`, one-line subhead, dual CTA "Request Demo" / "Join Waitlist".
+
+**Footer** — functional link-column chrome; the designed moment is a wordmark reprise or a newsletter capture. Anime.js (winner-verified): sponsor-first — "Platinum sponsors" + "Become a sponsor" — then Site/Socials columns, "Stay in the loop", "© 2026 Julian Garnier". CSS-level: footer links hover into a monochrome current-token fill — `color:var(--hex-current-1);background-color:var(--hex-current-7)`, `transition-duration:0s`, arrow nudge `translate(.125rem)`; the red-1/red-6 fill belongs to the Sponsor link alone. Endex (winner-verified): compact 3-col legal/contact + ©. Linear closes on an oversized wordmark reprise (shipped).
+
+**Arrival** — the family is none/instant (`ingredients/preloaders.md`), per the Effect palette Loader row: Anime.js ships zero preloader, the hero stagger is the entrance (winner-verified); Endex SSR paints copy pre-hydration (winner-verified); a `0→100%` counter curtain is an anti-signal here. Routes (`ingredients/page-transitions.md`): none — the anchors are one-pagers; multi-page members use plain framework navigation (observed, implementation unverified).
+
+**Copy voice** — Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording. Product-as-subject declaratives plus second-person imperatives; never "we" in headlines. Hero = a noun phrase or ≤7-word claim; subhead = one sentence naming what it is and who it's for; section heads 2–6 words. Verbs cool — animate, accelerate, reason, audit. Terminal period on fragment headlines is the house tic; zero exclamation. Refuses hype adjectives; states the capability and stops.
+- "All-in-one animation engine." (Anime.js) — the category claimed in four words; the period is the animated red dot.
+- "AI Built For Excel" (Endex) — the wedge in four words.
+- "Hire your AI Excel Agent" (Endex) — the close names the product's job.
+- "M5. The chip that zips." (Apple) — a spec turned into rhyme.
+
+**Imagery art direction** — the asset is the product surface; no stock, no portraits. Subject: live demo (Anime.js), product-UI slices (Endex, Linear), hardware render (Apple). Grade: neutral, true-to-UI, one dark ground page-wide (Anime.js `#252423`; Endex dark hero with one paper-white capability strip); Apple splits per cell — each tile its own render-on-gradient, radius and gutter rhythm holding. (Anime.js/Endex winner-verified; Apple shipped)
+
+**Spectacle menu** — *Anime.js pinned feature gallery* (winner-verified structure): scroll into any of the 8 `feature-section{height:100lvh}` panels → copy at `position:fixed;opacity:0` cross-fades while a persistent demo runs the heading's claim — drag and throw the Draggable panel, the Scroll Observer scrubs your scroll → the demo proves the heading; interactive and looping, so it replays. *Apple highlights reveal* (shipped): the "Get the highlights." tiles scrub into place after the fold.
+
+**Anti-signals** — no card-grid fold — the anchors open copy-led, the grid is a mid-page proof layer; no blocking loader; no route curtain; no stock or portraits; no uniform tile treatment — spans vary, each tile keeps its own register; 2025 winners lean editorial 12-col over the saturated tile wall — the bento-fatigue correction.

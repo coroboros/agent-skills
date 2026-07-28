@@ -1,0 +1,188 @@
+/*
+ * place-tour — section form (winner: Son Daven — SOTD Jun 5 2026, 7.62 +
+ * Developer Award 8.09; the place-tour proof beats with walk-time counters:
+ * the resort argued place by place, each stop a real plate + a named area +
+ * its walk-time. Already flagged MISSING:place-tour in recipes.json — the
+ * place-tour section `form` of argument-scroll-sondaven). The SPATIAL WALK
+ * as a proof band: an itinerary of stations, each pairing one photographic
+ * plate with a place name, prose, and a tabular walk-time counter — the
+ * count is the proof grammar (the named place, the number, never adjectives).
+ * DISTINCT from pinned-media-stepthrough (ONE object held while captions
+ * step over it — here every station owns its OWN plate and the page walks
+ * between places) and from editorial-split (a single split band — no station
+ * rhythm, no counter grammar).
+ *
+ * Markup contract (slots in reading order; grid areas own placement):
+ *   <section data-ad-form="place-tour" data-media="alternate">
+ *     <header data-slot="intro">                        optional
+ *       <h2>…</h2> <p>…</p>
+ *     </header>
+ *     <div data-slot="stations">                        required
+ *       <article data-station>
+ *         <figure data-station-media><img src="…" alt="…"></figure>
+ *         <div data-station-copy>
+ *           <p data-station-kicker>Stop 01</p>
+ *           <h3>The cove</h3>
+ *           <p>…prose…</p>
+ *           <p data-station-count><span data-count>4</span>
+ *              <span data-count-unit>min walk</span></p>
+ *         </div>
+ *       </article>
+ *       …
+ *     </div>
+ *   </section>
+ *
+ * Variants: data-media="alternate|left" — alternate mirrors every second
+ * station (the walk sways); left keeps every plate on one side.
+ * Enhancer (optional): forms/place-tour.js (awardPlaceTour) — publishes the
+ * station nearest the viewport centre as data-ad-place-station on the root
+ * and data-ad-place-active on that station, a pure function of scroll
+ * (reversible); state rides data attributes only, and a dead script leaves
+ * the full itinerary legible — this stylesheet hides nothing.
+ * Pairs: counters → counter-odometer · media → clip-reveal | image-curtain
+ * (the recipe's own pairings) · h3 → char-assemble.
+ * Tokens: --ad-space, --ad-measure, --ad-ink, --ad-font-display,
+ * --ad-font-mono.
+ */
+
+[data-ad-form="place-tour"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  padding: calc(var(--_sp) * 4) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+
+/* ---- intro ---------------------------------------------------------------- */
+[data-ad-form="place-tour"] > [data-slot="intro"] {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: calc(var(--_sp) * 1.5);
+  margin-bottom: calc(var(--_sp) * 3);
+}
+[data-ad-form="place-tour"] > [data-slot="intro"] h2 {
+  grid-column: 1 / 8;
+  margin: 0;
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.9rem, 4vw, 3.4rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="place-tour"] > [data-slot="intro"] p {
+  grid-column: 9 / 13;
+  align-self: end;
+  margin: 0;
+  max-inline-size: var(--ad-measure, 62ch);
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 72%, transparent);
+}
+
+/* ---- the stations rail ---------------------------------------------------- */
+[data-ad-form="place-tour"] > [data-slot="stations"] {
+  display: grid;
+  row-gap: calc(var(--_sp) * 3);
+}
+[data-ad-form="place-tour"] [data-station] {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: calc(var(--_sp) * 1.5);
+  align-items: center;
+  margin: 0;
+}
+[data-ad-form="place-tour"] [data-station-media] {
+  grid-column: 1 / 8;
+  grid-row: 1;
+  margin: 0;
+}
+[data-ad-form="place-tour"] [data-station-media] img,
+[data-ad-form="place-tour"] [data-station-media] video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+[data-ad-form="place-tour"] [data-station-copy] {
+  grid-column: 9 / 13;
+  grid-row: 1;
+}
+/* the walk sways: every second station mirrors (the default variant) */
+[data-ad-form="place-tour"][data-media="alternate"] [data-station]:nth-child(even) [data-station-media] {
+  grid-column: 6 / 13;
+}
+[data-ad-form="place-tour"][data-media="alternate"] [data-station]:nth-child(even) [data-station-copy] {
+  grid-column: 1 / 5;
+}
+
+/* ---- per-slot type ramps -------------------------------------------------- */
+[data-ad-form="place-tour"] [data-station-kicker] {
+  margin: 0 0 calc(var(--_sp) * 0.6);
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+}
+[data-ad-form="place-tour"] [data-station-copy] h3 {
+  margin: 0 0 calc(var(--_sp) * 0.8);
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.4rem, 2.6vw, 2.2rem);
+  font-weight: 500;
+  line-height: 1.12;
+  letter-spacing: -0.008em;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="place-tour"] [data-station-copy] > p:not([data-station-kicker]):not([data-station-count]) {
+  margin: 0;
+  max-inline-size: var(--ad-measure, 62ch);
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 78%, transparent);
+}
+/* the walk-time counter — the proof number, tabular by law */
+[data-ad-form="place-tour"] [data-station-count] {
+  margin: calc(var(--_sp) * 1.1) 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="place-tour"] [data-count] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
+  font-weight: 500;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+[data-ad-form="place-tour"] [data-count-unit] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+}
+
+/* ---- mobile: the itinerary stacks, plate over copy ------------------------ */
+@media (max-width: 768px) {
+  [data-ad-form="place-tour"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="place-tour"] > [data-slot="intro"] h2,
+  [data-ad-form="place-tour"] > [data-slot="intro"] p {
+    grid-column: 1 / -1;
+  }
+  [data-ad-form="place-tour"] > [data-slot="intro"] p {
+    margin-top: calc(var(--_sp) * 1);
+  }
+  [data-ad-form="place-tour"] [data-station-media],
+  [data-ad-form="place-tour"] [data-station-copy],
+  [data-ad-form="place-tour"][data-media="alternate"] [data-station]:nth-child(even) [data-station-media],
+  [data-ad-form="place-tour"][data-media="alternate"] [data-station]:nth-child(even) [data-station-copy] {
+    grid-column: 1 / -1;
+  }
+  [data-ad-form="place-tour"] [data-station-media] {
+    grid-row: 1;
+  }
+  [data-ad-form="place-tour"] [data-station-copy] {
+    grid-row: 2;
+    margin-top: calc(var(--_sp) * 1);
+  }
+}

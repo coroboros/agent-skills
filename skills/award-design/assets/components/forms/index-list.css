@@ -1,0 +1,136 @@
+/*
+ * index-list — section form (winners: Anthropic's belief index, Lusion's reel,
+ * Depo Luxe's nav index, Truekind's product index, Eloy's work index). The
+ * row-list body that sits under index-reel-header: full-width divided lines,
+ * each row one instrument reading — index, title, meta. The form OWNS the
+ * layout: the shared row grid, per-slot type ramps, spacing rhythm, measure
+ * caps, alignment. It exists to kill the recurring defects — column edges
+ * drifting between rows, meta lines sprawling toward the title, thumbs bending
+ * the rhythm; here every row locks to one grid, the meta is capped at 24ch and
+ * seated at the right edge, and title and meta share a single baseline, so
+ * rows structurally cannot crowd or sprawl. The builder fills the repeated
+ * slot and pairs it with an interaction component (row → index-row-hover); it
+ * never writes placement CSS for this section. Linked as a plain stylesheet so
+ * the no-JS render keeps its layout. The form ships zero decoration, zero
+ * motion, and zero hover states — interaction is the paired component's job.
+ *
+ * Markup contract — "row" is a REPEATED slot: every direct child is an
+ * <a data-slot="row"> carrying the same slot name (row parts in reading
+ * order; the row grid owns visual placement):
+ *   <div data-ad-form="index-list" data-thumb="none" data-density="standard">
+ *     <a data-slot="row" href="…">
+ *       <span data-row-index>01</span>             optional
+ *       <span data-row-title>M42 — Orion</span>    required
+ *       <span data-row-meta>1,344 ly</span>        optional
+ *       <figure data-row-thumb><img …></figure>    optional (data-thumb="right")
+ *     </a>
+ *     … repeated <a data-slot="row"> …
+ *   </div>
+ *
+ * Variants: data-thumb="none|right" · data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="index-list"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  /* block padding stays 0: index-reel-header above owns the band's padding-top,
+     and the last row's closing hairline ends the band itself */
+  padding: 0 calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="index-list"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="index-list"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- rows: one shared grid, divided lines ------------------------------ */
+[data-ad-form="index-list"] > [data-slot="row"] {
+  display: grid;
+  /* fit-content keeps the meta column from reserving 24ch when the meta is
+     short or absent — the title takes the width back */
+  grid-template-columns: 3ch minmax(0, 1fr) fit-content(24ch);
+  column-gap: calc(var(--_sp) * 1.5);
+  align-items: baseline;
+  padding-block: calc(var(--_sp) * 1.1);
+  border-top: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+  color: inherit;
+  text-decoration: none;
+}
+[data-ad-form="index-list"] > [data-slot="row"]:last-child {
+  border-bottom: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+}
+[data-ad-form="index-list"][data-thumb="right"] > [data-slot="row"] {
+  grid-template-columns: 3ch minmax(0, 1fr) fit-content(24ch) clamp(96px, 9vw, 120px);
+}
+/* the variant is the single switch: markup may keep thumbs, "none" hides them */
+[data-ad-form="index-list"]:not([data-thumb="right"]) > [data-slot="row"] > [data-row-thumb] {
+  display: none;
+}
+
+/* ---- row parts: type ramps + placement --------------------------------- */
+[data-ad-form="index-list"] > [data-slot="row"] > [data-row-index] {
+  grid-column: 1;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 45%, transparent);
+}
+[data-ad-form="index-list"] > [data-slot="row"] > [data-row-title] {
+  grid-column: 2;
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.2rem, 2.4vw, 2rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="index-list"] > [data-slot="row"] > [data-row-meta] {
+  grid-column: 3;
+  justify-self: end;
+  text-align: right;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  line-height: 1.6;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+  max-inline-size: 24ch;
+}
+[data-ad-form="index-list"][data-thumb="right"] > [data-slot="row"] > [data-row-thumb] {
+  grid-column: 4;
+  /* a figure has no useful text baseline — center it in the row instead */
+  align-self: center;
+  margin: 0;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+[data-ad-form="index-list"] > [data-slot="row"] > [data-row-thumb] img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---- mobile: index hidden, meta drops under the title, thumb hides ----- */
+@media (max-width: 768px) {
+  [data-ad-form="index-list"] {
+    padding: 0 calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="index-list"] > [data-slot="row"],
+  [data-ad-form="index-list"][data-thumb="right"] > [data-slot="row"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  [data-ad-form="index-list"] > [data-slot="row"] > [data-row-index],
+  [data-ad-form="index-list"] > [data-slot="row"] > [data-row-thumb] {
+    display: none;
+  }
+  [data-ad-form="index-list"] > [data-slot="row"] > [data-row-title] {
+    grid-column: 1;
+  }
+  [data-ad-form="index-list"] > [data-slot="row"] > [data-row-meta] {
+    grid-column: 1;
+    justify-self: start;
+    text-align: left;
+    margin-top: calc(var(--_sp) * 0.3);
+  }
+}

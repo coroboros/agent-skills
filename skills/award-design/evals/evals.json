@@ -1,54 +1,89 @@
 {
   "skill_name": "award-design",
-  "description": "Behavioural evaluation set for the award-design skill. Cases pin the universe-mandatory contract: conceive a committed anti-default universe, write it as a DESIGN.md (or adapt to and alert on a thin existing one), commit-and-prove before any JSX, and let /design-system govern the file after. Plus archetype + stack routing, review-mode audit, scope discipline (dashboards out, single-token tweaks to design-system), and the WebGL one-subagent carve-out.",
+  "description": "Behavioural evaluation set for the award-design skill. Cases pin the mandatory 7-phase protocol: read the room (mode + Design Read + archetype + declared dials), conceive a committed anti-default universe (two-altitude rejection, rotation, signature), write it as a DESIGN.md (or adapt to and alert on a thin existing one), source the truth for heavy layers (installed skill → offer install → fetch docs), commit-and-prove before any markup, pre-flight (scanner + boxes) before ship, and a fresh-context adversarial review. Plus archetype + stack routing, review-mode audit with anti-anchoring order, scope discipline (dashboards out, single-token tweaks to design-system), the WebGL one-subagent carve-out, the scoped-run short path, and the browser conformance loop. Re-run: skill-creator flow — one with-skill subagent per case (frozen skill copy, prompt verbatim), grade the produced artifacts (Phase 0 declaration, DESIGN.md, design_plan, verdict block) against expected_output; build cases (1, 8, 10, 11) also need a human eye on the rendered artifact.",
   "evals": [
     {
       "id": 1,
       "name": "universe-mandatory-build-writes-design-md",
       "prompt": "Build me a beautiful brutalist developer-tools landing page. Black-and-white, monospace, raw. Make it fast — I want to see the site, not a spec.",
-      "expected_output": "Refuses to ship pixels without a committed universe — the universe is mandatory, never optional. Conceives it first: a one-line Design Read, a Concept Spine naming one world (not a literal 'a dev-tools page' restatement), anti-default-with-teeth (names the lazy brutalist default and rejects it, rotates off prior builds, invents ≥1 fresh mechanic), and a signature moment with the removing-every-effect falsifiable test. Writes a complete DESIGN.md (Google format) as the committed direction — no inline-token-block shortcut, no opt-in Persist. Then emits a binding design_plan with explicit per-element commitments (hero, type stack, color roles, motion, the signature beat) each paired with a proof line (the clamp()/max-w guaranteeing the H1 lands in ≤2 lines, the named real hero asset) BEFORE any JSX, and builds under it claimed = shown. Resists the 'make it fast' primer: 'fast' scopes to writing the universe quickly, never to skipping it or the craft — full-effort, signature landed, ≥3 axes pushed past the generic SaaS template. A correct-but-generic page does NOT satisfy this case.",
+      "expected_output": "Walks the protocol in order — no phase skipped because the brief pressed for speed. Phase 0: states mode, a one-line Design Read, the Brutalist archetype, and the three declared dial values before anything else. Phase 1: a Concept Spine naming one world (not a literal 'a dev-tools page' restatement), anti-default at two altitudes (names the lazy brutalist default AND the told-to-avoid-it second reach, rejects both), a rotation statement, and a signature moment with the removing-every-effect falsifiable test. Phase 2: a complete DESIGN.md (Google format) — no inline-token-block shortcut. Phase 4: a binding design_plan with explicit per-element commitments each paired with a proof line (the clamp()/max-w guaranteeing the H1 lands in ≤2 lines, the named real hero asset), a pacing curve (per-section intensity with exactly one climax on the signature and at least one rest), and a per-section mobile intent — all BEFORE any markup, then builds claimed = shown. Phase 5: runs the pre-flight (scanner + boxes) and emits the filled verdict block. Resists the 'make it fast' primer: 'fast' scopes to moving through the phases briskly, never to skipping one — full-effort, signature landed, ≥3 axes pushed past the generic template. A correct-but-generic page does NOT satisfy this case.",
       "files": []
     },
     {
       "id": 2,
       "name": "adapts-to-existing-design-md-alerts-if-thin",
       "prompt": "Add a pricing page to my site. There's already a DESIGN.md at the root.",
-      "expected_output": "Detects the existing DESIGN.md and adopts it as the ultimate reference — skips archetype selection, builds the pricing page consistent with its tokens, re-reading it every pass rather than re-authoring. Alerts when that DESIGN.md is thin or incomplete (missing a real spacing scale, type ramp, motion language, or signature choreography) instead of silently re-authoring it, and proposes filling the gaps. Routes a pure single-token tweak (one color, one radius) to `/design-system`, which governs the file after the build.",
+      "expected_output": "Detects the existing DESIGN.md and adopts it as the ultimate reference — skips archetype selection, builds the pricing page consistent with its tokens, re-reading it each phase rather than re-authoring. Alerts when that DESIGN.md is thin or incomplete (missing a real spacing scale, type ramp, motion language, or signature choreography) instead of silently re-authoring it, and proposes filling the gaps. Routes a pure single-token tweak (one color, one radius) to `/design-system`, which governs the file after the build.",
       "files": []
     },
     {
       "id": 3,
       "name": "motion-3d-archetype-picks-tanstack-and-webgl-subagent",
       "prompt": "Cinematic, scroll-driven launch site for a hardware product — full-screen 3D hero, the model assembles as you scroll. Award-worthy.",
-      "expected_output": "Reads this as an Immersive / Cinematic brief and commits a universe whose signature is the scroll-driven 3D assembly, written into the DESIGN.md with the scroll choreography and easing lexicon. Keys the framework to the archetype: TanStack Start (React on Vite + Nitro) on the motion/3D path, not Astro — with the locked universal craft (GSAP + Lenis + CSS scroll-driven + View Transitions + variable fonts + OKLCH) and Motion/Framer + R3F on the TanStack path only. Delegates exactly ONE subagent to author the self-contained WebGL/R3F scene module (clean component boundary, props in / canvas out), handing it the DESIGN.md as its brief and pointing it at `references/ingredients/web3d-for-sites.md`, then integrates the returned module itself — never co-writing a shared file, never more than one parallel writer.",
+      "expected_output": "Reads this as an Immersive / Cinematic brief and commits a universe whose signature is the scroll-driven 3D assembly, written into the DESIGN.md with the scroll choreography and easing lexicon. At Phase 3, gates the heavy layers before code: GSAP/ScrollTrigger and Three.js/R3F each resolve through the ladder (installed skill → offer the install once with the exact command → fetch current docs) and the truth source is declared per layer — never written from training memory. Keys the framework to the archetype: TanStack Start (React on Vite + Nitro) on the motion/3D path, not Astro — with the locked universal craft (GSAP + Lenis + CSS scroll-driven + View Transitions + variable fonts + OKLCH). Delegates at most ONE subagent to author the self-contained WebGL/R3F scene module (clean component boundary, props in / canvas out) — or authors it inline when subagents are absent — handing the DESIGN.md as the brief and pointing at `references/ingredients/web3d-for-sites.md` or the skill resolved at Phase 3, then integrates the returned module itself. Never two writers, never a co-written shared file.",
       "files": []
     },
     {
       "id": 4,
       "name": "review-mode-audits-existing-site-refute-by-default",
       "prompt": "award-design review https://example-saas.com — is this award-ready?",
-      "expected_output": "Runs review mode against the awwwards rubric (`references/audit-rubric.md`), the anti-slop catalog (`references/anti-patterns.md`), and the DESIGN.md if one exists. Refutes by default — treats 'this is on track' as unproven and hunts where the site reads generic, safe, or off-universe (AI-purple gradients, Inter/Roboto on the display face, the centered-hero-over-dark template, 3 equal feature cards, a hero with no real visual, meta-labels). Reports on-track / off-track with concrete, cited fixes; never a silent pass.",
+      "expected_output": "Runs review mode against the awwwards rubric (`references/audit-rubric.md`, concept veto included), the anti-slop catalog (`references/anti-patterns.md`), and the pre-flight checklist (`references/preflight.md`). Anti-anchoring order: forms its own design judgment from the rendered evidence (screenshots) FIRST, then runs `scripts/preflight_scan.py` and reads mechanical results second. Refutes by default — treats 'this is on track' as unproven and hunts where the site reads generic, safe, or off-universe (AI-purple gradients, Inter/Roboto on the display face, the centered-hero-over-dark template, 3 equal feature cards, a hero with no real visual, meta-labels). Reports on-track / off-track with concrete, cited fixes; never a silent pass.",
       "files": []
     },
     {
       "id": 5,
       "name": "selects-corporate-luxury-for-premium-advisory",
       "prompt": "I'm building a website for a high-end financial advisory firm. Wealth management, ultra-high-net-worth clients. They need to feel established and trustworthy.",
-      "expected_output": "Reads this as a Corporate Luxury brief (high-end, established, trustworthy → low Variance, low Motion, generous whitespace), matching the archetype to the brand's personality, not a trend. Calibrates atmosphere on the Density / Variance / Motion dials per `references/atmosphere-calibration.md`, then conceives and writes a committed anti-default universe as a DESIGN.md — rotating past the overexposed sand/brass/espresso premium-consumer palette rather than defaulting to it. Keys the framework to Astro (content/perf archetype). Builds under the universe with a signature moment, not a generic luxury template.",
+      "expected_output": "Reads this as a Corporate Luxury brief (high-end, established, trustworthy → restrained Variance and Motion, at or below the archetype defaults, generous whitespace), matching the archetype to the brand's personality, not a trend. Declares the Density / Variance / Motion dial values in the Phase 0 artifact per `references/atmosphere-calibration.md` — stated, never calibrated silently — then conceives and writes a committed anti-default universe as a DESIGN.md, rotating past the overexposed sand/brass/espresso premium-consumer palette rather than defaulting to it. Keys the framework to Astro (content/perf archetype). Builds under the universe with a signature moment, not a generic luxury template.",
       "files": []
     },
     {
       "id": 6,
       "name": "redirects-dashboard-out-of-scope",
       "prompt": "Design our internal admin dashboard for the customer-success team. Lots of tables and metrics.",
-      "expected_output": "Declines — this skill is frontend-design for award-grade public sites, not internal tooling; the description explicitly excludes dashboards and internal tools. Does not conceive a universe or author a DESIGN.md. Redirects to a pragmatic data-density approach (or a general-purpose implementation path) rather than invoking the archetype + universe forcing.",
+      "expected_output": "Declines — this skill is frontend-design for award-grade public sites, not internal tooling; the description explicitly excludes dashboards and internal tools. Does not enter the protocol, conceive a universe, or author a DESIGN.md. Redirects to a pragmatic data-density approach (or a general-purpose implementation path) rather than invoking the archetype + universe forcing.",
       "files": []
     },
     {
       "id": 7,
       "name": "uses-brand-extraction-for-existing-url-redesign",
       "prompt": "Redesign coroboros.com — keep the spirit, refresh the execution.",
-      "expected_output": "Reverse-engineers the brand first via `references/brand-extraction.md` — observes the live site, drafts atmosphere observations, then proposes an archetype and a committed universe consistent with the existing brand, written as a DESIGN.md. Does not propose a wholesale archetype shift unless the brief asks for one; routes a legacy-site uplift through `references/retrofit.md` rather than a from-scratch rebuild.",
+      "expected_output": "At Phase 0 detects the redesign mode (asks once if preserve-vs-overhaul genuinely diverges) and reverse-engineers the brand first via `references/brand-extraction.md` — observes the live site, drafts atmosphere observations, then proposes an archetype and a committed universe consistent with the existing brand, written as a DESIGN.md. Does not propose a wholesale archetype shift unless the brief asks for one; routes a legacy-site uplift through `references/retrofit.md` rather than a from-scratch rebuild.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "protocol-survives-skip-pressure-and-preflight-gates-ship",
+      "prompt": "Landing page for an artisan coffee-gear brand. Skip the process stuff — no plans, no checklists, just give me the finished code in one go.",
+      "expected_output": "Holds the protocol under explicit skip pressure: every phase still runs, briskly — the artifacts (Design Read + archetype + declared dials, spine + rejected defaults + rotation + signature, DESIGN.md, design_plan) appear in the output even though the user asked for none. For this premium-consumer brief the rotation statement explicitly moves off the sand/brass/espresso default palette family. Before presenting the code as done, runs the Phase 5 pre-flight — the scanner plus the boxes — and emits the filled verdict block; any unticked box blocks 'done'. Merging or skipping gates because the brief 'felt complete' is called out as the failure mode, not indulged. The one acceptable concession to the user's framing: compact artifacts, zero ceremony — never absent ones.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "external-truth-ladder-gates-heavy-layers",
+      "prompt": "Add a pinned horizontal-scroll gallery with kinetic split-text headlines to my Astro site. Use GSAP.",
+      "expected_output": "Treats GSAP/ScrollTrigger/SplitText as a heavy layer and walks the Phase 3 ladder before writing any of it: checks the available-skills list for the official GSAP skills; if absent, offers the install once with the exact command (`npx skills add https://github.com/greensock/gsap-skills`); on decline or silence, fetches current GSAP docs (find-docs / ctx7 / gsap.com) and cites what was read. Declares the truth source for the layer in the Phase 3 artifact. Never writes ScrollTrigger or SplitText syntax purely from training memory — and avoids the stale tripwires (missing `gsap.registerPlugin`, Club-paywall assumptions). The existing Astro stack wins; no framework migration is proposed.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "scoped-run-on-existing-design-md",
+      "prompt": "Add a 'Field notes' journal section (three short entries) to my existing landing page — keep the spirit. The project has a DESIGN.md at the root and the stylesheet's first line carries an award-design stamp.",
+      "expected_output": "Declares the scoped run explicitly ('scoped run: Field notes section') — an undeclared shortcut is a skipped phase. Phase 0 derives and declares the archetype from the DESIGN.md and the stylesheet stamp. Phases 1–2 adopt the existing universe (alert if thin, never silently regenerate); R1 refutes the new section's FIT with the adopted universe, not the universe itself. Phase 3 gates only heavy layers the new section introduces. Phase 4 emits a design_plan scoped to the new surface, built under the existing tokens; the pacing check re-reads the whole page the section lands on. Phase 5 scans the touched paths only (the scanner takes a file list) and files out-of-scope pre-existing hits as risks, never silently fixing them; the consistency locks still read the full page. The artifacts shrink; every gate still runs.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "conformance-loop-drives-pixel-perfect-responsive",
+      "prompt": "Bento-style landing page for an AI note-taking product — hero + 4 feature tiles, compact, single page. I want it pixel-perfect on mobile AND desktop.",
+      "expected_output": "Resolves the browser ladder before Phase 4 and states the rung and presence check in the Phase 3 artifact (Chrome DevTools MCP → dev-browser → webwright; none present → offers `npm install -g dev-browser && dev-browser install` once; only a declined offer degrades to the declared code-level fallback). With tooling, runs the conformance loop per section: screenshots at 375px AND 1440px on every iteration (responsive judged per loop, never retrofitted), hunts drift against the design_plan and DESIGN.md tokens including computed font-family resolution, fixes, re-renders — exits only when both widths pass in the same iteration, capped at 5 loops with residue filed in the verdict. With the MCP connected, the performance trace is mandatory (LCP vs < 1.5s, signature at 60fps — a miss is a finding, not a gap). The pre-flight §8 boxes cite the loop's clean exit.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "imposes-award-imperatives-and-comparative-hero-gate",
+      "prompt": "One-page site for a high-end omakase restaurant. Dark, elegant, editorial. Make it award-winning.",
+      "expected_output": "Loads `references/award-imperatives.md` at Phase 3–4 and imposes the transverse gates rather than leaving them to taste. The design_plan explicitly commits a navigation pattern (a show-on-scroll-up header or a full-screen overlay — never 'no nav'; a hero-only anchor list that scrolls away is not a navigation system) and a named signature interaction (not a load-time fade). Runs the hero-first micro-loop in Phase 4 — renders the hero and gates it with the comparative desire read against the archetype's canonical winner (Cartier / Siena via `references/exemplars.md`), sending a weak hero back to its concept, not its polish. Applies the restraint veto to any clever metaphor (props a real luxury house would not ship are cut, not polished). Phase 5 verifies the measured performance budget (LCP < 1.5s, CLS < 0.05, INP < 100ms, < 3MB, 60fps) from the browser tooling and AVIF/WebP imagery. R1/R2 open with the exemplar comparison as the primary driver of the concept and desire verdict, not a closing footnote.",
       "files": []
     }
   ]

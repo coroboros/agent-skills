@@ -35,6 +35,8 @@ shadows:
   inner-highlight: "inset 0 1px 1px rgba(255, 255, 255, 0.15)"
 ```
 
+The `32px` shell radius is an example, not a default — bind both radii to the build's declared radius system (preflight §3 shape lock) so the bezel reads as a declared system, not a kit value.
+
 ### Why it works
 
 Single-radius cards read as flat tiles. Concentric radii read as physical objects with material thickness. The inner highlight simulates ambient light catching the upper edge — the eye perceives depth without explicit drop shadow. Particularly powerful in Spatial Organic (glass surfaces), Corporate Luxury (premium product cards), and Bento 2.0 (motion-engine cards).
@@ -78,6 +80,14 @@ The trailing icon nesting is documented in prose because it's a structural patte
 
 Naked arrow icons next to text read as "icon kerned next to label" — a typographic afterthought. The nested wrapper signals the icon as a discrete affordance with its own micro-state. The hover physics close the loop: the user feels the click before pressing it.
 
+### Register-appropriate fill
+
+The button's *fill* is chosen for the page's register, not maxed for contrast. On a refined minimalist or luxury surface, a saturated color-block CTA — a solid ochre slab, a bright accent brick — reads louder than the page and cheapens it; a brief that says "subtle gold accents" means exactly this. The luxury CTA is a thin outline that fills on hover, a low-chroma solid at the accent's *muted* end, or near-black / near-white with the accent kept to a hairline or the trailing icon — never a saturated slab. Match the CTA's loudness to the page's restraint; the accent is punctuation, not a highlighter. (Reach for a louder solid only where the register is loud — Bold/Maximal, a Gen-Z launch.)
+
+### The immersive / luxury CTA drops the ornament
+
+The nested trailing icon (above) and a drawn underline are SaaS-and-product moves — legible affordances for a busy page. On an immersive or quiet-luxury surface they read as fuss: an arrow *and* an underline *and* a border stacked on one control is three affordances doing one job. Strip to one. The refined CTA is a word or two in a thin outline (or bare, with a hairline), and its *hover* carries the moment — and the strongest hover **echoes the page's signature gesture**, not a generic slide. If the signature rakes warm light across a black object, the CTA's hover rakes the same light across its label; if the world is ink-in-water, the fill blooms like ink. The button that moves like the world coheres; the button with a stock arrow-nudge is another site's control dropped in. Keep the fill inside the shape (`anti-patterns.md` Technical — unclipped fills), verified hover→leave (`preflight.md` §8).
+
 ## 3. Eyebrow Tags
 
 Section openers benefit from a microscopic typographic preamble — a pill-shaped tag in monospace or wide-tracked sans, signaling category before the headline lands.
@@ -111,7 +121,7 @@ components:
 
 ### Why it works
 
-Eyebrow tags solve the "hierarchy stutter" problem — when the first heading on a section needs to land but lacks scaffolding above it. The tag pre-frames the section ("FEATURES", "PRICING", "MANIFESTO"), so the headline arrives with weight rather than as the first word of the paragraph.
+Eyebrow tags solve the "hierarchy stutter" problem — when the first heading on a section needs to land but lacks scaffolding above it. The tag pre-frames the section ("FEATURES", "PRICING", "MANIFESTO"), so the headline arrives with weight rather than as the first word of the paragraph. Eyebrows are rationed by preflight §4 (density cap) and §6 (buyer-learn test) — the default is no kicker; only sections whose eyebrow genuinely informs carry one.
 
 ### Anti-pattern
 
@@ -137,7 +147,7 @@ The H1 is the page's first visual decision. LLMs default to narrow containers an
 
 - Two CTAs maximum below the headline — primary and secondary
 - Primary uses the Button-in-Button pattern
-- Button text contrast is non-negotiable: dark background → white text, light background → dark text
+- Button text contrast is non-negotiable: dark background → off-white text, light background → near-black text
 
 ### Hero layout options
 
@@ -173,6 +183,7 @@ Asymmetric layouts above the `md` breakpoint MUST collapse aggressively below 76
 - Layouts default to `w-full px-4 py-8` on viewports under 768px
 - All `transform`-based rotations and negative-margin overlaps are removed below `md` — they cause touch-target conflicts
 - `min-h-[100dvh]` replaces `h-screen` everywhere — `h-screen` jumps catastrophically on iOS Safari URL-bar toggle
+- Grid tracks holding images use `minmax(0, 1fr)` — bare `1fr` resolves to `minmax(auto,1fr)` and a large image forces horizontal scroll on phones. Display headlines carry `overflow-wrap: anywhere`. Page-level clipping is `overflow-x: clip`, never `hidden` (kills `position: sticky`). Sweep 320–1920px.
 
 ### Layout-specific collapse
 
@@ -182,7 +193,7 @@ Asymmetric layouts above the `md` breakpoint MUST collapse aggressively below 76
 
 ### Verification checklist
 
-Before shipping, confirm at viewport widths 375px (iPhone SE), 414px (iPhone 14), 768px (iPad portrait):
+Before shipping, confirm at viewport widths 375px (iPhone SE), 414px (iPhone 14), 768px (iPad portrait) — the mobile-collapse subset; the pre-flight browser proof runs 375/768/1440:
 
 - No horizontal scroll bars
 - No overlapping touch targets (44×44 minimum)
@@ -230,22 +241,9 @@ For lists with `staggerChildren`, the parent (`variants`) and children MUST live
 
 Apply procedural noise filters EXCLUSIVELY to fixed `pointer-events: none` pseudo-elements (e.g., `position: fixed; inset: 0; z-index: 50; pointer-events: none`). Never to scrolling containers — continuous GPU repaints collapse mobile frame rate. Static PNG grain overlays read as the AI version; procedural Canvas or WebGL noise is the credentialed alternative.
 
-## 7. Mac OS Window Chrome (mockup pattern)
+## 7. Window Chrome — real captures only
 
-For mocking software interfaces (dashboards, apps, command palettes) inside marketing pages, wrap the mockup in a minimalist container with a thin top bar containing three small light-gray circles. Replicates macOS window controls without overcomplicating.
-
-```html
-<div class="rounded-xl bg-white shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]">
-  <div class="flex items-center gap-1.5 border-b border-slate-200/50 px-4 py-3">
-    <span class="h-3 w-3 rounded-full bg-slate-300"></span>
-    <span class="h-3 w-3 rounded-full bg-slate-300"></span>
-    <span class="h-3 w-3 rounded-full bg-slate-300"></span>
-  </div>
-  <div class="p-6"><!-- mockup content --></div>
-</div>
-```
-
-The convention is so universally readable that it requires no caption. Every variant — colored circles, traffic-light circles, plain dots — works.
+CSS-rebuilt browser bars and traffic-light dots are one of the strongest AI tells, and they contradict the fake-screenshot axiom (`anti-patterns.md` axiom #14) — chrome drawn in divs promises a product the page cannot show. Product UI ships as a real capture inside a plain elevated frame: a radius, a shadow, a 1px border — no fake chrome. When no capture exists, ship an honest labeled placeholder sized to the final aspect ratio per `imagery.md`.
 
 ## 8. Eyebrow + Headline + CTA — the section opener
 
@@ -255,7 +253,9 @@ Section openers benefit from a three-element rhythm:
 2. Headline (the section's primary message, 2 lines max)
 3. One CTA below — Button-in-Button pattern, never two competing CTAs in a section opener
 
-Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96px) minimum on marketing pages, `py-32` to `py-48` (128–192px) on luxury and editorial.
+The eyebrow slot is optional and rationed by preflight §4/§6 — the default is no kicker; ship one only where it genuinely informs, and let the headline open the section everywhere else.
+
+Section spacing pulls from `spacing.section-*` extension tokens — `py-24` (96px) minimum on marketing pages, `py-32` to `py-48` (128–192px) on luxury and editorial; a cockpit-dense build (Density 7+ in the DESIGN.md) follows its calibrated tighter band instead.
 
 ## 9. Liquid Glass Refraction
 
@@ -289,7 +289,7 @@ A flat translucent panel reads as a digital effect. The inner highlight tells th
 
 ### Anti-pattern
 
-`backdrop-filter: blur()` applied to scrolling content. Continuous GPU repaints collapse mobile frame rate (Safari drops to 15–20fps). Glass surfaces apply only to fixed or sticky elements (navbars, modal overlays, command palettes) — never to scrolling cards. See `production-hardening.md` and pattern 6 (Performance Locks).
+`backdrop-filter: blur()` applied to scrolling content. Continuous GPU repaints collapse mobile frame rate (Safari drops to 15–20fps). Glass surfaces apply only to fixed or sticky elements (navbars, modal overlays, command palettes) — never to scrolling cards. See `production-hardening.md` and pattern 6 (Performance Locks). Ship the `prefers-reduced-transparency` solid-fill fallback — glass with no fallback fails the users who asked for less.
 
 Particularly powerful in Spatial Organic (the canonical context), Corporate Luxury (premium product cards on dark backgrounds), and any modal/command-palette surface across archetypes.
 
@@ -378,7 +378,25 @@ One choreographed perpetual motion on a hero element keeps the page "alive" with
 
 ### Anti-pattern
 
-Three or four perpetual motions running together — pulse on the badge, typewriter in the input, shimmer on the card, orbit in the background. The eye loses anchor; the page reads as visual chaos rather than craft. One perpetual motion per fold; two only when they reinforce the same focal point.
+Three or four perpetual motions running together — pulse on the badge, typewriter in the input, shimmer on the card, orbit in the background. The eye loses anchor; the page reads as visual chaos rather than craft. One perpetual motion per fold; two only when they reinforce the same focal point. The cap binds outside Bento 2.0 grids — in a Bento grid the per-tile loop is the archetype (bento-card.md), and the cap becomes: loops share one physics and one focal hierarchy.
+
+## 12. Navigation as a designed component
+
+The nav is the first component judged — and the default edge-to-edge sticky bar with a hairline border is the template fingerprint. Three premium moves:
+
+- **Floating island** — a glass pill detached from the edges: `mt-6 mx-auto w-max rounded-full`, content-width, never viewport-width
+- **Morphing hamburger** — the icon morphs to an X and opens a full-screen overlay with staggered mask reveals
+- **Inherited surface** — the nav's surface inherits the section behind it instead of carrying its own chrome
+
+Whatever the move: one line at desktop, ≤80px tall, active state marked, instant focus rings.
+
+### Token mapping
+
+Bind the nav height to `heights.nav` and its transitions to `motion.*` extension tokens — never ad-hoc values in the nav component.
+
+### Anti-pattern
+
+The AI-nav fingerprint — wordmark hard-left, 4–5 inline text links, CTA button hard-right, 1px hairline border-bottom (`anti-patterns.md` AI Tells → Layout). Break at least one element: placement, container, or divider.
 
 ## Cross-references
 

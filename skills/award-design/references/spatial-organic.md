@@ -1,8 +1,8 @@
 # Spatial Organic
 
-The post-grid, dimensionally-aware aesthetic for 2026–2027. Fuses visionOS spatial depth, organic natural forms, and native web APIs (View Transitions, Scroll-Driven Animations, WebGPU). The counter-reaction to bento saturation, blanding minimalism, and heavy parallax. The article's *Trends Shaping 2025–2030* section credentials the constituent moves (Liquid Glass, dark glassmorphism, organic shapes, procedural noise) but does not yet credential a single SOTM-tier reference site for the archetype as a whole. The archetype is forward-looking — it has trend evidence, not yet a canonical site.
+The post-grid, dimensionally-aware aesthetic for 2026–2027. Fuses visionOS spatial depth, organic natural forms, and native web APIs (View Transitions, Scroll-Driven Animations, WebGPU). The counter-reaction to bento saturation, blanding minimalism, and heavy parallax. The article's *Trends Shaping 2025–2030* section credentials the constituent moves (Liquid Glass, dark glassmorphism, organic shapes, procedural noise); the award record since supplies the reference sites — Igloo Inc (Site of the Year 2024) at the head of a verified winner corpus (see *Effect palette* below).
 
-**Forward-archetype note.** Where the eight article-credentialed archetypes (Minimalist, Brutalist, Editorial, Bold/Maximal, Immersive, Experimental, Corporate Luxury, Bento) are anchored to specific SOTM-or-higher winners in the 2024–2026 window, Spatial Organic is anchored to the article's trend section and to emerging brands (Arc Browser, Granola, Apple Vision Pro). When a brief genuinely fits this archetype, expect the project itself to set the credentialed reference rather than copying one.
+**Anchor note.** The article anchored this line to its trend section and to emerging brands (Arc Browser, Granola, Apple Vision Pro); the awarded corpus now anchors it directly — Igloo Inc (Site of the Year 2024), Cyd Stumpel (SOTD Mar 2025), Exo Ape (SOTD May 2022), Sculpting Harmony (SOTM Nov 2023). Arc and Granola stay style anchors, not winners; the *Effect palette* below reads the recipes from the winners' own CSS.
 
 ## Reference brands
 
@@ -42,7 +42,7 @@ Mid-tone neutral foundation with frosted pastel gradient orbs (sage green `#87A9
 Variable fonts animated on scroll/hover serve the "alive" quality.
 
 - **Headlines**: Fragment, GT Flexa, Editorial New, PP Editorial New, bespoke typefaces — variable weight and width animated on scroll
-- **Body**: rounded warm sans-serifs — Outfit, General Sans, Satoshi — 16–18px, weight 400
+- **Body**: rounded warm sans-serifs — Outfit, General Sans, Satoshi — 16–18px, weight 400 (General Sans/Satoshi are overexposed kit picks — rotate or justify, `inspiration.md`)
 - **Display technique**: oversized kinetic type as primary design element, not just communication
 - **Cross-cultural**: "Lingua-Lettering" — unified visual rhythm across Latin, Arabic, CJK when applicable
 
@@ -138,14 +138,19 @@ Native-first. Browser APIs over JS libraries where possible.
 ### CSS Scroll-Driven (off main thread, guaranteed 60fps)
 
 ```css
-.organic-reveal {
-  animation: emerge linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 80%;
-}
-@keyframes emerge {
-  from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
-  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+/* Base state: fully visible — the pre-animation state lives only inside the
+   guard, so no-timeline browsers and reduced-motion users get revealed content
+   (motion-palette.md). */
+@supports (animation-timeline: view()) {
+  .organic-reveal {
+    animation: emerge linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 80%;
+  }
+  @keyframes emerge {
+    from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
+    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
 }
 ```
 
@@ -217,3 +222,70 @@ Sustainability brands, wellness and health tech, post-2025 creative studios, pre
 ## Cross-references
 
 Read alongside `foundations.md` (OKLCH, native scroll-driven animations, WebGPU framework selection), `premium-patterns.md` (Doppelrand nested architecture for glass cards), `production-hardening.md` (backdrop-filter scope, mobile performance), `anti-patterns.md` (glassmorphism contrast failures are common — test explicitly), `audit-rubric.md` (Color 9+, Motion 8+, Accessibility 8+ are entry bars), `exemplars.md` (Arc Browser, Granola, Apple Vision Pro, Linear).
+
+## Effect palette — what this line's winners ship
+
+The awarded corpus carrying this DNA: Igloo Inc (SOTY 2024), Exo Ape (SOTD May 2022), Cyd Stumpel (SOTD Mar 2025), Sculpting Harmony (SOTM Nov 2023), Obys (SOTM + CSSDA Studio of the Year), Aristide Benoist (SOTM Jun 2021). Arc and Granola stay as CSS-verified style anchors — not winners.
+
+**The grammar** — cohesion is one shared substrate under class-specific mechanisms. Fix one accent token, one easing table, one radius language, one display face; then vary the *mechanism* per element class — displacement for buttons, a drawn line for links, a shape morph for images, silence or glass for nav. Cyd Stumpel glues it all with `--default-duration: 1.3s`, `--default-ease: cubic-bezier(0.25,1,0.5,1)` (ease-out-quart), `--bouncy-ease: cubic-bezier(0.34,1.56,0.64,1)` for interactives. The AI failure is the inverse — one mechanism (a pale fill) copied onto every class over an ad-hoc palette.
+
+**Buttons / CTA**
+- **Accent-displacement push** — base surface barely moves; the button translates a few px and a hard, un-blurred offset shadow in the accent color appears on the opposite side, a card lifting off a colored underlayer. Cyd Stumpel `.button:hover`: `background: color-mix(in srgb, var(--color-background) 95%, var(--color-accent))` (a deliberate 5% tint), `color: var(--color-accent)`, `transform: translate(-2px, 2px)`, `box-shadow: -1px 1px 0 0 var(--color-accent)`, `64px` pill. Default button on a warm editorial ground. The displacement is the response, the tint is set-dressing — a tint-only state with no geometry move still fails the pale-hover gate (interaction-signatures.md). (Cyd Stumpel, SOTD Mar 2025; exact 1px-accent-shadow variant single-source.)
+- **Committed same-family fill** — for a fill, swap to a defined `-hover` token one step within the brand family, never a pale pastel: Granola resolves to `--color-fill-accent-hover` / `oats-green-300 → 400`, one warm step darker. (Granola, style anchor, not a winner.)
+- **The 80% primary fill** — reserve the strong fill for the single primary submit per view: Cyd Stumpel form submit `background: color-mix(in srgb, var(--color-accent) 80%, var(--color))`. Never spray it on every button. (Cyd Stumpel, SOTD Mar 2025.)
+
+**Links**
+- **Underline draw** — a pseudo-element scaling `0→1`, not a `text-decoration` toggle: Exo Ape runs one `:hover::after { transform: scaleX(1) }` across nav, list, footer and body links (color also shifts to `--color-light-grey`). This is where the accent line belongs — on links, never as nav chrome. (Exo Ape, SOTD May 2022.)
+- **Accent wash + arrow nudge** — for inline/utility links, a 10% accent wash + a 1px lift + a diagonal arrow shove. Cyd Stumpel `.platform-link:hover`: `background: color-mix(in srgb, var(--color-accent), transparent 90%)`, `transform: translateY(-1px)`, arrow child `translate(2px, -2px)`. Arrow nudge corroborated by Arc; the 10% wash single-source. Same arbitration: the lift and shove are the response, the wash is set-dressing — wash alone fails the pale-hover gate (interaction-signatures.md). (Cyd Stumpel, SOTD Mar 2025.)
+
+**Figures / cards**
+- **Border-radius morph + crossfade** — the tile's radius animates rounder while a resting graphic crossfades to the full image and the caption slides up; no accent, the geometry carries it. Cyd Stumpel `.work-thumb:hover`: `.img-container { border-radius: var(--hover-radius) }`, circle overlay `opacity 1→0` / full image `0→1`, title `translateY(0)`; timing `opacity .2s .1s ease-out, border-radius .2s .1s var(--default-ease)`. Organic-shape-native and cheaper than a WebGL displacement. (Cyd Stumpel, SOTD Mar 2025; exact recipe single-source.)
+
+**Nav** — two verified surface patterns, never the AI accent border-bottom:
+- **Transparent → same-family glass** — transparent over the hero, then a low-alpha same-family tint + `backdrop-filter: blur()` once content scrolls under. The only line is a same-family hairline (Granola holds `#E3E3E3` at `0px` width at the top), not an accent bar. (Arc, Granola — style anchors.)
+- **Solid same-cream sticky bar** — `position: sticky`, `background` set to the exact page cream (`#FFF5EE`), `border-bottom: none`. A glass-free option when the palette is one warm ground. (Cyd Stumpel, SOTD Mar 2025.) Nav items ride the same underline-draw as body links — never give them a fill.
+
+**Text**
+- **Bespoke display as the artwork** — the typeface + scale is the signature before any motion: Exo Ape in Times, Granola in Melange, Cyd Stumpel in condensed Bueno, Arc in Marlin. Rotate off the overexposed kit sans. (≥4 sites.)
+- **Per-char scrub reveal** (hero only) — SplitText chars stagger in on scroll: `stagger: 0.02`, `duration: 0.25→0.2`, `ease: power2.out` (enter) / `power2.in` (exit), section hold `0.5–1.0`, section scrub `0.5`. Reserve for one or two hero lines. (Codrops build params; corroborated by Sculpting Harmony's kinetic type, SOTM Nov 2023.)
+- **Cinematic scroll scrub** — a pinned scene scrubbed to scroll on hand-tuned eases: `cinematicSilk 0.45,0.05,0.55,0.95`, `cinematicSmooth 0.25,0.1,0.25,1`, `ScrollSmoother { smooth: 4, smoothTouch: 0.1 }`, container `500vh–900vh`, text-overlay scrub `0.5–0.8`. Only when a real 3D/WebGL scene carries the story. (Igloo Inc, SOTY 2024 + Codrops.)
+- Variable-font scroll-morph is winner-verified on the `ytuc` optical axis via native `animation-timeline` (Cyd Stumpel — see Mid-page life below); a `wght/wdth` variant stays unverified on any winner — ship that one as a supporting flourish, not a headline claim.
+
+**Cursor** — a choice, not a reflex. Custom follower on image/scene-forward builds (Exo Ape and Granola carry a DOM cursor element); a deliberate system cursor on a text/editorial build — Cyd Stumpel, an SOTD winner, ships no follower and leans on the button displacement + View Transitions. Don't add a follower by reflex. Magnetic pull is JS-driven and unverified on any corpus site — optional, not default.
+
+**Loader / intro** — fold the intro into the scene (Igloo Inc's real-time intro flows into the experience — single-source, WebGL) or paint instantly and let `animation-timeline: view()` reveals carry the entrance (Arc, Granola). No full-screen spinner, no `0→100%` gate.
+
+Native-API reality: scroll-driven `animation-timeline: view()`, View Transitions (Cyd Stumpel animates route changes with `::view-transition-old(...) { clip-path: inset(0 round var(--border-radius-from)) }`), `backdrop-filter`, and organic `clip-path` section edges are all verified in winners' authored CSS — real here, not aspirational.
+
+**Mid-page life** — the reversible layer is native, not GSAP scrub: display type morphs a variable-font optical axis as it crosses its view-range — `.page-title__title` rides `animation-timeline: --page-title` with `animation-range: entry 100lvh entry 115lvh` at `font-variation-settings:"ytuc" 80`, and the footer wordmark runs `"ytuc" 100→0` on `--footer` (Cyd Stumpel, 7.22 SOTD, winner-verified) — and even the quiet SaaS register builds its mid-page motion on 13 `animation-timeline` declarations, `scroll(root)` shrink-and-parallax plus named `--hiw-step-N` step-fills (Granola, live CSS, style anchor — not a winner). Per-block entrances fire once (`toggleActions:"play"` on Cyd Stumpel; `once:` on Exo Ape, 7.89, winner-verified) while the native timelines reverse by construction, and between inputs the idle band stays in character — a folder image breathing `translate: 0 -0.15em` on a `5s` infinite loop, a wordmark ticker at `20s linear` (Cyd Stumpel, winner-verified). Text motion rides scroll and time, never the pointer: hover-on-text stays link-scoped — one underline scale-draw across nav, list, and footer registers (Exo Ape, winner-verified), a gradient underline material grown from `--initial-underline-height: 0.1em` to a full highlight (Cyd Stumpel, winner-verified) — with no heading, prose, or number hover anywhere in the read corpus. Wheel smoothing is register-dependent, not universal — portfolio and experience builds smooth (Cyd Stumpel: Lenis, 28 refs, with ScrollSmoother alongside; Exo Ape: a custom lerp, zero Lenis) while the quiet register keeps the native wheel and lets the `scroll()`/`view()` timelines do the work (Granola ships no smoothing library — live CSS, verified absence).
+
+**Scroll texture** — a wordmark marquee overflowing the viewport edge and drifting under scroll (Cyd Stumpel, winner-verified), or WebGL scroll-scrub through the scene (Igloo, shipped). The design_plan names one — the organic ground still needs a directed carry down the page, never drift alone.
+
+**Idle band** — the ambient DNA itself: orbs on 15–25s drifts, snow drift, a node-graph, procedural noise — multiple channels running between inputs (multiple, winner-verified/shipped). This is the one line where several idle channels are the canon; commit them by name so the atmosphere is authored, not accidental.
+
+**Anti-signals** — absent from every winner examined: the pale/washed-out pastel tint fill sweep on buttons (Cyd's mix is a negligible 5%, carried by displacement; real fills are committed same-family tokens at 80–100%); the contrasting accent `border-bottom` under the nav on scroll (zero — Arc and Exo Ape carry none, Granola a same-family hairline, Cyd a borderless solid bar); one universal hover copied across every element class; a reflexive circle-follower cursor with magnetic-everything; a full-screen spinner or `0–100%` preloader gate; a blanket 40px+ fade-up parallax on every section; static PNG grain for depth.
+
+Channel calibration — this line's winners run 4–5 distinct interaction channels (per-class states, display-type effects, cursor, idle, scroll texture, replayable spectacle); the pre-emit critique's Aliveness axis reads against that band, never against bare coverage.
+
+## Page recipe — how this line's winners build the page
+
+Corpus — Igloo Inc (SOTD Jul 2024, Animations/Transitions 9.60, SOTY 2024 — live; copy evolved since award), Cyd Stumpel (SOTD Mar 2025, live), Exo Ape (SOTD May 2022, live), Obys (SOTM + CSSDA Studio of the Year, live), Aristide Benoist (SOTM Jun 2021, live), Sculpting Harmony (SOTM Nov 2023 + FWA, media-only).
+
+**Anatomy** — *`engine-world`, scroll-scrubbed* (Igloo, winner-verified): 220-char `body`, zero text nodes, `overflow: hidden` — all UI in-engine HUD, scroll scrubs a real-time simulation; attention/understanding fuse; climax = the assembled igloo's dark entrance; rest = ambient drift. (Sculpting Harmony: `chapter-world`, media-only.) *`studio-reel`, climax at the fold* (winner-verified) — warm-organic (Cyd): marquee hero [attention] → role band [understanding] → morph-tile grid [proof] → blogs [rest] → services → contact footer [close]; cinematic (Exo Ape): photo hero → studio → work + reel [proof; 8 videos] → media/story [rest] → contact footer. *`type-index` edges, climax on click* (winner-verified): Obys — no hero headline; the 19-entry index is the page [proof-by-density]; Aristide — 2-canvas dark hero, horizontal `ARISTIDE` wordmark, index 01–30 → clients wall → awards ledger.
+
+**Hero architectures** — *In-engine fold* (Igloo, shipped): the fold is the live scene; monospace HUD corners (wordmark, mission, scroll cue, sound toggle, node-graph) from frame ~0; no CTA. *Wordmark-marquee + portrait fold* (Cyd, winner-verified): repeating Bueno-VF wordmark strip → utility row + serif nav → portrait on a red clip-path blob + serif role headline; beats: badge sticker `scale-in` .4s @.2s `--bouncy-ease`; a second sticker scroll-retimed via `animation-timeline: --page-title`, range `entry 100lvh entry 150lvh`. *Full-bleed photo + bottom-display fold* (Exo Ape, winner-verified): transparent nav → intro upper-left → stacked `Digital/Design/Experience` H1 (authored `25.6vw`) → "Scroll to explore" + custom cursor. Shared law: no filled fold CTA — the call is a scroll cue or an email link.
+
+**Footer** — contact-first moments or an in-world sign-off; never a fat sitemap (winner-verified). Cyd: project prompt + availability + copy-email pill, offset shadow riding the red accent `#d9533f`, over a clip-path edge. Exo Ape: address + email + phone + socials. Obys/Aristide (tabular-index): statement + email + ©; socials + clients wall + awards ledger. Igloo (in-world sign-off): `// Copyright © 2026 Igloo, Inc. All Rights Reserved.` in the HUD; no DOM footer.
+
+**Arrival** — the Loader row holds (`ingredients/preloaders.md`): no boundary — intro flows into the scene, HUD from frame one, no loader DOM (Igloo, winner-verified); instant paint + `animation-timeline` reveals, no `0→100%` gate (Cyd, winner-verified absence); a `P.intro` sentence over the hero photo (Exo Ape); a real-time Gehry sketch (Sculpting Harmony, media-only). Routes (`ingredients/page-transitions.md`): View Transitions, `.work-thumb` shared-element morph, `--thumb-radius: 50%` (Cyd, winner-verified); Obys's view toggle is within-page, no route curtain.
+
+**Copy voice** — Quoted to calibrate, never to ship — imitate the specificity (the named place, the count, the refusal), never the wording. Person: product → first-person-plural manifesto; studio → third-person; solo → first person + all-caps labels. One long intro sentence, then noun-phrase labels. Warm verbs, never transactional. Terminal marks (`//`) in the engine register, slash-indexing in portfolios. Refuses hype, pricing, feature lists, exclamation marks.
+- "Our mission is to build the next generation of consumer brands at the intersection of Community, AI, and crypto." (Igloo, shipped) — names its three nouns; no button follows.
+- "Available October 2026" · "Have a project in mind?" (Cyd) — availability as fact, contact as a question.
+- "The studio is shaped by people who care deeply about design and the process behind [sic]." (Obys) — process as the offer; no tagline.
+
+**Imagery art direction** — one grade page-wide or one deliberate split; never stock. Igloo: synthetic luminous ice over greyscale snow in fog. Exo Ape: architecture photo + film, blue-hour desaturated, full-bleed, sand frame. Cyd: warm real portrait on red clip-path shapes, split with pixel-art, stickers, type-as-image. Aristide: greyscale photography in thin vertical bands over pure black. Sculpting Harmony (media-only): archival + 3D, pop-color chapters.
+
+**Spectacle menu** — *Igloo, the scroll-assembled igloo* (winner-verified): scroll → luminous blocks lock into a dome, live node-graph above → a dark entrance opens; the Animations/Transitions 9.60 centerpiece. *Sculpting Harmony, type dancing to the orchestra* (media-only): scroll a chapter → condensed type stretches to LA Phil extracts, chapter colors shift → the cursor trails Gehry quotes.
+
+**Anti-signals** — page-level absences (winner-verified): no bento/card-grid fold; no `0→100%` preloader; no accent nav `border-bottom`; no fat sitemap; no filled fold CTA; no stock; no neon/corporate-blue; no single hover across classes (Effect palette).

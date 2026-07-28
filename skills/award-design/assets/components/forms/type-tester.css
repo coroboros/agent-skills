@@ -1,0 +1,129 @@
+/*
+ * type-tester — section form (winner: Exat — exat.hottype.co, Awwwards SOTD
+ * + FWA of the Day + CSSDA Website of the Month 8.83; already flagged
+ * MISSING:type-tester in recipes.json, specimen-tour-exat's type-tester
+ * role — the operable-proof beat before the specimen climax, intensity 6).
+ * The visitor drives the type: native range controls write the gap's own
+ * axis vars — --ff / --fs / --fw / --lh / --ls — onto the preview block
+ * (the enhancer's job), so the proof is by operation, not description. The
+ * form owns the stage: preview ramp + rest state (the no-JS render is the
+ * composed static specimen), the controls rail, per-slot type, rhythm. The
+ * controls are real <input type=range> / <select> — keyboard operation and
+ * focus states come native; the one styling hook is accent-color on the
+ * committed token (the state-color law). Zero decoration, zero motion.
+ *
+ * Markup contract (slots in reading order):
+ *   <section data-ad-form="type-tester" data-density="standard">
+ *     <p  data-slot="kicker">…</p>                          optional
+ *     <h2 data-slot="h2">…</h2>                             optional
+ *     <div data-slot="preview">Grotesk 96</div>             required
+ *     <div data-slot="controls">                            required
+ *       <label data-tester-control>
+ *         <span data-tester-name>Size</span>
+ *         <input type="range" data-tester-axis="fs" data-tester-unit="px"
+ *                min="24" max="200" step="1" value="96">
+ *         <output data-tester-value></output>
+ *       </label>
+ *       … one label per axis (fw / lh / ls; ff via <select data-tester-axis="ff">)
+ *     </div>
+ *   </section>
+ *
+ * Variants: data-density="airy|standard|dense"
+ * Enhancer: forms/type-tester.js (awardTypeTester) — writes the axis vars
+ * live, fills the value readouts, makes the preview an editable sample.
+ * State rides data attributes on the form root (data-tester-live) — never
+ * role classes.
+ * Tokens: --ad-space, --ad-ink, --ad-accent, --ad-font-display,
+ *         --ad-font-mono. Per-preview axis vars: --ff/--fs/--fw/--lh/--ls.
+ */
+
+[data-ad-form="type-tester"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  padding: calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="type-tester"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="type-tester"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- text slots ---------------------------------------------------------- */
+[data-ad-form="type-tester"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  margin: 0 0 calc(var(--_sp) * 0.6);
+}
+[data-ad-form="type-tester"] > [data-slot="h2"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin: 0 0 calc(var(--_sp) * 1.6);
+}
+
+/* ---- the driven preview --------------------------------------------------- */
+/* the axis vars land here (enhancer-written, inline); the fallbacks ARE the
+   composed rest — a dead script shows this exact specimen */
+[data-ad-form="type-tester"] > [data-slot="preview"] {
+  font-family: var(--ff, var(--ad-font-display, inherit));
+  font-size: var(--fs, clamp(2.2rem, 7vw, 6rem));
+  font-weight: var(--fw, 200);
+  line-height: var(--lh, 1.05);
+  letter-spacing: var(--ls, 0em);
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin: 0 0 calc(var(--_sp) * 2);
+  overflow-wrap: break-word;
+  min-height: 1.2em;
+}
+[data-ad-form="type-tester"] > [data-slot="preview"]:focus-visible {
+  outline: 2px solid var(--ad-accent, oklch(62% 0.2 25));
+  outline-offset: 6px;
+}
+
+/* ---- the controls rail ---------------------------------------------------- */
+[data-ad-form="type-tester"] > [data-slot="controls"] {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: calc(var(--_sp) * 1.2);
+  align-items: end;
+}
+[data-ad-form="type-tester"] [data-tester-control] {
+  display: grid;
+  gap: 0.45em;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+}
+[data-ad-form="type-tester"] [data-tester-control] input[type="range"] {
+  inline-size: 100%;
+  margin: 0;
+  accent-color: var(--ad-accent, oklch(62% 0.2 25));
+}
+[data-ad-form="type-tester"] [data-tester-control] select {
+  font: inherit;
+  color: var(--ad-ink, oklch(96% 0 0));
+  background: transparent;
+  border: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 30%, transparent);
+  padding: 0.35em 0.5em;
+  accent-color: var(--ad-accent, oklch(62% 0.2 25));
+}
+[data-ad-form="type-tester"] [data-tester-value] {
+  color: var(--ad-ink, oklch(96% 0 0));
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- mobile --------------------------------------------------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="type-tester"] {
+    padding: calc(var(--_sp) * 3) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="type-tester"] > [data-slot="controls"] {
+    grid-template-columns: 1fr 1fr;
+  }
+}

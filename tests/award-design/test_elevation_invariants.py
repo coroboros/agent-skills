@@ -24,59 +24,86 @@ def _read(path):
 
 
 class TestNamedTrapsAndCountableChecks(unittest.TestCase):
-    """The harvest added falsifiable named traps the catalog lacked, and
-    promoted the countable ones into the HARD gate. Each trap carries a
-    brief-tied override (or a declared archetype scope) so it raises the floor
-    without manufacturing a new monoculture."""
+    """The harvest added falsifiable named traps the catalog lacked, and the
+    protocol rebuild moved the countable table to its single home — the Phase 5
+    gate (preflight.md §4). Each check keeps a brief-tied override (or a
+    declared archetype scope) so it raises the floor without manufacturing a
+    new monoculture; anti-patterns.md keeps the rationale and a pointer."""
 
     def setUp(self):
         self.anti = _read(REFS / "anti-patterns.md")
+        self.preflight = _read(REFS / "preflight.md")
 
     def _countable_table(self):
-        m = re.search(r"## Countable checks(.*?)(?=^## )", self.anti, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "Countable checks section missing")
+        m = re.search(r"## 4\. Countable(.*?)(?=^## )", self.preflight,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "preflight.md §4 Countable missing")
         return m.group(1)
 
-    def test_five_new_countable_checks_present(self):
+    def test_anti_patterns_points_to_the_moved_table(self):
+        m = re.search(r"## Countable checks(.*?)(?=^## )", self.anti,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "anti-patterns.md Countable checks pointer missing")
+        self.assertIn("preflight.md", m.group(1),
+                      "the catalog must route to preflight.md — one home, no drift")
+
+    def test_harvested_countable_checks_present(self):
         table = self._countable_table()
-        for check in ("Hero-stack cap", "CTA-intent consistency", "Zigzag cap",
-                      "Marquee cap", "Layout-family variety"):
+        for check in ("Hero stack", "CTA intent", "Zigzag",
+                      "Marquees", "Layout variety"):
             with self.subTest(check=check):
                 self.assertIn(f"**{check}**", table,
                               f"countable check missing: {check}")
 
-    def test_new_checks_declare_scope(self):
-        """Every countable check declares Global vs archetype-conditional —
-        the scope column is the override mechanism for the gate."""
-        for check in ("Hero-stack cap", "CTA-intent consistency", "Zigzag cap",
-                      "Marquee cap", "Layout-family variety"):
-            row = next((ln for ln in self.anti.splitlines() if f"**{check}**" in ln), "")
-            with self.subTest(check=check):
-                self.assertTrue(row, f"row missing for {check}")
-                self.assertTrue(
-                    "Global" in row or "Archetype-conditional" in row,
-                    f"{check} must declare a scope",
-                )
+    def test_overrides_are_verdict_written_and_archetype_scoped(self):
+        """The scope column died with the table format; the override mechanism
+        is now file-level (a written, brief-tied override in the verdict) plus
+        inline archetype suppressions on the rows that need them."""
+        self.assertIn(
+            "the override is written into the verdict and tied to the brief; "
+            "an unstated override is a fail", self.preflight,
+            "the file-level override law must be stated in the preflight intro")
+        emdash = next((ln for ln in self.preflight.splitlines()
+                       if "**Em-dash density**" in ln), "")
+        self.assertIn("suppressed for editorial / corporate-luxury", emdash,
+                      "the em-dash cap must keep its archetype suppression")
 
     def test_layout_family_exempts_single_fold(self):
-        """Layout-family variety must not fire on single-fold portfolios / docs —
+        """Layout variety must not fire on single-fold portfolios / docs —
         that exemption is what keeps it from smothering minimal builds."""
-        row = next((ln for ln in self.anti.splitlines()
-                    if "Layout-family variety" in ln), "")
+        row = next((ln for ln in self.preflight.splitlines()
+                    if "**Layout variety**" in ln), "")
         self.assertIn("single-fold", row.lower(),
-                      "layout-family check must exempt single-fold portfolios / docs")
+                      "layout-variety check must exempt single-fold pages")
 
-    def test_countable_only_checks_carry_inline_override(self):
-        """The global-scope caps with no archetype exception must still offer a
-        brief-tied path (an 'Override:' clause or an explicit 'is fine' allowance)
-        so no ban is a dead end."""
-        for check in ("Hero-stack cap", "CTA-intent consistency", "Zigzag cap"):
-            row = next((ln for ln in self.anti.splitlines() if f"**{check}**" in ln), "")
+    def test_caps_keep_a_brief_tied_path(self):
+        """No ban is a dead end: the zigzag cap keeps its inline allowance and
+        the verdict block carries the written-override line for the rest."""
+        row = next((ln for ln in self.preflight.splitlines()
+                    if "**Zigzag**" in ln), "")
+        self.assertIn("a third only if it inverts composition", row,
+                      "the zigzag cap must keep its inline allowance")
+        self.assertIn("**Justified overrides:**", self.preflight,
+                      "the verdict block must carry the justified-overrides line")
+
+    def test_imported_production_checks_present(self):
+        """The taste-skill/hallmark import round added rules the catalog lacked;
+        the countable ones stay §4 boxes, the rest moved to their tell / pattern
+        homes — each must survive somewhere the protocol still loads."""
+        table = self._countable_table()
+        for check in ("CTA wrap", "Middle dots", "Long lists",
+                      "Italic descenders"):
             with self.subTest(check=check):
-                self.assertTrue(
-                    "Override" in row or "is fine" in row,
-                    f"{check} must carry an override / allowance clause",
-                )
+                self.assertIn(f"**{check}**", table,
+                              f"imported countable check missing: {check}")
+        for phrase in ("Hero top padding past `pt-24`", "Split-header sections",
+                       "Quotes running past 3 lines"):
+            with self.subTest(tell=phrase):
+                self.assertIn(phrase, self.anti,
+                              f"imported tell missing from anti-patterns.md: {phrase}")
+        nav = _read(REFS / "navigation-patterns.md")
+        self.assertIn("desktop under 10% of viewport", nav,
+                      "the nav height discipline must survive in navigation-patterns.md")
 
     def test_split_screen_hero_banned_with_override(self):
         line = next((ln for ln in self.anti.splitlines()
@@ -130,8 +157,9 @@ class TestImageryProtocol(unittest.TestCase):
     """Imagery is the largest single missing imposition. references/imagery.md
     carries the protocol; two axiomatic rejections wire it into the anti-slop
     catalog the review mode runs; the build loads the protocol and imposes a real
-    visual ambiently. The protocol reaches for generated / seeded /
-    honest-placeholder assets — never stock."""
+    visual ambiently. The protocol reaches for generated / curated-stock / seeded
+    / honest-placeholder assets — the ban is on *stock-feeling* scatter, not a
+    surgically-chosen, graded photograph."""
 
     def setUp(self):
         self.imagery = _read(REFS / "imagery.md")
@@ -144,14 +172,15 @@ class TestImageryProtocol(unittest.TestCase):
             with self.subTest(marker=marker):
                 self.assertIn(marker, self.imagery, f"imagery.md missing section: {marker}")
 
-    def test_acquisition_order_is_generate_seed_placeholder(self):
+    def test_acquisition_order_generate_curated_seed_placeholder(self):
         order = self.imagery.lower()
         gen = order.find("generate it")
+        curated = order.find("curated stock, chosen surgically")  # the rung-2 heading, not the intro mention
         seed = order.find("seed a real source")
         placeholder = order.find("labeled placeholder + tell the user")
         self.assertTrue(
-            0 <= gen < seed < placeholder,
-            "acquisition order must be generate → seed → labeled placeholder",
+            0 <= gen < curated < seed < placeholder,
+            "acquisition order must be generate → curated stock → seed → labeled placeholder",
         )
 
     def test_real_logo_sources_and_variants(self):
@@ -160,9 +189,18 @@ class TestImageryProtocol(unittest.TestCase):
         self.assertIn("light and dark variants", self.imagery.lower(),
                       "logos must ship light + dark variants")
 
-    def test_protocol_never_forces_stock(self):
-        self.assertIn("stock photography is not on this list", self.imagery.lower(),
-                      "the imagery protocol must explicitly exclude stock photography")
+    def test_curated_stock_is_a_gated_fallback_not_a_free_pass(self):
+        low = self.imagery.lower()
+        self.assertIn("curated stock", low,
+                      "curated stock is an allowed rigorous fallback, ranked above seed/placeholder")
+        self.assertIn("stock-feeling", low,
+                      "the named failure is stock-feeling imagery, not a surgically-chosen graded photo")
+        self.assertIn("never hotlink", low,
+                      "curated stock is downloaded and optimized, never hotlinked")
+        self.assertTrue(
+            "commissioned or generated final" in low or "flag it in the asset list" in low,
+            "curated stock is flagged as a placeholder to replace for a real submission",
+        )
 
     def test_two_imagery_axioms_route_to_protocol(self):
         m = re.search(r"## Axiomatic rejections(.*?)(?=^## )", self.anti,
@@ -183,23 +221,21 @@ class TestImageryProtocol(unittest.TestCase):
         self.assertIn("typographic", line.lower(),
                       "hero-visual axiom must carry the deliberate-typographic-hero override")
 
-    def test_skill_md_wires_imagery_into_build(self):
-        """The rebuild folded the imagery floor into the build's ambient forcing
-        (no separate HARD-gate block). The build section must reference the
-        protocol and impose a real visual; the anti-slop floor must name the
-        no-real-visual hero — both inside `## Build the frontend yourself`."""
-        m = re.search(
-            r"^## Build the frontend yourself, under the forcing\b(.*?)(?=^##\s)",
-            self.skill, re.DOTALL | re.MULTILINE,
-        )
-        self.assertIsNotNone(m, "## Build the frontend yourself section missing")
-        build = m.group(1)
-        self.assertIn("references/imagery.md", build,
-                      "the build must reference the imagery acquisition protocol")
-        self.assertIn("real visual", build.lower(),
-                      "the build must impose a real visual on the hero")
-        self.assertIn("a hero with no real visual", build.lower(),
-                      "the anti-slop floor must name the no-real-visual hero as a banned tell")
+    def test_skill_md_wires_imagery_into_the_protocol(self):
+        """The protocol front-loads assets: Phase 3 loads the imagery protocol
+        and secures assets before the build; the pre-flight gate carries the
+        hero-real-visual box so a placeholder hero cannot ship."""
+        m = re.search(r"^## Phase 3 — .*?\n(.*?)(?=^## )", self.skill,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "## Phase 3 section missing")
+        phase3 = m.group(1)
+        self.assertIn("references/imagery.md", phase3,
+                      "Phase 3 must load the imagery acquisition protocol")
+        self.assertIn("asset list", phase3.lower(),
+                      "Phase 3's artifact must include the asset list")
+        preflight = _read(REFS / "preflight.md")
+        self.assertIn("Hero carries a real visual", preflight,
+                      "the pre-flight gate must carry the hero-real-visual box")
 
 
 class TestShipReadyFloor(unittest.TestCase):
@@ -243,31 +279,31 @@ class TestShipReadyFloor(unittest.TestCase):
         self.assertIn("never auto-generated", tmpl,
                       "JSON-LD must be a template, never auto-generated with placeholder data")
 
-    def _ship_ready_subsection(self):
-        """The rebuild folded the floor into the build's `### Ship-ready` block
-        (no separate Phase 4 / HARD-gate). Scope assertions to it."""
-        m = re.search(
-            r"^### Ship-ready(.*?)(?=^###\s|^##\s)",
-            self.skill, re.DOTALL | re.MULTILINE,
-        )
-        self.assertIsNotNone(m, "### Ship-ready subsection missing from the build")
+    def _phase(self, n):
+        m = re.search(rf"^## Phase {n} — .*?\n(.*?)(?=^## )", self.skill,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, f"## Phase {n} section missing")
         return m.group(1)
 
-    def test_impose_tier_auto_authored_in_build(self):
-        ship = self._ship_ready_subsection()
-        self.assertIn("ship-ready-floor.md", ship,
-                      "the Ship-ready block must cite the ship-ready floor tiers")
-        self.assertIn("auto-author the craft floor", ship.lower(),
-                      "the Impose tier must be auto-authored during the build")
+    def test_impose_tier_rides_the_preflight_floor(self):
+        """The protocol splits the floor: the Impose tier binds at the Phase 5
+        craft floor, which cites it as its catalog and carries the 8-state
+        contract box."""
+        preflight = _read(REFS / "preflight.md")
+        self.assertIn("`ship-ready-floor.md` (Impose tier)", preflight,
+                      "the craft floor must cite the ship-ready floor's Impose tier")
+        self.assertIn("**8-state contract**", preflight,
+                      "the 8-state interactive contract rides the craft floor")
 
     def test_offer_tier_is_per_brief_never_auto_built(self):
-        ship = self._ship_ready_subsection().lower()
-        self.assertIn("offer production plumbing", ship,
-                      "the Offer tier must be surfaced as production plumbing")
-        self.assertIn("never auto-built", ship,
-                      "the Offer tier must never be auto-built")
-        self.assertIn("single-fold build needs none", ship,
-                      "the Offer tier must exempt a single-fold build")
+        """…and Offer is surfaced per brief at ship time (Phase 6); the
+        never-auto-built and single-fold exemptions live in the tier itself,
+        pinned by TestShipReadyFloor.test_offer_tier_is_opt_in_production_weight."""
+        phase6 = self._phase(6).lower()
+        self.assertIn("offer production plumbing per brief", phase6,
+                      "the Offer tier must be surfaced as production plumbing, per brief")
+        self.assertIn("ship-ready-floor.md", phase6,
+                      "Phase 6 must route the offer to the ship-ready floor")
 
     def test_signature_moment_outranks_floor_in_prominence(self):
         sig = self.skill.lower().find("signature moment")
@@ -325,6 +361,81 @@ class TestMotionVocabulary(unittest.TestCase):
         # Contradictions surface, never average — the behavior rule the table must honor.
         self.assertIn("never average", cal,
                       "conflicting signals must surface as a contradiction, not be averaged")
+
+
+class TestArchetypeGateCompliance(unittest.TestCase):
+    """An archetype file that prescribes a value the skill's own gate FAILs is
+    a self-contradiction — a build following it can never ship. Pure #FFFFFF
+    prescriptions and un-alpha'd bg-white samples were the field-found class;
+    this pins the whole class shut."""
+
+    ARCHETYPE_FILES = [
+        "minimalist.md", "brutalist.md", "editorial.md", "bold-maximal.md",
+        "immersive-cinematic.md", "experimental.md", "corporate-luxury.md",
+        "bento-card.md", "spatial-organic.md", "premium-patterns.md",
+    ]
+
+    def test_no_pure_white_prescriptions(self):
+        for name in self.ARCHETYPE_FILES:
+            body = _read(REFS / name)
+            with self.subTest(file=name):
+                self.assertNotIn("#FFFFFF", body,
+                                 f"{name} prescribes pure #FFFFFF — axiom 3 fails it")
+                self.assertIsNone(
+                    re.search(r"\bbg-white\b(?!/)", body),
+                    f"{name} ships an un-alpha'd bg-white sample — the scanner fails it")
+
+    def test_no_pure_black_prescriptions(self):
+        for name in self.ARCHETYPE_FILES:
+            body = _read(REFS / name)
+            with self.subTest(file=name):
+                self.assertIsNone(
+                    re.search(r"`#000000`|`#000`(?!/)", body),
+                    f"{name} prescribes pure #000 — axiom 3 fails it")
+
+
+class TestOpticalCraft(unittest.TestCase):
+    """references/optical-craft.md is the last-10% layer — type optics, spatial
+    optics, interaction personality, and the quiet layer. Model defaults are
+    geometrically correct and optically wrong; losing a section here reopens
+    the exact ceiling the file exists to break."""
+
+    def setUp(self):
+        self.craft = _read(REFS / "optical-craft.md")
+
+    def test_four_sections_present(self):
+        for section in ("## Type optics", "## Spatial optics",
+                        "## Interaction personality", "## The quiet layer"):
+            with self.subTest(section=section):
+                self.assertIn(section, self.craft)
+
+    def test_tracking_is_a_curve_with_values(self):
+        self.assertIn("Tracking is a curve, not a value", self.craft)
+        self.assertIn("-0.03em", self.craft, "display tracking values must be concrete")
+        self.assertIn("+0.05em", self.craft, "uppercase tracking values must be concrete")
+
+    def test_text_wrap_polish_present(self):
+        self.assertIn("text-wrap: balance", self.craft)
+        self.assertIn("text-wrap: pretty", self.craft)
+        self.assertIn("tabular-nums", self.craft)
+
+    def test_interaction_personality_covers_all_nine_archetypes(self):
+        m = re.search(r"## Interaction personality(.*?)(?=^## )", self.craft,
+                      re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m)
+        table = m.group(1)
+        for archetype in ("Minimalist", "Brutalist", "Editorial", "Bold / Maximal",
+                          "Immersive / Cinematic", "Experimental", "Corporate Luxury",
+                          "Bento / Card", "Spatial Organic"):
+            with self.subTest(archetype=archetype):
+                self.assertIn(f"| {archetype} |", table,
+                              f"personality row missing for {archetype}")
+
+    def test_quiet_layer_demands_two(self):
+        self.assertIn("pick ≥2", self.craft)
+        for detail in ("::selection", "favicon", "<title>"):
+            with self.subTest(detail=detail):
+                self.assertIn(detail, self.craft)
 
 
 class TestInspirationSet(unittest.TestCase):

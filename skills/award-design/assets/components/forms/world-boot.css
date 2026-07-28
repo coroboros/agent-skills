@@ -1,0 +1,163 @@
+/*
+ * world-boot — section form (winner: Bruno's Portfolio — SOTD 2026-01-21 +
+ * Dev Award + SOTM Jan 2026: objects rise/assemble from the ground in the
+ * site's own shaders with a diegetic sound, the 'click to start' gate
+ * doubling as the audio unlock; already flagged MISSING:world-boot in
+ * recipes.json — the world-boot `form` field of engine-world-bruno, pairs
+ * gate: gated-splash + ground: shader-surface).
+ *
+ * ALIAS RULING — world-boot vs world-boot-gate, ONE mechanic, built ONCE:
+ * the ledger carries two experimental lines, but world-boot's row has NO
+ * seen-in of its own — it is the recipes-field spelling (MISSING:world-boot)
+ * of the world-boot-gate gap, whose own text says so: 'recipes.json flags
+ * MISSING:world-boot + MISSING:in-engine-intro — the in-engine diegetic
+ * boot has no component'. That gap names TWO spellings of the diegetic
+ * boot: the Igloo spelling (a real-time intro resolving into scene one, NO
+ * affordance, HUD live from frame one) SHIPPED in rung 8A as the
+ * in-engine-intro form; the Bruno spelling (assembly FROM the visitor's
+ * start gesture, the gate doubling as the audio unlock) ships HERE. The
+ * rung-7B webgl-preload-gate ruling preserved exactly this territory —
+ * 'renders IN the engine and IS the concept booting', no DOM overlay
+ * curtain — and this form closes it. world-boot-gate therefore closes as
+ * an alias: Igloo half → in-engine-intro, Bruno half → world-boot; no
+ * third artifact exists to build.
+ *
+ * Ruled on the seams: DISTINCT from in-engine-intro on the GATE axis — the
+ * intro has no affordance and arrival begins on first-frame-ready; here
+ * NOTHING moves until the visitor's own start gesture, because the gesture
+ * is also the audio unlock (a hard browser constraint, not a taste choice)
+ * and the world is playable, not scrolled past. DISTINCT from the loader
+ * curtains (counter-loader / branded-preloader / gated-splash's overlay):
+ * this form is the STAGE — the page IS the world; the paired gated-splash
+ * remains the overlay gate COMPONENT a build may put in front (its onEnter
+ * calls the enhancer's start()), or the builder authors the in-stage
+ * [data-slot="start"] control instead — one gate per page, never both.
+ * The stage LAW (poster-first LCP, svh, pointer gated on live) is mirrored
+ * from the engine shells under this form's own guard — a page can carry
+ * world-boot and a shell and needs both enhancers.
+ *
+ * Markup contract (slots in reading order; chrome is authored DOM, live
+ * from first paint; the start control is authored `hidden` — with no JS
+ * the poster page reads whole and gates nothing):
+ *   <section data-ad-form="world-boot">
+ *     <figure data-slot="poster"><img src="…" alt="…"></figure>   required
+ *     <div    data-slot="mount"></div>                            required, empty
+ *     <button data-slot="start" type="button" hidden>Start</button> optional —
+ *              omit when gated-splash fronts the page
+ *     <a      data-slot="wordmark" href="/">…</a>                 optional  TL
+ *     <p      data-slot="status">…HUD line…</p>                   optional  BL
+ *     <p      data-slot="cue">Drive</p>                           optional  bottom-centre
+ *   </section>
+ *
+ * State rides data-engine="booting|live" on the root — enhancer writes
+ * only; this stylesheet ships zero motion and hides nothing (the poster's
+ * crossfade and settle hide, and the start control's un-hide, are the
+ * enhancer's inline/attribute writes).
+ * Enhancer: forms/world-boot.js (awardWorldBoot).
+ * Pairs: mount → webgl-scene(delegated) | shader-surface (the recipe's
+ * ground) · gate → gated-splash (overlay spelling) · audio → the
+ * spatial-audio-world carrier (start doubles as its unlock — wire
+ * handle.unlock() in the same onStart gesture) · status → ambient-idle.
+ * Tokens: --ad-space, --ad-ink, --ad-ground, --ad-accent, --ad-font-mono,
+ * --ad-font-display.
+ */
+
+[data-ad-form="world-boot"] {
+  position: relative;
+  /* svh deliberately — dvh re-rasterizes an engine target on mobile URL-bar collapse */
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--ad-ground, oklch(14% 0.01 260));
+  color: var(--ad-ink, oklch(96% 0 0));
+  overflow: clip;
+}
+
+/* the stage layers: poster under mount, chrome above both */
+[data-ad-form="world-boot"] [data-slot="poster"] {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  z-index: 0;
+}
+[data-ad-form="world-boot"] [data-slot="poster"] img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+[data-ad-form="world-boot"] [data-slot="mount"] {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* the world earns the pointer only once it is live */
+  pointer-events: none;
+}
+[data-ad-form="world-boot"][data-engine="live"] [data-slot="mount"] {
+  pointer-events: auto;
+}
+[data-ad-form="world-boot"] [data-slot="mount"] canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* the in-stage start control — centred over the poster, above everything */
+[data-ad-form="world-boot"] [data-slot="start"] {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 1rem 2.2rem;
+  border: 1px solid currentColor;
+  background: color-mix(in oklch, var(--ad-ground, oklch(14% 0.01 260)) 72%, transparent);
+  color: var(--ad-ink, oklch(96% 0 0));
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: .82rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+[data-ad-form="world-boot"] [data-slot="start"]:focus-visible {
+  outline: 2px solid var(--ad-accent, oklch(62% 0.2 25));
+  outline-offset: 3px;
+}
+
+/* HUD chrome — live from first paint, mono, over the stage */
+[data-ad-form="world-boot"] [data-slot="wordmark"],
+[data-ad-form="world-boot"] [data-slot="status"],
+[data-ad-form="world-boot"] [data-slot="cue"] {
+  position: absolute;
+  z-index: 2;
+  margin: 0;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+[data-ad-form="world-boot"] [data-slot="wordmark"] {
+  top: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  left: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  color: inherit;
+  text-decoration: none;
+}
+[data-ad-form="world-boot"] [data-slot="wordmark"]:focus-visible {
+  outline: 2px solid var(--ad-accent, oklch(62% 0.2 25));
+  outline-offset: 2px;
+}
+
+[data-ad-form="world-boot"] [data-slot="status"] {
+  bottom: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  left: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  opacity: .8;
+}
+
+[data-ad-form="world-boot"] [data-slot="cue"] {
+  bottom: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: .8;
+}

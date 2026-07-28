@@ -1,6 +1,6 @@
 # Production Hardening
 
-Battle-tested patterns for shipping immersive web design to real devices, distilled from production incidents — not lab testing. Load this when implementing any project with video, scroll-driven cinematic reveals, or full-screen heroes.
+Battle-tested patterns for shipping immersive web design to real devices, distilled from production incidents — not lab testing. Load this when implementing any project with video, scroll-driven cinematic reveals, or full-screen heroes. These guards are boundary validations of documented browser behavior, not speculative error handling.
 
 **Scope note.** Most of the patterns here apply cross-browser (Chrome, Firefox, Safari on desktop; Chrome, Firefox, Safari on mobile). iOS Safari is the *sharpest test case* — it exposes these bugs first and hardest because of its strictest autoplay policy, aggressive bfcache restoration, synthetic scroll events during URL-bar settling, and layout timing quirks. **Passing iOS means passing everything else.** Each section below flags where a rule is genuinely iOS-only vs. where iOS is just the canary.
 
@@ -45,9 +45,11 @@ Every award-design hero uses viewport-relative heights. Picking the wrong unit i
 **CSS fallback:**
 
 ```css
-.hero { height: 100vh; }
-@supports (height: 100svh) { .hero { height: 100svh; } }
+.hero { min-height: 100svh; }                       /* stable floor — Baseline 2022, same as dvh */
+@supports (height: 100dvh) { .hero { min-height: 100dvh; } }  /* dynamic where wanted */
 ```
+
+A bare `100vh` fallback line would trip the pre-flight scanner and misbehave on iOS anyway — engines old enough to lack `svh` also lack `dvh`; omit the legacy line.
 
 ## Reading svh from JS
 

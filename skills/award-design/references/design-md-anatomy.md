@@ -35,6 +35,24 @@ Every vital narrative element from `/award-design` maps to one of the eight orde
 
 Production-hardening implementation guardrails (viewport units, autoplay belt-and-suspenders, iOS Safari quirks) host as one-line testable rules in Do's and Don'ts; full detail stays in `production-hardening.md`. Full extension convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md).
 
+## The DESIGN.md never prescribes a tell
+
+The spec drives the build, so a tell written into the DESIGN.md ships as one — a build shipped a native `<select>` and a `not-allowed` cursor because its own Components section prescribed both. The DESIGN.md **never** specifies a native form control or a native blocked/disabled cursor: it specifies uplifted controls (`appearance: none` + a custom affordance) and a disabled treatment that keeps `cursor: default`. It authors colour in OKLCH and sizing in rem (`foundations.md`), never hardcoded literals a later scrim then duplicates. The Components section carries the **interaction substrate** — the one coherent low-amplitude hover/reveal vocabulary applied to every interactive element, and the two-or-three section-tied signature echoes (`interaction-signatures.md`) — not just the hero's beat. The Phase 5 code-craft pass (`code-review.md`) overrides this file where a line here still prescribes a tell.
+
+## Palette desirability — the lived A/B
+
+Every hue ban can pass and the page still ship clinical: ARDEN's bone + pure-red cleared the AI-slop bans, the OKLCH lint, and the role-clarity rubric, and read dead — a mortuary palette with accent underlines that scan as broken links. Role-coherence is not desirability, and no gate measured the latter. So the Colors section **closes with a lived A/B**: the composed system at page proportions — the ground, the ink, and the accent in the ratio they actually occupy (a page is ~90% ground, a few percent accent), not three swatches at equal size — judged *beside the archetype exemplar's palette signature* (`exemplars.md`), with one verdict line: alive or clinical, quoting the world's lived temperature (`atmosphere-calibration.md` — an intense world rendered at the archetype's quiet default "reads as a brochure about the thing, not the thing"). With a browser rung, the exemplar's live palette is pulled up beside the composed swatch; without, the read is labeled "from description" (the same convention as the desire read). A verdict of **clinical fails R1** — it goes back to the palette derivation (the accent's chroma, the ground's temperature, the link treatment), never to a token tweak. Swatches at equal size hide the failure: a pure-red accent looks vivid as a square and reads as error-state links across a bone page.
+
+## Signature beat table
+
+The signature moment is specified as choreography before it is coded — a beat table in Section 4 Layout (cross-reference `motion.*`, `scrollTriggers.*`). Every duration and ease resolves to `motion.*` tokens; a signature that cannot be written as beats is an effect waiting to happen, not a design.
+
+| Beat | Trigger | Element | Transform | Duration / ease |
+|---|---|---|---|---|
+| 1 | scroll 0–20% (scrub) | `.hero-mask` | `clip-path` inset 100%→0 | scrub, linear |
+| 2 | beat 1 completes | `.headline` chars | y 100%→0, stagger 30ms | 0.8s, `{motion.ease-signature}` |
+| 3 | pointer enters CTA | `.cta-ring` | scale 1→1.15 | 0.4s, `{motion.ease-signature}` |
+
 ## Motion & 3D depth (motion/3D archetypes)
 
 For Immersive, Experimental, Bold, and Spatial-Organic builds, the universe carries enough motion and dimensional detail to specify the signature in full. When that signature is a self-contained WebGL/R3F scene — the one delegation, reserved for Immersive and Experimental per the main SKILL.md — this file is the subagent's sole brief:
@@ -51,8 +69,8 @@ Canonical (validated) and extension (preserved-but-unvalidated) namespaces side 
 
 ```yaml
 colors:
-  primary: "#1a1c1e"
-  surface: "#f7f5f1"
+  primary: "oklch(22.5% 0.005 248)"
+  surface: "oklch(97.1% 0.006 85)"
 components:
   modal:
     backgroundColor: "{colors.surface}"   # canonical property token — accepted

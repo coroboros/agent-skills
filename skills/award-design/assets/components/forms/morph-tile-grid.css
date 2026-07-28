@@ -1,0 +1,142 @@
+/*
+ * morph-tile-grid — section form (winner: Cyd Stumpel — the organic-shape
+ * work grid whose hover IS the spatial-organic figure signature; already
+ * flagged MISSING:morph-tile-grid in recipes.json — the proof `form` of
+ * studio-reel-cyd). A staggered grid of tile links where each tile pairs a
+ * border-radius MORPH with a CROSSFADE: on hover/focus-within the media box
+ * morphs rounder to --ad-mtg-hover-radius (a clip morph — the media is
+ * clipped by the morphing shape, so the crossfade never spills), the
+ * resting circle/graphic overlay crossfades away to the full image, and the
+ * caption title slides up. No accent in the response — the ORGANIC GEOMETRY
+ * carries it. Ruled DISTINCT from figure-hover (a contained zoom-to-1.1 +
+ * companion cue — the recipe's paired fallback, a DIFFERENT mechanic: no
+ * radius morph, no circle->full crossfade), from spotlight-expand-tile (the
+ * bento layout-AWARE row expand — siblings lean away, a de-saturated
+ * preview restores to color; here the grid never moves, one tile answers
+ * alone) and from clip-reveal (a fire-once scroll UNCOVER — this morph is a
+ * reversible pointer response, hover in and out).
+ *
+ * Markup contract — "tile" is a REPEATED slot: every direct child is an
+ * <a data-slot="tile"> (tile parts in reading order):
+ *   <section data-ad-form="morph-tile-grid">
+ *     <a data-slot="tile" href="…">
+ *       <figure data-tile-media>
+ *         <img src="…" alt="…">                        required
+ *         <div data-tile-rest aria-hidden="true">…</div> optional resting graphic
+ *       </figure>
+ *       <p data-tile-caption>
+ *         <span data-tile-title>…</span>               required
+ *         <span data-tile-meta>…</span>                optional
+ *       </p>
+ *     </a>
+ *     … repeated <a data-slot="tile"> …
+ *   </section>
+ *
+ * The stylesheet owns layout + the resting radius language only — zero
+ * motion, zero hover states, nothing hidden: with no JS (or a dead script)
+ * every tile is fully legible — image, resting graphic, caption. The
+ * enhancer (forms/morph-tile-grid.js, awardMorphTileGrid) owns the whole
+ * state machine as inline writes: on fine pointers it arms the caption's
+ * resting slide-down and drives morph + crossfade + slide on
+ * hover/focus-within; on coarse pointers and under reduced motion the
+ * revealed state IS the rest (full image, caption up — the archetype's
+ * mobile answer: pointer vocabulary dormant).
+ * Variants: data-stagger="off" flattens the even-tile drop.
+ * Pairs: tile → (the enhancer owns the tile response; do NOT co-init
+ * figure-hover on these tiles).
+ * Tokens: --ad-space, --ad-ink, --ad-font-display, --ad-font-mono,
+ * --ad-mtg-radius (resting radius language), --ad-mtg-hover-radius (the
+ * rounder hover shape), --ad-dur-base, --ad-ease-signature (read by the
+ * enhancer's inline transitions).
+ */
+
+[data-ad-form="morph-tile-grid"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  /* the one radius language — rest slightly organic, hover rounder; the
+     enhancer reads both and morphs between them */
+  --ad-mtg-radius: 34% 66% 52% 48% / 48% 40% 60% 52%;
+  --ad-mtg-hover-radius: 50% 50% 50% 50% / 50% 50% 50% 50%;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: calc(var(--_sp) * 2);
+  row-gap: calc(var(--_sp) * 2.5);
+  padding: calc(var(--_sp) * 3) calc(var(--_sp) * 2);
+  box-sizing: border-box;
+}
+
+/* the organic stagger — even tiles drop, so the grid flows instead of
+   snapping to one baseline (the anti-grid law) */
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"]:nth-of-type(even) {
+  margin-top: calc(var(--_sp) * 3);
+}
+[data-ad-form="morph-tile-grid"][data-stagger="off"] > [data-slot="tile"]:nth-of-type(even) {
+  margin-top: 0;
+}
+
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  min-width: 0;
+}
+
+/* ---- the media box the morph clips -------------------------------------- */
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] [data-tile-media] {
+  position: relative;
+  margin: 0;
+  overflow: clip;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--ad-mtg-radius);
+  /* the enhancer morphs clip-path inset(0 round …) inline over this box;
+     the resting radius stands identically with a dead script */
+}
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] [data-tile-media] img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* the resting circle/graphic overlay — authored content, stacked over the
+   image; its crossfade is the enhancer's inline write, never a rule here */
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] [data-tile-rest] {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  font-family: var(--ad-font-display, inherit);
+}
+
+/* ---- caption: title + meta on one line ----------------------------------- */
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] [data-tile-caption] {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: calc(var(--_sp) * 0.75);
+  margin: calc(var(--_sp) * 0.7) calc(var(--_sp) * 0.25) 0;
+}
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] [data-tile-title] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--ad-ink, oklch(96% 0 0));
+}
+[data-ad-form="morph-tile-grid"] > [data-slot="tile"] [data-tile-meta] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+}
+
+/* ---- mobile: one column, stagger released --------------------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="morph-tile-grid"] {
+    grid-template-columns: minmax(0, 1fr);
+    padding: calc(var(--_sp) * 2) calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="morph-tile-grid"] > [data-slot="tile"]:nth-of-type(even) {
+    margin-top: 0;
+  }
+}

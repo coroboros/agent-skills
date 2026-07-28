@@ -1,6 +1,6 @@
 # Atmosphere Calibration
 
-After selecting an archetype, calibrate its atmosphere on three axes (1-10). This makes design choices measurable rather than intuitive, and prevents drift during implementation.
+After selecting an archetype, calibrate its atmosphere on three axes (1-10). This makes design choices measurable rather than intuitive, and prevents drift during implementation. The three dial values are a **declared artifact**: stated in the Phase 0 output (never calibrated silently) and recorded in the DESIGN.md Overview prose — later choices arbitrate against them ("break the grid?" → Variance).
 
 ## Axes
 
@@ -26,7 +26,7 @@ Adjust ±2 based on the brief.
 | Bento / Card | 7 | 4 | 4 |
 | Spatial Organic | 4 | 6 | 6 |
 
-Use these to resolve design ambiguity: "More whitespace here?" → check Density. "Break the grid?" → check Variance. "Need scroll animation?" → check Motion. Record final calibrated scores in `DESIGN.md`.
+Use these to resolve design ambiguity: "More whitespace here?" → check Density. "Break the grid?" → check Variance. "Need scroll animation?" → check Motion. Record final calibrated scores in the `DESIGN.md` Overview prose (never as YAML token groups).
 
 ## Signal → dial inference
 
@@ -46,10 +46,14 @@ Read the brief's vocabulary to set the starting dials, then apply the ±2 archet
 
 Apply to the archetype's default scores, then clamp to 1–10. Conflicting signals (a brief that is both "dense" and "airy") are a brief contradiction — surface it, never average the two. The table sets a starting point; the archetype reference and the brief's specifics refine it.
 
+**The subject's lived temperature floors the dials — restraint lowers amplitude, never the world's pulse.** The signals above read the brief's *adjectives*; the subject's *world* speaks too, and it wins on the floor: a physically intense subject — a lifting room, a stage, a service kitchen, a street race — never renders inert, whatever the archetype's resting default. Floor Motion at 5 and let colour carry real energy when the world the page depicts is loud in life; an intense world shipped at the archetype's quiet default reads as a brochure *about* the thing, not the thing — the visitor names it "this lacks life" even when every hover responds. The archetype still sets the register (a brutalist gym presses and stamps where a maximal festival bounces); the temperature is the subject's, not the archetype's. The floor outranks the archetype's resting default — and when the floored dial leaves the archetype's band (a Minimalist forced to Motion 5+), re-validate the archetype at Phase 0 before building.
+
+Theme (light/dark) is never a default: write one sentence of the physical scene the page inhabits ("a printed proof sheet under a north-facing window" / "a cockpit at night") until it forces the answer.
+
 ## Dial → CSS heuristics
 
 Concrete starting points per band; the archetype reference refines them.
 
 - **Density 2-3** → `py-32` to `py-48` section padding (128-192px), 60-75ch reading measure, ample gutters. **Density 7-10** → `py-12` to `py-16` (48-64px), `gap-2` to `gap-4`, monospace numerics with `tabular-nums`.
 - **Variance 1-3** → 12-column grid centered, `max-w-screen-xl mx-auto`, symmetric padding. **Variance 7-10** → broken-grid `grid-template-columns: repeat(11, 1fr)` with intentional `grid-row` overlap, off-axis hero, asymmetric image-text pairs.
-- **Motion 1-3** → `transition: opacity 0.4s` only; avoid scroll-triggered. **Motion 7-10** → GSAP ScrollTrigger pin/scrub on hero, View Transitions on navigation, perpetual micro-interactions on signature elements (memoized per `premium-patterns.md` performance locks).
+- **Motion 1-3** → opacity/color transitions as the base (`transition: opacity 0.4s`); scroll-triggered reserved for the signature and one felt text effect (emphasis on already-legible copy, `text-effects.md`) at low amplitude. A static register still carries the one guarded idle channel at minimum amplitude (interaction-signatures.md) — quiet is not embalmed. **Motion 7-10** → GSAP ScrollTrigger pin/scrub on hero, View Transitions on navigation, perpetual micro-interactions on signature elements (memoized per `premium-patterns.md` performance locks).

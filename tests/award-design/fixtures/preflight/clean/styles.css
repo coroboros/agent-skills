@@ -1,0 +1,28 @@
+/* award-design · editorial · warm-paper · Söhne/Söhne · full-bleed-hero · linear · nav:minimal-bar · footer:functional */
+:root {
+  --ink: #141413;
+  --paper: #faf9f5;
+}
+body {
+  color: var(--ink);
+  background: var(--paper);
+  font-family: "Söhne", "Helvetica Neue", sans-serif;
+}
+a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+.hero {
+  min-height: 100dvh;
+}
+/* a transition on a JS-added class is the reveal idiom — no hidden state in
+   base CSS (NOJS-HIDDEN), no overshoot curve (EASE-OVERSHOOT) */
+.reveal {
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    transition: none;
+  }
+}

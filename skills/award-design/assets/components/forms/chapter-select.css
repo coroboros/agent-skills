@@ -1,0 +1,143 @@
+/*
+ * chapter-select — section form (winner: Ponpon Mania — SOTM 2025-10 + Dev
+ * Award; already flagged MISSING:chapter-select in recipes.json,
+ * chapter-world-ponpon's chapter-select role). The record-collection index:
+ * chapters composed as album covers in one horizontal rail the visitor
+ * drags, scrolls or clicks, each cover SNAPPING TO PLACE — built
+ * native-first: CSS scroll-snap (snap-align center IS the snap-to-place)
+ * plus the OS's own momentum, so pan + snap + click all work with zero
+ * script. The form owns the rail, the tile sizing and the per-slot type
+ * ramps; the living-index hover states are the paired component's job
+ * (rows → index-row-hover) and the grab-drag promotion is the enhancer's.
+ * Zero decoration, zero motion of its own beyond native scroll behavior.
+ *
+ * Markup contract (slots in reading order; tiles are real links):
+ *   <section data-ad-form="chapter-select" data-density="standard">
+ *     <p  data-slot="kicker">…</p>                       optional
+ *     <h2 data-slot="h2">…</h2>                          optional
+ *     <div data-slot="rows">                             required
+ *       <a data-chapter href="…">
+ *         <img src="…" alt="…">                          the album cover
+ *         <span data-chapter-label>…</span>
+ *         <span data-chapter-meta>…</span>               optional
+ *       </a>
+ *       … repeated <a data-chapter> …
+ *     </div>
+ *   </section>
+ *
+ * Variants: data-density="airy|standard|dense".
+ * Enhancer: forms/chapter-select.js (awardChapterSelect) — fine-pointer
+ * grab-drag with drag-click suppression (snap released during the drag,
+ * re-engaged through a centered settle on release) and snapped-tile marking
+ * (data-cs-active + aria-current). State rides data attributes on the form
+ * root — data-cs-grab / data-cs-dragging — never role classes.
+ * Tokens: --ad-space, --ad-ink, --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="chapter-select"] {
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  padding-block: calc(var(--_sp) * 3);
+  /* inline padding stays 0 — the rail bleeds to the viewport edge; text
+     slots and the rail's scroll padding carry their own inset */
+  padding-inline: 0;
+  box-sizing: border-box;
+}
+[data-ad-form="chapter-select"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="chapter-select"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- text slots ---------------------------------------------------------- */
+[data-ad-form="chapter-select"] > [data-slot="kicker"],
+[data-ad-form="chapter-select"] > [data-slot="h2"] {
+  margin: 0;
+  padding-inline: calc(var(--_sp) * 3);
+}
+[data-ad-form="chapter-select"] > [data-slot="kicker"] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 60%, transparent);
+  margin-block-end: calc(var(--_sp) * 0.6);
+}
+[data-ad-form="chapter-select"] > [data-slot="h2"] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.5rem, 3vw, 2.6rem);
+  font-weight: 500;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin-block-end: calc(var(--_sp) * 1.6);
+}
+
+/* ---- the record rail ------------------------------------------------------ */
+[data-ad-form="chapter-select"] > [data-slot="rows"] {
+  display: flex;
+  gap: calc(var(--_sp) * 1.2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: calc(var(--_sp) * 3);
+  padding-inline: calc(var(--_sp) * 3);
+  padding-block: calc(var(--_sp) * 0.5);
+  scrollbar-width: none;
+}
+[data-ad-form="chapter-select"] > [data-slot="rows"]::-webkit-scrollbar { display: none; }
+
+/* the drag promotion — enhancer-applied attributes, never role classes */
+[data-ad-form="chapter-select"][data-cs-grab] > [data-slot="rows"] { cursor: grab; }
+[data-ad-form="chapter-select"][data-cs-dragging] > [data-slot="rows"] {
+  cursor: grabbing;
+  scroll-snap-type: none; /* the rail follows the hand; snap re-engages on release */
+}
+
+/* ---- album-cover tiles ---------------------------------------------------- */
+[data-ad-form="chapter-select"] [data-chapter] {
+  flex: 0 0 auto;
+  inline-size: clamp(200px, 30vw, 320px);
+  scroll-snap-align: center;
+  display: block;
+  color: var(--ad-ink, oklch(96% 0 0));
+  text-decoration: none;
+}
+[data-ad-form="chapter-select"] [data-chapter] img {
+  display: block;
+  inline-size: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  /* a real drag needs the hand, not the browser's image-drag ghost */
+  -webkit-user-drag: none;
+  user-select: none;
+}
+[data-ad-form="chapter-select"] [data-chapter-label] {
+  display: block;
+  font-family: var(--ad-font-display, inherit);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.25;
+  margin-block-start: calc(var(--_sp) * 0.6);
+}
+[data-ad-form="chapter-select"] [data-chapter-meta] {
+  display: block;
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+  margin-block-start: calc(var(--_sp) * 0.25);
+}
+
+/* ---- mobile: the covers ride nearly full-width, snap unchanged ------------ */
+@media (max-width: 768px) {
+  [data-ad-form="chapter-select"] > [data-slot="kicker"],
+  [data-ad-form="chapter-select"] > [data-slot="h2"] {
+    padding-inline: calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="chapter-select"] > [data-slot="rows"] {
+    scroll-padding-inline: calc(var(--_sp) * 1.2);
+    padding-inline: calc(var(--_sp) * 1.2);
+  }
+  [data-ad-form="chapter-select"] [data-chapter] {
+    inline-size: min(74vw, 320px);
+  }
+}

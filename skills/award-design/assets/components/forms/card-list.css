@@ -1,0 +1,105 @@
+/*
+ * card-list — section form (winners: Anthropic's release cards, Truekind's
+ * journal teaser, Cyd Stumpel's blogs, Cuberto's blog). The teaser-card grid:
+ * an even field of linked cards, each a fixed stack of media, kicker, title,
+ * date. The form OWNS the layout: the column grid, per-slot type ramps,
+ * spacing rhythm, measure caps, alignment. It exists to kill the recurring
+ * defects — card grids blown open by one long title, media aspects drifting
+ * between cards, kicker/title/date jammed with no rhythm; here every column is
+ * hard-capped so long titles wrap instead of stretching the grid, media locks
+ * to 3/2, and the type stack carries fixed rhythm gaps, so cards structurally
+ * cannot crowd or sprawl. The builder fills the repeated slot and pairs it
+ * with an interaction component (media → figure-hover); it never writes
+ * placement CSS for this section. Linked as a plain stylesheet so the no-JS
+ * render keeps its layout. The form ships zero decoration, zero motion, and
+ * zero hover states — interaction is the paired component's job.
+ *
+ * Markup contract — "card" is a REPEATED slot: every direct child is an
+ * <a data-slot="card"> carrying the same slot name (card parts in reading
+ * order):
+ *   <div data-ad-form="card-list" data-cols="3" data-density="standard">
+ *     <a data-slot="card" href="…">
+ *       <figure data-card-media><img …></figure>   optional
+ *       <p data-card-kicker>Research</p>            optional
+ *       <h3 data-card-title>…</h3>                  required
+ *       <p data-card-date>12 May 2026</p>           optional
+ *     </a>
+ *     … repeated <a data-slot="card"> …
+ *   </div>
+ *
+ * Variants: data-cols="2|3" · data-rule="on" (hairline top per card — the
+ *           release-card look) · data-density="airy|standard|dense"
+ * Tokens: --ad-space (rhythm unit), --ad-ink, --ad-font-display, --ad-font-mono.
+ */
+
+[data-ad-form="card-list"] {
+  /* rhythm unit — density variants retune every internal gap through this one var */
+  --_sp: var(--ad-space, clamp(1.25rem, 2.5vw, 2rem));
+  display: grid;
+  /* minmax(0, …): one long unbroken title wraps instead of blowing the column */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: calc(var(--_sp) * 1.5);
+  padding: calc(var(--_sp) * 2.5) calc(var(--_sp) * 3);
+  box-sizing: border-box;
+}
+[data-ad-form="card-list"][data-cols="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+[data-ad-form="card-list"][data-density="airy"]  { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 1.4); }
+[data-ad-form="card-list"][data-density="dense"] { --_sp: calc(var(--ad-space, clamp(1.25rem, 2.5vw, 2rem)) * 0.72); }
+
+/* ---- cards -------------------------------------------------------------- */
+[data-ad-form="card-list"] > [data-slot="card"] {
+  color: inherit;
+  text-decoration: none;
+}
+[data-ad-form="card-list"][data-rule="on"] > [data-slot="card"] {
+  border-top: 1px solid color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 14%, transparent);
+  padding-top: calc(var(--_sp) * 0.9);
+}
+
+/* ---- card parts: type ramps + rhythm ------------------------------------ */
+[data-ad-form="card-list"] > [data-slot="card"] > [data-card-media] {
+  margin: 0 0 calc(var(--_sp) * 0.9);
+  aspect-ratio: 3 / 2;
+  /* the clip layer the paired figure-hover scales inside */
+  overflow: hidden;
+}
+[data-ad-form="card-list"] > [data-slot="card"] > [data-card-media] img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+[data-ad-form="card-list"] > [data-slot="card"] > [data-card-kicker] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 55%, transparent);
+  margin: 0 0 calc(var(--_sp) * 0.5);
+}
+[data-ad-form="card-list"] > [data-slot="card"] > [data-card-title] {
+  font-family: var(--ad-font-display, inherit);
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  font-weight: 500;
+  line-height: 1.25;
+  text-wrap: balance;
+  color: var(--ad-ink, oklch(96% 0 0));
+  margin: 0;
+}
+[data-ad-form="card-list"] > [data-slot="card"] > [data-card-date] {
+  font-family: var(--ad-font-mono, ui-monospace, monospace);
+  font-size: 0.68rem;
+  font-variant-numeric: tabular-nums;
+  color: color-mix(in oklch, var(--ad-ink, oklch(96% 0 0)) 45%, transparent);
+  margin: calc(var(--_sp) * 0.6) 0 0;
+}
+
+/* ---- mobile: one column, cards breathe ---------------------------------- */
+@media (max-width: 768px) {
+  [data-ad-form="card-list"],
+  [data-ad-form="card-list"][data-cols="2"] {
+    grid-template-columns: minmax(0, 1fr);
+    gap: calc(var(--_sp) * 2);
+    padding: calc(var(--_sp) * 2.5) calc(var(--_sp) * 1.2);
+  }
+}

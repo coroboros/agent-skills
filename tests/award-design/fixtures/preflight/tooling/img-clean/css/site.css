@@ -1,0 +1,4 @@
+/* award-design · immersive-cinematic · ember · Space Grotesk/Space Mono · pinned-scrub-hero · descent · nav:show-on-scroll-up · footer:valediction */
+.poster {
+  background: oklch(20% 0.02 40) url("../assets/img/poster.png") center / cover no-repeat;
+}

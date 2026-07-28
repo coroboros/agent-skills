@@ -13,6 +13,17 @@ Before any geometry, pull from `DESIGN.md` and bind to it:
 
 The discipline that separates winners: fog instead of textures, light instead of detail. Lean scenes lit well beat busy scenes.
 
+## Fidelity floor — the object must read premium
+
+The delegation's job is not "a scene renders" — it is *a scene a jury reads as premium*. A studio-lit primitive is the slop tell. When the signature is a real object (a product, a vehicle, a figure), it clears these or it is not shipped as the signature:
+
+- **Physical material, not a toy shader.** Glass/liquid: `MeshPhysicalMaterial` with `transmission`, `roughness`, `ior` (~1.5 glass), `thickness`, and `attenuationColor`/`attenuationDistance` for the tint — never a flat `MeshStandardMaterial` with an opacity hack. Metal (a cap, a bezel): `metalness: 1`, low `roughness`, a real environment to reflect. A plastic-looking cap is the tell that sinks the whole object.
+- **An HDRI environment does the lighting.** Reflections and specular life come from `<Environment>` (Drei) or an equirect `.hdr` via `RGBELoader` — not three `pointLight`s on a black void. A *dark* scene still needs an env map; that is where the edge-light and the glass depth come from. `ACESFilmicToneMapping`, sRGB output.
+- **No primitive geometry as the hero object.** A lathe/extrude/box silhouette reads as placeholder at close range (`imagery.md` silhouette test). Prefer a real `.glb` (modelled, DRACO-compressed); if hand-built, push the profile past the primitive — chamfers, real shoulders, a filleted base, a debossed label — until the silhouette is nameable as *that* product, not "a bottle shape."
+- **Grade the render into the page.** Subtle post (bloom only on genuinely emissive, vignette, grain) tuned to the DESIGN.md, so the render seats in the page's treatment like every photograph does (`imagery.md` one-treatment).
+
+**Fidelity self-check before integration:** put a frame of the scene beside a real product render of the same category and ask the `imagery.md` silhouette question — *would a stranger read this as a premium product photo, or clock it as CGI?* CGI-clocked → fix material/lighting/geometry, or drop to the real-media signature (a scroll-scrubbed real video, `signature-invention.md`). A 60fps primitive is still a fail.
+
 ## Three.js vs R3F + Drei
 
 - **R3F + Drei** — default for any React build (this skill's TanStack Start path). Declarative scene graph, `useFrame` for per-frame work, automatic disposal of objects the reconciler owns, and Drei's site-grade helpers (`<Environment>`, `<Float>`, `<Instances>`, `<Detailed>`, `<View>`, `<AdaptiveDpr>`, `<PerformanceMonitor>`). Author against this unless told otherwise.
@@ -122,6 +133,17 @@ A continuously animating scene (idle particle drift) uses `frameloop="always"` i
 
 **LCP** — a hydrating canvas is never the LCP element and must not block it. Ship a **poster-first** hero: render a static image (a frame of the scene, AVIF) as the real LCP paint, then mount and crossfade the canvas in after hydration on viewport intersection. The DOM heading paints immediately; the WebGL arrives second. This is how shader-heavy sites still hit LCP ~1.3s.
 
+## Two-tier texture streaming — the hold-gate
+
+A scroll journey that closes in on a textured surface faces a fork with one tier: load the fine texture up front (arrival gates blow) or load the coarse one only (the close frames render soft — a fidelity-floor violation the user reads instantly). Stream two tiers and gate the camera:
+
+- **Base tier through the tracked `LoadingManager`** — a ~2k color map the branded loader counts; arrival stays instant and the wide framing reads sharp on it.
+- **Fine tier after `ready`** — the 8k color + displacement maps load through a *separate, untracked* `TextureLoader` on `requestIdleCallback`, fine-pointer + wide viewports only (at touch pixel density the base tier is indistinguishable — never spend the bytes).
+- **Atomic swap, off the hot path** — pre-upload with `renderer.initTexture()` so the GPU decode never lands on an animation frame; swap material maps (and re-tessellate the geometry if displacement joins, e.g. 96→192 segments) during a calm early phase of the journey, never mid-peak.
+- **The camera hold-gate** — until the swap, camera progress is clamped: `pCam = min(progress, HOLD + (1 − HOLD) · gateT)`, where `HOLD` is the deepest point at which the base tier still reads sharp and `gateT` eases 0→1 once the fine tier lands. The scrollbar stays honest; only the camera's depth waits, and the inertial lerp absorbs the catch-up. Fidelity never chases the scroll — the scroll waits for fidelity.
+
+Verify on a throttled network: drive to the deepest frame and screenshot the **compositor** (`preserveDrawingBuffer: false` makes canvas readback lie — a black probe on a rendering scene). The close-up must never show the base tier.
+
 ## SSR / island boundary
 
 The canvas is **client-only** — WebGL has no server render.
@@ -129,6 +151,16 @@ The canvas is **client-only** — WebGL has no server render.
 - **Astro** — `<Scene client:only="react" />`. Never `client:load` (the canvas has no SSR HTML to hydrate).
 - **TanStack Start** — a client component, dynamically imported so it stays out of the server bundle and the critical path.
 - **Real content lives in the DOM** — headings, copy, links, and CTAs are HTML behind or beside the canvas, never drawn inside it. The canvas is an `aria-hidden` visual layer over a fully functional page.
+
+## Interactive input-correctness floor
+
+A rotate/drag/pointer signature that fights the browser reads as broken, however good the render. Every one of these holds before it ships — this is the class of bug that has shipped:
+
+- **Kill native drag and selection on the interactive surface.** The canvas and *any* poster/fallback `<img>` under it: `draggable="false"` (the attribute, on every img), `user-select: none`, `-webkit-user-drag: none`, `-webkit-touch-callout: none`. A draggable poster under the canvas hijacks the drag and shows the browser's native ghost image — the ugliest artifact in this set.
+- **`touch-action: none`** on the interactive element so a drag rotates instead of scrolling the page on touch; `preventDefault()` on `pointerdown` / `touchstart` in the handler.
+- **The hit-area is the object, not the neighbourhood.** The listener target (canvas or an overlay) covers the *visible object* and does not bleed onto the headline or CTAs. A grab cursor that responds over the title while the object ignores the pointer is a mislaid hit-area — size and position the interactive layer to the object, and verify by dragging *on the object* and *on the title*.
+- **A designed affordance, not the native grab-hand.** The system `cursor: grab`/`grabbing` hand is a tell on a luxury surface — ship a custom cursor, a one-time hint that fades on first interaction, or a subtle rig in the DESIGN.md voice.
+- **Verified as a real user drags.** Synthetic pointer events bypass native drag-and-drop and hide the ghost bug; the Phase 4 loop drives a *real* mouse drag and a touch drag (`SKILL.md`) and confirms no native ghost, no text selection, the object (not the title) responding, smooth on both.
 
 ## Reduced motion + accessibility
 
@@ -145,6 +177,19 @@ The canvas is **client-only** — WebGL has no server render.
 ## Defer by name
 
 If an official GSAP or R3F skill is installed, use it for the motion layer rather than re-deriving timelines and scroll wiring here — `github.com/greensock/gsap-skills` for GSAP/ScrollTrigger, the pmndrs R3F skill for scene scaffolding. This cheat is the fallback and the integration contract; a maintained skill is the current source for that library's API.
+
+Sourcing the API is not the same as *using the medium well*. A scene that imports Three.js but ships a primitive on three point-lights has consulted the docs and ignored their craft. Use the premium path the docs and Drei give you — `<Environment>`, `MeshPhysicalMaterial`, `<Instances>`, post-processing — never the first-example primitive. "Sourced but low-effort" fails the fidelity floor above, and Phase 5 judges the craft level, not the citation.
+
+## Contact rigs — the object that reacts where you touch it
+
+A press whose only response is a whole-element `scale()` reads as a paper cutout — the object moves as one rigid sticker, and the detector fails it (`CONTACT-GLOBAL-SQUASH`, `detector.md`). A contact rig deforms the object *at the impact point*. Two rigs keep real photography while gaining contact physics:
+
+- **Mesh-warp-on-photo** — a subdivided plane (`PlaneGeometry`, ~64×64 segments) textured with the REAL photograph, never a generated stand-in. On `pointerdown`, raycast the hit to UV space, pass it as a uniform, and displace vertices toward the impact point in the vertex shader — amplitude falls off with distance from the hit UV and decays on a spring. The photo dents where it is struck: material truth stays intact (`imagery.md` still governs the source image) and the surface gains physics. Keep the displacement on the GPU; the CPU only writes the hit uniform and the spring state.
+- **Depth-mapped 2.5D** — the photograph plus a depth map (shot, or estimated offline and exported as a grayscale texture) sampled in the shader: pointer position drives parallax between depth layers, and the press pushes the near layers locally around the hit point. Cheaper than a modelled mesh, and the object reads as a body with volume rather than a sticker.
+
+**Register.** The deformation obeys the archetype DNA like every other motion: easing and shading resolve from `DESIGN.md`, never a default fleshy spring. A raw register wants a hard, stepped displacement — quantized falloff, no smoothing; a couture register wants a slow, damped settle. The default spring constant is the 3D equivalent of the default ease — a tell.
+
+**Perf.** One small scene: a single plane, one texture (plus the depth map), one draw call. Poster-first LCP is unchanged — the static photograph stays the LCP paint and the rig mounts behind it on intersection, like every canvas here. `frameloop="demand"`, `invalidate()` from the pointer handlers, and the spring loop stops requesting frames once displacement falls under a visible threshold.
 
 ## Cross-references
 

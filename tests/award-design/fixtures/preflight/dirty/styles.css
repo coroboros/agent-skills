@@ -1,0 +1,42 @@
+body {
+  color: #000;
+  background: #fff;
+  font-family: Inter, sans-serif;
+}
+a:focus {
+  outline: none;
+}
+.reveal-on-scroll {
+  opacity: 0;
+}
+.hero {
+  background-image: url("https://images.unsplash.com/photo-123");
+  height: 100vh;
+}
+.callout {
+  border-left: 4px solid #e11;
+}
+.quote {
+  font-family: Georgia, serif;
+}
+.code {
+  font-family: "Courier New", monospace;
+}
+.aside {
+  font-family: Verdana, sans-serif;
+}
+.badge {
+  font-family: "Trebuchet MS", sans-serif;
+}
+.overlay {
+  background-color: rgb(0, 0, 0);
+  color: oklch(1 0 0);
+  border-top: 1px solid white;
+}
+
+/* moving-window flicker tells */
+.hero-parallax { background-attachment: fixed; }
+.lens-crisp { clip-path: circle(8rem at var(--lens-x) var(--lens-y)); transform-origin: var(--lens-x) var(--lens-y); }
+
+/* class-role drift: build CSS re-styling a library component role */
+.ad-cta--fill.is-primary:hover { background: #d97016; }

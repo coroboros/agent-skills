@@ -1,0 +1,425 @@
+{
+  "archetype": "experimental",
+  "revision": 4,
+  "corpus": [
+    {
+      "site": "Bruno's Portfolio (folio-2025)",
+      "url": "bruno-simon.com",
+      "award": "Awwwards SOTD 2026-01-21 (8.11; creativity 8.62) + Developer Award (7.65; animations 8.60, responsive 8.20) + Site of the Month January 2026 — verified this run awwwards.com/sites/brunos-portfolio + brunos-portfolio-case-study.html + SOTM listing (SOTM promoted out of unverified)",
+      "fit": "Purest experimental spatial-world: no scroll, no menu, no grid — you DRIVE a physics vehicle through a hand-built 3D town (built in Blender, physics bodies auto-tagged by naming convention, WebGPU via Three.js TSL) to discover work. Standard DOM interactions (click/scroll/keyboard/touch/gamepad) are recreated as 3D raycasts. The engine IS the page; navigation-as-verb; discovery-as-proof."
+    },
+    {
+      "site": "Igloo Inc",
+      "url": "igloo.inc",
+      "award": "Awwwards Site of the Year 2024 + Developer Site of the Year 2024 (verified — awwwards.com/sites/igloo-inc + igloo-inc-case-study.html + webgpu.com showcase; built by Abeto + Bureaux)",
+      "fit": "Fully in-engine world: the ENTIRE UI renders in WebGL, not the DOM — text scramble swaps SDF-atlas texture offsets instead of relaying out DOM (zero reflow), procedural crystal-growth ice encases one project per block, camera drifts between zones with chromatic aberration + frost-dissolve seams, footer particles coalesce into different 3D models on link hover. The substrate is the medium; there is no page beneath."
+    },
+    {
+      "site": "Aristide Benoist — Portfolio 2021",
+      "url": "aristidebenoist.com",
+      "award": "Awwwards SOTD 2021-06-24 (8.01; animations/transitions 9.20) + Site of the Month June 2021 (verified — awwwards.com/sites/aristide-portfolio-2021 + SOTM announcement)",
+      "fit": "Type-index-over-WebGL: no marketing hero, no prose — a giant-type index over a live WebGL image field IS the whole page (proof-by-density). Rows are hover-live (masked reveal, per-entry material line, siblings dim); a click plays an in-engine route-morph into the case study; About overlay doubles as footer. Two colours (#000/#fff). Bespoke navigation replaces the page entirely."
+    },
+    {
+      "site": "Lusion v3",
+      "url": "lusion.co",
+      "award": "Awwwards SOTD 2023-10-02 (8.25) + Developer Site of the Year 2023 (Dev Award 8.41; animations 10.00) + FWA case + CSSDA Website of the Year 2023 nominee (all verified this run — awwwards.com/sites/lusion-v3 + annual-awards-2023/developer-site-of-the-year + thefwa.com/cases/lusion-v3 + cssdesignawards.com/woty2023/sites/lusion-v3 [judge score 9.27])",
+      "fit": "In-engine studio reel with a bespoke non-native scroll: the body does not natively scroll — the wheel feeds a WebGL journey through the studio's own scrollManager lerp (bespoke, corroborated by Lusion's public open-source WebGL Scroll Sync repo; not an off-the-shelf smooth-scroll lib), and the engine keeps rendering at idle with zero input. Hundreds of single-char split spans land the sparse text. Hand-coded from primitives. (Exact idle tick-rate and ~1vh scrollHeight are reference-carried, unverified — see unverified.)"
+    },
+    {
+      "site": "Valentin Gassend — Portfolio",
+      "url": "valentingassend.com",
+      "award": "Awwwards Honorable Mention 2026-05-18 (community 15/20, votes 5.00-9.20) — verified this run awwwards.com/sites/valentin-gassend-portfolio + valentingassend.com",
+      "fit": "In-engine / immersive scroll-driven WebGL portfolio: a freelance creative-developer site built on WebGL + Three.js + React + GSAP, self-described 'immersive WebGL, GSAP animations & smooth UI/UX' with a Lab section of experiments. CORRECTION (was miscredited as a Matter.js physics-field): no rigid-body throw-field / grab-drag-fling mechanic surfaced on the site or the Awwwards description — the physics-field identity was imposed, not observed. Kept as a fresh-2026 in-engine-portfolio signal, not a physics-stack exemplar."
+    },
+    {
+      "site": "MoMoney (Jordan Gilroy)",
+      "url": "momoney (awwwards.com/sites/momoney)",
+      "award": "Awwwards SOTD + Developer Award 2026-03-13 (7.39) — verified awwwards.com/sites/momoney; Codrops designer spotlight tympanus.net/codrops/2026/02/12",
+      "fit": "Matter.js physical-metaphor: a two-colour (#00592B / #1CE585) build carried by a Matter.js rigid-body field — draggable/throwable coins and tokens that collide, bounce and settle as physical objects; microinteraction-led. The tangible-weight interaction is the identity, not a decoration. Fresh 2026 signal confirming the physics stack now wins."
+    },
+    {
+      "site": "Shader Development Studio",
+      "url": "shader (awwwards.com/sites/shader-development-studio)",
+      "award": "Awwwards SOTD 2026-04-20 (7.73) + Developer Award (8.12; animations/transitions 9.40, responsive 8.40) — verified awwwards.com/sites/shader-development-studio",
+      "fit": "Experimental / storytelling in near-pure black (#000): real-time graphics studio whose site is a narrative sequence of bespoke shader set-pieces (named set-pieces 'The Golden Tie' / 'Paper Shredder' are reference-carried, not independently confirmed) rather than a conventional portfolio grid — creative-coding-as-design, unconventional section-to-section transitions. Fresh 2026 generative-canvas addition; responsive 8.40 (verified this run)."
+    },
+    {
+      "site": "Resn (KPR)",
+      "url": "resn.co.nz",
+      "award": "Awwwards Site of the Year 2022 (KPR — first Web3 SOTY, awarded 2023-03-03) + KPR SOTM December + Agency of the Year ×2 — SOTY 2022 + first-Web3 claim verified this run via awwwards LinkedIn 'Site of the Year 2022〡KPR by Resn' + press (EIN release); SOTM December + Agency-of-the-Year ×2 not independently re-checked this run (see unverified)",
+      "fit": "Generative-canvas agency canon: gooey/particle interactive experiences with a game-design sensibility; KPR is a living Web3 world where visitors become participants in the narrative. Proprietary internal tooling, hand-coded from primitives — the substitutable studio peer the reference names for the generative-canvas expression."
+    }
+  ],
+  "story": {
+    "arcs": [
+      "Spatial / playable-world (Bruno, winner-verified): no scroll — world boots and IS present from frame one -> 'click to start' anchor + audio-unlock gate -> free-roam drive-and-discover, landmarks ARE the nav, secret rooms + altar + daily leaderboard reward curiosity -> in-world sign-off. The funnel collapses into one operable 3D space; there is no 'after the hero' because you never leave the world.",
+      "In-engine journey (Igloo winner-verified case study; Lusion winner-verified): every pixel renders in-engine and section breaks are SHADER SEAMS (chromatic aberration + frost dissolve), not DOM boundaries — intro flows into the scene with NO loader boundary and the HUD is live from frame one -> one ice-encased zone per project (Igloo) / a seven-zone reel (Lusion) -> footer particle-sim / late CTA -> in-world copyright HUD. scrollHeight may pin ~1vh; the wheel drives a camera, not a document.",
+      "Type-index over WebGL (Aristide, Obys, winner-verified): a corner counter boots straight into the index (no marketing hero, no prose) -> a giant-type index over a live WebGL image field is the whole page, proof-by-density -> a click plays an in-engine route-morph into the project (climax on-click, not on-scroll) -> an About overlay doubles as the footer, typeset not templated.",
+      "Physical-metaphor / physics-field (MoMoney winner-verified; Bruno's world is bump-able, adjacent): elements are rigid bodies with weight, restitution and drag — the page is a tactile surface you grab, throw and tumble; navigation is gestural; the physics simulation IS the medium and the reward. Only MoMoney is a verified grab-and-throw rigid-body field this run; Bruno's world is bump-able but a driving/vehicle-collision space, not a DOM throw-field.",
+      "Research-publication / quiet (Ink & Switch, Thesephist — DOCUMENTED, AWARD-UNVERIFIED): the site is an essay or paper, not a marketing surface — self-built typography, hand-built diagrams, hanging marginalia and sidenotes aligned to their reference line, near-zero motion. The bespoke medium is the reading system itself; included as an expression the corpus documents but the award bodies did not crown this run."
+    ],
+    "thread": "The signature fil rouge in experimental is the SUBSTRATE ITSELF, chosen first and never left: Bruno's matcap physics world, Igloo's ice-and-SDF shader canvas, Aristide's type-over-WebGL field, MoMoney's Matter.js field, Resn's generative canvas. One substrate renders EVERY element class, so button != link != figure != nav != index-row can each behave differently yet read as one authored world (the reference's grammar: 'pick the substrate first, then let each element class express it'). The lazy inversion — one CSS trick (a pale fill-sweep, a scrolled nav bar) cloned onto a normal DOM — reads as sameness AND as bolted-on. Cohesion over that surface is manufactured by three constants: (1) ONE signal that means 'active / live' on every class — a colour accent where the palette has one (Igloo's chromatic accent), or a TONAL live-state on a two-colour build (Aristide is #000/#fff with NO colour accent; its 'live' signal is the per-entry material line + siblings dim, not a red — the earlier 'red-for-the-live-state' exemplar was a mis-carry from an older Aristide build and is dropped), (2) ONE easing/motion family used everywhere (Lusion's char-split ease cubic-bezier(.625,.05,0,1); Osmo/Codrops count-scaled SplitText), and (3) for the spatial-world stack, SPATIALIZED AUDIO as the literal through-line — Bruno commissioned three ambient tracks (Kounine, CC0) plus environmental beds (birds, crickets, waves, wind, thunder) and spatialized per-object sounds that pan with the camera, tying the whole world into one place. The gesture grammar (drive / throw / click-morph) repeats while the per-class mechanic differs.",
+    "copy": "Two poles, both refusing to narrate the tech. WARM FIRST PERSON (the makers): 'My name is Bruno Simon, and I'm a creative developer (mostly for the web).' — the parenthetical shrug does the humanizing; imperatives hand over the mechanic ('click to start', 'please don't break anything!') never a purchase; a shipped typo left in ('Start chating' [sic]) because the register is human. NEAR-PERSONLESS CAPS LABELS (the index / type stack): 'INDEPENDENT DEVELOPER' / 'AVAILABLE APR. 2023' [stale status left in] — identity and availability as stamped labels, minimal punctuation. And REFUSAL-AS-POSITION for studios: 'We do not chase trends or produce work that looks like everyone else.' (Lusion, winner-verified ©2026). One humane sentence or none; refuses feature lists, adjective stacks, and — the archetype's cardinal rule — explaining the medium. Imitate the specificity (the named place, the count, the refusal, the typo), never the wording."
+  },
+  "spectacle_model": {
+    "hero": "The first frame commits the MEDIUM AS THE WHOLE PAGE — not a spectacular hero above a quieter body, but the entire bespoke substrate present, simulating and armed from frame one. It is a physics world you can already bump (Bruno), an in-engine HUD scene with no loader boundary and the UI already rendering in WebGL (Igloo), a giant-type index over a live WebGL field (Aristide), or a tactile physics surface you can already throw (MoMoney). The commitment is TWO-fold: legibility-in-ten-seconds via a discoverable anchor (Bruno's hand-drawn 'click to start' arrow + floor-tile path; Aristide's corner counter booting straight into the index — Usability is 30% and a pure-discovery nav below Honorable Mention), AND aliveness-from-frame-one (the substrate is already pointer/physics-armed and simulating). A frozen, motion-dead, non-interactive canvas is THE archetype's defining defect — worse here than anywhere.",
+    "continuation": [
+      "Bruno: there is no 'after the hero' — the world IS the page and it never sleeps. A live weather + day/night + seasons system runs for everyone simultaneously (wind animates a dense procedural grass field and foliage — 'Infinite grass', Devlog 2; the exact blade count is unverified — rain splashes, snow accumulates, lightning storms fire), up to 30 Whispers (other users' flames + country flags) drift in the shared space, a global cookie counter ticks, spatialized audio pans with the camera. Amplitude never drops to silence; the replayable peaks (secret rooms, the altar, the daily-resetting circuit leaderboard, achievement-unlocked vehicle skins) differ per visit — statefulness, not a one-shot animation.",
+      "Igloo: no boundary anywhere — the intro renders in-engine and flows straight into the scene, the HUD is live from frame one, the camera drifts between ice zones (one per project) with chromatic-aberration + frost-dissolve seams instead of section cuts, and the footer particle simulation coalesces into a different 3D model per link on hover (the interactive climax). The canvas renders continuously; no section is ever a static frame.",
+      "Aristide: the WebGL image field behind the type renders continuously; the index rows are hover-live (masked reveal, per-entry material line, siblings dim) at all times; the single amplitude peak is ON-CLICK — the route-morph that carries an index title + its WebGL imagery into the case study. Between clicks the substrate is never parked.",
+      "Lusion: the body does not natively scroll — the wheel feeds the WebGL journey through the studio's own bespoke scrollManager lerp (corroborated by Lusion's public WebGL Scroll Sync repo); the engine keeps rendering at idle with zero input (exact tick-rate reference-carried, unverified) while hundreds of single-char split spans land the sparse text per-char. The one understanding beat (the manifesto) sits over a still-moving 3D ground; contact-first close.",
+      "MoMoney: the Matter.js field is live throughout — grabbed bodies drag with a mouse constraint, released bodies fly off at cursor velocity and collide, bounce (restitution ~0.6 is a Matter.js default, not a per-site read) and settle; the whole page stays a tactile physics surface between inputs, never a static image.",
+      "Shader Development Studio: bespoke shader set-pieces chain section to section as narrated transitions ('Golden Tie', 'Paper Shredder') — the scene is the connective tissue, never a static backdrop; animations/transitions scored 9.40."
+    ],
+    "one_climax_verdict": "REFUTED",
+    "evidence": [
+      "Bruno (SOTD 2026, winner-verified): no hero/body separation exists — the world is the entire page and a live weather/day-night/seasons system + drifting Whispers + spatialized audio keep it simulating between EVERY input; the reward is replayable state (leaderboard, secret rooms, skins), not a scripted wow-then-quiet.",
+      "Igloo (SOTY 2024, winner-verified): the whole UI renders in-engine with no loader boundary and no DOM page beneath; the camera drifts continuously and the footer particle sim is a late interactive peak — a sustained live canvas, never one-wow-then-silence.",
+      "Aristide (SOTD 2021, winner-verified): the index over live WebGL is the page and its climax is ON-CLICK (the route-morph), not a hero animation that then goes quiet; the substrate renders and the rows stay hover-live throughout.",
+      "Lusion (Dev SOTY 2023, winner-verified): the body does not natively scroll — a bespoke scrollManager lerp feeds the WebGL journey (corroborated by Lusion's public WebGL Scroll Sync repo) and the engine keeps rendering at idle with zero input, so the medium never resolves into a static page (exact ~1vh scrollHeight / idle tick-rate are reference-carried, unverified).",
+      "The reference already codifies the counter-law: 'the substrate never sleeps ... a frozen canvas is the one thing this archetype cannot show' and 'Replayability is statefulness — never a one-shot hero animation.' Silence is the defect, not restraint."
+    ],
+    "recommended_law": "For the experimental archetype, replace 'exactly one climax' with the LIVE-SUBSTRATE law: ONE bespoke medium/metaphor IS the whole page — present, simulating and interactive from frame one to sign-off, with NO hero-then-quiet separation (often no scroll and no page-beneath at all). The MANDATORY, uncapped channel is the idle band: the substrate must simulate continuously between inputs (weather/day-night, engine ticks at idle, physics settle, presence/whisper drift, node-graph values, a live clock) — this is the strongest single signal of the archetype and its aliveness is NOT capped. Within that live substrate, CAP the amplitude PEAKS at one or two REPLAYABLE / STATEFUL spectacles (an on-click route-morph, a footer particle sim, a secret room, a leaderboard run) — peaks are still scarce and are stateful play, never a one-shot scripted animation. The failure mode to forbid is the FROZEN CANVAS: any moment where the substrate goes static, non-interactive or purely decorative (a hero shader that stops after boot; a WebGL field that only renders on scroll-in then parks) is the defining defect. Verdict test: if the canvas could be replaced by a still image without losing anything, the substrate was never built."
+  },
+  "algorithm": [
+    {
+      "step": 1,
+      "decide": "The story shape (arc), chosen deterministically by the substrate type — one branch, never a blend.",
+      "rule": "A bespoke navigation metaphor / operable space (drive, walk, pilot) -> spatial/playable-world. A fully in-engine continuous scene scrubbed or drifted by the wheel -> in-engine journey. A giant-type index that IS the argument -> type-index-over-WebGL. Elements have weight and you throw/drag them -> physics-field. A long-form essay/paper is the content -> research-publication/quiet. Pick exactly ONE; the metaphor is the design — do not run two metaphors in one page.",
+      "evidence": [
+        "Bruno: drive a car through a town -> spatial/playable-world (winner-verified)",
+        "Igloo: continuous in-engine ice world -> in-engine journey (winner-verified)",
+        "Aristide: giant-type index over WebGL -> type-index (winner-verified)",
+        "MoMoney: throwable Matter.js bodies -> physics-field (winner-verified; the one clean throw-field winner this run)"
+      ]
+    },
+    {
+      "step": 2,
+      "decide": "The signature thread (fil rouge) — the ONE substrate and the three constants layered on it.",
+      "rule": "Name the single substrate the whole site is rendered inside (physics world / SDF-shader canvas / type-over-WebGL / Matter.js field) and commit to never leaving it — every element class renders IN it. Bind ONE accent that means 'active/live' on every class, ONE easing/motion family used everywhere, and for the spatial-world stack ONE spatialized/ambient audio bed as the literal through-line. Cohesion lives in these constants; variety lives in the per-class mechanic. NEVER a single CSS trick cloned onto a normal DOM (the lazy inversion the archetype most punishes); never a different ease per element.",
+      "evidence": [
+        "Bruno: matcap physics world + Kounine spatialized audio + one gesture grammar (drive) (winner-verified)",
+        "Igloo: one ice-and-SDF shader canvas renders button, link, nav, index alike (winner-verified)",
+        "Aristide: one type-over-WebGL field + tonal live-state (per-entry material line + siblings dim, #000/#fff, no colour accent) + one char-split ease (winner-verified)"
+      ]
+    },
+    {
+      "step": 3,
+      "decide": "The macrostructure — the beats of the chosen arc, with no DOM boundaries where the medium forbids them.",
+      "rule": "Spatial/playable-world: NO sections — funnel jobs collapse into the space; deliver understanding in ten seconds via a discoverable anchor ('click to start' + a floor path); landmarks are the nav. In-engine journey: section breaks are SHADER SEAMS (chromatic aberration / frost dissolve), no loader boundary, HUD live from frame one. Type-index: a corner counter boots straight into the index — no marketing hero, no prose. Sequence the beats in the order the chosen arc lists them (story.arcs); do not re-order or drop beats. Every unconventional pattern needs a discoverable fallback (Usability = 30%).",
+      "evidence": [
+        "Bruno: world boot -> click-to-start -> free-roam -> in-world sign-off, no scroll (winner-verified)",
+        "Igloo: intro flows into scene, no loader DOM, HUD frame one, shader-seam zones (winner-verified case study)",
+        "Aristide: counter boot -> giant-type index -> click route-morph -> About overlay (winner-verified)"
+      ]
+    },
+    {
+      "step": 4,
+      "decide": "The momentum map — the live-substrate spine + the 1-2 replayable peaks + the mandatory idle band.",
+      "rule": "Commit the IDLE BAND first (it is mandatory and uncapped): name the channels the substrate simulates between inputs — weather/day-night, engine ticks at idle, physics settle, presence/whisper drift, a live clock/counter, node-graph values. Then place at most TWO amplitude PEAKS, and make them REPLAYABLE / STATEFUL (an on-click route-morph, a footer particle sim, a secret room, a leaderboard run) — never a one-shot scripted animation. Mechanical frozen-canvas gate (checkable, no taste): every section carrying the substrate MUST own at least ONE continuously-updating channel — a rAF/engine loop that mutates rendered state with zero user input (a clock, a physics step, a weather/day-night value, a presence feed, a shader-time uniform). A section whose canvas only updates on scroll-in or on pointer input, then parks, is a FROZEN CANVAS and is illegal — fix before proceeding.",
+      "evidence": [
+        "Bruno: idle = live weather/seasons + animated grass field + drifting Whispers + spatial audio; peaks = secret rooms + daily leaderboard (winner-verified)",
+        "Igloo: idle = continuous in-engine render + camera drift; peak = footer particle coalescence on hover (winner-verified)",
+        "Lusion: idle = engine renders continuously at zero input (bespoke scroll driver, public WebGL Scroll Sync repo); exact idle tick-rate reference-carried, unverified (winner-verified award)"
+      ]
+    },
+    {
+      "step": 5,
+      "decide": "Per-section pairing — the form and interaction components for each role (see section_playbook).",
+      "rule": "World-boot -> gated-splash (start gate = sound-unlock gate) over shader-surface / webgl-scene(delegated). Spine -> webgl-scene(delegated) free-roam, or in-engine journey with shader seams, or a live physics-field. Proof -> type-index-grid over WebGL + index-row-hover, or ice-zones one per project. Peak -> webgl-scene(delegated) route-morph / particle sim (replayable). Close -> in-world sign-off or About-overlay-as-footer (typeset). Text -> count-scaled SplitText; links -> scramble-decode. Delegate the heavy scene; the manifest's components fill the DOM/HUD layer.",
+      "evidence": [
+        "recipes.json engine-world-bruno: world-boot(gated-splash+shader-surface) -> webgl-scene(delegated) -> in-world sign-off (winner-verified)",
+        "recipes.json type-index-aristide: corner-counter-boot -> type-index-grid -> webgl-scene route-morph -> about-overlay-footer (winner-verified)"
+      ]
+    },
+    {
+      "step": 6,
+      "decide": "Per-element interaction states — the differentiated hover/tap/focus per class, all expressed by the ONE substrate.",
+      "rule": "Apply element_states. CTA = full-token flood + label inversion + shadow-depth (HTML survivor), OR baked into the canvas resolving through an SDF-offset scramble / velocity warp (in-engine), OR a physics body that depresses on press — NEVER a pale tint. Link = scramble-to-resolve decode running IN PARALLEL with a clip-path wipe (SDF-offset in-engine to avoid reflow), plus adopt-the-accent recolor. Figure = scrub-linked clip-path unclip, velocity-flowmap chromatic hover, or a draggable/throwable body — never a 1.02-1.03 twitch. Index-row = masked translate3d(0,101%,0) reveal + :hover::after material line + siblings dim + click routes. Heading = count-scaled SplitText; variable-font weight tied to mouse/audio amplitude is OBSERVED-not-verified (do not ship numbers). Nav = usually NONE (in-engine / the index IS the nav); an HTML survivor is a transparent fixed corner opening a full overlay — never a scrolled-solid bar + border-bottom. Cursor = three modes: magnetic elastic follower on typography/agency builds; STATE-MORPHING cursor when the world is chrome-less WebGL (the cursor grows / swaps to a per-target label or arrow — 'drag' / 'view' / 'hold' — so the cursor state IS the primary hover-affordance the absent DOM chrome would carry; documented on chrome-less agency/experimental winners incl. Lusion); DELIBERATE no-cursor when the mechanic is the pointer (a lag-dot fights the physics).",
+      "evidence": [
+        "Igloo: SDF-offset scramble on button/link (no reflow) + footer particle color by velocity (winner-verified case study)",
+        "Aristide: masked row reveal translate3d(0,101%,0) + per-entry material line + siblings dim + click morph (winner-verified)",
+        "Bruno: no cursor — the car is the pointer; 'click to start' + floor-tile path do wayfinding (winner-verified)"
+      ]
+    },
+    {
+      "step": 7,
+      "decide": "Mobile — reconsider the medium, never drop it.",
+      "rule": "Keep the WebGL/physics substrate but on a LOWER quality preset (Bruno auto-switches; geometry instancing + DRACO + ETC1S/UASTC keep init in budget). Pointer-only classes (magnetic cursor, pointer-parallax, velocity flowmap, state-morph cursor) go DORMANT; the touch model is chosen by stack: (a) PHYSICS-FIELD — tap/drag/fling on the body answers DIRECTLY (a strength on touch, not a fallback); (b) SPATIAL/PLAYABLE-WORLD — recreate DOM interactions in-3D so the world stays touch/keyboard/gamepad navigable; (c) WHEEL-DRIVEN IN-ENGINE JOURNEY (no native scroll — the archetype's most common stack) — touchmove feeds the SAME camera-lerp as the wheel, with fling inertia + momentum decay, and the scrub position survives the gesture (do not fall back to native scroll; the journey has none). Press-class elements answer with a 90-160ms flash floor. Cross-device parity is weighted highest here — Usability is 30% and judges check mobile first; a desktop-only WebGL world tanks it, and every bespoke nav needs a discoverable fallback that reads within ten seconds.",
+      "evidence": [
+        "Bruno: mobile auto-switches to lower quality presets; DOM interactions recreated in 3D for touch/gamepad (winner-verified case study)",
+        "Lusion (Dev SOTY 2023, responsive 8.40) + Shader Development Studio (SOTD 2026-04-20, responsive 8.40): wheel-driven no-native-scroll journeys with high responsive scores — the touch model is touchmove -> camera-lerp with fling inertia, verified this run",
+        "reference: pointer classes dormant on touch; physics/tap gestures are native to the physical-metaphor stack"
+      ]
+    },
+    {
+      "step": 8,
+      "decide": "Copy — the words over the medium, never explaining it.",
+      "rule": "Pick the pole by voice: warm first person for a maker's world, near-personless caps labels for the index/type stack, refusal-as-position for a studio. One humane sentence or none; imperatives hand over the mechanic ('click to start', 'please don't break anything!'), never a purchase; minimal punctuation; a shipped typo or a stale status left in reads as human. Refuse feature lists, adjective stacks, and above all explaining the medium. Match the SPECIFICITY of the quoted winners (the named place, the count, the refusal, the typo), never the wording.",
+      "evidence": [
+        "Bruno: 'My name is Bruno Simon, and I'm a creative developer (mostly for the web).' / 'please don't break anything!' (winner-verified)",
+        "Lusion: 'We do not chase trends or produce work that looks like everyone else.' (winner-verified ©2026)",
+        "Aristide: 'INDEPENDENT DEVELOPER' / 'AVAILABLE APR. 2023' [stale status left in] (winner-verified)"
+      ]
+    }
+  ],
+  "section_playbook": [
+    {
+      "role": "world-boot / hero",
+      "forms": [
+        "world-boot",
+        "gated-splash",
+        "in-engine-intro"
+      ],
+      "pairs": [
+        "gated-splash (start gate doubles as sound-unlock)",
+        "shader-surface / webgl-scene(delegated) (ground)",
+        "counter-loader (corner-counter variant, type-index only)",
+        "fill-invert-cta (enter control)"
+      ],
+      "intensity": 8,
+      "states": "MANDATORY: the substrate is present, simulating and armed from frame one — pointer/physics-reactive before any input; a discoverable anchor ('click to start' arrow + floor path, or a corner counter) delivers understanding in ten seconds. The intro renders IN the engine and IS the concept booting (objects rise with a paper-unwrap sound; or a real-time shader intro flows into the scene with no loader boundary). A frozen/inert boot is the defining defect.",
+      "evidence": [
+        "Bruno world boot + hand-drawn 'click to start' + audio gate (winner-verified)",
+        "Igloo intro flows into scene, HUD frame one, no loader DOM (winner-verified case study)",
+        "Aristide corner counter 0-100 boots straight into the index (winner-verified)"
+      ]
+    },
+    {
+      "role": "spine (the live substrate)",
+      "forms": [
+        "webgl-scene(delegated) free-roam",
+        "in-engine journey (shader-seam zones)",
+        "physics-tumble-field"
+      ],
+      "pairs": [
+        "shader-surface",
+        "ambient-idle (DOM cousin)",
+        "spatial-audio-world",
+        "living-presence-layer"
+      ],
+      "intensity": 8,
+      "states": "The section(s) — or, for a world, the WHOLE page — where the medium simulates continuously. Free-roam (drive/walk/pilot), or wheel-driven camera through shader-seamed zones, or a live physics field. The idle band runs here: weather/day-night, engine ticks at idle, physics settle, presence/whisper drift, spatialized audio. Never a static frame.",
+      "evidence": [
+        "Bruno free-roam + live weather + Whispers + spatial audio (winner-verified)",
+        "Igloo camera drift between ice zones, chromatic/frost seams (winner-verified)",
+        "Lusion wheel feeds WebGL journey, engine renders at idle (winner-verified)"
+      ]
+    },
+    {
+      "role": "proof (index / zones)",
+      "forms": [
+        "type-index-grid (over WebGL)",
+        "webgl-scene(delegated) (one zone per project)",
+        "index-list + index-row-hover"
+      ],
+      "pairs": [
+        "index-row-hover",
+        "scramble-decode (labels)",
+        "shader-surface (imagery behind type)"
+      ],
+      "intensity": 8,
+      "states": "The argument-by-density: a giant-type index over a live WebGL field (rows hover-live: masked reveal + per-entry material line + siblings dim), or one procedurally-encased zone per project drifted past by the camera. No marketing hero, no prose column.",
+      "evidence": [
+        "Aristide giant-type index over WebGL, proof-by-density (winner-verified)",
+        "Igloo one ice block per project, procedural crystal growth (winner-verified case study)"
+      ]
+    },
+    {
+      "role": "spectacle peak (replayable)",
+      "forms": [
+        "webgl-scene(delegated) route-morph",
+        "webgl-scene(delegated) particle-sim"
+      ],
+      "pairs": [
+        "sdf-scramble-substrate",
+        "velocity-flowmap-hover"
+      ],
+      "intensity": 9,
+      "states": "The one (or two) capped amplitude peaks, and they are STATEFUL PLAY not a one-shot: an on-click route-morph (index title + WebGL imagery morph into the case study), a footer particle sim coalescing into a different model per link, a secret room, a leaderboard run. Replayability is the point; a scripted hero animation that plays once is the anti-pattern.",
+      "evidence": [
+        "Aristide on-click route-morph, per-project colour, 30 entries (winner-verified)",
+        "Igloo footer particles coalesce into a different 3D model per link on hover, colour by velocity (winner-verified case study)"
+      ]
+    },
+    {
+      "role": "close / sign-off",
+      "forms": [
+        "in-world sign-off",
+        "about-overlay-footer",
+        "contact-first close-panel"
+      ],
+      "pairs": [
+        "accent-link",
+        "counter-odometer (awards ledger)"
+      ],
+      "intensity": 5,
+      "states": "Never the oversized-wordmark close and never a footer sitemap. In-world sign-off (Bruno: no DOM footer, the world signs off in-place; Igloo: HUD copyright), or an About-overlay-as-footer typeset in the site's own voice (Aristide: clients wall + awards ledger 'Site of the Day x30, Developer Award x27' + 'ARISTIDE BENOIST 2026®'), or contact-first with a real address (Lusion: hello@/business@ + Bristol address + 'Built by Lusion with love').",
+      "evidence": [
+        "Aristide About overlay = clients + awards ledger, typeset (winner-verified)",
+        "Lusion functional-plus footer, real address (winner-verified ©2026)",
+        "Bruno in-world sign-off, no DOM footer (winner-verified)"
+      ]
+    }
+  ],
+  "element_states": {
+    "cta": {
+      "hover": "Three expressions, one substrate. HTML survivor: full-token FLOOD to a solid accent + label inversion to the page ground + a shadow-depth layer — never a low-alpha rgba(accent,.1) wash (the single clearest anti-signal). In-engine: the button is baked into the canvas and resolves through an SDF-texture-offset scramble (Igloo — no DOM reflow) or warps under a velocity flowmap. Physics build: the button is a rigid body that nudges away from / depresses under the pointer.",
+      "tap": "The flood/press/depress IS the tap answer — a 90-160ms flash floor to the solid state on :active; in physics builds the body reacts to the touch directly.",
+      "focus": "Same solid flooded/inverted state on :focus-visible + a visible ring; the hover-revealed state must be keyboard-reachable."
+    },
+    "link": {
+      "hover": "Scramble-to-resolve DECODE — characters cycle a punctuation-heavy charset (single-source charset A!B@C#D$E%F&G*H?J[K]L{M}N=O+P-QRS... — Guignand, award-UNVERIFIED technique; treat all Guignand numbers below as a starting default, NOT a measured spec, and do not ship them as archetype law) then settle, run IN PARALLEL with a clip-path wipe (inset(0 0% 0 0) at 0.6s power2.out), parent height locked via getBoundingClientRect().height before split to stop reflow. In-engine the same effect swaps SDF-atlas offsets, avoiding style recalculation entirely (Igloo, winner-verified). Plus adopt-the-accent recolor for the live state. Kinetic CSS underline-draw is ABSENT on this line (it belongs to editorial).",
+      "tap": "Scramble replay / accent flash on :active (90-160ms).",
+      "focus": "Decode-to-resolve + accent recolor + visible ring on :focus-visible."
+    },
+    "figure": {
+      "hover": "Scrub-linked clip-path morph (a preview unclips full-bleed as you scroll to page bottom: ScrollTrigger scrub 1; insetV = max(0, 20 - 20p), insetH = max(0, 40 - 40p); background scale 1.3 - 0.3p; SVG counter via stroke-dashoffset = p*circumference — Guignand single-source), OR a VELOCITY FLOWMAP chromatic hover: cursor speed written to an off-screen RG texture, RGB split along the mouse->pixel vector (R x1.5, G x0.5, B x1.8, rainbow above uVelo > 0.01 — Guignand single-source; the chromatic family recurs on Igloo + Active Theory), OR a draggable/throwable physics body. Amplitude is felt (full-bleed unclip / visible chromatic split), never a 1.02-1.03 twitch.",
+      "tap": "Tap-to-enlarge, or grab-drag-fling the body on touch (native to the physics stack); the resting caption/still is the complete no-pointer look.",
+      "focus": "Finished revealed state on :focus-within — reachable under keyboard and touch."
+    },
+    "index_row": {
+      "hover": "The living index: a masked row reveal translate3d(0,101%,0), a :hover::after material line drawn per entry, and siblings dim while the hovered row lights; a click morphs the row into its route (no scroll spine at all). :has() dims the unhovered siblings (Aristide, winner-verified).",
+      "tap": "The row navigates / plays the route-morph on tap; the metadata hover surfaces is present in the resting DOM (reachable under touch).",
+      "focus": "Same spotlight (material line + siblings dim) on :focus-within, keyboard-driven."
+    },
+    "heading": {
+      "hover": "Rare and only on a non-link display heading. The signature is the ENTRANCE, not a hover: SplitText stagger SCALED TO ELEMENT COUNT so the line lands tight — lines duration 0.8 / stagger 0.08, words 0.6 / 0.06, letters 0.4 / 0.008, yPercent 110->0, ease cubic-bezier(0.625, 0.05, 0, 1) (Osmo/Codrops, documented; count-scaled reveal universal in the corpus). Kinetic type carrying the layout instead of images is signature for the type stack (Obys). Variable-font weight driven by mouse/audio amplitude is OBSERVED, implementation unverified — do not ship exact numbers.",
+      "tap": "None (dormant on touch) — the entrance reveal is the mobile expression.",
+      "focus": "No hover analog; the accessible name stays clean via aria-label when chars/lines are split for the entrance."
+    },
+    "nav": {
+      "hover": "Usually NONE — winners ship NO persistent HTML nav bar: the menu lives in-engine (Bruno drives to landmarks; Igloo renders the whole UI in WebGL; Aristide's giant-type index IS the nav). Where an HTML nav survives it is a TRANSPARENT FIXED CORNER (logo + one menu word, no background fill, no border) opening a full-screen overlay rather than the bar gaining a surface (Obys; Aristide observed). Per-link hover: split-rollover per-char or adopt-the-accent recolor. The scrolled-solid-bar + contrasting border-bottom is a corporate pattern that NEVER ports here.",
+      "tap": "The in-engine nav / overlay toggle answers the tap; link taps flash the accent.",
+      "focus": "Visible focus ring on links / overlay control; the in-engine menu is keyboard-reachable (Bruno recreates DOM nav events in 3D)."
+    }
+  },
+  "mobile_answer": "Reconsider the medium, never downgrade it away. Keep the WebGL/physics substrate but on a LOWER quality preset — Bruno auto-switches presets on mobile, using geometry instancing, frustum culling, DRACO compression and ETC1S/UASTC textures to hold the init budget. Pointer-only classes (magnetic cursor, pointer-parallax, velocity flowmap, state-morph cursor) go DORMANT; the touch model is chosen by stack. PHYSICS-FIELD: tap, drag and fling on a rigid body is native and a touch STRENGTH, not a fallback. SPATIAL/PLAYABLE-WORLD: standard interactions (click, scroll, keyboard, touch, gamepad) are recreated as 3D raycasts so the world stays fully navigable off desktop (Bruno, winner-verified). WHEEL-DRIVEN IN-ENGINE JOURNEY (no native scroll — the most common stack): touchmove feeds the same camera-lerp as the wheel with fling inertia + momentum decay and the scrub position survives the gesture — never fall back to native scroll (Lusion + Shader Development Studio both responsive 8.40, verified this run). Press-class controls answer the tap with a 90-160ms flash floor. Cross-device parity is weighted HIGHER in this archetype than any other: Usability is 30% of the Awwwards score, judges check mobile first, a desktop-only WebGL world tanks it however impressive the canvas, and every unconventional pattern needs a discoverable fallback that reads within ten seconds ('click to start' anchors the unfamiliar). prefers-reduced-motion freezes the scene to a legible static frame and swaps scrubbed media to a poster; the resting DOM/HUD stays fully legible with no JS.",
+  "gaps": [
+    {
+      "component": "physics-tumble-field",
+      "seen_in": [
+        "MoMoney (Jordan Gilroy) — verified Matter.js throw-field",
+        "Bruno's Portfolio (bump-able world — ADJACENT: vehicle-collision, not a grab-and-throw DOM field)"
+      ],
+      "mechanic": "A Matter.js/Rapier rigid-body field where DOM/canvas elements are physical objects with weight, restitution and drag. Spec: each element becomes a body (Bodies.rectangle/circle, restitution ~0.6 is a Matter.js default, not a per-site read); a pointer/mouse constraint lets the visitor grab and drag a body; releasing imparts the cursor's instantaneous velocity so it flies off and collides, bounces and settles; bodies stack and jostle under gravity; a static engine keeps simulating (settle) between inputs so the field is never frozen. On touch the same grab-drag-fling maps to tap/drag/flick (a strength, not a fallback). Reduced-motion: bodies rest at their laid-out positions, no simulation. CORRECTED COUNT: ONE clean verified winner ships this — MoMoney (SOTD 2026-03-13, Matter.js confirmed). Bruno's world is bump-able physics but a driving/vehicle-collision space, not a grab-and-throw DOM field; Valentin Gassend was miscredited (it is an immersive scroll-driven WebGL/GSAP portfolio, no rigid-body throw-field). Still the highest-value physics gap because the manifest has ZERO physics component AND a fresh clean winner exists — but on ONE winner, not three.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "type-index-grid",
+      "seen_in": [
+        "Aristide Benoist Portfolio 2021",
+        "Obys Agency",
+        "Lusion v3"
+      ],
+      "mechanic": "The whole-fold giant-type index over live WebGL that IS the page (no marketing hero, no prose). Spec: a dense list of oversized titles locked to one shared grid over a live WebGL image field; each row reveals masked via translate3d(0,101%,0), draws a :hover::after material line, and dims its siblings on hover (:has()); a click plays an in-engine route-morph carrying the title + its imagery into the project; a corner counter (0-100) boots straight into it and an About-overlay doubles as the footer. recipes.json flags type-index-grid + corner-counter-boot + about-overlay-footer for this exact stack — the type-index arc has no executable form today.",
+      "priority": 1,
+      "status": "merged"
+    },
+    {
+      "component": "sdf-scramble-substrate",
+      "seen_in": [
+        "Igloo Inc"
+      ],
+      "mechanic": "In-engine text/UI rendered from an SDF glyph atlas so scramble/glitch/decode happens by SWAPPING SDF TEXTURE OFFSETS in a shader — zero DOM relayout, zero reflow, every frame cheap (Igloo, winner-verified case study). Spec: bake glyphs to an SDF atlas; render labels/buttons/links as textured quads; drive the scramble/decode as a per-glyph texture-offset animation in the fragment shader; compose chromatic aberration + frost dissolve as scene-transition passes. Distinct from the DOM scramble-decode component in the manifest, which forces style recalculation on every tick — this is the in-engine, reflow-free variant the fully-WebGL builds require.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "spatial-audio-world",
+      "seen_in": [
+        "Bruno's Portfolio",
+        "Resn"
+      ],
+      "mechanic": "A POSITIONAL (not just ambient) audio bed treated as the world's through-line. Spec: the start gate doubles as the audio-unlock (browsers block autoplay until interaction); a Web Audio PannerNode ties per-object sounds to their 3D position so they pan/attenuate with the camera (Bruno: springs/hydraulics/engine/tire-friction on the vehicle, birds/crickets/waves/wind/thunder in the environment, three CC0 ambient tracks by Kounine); day-night/weather modulate the mix; a persistent mute toggle; WebM/Opus first with MP3 fallback; pause on visibilitychange; silent under prefers-reduced-motion. The immersive playbook flagged a non-positional ambient-audio-score; the spatial-world stack needs the CAMERA-PANNED positional variant, which no component ships.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "velocity-flowmap-hover",
+      "seen_in": [
+        "Igloo Inc",
+        "Guignand (Codrops technique)",
+        "Active Theory"
+      ],
+      "mechanic": "Image hover that reacts to cursor SPEED, not just position. Spec: write the cursor's frame-to-frame velocity into an off-screen RG flowmap texture that decays over time; in the image shader, offset/split the RGB channels along the mouse->pixel vector proportional to the flowmap (R x1.5, G x0.5, B x1.8), tipping into a rainbow split above uVelo > 0.01 (Guignand single-source; the chromatic-hover family recurs on Igloo + Active Theory). Fine-pointer only; dormant on touch; static frame under reduced-motion. The manifest's figure-hover is a contained 1.1 zoom + companion cue — this is the generative-canvas chromatic-velocity figure response it cannot execute.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "world-boot-gate",
+      "seen_in": [
+        "Bruno's Portfolio",
+        "Igloo Inc"
+      ],
+      "mechanic": "A loader that renders IN the engine and IS the concept booting, with no hard cut into the site. Spec: either objects rise/assemble from the ground in the site's own shaders with a diegetic sound (Bruno: paper-unwrap), or a real-time shader intro resolves directly into the first scene with NO loader DOM and the HUD live from frame one (Igloo); the start control doubles as the audio-unlock gate (a hard browser constraint, not a taste choice); authored so no-JS shows the page. The manifest's counter-loader is a numeric DOM curtain; recipes.json flags world-boot + in-engine-intro — the in-engine diegetic boot has no component.",
+      "priority": 2,
+      "status": "merged-as-alias(world-boot + in-engine-intro)"
+    },
+    {
+      "component": "living-presence-layer",
+      "seen_in": [
+        "Bruno's Portfolio (Whispers)",
+        "Resn (KPR)",
+        "Messenger"
+      ],
+      "mechanic": "A lightweight multiplayer/presence layer that keeps the shared world social and never-static. Spec: a websocket feed of other users' marks or positions drifting in the world (Bruno: up to 30 'Whispers' — flames carrying a short message + the user's country flag, moderated via OpenAI's free moderation model), a global counter (cookie counter), and a daily-resetting leaderboard for a replayable challenge. IO- and visibility-gated; degrades to a solo world if the socket is unavailable. This is the idle-band channel that makes the substrate feel inhabited; inherently bespoke/delegated, hence lower priority.",
+      "priority": 3,
+      "status": "merged"
+    },
+    {
+      "component": "in-3d-dom-input-bridge",
+      "seen_in": [
+        "Bruno's Portfolio"
+      ],
+      "mechanic": "Recreate standard DOM interactions as raycasted events on 3D models so a fully in-engine world stays accessible and navigable — the usability fallback that keeps this archetype above the 30% Usability floor. Spec: map click, scroll, keyboard, touch and gamepad input onto 3D interface objects via raycasting, exposing real focus/activation semantics; a discoverable anchor ('click to start') orients the visitor in ten seconds. Bespoke/delegated (rides the WebGL path), hence priority 3, but worth a recipe slot so the composer knows the world must remain keyboard/gamepad/touch navigable, not pointer-only.",
+      "priority": 3,
+      "status": "merged"
+    },
+    {
+      "component": "journey-touch-momentum",
+      "seen_in": [
+        "Lusion v3 (responsive 8.40)",
+        "Shader Development Studio (responsive 8.40)",
+        "Igloo Inc"
+      ],
+      "mechanic": "The touch model for the WHEEL-DRIVEN IN-ENGINE JOURNEY stack (no native scroll) — the archetype's most common stack and its biggest touch hole. Spec: touchmove feeds the SAME camera-lerp the wheel drives on desktop, with fling inertia (velocity captured at touchend) + momentum decay; the scrub position survives the gesture; NO fallback to native scroll (the journey has none to fall back to). Distinct from the two touch answers the manifest already encodes (physics-tap for MoMoney; Bruno's raycast-recreated DOM input). Evidence: Lusion (Dev SOTY 2023) and Shader Development Studio (SOTD 2026-04-20) both scored responsive 8.40 on wheel-driven no-native-scroll scenes (verified this run) — proof a real touch model exists for this stack. Highest-value touch gap given Usability = 30% and judges check mobile first.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "scroll-velocity-scene-distortion",
+      "seen_in": [
+        "Lusion v3 (animations 10.00)",
+        "Codrops technique (tympanus.net/codrops 2024-07-18)",
+        "Awwwards WebGL-scroll-distortion collections"
+      ],
+      "mechanic": "Whole-SCENE distortion driven by scroll/scrub SPEED — the post-hero momentum made visible; distinct from the cursor-velocity flowmap (velocity-flowmap-hover). Spec: read scroll/scrub velocity per frame; feed it into a shader-time or displacement uniform so the whole scene warps / RGB-shifts / lags its geometry proportional to speed, decaying back to rest when scrolling stops. On a journey stack where the wheel drives the camera, this is the primary channel that renders momentum perceptible. EVIDENCE CAVEAT: documented technique (Codrops 'Distortion and Grain Effects on Scroll with Shaders in Three.js', 2024-07-18) + Awwwards maintains WebGL-scroll-distortion collections + Lusion scored animations 10.00 and ships a public WebGL scroll driver — but attribution to a single winner-verified shipped read is SOFT; treat as documented-technique, not measured winner spec. Fine-pointer/scroll only; static under prefers-reduced-motion.",
+      "priority": 2,
+      "status": "merged"
+    },
+    {
+      "component": "idle-attract-auto-demo",
+      "seen_in": [
+        "(design-logic gap — derived from the archetype's own 30% Usability weighting, NOT a single verified site)"
+      ],
+      "mechanic": "An INSTRUCTIVE attract-mode, distinct from ambient idle simulation: after N seconds idle the world auto-performs its core verb (a lap, a tumble, a hover-preview) to TEACH the non-standard interaction inside the 10-second window. Bruno's 'click to start' + floor path is the STATIC discoverability aid; the motion-taught variant is its common companion for exactly the 30%-weighted usability risk this archetype foregrounds. Spec: on inputless idle, run one scripted demo pass of the primary verb, then hand control back on first input. LOWER CONFIDENCE: a design-logic gap, not a site-verified mechanic — do not present as winner-canon; flagged so the composer distinguishes ambient-life idle from verb-teaching attract-mode.",
+      "priority": 3,
+      "status": "merged"
+    }
+  ],
+  "unverified": [
+    "Resn KPR SOTM December + Agency-of-the-Year ×2 — not independently re-checked this run. RESOLVED this run and promoted OUT of unverified: KPR = Site of the Year 2022 (awarded 2023-03-03, first Web3 SOTY), confirmed via awwwards LinkedIn 'Site of the Year 2022〡KPR by Resn' + press.",
+    "Bruno's Portfolio exact grass-blade count — the prior revision shipped '78,400 grass blades' as fact; that figure is NOT in any located source (Devlog 2 says only 'Infinite grass'), so it is genericized to 'a dense procedural grass field' in the body and flagged here. (Bruno's Site of the Month January 2026 is now verified and promoted OUT of unverified.)",
+    "Aristide type-index exact per-element values (masked row translate3d(0,101%,0), :hover::after material line, counter 0-100, digits exit translate3d(-110%,0,0), route-morph timings) are carried from the reference's winner-verified d.css/d.js read; the live CSS was NOT re-read this run (the awwwards inspiration page returned only metadata).",
+    "MoMoney exact physics parameters (restitution, mouse-constraint stiffness, throw velocity mapping, easing) — the Matter.js mechanic and the SOTD award are verified, but no shipped values were read this run; restitution ~0.6 is the documented Matter.js technique default, not a per-site measurement. (Valentin Gassend was REMOVED from the physics group — his site is an immersive scroll-driven WebGL/GSAP portfolio, not a Matter.js throw-field; no rigid-body physics parameters apply.)",
+    "Guignand figure/link parameters (charset, inset math, flowmap RGB multipliers, uVelo threshold, SplitText stagger numbers) are single-source Codrops-documented technique carried from the reference; Guignand's site is award-UNVERIFIED and the numbers were not re-measured this run.",
+    "Research-publication / quiet register (Ink & Switch marginalia + sidenote alignment, Thesephist self-built typography) is DOCUMENTED (reference live-CSS read) but AWARD-UNVERIFIED — no Awwwards/FWA/CSSDA/Webby crown surfaced for these sites this run; kept as a corpus-documented expression, not a verified winner.",
+    "Igloo footer particle-coalescence and SDF-scramble details are from the awwwards + webgpu.com case studies (media/case-study evidence), not read from shipped source this run.",
+    "Lusion v3 exact idle figures — the ~1vh scrollHeight and ~48-ticks/s idle tick-rate are reference-carried, NOT re-measured this run and no longer shipped as inline fact; the BESPOKE non-native scroll driver itself is corroborated by Lusion's public open-source WebGL Scroll Sync repo (github.com/lusionltd/WebGL-Scroll-Sync), so the hard 'no Lenis/Locomotive' claim is softened to 'not an off-the-shelf smooth-scroll lib'. (Lusion's CSSDA Website-of-the-Year 2023 NOMINEE leg — which a prior refutation could not corroborate — is RESOLVED and verified this run via cssdesignawards.com/woty2023/sites/lusion-v3 [judge score 9.27]; it stays in the corpus award line.)"
+  ],
+  "variation": "This section_playbook is one legal costume of the archetype, never THE skeleton. Structure is story-native (SKILL.md Phase 1): the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype + item counts, the ONE signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, the motion register (the register itself, never the named reading/interaction kit — that kit is a device, rotated per build like the signature), annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent.",
+  "gaps_note": "All orders closed July 2026 (completeness program) — entries kept as the winner-cited mechanic-spec grammar; per-entry status carries the resolution. For a builder each entry cuts two ways: the library form it merged into is the first reach, and the mechanic spec is a build recipe you may author directly at library quality when the winner's original shape fits the world better."
+}

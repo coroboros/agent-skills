@@ -8,7 +8,7 @@ Sound is the riskiest layer on a site — wrong by default, off by default. Earn
 
 - The brief calls for UI micro-sounds (hover, toggle, send, success) or an ambient bed, and the archetype supports it — Immersive/Cinematic, Bold/Maximal, Experimental, some Spatial Organic and Editorial.
 - The lead delegates the audio module to you with the `DESIGN.md` as the brief.
-- Skip on Minimalist and Corporate Luxury unless the brief explicitly asks — silence is the louder choice there.
+- Skip on Minimalist — and on Corporate Luxury default to silence, unless the brief asks or the universe earns it Cartier-style (a bespoke, consent-gated soundscape is that archetype's canonical exception).
 
 ## Library choice
 
@@ -120,4 +120,4 @@ A default click on a watch site, or generic chimes on a brutalist one, is the au
 - `audio-loop` skill — gapless loop from a real recording (the third row above), with the canonical raw Web Audio gesture-unlock snippet.
 - `../atmosphere-calibration.md` — the Motion score sets how present and active the bed should be.
 - `../design-md-anatomy.md` — where the sound palette lives in the brief; record tone/material/register alongside motion.
-- `../anti-patterns.md` — autoplay, stock cues, and information-by-sound-only are catalogued failures.
+- Audio failure modes pinned by this file: autoplay without a user gesture, stock cue packs, information carried by sound alone — each is stop-and-fix.
