@@ -159,7 +159,7 @@ High-end fashion, luxury hotels, fine jewelry, premium automotive, wealth manage
 
 Read alongside `foundations.md` (typography systems, OKLCH for jewel tones, animation toolkit), `premium-patterns.md` (Doppelrand nested containers, button-in-button trailing icons, eyebrow tags), `anti-patterns.md` (no neon, no high saturation; jewel tones only), `audit-rubric.md` (Spacing 9+, Typography 9+, Motion 8+ are entry bars), `exemplars.md` (Hermès, Rolex, Aesop, Bugatti, Immersive Garden).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/corporate-luxury.md`, with the live stylesheet reads in `winners/delvaux.md`, `winners/brunello-cucinelli.md`, and `winners/depo-luxe.md`, refutations folded under their `## Refuted` headings, the raw reports preserved verbatim at commit `fd5d1b6`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/`: `archetypes/corporate-luxury.md`, with the live stylesheet reads in `winners/delvaux.md`, `winners/brunello-cucinelli.md`, and `winners/depo-luxe.md`.
 
 ## Effect palette — what this line's winners ship
 
