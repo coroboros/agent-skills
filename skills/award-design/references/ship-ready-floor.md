@@ -24,7 +24,7 @@ Present on every build, gated. None competes with the design; all is floor. An i
 - **Canonical + hreflang** — a `<link rel="canonical">`; `hreflang` when the site is localized.
 - **Favicon + `icon.svg` + OG image** — a real favicon, an SVG icon, and an Open Graph image so shared links render.
 - **`theme-color`** — light and dark `theme-color` meta so mobile chrome matches the surface.
-- **`prefers-reduced-motion`** — motion replaced with opacity, never removed.
+- **`prefers-reduced-motion`** — durations zeroed or the motion removed; the element and its end state never are. A static opacity state is fine, a blank page is not.
 - **Focus ring at t=0** — `:focus-visible` indicators appear instantly; transitioning them in leaves keyboard users unmarked mid-animation.
 - **Reveal safety** — scroll/entry reveals *enhance* an already-visible default; hidden tabs and headless renderers never fire IntersectionObserver, and a reveal that gates visibility ships blank sections there. (The no-JS floor's JS-alive sibling.)
 

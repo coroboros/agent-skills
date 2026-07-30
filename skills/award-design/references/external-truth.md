@@ -1,6 +1,6 @@
 # External Truth — capability gates
 
-Award-grade builds live or die on library APIs that move faster than any training corpus: GSAP's plugins went free and its SplitText syntax changed, Three.js shipped WebGPU, View Transitions went Baseline, Tailwind v4 dropped its PostCSS plugin. Code written from memory for these layers is where confident-looking builds silently break — so each heavy layer passes this gate before its first line of code.
+Award-grade builds live or die on library APIs that move faster than any training corpus: GSAP's plugins went free and its SplitText syntax changed, Three.js shipped WebGPU, same-document View Transitions went Newly available, Tailwind v4 dropped its PostCSS plugin. Code written from memory for these layers is where confident-looking builds silently break — so each heavy layer passes this gate before its first line of code.
 
 ## The ladder — walk in order, stop at the first rung that resolves
 
@@ -46,7 +46,7 @@ Writing any of these from memory means the ladder was skipped — stop and resol
 - Treating a GSAP plugin (SplitText, MorphSVG, ScrollSmoother) as paid Club territory — all plugins ship free in the public `gsap` npm package.
 - `tailwindcss` as a PostCSS plugin on Tailwind v4 — v4 uses `@tailwindcss/postcss` or the Vite plugin.
 - A `ScrollTrigger` timeline without `gsap.registerPlugin(ScrollTrigger)`.
-- Hand-rolled `element.animate` page transitions where the View Transitions API is Baseline and one CSS line does it.
+- Hand-rolled `element.animate` page transitions where same-document View Transitions are Newly available and a guarded `document.startViewTransition` does it. Cross-document `@view-transition { navigation: auto }` is *not* Baseline — it ships as progressive enhancement and degrades to a plain navigation (`stack-facts.md`).
 
 ## Install-offer protocol
 

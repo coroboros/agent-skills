@@ -42,7 +42,7 @@ The deepest lift; also the slowest. After typography and color are right, asymme
 1. **Mobile collapse mandates** (`premium-patterns.md` pattern 5) — every asymmetric desktop layout collapses to single-column below 768px, all `transform`-rotation and negative-margin overlaps removed below `md`.
 2. **`min-h-[100dvh]`** replaces `h-screen` everywhere — `h-screen` jumps catastrophically on iOS Safari URL-bar toggle.
 3. **Section spacing** — push to `py-24` minimum on marketing pages, `py-32` to `py-48` on luxury and editorial (a Density 7+ DESIGN.md keeps its calibrated tighter band). Density bias (`foundations.md` Layout) applies — under-spacing is the AI default.
-4. **Hero 2-Line Iron Rule** (`premium-patterns.md` pattern 4) — wide containers (`max-w-5xl` to `max-w-6xl`), `clamp()` scaling, H1 in 2–3 lines maximum.
+4. **Hero 2-Line Iron Rule** (`premium-patterns.md` pattern 4) — wide containers (`max-w-5xl` to `max-w-6xl`), `clamp()` scaling, H1 in ≤2 lines (a 3rd takes a written override).
 5. **Three equal cards** (axiom #6) — never. Vary card sizes, move to bento or editorial layouts, or use a dominant card with supporting detail.
 
 ### 5. Replace generic components
@@ -78,7 +78,7 @@ SEO migration is the #1 redesign risk; analytics is #2. Without explicit user ap
 Run the same validation as a new project — the verify phase and the review (pre-flight + review mode):
 
 1. `references/anti-patterns.md` — axiomatic rejections first; if any present, the retrofit isn't done.
-2. `references/audit-rubric.md` — score the seven categories. The retrofit target is +2 points per category from the pre-fix baseline.
+2. `references/audit-rubric.md` — score the eight categories. The retrofit target is +2 points per category from the pre-fix baseline.
 3. `references/foundations.md` UX Quality and Accessibility sections — these are easy to defer during retrofit and easy to break.
 4. Visual review through the browser ladder (`external-truth.md` — install offer applies) — screenshot before/after for the user to compare.
 

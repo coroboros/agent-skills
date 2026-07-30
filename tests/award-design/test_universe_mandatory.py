@@ -149,7 +149,9 @@ class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
                       _section("Routing"))
 
     def test_alerts_when_existing_design_md_is_thin(self):
-        self.assertIn("alert when thin, never silently regenerate", _section("Routing"))
+        routing = _section("Routing")
+        self.assertIn("alert, never silently regenerate", routing)
+        self.assertIn("thin = missing a spacing scale", routing)
 
     def test_design_system_governs_after_the_build(self):
         self.assertIn("/design-system", _section("Routing"))

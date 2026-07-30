@@ -1,11 +1,12 @@
 /*
  * nav-context-ink — section-driven nav ink/theme adaptation (corpse-derived:
- * the campaign's own record, not a winner citation — CALDERA's footerNavSwap
- * toggling is-over-light on the nav when the light dawn footer rises under it,
- * AVALANCHE's data-nav-phase attribute set from section [data-phase] via an
- * IntersectionObserver band; both builds invented the swap because the library
- * had no ink axis for the fixed bar). A fixed nav crossing dark hero → light
- * section → dark close needs its ink to follow the ground it floats over.
+ * the campaign's own record, not a winner citation — one dead build's
+ * footerNavSwap toggling is-over-light on the nav when the light dawn footer
+ * rises under it, a second's data-nav-phase attribute set from section
+ * [data-phase] via an IntersectionObserver band; both builds invented the swap
+ * because the library had no ink axis for the fixed bar). A fixed nav crossing
+ * dark hero → light section → dark close needs its ink to follow the ground it
+ * floats over.
  *
  * THE CONTRACT: this component only PUBLISHES — it stamps data-ad-nav-ink=
  * "<theme>" on the nav root and touches NOTHING else. It never restyles the
@@ -15,7 +16,7 @@
  * builder's CSS consumes the attribute — and restyles the WHOLE context
  * costume, ink AND the grounded surface (drive-caught: retargeting ink alone
  * leaves the accumulator's dark is-scrolled ground under dark ink over a
- * light chapter — CALDERA's is-over-light swapped mark, links AND scrim):
+ * light chapter — that build's is-over-light swapped mark, links AND scrim):
  *   nav[data-ad-nav][data-ad-nav-ink="light"] { --nav-ink: var(--ad-ground); }
  *   nav[data-ad-nav][data-ad-nav-ink="light"].is-scrolled {
  *     background-color: <the light chapter's ground>; }

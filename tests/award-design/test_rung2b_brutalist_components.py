@@ -404,7 +404,7 @@ class TestScrubbedDecorDraw(unittest.TestCase):
 
 class TestSmoothScrollRouting(unittest.TestCase):
     """The authorized edit: in-page anchors and the wordmark-home travel
-    ride the Lenis instance (MARE and AVALANCHE both re-invented this by
+    ride the Lenis instance (two dead builds both re-invented this by
     hand), and neither ever writes a #fragment into the URL — the
     navigation-patterns wordmark rule."""
 

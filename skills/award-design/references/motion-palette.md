@@ -14,7 +14,7 @@ So reach for a mechanic because the world needs it, never because it impresses. 
 
 The signature that wins is one dominant **climax** — distributed over the page as a few section-tied echoes on a live low-amplitude substrate (`interaction-signatures.md`), never a lone hero effect on a page that dies below it. Its **medium is archetype-dependent**, and grabbing the wrong medium because it is flashy is the failure. The verified 2023–2026 winners split clean:
 
-- **Immersive / Cinematic → 3D WebGL** is the one archetype where a heavy 3D signature is the win-condition. Verified named winners: Lando Norris (Awwwards **Site of the Year 2025**), ERA, Montfort, Oryzo, Cartier W&W, Igloo Inc, EverSwap — all **Three.js + GSAP + GLSL, frequently Lenis**. No verified winner ran OGL, React-Three-Fiber, CSS-native `animation-timeline`, or the View Transitions API as its signature medium; those are craft-layer and portability tools, not the winning-signature stack. Routes through the WebGL delegation (`ingredients/web3d-for-sites.md`).
+- **Immersive / Cinematic → 3D WebGL** is the one archetype where a heavy 3D signature is the win-condition. Verified named winners: Lando Norris (Awwwards **SOTD 2025-11-17, 8.18**; SOTY 2025 per case study, unverified), ERA, Montfort, Oryzo, Cartier W&W, Igloo Inc, EverSwap — all **Three.js + GSAP + GLSL, frequently Lenis**. No verified winner ran OGL, React-Three-Fiber, CSS-native `animation-timeline`, or the View Transitions API as its signature medium; those are craft-layer and portability tools, not the winning-signature stack. Routes through the WebGL delegation (`ingredients/web3d-for-sites.md`).
 - **The quieter archetypes win without 3D.** Minimalist on type + restraint (Terminal Industries, SOTM); Editorial on editorial craft + parallax storytelling (Siena, SOTM); Bento on tiles that demonstrate their claim (Anime.js, SOTM); Corporate Luxury on slow tasteful motion (Cartier). Their signature is the type, the restraint, the pacing — not a shader. This steers the *default*, never a prohibition: any archetype whose subject's primary verb acts on a physical object may earn an interactive scene through the playable-object decision (`signature-invention.md`) — the archetype's DNA then governs the scene's aesthetic, and the perf budget stays binding.
 
 Per-archetype signature register and the full winner roster: `award-imperatives.md` + `exemplars.md`. This file supplies the motion vocabulary each one draws from.
@@ -82,11 +82,17 @@ Load-bearing details:
 Do NOT scrub a content reveal with `animation-timeline` — bound to visibility, it re-hides on scroll-up (`view()` reverses as the element leaves). Fire it once and hold:
 
 ```css
+.reveal { opacity: 1; }                                            /* base is VISIBLE — a dead script never blanks the page */
+
 @media (prefers-reduced-motion: no-preference) {
-  .reveal { opacity: 0; transform: translateY(1.25rem); }          /* pre-state, motion-safe branch only */
-  .reveal[data-shown] { opacity: 1; transform: none;
+  html.js .reveal { opacity: 0; transform: translateY(1.25rem); }  /* pre-state: motion-safe AND JS-alive only */
+  html.js .reveal[data-shown] { opacity: 1; transform: none;
     transition: opacity .8s var(--ease), transform .8s var(--ease); }
 }
+```
+```html
+<!-- In <head>, inline and render-blocking, so the class lands before first paint. -->
+<script>document.documentElement.classList.add('js');</script>
 ```
 ```js
 const io = new IntersectionObserver((entries) => {
@@ -95,7 +101,7 @@ const io = new IntersectionObserver((entries) => {
   }
 }, { rootMargin: '0px 0px -10% 0px' });
 ```
-The pre-state lives inside `prefers-reduced-motion: no-preference`, so a reduced-motion user and a no-JS load both see the content immediately. `animation-trigger: --t play-forwards` is the native replacement once it ships.
+The pre-state is gated twice — inside `prefers-reduced-motion: no-preference` and behind the `html.js` class — so a reduced-motion user, a no-JS load, and one throw above the observer all leave the content visible. The base rule alone would blank the page for a motion-allowing visitor whose script never ran (`skeletons.md` §G). `animation-trigger: --t play-forwards` is the native replacement once it ships.
 
 ### The reversible content-reveal (editorial, declared only)
 
@@ -126,7 +132,7 @@ The tag measures **how proven the execution is — not whether the build wins.**
 | **Pin-dissolve / sticky-distance reveal** | décor | reversible | CSS `scroll(root block)` | shipped |
 | **SVG stroke-draw** (frame draws itself) | décor | either | CSS `@property <length>` + `stroke-dashoffset` | shipped |
 | **Conic-gradient border-trace** (`oklch(from … / 0)`, not `transparent`) | décor | fire-once | CSS `@property <angle>` | shipped |
-| **WebGL 3D scene / transition** (interactive scene, inertial product, room-scrub) | signature | — | Three.js + GSAP + GLSL (+ Lenis) | winner — Lando (SOTY), ERA, Montfort, Oryzo, Igloo |
+| **WebGL 3D scene / transition** (interactive scene, inertial product, room-scrub) | signature | — | Three.js + GSAP + GLSL (+ Lenis) | winner — Lando (SOTD 8.18), ERA, Montfort, Oryzo, Igloo |
 | **WebGL displacement / flowmap image transition** | signature | either | Three.js + custom GLSL (OGL for light builds) | technique |
 | **Scroll-velocity skew / RGB-shift** | décor | reversible | Lenis velocity → transform or shader | technique |
 | **Cursor-trailing mask / blob reveal** | signature | — | canvas / shader mask | technique |

@@ -25,7 +25,7 @@
 
 | site | award | signature |
 |---|---|---|
-| Lando Norris · `landonorris.com` | Awwwards SOTD 2025-11 + Site of the Year 2025 — OFF+BRAND, Webflow + WebGL + Rive (the widely-quoted 8.18 was not re-confirmed on the last pass) | Corner-locked wordmark over a full-bleed portrait on cream → a pinned horizontal gallery → a mid-page live 3D helmet gallery at the peak → a valediction footer that flips the palette once and returns the opening face helmeted. The close recontextualizes the fold. |
+| Lando Norris · `landonorris.com` | Awwwards SOTD 2025-11-17, 8.18 — OFF+BRAND, Webflow + WebGL + Rive (SOTY 2025 per case study, unverified) | Corner-locked wordmark over a full-bleed portrait on cream → a pinned horizontal gallery → a mid-page live 3D helmet gallery at the peak → a valediction footer that flips the palette once and returns the opening face helmeted. The close recontextualizes the fold. |
 
 **Reflexes — enumerate, then reject by name before committing.**
 1. Near-black page, one neon accent, Monument Grotesk at 200px: the Active Theory screenshot.

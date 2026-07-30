@@ -480,7 +480,7 @@ For JS: detect preference, disable smooth scroll, reduce particles, simplify tra
 
 | Studio | Signature | Key wins |
 |--------|-----------|----------|
-| **Locomotive** (Montreal) | Smooth scroll pioneers, Lenis/GSAP | Agency of Year 7x consecutive |
+| **Locomotive** (Montreal) | Smooth scroll pioneers, Lenis/GSAP | Agency of the Year, multi-year — streak length unverified |
 | **Active Theory** (LA) | Cinematic WebGL, pitch-black canvases | Emmy nominations, LCP ~1.3s despite shaders |
 | **Resn** (Wellington) | Gooey interactions, game design | 60 SOTD, 11 SOTM, 2 SOTY |
 | **Immersive Garden** (Paris) | Luxury brand immersion | Agency of Year 2025, Louis Vuitton |

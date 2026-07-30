@@ -21,22 +21,22 @@
    run() takes idleMs (default 3000) to sample the page at rest, so a full call
    is roughly four seconds by design.
 
-   What each metric measures — the provenance is the Undercurrent build, where
+   What each metric measures — the provenance is a failed reference build, where
    the desire read was "the argument underneath is better than Terminal's; the
    page is not", and the gaps were all distributional:
 
      quadrantEmptiness  a 12×13 grid over the whole page; the coverage of each
-                        of the 156 cells. Undercurrent: 28 cells effectively
+                        of the 156 cells. That build: 28 cells effectively
                         empty, and the eye reads that as unfinished.
-     inkProfile         covered-area share per viewport-height band. Undercurrent
-                        ran 8.2%–15.1% across 13 bands — a metronome, no climax,
+     inkProfile         covered-area share per viewport-height band. It ran
+                        8.2%–15.1% across 13 bands — a metronome, no climax,
                         no rest, the same density everywhere.
      groundCommitment   the share of painted background area held by the single
-                        dominant colour. Undercurrent 26.7% against the
+                        dominant colour. That build held 26.7% against the
                         exemplar's 84.7%: a page that never commits to a ground.
      accentFrequency    how many elements per viewport band carry the accent.
-                        Undercurrent fired its blue 3–5× per viewport against its
-                        own one-per-viewport spec, so the accent meant CTA and
+                        It fired its blue 3–5× per viewport against its own
+                        one-per-viewport spec, so the accent meant CTA and
                         link and focus and emphasis and stat simultaneously.
      idleDelta          how many animated candidates move measurably while the
                         page sits untouched.

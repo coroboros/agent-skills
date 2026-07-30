@@ -413,19 +413,19 @@ Takes the lead on any frontend design, build, or redesign — an **art-director*
 
 **Archetypes**
 
-Each archetype anchors to a canonical reference (article-credentialed; Spatial Organic is the emerging exception). The reference file splits DNA (non-negotiable identity, mood-agnostic) from common expressions (2–4 named stacks per archetype), so one DNA admits multiple valid styles — Immersive runs cinematic-dark, editorial-portrait, or daylight-automotive without losing identity.
+Each archetype anchors to a canonical winner (corpus-credentialed). The reference file splits DNA (non-negotiable identity, mood-agnostic) from common expressions (2–4 named stacks per archetype), so one DNA admits multiple valid styles — Immersive runs cinematic-dark, editorial-portrait, or daylight-automotive without losing identity.
 
 | Archetype | Canonical reference | Ideal for |
 |-----------|---------|-----------|
 | Minimalist | Terminal Industries (SOTM Sept 2025) | SaaS, luxury, architecture, portfolios |
-| Brutalist | FlowFest 2025 (SOTD July 2025) | Creative agencies, indie tech, festivals |
-| Editorial | Siena Film Foundation (SOTM April 2025) | Media, fashion, cultural institutions |
+| Brutalist | Eloy Benoffi (GSAP SOTD + CSSDA) | Creative agencies, indie tech, festivals |
+| Editorial | Siena Film Foundation (SOTD 18 Mar 2025) | Media, fashion, cultural institutions |
 | Bold / Maximal | Ponpon Mania (SOTM Oct 2025) | Entertainment, music, Gen Z brands |
-| Immersive / Cinematic | Lando Norris (Site of the Year 2025) | Automotive, luxury, gaming, athlete portfolios |
+| Immersive / Cinematic | Lando Norris (SOTD 17 Nov 2025, 8.18) | Automotive, luxury, gaming, athlete portfolios |
 | Experimental | Bruno Simon (SOTM Jan 2026) | Developer portfolios, art institutions |
-| Corporate Luxury | Cartier WAW 2025 (SOTM Aug 2025) | Fashion, hotels, jewelry, wealth, watchmaking |
-| Bento / Card | Anime.js v4 (SOTM May 2025) | SaaS product pages, AI products, feature comparisons |
-| Spatial Organic | *trend-credentialed (Arc, Granola)* | Sustainability, wellness, post-2025 creative studios |
+| Corporate Luxury | Cartier WAW 2025 (SOTD 18 Aug 2025) | Fashion, hotels, jewelry, wealth, watchmaking |
+| Bento / Card | Anime.js v4 (SOTD 6 May 2025) | SaaS product pages, AI products, feature comparisons |
+| Spatial Organic | Igloo Inc (SOTY 2024) | Sustainability, wellness, post-2025 creative studios |
 
 **Key features**
 

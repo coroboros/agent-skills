@@ -36,10 +36,11 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _helpers import REPO_ROOT, SKILLS_DIR  # noqa: E402
 
-# File extensions worth scanning. Markdown + Python + Shell + JSON cover
-# every shipped surface inside skills/. Other extensions (yml, toml,
-# images) carry no prose.
-_SCAN_EXTENSIONS = (".md", ".py", ".sh", ".bash", ".json")
+# File extensions worth scanning. Markdown + Python + Shell + JSON +
+# JavaScript cover every shipped surface inside skills/ — browser payloads
+# carry header comments as long as any reference doc, and they ship to the
+# same reader. Other extensions (yml, toml, images) carry no prose.
+_SCAN_EXTENSIONS = (".md", ".py", ".sh", ".bash", ".json", ".js")
 
 # Path-prefix allowlist (relative to repo root).
 # A path matches the allowlist when it equals an entry OR starts with

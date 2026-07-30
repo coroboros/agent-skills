@@ -98,7 +98,7 @@ class TestAxis2FidelityFloor(unittest.TestCase):
 
 
 class TestSequenceFidelityFloor(unittest.TestCase):
-    """CALDERA postmortem: 62 frames baked from 4 stills at 1280x720, cover-drawn on
+    """Dead-build postmortem: 62 frames baked from 4 stills at 1280x720, cover-drawn on
     2880x1800 device px. Corpus-measured floor (r4 medium-floor verdict): winners ship
     distinct real frames at >= device pixels on the signature surface; the one 2x
     upscale ever measured scored 7.3, the SOTD floor; synthetic in-betweens from

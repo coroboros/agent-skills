@@ -130,7 +130,7 @@ Catch the `play()` promise silently. If the browser refuses (Low Power Mode, dat
 
 ### File size
 
-Hero video < 5 MB, ideally < 3 MB. `ffmpeg -crf 28 -preset slow`. Loop 8–15s. Longer = bandwidth for frames nobody watches.
+No award jury publishes a byte cap (`stack-facts.md`, `award-imperatives.md` #7), and the poster carries first paint either way — but a hero video past ~5 MB spends the connection's headroom on the critical path, so the loop starts late and the poster sits there on a median link. Compress toward 3 MB before trading any fidelity. `ffmpeg -crf 28 -preset slow`. Loop 8–15s. Longer = bandwidth for frames nobody watches.
 
 ## Scroll-driven cinematic sequences
 
@@ -246,18 +246,30 @@ function smoothScrollTo(target, duration) {
 
 Scroll-driven reveals hide elements via JS on first frame. Between first paint and script execution, they flash at full opacity.
 
-### Hide at the CSS layer (the floor)
+### Hide only where the reveal engine is confirmed present (the floor)
+
+Base CSS never hides content. The hidden state is scoped to a class the loader sets, so it exists only on a page whose script actually ran:
 
 ```css
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  will-change: opacity, transform;
+.scroll-reveal { opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js .scroll-reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    will-change: opacity, transform;
+  }
+  html.js #video-wrapper { opacity: 0; }
 }
-#video-wrapper { opacity: 0; }
 ```
 
-JS then takes over and animates these inline. CSS is the floor; JS is the driver.
+```html
+<!-- In <head>, inline and render-blocking: the class lands before first paint,
+     so the guarded hidden state is in place with no flash. -->
+<script>document.documentElement.classList.add('js');</script>
+```
+
+JS then takes over and animates these inline. The guarded rule is the floor; JS is the driver. Writing `opacity: 0` unguarded in base CSS instead is the page-blanking failure catalogued in `skeletons.md` §G — a no-JS load, a parse error, or one throw above the observer leaves the whole page blank, and it screenshots clean every time JS works. Both gates are load-bearing: the media query keeps a reduced-motion visitor out of the hidden state, the class keeps a script-less one out. The runnable form of the same pattern: `skeletons.md` §G.
 
 ### Handle `prefers-reduced-motion` synchronously
 
@@ -281,7 +293,7 @@ else if (scrollY < endPx) { /* interpolate */ }
 else                      { /* opacity = 1 */ }
 ```
 
-If `startPx` or `endPx` is `0` or `NaN` (corrupt svh, missed range lookup), **every element falls through to the `else` branch** — visible on top of the hero. The CSS `opacity: 0` floor only helps until JS runs; after that, bad JS paints over good CSS.
+If `startPx` or `endPx` is `0` or `NaN` (corrupt svh, missed range lookup), **every element falls through to the `else` branch** — visible on top of the hero. The guarded `opacity: 0` pre-state only holds until JS runs; after that, bad JS paints over good CSS.
 
 Guard `update()` so bad data can never paint the revealed state:
 

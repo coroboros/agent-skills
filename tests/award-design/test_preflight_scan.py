@@ -25,6 +25,14 @@ assert _spec is not None and _spec.loader is not None
 scan = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(scan)
 
+# The roll owns the archetype vocabulary; the scanner carries its own copy so it
+# stays a standalone script. Loaded here to keep the two in lockstep.
+ROLL_SCRIPT = SKILL_DIR / "scripts" / "direction_roll.py"
+_roll_spec = importlib.util.spec_from_file_location("direction_roll", ROLL_SCRIPT)
+assert _roll_spec is not None and _roll_spec.loader is not None
+roll = importlib.util.module_from_spec(_roll_spec)
+_roll_spec.loader.exec_module(roll)
+
 
 def _run_main(argv):
     """main() prints its report; swallow it so the suite output stays clean."""
@@ -603,6 +611,67 @@ class TestScannerChecklistLockstep(unittest.TestCase):
             with self.subTest(rule=rule_id):
                 self.assertIn(rule_id, self.script_ids,
                               f"preflight.md cites unknown scanner rule: {rule_id}")
+
+
+class TestArchetypeFlagValidation(unittest.TestCase):
+    """`--archetype` is the reviewer's declaration of which grammar the scan
+    runs under. An unrecognised slug used to pass silently — the suppression
+    simply never applied — so a mistyped `editorial` produced a report judged
+    under a register nobody declared, and nothing said so."""
+
+    def test_every_known_slug_is_accepted(self):
+        for archetype in scan.ARCHETYPES:
+            with self.subTest(archetype=archetype):
+                self.assertEqual(
+                    _run_main([str(FIXTURES / "clean"), "--archetype", archetype]), 0)
+
+    def test_declared_suppression_still_applies(self):
+        """Acceptance is not the point — the accepted slug must still reach the
+        grammar it names."""
+        _, suppressed = scan.scan_paths([str(FIXTURES / "clean")], "editorial")
+        self.assertEqual(["EMDASH (archetype editorial)"], suppressed)
+
+    def test_unknown_slug_exits_2_and_names_the_nine(self):
+        err = io.StringIO()
+        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
+            code = scan.main([str(FIXTURES / "clean"), "--archetype", "editoral"])
+        # 2 is the usage-error code; 1 would read as "this build has FAIL findings".
+        self.assertEqual(code, 2)
+        message = err.getvalue()
+        self.assertIn("unknown archetype 'editoral'", message)
+        for archetype in scan.ARCHETYPES:
+            self.assertIn(archetype, message)
+
+    def test_unknown_slug_scans_nothing(self):
+        """The check runs before the scan, so no report can be mistaken for a
+        verdict the reviewer never declared the register for."""
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
+            scan.main([str(FIXTURES / "dirty"), "--archetype", "nope"])
+        self.assertEqual("", out.getvalue())
+
+    def test_casing_and_padding_survive_validation(self):
+        """scan_paths matches on the stripped, lowered slug — the gate must use
+        the same normalisation or it rejects input the scanner handles."""
+        self.assertEqual(
+            _run_main([str(FIXTURES / "clean"), "--archetype", " Editorial "]), 0)
+
+    def test_no_flag_path_is_unchanged(self):
+        self.assertEqual(_run_main([str(FIXTURES / "clean")]), 0)
+        self.assertEqual(_run_main([str(FIXTURES / "dirty")]), 1)
+        _, suppressed = scan.scan_paths([str(FIXTURES / "clean")])
+        self.assertEqual([], suppressed)
+
+    def test_suppression_keys_are_known_archetypes(self):
+        for archetype in scan.ARCHETYPE_SUPPRESSIONS:
+            with self.subTest(archetype=archetype):
+                self.assertIn(archetype, scan.ARCHETYPES)
+
+    def test_archetype_set_matches_the_roll(self):
+        """The scanner keeps its own tuple to stay a standalone script. A slug
+        one side accepts and the other rejects would let a typo pass the roll
+        and then disable the grammar here, or the reverse."""
+        self.assertEqual(roll.ARCHETYPES, scan.ARCHETYPES)
 
 
 if __name__ == "__main__":

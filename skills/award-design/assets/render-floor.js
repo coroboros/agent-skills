@@ -15,9 +15,9 @@
    (CTA-FOLD, MOBILE-NAV-MISSING, H-OVERFLOW, CONSOLE-ERROR) always read the
    whole document. Width-gated rules state their gate and stay silent outside it.
 
-   What each rule catches — every one traces to a P0 measured on the Undercurrent
-   build, where the builder's own pre-flight verdict said READY and an independent
-   assessor said LOSES 6.5/10 with the cap on execution, not idea:
+   What each rule catches — every one traces to a P0 measured on a failed
+   reference build, where the builder's own pre-flight verdict said READY and an
+   independent assessor said LOSES 6.5/10 with the cap on execution, not idea:
 
      TEXT-OVERLAP        the spec-list citation that printed on top of its label
      TEXT-CLIPPED        "ΓRANSIENT" — a hero label cut mid-glyph at 375 — and

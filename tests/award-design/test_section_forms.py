@@ -167,7 +167,7 @@ class TestArchetypeCompositionCapital(unittest.TestCase):
                 self.assertIn("**Mobile / touch**", body)
 
     def test_variation_axes_present(self):
-        """CALDERA postmortem: two same-archetype builds shipped isomorphic
+        """Dead-build postmortem: two same-archetype builds shipped isomorphic
         skeletons. R-sameness corpus (21 artifacts, 5 serial studios): the
         skeleton is one legal costume; the device kit + content archetype +
         close rotate — an archetype without the variation clause reads as THE
@@ -276,9 +276,10 @@ class TestCompositionFloorsWiring(unittest.TestCase):
                       "the diagnostic that names why a locally-good page still fails")
 
     def test_density_aliveness_bar(self):
-        """Cennini cleared every floor and shipped dead because no gate measured
-        richness. The floor is not the ceiling; the exemplar is the bar, and a
-        sparse/static build fails the density read comparatively."""
+        """A failed reference build cleared every floor and shipped dead
+        because no gate measured richness. The floor is not the ceiling; the
+        exemplar is the bar, and a sparse/static build fails the density read
+        comparatively."""
         self.assertIn("clears every check and ships dead", self.skill)
         self.assertIn("aim at the exemplar's ceiling, never at the floor the checks define",
                       self.skill)
@@ -287,14 +288,15 @@ class TestCompositionFloorsWiring(unittest.TestCase):
         self.assertIn("does the build carry as many live channels", self.rubric)
 
     def test_felt_text_effect_law(self):
-        """Cennini shipped "zero text effect" because a static colour accent
-        cleared the old gate. The commit box died with the floor rewrite; the
-        law survives in the text-effects canon the build pulls by heading."""
+        """A failed reference build shipped "zero text effect" because a static
+        colour accent cleared the old gate. The commit box died with the floor
+        rewrite; the law survives in the text-effects canon the build pulls by
+        heading."""
         self.assertIn("`text-effects.md`", self.skill,
                       "the text-effects canon must stay loadable from the core")
         te = (REFS / "text-effects.md").read_text(encoding="utf-8")
         self.assertIn("DISPLAY entrance still carries a felt reveal", te)
-        self.assertIn("the Cennini failure", te)
+        self.assertIn("the dead-page failure a failed reference build shipped", te)
 
     def test_motion_continuity_law(self):
         """The R4 motion-continuity law survives compressed: never silent after
@@ -334,7 +336,7 @@ class TestCompositionFloorsWiring(unittest.TestCase):
 
 
 class TestImposedVerdicts(unittest.TestCase):
-    """CALDERA postmortem: the builder treated corpus verdicts as improvable
+    """Dead-build postmortem: the builder treated corpus verdicts as improvable
     defaults ('I know a better way'). The imposed-verdicts table died with the
     library-quality; these pin its load-bearing rows where they live on as law."""
 

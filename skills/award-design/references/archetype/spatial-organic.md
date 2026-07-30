@@ -11,7 +11,7 @@
 - A circle-follower cursor with magnetic-everything, reached for before any content decision.
 - An undesigned full-screen spinner, or a bare `0–100%` gate that hard-cuts into the page.
 - A blanket 40px fade-up on every section, with "spatial" resting on `backdrop-filter` alone; static PNG grain standing in for procedural texture; motionless SVG blobs standing in for organic form.
-- Glass surfaces under 4.5:1 text contrast — the article flags this line for it explicitly.
+- Glass surfaces under 4.5:1 text contrast — the `award-winning-websites-2025-2030` reference article (`github.com/coroboros/research`) flags this line for it explicitly (§9.4).
 - A bento or card-grid fold, a fat sitemap footer, a filled fold CTA, stock imagery, neon or corporate blue.
 
 **Macrostructures it runs.**

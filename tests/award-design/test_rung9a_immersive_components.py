@@ -4,10 +4,10 @@ Five builds, all components: telemetry-readout, nav-context-ink,
 procession-wayfinding, brand-object-assembly-loader, pointer-scene-reveal.
 Two are corpse-derived (the campaign's own record, not winner citations):
 telemetry-readout is the scroll-progress HUD three dead builds each
-re-invented (MARE alt/phase readers, CALDERA acquiring-fix HUD, AVALANCHE
-signal rail — the library-quality boundary verdict promotes the recurring
-invention); nav-context-ink is the section-driven nav ink swap (CALDERA
-footerNavSwap is-over-light, AVALANCHE data-nav-phase), IO-based and
+re-invented (one build's alt/phase readers, a second's acquiring-fix HUD, a
+third's signal rail — the library-quality boundary verdict promotes the
+recurring invention); nav-context-ink is the section-driven nav ink swap (one
+build's footerNavSwap is-over-light, another's data-nav-phase), IO-based and
 zero-flip compliant with show-on-scroll-up-nav's accumulator — it PUBLISHES
 data-ad-nav-ink and never touches the hide/show machine. Alias rulings on
 evidence, written into each header: procession-wayfinding is DISTINCT from
@@ -144,7 +144,8 @@ class TestTelemetryReadout(unittest.TestCase):
         self.src = _src("telemetry-readout.js")
 
     def test_corpse_derived_evidence_in_header(self):
-        for token in ("MARE", "CALDERA", "AVALANCHE", "promotes a pattern into the library"):
+        for token in ("corpse-derived", "[data-hud-alt]", "altFor", "resolveCoord",
+                      "promotes a pattern into the library"):
             self.assertIn(token, self.src)
 
     def test_piecewise_map_and_phase_grammar(self):
@@ -153,11 +154,11 @@ class TestTelemetryReadout(unittest.TestCase):
         self.assertIn("data-tel-resolve", self.src)
 
     def test_resolve_masks_alphanumerics_only(self):
-        """CALDERA's law: acquiring a fix, not noise — punctuation and
+        """The dead build's law: acquiring a fix, not noise — punctuation and
         spacing always stand."""
         self.assertIn("/[0-9a-zA-Z]/", self.src)
 
-    def test_locale_int_format_is_the_mare_fmt(self):
+    def test_locale_int_format_is_the_corpse_fmt(self):
         self.assertIn("toLocaleString('en-US')", self.src)
 
     def test_rail_is_transform_only(self):
@@ -200,8 +201,8 @@ class TestNavContextInk(unittest.TestCase):
         self.src = _src("nav-context-ink.js")
 
     def test_corpse_derived_evidence_in_header(self):
-        for token in ("CALDERA", "footerNavSwap", "is-over-light",
-                      "AVALANCHE", "data-nav-phase"):
+        for token in ("corpse-derived", "footerNavSwap", "is-over-light",
+                      "data-nav-phase"):
             self.assertIn(token, self.src)
 
     def test_publishes_the_attribute_only(self):

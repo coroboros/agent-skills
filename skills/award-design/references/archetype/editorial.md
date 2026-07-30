@@ -24,7 +24,7 @@
 
 | site | award | signature |
 |---|---|---|
-| Siena Film Foundation · `siena.film` | Awwwards SOTD 2025-03-18 + Developer Award — 7.9 overall, Creativity 8.13, Content 8, Design 7.99, Usability 7.61, by G-NS Studio; SOTM March 2025 nominee only | A `pointer-events:none` scrim nav over a full-bleed treated still, an oversized vintage-poster title, a mono metadata stamp. Below it the hold-and-drag filmstrip is a second operable spectacle at near-hero amplitude — the reader threads the reel by hand and the titles roll on the same doubled-char label. |
+| Siena Film Foundation · `siena.film` | Awwwards SOTD 2025-03-18 + Developer Award — 7.9 overall, Creativity 8.13, Content 8, Design 7.99, Usability 7.61, by G-NS Studio; SOTM March 2025, listing-verified | A `pointer-events:none` scrim nav over a full-bleed treated still, an oversized vintage-poster title, a mono metadata stamp. Below it the hold-and-drag filmstrip is a second operable spectacle at near-hero amplitude — the reader threads the reel by hand and the titles roll on the same doubled-char label. |
 
 **Reflexes — enumerate, then reject by name before committing.**
 1. A high-contrast Didone at its default optical size — Bodoni Moda, Editorial New, Playfair — set once and called art direction.

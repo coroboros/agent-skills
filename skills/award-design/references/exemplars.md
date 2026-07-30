@@ -21,7 +21,7 @@ Extreme whitespace, 2–3 colors, typography carries everything. Single accent u
 | Brand | URL | Signature |
 |---|---|---|
 | **Terminal Industries** *(canonical, SOTM Sept 2025)* | terminal-industries.com | Cinematic golden-hour photography on cream, glass-pill nav, lime CTA |
-| Gabriel Contassot *(SOTD Apr 2024)* | gabrielcontassot.com | Monochrome #000 portfolio, text-only name-card hero, full-bleed project stills |
+| Gabriel Contassot *(SOTD Apr 2024)* | gabrielcontassot.com | Monochrome #000 portfolio (observed on the winner; builds obey the PURE-BW constraint), text-only name-card hero, full-bleed project stills |
 | Stefan Vitasović *(SOTD Sept 2025)* | stefanvitasovic.dev | Per-char masked headline reveal, motion-led SPA gallery, Dev Award |
 | Treize Grammes *(HM Oct 2024)* | 13g.fr | Warm French branding agency, imperative headlines, Be true/strong/bold video triptych |
 | Nite Riot *(SOTD Apr 2025 + CSSDA WOTY nominee)* | awwwards.com/sites/nite-riot | Site-wide `mix-blend-mode: difference` as the engine — hover/scroll/drag invert type, imagery, and video against a black-and-white grid |
@@ -87,7 +87,7 @@ Full-screen video, WebGL 3D, scroll-controlled storytelling. Motion and media ca
 
 | Brand | URL | Signature |
 |---|---|---|
-| **Lando Norris** *(canonical, Site of the Year 2025)* | landonorris.com | Editorial-portrait stack — light cream, 3D helmet, lime CTA, OFF+BRAND |
+| **Lando Norris** *(canonical, SOTD 2025-11-17, 8.18)* | landonorris.com | Editorial-portrait stack — light cream, 3D helmet, lime CTA, OFF+BRAND |
 | Messenger | messenger.network | Cinematic-dark stack — Three.js miniature-planet, Developer SOTY 2025 |
 | Symphony of Vines *(SOTD + Dev + FWA, CSSDA WOTY #2)* | symphonyofvines.com | Real-time 3D cinematic scroll-journey through a vineyard's terroir, scene-synced sound design |
 | Charles Leclerc *(SOTD + Dev + FWA)* | charlesleclerc.com | Two reading modes — Driver (fast, kinetic) vs The Man (slow, intimate); a rotating checkered pattern resolves into the monogram |
@@ -127,7 +127,7 @@ Quiet sophistication, custom serifs, generous whitespace. Range spans flat edito
 | **Cartier WAW 2025** *(canonical, SOTD 2025-08-18, 7.64)* | cartier-waw-0225.dev.60fps.fr | Cinematic 3D pavilion — six contemplative alcove universes, slow tasteful motion |
 | Son Daven *(SOTD Jun 2026)* | sondaven.com/en | Argument long-scroll — KTF Metro serif, preloader→GSAP-Flip hero, magnetic circular CTAs, Carpathian photo/film |
 | Delvaux Digital Flagship *(HM Jun 2026)* | delvaux.com | Editorial maison — Genath on Atlas Grotesk, fullscreen home-slider, roll-swap/stroke CTAs, "Since 1829" |
-| Depo Luxe *(SOTD Jul 2026)* | depoluxe.xyz | Cinematic folio — monochrome #fff/#000, EB Garamond, video-preloader + SVG-logo fill, WebGL nav index |
+| Depo Luxe *(SOTD Jul 2026)* | depoluxe.xyz | Cinematic folio — monochrome #fff/#000 (observed on the winner; builds obey the PURE-BW constraint), EB Garamond, video-preloader + SVG-logo fill, WebGL nav index |
 | Brunello Cucinelli AI *(SOTD Jul 2026)* | brunellocucinelli.ai | AI-agent maison — FreightBig/FreightText + IM Fell serifs, Socrates/Demosthenes dialogue, humanist voice |
 | Montfort *(SOTD + SOTM Jun 2025 + FWA + CSSDA)* | awwwards.com/sites/montfort | Full-page 3D scene transitions between sections — WebGL morphs, not cuts — two-tone restraint on a B2B commodity house |
 | Art Here 2025 — Richard Mille *(SOTD Feb 2026, Annual Nominee 2025)* | awwwards.com/sites/art-here-2025-richard-mille | Contemplative 3D world — a moving light source reveals artworks out of darkness, spatial navigation + positional audio |

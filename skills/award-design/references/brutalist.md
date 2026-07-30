@@ -13,7 +13,7 @@ Tier 1 (DNA, anti-signals, macrostructures, reflexes) is `references/archetype/b
 - [What makes it award-worthy](#what-makes-it-award-worthy) · [Ideal for](#ideal-for) · [Cross-references](#cross-references)
 - [Effect palette — what this line's winners ship](#effect-palette--what-this-lines-winners-ship) — per-element-class recipes, the grammar, tap/focus/dormancy
 - [Mid-page life](#mid-page-life) · [Scroll texture](#scroll-texture) · [Idle band](#idle-band) · [Channel calibration](#channel-calibration)
-- [Page recipe — how this line's winners build the page](#page-recipe--how-this-lines-winners-build-the-page) — anatomy, hero, footer, arrival, copy, imagery, section chain, mobile, variation
+- [Page recipe — how this line's winners build the page](#page-recipe--how-this-lines-winners-build-the-page) — anatomy, hero, section chain, footer, arrival, copy, imagery, mobile, variation
 - [Spectacle menu](#spectacle-menu) — the hero beat, the continuation beats, the peak law
 - [Component index](#component-index) — the library ids this archetype reaches for
 
@@ -230,6 +230,7 @@ Corpus — Eloy Benoffi (Awwwards HM + GSAP Site of the Day + CSSDA Best UI / Be
 - **Index row** — hovered row lights an accent rule and surfaces metadata while siblings dim to ~45%, plus either a cursor-attached image preview or a scramble-decode on the label. On touch it is a plain tap target — the dim and the scramble both read as broken without a pointer — and the preview variant flips the index vertical, revealing each row's image as the row centers under scroll. `:focus-visible` lights the row identically and reveals the preview.
 - **Heading / prose** — near-zero by design; the effect is the entrance (type-as-image draw, char-diff swap, masked per-char rise). RGB split is one moment on the hero type only; scramble runs on labeled elements only, never on prose or headings. No touch answer, no focus state beyond default.
 - **Nav** — rests transparent, borderless, un-blurred, text in the off-black/off-white token; link hover is a per-char rollover or a scramble on the label, and the primary pill answers with the hard press. Pills answer `:active` on touch. `:focus-visible` shows the rollover or scramble plus a ring, source order preserved.
+- **Cursor** — the swapped bitmap is a pointer-only costume: on `pointer: coarse` it is absent, and the OS-pointer stacks lose nothing by it. Never focus-driven, and no affordance rides on it alone.
 
 **Anti-signals** — absent from every winner examined: a pale `color-mix(accent, white)` wash on a primary control (fills are the full accent, or the button presses); one hover rule reused across button/link/card/nav; a scrolled nav that grows a solid surface plus a different-colored border-bottom, or a `backdrop-filter: blur()` frosted bar (all four navs stay transparent, borderless, un-blurred at rest); a smooth lerped `mix-blend-mode: difference` follower cursor; pure `#000`/`#fff` (even Sui ships `#000F1D` on `#F7F7F7`); a uniform `fade-up 0.6s` on every section; rounded soft-shadow cards — radius is `0` or a committed pill, shadows are hard offset `0 4px 0`, never blurred.
 

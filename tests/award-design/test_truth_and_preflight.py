@@ -139,9 +139,9 @@ class TestPreflightGateStructure(unittest.TestCase):
             with self.subTest(lock=lock):
                 self.assertIn(f"**{lock}**", m.group(1), f"missing lock: {lock}")
 
-    def test_browser_proof_names_the_three_widths(self):
-        self.assertIn("375px, 768px, 1440px", self.preflight,
-                      "browser proof must pin the three verification widths")
+    def test_browser_proof_names_the_sweep_widths(self):
+        self.assertIn("375px, 768px, 1024px, 1440px, 1920px", self.preflight,
+                      "browser proof must pin the payload's verification widths")
 
     def test_font_resolution_box_in_browser_proof(self):
         self.assertIn("resolves to the committed face", self.preflight,

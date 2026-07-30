@@ -1,8 +1,8 @@
 # Spatial Organic
 
-The post-grid, dimensionally-aware aesthetic for 2026–2027. Fuses visionOS spatial depth, organic natural forms, and native web APIs (View Transitions, Scroll-Driven Animations, WebGPU). The counter-reaction to bento saturation, blanding minimalism, and heavy parallax. The article's *Trends Shaping 2025–2030* section credentials the constituent moves (Liquid Glass, dark glassmorphism, organic shapes, procedural noise); the award record since supplies the reference sites — Igloo Inc (Site of the Year 2024) at the head of a verified winner corpus (see *Effect palette* below).
+The post-grid, dimensionally-aware aesthetic for 2026–2027. Fuses visionOS spatial depth, organic natural forms, and native web APIs (View Transitions, Scroll-Driven Animations, WebGPU). The counter-reaction to bento saturation, blanding minimalism, and heavy parallax. The *Trends Shaping 2025–2030* section (§8) of the `award-winning-websites-2025-2030` reference article (`github.com/coroboros/research`) credentials the constituent moves (Liquid Glass, dark glassmorphism, organic shapes, procedural noise); the award record since supplies the reference sites — Igloo Inc (Site of the Year 2024) at the head of a verified winner corpus (see *Effect palette* below).
 
-**Anchor note.** The article anchored this line to its trend section and to emerging brands (Arc Browser, Granola, Apple Vision Pro); the awarded corpus now anchors it directly — Igloo Inc (Site of the Year 2024), Cyd Stumpel (SOTD 2025-03-09), OceanX 2025 (SOTD 2026-02-23), Iventions (Awwwards SOTD + CSSDA Website of the Month, October 2025), Minh Pham (Awwwards SOTD). Arc and Granola stay style anchors, not winners; the *Effect palette* below reads the recipes from the winners' own CSS.
+**Anchor note.** The `award-winning-websites-2025-2030` article anchored this line to its trend section and to emerging brands (Arc Browser, Granola, Apple Vision Pro); the awarded corpus now anchors it directly — Igloo Inc (Site of the Year 2024), Cyd Stumpel (SOTD 2025-03-09), OceanX 2025 (SOTD 2026-02-23), Iventions (Awwwards SOTD + CSSDA Website of the Month, October 2025), Minh Pham (Awwwards SOTD). Arc and Granola stay style anchors, not winners; the *Effect palette* below reads the recipes from the winners' own CSS.
 
 Tier 1 (DNA, anti-signals, macrostructures, reflexes) is `references/archetype/spatial-organic.md`, pushed into context by `scripts/direction_roll.py`. This file is tier 2: it loads at the design_plan commit, BY HEADING, never whole.
 
@@ -13,7 +13,7 @@ Tier 1 (DNA, anti-signals, macrostructures, reflexes) is `references/archetype/s
 - [What makes it award-worthy](#what-makes-it-award-worthy) · [Ideal for](#ideal-for) · [Cross-references](#cross-references)
 - [Effect palette — what this line's winners ship](#effect-palette--what-this-lines-winners-ship) — per-element-class recipes, the grammar, tap/focus/dormancy
 - [Mid-page life](#mid-page-life) · [Scroll texture](#scroll-texture) · [Idle band](#idle-band) · [Channel calibration](#channel-calibration)
-- [Page recipe — how this line's winners build the page](#page-recipe--how-this-lines-winners-build-the-page) — anatomy, hero, footer, arrival, copy, imagery, section chain, mobile, variation
+- [Page recipe — how this line's winners build the page](#page-recipe--how-this-lines-winners-build-the-page) — anatomy, hero, section chain, footer, arrival, copy, imagery, mobile, variation
 - [Spectacle menu](#spectacle-menu) — the hero beat, the continuation beats, the peak law
 - [Component index](#component-index) — the library ids this archetype reaches for
 
@@ -232,7 +232,7 @@ Use for: organic particle systems, noise-based terrain, flowing abstract shapes.
 
 A spatial-organic site scores 8+ when the depth feels physical rather than decorative — when glass surfaces refract instead of frost, when ambient orbs drift slowly enough to feel atmospheric rather than animated, when procedural noise breathes against the canvas. The technical depth (View Transitions, Scroll-Driven, WebGPU) signals developer sophistication; the organic restraint signals taste.
 
-The archetype loses identity when "spatial" becomes a backdrop-blur effect bolted onto a SaaS template, when the organic shapes are static SVG decorations rather than animated procedural elements, or when the dark glassmorphism fails WCAG 4.5:1 contrast (a common failure — the article flags glassmorphism for contrast violations explicitly).
+The archetype loses identity when "spatial" becomes a backdrop-blur effect bolted onto a SaaS template, when the organic shapes are static SVG decorations rather than animated procedural elements, or when the dark glassmorphism fails WCAG 4.5:1 contrast (a common failure — the `award-winning-websites-2025-2030` reference article flags glassmorphism for contrast violations explicitly, §9.4).
 
 ## Ideal for
 

@@ -55,6 +55,16 @@ The signature is the loud moment; these are what a judge notices on the return v
 - scrollbar styled only where the archetype earns it (Brutalist, Experimental)
 - print / reader-mode holding up (Editorial)
 
+## Scanner ID map — turning an `OPTICAL-*` hit back into a rule
+
+The scanner reads the mechanical half of this file off the stylesheet. All five are REVIEW: the hit names a fact, the judgment (is this register deliberate?) stays yours. Each ID maps to exactly one rule above.
+
+- **OPTICAL-TRACKING** — one `letter-spacing` value across the whole display ramp → *Type optics*, "Tracking is a curve, not a value": tighten as size grows.
+- **OPTICAL-BALANCE** — `h1`–`h3` on the page, zero `text-wrap` declarations → *Type optics*, `balance` on every headline, `pretty` on body.
+- **OPTICAL-TABULAR** — stat/counter surfaces with no `font-variant-numeric` → *Type optics*, "Numbers that hold still": `tabular-nums` on stats, prices, counters, tables.
+- **OPTICAL-SHADOW** — a pure-black shadow over a hued ground → *Spatial optics*, "Shadows are colored": tint with the surface hue at low alpha.
+- **OPTICAL-SELECTION** — no `::selection` rule anywhere → *The quiet layer*, accent background on surface text.
+
 ## Cross-references
 
 `foundations.md` (type ramps, OKLCH derivation, spring registers) · `premium-patterns.md` (component architecture the optics polish) · `anti-patterns.md` (the failures these rules pre-empt) · `preflight.md` (the quiet-layer and font-resolution boxes).

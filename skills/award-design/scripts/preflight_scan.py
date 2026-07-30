@@ -92,17 +92,18 @@ def _bezier_character(y1, y2):
     return "anticipation (pulls back before the travel)"
 
 
-# IMG-NATIVE-RES: shipped-dims-vs-layout — the CALDERA defect (1280×720 frames
-# rendered up to 2880×1800 device px behind a self-graded asset table). Rendered
-# width is unknowable without a browser, so the floor rides layout signals — a
-# `sizes` attribute (slot computed at the 1920 audit ceiling), cover-fit CSS,
-# a full-bleed form / hero context, fetchpriority="high", or a numbered scrub
-# sequence — and every finding carries px measured from the file header
-# (PNG IHDR / JPEG SOF / GIF / WebP VP8·VP8L·VP8X; AVIF is skipped: ISOBMFF
-# box-walking exceeds stdlib parsing and builds ship a same-dims WebP/JPEG
-# sibling that carries the number), so the §7 asset-fidelity box reads machine
-# numbers, never the builder's own table. Unresolvable refs and JSX-side images
-# escape (false-negative bias).
+# IMG-NATIVE-RES: shipped-dims-vs-layout — a failed reference build's defect
+# (1280×720 frames rendered up to 2880×1800 device px behind a self-graded
+# asset table). Rendered width is unknowable without a browser, so the floor
+# rides layout signals — a `sizes` attribute (slot computed at the 1920 audit
+# ceiling), cover-fit CSS, a full-bleed form / hero context,
+# fetchpriority="high", or a numbered scrub sequence — and every finding
+# carries px measured from the file header (PNG IHDR / JPEG SOF / GIF /
+# WebP VP8·VP8L·VP8X; AVIF is skipped: ISOBMFF box-walking exceeds stdlib
+# parsing and builds ship a same-dims WebP/JPEG sibling that carries the
+# number), so the §7 asset-fidelity box reads machine numbers, never the
+# builder's own table. Unresolvable refs and JSX-side images escape
+# (false-negative bias).
 IMG_RULE_ID = "IMG-NATIVE-RES"
 IMG_FULL_BLEED_FLOOR = 1920  # 1.0× CSS px at the widest audited width (320–1920)
 IMG_SEQUENCE_MIN = 12
@@ -338,6 +339,12 @@ def _img_native_res_findings(texts, roots):
     return findings
 
 
+# The nine tier-1 archetypes. Kept in lockstep with direction_roll.py's own
+# tuple by the test suite — a slug this scanner accepts but the roll rejects
+# (or the reverse) would let a typo silently disable archetype grammar.
+ARCHETYPES = ("minimalist", "brutalist", "editorial", "bold-maximal",
+              "immersive-cinematic", "experimental", "corporate-luxury",
+              "bento-card", "spatial-organic")
 ARCHETYPE_SUPPRESSIONS = {
     "editorial": {"EMDASH"},
     "corporate-luxury": {"EMDASH"},
@@ -1216,6 +1223,15 @@ def main(argv=None):
     parser.add_argument("--archetype", default="",
                         help="build archetype; editorial / corporate-luxury suppress EMDASH")
     args = parser.parse_args(argv)
+
+    # A typo'd slug silently ran the wrong grammar — the scan looked clean
+    # because a suppression never applied, not because the build was. Matched
+    # on the same normalisation scan_paths applies, so casing still passes.
+    archetype = args.archetype.strip().lower()
+    if archetype and archetype not in ARCHETYPES:
+        print(f"unknown archetype {args.archetype!r}; the nine are: " + ", ".join(ARCHETYPES),
+              file=sys.stderr)
+        return 2
 
     files = list(iter_files(args.paths))
     # scan_paths gets the raw paths, not the file list — directory roots anchor

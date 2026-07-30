@@ -137,7 +137,7 @@ OKLCH from a single brand token enables consistent saturation and lightness acro
 
 ## Saturation warning
 
-The bento pattern reached oversaturation in 2025. Designers report bento fatigue. The article's anti-patterns section flags "bento grid layouts have reached oversaturation" alongside heavy parallax and static gradients. The pattern still takes fresh hard awards when it is built rather than stamped — Sui takes SOTD 2026-06-23 (7.38) carried by three card grids. To differentiate when the project genuinely calls for bento:
+The bento pattern reached oversaturation in 2025. Designers report bento fatigue. The `award-winning-websites-2025-2030` reference article (`github.com/coroboros/research`) flags, in its anti-patterns section (§9.3), "bento grid layouts have reached oversaturation" alongside heavy parallax and static gradients. The pattern still takes fresh hard awards when it is built rather than stamped — Sui takes SOTD 2026-06-23 (7.38) carried by three card grids. To differentiate when the project genuinely calls for bento:
 
 - Vary card sizes dramatically (1×1, 2×1, 2×2, 3×1, 1×3) — never uniform
 - Add internal motion / animation — cards that feel alive, not static (Bento 2.0 paradigm)

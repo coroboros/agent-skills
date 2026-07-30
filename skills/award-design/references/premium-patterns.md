@@ -121,11 +121,11 @@ components:
 
 ### Why it works
 
-Eyebrow tags solve the "hierarchy stutter" problem — when the first heading on a section needs to land but lacks scaffolding above it. The tag pre-frames the section ("FEATURES", "PRICING", "MANIFESTO"), so the headline arrives with weight rather than as the first word of the paragraph. Eyebrows are rationed by preflight §4 (density cap) and §6 (buyer-learn test) — the default is no kicker; only sections whose eyebrow genuinely informs carry one.
+Eyebrow tags solve the "hierarchy stutter" problem — when the first heading on a section needs to land but lacks scaffolding above it. The default is still no kicker, and the tag renders only when it carries information neither the headline nor the section's own position already supplies: a real category among several ("LONG-FORM" over one story in a feed that also runs notes and interviews), a date, the reader's place inside a long index. Eyebrows are rationed by preflight §4 (density cap) and §6 (copy floor); the full law is `anti-patterns.md` AI Tells → Content.
 
 ### Anti-pattern
 
-The Meta-Label trap — labels like "SECTION 01", "QUESTION 05", "ABOUT US" without semantic value. Eyebrow tags carry meaning ("PRINCIPLES", "OUR APPROACH", "RECENT WORK"); meta-labels carry index numbers. The numbered version reads cheap.
+Two traps, both cut rather than reworded. The **meta-label** — "SECTION 01", "QUESTION 05" — indexes the page's own structure and tells the reader nothing. The **obvious label** — "FEATURES" over a features section, "PRICING" over the price table, "ABOUT US" over the about copy, "OUR APPROACH" over an approach headline — names what position and content already make plain. Naming the subject the H1 just named is the same failure. When neither survives the test, the H1 stands alone.
 
 ## 4. Hero Architecture — the 2-Line Iron Rule
 
@@ -135,7 +135,7 @@ The H1 is the page's first visual decision. LLMs default to narrow containers an
 
 - Use ultra-wide containers for the H1: `max-w-5xl`, `max-w-6xl`, or `w-full`
 - Allow words to flow horizontally before wrapping
-- The H1 must NEVER exceed 2–3 lines; 4-, 5-, or 6-line wraps are catastrophic
+- The H1 lands in ≤2 lines — the detector FAILs past 2 line boxes, and a 3rd takes a written override `(detector: H1-LINES)`; 4-, 5-, or 6-line wraps are catastrophic
 
 ### Scaling
 
@@ -193,7 +193,7 @@ Asymmetric layouts above the `md` breakpoint MUST collapse aggressively below 76
 
 ### Verification checklist
 
-Before shipping, confirm at viewport widths 375px (iPhone SE), 414px (iPhone 14), 768px (iPad portrait) — the mobile-collapse subset; the pre-flight browser proof runs 375/768/1440:
+Before shipping, confirm at viewport widths 375px (iPhone SE) and 768px (iPad portrait) — the mobile-collapse subset of the pre-flight browser proof, which runs the full render-floor sweep 375/768/1024/1440/1920:
 
 - No horizontal scroll bars
 - No overlapping touch targets (44×44 minimum)

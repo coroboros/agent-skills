@@ -78,7 +78,7 @@ Catalog: `ship-ready-floor.md` (Impose tier) + `modern-web-baseline.md` + `found
 - [ ] Async feedback announced — toasts and validation errors carry `aria-live="polite"` or `role="status"`
 - [ ] Every color and font value resolves to a named token `(detector: TOKEN-CONFORM)`
 - [ ] No horizontal scroll at any width 320–1920; page clipping uses `overflow-x: clip`, never `hidden` `(detector: H-OVERFLOW)`
-- [ ] `prefers-reduced-motion` branch exists and swaps motion for opacity `(scanner: REDUCED-MOTION)`
+- [ ] `prefers-reduced-motion` branch exists: it zeroes the durations or removes the motion, never an element or its end state — a static opacity state is fine, a blank page is not (`foundations.md` Accessibility) `(scanner: REDUCED-MOTION)`
 - [ ] Every animated fill, sheen, or reveal clips to its container's shape; full-bleed decorative layers clip to their bounds
 - [ ] **No-JS floor** — a JS-disabled render shows every section's content; canvas/3D heroes carry a static fallback `(scanner: NOJS-HIDDEN)`
 - [ ] `dvh` units — zero `h-screen` / bare `100vh` heroes `(scanner: H-SCREEN)`
@@ -113,9 +113,9 @@ Re-read every visible string — headlines, buttons, captions, alt text, errors.
 
 Resolve the browser rung (`external-truth.md`). Full-page captures never fire scroll-gated reveals and render fixed canvases at y=0 — scroll-verify those sections or substitute viewport-frame captures, and declare the substitution. Sub-500px widths need device *emulation*.
 
-- [ ] Full-page screenshots at 375px, 768px, 1440px, taken and read — one line per screenshot; fold check at 1280×800 (H1, subtext, CTA inside the first viewport)
+- [ ] Full-page screenshots at 375px, 768px, 1024px, 1440px, 1920px — the render-floor sweep (`assets/render-floor.js`) — taken and read, one line per screenshot; fold check at 1280×800 (H1, subtext, CTA inside the first viewport)
 - [ ] Computed `font-family` on display text resolves to the committed face `(detector: FONT-RESOLVE)`
-- [ ] The signature driven live: fires, completes, holds frame — 60fps and LCP < 1.5s from a trace with its provenance cited; an asserted number is a fail. Its own text overlay (readings, captions, HUD labels) holds at every width 320–1920. A pointer/scroll-tracked window (loupe, torch, follow-reveal) is driven under a trace: Composite-only frames, zero per-frame paint `(scanner: MOVING-BG-POS, BG-ATTACH-FIXED, TRACKED-CLIP, TRACKED-ORIGIN)`
+- [ ] The signature driven live: fires, completes, holds frame — 60fps target on a sustained ≥55fps floor (`stack-facts.md`) and LCP < 1.5s, from a trace with its provenance cited; an asserted number is a fail. Its own text overlay (readings, captions, HUD labels) holds at every width 320–1920. A pointer/scroll-tracked window (loupe, torch, follow-reveal) is driven under a trace: Composite-only frames, zero per-frame paint `(scanner: MOVING-BG-POS, BG-ATTACH-FIXED, TRACKED-CLIP, TRACKED-ORIGIN)`
 - [ ] Every animated control driven hover→leave (and focus→blur): the fill enters AND retracts inside its shape — the spill shows only mid-transition. The wordmark follows the enrollment rule (live-probed: 0/6 winners build a bespoke wordmark hover) — a live-text wordmark joins the site's one link-hover grammar verbatim; a drawn logo rests static under hover
 - [ ] Section seams captured, footer included: no decorative layer bleeds across a boundary; a full-bleed image grades into its neighbour, never a hard cut into a flat band
 - [ ] **Loader handoff** (when present) — the fold behind the curtain or counter is already composed when it lifts, verified in the browser

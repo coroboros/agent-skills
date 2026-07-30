@@ -9,11 +9,12 @@
  * untouched. The instance is exposed so scrub/pin components can share one loop.
  *
  * When the instance is live, the rig also owns the two travels every build kept
- * re-inventing by hand (MARE's anchor loop, AVALANCHE's wordmarkHome): in-page
- * anchor clicks ride lenis.scrollTo so the jumps agree with the wheel, and the
- * home wordmark / back-to-top links (homeSelector) follow navigation-patterns'
- * wordmark rule — mid-scroll → script scroll to top, at the top with a real
- * same-page URL → native reload, elsewhere on the site → native navigation.
+ * re-inventing by hand (one dead build's anchor loop, another's wordmarkHome):
+ * in-page anchor clicks ride lenis.scrollTo so the jumps agree with the wheel,
+ * and the home wordmark / back-to-top links (homeSelector) follow
+ * navigation-patterns' wordmark rule — mid-scroll → script scroll to top, at the
+ * top with a real same-page URL → native reload, elsewhere on the site → native
+ * navigation.
  * Neither travel ever writes a #fragment into the URL (a fragment appearing on
  * a chrome click reads unfinished). Modified clicks (new-tab intent), off-page
  * links, and targets that don't exist stay native.

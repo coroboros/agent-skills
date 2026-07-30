@@ -4,10 +4,10 @@ Two orders on the pre-flight scanner, each a static proxy with the scanner's
 standing bias (it catches, it never clears; REVIEW never FAILs on a guess):
 IMG-NATIVE-RES measures every referenced image's shipped px from its file
 header and flags a full-bleed / cover-fit / sizes-slot / scrub-sequence
-surface under its layout floor — the CALDERA defect (1280×720 frames rendered
-up to 2880×1800 device px behind a self-graded asset table); EASE-OVERSHOOT
-names every overshoot/elastic easing in build code for the reviewer to judge
-against the ONE declared motion register."""
+surface under its layout floor — a failed reference build's defect (1280×720
+frames rendered up to 2880×1800 device px behind a self-graded asset table);
+EASE-OVERSHOOT names every overshoot/elastic easing in build code for the
+reviewer to judge against the ONE declared motion register."""
 
 import importlib.util
 import struct
@@ -94,12 +94,12 @@ class TestImageDimsParsers(unittest.TestCase):
 
 
 class TestImgNativeRes(unittest.TestCase):
-    """The dirty fixture rebuilds the CALDERA defect in miniature: a low-res
-    scrub sequence referenced only through a JS directory literal, a cover-fit
-    CSS poster, a full-bleed-figure picture, and an under-shipped sizes slot.
-    Every finding is REVIEW (a static proxy never FAILs on a guess) and every
-    excerpt carries the px measured from the header — machine numbers for the
-    §7 asset-fidelity box, never the builder's own table."""
+    """The dirty fixture rebuilds that dead build's defect in miniature: a
+    low-res scrub sequence referenced only through a JS directory literal, a
+    cover-fit CSS poster, a full-bleed-figure picture, and an under-shipped
+    sizes slot. Every finding is REVIEW (a static proxy never FAILs on a guess)
+    and every excerpt carries the px measured from the header — machine numbers
+    for the §7 asset-fidelity box, never the builder's own table."""
 
     @classmethod
     def setUpClass(cls):
@@ -115,8 +115,9 @@ class TestImgNativeRes(unittest.TestCase):
                          "the img-dirty fixture must carry no FAIL — REVIEW is the ceiling")
 
     def test_js_directory_sequence_is_caught(self):
-        """The CALDERA escape: frames reachable only through a quoted directory
-        literal in JS — img/src extraction alone is structurally blind to it."""
+        """The dead build's escape: frames reachable only through a quoted
+        directory literal in JS — img/src extraction alone is structurally
+        blind to it."""
         seq = [f for f in self.hits if "scrub sequence" in f.excerpt]
         self.assertEqual(len(seq), 1)
         self.assertIn("12-frame", seq[0].excerpt)
@@ -157,7 +158,7 @@ class TestImgNativeRes(unittest.TestCase):
         self.assertNotIn("IMG-NATIVE-RES", _rule_ids(findings))
 
     def test_sizes_floor_computation(self):
-        """The slot math the AVALANCHE srcsets legalize: media-capped 100vw and
+        """The slot math a dead build's srcsets legalize: media-capped 100vw and
         a vw share of the 1920 audit ceiling."""
         self.assertEqual(scan._sizes_floor("(max-width: 768px) 100vw, 42vw"), 806)
         self.assertEqual(scan._sizes_floor("(max-width: 768px) 100vw, 40vw"), 768)

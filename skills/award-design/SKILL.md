@@ -45,6 +45,18 @@ These rules govern how this skill changes code — apply them whenever it writes
 - Investigate before claiming. Never speculate about code you haven't opened; read the referenced file before answering. Ground every claim in what you actually read, not a plausible guess.
 <!-- canonical:execution-discipline:end -->
 
+<!-- canonical:label-hygiene:start -->
+## Critical — Label hygiene
+
+Internal planning labels are author coordinates, not reader coordinates. Strip them from every shipped artifact this skill emits — code, comments, commit subjects/bodies, PR titles/descriptions, release notes, doc paragraphs, non-trivial comments.
+
+- **Workstream and task labels** — `WS-N`, `Phase-A`, `Step-3`, issue or ticket numbers, plan phase names from the source spec, issue body, or planning artifact. Translate to the domain noun (`Runs the battery script (WS-2)` → `Runs the battery script`). <!-- noqa: internal-label -->
+- **Process language** — "the rebuild", "the prior `<file>`", "carried verbatim from", "the cleanup pass", "the audit", "spec AC" standalone. Replace with the concrete fact (`carries the routing from the prior aggregation` → `routes via the merge keys in the synthesis module`). <!-- noqa: internal-label -->
+- **Plan-internal references** — "as the brief says", "per the workstream", "from the forge artifact". Drop the reference; state the fact directly.
+
+Carve-outs — literal `WS-N` is legitimate where the skill IS the format authority (forge templates, apex rule documentation). Reviewer-facing dev docs (e.g. `MIGRATION.md` under `tests/<skill>/`) may reference deleted artifacts by their author-time names.
+<!-- canonical:label-hygiene:end -->
+
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
 
@@ -69,12 +81,17 @@ You are a frontend design engineer building to the Awwwards Site of the Day bar:
 - `award-design review <url|path>` → run `references/gate/review.md` standalone on the target.
 - A single-token change (one color, one radius) → `/design-system`. Backend, data, infra → never.
 - Empty directory → `/scaffold` when installed; else bootstrap per `references/foundations.md` §Stack. A brief that prescribes its own stack wins.
-- **Scoped runs — scale, never skip.** A bounded change inside a healthy DESIGN.md adopts the universe (alert when thin, never silently regenerate), skips the roll, builds the new surface under existing tokens, and runs the render-floor sweep plus a scoped review on the pages it lands on. Declare it: "scoped run: <surface>". A redesign, a missing or thin DESIGN.md, or a new page family runs the full path.
+- **Scoped runs — scale, never skip.** A bounded change inside a healthy DESIGN.md adopts the universe (thin = missing a spacing scale, type ramp, motion language, or signature choreography — alert, never silently regenerate), skips the roll, builds the new surface under existing tokens, and runs the render-floor sweep plus a scoped review on the pages it lands on. Declare it: "scoped run: <surface>". A redesign, a missing or thin DESIGN.md, or a new page family runs the full path.
+
+## Parameters
+
+- `-u <url>` — brand-extract a live site as the archetype seed (`references/brand-extraction.md`); it informs, the brief decides.
+- `review <url|path>` — the standalone audit; no build.
 
 ## The path
 
 0. **Read the room.** Mode (build · redesign-preserve · redesign-overhaul; ask once only when genuinely ambiguous) · archetype from the signal map below, validated against the brand's personality · dials (Density / Variance / Motion — `references/atmosphere-calibration.md`). With `-u <url>`: `references/brand-extraction.md` first. Legacy uplift: `references/retrofit.md`. Public-sector, regulated, and kids' briefs stay committed but conservative — compliance beats character on every conflict.
-1. **SPINES.** Open the design_plan — the run's working document, a markdown file beside the build target that accumulates every binding decision and ships with the build as its provenance record. Write 5–7 candidate spines into it under `SPINES:` — one line each: the world, and the replayable moment it promises. Write them before the roll; the list is the roll's evidence.
+1. **SPINES.** Open the design_plan — `design-plan.md` beside the build target, the run's working document that accumulates every binding decision and ships with the build as its provenance record. Write 5–7 candidate spines into it under `SPINES:` — one line each: the world, and the replayable moment it promises. Write them before the roll; the list is the roll's evidence.
 2. **The roll.** Run `python3 scripts/direction_roll.py <count> --archetype <name>` (script paths relative to this skill's root). Paste its stdout verbatim under `SEED:`. The assigned spine is the commitment — your #1 and #2 are unreachable by design, because a model's own ranking converges on the same direction every run. Taste is never grounds for a re-roll; a user-pinned direction always wins. Fuse each dealt challenger with the brief's truth and weigh it against the assigned spine on audience identification and product clarity — a challenger winning both becomes the build. **The standing exit:** every round offers the category standard, played straight — the user's door, never your recommendation; after a second re-roll refusal, offer it by name beside the assigned spine and build what the user picks.
 3. **The anchor.** Run `python3 scripts/anchor.py` (`--brief-class regulated` when it applies) and compose the palette around the drawn seed. An explicit brand commitment wins on sight.
 4. **Anti-attractor.** Name your three reflexes for this brief — palette, display face, layout — and reject them by name; then name what a model avoiding those reaches next, and reject that too. The tier-1 file lists this archetype's known reflexes.
@@ -90,7 +107,7 @@ You are a frontend design engineer building to the Awwwards Site of the Day bar:
 
 | Load | When | ~tokens |
 |---|---|---|
-| `references/archetype/<name>.md` (tier 1) | pushed by the roll's stdout | 1k |
+| `references/archetype/<name>.md` (tier 1) | pushed by the roll's stdout; load directly when the roll is skipped (review, scoped) | 1k |
 | `references/atmosphere-calibration.md` | step 0 | 1.5k |
 | `references/signature-invention.md` · `copy-recipes.md` — by heading | step 5, the contract | 2–3k |
 | `references/gate/concept.md` | R1 only | 1k |
@@ -99,9 +116,10 @@ You are a frontend design engineer building to the Awwwards Site of the Day bar:
 | `references/design-md-anatomy.md` · `imagery.md` · `stack-facts.md` — by heading | step 7 | 3–5k |
 | `references/exemplars.md` — the brief's archetype section only | the hero gate and the review | 1k |
 | `references/preflight.md` · `external-truth.md` · `code-review.md` · `gate/review.md` — by heading | verify phase only — gates inform fixes, not generation | 4–6k |
-| `references/anti-patterns.md` · `optical-craft.md` · `motion-palette.md` · `interaction-signatures.md` · `text-effects.md` · `navigation-patterns.md` · `page-anatomy.md` · `award-imperatives.md` · `premium-patterns.md` · `audit-rubric.md` · `ship-ready-floor.md` · ingredients | pull by heading as the build commits the surface | 1–2k each |
+| `references/anti-patterns.md` · `optical-craft.md` · `motion-palette.md` · `interaction-signatures.md` · `text-effects.md` · `navigation-patterns.md` · `page-anatomy.md` · `award-imperatives.md` · `premium-patterns.md` · `audit-rubric.md` · `ship-ready-floor.md` · `production-hardening.md` · `modern-web-baseline.md` · `inspiration.md` · ingredients | pull by heading as the build commits the surface | 1–2k each |
+| `assets/components/README.md` — the `--ad-*` contract | first component bent | 1k |
 
-Loading a tier-2 file whole costs ~12k tokens for sections you may not build — use its Contents index. Loading `assets/components/manifest.json` whole costs ~47k tokens for a lookup — the archetype's Component index carries the same routing at 2k; grep the manifest for a component you already named. Loading `references/foundations.md` end-to-end is the third trap — pull by heading.
+Loading a tier-2 file whole costs ~12k tokens for sections you may not build — use its Contents index. Loading `assets/components/manifest.json` whole costs ~47k tokens for a lookup — the archetype's Component index carries the same routing at 2k; grep the manifest for a component you already named (its slugs: `editorial-dark` · `immersive` · `bento` for editorial · immersive-cinematic · bento-card). Loading `references/foundations.md` end-to-end is the third trap — pull by heading.
 
 ## Hard constraints
 
@@ -121,7 +139,7 @@ Match-and-refuse — rewrite the element rather than ship it. Scanner/detector r
 
 1. `python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>` — fix every FAIL or justify it in one written line tied to the brief; judge every REVIEW (the OPTICAL-* family is the craft pass made countable). Then tick the floor — `references/preflight.md`: countable, binary, no taste.
 2. Through the harness's browser rung (resolved per `references/external-truth.md`): inject `assets/render-floor.js` and sweep 375/768/1024/1440/1920 (the harness resizes; the payload never owns a process — **one browser session per run, reused by sequential navigation**); inject `assets/pixel-metrics.js` for the evidence pack; run `assets/detector.js` (`references/detector.md`). Detector and render-floor FAILs are fix-only. Close with the code pass (`references/code-review.md`).
-3. Performance, measured with provenance: LCP < 1.5s · CLS < 0.05 · INP < 100ms · 60fps on the signature. An asserted number is not a measurement.
+3. Performance, measured with provenance: LCP < 1.5s · CLS < 0.05 · INP < 100ms · 60fps target on the signature, sustained ≥55fps floor. An asserted number is not a measurement.
 4. **The review** — `references/gate/review.md`. One driven audit, fresh context, its report is the verdict artifact. You never write READY: the label comes from the reviewer's synthesis (subagents), the human's yes (no subagents, human present), or ships as REVIEWED-SAME-CONTEXT (headless). No browser rung → mechanical layers go dark as declared gaps, the label caps at REVIEWED-SAME-CONTEXT, and an interactive-signature or immersive build caps at NOT DONE — unverified render.
 
 ## Output discipline

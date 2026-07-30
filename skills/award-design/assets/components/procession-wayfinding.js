@@ -21,7 +21,7 @@
  *   · telemetry-readout is the continuous INSTRUMENT panel (numeric/text
  *     values welded to progress, no navigation affordance); wayfinding is the
  *     DISCRETE index — n stops, an active one, a counter, jump affordances.
- *   · the corpses' trace-rail inventions (AVALANCHE's SIGNAL rail) carried a
+ *   · the corpses' trace-rail inventions (the SIGNAL rail) carried a
  *     riding readout and no jump targets — that mechanic is telemetry-
  *     readout's; this one is the index Cartier's six-room architecture implies.
  *

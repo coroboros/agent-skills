@@ -6,7 +6,7 @@ registry, one global, and a runtime contract it cannot break (never own a
 browser, never resize a viewport, never reach the network). The other half is
 arithmetic — a text collision, a clipped glyph, a collapsed box and a CTA under
 the fold are all rect comparisons, and every boundary here traces to a P0
-measured on the Undercurrent build, where the builder's own verdict said READY
+measured on a failed reference build, where the builder's own verdict said READY
 and an independent assessor said LOSES on the finish.
 
 Severity is the Law-1 boundary and is pinned rule by rule: what can FAIL names

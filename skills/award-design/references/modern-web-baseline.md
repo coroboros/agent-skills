@@ -1,6 +1,6 @@
 # Modern-web baseline — the code discipline AI skips
 
-Award winners are not separated from AI-generated code by spectacle. They are separated by the **baseline discipline of modern web** — the CSS/HTML/JS/React best practices a working studio applies by default and a model skips. The reference article puts it plainly: *"one unforgettable signature moment, executed with precision across every device, loading in under two seconds. Everything else is decoration."* Precision is this file.
+Award winners are not separated from AI-generated code by spectacle. They are separated by the **baseline discipline of modern web** — the CSS/HTML/JS/React best practices a working studio applies by default and a model skips. The `award-winning-websites-2025-2030` reference article (`github.com/coroboros/research`) puts it plainly: *"one unforgettable signature moment, executed with precision across every device, loading in under two seconds"* (§9.6), and *"everything else is decoration"* (its opening summary). Every "reference article §X" citation below points into that file. Precision is this file.
 
 These are **best practices to adopt**, not tells to ban — the opposite list from `anti-patterns.md`. Adopt: OKLCH, `rem` + fluid `clamp()`, CSS custom properties, factorization, modern CSS primitives, semantic HTML, GPU-composited motion. Ban (separate list, `anti-patterns.md`): native controls, `not-allowed`, the AI-purple gradient, `#000`/`#fff`. This file is the adopt side; the code-craft pass (`code-review.md`) enforces it.
 
@@ -18,7 +18,7 @@ A feature's adoption tier is its **current Baseline status**, and Baseline moves
 |---|---|---|---|
 | `oklch()` authoring colour | **Widely** (since 2023) | adopt, unguarded | web.dev Baseline · MDN |
 | Container queries | **Widely** | adopt, unguarded | chrome.dev/css-wrapped-2025 |
-| `:has()`, `@property`, subgrid | supported, major browsers | adopt (re-verify current) | reference article §5.1 |
+| `:has()`, `@property`, subgrid | supported, major browsers | adopt (re-verify current) | reference article §5.1 (`:has()`, `@property`) · §2.3 (subgrid) |
 | GPU-composited props: `transform` `opacity` `filter` (+`backdrop-filter`) | — | animate **only** these for 60fps | developer.chrome.com |
 | `content-visibility: auto` | **Newly** (2025-09) | adopt — no-ops where unsupported | web.dev Baseline |
 | Relative colour `oklch(from …)`, `linear-gradient(in oklch …)` | **Newly** (2024-09) | PE — author a cascade fallback | MDN · developer.chrome.com |
@@ -29,7 +29,7 @@ A feature's adoption tier is its **current Baseline status**, and Baseline moves
 
 ## Factorize — define once, reference
 
-The single strongest code-quality signal, and the one AI code most consistently misses. Every repeated value — colour, spacing, radius, duration, font, breakpoint — is a CSS custom property (or a design token) defined once and referenced; a literal that appears twice is a bug the moment the two must change together (`~/.agents/rules/behavior.md` single-source-of-truth). Derive where the platform lets you: a brand ramp flows from one `--base-color` via relative colour and `color-mix()` (`oklch(from var(--base) l c calc(h + N))`) so a rebrand edits one line — but relative colour is Newly, so the derived output carries a cascade fallback. Keep `--background` and `--text` as their own base variables rather than deriving everything from one. Token governance is `/design-system`'s job after the build; author to it here.
+The single strongest code-quality signal, and the one AI code most consistently misses. Every repeated value — colour, spacing, radius, duration, font, breakpoint — is a CSS custom property (or a design token) defined once and referenced; a literal that appears twice is a bug the moment the two must change together. Derive where the platform lets you: a brand ramp flows from one `--base-color` via relative colour and `color-mix()` (`oklch(from var(--base) l c calc(h + N))`) so a rebrand edits one line — but relative colour is Newly, so the derived output carries a cascade fallback. Keep `--background` and `--text` as their own base variables rather than deriving everything from one. Token governance is `/design-system`'s job after the build; author to it here.
 
 ## Units — rem and fluid scales
 
@@ -63,4 +63,4 @@ No external source names the *code-level* AI tells, so this list is an inference
 - repeated un-factored blocks; one generic fade-in on every element (`interaction-signatures.md`)
 - a render loop or timer that never cleans up (`code-review.md` JS lifecycle)
 
-The code-craft pass (`code-review.md`, preflight §9) is where these are caught mechanically.
+The code-craft pass (`code-review.md`, preflight §5 Craft floor) is where these are caught mechanically.

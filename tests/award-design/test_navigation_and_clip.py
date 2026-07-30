@@ -81,7 +81,7 @@ class TestNavigationPatternsReference(unittest.TestCase):
 
 class TestNavComponentImplementsTheAccumulator(unittest.TestCase):
     """The library component must implement the machine navigation-patterns.md
-    prescribes. MARE and CALDERA both shipped nav flicker from the same root: the
+    prescribes. Two dead builds both shipped nav flicker from the same root: the
     component tested the raw per-frame delta while the reference prescribed
     accumulators — a reference/component contradiction no test drove. Harness
     evidence (2026-07-17): raw delta = 19 hide/show flips under ±3px jitter;
@@ -95,7 +95,7 @@ class TestNavComponentImplementsTheAccumulator(unittest.TestCase):
         self.assertIn("downAcc", self.src)
         self.assertIn("upAcc", self.src)
         self.assertNotIn("y > lastY", self.src,
-                         "raw-delta direction test — the flicker root MARE and CALDERA shipped")
+                         "raw-delta direction test — the flicker root two dead builds shipped")
 
     def test_direction_change_resets_the_opposite_accumulator(self):
         self.assertRegex(self.src, r"upAcc\s*=\s*0;\s*downAcc\s*\+=")
@@ -129,7 +129,7 @@ class TestNavOverHeroEncoding(unittest.TestCase):
                               "detector.md must name the nav-over-hero rule or the audit cannot route it")
 
     def test_detector_fatal_set_includes_the_decapitation(self):
-        self.assertIn("fatal six", self.detector_md)
+        self.assertIn("fatal nine", self.detector_md)
         self.assertIn("NAV-HERO-OPAQUE", self.detector_md)
 
     def test_preflight_has_nav_over_hero_box(self):

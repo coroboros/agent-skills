@@ -86,7 +86,7 @@ class TestMotionPaletteFile(unittest.TestCase):
 
     def test_signature_medium_is_archetype_dependent(self):
         self.assertIn("medium is archetype-dependent", self.mp)
-        self.assertIn("site of the year", self.mp)  # Lando SOTY heads the WebGL winner roster
+        self.assertIn("sotd 2025-11-17, 8.18", self.mp)  # Lando's verified credential heads the WebGL winner roster
 
     def test_invention_is_grounded_and_approved(self):
         self.assertIn("inventing a new mechanic", self.mp)
