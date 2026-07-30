@@ -5,3 +5,4 @@
 .agents/output/
 __pycache__/
 *.py[cod]
+award-workbench/

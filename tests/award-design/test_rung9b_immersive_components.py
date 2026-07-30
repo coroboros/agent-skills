@@ -22,9 +22,9 @@ false, byte-identical frozen state over 700ms) and resumed continuing, ?rm a
 composed non-zero t=0 still that never ticks (t=0, byte-identical over 800ms).
 
 celestial-dive-skin-surface (the authorized EDIT) landed the boundary verdict's
-three formalization orders (§3) on the WORKBENCH copy of the scene — the scene
-lives outside this repo (award-workbench/reference-scenes/celestial-dive/), so
-these tests reach it as a sibling checkout and SKIP loudly when absent (CI):
+three formalization orders (§3) on the private copy of the scene — the scene
+lives outside this repo in a private reference-scenes checkout, reached through
+the AWARD_REFERENCE_SCENES env var; these tests SKIP loudly when unset (CI):
 (i) unique SKIN markers around the parameter block, (ii) asset URLs lifted to
 skin consts with zero URL literals below the closing marker (the BEFORE drive
 proved the body-hardcoded './assets/moon/…' paths were a live defect — textures
@@ -35,6 +35,7 @@ z=4.756 → crater z=1.268/fov 54 → glide → return z=14.958, and the pointer
 channel answering markerScreen → hitTest → 'tranquillitatis' with seaProgress
 0.22 = contactProgress."""
 
+import os
 import re
 import unittest
 from pathlib import Path
@@ -46,12 +47,11 @@ COMPONENTS = REPO_ROOT / "skills" / "award-design" / "assets" / "components"
 LIFE_FILE = "in-scene-ambient-life.js"
 LIFE_GLOBAL = "awardInSceneAmbientLife"
 
-# The authorized-edit target lives in the sibling workbench checkout, not in
-# this repo — skip (never fail) when the checkout is absent.
+# The authorized-edit target lives in a private reference-scenes checkout,
+# not in this repo — reached via AWARD_REFERENCE_SCENES; skip (never fail)
+# when the var is unset or the file absent.
 DIVE_SCENE = (
-    REPO_ROOT.parent
-    / "award-workbench"
-    / "reference-scenes"
+    Path(os.environ.get("AWARD_REFERENCE_SCENES", ""))
     / "celestial-dive"
     / "celestial-dive-scene.js"
 )
@@ -177,8 +177,8 @@ class TestInSceneAmbientLife(unittest.TestCase):
 
 @unittest.skipUnless(
     DIVE_SCENE.is_file(),
-    "award-workbench sibling checkout not present — the celestial-dive "
-    "skin-surface contract is only checkable next to the workbench",
+    "AWARD_REFERENCE_SCENES not set or checkout absent — the celestial-dive "
+    "skin-surface contract is only checkable beside the private scenes",
 )
 class TestCelestialDiveSkinSurface(unittest.TestCase):
     """The boundary verdict's three formalization orders (§3), made
