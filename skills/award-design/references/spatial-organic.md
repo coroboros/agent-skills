@@ -242,7 +242,7 @@ Sustainability brands, wellness and health tech, post-2025 creative studios, pre
 
 Read alongside `foundations.md` (OKLCH, native scroll-driven animations, WebGPU framework selection), `premium-patterns.md` (Doppelrand nested architecture for glass cards), `production-hardening.md` (backdrop-filter scope, mobile performance), `anti-patterns.md` (glassmorphism contrast failures are common — test explicitly), `audit-rubric.md` (Color 9+, Motion 8+, Accessibility 8+ are entry bars), `exemplars.md` (Arc Browser, Granola, Apple Vision Pro, Linear).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `21-effect-palette-spatial-organic.md`, `33-page-recipe-spatial-organic.md`, `47-page-recipe-spatial-organic-refutation.md`, `59-aliveness-spatial-organic.md`, `67-aliveness-spatial-organic-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/spatial-organic.md`, refutations folded under its `## Refuted` heading, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

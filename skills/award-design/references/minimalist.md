@@ -128,7 +128,7 @@ SaaS (Linear, Stripe, Vercel adjacency), luxury brands with quiet voice, archite
 
 Read alongside `foundations.md` (typography systems, OKLCH single-accent strategy, animation toolkit), `anti-patterns.md` (blanding is rejected; pure `#FFF` with no character is rejected; Inter as display font is rejected), `audit-rubric.md` (Hierarchy 9+, Color 9+ are entry bars in this archetype), `exemplars.md` (Linear, Stripe, Vercel, Mintlify).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `17-effect-palette-minimalist.md`, `25-page-recipe-minimalist.md`, `38-page-recipe-minimalist-refutation.md`, `53-aliveness-minimalist.md`, `62-aliveness-minimalist-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/minimalist.md`, refutations folded under its `## Refuted` heading, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

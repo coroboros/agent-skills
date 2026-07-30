@@ -158,7 +158,7 @@ Media and publishing, fashion brands with story-driven commerce, cultural instit
 
 Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit), `anti-patterns.md` (no `<div>`-button soup, no stock photography, no centered-hero-with-generic-headline template), `audit-rubric.md` (Typography 8+ is the entry bar in this archetype), `exemplars.md` (Anthropic, Substack, The New Yorker, Notion).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `05-editorial-type-as-image-signature.md`, `12-effect-palette-editorial.md`, `29-page-recipe-editorial.md`, `42-page-recipe-editorial-refutation.md`, `55-aliveness-editorial.md`, `64-aliveness-editorial-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/editorial.md`, refutations folded under its `## Refuted` heading, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

@@ -159,7 +159,7 @@ SaaS product pages (Notion, Linear, Supabase, Vercel adjacency), feature compari
 
 Read alongside `foundations.md` (container queries, OKLCH per-card accents, animation toolkit), `premium-patterns.md` (Doppelrand for nested card architecture, button-in-button trailing icon, eyebrow tags above cards), `anti-patterns.md` (3-equal-cards-in-a-row is axiomatic; bento fatigue is real), `audit-rubric.md` (Hierarchy 8+, Spacing 9+ are entry bars), `exemplars.md` (Apple product pages, Linear feature grid, Vercel platform features).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `18-effect-palette-bento-card.md`, `31-page-recipe-bento-card.md`, `43-page-recipe-bento-card-refutation.md`, `56-aliveness-bento-card.md`, `66-aliveness-bento-card-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/bento-card.md`, refutations folded under its `## Refuted` heading, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

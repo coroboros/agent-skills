@@ -140,7 +140,7 @@ Creative agencies, entertainment microsites, music festivals, Gen Z brands, camp
 
 Read alongside `foundations.md` (variable fonts, kinetic type, OKLCH, GSAP SplitText), `production-hardening.md` (motion of this density tests mobile performance budgets), `anti-patterns.md` (Density 6+ doesn't excuse missing accessibility — `prefers-reduced-motion` swap is mandatory), `exemplars.md` (Figma, Duolingo, Mailchimp, PlayStation).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `07-bold-maximal-scroll-and-text-effects.md`, `15-effect-palette-bold-maximal.md`, `28-page-recipe-bold-maximal.md`, `40-page-recipe-bold-maximal-refutation.md`, `54-aliveness-bold-maximal.md`, `63-aliveness-bold-maximal-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/bold-maximal.md`, refutations folded under its `## Refuted` heading, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

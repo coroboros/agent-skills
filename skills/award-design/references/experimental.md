@@ -128,7 +128,7 @@ Creative developer portfolios, art institutions, experimental campaigns, design 
 
 Read alongside `foundations.md` (WebGL framework selection, OKLCH, custom GLSL), `production-hardening.md` (heavy WebGL stacks need iOS Safari hardening), `anti-patterns.md` (experimental navigation requiring three discovery actions tanks Usability — discoverable fallback is non-negotiable), `audit-rubric.md` (Creativity 9+ is the entry bar; Accessibility cannot drop below 7), `exemplars.md` (Bruno Simon, Resn, Thesephist, Ink & Switch).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `08-effect-palette-experimental.md`, `26-page-recipe-experimental.md`, `37-page-recipe-experimental-refutation.md`, `51-aliveness-experimental.md`, `58-aliveness-experimental-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/experimental.md`, refutations folded under its `## Refuted` heading, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

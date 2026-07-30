@@ -159,7 +159,7 @@ High-end fashion, luxury hotels, fine jewelry, premium automotive, wealth manage
 
 Read alongside `foundations.md` (typography systems, OKLCH for jewel tones, animation toolkit), `premium-patterns.md` (Doppelrand nested containers, button-in-button trailing icons, eyebrow tags), `anti-patterns.md` (no neon, no high saturation; jewel tones only), `audit-rubric.md` (Spacing 9+, Typography 9+, Motion 8+ are entry bars), `exemplars.md` (Hermès, Rolex, Aesop, Bugatti, Immersive Garden).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `19-effect-css-delvaux.md`, `22-effect-css-brunello-cucinelli.md`, `23-effect-css-depo-luxe.md`, `24-effect-palette-corporate-luxury.md`, `32-page-recipe-corporate-luxury.md`, `44-page-recipe-corporate-luxury-refutation.md`, `57-aliveness-corporate-luxury.md`, `65-aliveness-corporate-luxury-refutation.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/corporate-luxury.md`, with the live stylesheet reads in `winners/delvaux.md`, `winners/brunello-cucinelli.md`, and `winners/depo-luxe.md`, refutations folded under their `## Refuted` headings, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 

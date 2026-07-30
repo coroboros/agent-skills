@@ -145,7 +145,7 @@ Automotive launches, luxury brands with a sensory story, entertainment and film,
 
 Read alongside `foundations.md` (typography, OKLCH, animation toolkit), `production-hardening.md` (cross-browser shipping, iOS as canary), `web3d-for-sites.md` (the material and lighting fidelity floor), `audit-rubric.md` (Awwwards judging criteria), `exemplars.md` (broader visual catalog).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the deep-research dossiers: `16-effect-palette-immersive-cinematic.md`, `30-page-recipe-immersive-cinematic.md`, `41-page-recipe-immersive-cinematic-refutation.md`, `52-aliveness-immersive-cinematic.md`, `61-aliveness-immersive-cinematic-refutation.md`, `79-scrub-fidelity-medium-floor.md`.
+Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public deep-research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/deep-research/`: `archetypes/immersive-cinematic.md` and `verdicts/scrub-fidelity-floor.md`, refutations folded under their `## Refuted` headings, the raw reports preserved verbatim at commit `fd5d1b6`.
 
 ## Effect palette — what this line's winners ship
 
