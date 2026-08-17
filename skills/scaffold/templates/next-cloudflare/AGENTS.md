@@ -22,7 +22,7 @@ APIs moved in 16 and most training data predates it. Before writing routing / ca
 
 ## UI
 - Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
-- If `/design-system` is installed (`skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init` / `audit-extensions`
+- If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init` / `audit-extensions`
 - Otherwise validate directly with the installed project CLI: `pnpm design:audit`
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
 - Tailwind utilities map to DESIGN.md tokens via the `@theme` block + CSS custom properties in `src/app/globals.css` (Tailwind v4 — no `tailwind.config.ts`)

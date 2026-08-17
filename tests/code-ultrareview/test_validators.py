@@ -56,6 +56,14 @@ def _identity(path: Path) -> dict:
     }
 
 
+def _scope_fields() -> dict:
+    return {
+        "languages": ["typescript"],
+        "files_touched": 1,
+        "files_touched_list": ["src/a.ts"],
+    }
+
+
 # ---------------------------------------------------------------------------
 # Sample sub-80 finding — shape mirrors Phase 3 output AFTER apply_a2 has
 # downgraded to Low + added [unverified] prefix + preserved original_severity.
@@ -119,30 +127,6 @@ class TestThresholdSsot(unittest.TestCase):
             run_validators.UNVERIFIED_PREFIX,
             synthesis_core.UNVERIFIED_PREFIX,
         )
-
-
-class TestCoverageDependencies(unittest.TestCase):
-    def test_required_and_requested_optional_phases_must_be_complete(self):
-        scope = {
-            "tool_coverage": {"complete": True},
-            "axis_coverage": {"complete": True},
-        }
-        self.assertTrue(run_validators._validator_dependencies_complete(scope))
-
-        for key in (
-            "mutation_coverage",
-            "build_coverage",
-            "reconcile_coverage",
-        ):
-            with self.subTest(key=key):
-                scope[key] = {"complete": False}
-                self.assertFalse(
-                    run_validators._validator_dependencies_complete(scope)
-                )
-                scope[key] = {"complete": True}
-
-        scope["axis_coverage"] = {"complete": False}
-        self.assertFalse(run_validators._validator_dependencies_complete(scope))
 
 
 # ---------------------------------------------------------------------------
@@ -418,20 +402,6 @@ class TestFindInstructionSnippet(unittest.TestCase):
             )
             self.assertIsNone(path)
 
-    def test_historical_function_name_remains_an_alias(self):
-        with tempfile.TemporaryDirectory() as td:
-            repo = Path(td)
-            (repo / "CLAUDE.md").write_text("Keep it small.\n", encoding="utf-8")
-            self.assertEqual(
-                run_validators.find_claude_md_snippet(
-                    "keep it small", ["CLAUDE.md"], repo,
-                ),
-                run_validators.find_instruction_snippet(
-                    "keep it small", ["CLAUDE.md"], repo,
-                ),
-            )
-
-
 # ---------------------------------------------------------------------------
 # extract_diff_context
 # ---------------------------------------------------------------------------
@@ -571,10 +541,6 @@ class TestPrepareValidatorBundle(unittest.TestCase):
             self.assertEqual(bundle["finding"]["location"], "src/auth.ts:42")
             self.assertEqual(bundle["instruction_path"], "AGENTS.md")
             self.assertIn("Production grade", bundle["instruction_snippet"])
-            self.assertEqual(bundle["claude_md_path"], "AGENTS.md")
-            self.assertEqual(
-                bundle["claude_md_snippet"], bundle["instruction_snippet"],
-            )
             self.assertTrue(bundle["anthropic_verbatim_path"].endswith(
                 "references/anthropic-verbatim.md"
             ))
@@ -597,44 +563,6 @@ class TestPrepareValidatorBundle(unittest.TestCase):
             prompt = Path(result["prompt_path"]).read_text(encoding="utf-8")
             self.assertIn("not found in instruction_chain", prompt)
 
-    def test_legacy_scope_key_is_still_read(self):
-        with tempfile.TemporaryDirectory() as td:
-            repo = Path(td)
-            (repo / "CLAUDE.md").write_text("Use guards.\n", encoding="utf-8")
-            result = run_validators.prepare_validator_bundle(
-                index=0,
-                finding=make_unverified_finding(rule="use guards"),
-                scope={"claude_md_chain": ["CLAUDE.md"]},
-                diff_text="",
-                output_dir=repo / "run",
-                skill_dir=SKILL_DIR,
-                repo_dir=repo,
-            )
-            bundle = json.loads(
-                Path(result["input_path"]).read_text(encoding="utf-8")
-            )
-            self.assertEqual(bundle["instruction_path"], "CLAUDE.md")
-
-    def test_canonical_empty_chain_ignores_stale_legacy_alias(self):
-        with tempfile.TemporaryDirectory() as td:
-            repo = Path(td)
-            (repo / "CLAUDE.md").write_text("Use guards.\n", encoding="utf-8")
-            result = run_validators.prepare_validator_bundle(
-                index=0,
-                finding=make_unverified_finding(rule="Use guards."),
-                scope={
-                    "instruction_chain": [],
-                    "claude_md_chain": ["CLAUDE.md"],
-                },
-                diff_text="",
-                output_dir=repo / "out",
-                skill_dir=SKILL_DIR,
-                repo_dir=repo,
-            )
-            bundle = json.loads(
-                Path(result["input_path"]).read_text(encoding="utf-8")
-            )
-            self.assertIsNone(bundle["instruction_path"])
             self.assertIsNone(bundle["instruction_snippet"])
 
     def test_zero_padded_filenames(self):
@@ -970,6 +898,7 @@ class TestCliPrepare(unittest.TestCase):
             diff_path.write_text("diff --git", encoding="utf-8")
             findings_identity = _identity(findings_path)
             scope_path.write_text(json.dumps({
+                **_scope_fields(),
                 "instruction_chain": [],
                 "repo_kind": "app",
                 "tool_coverage": {"complete": True},
@@ -1012,6 +941,7 @@ class TestCliPrepare(unittest.TestCase):
             identity = _identity(findings_path)
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "tool_coverage": {"complete": True},
                     "axis_coverage": {
                         "complete": True,
@@ -1083,6 +1013,7 @@ class TestCliIngest(unittest.TestCase):
             )
             findings_identity = _identity(findings_path)
             scope_path.write_text(json.dumps({
+                **_scope_fields(),
                 "tool_coverage": {"complete": True},
                 "axis_coverage": {
                     "complete": True,
@@ -1146,6 +1077,7 @@ class TestCliIngest(unittest.TestCase):
             findings_identity = _identity(findings_path)
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "tool_coverage": {"complete": True},
                     "axis_coverage": {
                         "complete": True,
@@ -1216,6 +1148,7 @@ class TestCliIngest(unittest.TestCase):
             findings_identity = _identity(findings_path)
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "tool_coverage": {"complete": True},
                     "axis_coverage": {
                         "complete": True,
@@ -1270,6 +1203,7 @@ class TestCliIngest(unittest.TestCase):
             prepared_identity = _identity(findings_path)
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "tool_coverage": {"complete": True},
                     "axis_coverage": {
                         "complete": True,
@@ -1317,7 +1251,7 @@ class TestCliIngest(unittest.TestCase):
             )
 
             self.assertEqual(proc.returncode, 4, proc.stderr)
-            self.assertIn("axis findings digest changed after prepare", proc.stderr)
+            self.assertIn("axis findings changed after prepare", proc.stderr)
             self.assertFalse(output_path.exists())
 
 

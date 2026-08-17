@@ -140,7 +140,7 @@ Used across many design systems. Not required but provided for consistency:
 
 ## Extending the spec — custom top-level YAML keys
 
-The spec defines five token groups (`colors`, `typography`, `rounded`, `spacing`, `components`) plus three top-level fields (`version`, `name`, `description`). Its Consumer Behavior table does not explicitly forbid unknown top-level YAML keys. The 0.3.0 CLI preserves them, so project consumers can use deliberate extension namespaces, but this remains a project convention rather than a normative portability guarantee.
+The spec defines five token groups (`colors`, `typography`, `rounded`, `spacing`, `components`) plus three top-level fields (`version`, `name`, `description`). Its Consumer Behavior table does not forbid unknown top-level YAML keys. Deliberate extension namespaces may remain in the source file, but the CLI reports `token-like-ignored` because canonical exports omit them. They are a project convention, not a portable schema feature.
 
 Two deliberate spec gaps worth extending via custom namespaces:
 
@@ -156,7 +156,7 @@ motion:
   easing-exit: cubic-bezier(0.4, 0, 1, 1)
 ```
 
-These tokens are preserved in the file. Agents that understand your project's conventions can consume them; the CLI won't validate them. Document the intended usage in the Overview or Layout prose.
+These tokens remain in the file for project-aware consumers. The canonical CLI does not validate or export them, so document intended usage in prose and validate the runtime mirror with `audit-extensions`.
 
 **Breakpoints.** The spec folds breakpoints into Layout prose. If tooling needs them as tokens:
 

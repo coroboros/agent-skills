@@ -58,7 +58,7 @@ Produces an independently manifested mutation-findings stream. Axis preparation 
 
 | Field | Value |
 |-------|-------|
-| Entry point | `scripts/run_mutation.sh` |
+| Entry point | `scripts/run_mutation.py` |
 | Per-language tools | directly declared project `stryker run` (JS/TS) · PATH `mutmut run` with project config (Python) · PATH Maven or Gradle with declared Pitest integration (JVM) |
 | Output axis | `tests` |
 | Severity | `Medium` (🟠) |
@@ -67,7 +67,7 @@ Produces an independently manifested mutation-findings stream. Axis preparation 
 
 ### Dispatch
 
-`run_mutation.sh` reads `scope.json["languages"]` and `scope.json["files_touched_list"]`:
+`run_mutation.py` reads `scope.json["languages"]` and `scope.json["files_touched_list"]`:
 
 - **JS/TS** — requires `@stryker-mutator/core` declared in `package.json`, its executable local/workspace-hoisted or Yarn Plug'n'Play `stryker`, and `stryker.config.*`. A declared dependency never falls back to a global version. The `--mutate` argument contains only changed `.ts/.tsx/.js/.jsx/.mjs/.cjs` files.
 - **Python** — requires `mutmut` on `PATH` and `source_paths` under `[mutmut]` in `setup.cfg` or `[tool.mutmut]` in `pyproject.toml`. The `pyproject.toml` path requires Python 3.11+ so the standard-library `tomllib` parser can validate it without adding a runtime dependency. mutmut v3 executes the configured project scope; findings are filtered to changed `.py` files.
@@ -78,9 +78,9 @@ Produces an independently manifested mutation-findings stream. Axis preparation 
 
 Each tool writes its native report:
 
-- **Stryker** — validates a non-empty `reports/mutation/mutation.json` Mutation Report Schema. `Survived` and `NoCoverage` mutants become Tests-axis findings with `location: "<file>:<line>:<col>"`; a report that evaluates zero mutants is incomplete.
-- **mutmut** — runs `mutmut results --all`, validates every mutmut v3 `name: status` row, and calls `mutmut show <name>` for every terminal row to map it to a file and line. Killed, caught-by-type-check, survived, no-tests, suspicious, timeout, and segfault rows mapped to changed files prove evaluation; only `survived`, `no tests`, and `suspicious` rows become findings. `not checked`, interrupted, or zero evaluated mutants block as incomplete. All commands use bounded process-group timeouts.
-- **Pitest** — validates a fresh canonical `mutations.xml` under `target/pit-reports/**` for Maven or `build/reports/pitest/**` for Gradle. `SURVIVED` and `NO_COVERAGE` rows become findings; a report that evaluates no mutation mapped to a changed JVM file is incomplete. Any nonzero Pitest exit blocks before report parsing, even if a fresh report exists.
+- **Stryker** — validates `reports/mutation/mutation.json` against the Mutation Report Schema. `Survived` and `NoCoverage` mutants become Tests-axis findings with `location: "<file>:<line>:<col>"`; a successful run with zero changed-file mutants is valid and emits no findings.
+- **mutmut** — runs `mutmut results --all true`, validates every mutmut v3 `name: status` row, and calls `mutmut show <name>` for every terminal row to map it to a file and line. Killed, caught-by-type-check, survived, no-tests, suspicious, timeout, and segfault rows mapped to changed files prove evaluation; only `survived`, `no tests`, and `suspicious` rows become findings. `not checked`, interrupted, or zero evaluated mutants block as incomplete. All commands use bounded process-group timeouts.
+- **Pitest** — validates each fresh canonical `mutations.xml` under `target/pit-reports/**` for Maven or `build/reports/pitest/**` for Gradle. `SURVIVED` and `NO_COVERAGE` rows mapped to changed files become findings; a successful run with no mapped survivors is valid. Any nonzero Pitest exit blocks before report parsing, even if a fresh report exists.
 
 All parsed findings emit to `<output-dir>/mutation-findings.jsonl` with the canonical schema:
 
@@ -98,7 +98,7 @@ All parsed findings emit to `<output-dir>/mutation-findings.jsonl` with the cano
 
 ### Atomic failure contract
 
-The script preflights every applicable language before starting any mutation process. Maven and Gradle wrappers are not used: a wrapper may download its own distribution before build-level offline flags apply. PATH runners plus `--offline` require the runtime and build dependencies to be provisioned before review. Findings stage in `<output-dir>/.mutation-findings.pending.jsonl` and replace the public file only after every applicable language succeeds; any later-language failure publishes no `mutation-findings.jsonl`. Missing config or tools exit 3 with exact remediation. A command failure, timeout, stale/missing report, or malformed report exits 4. A successful applicable run records the output path, SHA-256 digest, and finding count in `scope.json["mutation_coverage"]`; axis preparation records that same identity as an input, and synthesis requires the manifest-bound file through `--mutation-findings`. Coverage remains incomplete on failure, and both phases reject it independently. A diff with no supported changed code is explicitly `not-applicable` and exits 0. The script never auto-installs. `MUTATION_DRY_RUN=1` is a test hook that exits 0 after prerequisites pass but deliberately leaves mutation coverage incomplete, so it cannot support a verdict.
+The script preflights every applicable language before starting any mutation process. Maven and Gradle wrappers are not used: a wrapper may download its own distribution before build-level offline flags apply. A `PATH` runner executes from the one governing build directory with offline flags, so multi-build diffs must be reviewed separately. Findings publish only after every applicable language succeeds; any later-language failure publishes no `mutation-findings.jsonl`. Missing runners exit 3 with exact remediation. A command failure, missing Pitest task/configuration, timeout, stale/missing report, or malformed report exits 4. A successful applicable run records the output path, SHA-256 digest, and finding count in `scope.json["mutation_coverage"]`; axis preparation records that same identity as an input, and synthesis requires the manifest-bound file through `--mutation-findings`. Coverage remains incomplete on failure, and both phases reject it independently. A diff with no supported changed code is explicitly `not-applicable` and exits 0. The script never auto-installs. `MUTATION_DRY_RUN=1` is a test hook that exits 0 after prerequisites pass but deliberately leaves mutation coverage incomplete, so it cannot support a verdict.
 
 ---
 
@@ -217,7 +217,7 @@ The four flags compose orthogonally — the orchestrator runs each independently
 | `--mutation-test --apply-safe` | Mutation findings surface in the report's Tests-axis section; `--apply-safe` writers run after synthesis. The writers do not modify code-under-test in response to mutation findings — that belongs to a follow-up fix pass via `/apex` or `/oneshot`. |
 | `--verify-build --mutation-test --reconcile @auto --apply-safe` | Full opt-in stack. Phase 2 extended (mutation), Phase 3 enriched (reconcile derivation), Phase 3.5 active (build verification), post-synthesis writers gated by confirmation. |
 
-**Without a flag, its feature is off** — load-bearing default. The orchestrator never calls `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, or the `apply_safe/` writers unless its flag is set.
+**Without a flag, its feature is off** — load-bearing default. The orchestrator never calls `run_build_verify.py`, `run_mutation.py`, `derivation/run.py`, or the `apply_safe/` writers unless its flag is set.
 
 ## Caveats
 

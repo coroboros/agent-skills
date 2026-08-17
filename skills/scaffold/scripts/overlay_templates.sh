@@ -22,8 +22,9 @@
 #
 # Exit:
 #   0   all templates written (or skipped under idempotency rule)
-#   1   missing argument, unknown scaffold, missing template, missing target,
+#   1   unknown scaffold, missing template, missing target,
 #       missing package.json, jq missing, or skipped files without --force
+#   2   invalid arguments
 #
 # Emits machine-readable summary on stdout prefixed with "RESULT:", one
 # key=value per line.
@@ -40,13 +41,14 @@ usage() {
   exit 2
 }
 
-[[ $# -lt 3 ]] && usage
+[[ $# -ge 3 && $# -le 4 ]] || usage
 case "$1" in -h|--help) usage ;; esac
 
 SCAFFOLD="$1"
 PROJECT_NAME="$2"
 TARGET_DIR="$3"
 FORCE="${4:-}"
+[[ -z "$FORCE" || "$FORCE" == "--force" ]] || usage
 
 case "$SCAFFOLD" in
   next-cloudflare|astro-cloudflare) ;;

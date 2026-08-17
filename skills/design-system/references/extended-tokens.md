@@ -149,15 +149,15 @@ Tailwind v4 then exposes utilities derived from these prefixes (`shadow-lifted`,
 
 After authoring or editing extensions:
 
-1. `/design-system audit DESIGN.md` — Google CLI lint. Must exit 0. Extensions are preserved but unvalidated; unresolved references fail as `broken-ref`, while unknown component properties are warnings that this skill escalates under its portability convention.
-2. `/design-system export tailwind DESIGN.md > src/app/globals.css` (or merge into the existing `@theme` block) — generates the mirror.
+1. `/design-system audit DESIGN.md` — Google CLI lint. Must exit 0. Review the expected `token-like-ignored` warning for each extension map; unresolved references fail as `broken-ref`, while unknown component properties remain portability failures.
+2. Update the `globals.css` `@theme` mirror from the mapping table below. Canonical export output covers only the five portable token groups.
 3. `/design-system audit-extensions DESIGN.md` — bidirectional check between YAML extensions, prose references, and the CSS mirror. Must exit 0.
 
 The full pre-ship gate: both audits clean.
 
 ## Worked example
 
-A minimal extension block in DESIGN.md, lint-clean and audit-clean:
+A minimal extension block in DESIGN.md with no lint errors and a clean extension audit:
 
 ```yaml
 ---

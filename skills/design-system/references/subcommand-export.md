@@ -66,7 +66,7 @@ Commit the output alongside DESIGN.md — `tailwind.theme.json` is build-time in
 
 ## Extended-token export
 
-DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` — see `references/extended-tokens.md`) are top-level YAML keys that the Google CLI **preserves but does not validate**. Two paths to ship them as runtime CSS:
+DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` — see `references/extended-tokens.md`) remain in the source file but are **not validated or emitted by canonical exports**. The CLI reports them as `token-like-ignored`. Two paths ship them as runtime CSS:
 
 **Tailwind v4 (CSS-first).** Mirror the YAML extensions into the project's `globals.css` `@theme` block per the 1:1 naming table in `extended-tokens.md`:
 
@@ -83,7 +83,7 @@ DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, 
 }
 ```
 
-The 0.3.0 exporter focuses on the canonical token groups rather than this skill's extension namespaces. Verify the generated output before merging it, then append the extension block using the mapping table when needed — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS variable per token.
+The exporter covers canonical token groups only. Verify generated output before merging it, then append the extension block from the mapping table when needed — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS variable per token.
 
 **Tailwind v3 (JS-config).** Same JSON output as canonical tokens; nest extension namespaces under `theme.extend` keys (`shadow:`, `aspectRatio:`, `screens:` for breakpoints, etc.) per Tailwind's documented mapping. Hand-merge the JSON if the CLI does not flatten them automatically.
 

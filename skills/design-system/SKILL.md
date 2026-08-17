@@ -1,8 +1,10 @@
 ---
 name: design-system
 description: Govern an existing DESIGN.md during UI work. Enforce token-backed colors, typography, spacing, and radius when the file exists; steps aside when it does not. Use for token-affecting edits and seven subcommands, four backed by the canonical CLI — audit, diff, export, spec, migrate, init, and extension drift checks. CLI-backed operations stop with exact remediation when the canonical validator is unavailable or invalid.
+when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user changes the theme or references visual tokens in an existing DESIGN.md. Full redesigns / new visual direction → /award-design. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
+argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
 license: MIT
-allowed-tools: Read Write Edit Grep Glob Bash(designmd *) Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
+allowed-tools: Read Write Edit Grep Glob Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
 metadata:
   author: coroboros
   sources:
@@ -106,22 +108,15 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 - Duplicate section headings are a spec error — reject the file
 - Unknown section headings are preserved. Unknown component properties receive an upstream warning and fail this skill's portability convention; `broken-ref` applies only when a token reference does not resolve. Top-level keys resembling schema typos emit `unknown-key` warnings
 
-## CLI validator — shared surface
+## CLI validator
 
-The canonical `@google/design.md` CLI powers the `audit`, `diff`, `export`, and `spec` subcommands. Each subcommand wraps one CLI invocation with richer UX (fix proposals, git-awareness, human-readable reports). Raw invocations:
+The canonical `@google/design.md` CLI powers `audit`, `diff`, `export`, and `spec`. Install it once with `npm install --global --ignore-scripts @google/design.md`, then verify `designmd --version`.
 
-Install it as a direct project dependency with the project's package manager (for example, `npm install --save-dev @google/design.md`) or provide `designmd` on `PATH` when the project has no declaration. The wrappers search upward from the target `DESIGN.md` for the nearest matching declaration and support local, workspace-hoisted, and Yarn Plug'n'Play binaries. A declared but unavailable project dependency blocks instead of falling back to a different global version. They never invoke a package resolver or download at runtime.
+Agent operations use the bundled wrappers, which resolve one `designmd` binary from `PATH`, preflight its version, and validate operation output before reporting success. They never inspect project package manifests, invoke a package manager, or download at runtime.
 
-```bash
-designmd lint DESIGN.md                    # validate
-designmd diff before.md after.md           # regression check (exit 1 on regression)
-designmd export --format tailwind DESIGN.md
-designmd spec --rules                      # emit spec + lint rules
-```
+The current CLI exposes eleven rules: `broken-ref` (error), `missing-primary`, `contrast-ratio`, `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`, `unknown-key`, `token-like-ignored`, and `omitted-rules`. Full semantics and severities: `references/cli-reference.md`.
 
-Nine linting rules: `broken-ref` (error), `missing-primary`, `contrast-ratio`, `orphaned-tokens`, `token-summary`, `missing-sections`, `missing-typography`, `section-order`, `unknown-key`. Full table with severity, interpretation, and fix strategies: `references/cli-reference.md`.
-
-Every CLI-backed subcommand resolves the directly declared project `designmd` first, then checks `PATH`. A malformed `package.json`, an unavailable declared dependency, a failed command, or malformed CLI output blocks before mutation or success. The wrapper emits a machine-readable status, exact remediation, and rerun command; follow those fields and never fall back to a different global version or a manual structural read.
+For any non-`ok` wrapper status, surface `remediation` and `rerun`, then stop. A manual structural read is not an equivalent lint, diff, export, or spec result.
 
 ## Framework behavior
 
@@ -193,5 +188,5 @@ A fundamental visual change (new archetype, different atmosphere, complete resty
 
 1. **Unknown component properties are not portable.** The upstream parser accepts them with a warning, but downstream exporters and agents only share the eight canonical properties (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`). Treat an extension key such as `shadow` as a skill-level failure even when upstream lint does not. Reference extension tokens in prose and mirror them to CSS instead.
 2. **Duplicate `##` section heading breaks spec parsing silently.** Two `## Colors` sections (from a botched re-architect) cause the parser to read only the first; YAML in the second is dropped without warning. Each of the 8 sections must appear exactly once. Fix: prescan for heading duplicates; fail hard with the duplicated name.
-3. **`export tailwind` token name mismatches don't resolve at build time.** Semantic token names (`surface`, `on-surface`, `primary-variant`) don't map to Tailwind's expected canon (`primary`, `secondary`, `neutral`); the generated config uses CSS custom properties that never resolve. Fix: align YAML color token names with Tailwind's expected names before export; warn on mismatches.
+3. **`export tailwind` emits Tailwind v3 configuration JSON.** Semantic token names are preserved and valid, but Tailwind v4 projects use CSS-first `@theme` declarations instead of `theme.extend`. Translate the exported entries into the global stylesheet and regenerate that mirror after DESIGN.md changes; do not paste the JSON into a v4 stylesheet.
 4. **Multiple DESIGN.md files make the target ambiguous.** A monorepo may contain both `./DESIGN.md` and files such as `packages/*/DESIGN.md`. Fix: when multiple candidates are detected, ask which one to govern. Never silently pick the root.

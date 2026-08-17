@@ -66,7 +66,7 @@ Unknown or ambiguous values: ask the user for the missing value and stop before 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Detect format** (see heuristics above). Abort or confirm with the user if unsure.
-2. **Preflight the canonical CLI before any write.** Run `bash "$SKILL_DIR"/scripts/audit.sh <input>` and capture its `RESULT:` lines. Exit `0` or `1` is acceptable only when `RESULT: status=ok`; legacy lint findings are expected. Every other status blocks the migration before backup, candidate creation, or output mutation. Surface the emitted `install=` (when present), `remediation=`, and exact `rerun=` values.
+2. **Preflight the canonical CLI before any write.** Run `bash "$SKILL_DIR"/scripts/audit.sh <input>` and capture its `RESULT:` lines. Exit `0` or `1` is acceptable only when `RESULT: status=ok`; legacy lint findings are expected. Every other status blocks the migration before backup, candidate creation, or output mutation. Surface the emitted `remediation=` and exact `rerun=` values.
 3. **Parse the source**:
    - Split on `##` headings to isolate sections.
    - For each section, extract tokens using the patterns above.
@@ -81,7 +81,7 @@ Unknown or ambiguous values: ask the user for the missing value and stop before 
    - Components (reformat from old Component Stylings, reference YAML)
    - Do's and Don'ts (keep as-is; fold in anything testable from old Agent Prompt Guide)
 6. **Write a candidate temp file beside the intended output.** Do not modify the source or final output yet.
-7. **Audit the candidate** with `bash "$SKILL_DIR"/scripts/audit.sh <candidate>`. Continue only when `RESULT: status=ok` and `RESULT: exit-code=0`. A CLI/schema failure or lint error leaves the source and final output untouched; surface the candidate path, `install=`, `rerun=`, and findings as applicable.
+7. **Audit the candidate** with `bash "$SKILL_DIR"/scripts/audit.sh <candidate>`. Continue only when `RESULT: status=ok` and `RESULT: exit-code=0`. A CLI/schema failure or lint error leaves the source and final output untouched; surface the candidate path, `remediation=`, `rerun=`, and findings as applicable.
 8. **Commit atomically.** For in-place migration, back up the original as `<path>.legacy.<ISO-timestamp>`, then rename the validated candidate onto `<path>`. With `-o`, rename the validated candidate onto the requested output and leave the source untouched.
 9. **Compose migration report** — save as `<output>.migration.md` or include inline in the user-facing response.
 

@@ -141,7 +141,7 @@ class TestCrossAgentRuntimeContracts(unittest.TestCase):
         self.assertIn("If either catalog is absent", text)
         self.assertIn("requires the complete `/award-design` catalogs", text)
         self.assertIn(
-            "skills add coroboros/agent-skills --skill award-design", text
+            "npx skills add coroboros/agent-skills --skill award-design", text
         )
         self.assertIn("Stop the strict audit when either catalog is missing", text)
         self.assertIn("Never emit a partial strict result", text)
@@ -155,7 +155,7 @@ class TestCrossAgentRuntimeContracts(unittest.TestCase):
         evals = json.loads(EVALS.read_text(encoding="utf-8"))["evals"]
         strict_eval = next(case for case in evals if case["id"] == 7)
         self.assertIn("award-design is not installed", strict_eval["prompt"])
-        self.assertIn("skills add coroboros/agent-skills --skill award-design", strict_eval["expected_output"])
+        self.assertIn("npx skills add coroboros/agent-skills --skill award-design", strict_eval["expected_output"])
         self.assertIn("drop `--strict`", strict_eval["expected_output"])
         self.assertIn("does not emit a degraded strict result", strict_eval["expected_output"])
 

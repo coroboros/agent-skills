@@ -87,11 +87,7 @@ Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fi
 
 ## 🧰 Tools skipped
 
-Successful reports have no skipped applicable analyzers. A missing or failed analyzer stops before axis review and verdict. Body reads `_None — every applicable analyzer completed._`.
-
-| Tool | Axis | Install |
-|------|------|---------|
-| _None_ | _None_ | _None_ |
+_None — every applicable analyzer completed successfully._
 
 ---
 

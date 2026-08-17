@@ -97,6 +97,8 @@ _EXT_TO_LANG = {
     ".jsx": "javascript",
     ".mjs": "javascript",
     ".cjs": "javascript",
+    ".mts": "typescript",
+    ".cts": "typescript",
     ".go": "go",
     ".rs": "rust",
     ".java": "java",
@@ -127,7 +129,7 @@ def run_git(repo: Path, *args: str) -> subprocess.CompletedProcess:
 def _untracked_files(repo: Path) -> list[str]:
     r = run_git(repo, "ls-files", "--others", "--exclude-standard")
     if r.returncode != 0:
-        return []
+        raise RuntimeError(f"git ls-files failed: {r.stderr.strip() or 'unknown error'}")
     return [line for line in r.stdout.splitlines() if line]
 
 
@@ -162,8 +164,9 @@ def diff_files(repo: Path, base: str, target: str,
         r = run_git(repo, "diff", "--numstat", "HEAD")
     else:
         r = run_git(repo, "diff", "--numstat", f"{base}..{target}")
-    if r.returncode == 0:
-        loc = _parse_numstat(r.stdout, files, loc)
+    if r.returncode != 0:
+        raise RuntimeError(f"git diff --numstat failed: {r.stderr.strip() or 'unknown error'}")
+    loc = _parse_numstat(r.stdout, files, loc)
 
     if dirty_tree:
         for path in _untracked_files(repo):
@@ -227,15 +230,18 @@ def changed_line_ranges(
             path,
         )
         ranges: list[list[int]] = []
-        if patch.returncode == 0:
-            for line in patch.stdout.splitlines():
-                match = _HUNK_HEADER.match(line)
-                if not match:
-                    continue
-                start = int(match.group(1))
-                count = int(match.group(2) or "1")
-                if count > 0:
-                    ranges.append([start, start + count - 1])
+        if patch.returncode != 0:
+            raise RuntimeError(
+                f"git diff failed for {path}: {patch.stderr.strip() or 'unknown error'}"
+            )
+        for line in patch.stdout.splitlines():
+            match = _HUNK_HEADER.match(line)
+            if not match:
+                continue
+            start = int(match.group(1))
+            count = int(match.group(2) or "1")
+            if count > 0:
+                ranges.append([start, start + count - 1])
         result[path] = _merge_line_ranges(ranges)
 
     return result
@@ -583,11 +589,6 @@ def instruction_chain(repo: Path, files_touched: list[str]) -> list[str]:
     return chain
 
 
-def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
-    """Compatibility alias for the historical scope schema name."""
-    return instruction_chain(repo, files_touched)
-
-
 def activates_coherence(files_touched: list[str]) -> bool:
     """Decide whether the conditional Coherence axis activates."""
     for path in files_touched:
@@ -621,6 +622,8 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         resolved_target = target
 
     loc, files = diff_files(repo, base, resolved_target, dirty_tree=dirty_tree)
+    if not files:
+        raise RuntimeError("review scope is empty: the selected diff has no changed files")
     line_ranges = changed_line_ranges(
         repo,
         base,
@@ -642,7 +645,6 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         "repo_kind_signals": signals,
         "languages": languages,
         "instruction_chain": chain,
-        "claude_md_chain": list(chain),  # Backward-compatible schema alias.
         "loc_changed": loc,
         "files_touched": len(files),  # derived count; canonical key is files_touched_list
         "files_touched_list": files,

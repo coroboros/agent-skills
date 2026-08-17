@@ -24,16 +24,18 @@ Input forms:
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
-import os
 import re
 import sys
 from pathlib import Path
 
+_SCRIPT_ROOT = Path(__file__).resolve().parent.parent
+if str(_SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_ROOT))
+from coverage import file_identity, set_phase, write_json_atomic  # noqa: E402
+
 # Allow `python3 run.py ...` direct invocation by adding the parent dir to sys.path.
 if __package__ is None or __package__ == "":
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from derivation._common import (  # type: ignore[no-redef]
         Artifact,
         Finding,
@@ -80,40 +82,26 @@ GH_ISSUE_REF_RE = re.compile(r"gh:issue:([^/]+/[^/]+)#(\d+)")
 GH_PR_REF_RE = re.compile(r"gh:pr:(\d+)")
 
 
-def _write_json_atomic(path: Path, payload: dict) -> bytes:
-    data = (json.dumps(payload, indent=2) + "\n").encode("utf-8")
-    path.parent.mkdir(parents=True, exist_ok=True)
-    temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    temporary.write_bytes(data)
-    os.replace(temporary, path)
-    return data
-
-
 def _set_reconcile_coverage(
     scope_path: Path,
     *,
     status: str,
     complete: bool,
     output_path: Path,
-    digest: str | None = None,
     finding_count: int | None = None,
 ) -> None:
-    with scope_path.open(encoding="utf-8") as handle:
-        scope = json.load(handle)
     coverage = {
         "requested": True,
         "complete": complete,
         "status": status,
         "output": str(output_path.resolve()),
     }
-    if digest is not None:
-        coverage["sha256"] = digest
+    if complete:
+        identity = file_identity(output_path)
+        coverage.update({"sha256": identity["sha256"], "bytes": identity["bytes"]})
     if finding_count is not None:
         coverage["finding_count"] = finding_count
-    scope["reconcile_coverage"] = coverage
-    if not complete:
-        scope["coverage_complete"] = False
-    _write_json_atomic(scope_path, scope)
+    set_phase(scope_path, "reconcile", coverage)
 
 
 class ReconcilePrerequisiteError(RuntimeError):
@@ -445,13 +433,13 @@ def main() -> int:
         )
         return 4
     try:
-        data = _write_json_atomic(output_path, result)
+        write_json_atomic(output_path, result)
+        data = output_path.read_bytes()
         _set_reconcile_coverage(
             scope_path,
             status="complete",
             complete=True,
             output_path=output_path,
-            digest=hashlib.sha256(data).hexdigest(),
             finding_count=len(result.get("findings") or []),
         )
     except (OSError, ValueError, json.JSONDecodeError) as exc:

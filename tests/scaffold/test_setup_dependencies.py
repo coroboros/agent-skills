@@ -184,14 +184,10 @@ class TestDesignSystemRuntime(unittest.TestCase):
                 ).read_text(encoding="utf-8")
                 self.assertIn("`pnpm design:audit`", instructions)
                 self.assertIn(
-                    "`skills add coroboros/agent-skills --skill design-system`",
+                    "`npx skills add coroboros/agent-skills --skill design-system`",
                     instructions,
                 )
                 self.assertNotIn("`designmd lint DESIGN.md`", instructions)
-                self.assertNotRegex(
-                    instructions,
-                    r"\b(?:npx|pnpm\s+dlx|bunx|uvx)\b",
-                )
                 self.assertEqual(
                     (TEMPLATES / "shared" / "CLAUDE.md").read_text(
                         encoding="utf-8"

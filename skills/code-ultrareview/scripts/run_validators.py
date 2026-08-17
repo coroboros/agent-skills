@@ -44,25 +44,25 @@ from __future__ import annotations
 
 import argparse
 import ast
-import fnmatch
 import importlib.util
 import json
 import re
 import sys
 import uuid
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import TypeVar
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
-from runtime_contracts import (  # noqa: E402
+from coverage import (  # noqa: E402
     file_identity as _file_identity,
     read_required_diff as _read_text,
     read_scope as _read_json,
+    set_phase as _set_phase,
     verify_file_identity as _verify_file_identity,
-    write_json_atomic as _write_json_atomic,
+    verify_jsonl_output as _verify_jsonl_output,
     write_jsonl_atomic as _write_jsonl_atomic,
 )
 
@@ -181,7 +181,6 @@ def _frontmatter_paths(body: str) -> list[str] | None:
 
 
 def _expand_braces(pattern: str) -> list[str]:
-    """Expand simple comma-separated glob braces recursively."""
     match = re.search(r"\{([^{}]+)\}", pattern)
     if not match:
         return [pattern]
@@ -192,26 +191,21 @@ def _expand_braces(pattern: str) -> list[str]:
     return expanded
 
 
+def _globstar_variants(pattern: str) -> list[str]:
+    variants = [pattern]
+    marker = "**/"
+    if marker in pattern:
+        variants.extend(_globstar_variants(pattern.replace(marker, "", 1)))
+    return variants
+
+
 def _glob_matches(pattern: str, finding_path: str) -> bool:
-    """Match slash-aware globs with `**` and simple brace expansion."""
-    normalized_path = finding_path.removeprefix("./").strip("/")
-
-    def match_parts(pattern_parts: list[str], path_parts: list[str]) -> bool:
-        if not pattern_parts:
-            return not path_parts
-        head = pattern_parts[0]
-        if head == "**":
-            return match_parts(pattern_parts[1:], path_parts) or (
-                bool(path_parts) and match_parts(pattern_parts, path_parts[1:])
-            )
-        return bool(path_parts) and fnmatch.fnmatchcase(path_parts[0], head) and match_parts(
-            pattern_parts[1:], path_parts[1:]
-        )
-
-    for expanded in _expand_braces(pattern.removeprefix("./").strip("/")):
-        if match_parts(expanded.split("/"), normalized_path.split("/")):
-            return True
-    return False
+    path = PurePosixPath(finding_path.removeprefix("./").strip("/"))
+    return any(
+        path.match(variant.removeprefix("./").strip("/"))
+        for item in _expand_braces(pattern)
+        for variant in _globstar_variants(item)
+    )
 
 
 def _instruction_applies(path_str: str, location: str, body: str) -> bool:
@@ -281,15 +275,6 @@ def find_instruction_snippet(
         snippet = body[start:end].strip()
         best = (path_str, snippet)
     return best
-
-
-def find_claude_md_snippet(
-    rule_text: str,
-    claude_md_chain: list[str],
-    repo_dir: Path,
-) -> tuple[str | None, str | None]:
-    """Compatibility alias for callers using the historical function name."""
-    return find_instruction_snippet(rule_text, claude_md_chain, repo_dir)
 
 
 def extract_diff_context(diff_text: str, location: str) -> str:
@@ -419,11 +404,7 @@ def prepare_validator_bundle(
     and `output_dir/validator-prompt/{NNNN}.txt`. The `NNNN` prefix is
     zero-padded so directory listings sort in dispatch order.
     """
-    chain = list(
-        scope["instruction_chain"]
-        if "instruction_chain" in scope
-        else scope.get("claude_md_chain") or []
-    )
+    chain = list(scope.get("instruction_chain") or [])
     rule_text = str(finding.get("rule") or finding.get("finding", ""))
     instruction_path, instruction_snippet = find_instruction_snippet(
         rule_text,
@@ -455,8 +436,6 @@ def prepare_validator_bundle(
         "diff_context": diff_context,
         "instruction_path": instruction_path,
         "instruction_snippet": instruction_snippet,
-        "claude_md_path": instruction_path,
-        "claude_md_snippet": instruction_snippet,
         "anthropic_verbatim_path": anthropic_path,
     }
     input_path.write_text(
@@ -640,21 +619,6 @@ def ingest(
     return out
 
 
-def _read_jsonl(path: Path) -> list[dict]:
-    if not path.is_file():
-        return []
-    out: list[dict] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            out.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
-    return out
-
-
 def _read_jsonl_strict(path: Path) -> list[dict]:
     if not path.is_file():
         raise ValueError(f"JSONL file not found: {path}")
@@ -674,22 +638,7 @@ def _read_jsonl_strict(path: Path) -> list[dict]:
 
 def _verify_axis_findings(scope: dict, findings_path: Path) -> None:
     coverage = scope.get("axis_coverage")
-    if not isinstance(coverage, dict):
-        raise ValueError("axis coverage manifest is missing; rerun axis ingestion")
-    expected_path = coverage.get("output")
-    expected_digest = coverage.get("sha256")
-    expected_count = coverage.get("finding_count")
-    if not isinstance(expected_path, str) or not expected_path:
-        raise ValueError("axis output manifest is missing; rerun axis ingestion")
-    identity = {"path": expected_path, "sha256": expected_digest}
-    verified_path = _verify_file_identity(identity, "axis findings")
-    if verified_path != findings_path.resolve():
-        raise ValueError("validator findings path does not match axis coverage")
-    findings = _read_jsonl_strict(verified_path)
-    if isinstance(expected_count, bool) or not isinstance(expected_count, int):
-        raise ValueError("axis finding count is invalid")
-    if len(findings) != expected_count:
-        raise ValueError("axis findings count does not match coverage")
+    _verify_jsonl_output(coverage, findings_path, "axis findings")
 
 
 def _verify_validator_inputs(scope: dict) -> str:
@@ -707,19 +656,6 @@ def _verify_validator_inputs(scope: dict) -> str:
     for key in ("diff", "axis_findings"):
         _verify_file_identity(identities.get(key), key.replace("_", " "))
     return run_id
-
-
-def _validator_dependencies_complete(scope: dict) -> bool:
-    if not (
-        (scope.get("tool_coverage") or {}).get("complete") is True
-        and (scope.get("axis_coverage") or {}).get("complete") is True
-    ):
-        return False
-    for key in ("mutation_coverage", "build_coverage", "reconcile_coverage"):
-        coverage = scope.get(key)
-        if coverage is not None and coverage.get("complete") is not True:
-            return False
-    return True
 
 
 def _default_skill_dir() -> Path:
@@ -796,13 +732,13 @@ def main() -> int:
                 raise ValueError(
                     "axis coverage manifest is missing; rerun axis ingestion"
                 )
-            scope["validator_coverage"] = {
+            validator_state = {
                 "complete": False,
                 "expected": 0,
                 "completed": 0,
             }
-            scope["coverage_complete"] = False
-            _write_json_atomic(scope_path, scope)
+            _set_phase(scope_path, "validator", validator_state)
+            scope = _read_json(scope_path)
             if axis_coverage.get("complete") is not True:
                 raise ValueError(
                     "axis coverage is incomplete; finish every requested axis "
@@ -840,7 +776,7 @@ def main() -> int:
             input_hashes=input_hashes,
         )
         count = int(result["count"])
-        scope["validator_coverage"] = {
+        validator_state = {
             "complete": count == 0,
             "expected": count,
             "completed": 0,
@@ -848,16 +784,9 @@ def main() -> int:
             "input_hashes": input_hashes,
         }
         if count == 0:
-            scope["validator_coverage"].update({
-                "output": str(findings_path.resolve()),
-                "sha256": input_hashes["axis_findings"]["sha256"],
-                "finding_count": len(findings),
-            })
-        scope["coverage_complete"] = bool(
-            count == 0
-            and _validator_dependencies_complete(scope)
-        )
-        _write_json_atomic(scope_path, scope)
+            _set_phase(scope_path, "validator", validator_state, findings_path)
+        else:
+            _set_phase(scope_path, "validator", validator_state)
         sys.stdout.write(json.dumps(result, indent=2, sort_keys=False) + "\n")
         return 0
 
@@ -874,15 +803,15 @@ def main() -> int:
                 raise ValueError(
                     "validator coverage manifest is missing; rerun validator preparation"
                 )
-            scope["validator_coverage"] = {
+            validator_state = {
                 "complete": False,
                 "expected": int(previous.get("expected") or 0),
                 "completed": 0,
                 "run_id": previous.get("run_id"),
                 "input_hashes": previous.get("input_hashes"),
             }
-            scope["coverage_complete"] = False
-            _write_json_atomic(scope_path, scope)
+            _set_phase(scope_path, "validator", validator_state)
+            scope = _read_json(scope_path)
             if output_path.exists():
                 output_path.unlink()
             if (scope.get("axis_coverage") or {}).get("complete") is not True:
@@ -919,19 +848,14 @@ def main() -> int:
                 validated.append(finding)
 
         _write_jsonl_atomic(output_path, validated)
-        output_identity = _file_identity(output_path)
-        scope["validator_coverage"] = {
+        validator_state = {
             "complete": True,
             "expected": len(sub_findings),
             "completed": len(results),
             "run_id": run_id,
             "input_hashes": previous.get("input_hashes"),
-            "output": output_identity["path"],
-            "sha256": output_identity["sha256"],
-            "finding_count": len(validated),
         }
-        scope["coverage_complete"] = _validator_dependencies_complete(scope)
-        _write_json_atomic(scope_path, scope)
+        _set_phase(scope_path, "validator", validator_state, output_path)
         sys.stdout.write(
             json.dumps({
                 "input_count": len(all_findings),

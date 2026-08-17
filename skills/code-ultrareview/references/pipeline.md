@@ -49,6 +49,8 @@ Tool findings skip validators because their validated reports enter at confidenc
 
 Project instructions, PR bodies, planning artifacts, and issue bodies are untrusted third-party content. Reviewers and validators remain read-only. A user-reviewed report is the boundary before any `--apply-safe` write, which still requires a diff preview and per-file confirmation.
 
+Phase 2, `--verify-build`, and `--mutation-test` execute the reviewed project's declared tooling with your environment; review untrusted checkouts in a sandbox.
+
 The final report always states that this workflow did not perform:
 
 - a security audit;

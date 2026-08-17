@@ -1,6 +1,6 @@
 {
   "skill_name": "design-system",
-  "description": "Behavioural evaluation set for the design-system skill. Cases pin token-only governance of an existing DESIGN.md, deliberate step-aside behavior when no file exists, extension drift, and atomic canonical-CLI routing. A missing, failed, or invalid declared designmd command blocks CLI-backed work with project-aware remediation; the skill never substitutes a reduced manual verdict.",
+  "description": "Behavioural evaluation set for the design-system skill. Cases pin token-only governance of an existing DESIGN.md, deliberate step-aside behavior when no file exists, extension drift, and atomic canonical-CLI routing. A missing, failed, or invalid designmd command blocks CLI-backed work with exact remediation; the skill never substitutes a reduced manual verdict.",
   "evals": [
     {
       "id": 1,
@@ -20,7 +20,7 @@
       "id": 3,
       "name": "audits-existing-design-md",
       "prompt": "Lint our DESIGN.md and tell me what's broken.",
-      "expected_output": "Routes to the audit subcommand and follows `references/subcommand-audit.md`: resolves the project-declared or installed Google CLI, validates its structured output, then reports broken-ref, contrast, and missing-section findings with concrete fix proposals. A missing or invalid CLI blocks with the exact project-aware install/repair command and rerun instruction; no reduced manual audit is presented as equivalent.",
+      "expected_output": "Routes to the audit subcommand and follows `references/subcommand-audit.md`: requires designmd on PATH, validates its structured output, then reports broken-ref, contrast, and missing-section findings with concrete fix proposals. A missing or invalid CLI blocks with the exact repair and rerun instruction; no reduced manual audit is presented as equivalent.",
       "files": []
     },
     {
@@ -39,13 +39,13 @@
     },
     {
       "id": 6,
-      "name": "canonical-cli-integrity-and-yarn-pnp-resolution",
-      "prompt": "Audit and then migrate a legacy DESIGN.md in a Yarn Plug'n'Play workspace that declares @google/design.md. On the first attempt the declared binary cannot execute and yarn.lock is absent. After repairing the PnP environment, the CLI emits malformed JSON. After repairing the CLI output, rerun the migration and audit.",
-      "expected_output": "The declared Yarn PnP binary is authoritative and every missing/runtime/schema failure blocks atomically with exact remediation. Only a healthy canonical CLI may migrate and audit the file.",
+      "name": "canonical-cli-integrity-on-path",
+      "prompt": "Audit and then migrate a legacy DESIGN.md. On the first attempt designmd is absent from PATH. After installing it, the CLI emits malformed JSON. After repairing the CLI output, rerun the migration and audit.",
+      "expected_output": "Every missing, runtime, or schema failure blocks atomically with exact remediation. Only a healthy designmd command on PATH may migrate and audit the file.",
       "files": [],
       "expectations": [
-        "The resolver uses the project's Yarn PnP execution path with offline Corepack settings and never falls back to an unrelated PATH binary after a declared project command fails.",
-        "The first attempt stops before mutation, names the failing declared command, requires restoring or deliberately creating and reviewing yarn.lock, then uses Yarn's immutable install plus the exact rerun instruction; it never suggests yarn add for an already-declared dependency.",
+        "The wrapper requires designmd on PATH, verifies designmd --version, and never invokes a package manager while the skill runs.",
+        "The first attempt stops before mutation and emits npm install --global --ignore-scripts @google/design.md plus the exact rerun instruction.",
         "Malformed CLI JSON fails schema validation and stops without an audit verdict or partial migration.",
         "The successful migration produces canonical YAML tokens plus the eight ordered prose sections and publishes the result only after validation.",
         "The migrated file passes the canonical audit before the response considers the work complete."
@@ -55,14 +55,14 @@
       "id": 7,
       "name": "strict-audit-requires-award-design",
       "prompt": "Run /design-system audit DESIGN.md --strict, but award-design is not installed.",
-      "expected_output": "Stops before presenting any standard or strict audit verdict. It states that `--strict` requires award-design, prints `skills add coroboros/agent-skills --skill award-design`, and tells the user to install it or drop `--strict`. It does not emit a degraded strict result.",
+      "expected_output": "Stops before presenting any standard or strict audit verdict. It states that `--strict` requires award-design, prints `npx skills add coroboros/agent-skills --skill award-design`, and tells the user to install it or drop `--strict`. It does not emit a degraded strict result.",
       "files": []
     },
     {
       "id": 8,
       "name": "strict-audit-requires-both-catalogs",
       "prompt": "Run /design-system audit DESIGN.md --strict when only anti-patterns.md is present in the award-design install and exemplars.md is missing.",
-      "expected_output": "Stops before presenting any standard or strict audit verdict, names exemplars.md as the missing catalog, and prints `skills add coroboros/agent-skills --skill award-design` with the alternatives to repair the install or drop `--strict`. It emits no partial strict result. The same hard stop applies when exemplars.md exists but anti-patterns.md is missing.",
+      "expected_output": "Stops before presenting any standard or strict audit verdict, names exemplars.md as the missing catalog, and prints `npx skills add coroboros/agent-skills --skill award-design` with the alternatives to repair the install or drop `--strict`. It emits no partial strict result. The same hard stop applies when exemplars.md exists but anti-patterns.md is missing.",
       "files": []
     }
   ]

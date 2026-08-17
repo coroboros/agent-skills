@@ -67,9 +67,9 @@ The repo's `tests/_meta/test_no_internal_label_leak.py` CI gate blocks these pat
 
 #### Install-context paths (High)
 
-Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill <name>`. A reference inside the skill source to `skills/<other>/...` is a dead link on partial install (sibling skill absent) and a wrong path on full install — installed skills live under an agent skill root such as `~/.agents/skills/<other>/` or `~/.claude/skills/<other>/`, not `skills/<other>/`. The bulletproof three-layer pattern replaces every bare path.
+Each skill in `skills/<name>/` ships standalone via `npx skills add ... --skill <name>`. A reference inside the skill source to `skills/<other>/...` is a dead link on partial install (sibling skill absent) and a wrong path on full install — installed skills live under an agent skill root such as `~/.agents/skills/<other>/` or `~/.claude/skills/<other>/`, not `skills/<other>/`. Use the three-layer pattern below for every cross-skill path.
 
-| Layer | Anti-pattern | Bulletproof pattern |
+| Layer | Anti-pattern | Portable pattern |
 |-------|--------------|---------------------|
 | Documentation citation | `skills/<other>/references/<file>.md` | `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` + sibling skill by name (`/<other>`) |
 | Runtime dispatch | `skills/<other>/scripts/<file>` | Slash command `/<other>`; triple-fallback for direct script — `"$SKILL_DIR"/../<other>/...` → `~/.claude/skills/<other>/...` → `~/.agents/skills/<other>/...` → fail-loud with install-command hint |

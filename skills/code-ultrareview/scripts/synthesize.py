@@ -22,7 +22,6 @@ canonical wire format):
 from __future__ import annotations
 
 import argparse
-import hashlib
 import importlib.util
 import json
 import re
@@ -43,6 +42,7 @@ def _load_module(name: str):
 
 synthesis_core = _load_module("synthesis_core")
 findings_to_jsonl = _load_module("findings_to_jsonl")
+coverage_contract = _load_module("coverage")
 
 GIT_TIMEOUT_S = 10
 
@@ -118,7 +118,7 @@ def validate_coverage(scope: dict) -> bool:
         problems.append("skipped analyzer manifest is invalid")
     elif tools_skipped:
         problems.append("analyzers were skipped")
-    if scope.get("coverage_complete") is not True:
+    if scope.get("coverage_complete") is not True or not coverage_contract.coverage_complete(scope):
         problems.append("coverage manifest is not complete")
     if build is not None and not isinstance(build, dict):
         problems.append("build verification manifest is invalid")
@@ -172,22 +172,17 @@ def load_findings(path: Path) -> list[dict]:
 
 
 def load_scope(path: Path) -> dict:
-    with path.open(encoding="utf-8") as handle:
-        scope = json.load(handle)
-    if not isinstance(scope, dict):
-        raise CoverageError("scope.json must contain an object")
-    return scope
+    try:
+        return coverage_contract.read_scope(path)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
 
 
 def _file_identity(path: Path) -> dict:
-    if not path.is_file():
-        raise CoverageError(f"required findings file is missing: {path}")
-    resolved = path.resolve()
-    data = resolved.read_bytes()
-    return {
-        "path": str(resolved),
-        "sha256": hashlib.sha256(data).hexdigest(),
-    }
+    try:
+        return coverage_contract.file_identity(path)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
 
 
 def _manifest_identity(coverage: dict, label: str) -> dict:
@@ -220,9 +215,10 @@ def _input_identity(coverage: dict, key: str, label: str) -> dict:
 
 
 def _verify_identity(identity: dict, label: str) -> None:
-    current = _file_identity(Path(identity["path"]))
-    if current["sha256"] != identity["sha256"]:
-        raise CoverageError(f"{label} digest no longer matches its run manifest")
+    try:
+        coverage_contract.verify_file_identity(identity, label)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
 
 
 def _require_same_identity(left: dict, right: dict, label: str) -> None:
@@ -236,14 +232,11 @@ def _load_manifest_findings(
     label: str,
 ) -> tuple[list[dict], dict]:
     manifest = _manifest_identity(coverage, label)
-    supplied = _file_identity(supplied_path)
-    if supplied["path"] != manifest["path"]:
-        raise CoverageError(f"{label} path does not match its run manifest")
-    if supplied["sha256"] != manifest["sha256"]:
-        raise CoverageError(f"{label} digest does not match its run manifest")
-    findings = load_findings(supplied_path)
-    if len(findings) != manifest["count"]:
-        raise CoverageError(f"{label} count does not match its run manifest")
+    try:
+        verified = coverage_contract.verify_jsonl_output(coverage, supplied_path, label)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
+    findings = load_findings(verified)
     return findings, manifest
 
 
@@ -474,11 +467,7 @@ def _render_header(
     languages = ", ".join(scope.get("languages") or []) or "—"
     changed_files = scope.get("files_touched_list") or []
     files_count = len(changed_files)
-    chain = (
-        scope["instruction_chain"]
-        if "instruction_chain" in scope
-        else scope.get("claude_md_chain") or []
-    )
+    chain = scope.get("instruction_chain") or []
     rules_baseline = (
         f"instruction chain + {len(chain)} files" if chain
         else "none — Style used observable repository conventions"

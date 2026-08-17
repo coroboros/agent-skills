@@ -30,6 +30,8 @@ if str(_SCRIPT_DIR) not in sys.path:
 
 import build_detect  # noqa: E402
 import process_timeout  # noqa: E402
+from coverage import read_scope, set_phase, write_json_atomic, write_jsonl_atomic  # noqa: E402
+from tool_runtime import package_manager_spec  # noqa: E402
 
 CONFIDENCE_THRESHOLD = 80
 OUTPUT_TAIL_LINES = 100
@@ -60,19 +62,8 @@ def _load_findings(path: Path) -> list[dict]:
 
 
 def _write_findings(path: Path, findings: list[dict], meta: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    pending = path.with_name(f".{path.name}.{os.getpid()}.tmp")
-    with pending.open("w", encoding="utf-8") as handle:
-        for finding in findings:
-            handle.write(json.dumps(finding) + "\n")
-    os.replace(pending, path)
-    sidecar = path.with_suffix(path.suffix + ".meta.json")
-    sidecar_pending = sidecar.with_name(f".{sidecar.name}.{os.getpid()}.tmp")
-    sidecar_pending.write_text(
-        json.dumps(meta, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(sidecar_pending, sidecar)
+    write_jsonl_atomic(path, findings)
+    write_json_atomic(path.with_suffix(path.suffix + ".meta.json"), meta)
 
 
 def _tail(value: bytes) -> str:
@@ -108,8 +99,13 @@ def _reports_zero_tests(tool: str | None, output: str) -> bool:
 
 def _run_build(repo: Path, test_command: str, tool: str | None, timeout: int) -> dict:
     command_env = os.environ.copy()
-    command_env["COREPACK_ENABLE_NETWORK"] = "0"
-    command_env["COREPACK_DEFAULT_TO_LATEST"] = "0"
+    command_env.update({
+        "COREPACK_ENABLE_NETWORK": "0",
+        "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0",
+        "COREPACK_ENABLE_AUTO_PIN": "0",
+        "COREPACK_DEFAULT_TO_LATEST": "0",
+        "YARN_ENABLE_NETWORK": "0",
+    })
     result = process_timeout.run_process(
         test_command,
         shell=True,
@@ -147,20 +143,6 @@ def _run_build(repo: Path, test_command: str, tool: str | None, timeout: int) ->
     }
 
 
-def _declared_package_manager(repo: Path, tool: str) -> str | None:
-    package_json = repo / "package.json"
-    if not package_json.is_file():
-        return None
-    try:
-        payload = json.loads(package_json.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError):
-        return None
-    value = payload.get("packageManager") if isinstance(payload, dict) else None
-    if isinstance(value, str) and value.startswith(f"{tool}@"):
-        return value
-    return None
-
-
 def _system_install(package: str, *, brew: str, apt: str, url: str) -> str:
     if shutil.which("brew"):
         return f"Run `brew install {brew}`"
@@ -174,7 +156,8 @@ def _system_install(package: str, *, brew: str, apt: str, url: str) -> str:
 
 def _missing_runner_remediation(repo: Path, tool: str | None) -> str:
     if tool in {"pnpm", "yarn"}:
-        declared = _declared_package_manager(repo, tool)
+        manager, declared = package_manager_spec(repo, repo)
+        declared = declared if manager == tool else None
         if declared:
             instruction = (
                 "Run `"
@@ -343,7 +326,6 @@ def run(
         "tool": tool,
         "test_command": test_command,
         "sub80_count": sub80_count,
-        "promoted_count": 0,
     }
     if not test_command:
         return findings, {
@@ -383,8 +365,8 @@ def run(
     }
 
 
-def _write_scope_coverage(scope_path: Path, scope: dict, meta: dict) -> None:
-    scope["build_coverage"] = {
+def _coverage_state(meta: dict) -> dict:
+    return {
         key: meta.get(key)
         for key in (
             "complete",
@@ -396,26 +378,6 @@ def _write_scope_coverage(scope_path: Path, scope: dict, meta: dict) -> None:
         )
         if key in meta
     }
-    scope["coverage_complete"] = bool(
-        (scope.get("tool_coverage") or {}).get("complete")
-        and (scope.get("axis_coverage") or {}).get("complete")
-        and (scope.get("validator_coverage") or {}).get("complete")
-        and scope["build_coverage"].get("complete")
-        and (
-            scope.get("mutation_coverage") is None
-            or (scope.get("mutation_coverage") or {}).get("complete")
-        )
-        and (
-            scope.get("reconcile_coverage") is None
-            or (scope.get("reconcile_coverage") or {}).get("complete")
-        )
-    )
-    temporary = scope_path.with_name(f".{scope_path.name}.{os.getpid()}.tmp")
-    temporary.write_text(
-        json.dumps(scope, indent=2) + "\n",
-        encoding="utf-8",
-    )
-    os.replace(temporary, scope_path)
 
 
 def main() -> int:
@@ -438,10 +400,8 @@ def main() -> int:
         print("ERROR: timeout must be a positive integer", file=sys.stderr)
         return 2
     try:
-        scope = json.loads(args.scope.read_text(encoding="utf-8"))
-        if not isinstance(scope, dict):
-            raise ValueError("scope.json must contain an object")
-    except (OSError, json.JSONDecodeError, ValueError) as exc:
+        read_scope(args.scope)
+    except ValueError as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2
 
@@ -451,7 +411,7 @@ def main() -> int:
         "build_status": "preflight",
     }
     try:
-        _write_scope_coverage(args.scope, scope, preflight)
+        set_phase(args.scope, "build", preflight)
         for stale in (args.output, args.output.with_suffix(args.output.suffix + ".meta.json")):
             if stale.exists():
                 stale.unlink()
@@ -466,8 +426,8 @@ def main() -> int:
             ),
         }
         try:
-            _write_scope_coverage(args.scope, scope, failed)
-        except OSError:
+            set_phase(args.scope, "build", failed)
+        except (OSError, ValueError):
             pass
         print(f"ERROR: build verification input is invalid: {exc}", file=sys.stderr)
         print(f"ERROR: remediation: {failed['remediation']}", file=sys.stderr)
@@ -485,7 +445,7 @@ def main() -> int:
             timeout=args.timeout,
         )
         _write_findings(args.output, out_findings, meta)
-        _write_scope_coverage(args.scope, scope, meta)
+        set_phase(args.scope, "build", _coverage_state(meta), args.output)
     except build_detect.InvalidManifestError as exc:
         failed = {
             **preflight,
@@ -496,8 +456,8 @@ def main() -> int:
             ),
         }
         try:
-            _write_scope_coverage(args.scope, scope, failed)
-        except OSError:
+            set_phase(args.scope, "build", failed)
+        except (OSError, ValueError):
             pass
         print(f"ERROR: build verification project manifest is invalid: {exc}", file=sys.stderr)
         print(f"ERROR: remediation: {failed['remediation']}", file=sys.stderr)
@@ -513,8 +473,8 @@ def main() -> int:
             ),
         }
         try:
-            _write_scope_coverage(args.scope, scope, failed)
-        except OSError:
+            set_phase(args.scope, "build", failed)
+        except (OSError, ValueError):
             pass
         print(f"ERROR: build verification could not execute reliably: {exc}", file=sys.stderr)
         print(f"ERROR: remediation: {failed['remediation']}", file=sys.stderr)

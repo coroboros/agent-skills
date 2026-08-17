@@ -37,7 +37,6 @@ the main-thread orchestrator reads to fan out the Task calls in parallel.
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import sys
 import uuid
@@ -47,16 +46,15 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
-from battery_ingest import TOOL_TO_AXIS  # noqa: E402
-from runtime_contracts import (  # noqa: E402
+from coverage import (  # noqa: E402
     file_identity as _file_identity,
     read_required_diff as _read_text,
     read_scope as _read_json,
+    set_phases as _set_phases,
     verify_file_identity as _verify_file_identity,
-    write_json_atomic as _write_json_atomic,
+    verify_jsonl_output as _verify_jsonl_output,
     write_jsonl_atomic as _write_jsonl_atomic,
 )
-
 # Canonical axis keys — mirror `synthesis_core.py:CANONICAL_AXES` so a
 # rename in one place fails loudly here on the test pass.
 CANONICAL_AXES = (
@@ -71,14 +69,6 @@ CANONICAL_AXES = (
 )
 
 CONDITIONAL_AXES = ("coherence",)
-KNOWN_AXES = frozenset(CANONICAL_AXES + CONDITIONAL_AXES)
-DETERMINISTIC_TOOL_AXES = {
-    **TOOL_TO_AXIS,
-    "stryker": "tests",
-    "mutmut": "tests",
-    "pitest": "tests",
-}
-
 AXIS_BRIEFS = {
     axis: f"references/axes/{axis}.md"
     for axis in CANONICAL_AXES + CONDITIONAL_AXES
@@ -133,58 +123,8 @@ def decide_axes(scope: dict, selected_axes: list[str] | None = None) -> list[str
 
 
 def filter_findings_by_axis(findings: list[dict], axis: str) -> list[dict]:
-    """Return findings whose `axis` field equals the target axis.
-
-    The filter is exact-match on the canonical axis key. Invalid records fail
-    before filtering because silently dropping deterministic evidence would
-    make the tool-coverage gate dishonest.
-    """
-    for finding in findings:
-        _validate_tool_finding(finding)
+    """Return findings whose `axis` field equals the target axis."""
     return [f for f in findings if f.get("axis") == axis]
-
-
-def _validate_tool_finding(record: dict) -> None:
-    if not isinstance(record, dict):
-        raise ValueError("each tool finding must be a JSON object")
-    axis = record.get("axis")
-    if axis not in KNOWN_AXES:
-        raise ValueError(f"tool finding carries an unknown or missing axis: {axis!r}")
-    confidence = record.get("confidence")
-    if isinstance(confidence, bool) or confidence != 100:
-        raise ValueError("deterministic tool findings must carry confidence 100")
-    severity = record.get("severity")
-    if severity not in {"High", "Medium", "Low"}:
-        raise ValueError(f"tool finding carries an invalid severity: {severity!r}")
-    source_tool = record.get("source_tool")
-    if not isinstance(source_tool, str) or not source_tool.strip():
-        raise ValueError("tool finding has an invalid source_tool")
-    expected_axis = DETERMINISTIC_TOOL_AXES.get(source_tool)
-    if expected_axis is None:
-        raise ValueError(f"tool finding carries an unknown source_tool: {source_tool!r}")
-    if axis != expected_axis:
-        raise ValueError(
-            f"tool finding routes {source_tool!r} to {axis!r}; expected {expected_axis!r}"
-        )
-    if source_tool in {"stryker", "mutmut", "pitest"}:
-        for field in ("location", "finding", "recommendation"):
-            if not isinstance(record.get(field), str) or not record[field].strip():
-                raise ValueError(f"mutation finding has an invalid {field}")
-        return
-    for field in ("file", "message"):
-        if not isinstance(record.get(field), str) or not record[field].strip():
-            raise ValueError(f"tool finding has an invalid {field}")
-    start = record.get("line_start")
-    end = record.get("line_end")
-    if (
-        isinstance(start, bool)
-        or not isinstance(start, int)
-        or start < 1
-        or isinstance(end, bool)
-        or not isinstance(end, int)
-        or end < start
-    ):
-        raise ValueError("tool finding has an invalid line range")
 
 
 PROMPT_TEMPLATE = """\
@@ -515,12 +455,6 @@ def _read_jsonl(path: Path) -> list[dict]:
             raise ValueError(
                 f"tool finding at {path}:{line_number} is not an object"
             )
-        try:
-            _validate_tool_finding(record)
-        except ValueError as exc:
-            raise ValueError(
-                f"invalid tool finding at {path}:{line_number}: {exc}"
-            ) from exc
         out.append(record)
     return out
 
@@ -544,9 +478,9 @@ def _read_reconcile_payload(scope: dict) -> dict | None:
     path = Path(output)
     if not path.is_absolute() or not path.is_file():
         raise ValueError(f"reconcile result is missing: {path}")
-    data = path.read_bytes()
-    if hashlib.sha256(data).hexdigest() != expected_digest:
-        raise ValueError(f"reconcile result digest mismatch: {path}")
+    data = _verify_file_identity(
+        {"path": output, "sha256": expected_digest}, "reconcile result"
+    ).read_bytes()
     payload = json.loads(data)
     if not isinstance(payload, dict) or payload.get("lens") != "derivation":
         raise ValueError("reconcile result is not a derivation payload")
@@ -582,17 +516,8 @@ def _read_mutation_findings(scope: dict) -> tuple[list[dict], dict | None]:
             "requested mutation coverage is incomplete; repair the mutation "
             "run and rerun Code Ultrareview"
         )
-    identity = {
-        "path": coverage.get("output"),
-        "sha256": coverage.get("sha256"),
-    }
-    path = _verify_file_identity(identity, "mutation findings")
+    path = _verify_jsonl_output(coverage, Path(str(coverage.get("output"))), "mutation findings")
     findings = _read_jsonl(path)
-    expected_count = coverage.get("finding_count")
-    if isinstance(expected_count, bool) or not isinstance(expected_count, int):
-        raise ValueError("mutation coverage finding count is invalid")
-    if len(findings) != expected_count:
-        raise ValueError("mutation findings count does not match coverage")
     return findings, _file_identity(path)
 
 
@@ -676,20 +601,20 @@ def main() -> int:
             scope = _read_json(scope_path)
             selected_axes = parse_axes(args.axes)
             requested_axes = selected_axes or decide_axes(scope)
-            scope["axis_coverage"] = {
+            axis_state = {
                 "complete": False,
                 "full": args.axes is None,
                 "explicit_scope": args.axes is not None,
                 "requested": requested_axes,
                 "completed": [],
             }
-            scope["validator_coverage"] = {
+            validator_state = {
                 "complete": False,
                 "expected": 0,
                 "completed": 0,
             }
-            scope["coverage_complete"] = False
-            _write_json_atomic(scope_path, scope)
+            _set_phases(scope_path, {"axis": axis_state, "validator": validator_state})
+            scope = _read_json(scope_path)
             tool_coverage = scope.get("tool_coverage")
             if not isinstance(tool_coverage, dict):
                 raise ValueError(
@@ -725,6 +650,9 @@ def main() -> int:
                     f"battery: battery={battery_axes}, axes={selected_axes}"
                 )
             reconcile_payload = _read_reconcile_payload(scope)
+            findings_path = _verify_jsonl_output(
+                tool_coverage, findings_path, "tool findings"
+            )
             findings = _read_jsonl(findings_path)
             mutation_findings, mutation_identity = _read_mutation_findings(scope)
             findings.extend(mutation_findings)
@@ -760,7 +688,7 @@ def main() -> int:
             print(f"ERROR: {e}", file=sys.stderr)
             return 2
 
-        scope["axis_coverage"] = {
+        axis_state = {
             "complete": False,
             "full": args.axes is None and result["axes"] == decide_axes(scope),
             "explicit_scope": args.axes is not None or battery_scoped,
@@ -770,13 +698,12 @@ def main() -> int:
             "run_id": run_id,
             "input_hashes": input_hashes,
         }
-        scope["validator_coverage"] = {
+        validator_state = {
             "complete": False,
             "expected": 0,
             "completed": 0,
         }
-        scope["coverage_complete"] = False
-        _write_json_atomic(scope_path, scope)
+        _set_phases(scope_path, {"axis": axis_state, "validator": validator_state})
         sys.stdout.write(json.dumps(result, indent=2, sort_keys=False) + "\n")
         return 0
 
@@ -794,7 +721,7 @@ def main() -> int:
                 raise ValueError(
                     "axis coverage manifest is missing; rerun axis preparation"
                 )
-            scope["axis_coverage"] = {
+            axis_state = {
                 "complete": False,
                 "full": bool(previous.get("full")),
                 "explicit_scope": bool(previous.get("explicit_scope")),
@@ -804,13 +731,13 @@ def main() -> int:
                 "run_id": previous.get("run_id"),
                 "input_hashes": previous.get("input_hashes"),
             }
-            scope["validator_coverage"] = {
+            validator_state = {
                 "complete": False,
                 "expected": 0,
                 "completed": 0,
             }
-            scope["coverage_complete"] = False
-            _write_json_atomic(scope_path, scope)
+            _set_phases(scope_path, {"axis": axis_state, "validator": validator_state})
+            scope = _read_json(scope_path)
             if output_path.exists():
                 output_path.unlink()
             _verify_axis_inputs(scope)
@@ -828,29 +755,26 @@ def main() -> int:
             1 for finding in findings if int(finding.get("confidence", 0)) < 80
         )
         coverage["status"] = "complete"
-        coverage["output"] = str(output_path.resolve())
-        coverage["sha256"] = output_identity["sha256"]
-        coverage["finding_count"] = len(findings)
-        scope["axis_coverage"] = coverage
-        scope["validator_coverage"] = {
+        validator_state = {
             "complete": sub_threshold == 0,
             "expected": sub_threshold,
             "completed": 0,
         }
-        scope["coverage_complete"] = bool(
-            (scope.get("tool_coverage") or {}).get("complete")
-            and coverage["complete"]
-            and sub_threshold == 0
-            and (
-                scope.get("mutation_coverage") is None
-                or (scope.get("mutation_coverage") or {}).get("complete")
-            )
-            and (
-                scope.get("reconcile_coverage") is None
-                or (scope.get("reconcile_coverage") or {}).get("complete")
-            )
+        outputs = {"axis": output_path}
+        if sub_threshold == 0:
+            validator_state.update({
+                "run_id": coverage.get("run_id"),
+                "input_hashes": {
+                    "diff": (coverage.get("input_hashes") or {}).get("diff"),
+                    "axis_findings": output_identity,
+                },
+            })
+            outputs["validator"] = output_path
+        _set_phases(
+            scope_path,
+            {"axis": coverage, "validator": validator_state},
+            outputs,
         )
-        _write_json_atomic(scope_path, scope)
         print(json.dumps({"axes": coverage, "findings": len(findings)}))
         return 0
 

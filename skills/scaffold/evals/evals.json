@@ -11,7 +11,7 @@
         "Every dependency command uses pnpm --dir with the explicit project directory instead of relying on prior cd state.",
         "The development dependencies include @google/design.md alongside the existing Next.js scaffold tooling.",
         "The generated scripts expose design:audit as designmd lint DESIGN.md.",
-        "Generated instructions use pnpm design:audit and contain no npx, pnpm dlx, bunx, uvx, or runtime package resolution instruction."
+        "Generated instructions execute designmd only through pnpm design:audit; they never use npx, pnpm dlx, bunx, or uvx to resolve that analyzer at runtime."
       ]
     },
     {
@@ -24,7 +24,7 @@
         "Astro integration and dependency commands use pnpm --dir with the explicit project directory; the known generator astro.config.mjs conflict is removed before overlay publication.",
         "The development dependencies include @google/design.md alongside the existing Astro scaffold tooling.",
         "Generated helper-file and CSS paths are explicitly rooted under the project directory.",
-        "The generated project exposes pnpm design:audit and contains no npx, pnpm dlx, bunx, uvx, or runtime package resolution instruction."
+        "The generated project executes designmd only through pnpm design:audit; it never uses npx, pnpm dlx, bunx, or uvx to resolve that analyzer at runtime."
       ]
     },
     {
@@ -35,9 +35,9 @@
       "files": [],
       "expectations": [
         "Both generated projects use AGENTS.md as the canonical instructions, keep CLAUDE.md as the exact @AGENTS.md adapter, and place shared rules under .agents/rules.",
-        "Both generated templates document skills add coroboros/agent-skills --skill design-system without npx.",
+        "Both generated templates document npx skills add coroboros/agent-skills --skill design-system.",
         "Both generated package script sets expose design:audit as designmd lint DESIGN.md.",
-        "The setup references and generated templates contain no npx, pnpm dlx, bunx, uvx, or @latest runtime resolution path for Design System."
+        "The one-time npx skills add command installs the shared skill only; no generated command uses npx, pnpm dlx, bunx, uvx, or @latest to execute designmd."
       ]
     },
     {

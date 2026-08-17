@@ -5,8 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=resolve-designmd.sh
-source "$SCRIPT_DIR/resolve-designmd.sh"
+source "$SCRIPT_DIR/designmd-runtime.sh"
 ORIGINAL_ARGS=("$@")
 
 usage() {
@@ -17,7 +16,8 @@ usage() {
 [[ $# -eq 2 ]] || usage
 before="$1"
 after="$2"
-RERUN="$(designmd_format_command bash "$SCRIPT_DIR/diff.sh" "${ORIGINAL_ARGS[@]}")"
+printf -v RERUN '%q ' bash "$SCRIPT_DIR/diff.sh" "${ORIGINAL_ARGS[@]}"
+RERUN="${RERUN% }"
 
 if [[ ! -f "$before" ]]; then
   echo "RESULT: status=before-not-found"
@@ -29,23 +29,16 @@ if [[ ! -f "$after" ]]; then
   echo "RESULT: path=$after"
   exit 1
 fi
-before_for_cli="$(designmd_absolute_file "$before")"
-after_for_cli="$(designmd_absolute_file "$after")"
+before_for_cli="$(cd "$(dirname "$before")" && pwd -P)/$(basename "$before")"
+after_for_cli="$(cd "$(dirname "$after")" && pwd -P)/$(basename "$after")"
+require_designmd "$RERUN" || exit 1
 
-if resolve_designmd "$after_for_cli"; then
-  :
-else
-  resolution_rc=$?
-  emit_designmd_resolution_error "$after_for_cli" "$resolution_rc" "$RERUN"
-  exit 1
-fi
-
-json_tmp="$(mktemp -t design-diff-json-XXXXXX)"
-stderr_tmp="$(mktemp -t design-diff-stderr-XXXXXX)"
+json_tmp="$(mktemp "${TMPDIR:-/tmp}/design-diff-json.XXXXXX")"
+stderr_tmp="$(mktemp "${TMPDIR:-/tmp}/design-diff-stderr.XXXXXX")"
 
 # `diff` exits 1 on regression, 0 on no regression. Both are successful CLI runs.
 set +e
-run_designmd diff --format json "$before_for_cli" "$after_for_cli" >"$json_tmp" 2>"$stderr_tmp"
+"$designmd" diff --format json "$before_for_cli" "$after_for_cli" >"$json_tmp" 2>"$stderr_tmp"
 rc=$?
 set -e
 
@@ -54,7 +47,8 @@ if [[ $rc -gt 1 ]]; then
   echo "RESULT: status=cli-failed"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$after_for_cli" "$RERUN"
+  echo "RESULT: rerun=$RERUN"
+  echo "RESULT: remediation=Repair or upgrade designmd, verify designmd --version, then rerun"
   exit 1
 fi
 
@@ -63,7 +57,8 @@ if ! python3 "$SCRIPT_DIR/validate-output.py" diff "$json_tmp" --exit-code "$rc"
   echo "RESULT: exit-code=$rc"
   echo "RESULT: json=$json_tmp"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$after_for_cli" "$RERUN"
+  echo "RESULT: rerun=$RERUN"
+  echo "RESULT: remediation=Repair or upgrade designmd, verify designmd --version, then rerun"
   exit 1
 fi
 
@@ -79,7 +74,8 @@ echo "RESULT: after=$after"
 echo "RESULT: regression=$regression"
 echo "RESULT: exit-code=$rc"
 echo "RESULT: json=$json_tmp"
-emit_designmd_metadata
+echo "RESULT: runtime=path"
+echo "RESULT: binary=$designmd"
 rm -f "$stderr_tmp"
 # Propagate rc so the script is CI-gate friendly: exit 0 no regression, 1 on regression.
 exit "$rc"

@@ -105,10 +105,11 @@ class TestSkillMdRulesBullet(unittest.TestCase):
         self.assertIn("audit-extensions", self.text)
         self.assertIn("subcommand-audit-extensions.md", self.text)
 
-    def test_frontmatter_uses_portable_skill_keys(self):
+    def test_frontmatter_uses_portable_activation_metadata(self):
         frontmatter = self.text.split("---", 2)[1]
-        for legacy_key in ("argument-hint:", "when_to_use:", "paths:"):
-            self.assertNotIn(legacy_key, frontmatter)
+        for key in ("description:", "argument-hint:", "when_to_use:"):
+            self.assertIn(key, frontmatter)
+        self.assertNotIn("paths:", frontmatter)
 
 
 class TestSpecMdExtendingRules(unittest.TestCase):

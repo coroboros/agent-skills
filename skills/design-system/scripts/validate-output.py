@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate the stable minimum output contracts of designmd 0.3.x."""
+"""Validate the stable minimum output contracts of designmd."""
 
 from __future__ import annotations
 
@@ -70,17 +70,17 @@ def validate_diff(payload: object, exit_code: int | None = None) -> bool:
     if not isinstance(payload, dict) or not isinstance(payload.get("tokens"), dict):
         return False
     token_groups = {"colors", "typography", "rounded", "spacing", "components"}
-    if set(payload["tokens"]) != token_groups:
+    if not token_groups.issubset(payload["tokens"]):
         return False
     if not all(
         isinstance(group, dict)
-        and set(group) == {"added", "removed", "modified"}
+        and {"added", "removed", "modified"}.issubset(group)
         and all(
             isinstance(group[key], list)
             and all(isinstance(item, str) for item in group[key])
             for key in ("added", "removed", "modified")
         )
-        for group in payload["tokens"].values()
+        for group in (payload["tokens"][name] for name in token_groups)
     ):
         return False
     findings = payload.get("findings")

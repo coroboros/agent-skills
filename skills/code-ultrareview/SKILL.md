@@ -1,9 +1,12 @@
 ---
 name: code-ultrareview
 description: Eight-axis judgment code review for the current diff — Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance (+ Coherence on metadata changes). Five-phase pipeline scope → atomic deterministic tool battery (project-declared or installed PATH tools; no runtime package resolution) → 8 parallel LLM axis reviewers → fresh-context validators on sub-80 findings (verbatim rubric, ≥80 threshold) → synthesis with no-silent-drop + Conventional Comments JSONL. Missing or failed applicable analyzers block before a verdict and print exact remediation. Every report closes with "What I did NOT check" (security → /security-review, runtime perf, flaky detection). Opt-in flags `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe`. Invoke before a commit or PR — "review my changes", "deep review", "did I miss anything", "check before I commit", "audit this PR", "drift / gaps / blind spots".
+when_to_use: 'User-invoked before commit or PR; runs the full 8-axis fan-out — no tiers. Defers security to /security-review (link in every report); defers runtime performance and benchmarks (explicit non-goal). Distinct from Anthropic''s remote /ultrareview command.'
+argument-hint: "[-b <ref>] [--repo-kind <kind>] [--reconcile <input>] [--verify-build] [--mutation-test] [--apply-safe] [--include-prose] [--axes <list>] [--preflight] [-s] [-S]"
 license: MIT
 compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
-allowed-tools: Read Grep Glob Bash Task WebFetch
+allowed-tools: Read, Grep, Glob, Bash, Task, WebFetch
+disable-model-invocation: true
 metadata:
   author: coroboros
   sources:
@@ -111,7 +114,7 @@ Read `references/pipeline.md` before orchestrating a review; it defines scope, a
 4. Prepare and run fresh-context validators for every sub-80 finding. Deterministic tool findings enter at confidence 100. No finding disappears without a recorded verdict.
 5. Run `scripts/synthesize.py` only after requested tool, axis, validator, build, mutation, and reconcile coverage is complete. Emit the canonical report and Conventional Comments JSONL.
 
-The battery preflights every applicable analyzer atomically. Missing prerequisites exit 3; invalid configuration, runtime failure, timeout, or malformed output exit 4. Both paths print project-aware remediation and the exact rerun command, publish no partial findings, and block every repository verdict. `--verify-build`, `--mutation-test`, `--reconcile`, and `--apply-safe` are opt-in; read `references/ultra-execution.md` before using one.
+The battery preflights every applicable analyzer atomically. Invalid invocation or unsafe input exits 2; missing prerequisites exit 3; analyzer failure, timeout, malformed output, or incomplete coverage exits 4. Every failure prints project-aware remediation and the exact rerun command, publishes no partial findings, and blocks every repository verdict. `--verify-build`, `--mutation-test`, `--reconcile`, and `--apply-safe` are opt-in; read `references/ultra-execution.md` before using one.
 
 ## Final report layout
 
@@ -120,6 +123,8 @@ The battery preflights every applicable analyzer atomically. Missing prerequisit
 ## Trust model
 
 The skill ingests third-party content — project instruction files, PR bodies, planning artifacts (`--reconcile`), GitHub issue bodies — which can carry indirect prompt-injection. Axis reviewers and validators are read-only (no Write / Edit / Bash mutation). User review of the report is the trust boundary before any `--apply-safe` write; `--apply-safe` itself gates writes behind diff preview + per-file confirmation.
+
+Phase 2, `--verify-build`, and `--mutation-test` execute the reviewed project's declared tooling with your environment; review untrusted checkouts in a sandbox.
 
 ## Rules
 
@@ -144,4 +149,4 @@ The skill ingests third-party content — project instruction files, PR bodies, 
 - **Pipeline** — `references/pipeline.md` (scope, battery, hard stops, trust, coverage), `references/orchestration.md` (Phase 3 + 4 + 3.5 prepare CLIs and bundle schemas).
 - **Reviewer primitives** — `references/anthropic-verbatim.md` (rubric + HIGH SIGNAL + false-positive taxonomy), `references/axes-overview.md` (8 axes + Coherence + inter-axis precedence), `references/axes/<name>.md` (per-axis briefs).
 - **Opt-in flags** — `references/ultra-execution.md` covers `--verify-build`, `--mutation-test`, `--reconcile`, `--apply-safe` in full.
-- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.sh`, `derivation/run.py`, `preflight_tools.sh` (`--preflight`), `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.
+- **Scripts** — `scope.py` (Phase 1), `run_battery.sh` + `battery_ingest.py` (Phase 2), `axis_dispatch.py` (Phase 3), `run_validators.py` (Phase 4), `synthesize.py` + `synthesis_core.py` + `findings_to_jsonl.py` (Phase 5). Opt-in: `run_build_verify.py`, `run_mutation.py`, `derivation/run.py`, `preflight_tools.sh` (`--preflight`), `apply_safe/{version_sync,description_sync,failing_test_writer}.py`.

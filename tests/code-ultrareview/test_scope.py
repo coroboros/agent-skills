@@ -248,6 +248,33 @@ class TestRepoKindCLI(unittest.TestCase):
         self.assertIn("invalid choice", r.stderr.lower())
 
 
+class TestScopeFailures(unittest.TestCase):
+    def test_clean_dirty_tree_exits_2_without_scope(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            _init_repo(repo)
+            (repo / "README.md").write_text("# Clean\n", encoding="utf-8")
+            _commit(repo)
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "--repo", str(repo), "--dirty-tree"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("review scope is empty", result.stderr)
+
+    def test_failed_git_diff_raises_instead_of_returning_empty_scope(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            _init_repo(repo)
+            (repo / "README.md").write_text("# Initial\n", encoding="utf-8")
+            _commit(repo)
+            with self.assertRaisesRegex(RuntimeError, "git diff --numstat failed"):
+                scope.diff_files(repo, "missing-ref", "HEAD")
+
+
 # ---------------------------------------------------------------------------
 # Cross-agent instruction chain ordering
 # ---------------------------------------------------------------------------
@@ -457,16 +484,6 @@ class TestInstructionChain(unittest.TestCase):
             self.assertNotIn("skills/foo/AGENTS.md", chain)
             self.assertNotIn("skills/foo/CLAUDE.md", chain)
 
-    def test_historical_function_name_is_an_exact_alias(self):
-        with tempfile.TemporaryDirectory() as td:
-            repo = Path(td)
-            (repo / "AGENTS.md").write_text("# shared\n", encoding="utf-8")
-            self.assertEqual(
-                scope.claude_md_chain(repo, []),
-                scope.instruction_chain(repo, []),
-            )
-
-
 # ---------------------------------------------------------------------------
 # Coherence activation
 # ---------------------------------------------------------------------------
@@ -638,10 +655,6 @@ class TestBuildScopeDirtyTree(unittest.TestCase):
             self.assertEqual(
                 payload["changed_line_ranges"][".claude-plugin/marketplace.json"],
                 [[1, 1]],
-            )
-            self.assertEqual(
-                payload["instruction_chain"],
-                payload["claude_md_chain"],
             )
             self.assertIn("AGENTS.md", payload["instruction_chain"])
             self.assertIn("CLAUDE.md", payload["instruction_chain"])

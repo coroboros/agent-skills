@@ -86,7 +86,8 @@ def _scope(**overrides) -> dict:
         "activates_coherence": False,
         "tools_skipped": [],
         "tools_missing": [],
-        "changed_files": ["src/a.ts"],
+        "files_touched": 1,
+        "files_touched_list": ["src/a.ts"],
         "tool_coverage": {
             "complete": True,
             "selected_axes": [],
@@ -516,22 +517,6 @@ class TestHeaderSeverityCounts(unittest.TestCase):
         )
         self.assertNotIn("Rules baseline:** skipped", stdout)
 
-    def test_canonical_empty_chain_ignores_stale_legacy_alias(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            stdout, _, rc = _run_synthesize(
-                _scope(
-                    instruction_chain=[],
-                    claude_md_chain=["CLAUDE.md"],
-                ),
-                [],
-                output_dir=Path(tmp),
-            )
-        self.assertEqual(rc, 0, stdout)
-        self.assertIn(
-            "**Rules baseline:** none — Style used observable repository conventions",
-            stdout,
-        )
-
     def test_nonempty_rules_chain_uses_generic_label(self):
         with tempfile.TemporaryDirectory() as tmp:
             stdout, _, rc = _run_synthesize(
@@ -757,6 +742,7 @@ class TestRenderLayerRegression(unittest.TestCase):
         `scope['files_touched_list']` length — not the absent
         `changed_files` legacy key."""
         scope = _scope(
+            files_touched=7,
             files_touched_list=[
                 "src/a.ts", "src/b.ts", "src/c.ts",
                 "src/d.ts", "src/e.ts", "src/f.ts",
@@ -835,7 +821,7 @@ class TestRenderLayerRegression(unittest.TestCase):
 
         self.assertEqual(result.returncode, 4)
         self.assertEqual(result.stdout, "")
-        self.assertIn("axis review manifest missing or invalid", result.stderr)
+        self.assertIn("axis_coverage must be an object", result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
     def test_synthesis_blocks_incomplete_requested_mutation_coverage(self):
@@ -925,7 +911,7 @@ class TestRenderLayerRegression(unittest.TestCase):
         self.assertEqual(rc, 4)
         self.assertEqual(stdout, "")
         self.assertIn(
-            "validated findings digest does not match its run manifest",
+            "validated findings changed after prepare",
             stderr,
         )
         self.assertNotIn("Ship", stderr)
@@ -1008,7 +994,7 @@ class TestRenderLayerRegression(unittest.TestCase):
             )
         self.assertEqual(result.returncode, 4)
         self.assertEqual(result.stdout, "")
-        self.assertIn("required findings file is missing", result.stderr)
+        self.assertIn("required run artifact is missing", result.stderr)
         self.assertIn("rerun the failed axis/validator phase", result.stderr)
         self.assertNotIn("**Ship**", result.stderr)
 
@@ -1072,7 +1058,7 @@ class TestRenderLayerRegression(unittest.TestCase):
             )
         self.assertEqual(result.returncode, 4)
         self.assertEqual(result.stdout, "")
-        self.assertIn("required findings file is missing", result.stderr)
+        self.assertIn("required run artifact is missing", result.stderr)
         self.assertNotIn("**Ship**", result.stderr)
 
     def test_axis_subset_never_emits_global_ship_verdict(self):

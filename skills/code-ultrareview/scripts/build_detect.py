@@ -22,6 +22,8 @@ import shutil
 import sys
 from pathlib import Path
 
+from tool_runtime import package_manager_spec
+
 
 class InvalidManifestError(ValueError):
     """Raised when a present project manifest cannot be trusted."""
@@ -92,27 +94,14 @@ def _javascript_test_command(repo: Path) -> tuple[str | None, str | None]:
     if not isinstance(test_script, str) or not test_script.strip():
         return None, None
 
-    package_manager = payload.get("packageManager")
-    declared = (
-        package_manager.split("@", 1)[0]
-        if isinstance(package_manager, str)
-        else None
-    )
     commands = {
         "pnpm": "pnpm test",
         "yarn": "yarn test",
         "bun": "bun run test",
         "npm": "npm test",
     }
-    if declared in commands:
-        return declared, commands[declared]
-    if (repo / "pnpm-lock.yaml").exists():
-        return "pnpm", commands["pnpm"]
-    if (repo / "yarn.lock").exists():
-        return "yarn", commands["yarn"]
-    if (repo / "bun.lock").exists() or (repo / "bun.lockb").exists():
-        return "bun", commands["bun"]
-    return "npm", commands["npm"]
+    manager = package_manager_spec(repo, repo)[0]
+    return manager, commands[manager]
 
 
 def detect(repo: Path) -> dict:

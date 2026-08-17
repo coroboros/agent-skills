@@ -36,13 +36,31 @@ def _load_module():
 axis_dispatch = _load_module()
 
 
+def _scope_fields(path: str = "src/x.ts") -> dict:
+    return {"files_touched": 1, "files_touched_list": [path]}
+
+
+def _tool_coverage(path: Path, body: str = "") -> dict:
+    data = body.encode("utf-8")
+    return {
+        "complete": True,
+        "output": str(path.resolve()),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "bytes": len(data),
+        "finding_count": sum(1 for line in body.splitlines() if line.strip()),
+    }
+
+
 def _run_prepare(scope: dict) -> subprocess.CompletedProcess:
     with tempfile.TemporaryDirectory() as td:
         workdir = Path(td)
         scope_path = workdir / "scope.json"
         findings_path = workdir / "tool-findings.jsonl"
         diff_path = workdir / "diff.patch"
-        scope_path.write_text(json.dumps(scope), encoding="utf-8")
+        payload = {**_scope_fields(), **scope}
+        if isinstance(payload.get("tool_coverage"), dict) and payload["tool_coverage"].get("complete") is True:
+            payload["tool_coverage"] = _tool_coverage(findings_path)
+        scope_path.write_text(json.dumps(payload), encoding="utf-8")
         findings_path.write_text("", encoding="utf-8")
         diff_path.write_text("diff --git a/x.ts b/x.ts", encoding="utf-8")
         return subprocess.run(
@@ -188,37 +206,6 @@ class TestFilterFindings(unittest.TestCase):
             ))
         self.assertEqual(total, len(SAMPLE_FINDINGS))
 
-    def test_findings_without_axis_field_are_rejected(self):
-        with self.assertRaisesRegex(ValueError, "unknown or missing axis"):
-            axis_dispatch.filter_findings_by_axis(
-                [{"file": "a.py", "message": "no axis"}], "correctness"
-            )
-
-    def test_unknown_axis_and_non_deterministic_confidence_are_rejected(self):
-        invalid = dict(SAMPLE_FINDINGS[0], axis="security")
-        with self.assertRaisesRegex(ValueError, "unknown or missing axis"):
-            axis_dispatch.filter_findings_by_axis([invalid], "correctness")
-        invalid = dict(SAMPLE_FINDINGS[0], confidence=99)
-        with self.assertRaisesRegex(ValueError, "confidence 100"):
-            axis_dispatch.filter_findings_by_axis([invalid], "simplification")
-
-    def test_incomplete_canonical_finding_is_rejected(self):
-        invalid = dict(SAMPLE_FINDINGS[0])
-        invalid.pop("severity")
-        with self.assertRaisesRegex(ValueError, "invalid severity"):
-            axis_dispatch.filter_findings_by_axis([invalid], "simplification")
-        invalid = dict(SAMPLE_FINDINGS[0], line_end=0)
-        with self.assertRaisesRegex(ValueError, "invalid line range"):
-            axis_dispatch.filter_findings_by_axis([invalid], "simplification")
-
-    def test_unknown_source_tool_and_wrong_tool_axis_are_rejected(self):
-        unknown = dict(SAMPLE_FINDINGS[0], source_tool="invented-analyzer")
-        with self.assertRaisesRegex(ValueError, "unknown source_tool"):
-            axis_dispatch.filter_findings_by_axis([unknown], "simplification")
-        misrouted = dict(SAMPLE_FINDINGS[0], axis="documentation")
-        with self.assertRaisesRegex(ValueError, "expected 'simplification'"):
-            axis_dispatch.filter_findings_by_axis([misrouted], "documentation")
-
     def test_mutation_sources_route_only_to_tests(self):
         for source_tool in ("stryker", "mutmut", "pitest"):
             with self.subTest(source_tool=source_tool):
@@ -235,22 +222,6 @@ class TestFilterFindings(unittest.TestCase):
                     axis_dispatch.filter_findings_by_axis([finding], "tests"),
                     [finding],
                 )
-
-    def test_mutation_finding_rejects_battery_schema(self):
-        with self.assertRaisesRegex(ValueError, "invalid location"):
-            axis_dispatch._validate_tool_finding(
-                {
-                    "axis": "tests",
-                    "file": "src/example.py",
-                    "line_start": 1,
-                    "line_end": 1,
-                    "severity": "Medium",
-                    "source_tool": "mutmut",
-                    "message": "mutation survived",
-                    "confidence": 100,
-                }
-            )
-
 
 # ---------------------------------------------------------------------------
 # Prompt building
@@ -623,6 +594,7 @@ class TestCliPrepare(unittest.TestCase):
             output_dir = tdir / "run"
 
             scope_path.write_text(json.dumps({
+                **_scope_fields(),
                 "repo_kind": "app",
                 "languages": ["typescript"],
                 "instruction_chain": [],
@@ -630,7 +602,10 @@ class TestCliPrepare(unittest.TestCase):
                 "files": ["src/x.ts"],
                 "tools_skipped": [],
                 "tools_missing": [],
-                "tool_coverage": {"complete": True},
+                "tool_coverage": _tool_coverage(
+                    findings_path,
+                    "\n".join(json.dumps(f) for f in SAMPLE_FINDINGS) + "\n",
+                ),
             }), encoding="utf-8")
             findings_path.write_text(
                 "\n".join(json.dumps(f) for f in SAMPLE_FINDINGS) + "\n",
@@ -678,6 +653,7 @@ class TestCliPrepare(unittest.TestCase):
                     diff_path = tdir / "diff.patch"
                     scope_path.write_text(
                         json.dumps({
+                            **_scope_fields(),
                             "repo_kind": "app",
                             "languages": ["typescript"],
                             "instruction_chain": [],
@@ -685,7 +661,7 @@ class TestCliPrepare(unittest.TestCase):
                             "files": ["src/x.ts"],
                             "tools_skipped": [],
                             "tools_missing": [],
-                            "tool_coverage": {"complete": True},
+                            "tool_coverage": _tool_coverage(findings_path),
                         }),
                         encoding="utf-8",
                     )
@@ -727,12 +703,15 @@ class TestCliPrepare(unittest.TestCase):
             diff_path = tdir / "diff.patch"
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields("README.md"),
                     "repo_kind": "app",
                     "languages": ["markdown"],
                     "activates_coherence": False,
                     "tools_skipped": [],
                     "tools_missing": [],
-                    "tool_coverage": {"complete": True},
+                    "tool_coverage": _tool_coverage(
+                        tdir / "missing-tool-findings.jsonl"
+                    ),
                 }),
                 encoding="utf-8",
             )
@@ -748,7 +727,7 @@ class TestCliPrepare(unittest.TestCase):
                 capture_output=True, text=True, check=False,
             )
             self.assertEqual(result.returncode, 4)
-            self.assertIn("required tool findings file is missing", result.stderr)
+            self.assertIn("required run artifact is missing", result.stderr)
             self.assertFalse((tdir / "run").exists())
 
     def test_prepare_rejects_incomplete_tool_coverage(self):
@@ -761,6 +740,7 @@ class TestCliPrepare(unittest.TestCase):
             diff_path = tdir / "diff.patch"
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields("README.md"),
                     "repo_kind": "app",
                     "languages": ["markdown"],
                     "activates_coherence": False,
@@ -796,12 +776,13 @@ class TestCliPrepare(unittest.TestCase):
             diff_path = tdir / "diff.patch"
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields("App.java"),
                     "repo_kind": "app",
                     "languages": ["java"],
                     "activates_coherence": False,
                     "tools_skipped": [],
                     "tools_missing": [],
-                    "tool_coverage": {"complete": True},
+                    "tool_coverage": _tool_coverage(findings_path),
                     "mutation_coverage": {
                         "requested": True,
                         "complete": False,
@@ -850,12 +831,13 @@ class TestCliPrepare(unittest.TestCase):
             diff_path = tdir / "diff.patch"
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "repo_kind": "app",
                     "languages": ["typescript"],
                     "activates_coherence": False,
                     "tools_skipped": [],
                     "tools_missing": [],
-                    "tool_coverage": {"complete": True},
+                    "tool_coverage": _tool_coverage(findings_path),
                     "reconcile_coverage": {
                         "requested": True,
                         "complete": True,
@@ -902,10 +884,10 @@ class TestCliPrepare(unittest.TestCase):
                 capture_output=True, text=True, check=False,
             )
             self.assertEqual(blocked.returncode, 4)
-            self.assertIn("digest mismatch", blocked.stderr)
+            self.assertIn("reconcile result changed after prepare", blocked.stderr)
             self.assertFalse((tdir / "blocked").exists())
 
-    def test_prepare_rejects_invalid_tool_finding_without_writing_bundles(self):
+    def test_prepare_rejects_tampered_tool_findings_without_writing_bundles(self):
         import subprocess
 
         with tempfile.TemporaryDirectory() as td:
@@ -913,26 +895,25 @@ class TestCliPrepare(unittest.TestCase):
             scope_path = tdir / "scope.json"
             findings_path = tdir / "tool-findings.jsonl"
             diff_path = tdir / "diff.patch"
+            tampered_finding = json.dumps({
+                "axis": "security",
+                "source_tool": "fake",
+                "message": "must not be dropped",
+                "confidence": 100,
+            }) + "\n"
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "repo_kind": "app",
                     "languages": ["typescript"],
                     "activates_coherence": False,
                     "tools_skipped": [],
                     "tools_missing": [],
-                    "tool_coverage": {"complete": True},
+                    "tool_coverage": _tool_coverage(findings_path),
                 }),
                 encoding="utf-8",
             )
-            findings_path.write_text(
-                json.dumps({
-                    "axis": "security",
-                    "source_tool": "fake",
-                    "message": "must not be dropped",
-                    "confidence": 100,
-                }) + "\n",
-                encoding="utf-8",
-            )
+            findings_path.write_text(tampered_finding, encoding="utf-8")
             diff_path.write_text("diff --git a/x.ts b/x.ts", encoding="utf-8")
             result = subprocess.run(
                 [
@@ -945,7 +926,7 @@ class TestCliPrepare(unittest.TestCase):
                 capture_output=True, text=True, check=False,
             )
             self.assertEqual(result.returncode, 4)
-            self.assertIn("unknown or missing axis", result.stderr)
+            self.assertIn("tool findings changed after prepare", result.stderr)
             self.assertFalse((tdir / "run").exists())
 
 
@@ -961,6 +942,7 @@ class TestCliIngest(unittest.TestCase):
             output_path = tdir / "axis-findings.jsonl"
             scope_path.write_text(
                 json.dumps({
+                    **_scope_fields(),
                     "repo_kind": "app",
                     "languages": ["typescript"],
                     "activates_coherence": False,

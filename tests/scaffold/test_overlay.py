@@ -50,6 +50,13 @@ class TestArgValidation(unittest.TestCase):
         r = _run("next-cloudflare")
         self.assertEqual(r.returncode, 2)
 
+    def test_extra_or_unknown_argument_is_rejected(self):
+        with tempfile.TemporaryDirectory() as target:
+            for args in (("unexpected",), ("--force", "extra")):
+                with self.subTest(args=args):
+                    result = _run("next-cloudflare", "my-app", target, *args)
+                    self.assertEqual(result.returncode, 2)
+
     def test_missing_target_dir_flagged(self):
         with tempfile.TemporaryDirectory() as t:
             ghost = Path(t) / "does-not-exist"

@@ -46,12 +46,23 @@ def _env() -> dict:
     return env
 
 
+def _write_scope(path: Path) -> None:
+    path.write_text(
+        json.dumps({
+            "files_touched": 1,
+            "files_touched_list": ["fixture.md"],
+            "languages": ["Markdown"],
+        }) + "\n",
+        encoding="utf-8",
+    )
+
+
 def _run_cli_process(repo: Path, reconcile: str = "@auto", *extra: str):
     with tempfile.TemporaryDirectory() as td:
         runtime = Path(td)
         scope = runtime / "scope.json"
         output = runtime / "reconcile.json"
-        scope.write_text("{}\n", encoding="utf-8")
+        _write_scope(scope)
         return subprocess.run(
             [sys.executable, str(RUN_SCRIPT), "--repo", str(repo),
              "--scope", str(scope), "--output", str(output),
@@ -377,7 +388,7 @@ class TestRunOutputSchema(unittest.TestCase):
                 encoding="utf-8",
             )
             scope = repo / "scope.json"
-            scope.write_text("{}\n", encoding="utf-8")
+            _write_scope(scope)
             output = repo / "reconcile.json"
             result = subprocess.run(
                 [

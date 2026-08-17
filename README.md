@@ -463,7 +463,7 @@ Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://
 
 **Requirements**
 
-- `@google/design.md` as a directly declared project dependency (for example, `npm install --save-dev @google/design.md`) or a preinstalled `designmd` on `PATH`. Wrappers prefer the nearest declared project binary, support workspace-hoisted and Yarn Plug'n'Play installs, and never resolve packages at runtime. Missing or invalid CLI output stops with project-aware repair plus exact rerun guidance; manual inspection never substitutes for canonical lint, diff, export, or spec output.
+- `designmd` on `PATH`: `npm install --global --ignore-scripts @google/design.md`, then `designmd --version`. Bundled wrappers never resolve packages at runtime; a missing, failed, or invalid CLI blocks with exact repair and rerun guidance.
 
 **Usage**
 

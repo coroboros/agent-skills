@@ -61,15 +61,15 @@ if ! validate_target_basename "$TARGET_BASENAME"; then
 fi
 echo "RESULT: target-name=valid name=$TARGET_BASENAME"
 
-if command -v pnpm >/dev/null 2>&1; then
-  echo "RESULT: pnpm=yes version=$(pnpm --version)"
+if PNPM_VERSION="$(pnpm --version 2>/dev/null)"; then
+  echo "RESULT: pnpm=yes version=$PNPM_VERSION"
 else
   echo "RESULT: pnpm=no"
   ENV_OK=false
 fi
 
-if command -v node >/dev/null 2>&1; then
-  NODE_VERSION=$(node --version | sed 's/^v//')
+if NODE_VERSION="$(node --version 2>/dev/null)"; then
+  NODE_VERSION="${NODE_VERSION#v}"
   if [[ "$NODE_VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
     NODE_MAJOR="${BASH_REMATCH[1]}"
     NODE_MINOR="${BASH_REMATCH[2]}"
@@ -92,7 +92,7 @@ else
   ENV_OK=false
 fi
 
-if command -v jq >/dev/null 2>&1; then
+if jq --version >/dev/null 2>&1; then
   echo "RESULT: jq=yes"
 else
   echo "RESULT: jq=no"

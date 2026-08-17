@@ -22,11 +22,10 @@ set -uo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INGEST="$SCRIPT_DIR/battery_ingest.py"
 PROCESS_TIMEOUT="$SCRIPT_DIR/process_timeout.py"
+TOOL_RUNTIME="$SCRIPT_DIR/tool_runtime.py"
+COVERAGE="$SCRIPT_DIR/coverage.py"
 PERF_RULES_DIR="$SCRIPT_DIR/../references/perf-rules"
 MARKDOWNLINT_BASE_CONFIG="$SCRIPT_DIR/../references/markdownlint-base.markdownlint-cli2.jsonc"
-# shellcheck source-path=SCRIPTDIR
-# shellcheck source=install-guidance.sh
-source "$SCRIPT_DIR/install-guidance.sh"
 
 SCOPE=""
 OUTPUT_DIR=""
@@ -56,9 +55,8 @@ emit_rerun() {
 }
 
 # Dispatch matrix — single source of truth, format
-# "<tool>|<canonical-axes>|<coverage>". Install commands are generated from
-# the target repo by install-guidance.sh so JavaScript guidance matches npm,
-# pnpm, Yarn, or Bun exactly.
+# "<tool>|<canonical-axes>|<coverage>". JavaScript analyzers use the target
+# repository's declared package manager in native no-install mode.
 
 # shellcheck disable=SC2034
 BATTERY_TABLE=(
@@ -136,7 +134,7 @@ if ! REPO="$(cd "$REPO" 2>/dev/null && pwd -P)"; then
   exit 2
 fi
 
-if ! scope_error="$(validate_review_scope "$SCOPE")"; then
+if ! scope_error="$(python3 "$COVERAGE" "$SCOPE" 2>&1)"; then
   echo "ERROR: invalid Code Ultrareview scope: $scope_error" >&2
   echo "ERROR: remediation: rerun scope.py to recreate scope.json, then rerun Code Ultrareview." >&2
   emit_rerun
@@ -148,33 +146,26 @@ PREFLIGHT_FINAL="$OUTPUT_DIR/tool-preflight.json"
 
 # Invalidate the previous public result before validating project manifests or
 # resolving analyzers. A failed rerun must never leave a stale complete verdict.
-if ! python3 - "$SCOPE" "$AXES" <<'PY'
-import json
-import os
+if ! python3 - "$SCOPE" "$AXES" "$SCRIPT_DIR" <<'PY'
 from pathlib import Path
 import sys
 
-scope_path = Path(sys.argv[1])
+sys.path.insert(0, sys.argv[3])
+from coverage import update_scope
+
 selected_axes = [axis.strip() for axis in sys.argv[2].split(",") if axis.strip()]
-with scope_path.open(encoding="utf-8") as handle:
-    scope = json.load(handle)
-scope["tools_dispatched"] = []
-scope["tools_missing"] = []
-scope["tools_skipped"] = []
-scope["tool_coverage"] = {
+state = {
     "complete": False,
     "selected_axes": selected_axes,
     "explicit_scope": bool(selected_axes),
     "applicable": [],
     "executed": [],
 }
-scope["coverage_complete"] = False
-temporary = scope_path.with_name(f".{scope_path.name}.{os.getpid()}.tmp")
-temporary.write_text(
-    json.dumps(scope, indent=2, sort_keys=False) + "\n",
-    encoding="utf-8",
+update_scope(
+    Path(sys.argv[1]),
+    fields={"tools_dispatched": [], "tools_missing": [], "tools_skipped": []},
+    phases={"tool": state},
 )
-os.replace(temporary, scope_path)
 PY
 then
   rm -f "$FINDINGS_FINAL" 2>/dev/null || true
@@ -241,19 +232,6 @@ while IFS= read -r _line; do
   [[ -n "$_line" ]] && FILES_TOUCHED+=("$_line")
 done < <(_scope_field files_touched_list)
 
-# shellcheck disable=SC2034 # install-guidance.sh consumes this sourced-state array.
-JS_RELEVANT_FILES=()
-if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
-  # shellcheck disable=SC2034 # install-guidance.sh consumes this sourced-state array.
-  JS_RELEVANT_FILES=("${FILES_TOUCHED[@]}")
-fi
-if ! package_error="$(validate_relevant_package_manifests "$REPO")"; then
-  echo "ERROR: invalid project manifest: $package_error" >&2
-  echo "ERROR: remediation: repair package.json at the reported path so it is valid JSON with object dependency maps, then rerun Code Ultrareview." >&2
-  emit_rerun
-  exit 2
-fi
-
 has_lang() {
   local target="$1" l
   if [[ ${#LANGUAGES[@]} -eq 0 ]]; then
@@ -281,14 +259,6 @@ has_existing_file_match() {
 has_repo_file() {
   # Args: <relative-path>
   [[ -f "$REPO/$1" ]]
-}
-
-has_relevant_js_package() {
-  local manifest
-  while IFS= read -r manifest; do
-    [[ -n "$manifest" ]] && return 0
-  done < <(js_relevant_package_manifests "$REPO")
-  return 1
 }
 
 # Dispatch decision — mirrors SKILL.md Phase 2 description.
@@ -348,7 +318,7 @@ want_tool() {
   case "$tool" in
     knip)
       (has_lang typescript || has_lang javascript) \
-        && has_relevant_js_package
+        && has_existing_file_match '\.(js|jsx|ts|tsx|mjs|cjs)$'
       ;;
     jscpd)
       has_existing_file_match '\.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$'
@@ -357,7 +327,7 @@ want_tool() {
       has_existing_file_match '\.md$'
       ;;
     api-extractor)
-      has_repo_file "api-extractor.json"
+      has_repo_file "api-extractor.json" && has_existing_file_match '\.(ts|tsx)$'
       ;;
     lizard)
       has_existing_file_match '\.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$'
@@ -396,7 +366,33 @@ want_tool() {
 }
 
 install_cmd() {
-  tool_repair_command "$REPO" "$1"
+  local tool="$1" package=""
+  case "$tool" in
+    knip) package="knip" ;;
+    jscpd) package="jscpd" ;;
+    markdownlint-cli2) package="markdownlint-cli2" ;;
+    api-extractor) package="@microsoft/api-extractor" ;;
+  esac
+  if [[ -n "$package" ]]; then
+    local args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
+      --package "$package" --binary "$tool" install)
+    local file
+    for file in "${JS_RELEVANT_FILES[@]}"; do args+=(--file "$file"); done
+    "${args[@]}"
+    return
+  fi
+  case "$tool" in
+    lizard|vulture|semgrep) printf 'pipx install %s\n' "$tool" ;;
+    vale|oasdiff) command -v brew >/dev/null 2>&1 && printf 'brew install %s\n' "$tool" \
+      || printf 'Install %s from its official distribution\n' "$tool" ;;
+    atlas) command -v brew >/dev/null 2>&1 && printf 'brew install ariga/tap/atlas\n' \
+      || printf 'Install Atlas from https://atlasgo.io/getting-started\n' ;;
+    deadcode) printf 'go install golang.org/x/tools/cmd/deadcode@latest\n' ;;
+    gocyclo) printf 'go install github.com/fzipp/gocyclo/cmd/gocyclo@latest\n' ;;
+    dupl) printf 'go install github.com/mibk/dupl@latest\n' ;;
+    cargo-machete) printf 'cargo install --locked cargo-machete\n' ;;
+    *) printf 'Install %s from its official distribution\n' "$tool" ;;
+  esac
 }
 
 DISPATCHED=()
@@ -405,11 +401,14 @@ mark_dispatched() {
 }
 
 # Tool runners. Each writes raw output to $OUTPUT_DIR/raw/<tool>.<ext>.
-# JavaScript tools prefer a directly declared repository dependency;
-# every tool may fall back to an already-installed PATH command.
+# Declared JavaScript tools use the project's installed binary. Undeclared
+# JavaScript and native tools may use an already-installed PATH command.
 
 RESOLVED_COMMAND=()
 RESOLVED_WRAPPER=""
+RESOLVE_RC=0
+RESOLVE_ERROR=""
+JS_RELEVANT_FILES=()
 
 set_js_relevant_files_for_tool() {
   local tool="$1" file pattern=""
@@ -431,9 +430,12 @@ set_js_relevant_files_for_tool() {
 
 resolve_tool() {
   local tool="$1"
-  local package="" path_tool
+  local package="" file wrapper
+  local args=()
   RESOLVED_COMMAND=()
   RESOLVED_WRAPPER=""
+  RESOLVE_RC=0
+  RESOLVE_ERROR=""
   case "$tool" in
     knip) package="knip" ;;
     jscpd) package="jscpd" ;;
@@ -442,17 +444,29 @@ resolve_tool() {
   esac
   if [[ -n "$package" ]]; then
     set_js_relevant_files_for_tool "$tool"
-    if resolve_declared_js_binary "$REPO" "$package" "$tool"; then
-      RESOLVED_COMMAND=("${DECLARED_JS_COMMAND[@]}")
-      RESOLVED_WRAPPER="$DECLARED_JS_WRAPPER"
+    args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
+      --package "$package" --binary "$tool")
+    for file in "${JS_RELEVANT_FILES[@]}"; do args+=(--file "$file"); done
+    args+=(probe)
+    wrapper="$("${args[@]}" 2>"$OUTPUT_DIR/raw/$tool.resolve.stderr")"
+    RESOLVE_RC=$?
+    if [[ "$RESOLVE_RC" -eq 0 ]]; then
+      RESOLVED_COMMAND=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
+        --package "$package" --binary "$tool")
+      for file in "${JS_RELEVANT_FILES[@]}"; do
+        RESOLVED_COMMAND+=(--file "$file")
+      done
+      RESOLVED_COMMAND+=(exec --)
+      RESOLVED_WRAPPER="$wrapper"
+      rm -f "$OUTPUT_DIR/raw/$tool.resolve.stderr"
       return 0
     fi
-    # A declared dependency is authoritative. Do not replace a missing project
-    # install with a potentially different global analyzer version.
-    package_declares_js_dependency "$REPO" "$package" && return 1
+    RESOLVE_ERROR="$(cat "$OUTPUT_DIR/raw/$tool.resolve.stderr" 2>/dev/null)"
+    return 1
   fi
+  local path_tool
   path_tool="$(command -v "$tool" 2>/dev/null || true)"
-  [[ -n "$path_tool" ]] || return 1
+  if [[ -z "$path_tool" ]]; then RESOLVE_RC=3; return 1; fi
   RESOLVED_COMMAND=("$path_tool")
   RESOLVED_WRAPPER="path"
 }
@@ -477,7 +491,7 @@ capture_succeeded() {
   if [[ "$rc" -eq 124 ]]; then
     echo "ERROR: $tool timed out after ${TOOL_TIMEOUT}s; its process group was terminated." >&2
     echo "ERROR: analyzer stderr: $err" >&2
-    echo "ERROR: repair/install: $(install_cmd "$tool")" >&2
+    print_resolved_version_command
     echo "ERROR: remediation: verify '$tool' independently, then rerun Code Ultrareview with --timeout <seconds>." >&2
     emit_rerun
     return 4
@@ -486,7 +500,7 @@ capture_succeeded() {
     knip:0|knip:1|jscpd:0|jscpd:1|markdownlint-cli2:0|markdownlint-cli2:1|\
     api-extractor:0|api-extractor:1|lizard:0|vulture:0|vulture:3|\
     semgrep:0|semgrep:1|vale:0|vale:1|oasdiff:0|oasdiff:1|\
-    atlas:0|atlas:1|deadcode:0|gocyclo:0|dupl:0|cargo-machete:0|\
+    atlas:0|atlas:1|deadcode:0|gocyclo:0|gocyclo:1|dupl:0|cargo-machete:0|\
     cargo-machete:1)
       return 0
       ;;
@@ -494,7 +508,7 @@ capture_succeeded() {
 
   echo "ERROR: $tool failed with exit code $rc; Code Ultrareview is incomplete." >&2
   echo "ERROR: analyzer stderr: $err" >&2
-  echo "ERROR: repair/install: $(install_cmd "$tool")" >&2
+  print_resolved_version_command
   echo "ERROR: remediation: repair the analyzer, then rerun Code Ultrareview." >&2
   emit_rerun
   return 4
@@ -553,7 +567,6 @@ PY
     echo "ERROR: $tool did not produce its documented JSON schema at $path." >&2
     [[ -z "$err" ]] || echo "ERROR: analyzer stderr: $err" >&2
     print_resolved_version_command
-    echo "ERROR: repair/install: $(install_cmd "$tool")" >&2
     echo "ERROR: remediation: inspect the report and stderr, verify the analyzer version, repair or update it, then rerun Code Ultrareview." >&2
     emit_rerun
     return 4
@@ -579,7 +592,7 @@ PY
   then
     echo "ERROR: Semgrep report: $report" >&2
     echo "ERROR: Semgrep stderr: $err" >&2
-    echo "ERROR: repair/install: $(install_cmd semgrep)" >&2
+    print_resolved_version_command
     echo "ERROR: remediation: repair the rules or analyzer, then rerun Code Ultrareview." >&2
     emit_rerun
     return 4
@@ -590,7 +603,7 @@ require_nonempty_file() {
   local tool="$1" path="$2"
   if [[ ! -s "$path" ]]; then
     echo "ERROR: $tool completed without the expected report at $path." >&2
-    echo "ERROR: repair/install: $(install_cmd "$tool")" >&2
+    print_resolved_version_command
     echo "ERROR: remediation: repair the analyzer, then rerun Code Ultrareview." >&2
     emit_rerun
     return 4
@@ -601,7 +614,7 @@ require_findings_report() {
   local tool="$1" rc="$2" path="$3"
   [[ "$rc" -eq 0 || -s "$path" ]] && return 0
   echo "ERROR: $tool exited with its findings code but produced no parseable report at $path." >&2
-  echo "ERROR: repair/install: $(install_cmd "$tool")" >&2
+  print_resolved_version_command
   echo "ERROR: remediation: repair the analyzer or its output configuration, verify it independently, then rerun Code Ultrareview." >&2
   emit_rerun
   return 4
@@ -693,7 +706,7 @@ run_jscpd() {
   capture_succeeded jscpd "$capture_rc" "$err" || return $?
   if [[ ! -f "$out" ]]; then
     echo "ERROR: jscpd completed without its JSON report; stderr: $err" >&2
-    echo "ERROR: repair/install: $(install_cmd jscpd)" >&2
+    print_resolved_version_command
     emit_rerun
     return 4
   fi
@@ -705,7 +718,7 @@ run_markdownlint() {
   local out="$OUTPUT_DIR/raw/markdownlint-cli2.txt"
   local err="$OUTPUT_DIR/raw/markdownlint-cli2.stderr"
   local md_files=()
-  local f
+  local f capture_rc parsed
   if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
     for f in "${FILES_TOUCHED[@]}"; do
       [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("$REPO/$f")
@@ -723,12 +736,21 @@ run_markdownlint() {
   # repository and nested configs still override it normally.
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" \
     --config "$MARKDOWNLINT_BASE_CONFIG" --no-globs "${md_files[@]}"
-  capture_succeeded markdownlint-cli2 "$CAPTURE_RC" "$err" || return $?
-  if [[ -s "$err" ]]; then
-    printf '\n' >> "$out"
-    sed -n '/^[^[:space:]].*:[0-9][0-9]*\(:[0-9][0-9]*\)\{0,1\} /p' "$err" >> "$out"
+  capture_rc="$CAPTURE_RC"
+  capture_succeeded markdownlint-cli2 "$capture_rc" "$err" || return $?
+  if [[ "$capture_rc" -eq 1 ]]; then
+    parsed="$(mktemp "$OUTPUT_DIR/raw/.markdownlint-findings.XXXXXX")" || return 4
+    grep -E '^[^:]+:[0-9]+(:[0-9]+)?[[:space:]]+MD[0-9]+' "$out" "$err" \
+      | sed 's|^[^:]*:||' >"$parsed" || true
+    if [[ ! -s "$parsed" ]]; then
+      rm -f "$parsed"
+      echo "ERROR: markdownlint-cli2 exited 1 without parseable lint findings." >&2
+      echo "ERROR: analyzer stderr: $err" >&2
+      emit_rerun
+      return 4
+    fi
+    mv "$parsed" "$out"
   fi
-  require_findings_report markdownlint-cli2 "$CAPTURE_RC" "$out" || return $?
   mark_dispatched markdownlint-cli2
 }
 
@@ -750,7 +772,6 @@ run_lizard() {
   resolve_required_tool lizard || return $?
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" --csv "$target"
   capture_succeeded lizard "$CAPTURE_RC" "$err" || return $?
-  require_nonempty_file lizard "$out" || return $?
   [[ -f "$out" ]] && mv "$out" "$OUTPUT_DIR/raw/lizard.txt"
   mark_dispatched lizard
 }
@@ -845,9 +866,9 @@ run_oasdiff() {
       continue
     fi
     current="$REPO/$f"
-    previous="$(mktemp -t oasdiff_prev_XXXX)"
-    current_out="$(mktemp -t oasdiff_out_XXXX)"
-    spec_err="$(mktemp -t oasdiff_err_XXXX)"
+    previous="$(mktemp "${TMPDIR:-/tmp}/oasdiff-prev.XXXXXX")"
+    current_out="$(mktemp "${TMPDIR:-/tmp}/oasdiff-out.XXXXXX")"
+    spec_err="$(mktemp "${TMPDIR:-/tmp}/oasdiff-err.XXXXXX")"
     if (cd "$REPO" && git show "${base}:${f}") >"$previous" 2>/dev/null; then
       _capture "$current_out" "$spec_err" -- \
         "${RESOLVED_COMMAND[@]}" breaking -f json "$previous" "$current"
@@ -905,7 +926,8 @@ run_deadcode() {
   local out="$OUTPUT_DIR/raw/deadcode.txt"
   local err="$OUTPUT_DIR/raw/deadcode.stderr"
   resolve_required_tool deadcode || return $?
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" ./...
+  _capture "$out" "$err" -- env GOFLAGS=-mod=readonly GOPROXY=off \
+    GOTOOLCHAIN=local "${RESOLVED_COMMAND[@]}" ./...
   capture_succeeded deadcode "$CAPTURE_RC" "$err" || return $?
   mark_dispatched deadcode
 }
@@ -914,7 +936,8 @@ run_gocyclo() {
   local out="$OUTPUT_DIR/raw/gocyclo.txt"
   local err="$OUTPUT_DIR/raw/gocyclo.stderr"
   resolve_required_tool gocyclo || return $?
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" -over 10 .
+  _capture "$out" "$err" -- env GOFLAGS=-mod=readonly GOPROXY=off \
+    GOTOOLCHAIN=local "${RESOLVED_COMMAND[@]}" -over 10 .
   capture_succeeded gocyclo "$CAPTURE_RC" "$err" || return $?
   mark_dispatched gocyclo
 }
@@ -923,7 +946,8 @@ run_dupl() {
   local out="$OUTPUT_DIR/raw/dupl.txt"
   local err="$OUTPUT_DIR/raw/dupl.stderr"
   resolve_required_tool dupl || return $?
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" -t 50 ./...
+  _capture "$out" "$err" -- env GOFLAGS=-mod=readonly GOPROXY=off \
+    GOTOOLCHAIN=local "${RESOLVED_COMMAND[@]}" -t 50 .
   capture_succeeded dupl "$CAPTURE_RC" "$err" || return $?
   mark_dispatched dupl
 }
@@ -932,7 +956,7 @@ run_cargo_machete() {
   local out="$OUTPUT_DIR/raw/cargo-machete.txt"
   local err="$OUTPUT_DIR/raw/cargo-machete.stderr"
   resolve_required_tool cargo-machete || return $?
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}"
+  _capture "$out" "$err" -- env CARGO_NET_OFFLINE=true "${RESOLVED_COMMAND[@]}"
   capture_succeeded cargo-machete "$CAPTURE_RC" "$err" || return $?
   require_findings_report cargo-machete "$CAPTURE_RC" "$out" || return $?
   mark_dispatched cargo-machete
@@ -967,28 +991,39 @@ done
 
 AVAILABLE_ROWS=()
 MISSING_ROWS=()
+PREFLIGHT_INPUT_ERROR=""
 for tool in "${ALL_TOOLS[@]}"; do
   if want_tool "$tool"; then
     if resolve_tool "$tool"; then
       AVAILABLE_ROWS+=("$tool|$RESOLVED_WRAPPER|$(tool_axes "$tool")|$(coverage_hint "$tool")")
+    elif [[ "$RESOLVE_RC" -eq 2 ]]; then
+      PREFLIGHT_INPUT_ERROR="$RESOLVE_ERROR"
     else
       MISSING_ROWS+=("$tool|$(tool_axes "$tool")|$(coverage_hint "$tool")|$(install_cmd "$tool")")
     fi
   fi
 done
+if [[ -n "$PREFLIGHT_INPUT_ERROR" ]]; then
+  echo "$PREFLIGHT_INPUT_ERROR" >&2
+  echo "ERROR: remediation: repair the reported package.json, then rerun Code Ultrareview." >&2
+  emit_rerun
+  exit 2
+fi
 
 render_plan() {
   local destination="$1"
-  python3 - "$SCOPE" "$AXES" "$destination" \
+  python3 - "$SCOPE" "$AXES" "$destination" "$SCRIPT_DIR" \
     "${#AVAILABLE_ROWS[@]}" ${AVAILABLE_ROWS[@]+"${AVAILABLE_ROWS[@]}"} \
     "${#MISSING_ROWS[@]}" ${MISSING_ROWS[@]+"${MISSING_ROWS[@]}"} <<'PY'
 import json
-import os
 from pathlib import Path
 import sys
 
-scope_path, axes, destination = sys.argv[1:4]
-cursor = 4
+scope_path, axes, destination, script_dir = sys.argv[1:5]
+sys.path.insert(0, script_dir)
+from coverage import write_json_atomic
+
+cursor = 5
 available_count = int(sys.argv[cursor])
 cursor += 1
 available_rows = sys.argv[cursor:cursor + available_count]
@@ -1030,18 +1065,9 @@ rendered = json.dumps(payload, indent=2) + "\n"
 if destination == "-":
     sys.stdout.write(rendered)
 else:
-    destination_path = Path(destination)
-    temporary = destination_path.with_name(
-        f".{destination_path.name}.{os.getpid()}.tmp"
-    )
     try:
-        temporary.write_text(rendered, encoding="utf-8")
-        os.replace(temporary, destination_path)
+        write_json_atomic(Path(destination), payload)
     except OSError as error:
-        try:
-            temporary.unlink(missing_ok=True)
-        except OSError:
-            pass
         print(f"tool preflight could not be published atomically: {error}", file=sys.stderr)
         raise SystemExit(1)
 PY
@@ -1074,33 +1100,29 @@ cleanup_pending_findings() {
 }
 trap cleanup_pending_findings EXIT
 
-if ! python3 - "$SCOPE" "$OUTPUT_DIR/tool-preflight.json" <<'PY'
+if ! python3 - "$SCOPE" "$OUTPUT_DIR/tool-preflight.json" "$SCRIPT_DIR" <<'PY'
 import json
-import os
 from pathlib import Path
 import sys
+
+sys.path.insert(0, sys.argv[3])
+from coverage import update_scope
 
 scope_path = Path(sys.argv[1])
 with Path(sys.argv[2]).open(encoding="utf-8") as handle:
     plan = json.load(handle)
-with scope_path.open(encoding="utf-8") as handle:
-    scope = json.load(handle)
-scope["tools_missing"] = plan["missing"]
-scope["tools_skipped"] = []
-scope["tool_coverage"] = {
+state = {
     "complete": False,
     "selected_axes": plan["selected_axes"],
     "explicit_scope": bool(plan["selected_axes"]),
     "applicable": [entry["tool"] for entry in plan["available"] + plan["missing"]],
     "executed": [],
 }
-scope["coverage_complete"] = False
-temporary = scope_path.with_name(f".{scope_path.name}.{os.getpid()}.tmp")
-temporary.write_text(
-    json.dumps(scope, indent=2, sort_keys=False) + "\n",
-    encoding="utf-8",
+update_scope(
+    scope_path,
+    fields={"tools_missing": plan["missing"], "tools_skipped": []},
+    phases={"tool": state},
 )
-os.replace(temporary, scope_path)
 PY
 then
   echo "ERROR: tool coverage state could not be initialized in $SCOPE" >&2
@@ -1124,12 +1146,11 @@ if [[ ${#MISSING_ROWS[@]} -gt 0 ]]; then
   exit 3
 fi
 
-for tool in "${ALL_TOOLS[@]}"; do
-  if want_tool "$tool"; then
-    run_for_tool "$tool"
-    runner_rc=$?
-    [[ $runner_rc -eq 0 ]] || exit "$runner_rc"
-  fi
+for row in "${AVAILABLE_ROWS[@]}"; do
+  tool="${row%%|*}"
+  run_for_tool "$tool"
+  runner_rc=$?
+  [[ $runner_rc -eq 0 ]] || exit "$runner_rc"
 done
 
 if [[ ${#DISPATCHED[@]} -ne ${#AVAILABLE_ROWS[@]} ]]; then
@@ -1164,7 +1185,6 @@ then
       if resolve_tool "$tool"; then
         print_resolved_version_command
       fi
-      echo "ERROR: repair/install: $(install_cmd "$tool")" >&2
     else
       rm -f "$diagnostic"
     fi
@@ -1189,46 +1209,33 @@ fi
 
 if ! python3 - "$OUTPUT_DIR/tools-skipped.json" "$SCOPE" \
   "$OUTPUT_DIR/tool-preflight.json" "$FINDINGS_FINAL" \
+  "$SCRIPT_DIR" \
   ${DISPATCHED[@]+"${DISPATCHED[@]}"} <<'PY'
-import hashlib
 import json
-import os
 from pathlib import Path
 import sys
 
-out_path, scope_path, preflight_path, findings_path = sys.argv[1:5]
-dispatched = sys.argv[5:]
-with open(out_path, "w", encoding="utf-8") as handle:
-    json.dump({"skipped": []}, handle, indent=2)
-    handle.write("\n")
-with open(scope_path, encoding="utf-8") as handle:
-    scope = json.load(handle)
+out_path, scope_path, preflight_path, findings_path, script_dir = sys.argv[1:6]
+sys.path.insert(0, script_dir)
+from coverage import update_scope, write_json_atomic
+
+dispatched = sys.argv[6:]
+write_json_atomic(Path(out_path), {"skipped": []})
 with open(preflight_path, encoding="utf-8") as handle:
     plan = json.load(handle)
-scope["tools_dispatched"] = dispatched
-scope["tools_missing"] = []
-scope["tools_skipped"] = []
-scope["tool_coverage"] = {
+state = {
     "complete": True,
     "selected_axes": plan["selected_axes"],
     "explicit_scope": bool(plan["selected_axes"]),
     "applicable": [entry["tool"] for entry in plan["available"]],
     "executed": dispatched,
 }
-findings_path = Path(findings_path).resolve()
-findings_data = findings_path.read_bytes()
-scope["tool_coverage"].update({
-    "output": str(findings_path),
-    "sha256": hashlib.sha256(findings_data).hexdigest(),
-    "finding_count": sum(1 for line in findings_data.splitlines() if line.strip()),
-})
-scope_path = Path(scope_path)
-temporary = scope_path.with_name(f".{scope_path.name}.{os.getpid()}.tmp")
-temporary.write_text(
-    json.dumps(scope, indent=2, sort_keys=False) + "\n",
-    encoding="utf-8",
+update_scope(
+    Path(scope_path),
+    fields={"tools_dispatched": dispatched, "tools_missing": [], "tools_skipped": []},
+    phases={"tool": state},
+    outputs={"tool": Path(findings_path)},
 )
-os.replace(temporary, scope_path)
 PY
 then
   rm -f "$FINDINGS_FINAL"

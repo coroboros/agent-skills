@@ -25,13 +25,13 @@ The wrapper forwards its stable `--rules-only` flag to the installed CLI, transl
 
 ## Workflow
 
-Use the bundled resolver so a project-local dependency works without adding `node_modules/.bin` to `PATH`:
+Use the bundled wrapper so CLI output is validated before publication:
 
 ```bash
-bash "$SKILL_DIR/scripts/spec.sh" <flags> > <output>
+bash "$SKILL_DIR/scripts/spec.sh" <flags> -o <output>
 ```
 
-1. **Resolve CLI availability**: nearest directly declared project `node_modules/.bin/designmd`, a directly declared Yarn Plug'n'Play binary through Yarn, then `PATH`. Any resolution failure stops with machine-readable remediation and the exact rerun command; never replace a broken declaration with a global binary.
+1. **Require CLI availability**: `designmd` must be on `PATH` and pass `designmd --version`. Otherwise stop with machine-readable remediation and the exact rerun command.
 2. **Compose the command** from flags.
 3. **Invoke** and capture stdout.
 4. **Write or print** based on `-o`.
@@ -63,6 +63,6 @@ Refresh this file when the installed upstream CLI version changes.
 
 ## Edge cases
 
-- **Resolution failure**: stop and surface the wrapper's `status`, optional `install`, `remediation`, and exact `rerun`. Use `references/design-md-spec.md` only as bundled authoring guidance; do not present it as live CLI output.
+- **Runtime failure**: stop and surface the wrapper's `status`, `remediation`, and exact `rerun`. Use `references/design-md-spec.md` only as bundled authoring guidance; do not present it as live CLI output.
 - **0.3.0 packaging bug**: if the installed CLI fails only because its packaged `spec.md` lookup is wrong, the wrapper reads the exact official `dist/linter/spec.md` artifact from that same installed package. It still asks that CLI for active rules and never substitutes a cached skill copy.
 - **Old CLI installed**: if the installed binary is stale, the emitted spec will not reflect recent rule additions. Flag the maintenance gap instead of downloading an update during agent work.

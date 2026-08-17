@@ -3,17 +3,17 @@
 The canonical validator for DESIGN.md files. Read this before running the CLI or interpreting its output.
 
 - **Package**: [`@google/design.md`](https://github.com/google-labs-code/design.md/tree/main/packages/cli)
-- **Installation**: add `@google/design.md` directly to the project with its package manager (for example, `npm install --save-dev @google/design.md`) or install it so `designmd` is on `PATH`
-- **Invocation**: `designmd <command>`. The bundled wrappers require the nearest matching project declaration through its local or workspace-hoisted `node_modules/.bin/designmd`, or through Yarn for a directly declared Plug'n'Play binary. They check `PATH` only when the project has no `@google/design.md` declaration. Do not resolve the package during agent work.
+- **Installation**: `npm install --global --ignore-scripts @google/design.md`
+- **Agent invocation**: use the bundled wrapper for `audit`, `diff`, `export`, or `spec`; wrappers require `designmd` on `PATH` and never resolve packages at runtime
 - **Status**: alpha — commands, flags, and rules may change between releases
 
 Before running directly, verify availability:
 
 ```bash
-command -v designmd && designmd --help
+command -v designmd && designmd --version
 ```
 
-If unavailable, stop the CLI-backed workflow and run the project-aware install command emitted by the wrapper. `references/design-md-spec.md` remains authoring guidance, not a replacement validator.
+If unavailable, stop the CLI-backed workflow and follow the wrapper's `remediation` and `rerun` fields. `references/design-md-spec.md` remains authoring guidance, not a replacement validator.
 
 ## Commands
 
@@ -95,7 +95,7 @@ designmd spec --rules-only --format json
 
 ## Linting rules
 
-Nine rules run against a parsed DESIGN.md. Each produces findings at a fixed severity.
+Eleven rules run against a parsed DESIGN.md. Each produces findings at a fixed severity.
 
 | Rule | Severity | What it checks |
 |------|----------|----------------|
@@ -108,6 +108,8 @@ Nine rules run against a parsed DESIGN.md. Each produces findings at a fixed sev
 | `missing-typography` | warning | Colors defined but no typography tokens — agents fall back to defaults |
 | `section-order` | warning | Sections appear out of the canonical order defined by the spec |
 | `unknown-key` | warning | A top-level YAML key resembles a misspelling of a known schema key |
+| `token-like-ignored` | warning | An unrecognized top-level token map will be ignored by canonical exports |
+| `omitted-rules` | info | Omitted-section rules contain redundant or unknown entries |
 
 Only `broken-ref` is an error — the rest are warnings or info. A clean DESIGN.md (all errors resolved, warnings reviewed) lints with `summary.errors: 0`.
 

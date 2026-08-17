@@ -6,6 +6,8 @@ That gives full deterministic control over the version reported and over
 presence/absence of each binary.
 """
 
+from __future__ import annotations
+
 import os
 import shutil
 import stat
@@ -125,7 +127,23 @@ class TestPreflightEnvironment(unittest.TestCase):
         self.assertIn("RESULT: pnpm=no", r.stdout)
         self.assertIn("RESULT: ok=false", r.stdout)
 
+    def test_broken_pnpm_is_reported_as_unavailable(self):
+        _make_stub(self.fake_bin, "node", '#!/bin/sh\necho v22.12.0\n')
+        _make_stub(self.fake_bin, "pnpm", "#!/bin/sh\nexit 70\n")
+        r = _run(self.target, fake_bin=self.fake_bin)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("RESULT: pnpm=no", r.stdout)
+        self.assertIn("RESULT: ok=false", r.stdout)
+
     def test_node_missing_flagged(self):
+        _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
+        r = _run(self.target, fake_bin=self.fake_bin)
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("RESULT: node=no", r.stdout)
+        self.assertIn("RESULT: ok=false", r.stdout)
+
+    def test_broken_node_is_reported_as_unavailable(self):
+        _make_stub(self.fake_bin, "node", "#!/bin/sh\nexit 70\n")
         _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
         r = _run(self.target, fake_bin=self.fake_bin)
         self.assertEqual(r.returncode, 1)
@@ -175,6 +193,15 @@ class TestPreflightEnvironment(unittest.TestCase):
         result = _run(self.target, fake_bin=sealed, base_path="")
 
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("RESULT: jq=no", result.stdout)
+        self.assertIn("RESULT: ok=false", result.stdout)
+
+    def test_broken_jq_is_reported_as_unavailable(self):
+        _make_stub(self.fake_bin, "node", '#!/bin/sh\necho v22.12.0\n')
+        _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
+        _make_stub(self.fake_bin, "jq", "#!/bin/sh\nexit 70\n")
+        result = _run(self.target, fake_bin=self.fake_bin)
+        self.assertEqual(result.returncode, 1)
         self.assertIn("RESULT: jq=no", result.stdout)
         self.assertIn("RESULT: ok=false", result.stdout)
 

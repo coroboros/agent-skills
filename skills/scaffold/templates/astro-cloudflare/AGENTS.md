@@ -16,7 +16,7 @@ Read the matching rule before planning or editing that surface:
 
 ## UI
 - Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
-- If `/design-system` is installed (`skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
+- If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
 - Otherwise validate directly with the installed project CLI: `pnpm design:audit`
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
 - Tailwind v4 theme tokens and CSS custom properties in `src/styles/global.css`

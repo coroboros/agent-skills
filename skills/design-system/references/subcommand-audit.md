@@ -35,7 +35,7 @@ The script exits `0` when the lint has zero errors, `1` when errors are present 
    bash "$SKILL_DIR"/scripts/audit.sh <path>
    ```
    The script emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file. Parse `RESULT: json=<tmp-path>`, read that file to get `findings[]` and `summary`, then remove the temp file.
-3. **Handle every non-`ok` status.** Stop and surface the emitted `install=` (when present), `remediation=`, and exact `rerun=` values. This includes missing or unsupported CLIs, unavailable Yarn runtimes, invalid project manifests, command failures, and invalid output. Do not substitute structural inspection for the canonical parser and lint rules.
+3. **Handle every non-`ok` status.** Stop and surface the emitted `remediation=` and exact `rerun=` values. This includes a missing or unsupported PATH command, command failure, and invalid output. Do not substitute structural inspection for the canonical parser and lint rules.
 4. **Compose the report** using the template below.
 5. **Save** under `~/.agents/output/{project}/design-system/audit/report.md` if `-s`.
 6. **Return summary line** to the user: `✅ clean` or `⚠️ <n> warnings (acceptable)` or `❌ <n> errors — fix before shipping`.
@@ -196,7 +196,7 @@ Use `Glob` to check each location. First match wins. Same probe pattern for `exe
 
 Resolve `anti-patterns.md` and `exemplars.md` independently. If either catalog is absent at every allowed location, list the missing catalog name(s) and report to the user:
 
-> `--strict` requires the complete `/award-design` catalogs (`anti-patterns.md` and `exemplars.md`). Install with `skills add coroboros/agent-skills --skill award-design`, repair the incomplete install, or run the standard audit (drop `--strict`).
+> `--strict` requires the complete `/award-design` catalogs (`anti-patterns.md` and `exemplars.md`). Install with `npx skills add coroboros/agent-skills --skill award-design`, repair the incomplete install, or run the standard audit (drop `--strict`).
 
 Stop the strict audit when either catalog is missing. Never emit a partial strict result: the anti-pattern scan and exemplar calibration are both part of the requested contract, so a standard audit is not an equivalent fallback.
 

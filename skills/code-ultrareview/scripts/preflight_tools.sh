@@ -46,7 +46,7 @@ if [[ ! -r "$SCOPE" ]]; then
 fi
 
 # Spool dry-run output to a temp file so we can fail loud on a non-zero exit.
-PLAN_FILE="$(mktemp -t preflight_plan_XXXX)"
+PLAN_FILE="$(mktemp "${TMPDIR:-/tmp}/preflight-plan.XXXXXX")"
 trap 'rm -f "$PLAN_FILE"' EXIT
 
 BATTERY_ARGS=(--scope "$SCOPE" --output-dir "$(dirname "$PLAN_FILE")" --repo "$REPO" --dry-run)

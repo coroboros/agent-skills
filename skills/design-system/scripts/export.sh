@@ -6,8 +6,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=resolve-designmd.sh
-source "$SCRIPT_DIR/resolve-designmd.sh"
+source "$SCRIPT_DIR/designmd-runtime.sh"
 ORIGINAL_ARGS=("$@")
 
 usage() {
@@ -19,7 +18,8 @@ usage() {
 format="$1"
 path="$2"
 out="${3:-}"
-RERUN="$(designmd_format_command bash "$SCRIPT_DIR/export.sh" "${ORIGINAL_ARGS[@]}")"
+printf -v RERUN '%q ' bash "$SCRIPT_DIR/export.sh" "${ORIGINAL_ARGS[@]}"
+RERUN="${RERUN% }"
 
 if [[ "$format" != "tailwind" && "$format" != "dtcg" ]]; then
   echo "RESULT: status=invalid-format"
@@ -32,19 +32,12 @@ if [[ ! -f "$path" ]]; then
   echo "RESULT: path=$path"
   exit 1
 fi
-path_for_cli="$(designmd_absolute_file "$path")"
-
-if resolve_designmd "$path_for_cli"; then
-  :
-else
-  resolution_rc=$?
-  emit_designmd_resolution_error "$path_for_cli" "$resolution_rc" "$RERUN"
-  exit 1
-fi
+path_for_cli="$(cd "$(dirname "$path")" && pwd -P)/$(basename "$path")"
+require_designmd "$RERUN" || exit 1
 
 explicit_out="$out"
 if [[ -z "$explicit_out" ]]; then
-  work_out="$(mktemp -t "design-export-${format}-XXXXXX")"
+  work_out="$(mktemp "${TMPDIR:-/tmp}/design-export-${format}.XXXXXX")"
   out="$work_out"
 else
   out_dir="$(dirname "$explicit_out")"
@@ -55,13 +48,14 @@ else
   fi
   work_out="$(mktemp "$out_dir/.design-export-XXXXXX")"
 fi
-stderr_tmp="$(mktemp -t design-export-stderr-XXXXXX)"
+stderr_tmp="$(mktemp "${TMPDIR:-/tmp}/design-export-stderr.XXXXXX")"
 
-if ! run_designmd export --format "$format" "$path_for_cli" >"$work_out" 2>"$stderr_tmp"; then
+if ! "$designmd" export --format "$format" "$path_for_cli" >"$work_out" 2>"$stderr_tmp"; then
   rm -f "$work_out"
   echo "RESULT: status=cli-failed"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$path_for_cli" "$RERUN"
+  echo "RESULT: rerun=$RERUN"
+  echo "RESULT: remediation=Repair or upgrade designmd, verify designmd --version, then rerun"
   exit 1
 fi
 
@@ -69,7 +63,8 @@ if ! python3 "$SCRIPT_DIR/validate-output.py" "export-$format" "$work_out"; then
   rm -f "$work_out"
   echo "RESULT: status=cli-invalid-output"
   echo "RESULT: stderr=$stderr_tmp"
-  emit_designmd_runtime_repair "$path_for_cli" "$RERUN"
+  echo "RESULT: rerun=$RERUN"
+  echo "RESULT: remediation=Repair or upgrade designmd, verify designmd --version, then rerun"
   exit 1
 fi
 
@@ -85,5 +80,6 @@ echo "RESULT: format=$format"
 echo "RESULT: source=$path"
 echo "RESULT: output=$out"
 echo "RESULT: bytes=$bytes"
-emit_designmd_metadata
+echo "RESULT: runtime=path"
+echo "RESULT: binary=$designmd"
 rm -f "$stderr_tmp"
