@@ -78,12 +78,8 @@ def run_process(
             previous[signum] = signal.signal(signum, forward)
     try:
         deadline = time.monotonic() + timeout
-        while True:
-            remaining = deadline - time.monotonic()
-            if remaining <= 0:
-                captured = _finish_group(process, signal.SIGTERM)
-                return ProcessResult(TIMEOUT_EXIT_CODE, _bytes(captured[0]),
-                                     _bytes(captured[1]), True)
+        remaining = deadline - time.monotonic()
+        while remaining > 0:
             try:
                 captured = process.communicate(timeout=min(POLL_SECONDS, remaining))
                 returncode = (128 + forwarded_signal
@@ -95,6 +91,10 @@ def run_process(
                     captured = _finish_group(process, forwarded_signal)
                     return ProcessResult(128 + forwarded_signal, _bytes(captured[0]),
                                          _bytes(captured[1]), False)
+                remaining = deadline - time.monotonic()
+        captured = _finish_group(process, signal.SIGTERM)
+        return ProcessResult(TIMEOUT_EXIT_CODE, _bytes(captured[0]),
+                             _bytes(captured[1]), True)
     finally:
         for signum, handler in previous.items():
             signal.signal(signum, handler)

@@ -306,8 +306,10 @@ class TestMutationGate(unittest.TestCase):
             repo = Path(tmp)
             scope_path = _scope(repo, ["src/main/java/App.java"], ["java"])
             (repo / "pom.xml").write_text("<project/>\n", encoding="utf-8")
+            empty_path = repo / "empty-path"
+            empty_path.mkdir()
             scope = json.loads(scope_path.read_text())
-            with mock.patch.dict(os.environ, {"PATH": "/usr/bin:/bin"}):
+            with mock.patch.dict(os.environ, {"PATH": str(empty_path)}):
                 plan, runtimes = run_mutation.preflight(repo, scope)
 
         self.assertEqual(runtimes, {})
