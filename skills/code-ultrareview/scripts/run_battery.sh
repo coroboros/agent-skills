@@ -630,14 +630,34 @@ require_nonempty_file() {
   fi
 }
 
-require_findings_report() {
+require_semantic_report() {
   local tool="$1" rc="$2" path="$3"
-  [[ "$rc" -eq 0 || -s "$path" ]] && return 0
-  echo "ERROR: $tool exited with its findings code but produced no parseable report at $path." >&2
-  print_resolved_version_command
-  echo "ERROR: remediation: repair the analyzer or its output configuration, verify it independently, then rerun Code Ultrareview." >&2
-  emit_rerun
-  return 4
+  local parsed="$OUTPUT_DIR/raw/.${tool}.semantic.jsonl"
+  local diagnostic="$OUTPUT_DIR/raw/.${tool}.semantic.stderr"
+  rm -f "$parsed" "$diagnostic"
+  if ! python3 "$INGEST" ingest \
+    --tool "$tool" \
+    --input "$path" \
+    --output "$parsed" \
+    2>"$diagnostic"
+  then
+    echo "ERROR: $tool report failed semantic validation: $path" >&2
+    [[ ! -s "$diagnostic" ]] || cat "$diagnostic" >&2
+    rm -f "$parsed" "$diagnostic"
+    print_resolved_version_command
+    echo "ERROR: remediation: repair the analyzer or its output configuration, verify it independently, then rerun Code Ultrareview." >&2
+    emit_rerun
+    return 4
+  fi
+  if [[ "$rc" -ne 0 && ! -s "$parsed" ]]; then
+    echo "ERROR: $tool exited with findings code $rc but its parsed report contains no findings: $path" >&2
+    rm -f "$parsed" "$diagnostic"
+    print_resolved_version_command
+    echo "ERROR: remediation: repair the analyzer or its output configuration, verify it independently, then rerun Code Ultrareview." >&2
+    emit_rerun
+    return 4
+  fi
+  rm -f "$parsed" "$diagnostic"
 }
 
 resolve_required_tool() {
@@ -670,6 +690,7 @@ run_knip() {
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" --reporter json --no-progress
   capture_succeeded knip "$CAPTURE_RC" "$err" || return $?
   require_json_file knip "$out" "$err" || return $?
+  require_semantic_report knip "$CAPTURE_RC" "$out" || return $?
   mark_dispatched knip
 }
 
@@ -731,17 +752,37 @@ run_jscpd() {
     return 4
   fi
   require_json_file jscpd "$out" "$err" || return $?
+  require_semantic_report jscpd "$capture_rc" "$out" || return $?
   mark_dispatched jscpd
+}
+
+merge_markdownlint_evidence() {
+  local out="$1" err="$2" invocation_out="$3" invocation_err="$4"
+  if cat "$invocation_out" >>"$out" && printf '\n' >>"$out" &&
+    cat "$invocation_err" >>"$err" && printf '\n' >>"$err"
+  then
+    return 0
+  fi
+  echo "ERROR: failed to merge Markdownlint evidence files." >&2
+  emit_rerun
+  return 4
 }
 
 run_markdownlint() {
   local out="$OUTPUT_DIR/raw/markdownlint-cli2.txt"
   local err="$OUTPUT_DIR/raw/markdownlint-cli2.stderr"
   local md_files=()
-  local f capture_rc
+  local configured_md_files=()
+  local configured_md_file_dirs=()
+  local configured_md_dirs=()
+  local base_md_files=()
+  local f capture_rc config_dir project_config seen i config_index=0
+  local group group_label invocation_out invocation_err
+  local group_files=()
+  local config=()
   if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
     for f in "${FILES_TOUCHED[@]}"; do
-      [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("$REPO/$f")
+      [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("$f")
     done
   fi
   [[ ${#md_files[@]} -gt 0 ]] || return 0
@@ -752,20 +793,79 @@ run_markdownlint() {
   fi
   resolve_required_tool markdownlint-cli2 || return $?
   # MD013's arbitrary line-length default overwhelms review signal in projects
-  # that have not chosen a Markdown style. The bundled base config applies only
-  # when the repository declares none: a project config may reference relative
-  # modules that resolve against the config file passed on the command line.
-  local config=(--config "$MARKDOWNLINT_BASE_CONFIG")
-  if compgen -G "$REPO/.markdownlint-cli2.*" >/dev/null || compgen -G "$REPO/.markdownlint.*" >/dev/null; then
+  # that have not chosen a Markdown style. Keep project-configured files in a
+  # separate invocation so Markdownlint-cli2 can resolve nested precedence.
+  for f in "${md_files[@]}"; do
+    project_config=0
+    config_dir="$(dirname "$REPO/$f")"
+    while [[ "$config_dir" == "$REPO" || "$config_dir" == "$REPO/"* ]]; do
+      if compgen -G "$config_dir/.markdownlint-cli2.*" >/dev/null || compgen -G "$config_dir/.markdownlint.*" >/dev/null; then
+        project_config=1
+        break
+      fi
+      [[ "$config_dir" == "$REPO" ]] && break
+      config_dir="$(dirname "$config_dir")"
+    done
+    if [[ "$project_config" -eq 1 ]]; then
+      configured_md_files+=("$f")
+      configured_md_file_dirs+=("$config_dir")
+      seen=0
+      for group in ${configured_md_dirs[@]+"${configured_md_dirs[@]}"}; do
+        [[ "$group" == "$config_dir" ]] && seen=1
+      done
+      [[ "$seen" -eq 1 ]] || configured_md_dirs+=("$config_dir")
+    else
+      base_md_files+=("$f")
+    fi
+  done
+
+  if ! { : >"$out" && : >"$err"; }; then
+    echo "ERROR: failed to initialize Markdownlint evidence files." >&2
+    emit_rerun
+    return 4
+  fi
+  for group in base ${configured_md_dirs[@]+"${configured_md_dirs[@]}"}; do
+    group_files=()
     config=()
-  fi
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" ${config[@]+"${config[@]}"} --no-globs "${md_files[@]}"
-  capture_rc="$CAPTURE_RC"
-  capture_succeeded markdownlint-cli2 "$capture_rc" "$err" || return $?
-  if [[ "$capture_rc" -eq 1 ]]; then
-    cat "$err" >> "$out"
-    require_findings_report markdownlint-cli2 "$capture_rc" "$out" || return $?
-  fi
+    group_label="base"
+    if [[ "$group" == "base" ]]; then
+      group_files=(${base_md_files[@]+"${base_md_files[@]}"})
+      config=(--config "$MARKDOWNLINT_BASE_CONFIG")
+    else
+      config_index=$((config_index + 1))
+      group_label="configured-$config_index"
+      for ((i = 0; i < ${#configured_md_files[@]}; i++)); do
+        [[ "${configured_md_file_dirs[$i]}" == "$group" ]] && group_files+=("${configured_md_files[$i]}")
+      done
+    fi
+    [[ ${#group_files[@]} -gt 0 ]] || continue
+    invocation_out="$OUTPUT_DIR/raw/.markdownlint-cli2.${group_label}.txt"
+    invocation_err="$OUTPUT_DIR/raw/.markdownlint-cli2.${group_label}.stderr"
+    _capture "$invocation_out" "$invocation_err" -- \
+      "${RESOLVED_COMMAND[@]}" \
+      ${config[@]+"${config[@]}"} \
+      --no-globs \
+      "${group_files[@]}"
+    capture_rc="$CAPTURE_RC"
+    if ! capture_succeeded markdownlint-cli2 "$capture_rc" "$invocation_err"; then
+      merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || :
+      return 4
+    fi
+    if [[ "$capture_rc" -eq 1 ]] &&
+      ! { printf '\n' >>"$invocation_out" && cat "$invocation_err" >>"$invocation_out"; }
+    then
+      echo "ERROR: failed to assemble Markdownlint invocation evidence." >&2
+      merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || :
+      emit_rerun
+      return 4
+    fi
+    if ! require_semantic_report markdownlint-cli2 "$capture_rc" "$invocation_out"; then
+      merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || :
+      return 4
+    fi
+    merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || return 4
+    rm -f "$invocation_out" "$invocation_err"
+  done
   mark_dispatched markdownlint-cli2
 }
 
@@ -777,6 +877,7 @@ run_api_extractor() {
   capture_succeeded api-extractor "$CAPTURE_RC" "$err" || return $?
   [[ ! -s "$err" ]] || cat "$err" >> "$out"
   require_nonempty_file api-extractor "$out" || return $?
+  require_semantic_report api-extractor "$CAPTURE_RC" "$out" || return $?
   mark_dispatched api-extractor
 }
 
@@ -788,6 +889,7 @@ run_lizard() {
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" --csv "$target"
   capture_succeeded lizard "$CAPTURE_RC" "$err" || return $?
   [[ -f "$out" ]] && mv "$out" "$OUTPUT_DIR/raw/lizard.txt"
+  require_semantic_report lizard "$CAPTURE_RC" "$OUTPUT_DIR/raw/lizard.txt" || return $?
   mark_dispatched lizard
 }
 
@@ -797,7 +899,7 @@ run_vulture() {
   resolve_required_tool vulture || return $?
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" "$REPO"
   capture_succeeded vulture "$CAPTURE_RC" "$err" || return $?
-  require_findings_report vulture "$CAPTURE_RC" "$out" || return $?
+  require_semantic_report vulture "$CAPTURE_RC" "$out" || return $?
   mark_dispatched vulture
 }
 
@@ -836,6 +938,7 @@ run_semgrep() {
   capture_succeeded semgrep "$CAPTURE_RC" "$err" || return $?
   require_json_file semgrep "$out" "$err" || return $?
   require_semgrep_without_errors "$out" "$err" || return $?
+  require_semantic_report semgrep "$CAPTURE_RC" "$out" || return $?
   mark_dispatched semgrep
 }
 
@@ -857,6 +960,7 @@ run_vale() {
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" --output JSON "${prose_files[@]}"
   capture_succeeded vale "$CAPTURE_RC" "$err" || return $?
   require_json_file vale "$out" "$err" || return $?
+  require_semantic_report vale "$CAPTURE_RC" "$out" || return $?
   mark_dispatched vale
 }
 
@@ -893,6 +997,10 @@ run_oasdiff() {
         return 4
       fi
       if ! require_json_file oasdiff "$current_out" "$spec_err"; then
+        rm -f "$previous" "$current_out" "$spec_err"
+        return 4
+      fi
+      if ! require_semantic_report oasdiff "$CAPTURE_RC" "$current_out"; then
         rm -f "$previous" "$current_out" "$spec_err"
         return 4
       fi
@@ -934,6 +1042,7 @@ run_atlas() {
   _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" migrate lint --format '{{ json . }}'
   capture_succeeded atlas "$CAPTURE_RC" "$err" || return $?
   require_json_file atlas "$out" "$err" || return $?
+  require_semantic_report atlas "$CAPTURE_RC" "$out" || return $?
   mark_dispatched atlas
 }
 
@@ -944,6 +1053,7 @@ run_deadcode() {
   _capture "$out" "$err" -- env GOFLAGS=-mod=readonly GOPROXY=off \
     GOTOOLCHAIN=local "${RESOLVED_COMMAND[@]}" ./...
   capture_succeeded deadcode "$CAPTURE_RC" "$err" || return $?
+  require_semantic_report deadcode "$CAPTURE_RC" "$out" || return $?
   mark_dispatched deadcode
 }
 
@@ -954,6 +1064,7 @@ run_gocyclo() {
   _capture "$out" "$err" -- env GOFLAGS=-mod=readonly GOPROXY=off \
     GOTOOLCHAIN=local "${RESOLVED_COMMAND[@]}" -over 10 .
   capture_succeeded gocyclo "$CAPTURE_RC" "$err" || return $?
+  require_semantic_report gocyclo "$CAPTURE_RC" "$out" || return $?
   mark_dispatched gocyclo
 }
 
@@ -964,6 +1075,7 @@ run_dupl() {
   _capture "$out" "$err" -- env GOFLAGS=-mod=readonly GOPROXY=off \
     GOTOOLCHAIN=local "${RESOLVED_COMMAND[@]}" -t 50 .
   capture_succeeded dupl "$CAPTURE_RC" "$err" || return $?
+  require_semantic_report dupl "$CAPTURE_RC" "$out" || return $?
   mark_dispatched dupl
 }
 
@@ -973,7 +1085,7 @@ run_cargo_machete() {
   resolve_required_tool cargo-machete || return $?
   _capture "$out" "$err" -- env CARGO_NET_OFFLINE=true "${RESOLVED_COMMAND[@]}"
   capture_succeeded cargo-machete "$CAPTURE_RC" "$err" || return $?
-  require_findings_report cargo-machete "$CAPTURE_RC" "$out" || return $?
+  require_semantic_report cargo-machete "$CAPTURE_RC" "$out" || return $?
   mark_dispatched cargo-machete
 }
 

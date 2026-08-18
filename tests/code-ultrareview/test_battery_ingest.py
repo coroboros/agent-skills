@@ -262,6 +262,12 @@ class TestMarkdownlintParser(unittest.TestCase):
         self.assertEqual(findings[1]["file"], "docs/guide.md")
         self.assertEqual(findings[1]["line_start"], 7)
 
+    def test_clean_cli_progress_is_not_a_finding(self):
+        raw = ("markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)\n"
+               "Finding: /tmp/docs/clean.md\nLinting: 1 file\n"
+               "Summary: 0 issues in 0 files\n")
+        self.assertEqual(bi.parse_markdownlint(raw), [])
+
     def test_nonempty_unrecognized_output_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "documented text or JSON schema"):
             bi.parse_markdownlint("unexpected markdownlint protocol output\n")
@@ -419,6 +425,17 @@ class TestAtlasParser(unittest.TestCase):
         for f in findings:
             self.assertEqual(f["axis"], "design-api")
             self.assertEqual(f["source_tool"], "atlas")
+
+    def test_step_error_is_an_analyzer_failure(self):
+        raw = json.dumps({"Steps": [{"Name": "Migration Integrity Check",
+                                     "Error": "checksum mismatch"}], "Files": []})
+        with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+            bi.parse_atlas(raw)
+
+    def test_file_error_is_an_analyzer_failure(self):
+        raw = json.dumps({"Files": [{"Name": "atlas.sum", "Error": "checksum mismatch"}]})
+        with self.assertRaisesRegex(ValueError, "atlas.sum failed"):
+            bi.parse_atlas(raw)
 
 
 class TestValeParser(unittest.TestCase):

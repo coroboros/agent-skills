@@ -246,6 +246,12 @@ _MARKDOWNLINT_LINE = re.compile(
     r"^(?P<file>.+?):(?P<line>\d+)(?::(?P<col>\d+))?\s+"
     r"(?:error\s+)?(?P<rule>MD\d+(?:/[^\s]+)?)\s+(?P<message>.+)$"
 )
+_MARKDOWNLINT_STATUS_LINES = (
+    re.compile(r"markdownlint-cli2 v\d+\.\d+\.\d+ \(markdownlint v\d+\.\d+\.\d+\)"),
+    re.compile(r"Finding: .+\.md(?: .+\.md)*"),
+    re.compile(r"Linting: \d+ files?"),
+    re.compile(r"Summary: \d+ issues? in \d+ files?"),
+)
 
 
 def parse_markdownlint(raw: str) -> list[dict]:
@@ -282,12 +288,14 @@ def parse_markdownlint(raw: str) -> list[dict]:
             ))
         return findings
 
-    banner = re.compile(r"^markdownlint-cli2 v\d")
+    unknown: list[str] = []
     for line_text in raw.splitlines():
-        if banner.match(line_text):
+        text = line_text.strip()
+        if not text or any(pattern.fullmatch(text) for pattern in _MARKDOWNLINT_STATUS_LINES):
             continue
-        match = _MARKDOWNLINT_LINE.match(line_text.strip())
+        match = _MARKDOWNLINT_LINE.fullmatch(text)
         if not match:
+            unknown.append(text)
             continue
         line = int(match.group("line"))
         findings.append(_emit(
@@ -296,7 +304,7 @@ def parse_markdownlint(raw: str) -> list[dict]:
             source_tool="markdownlint-cli2",
             message=f"{match.group('rule')}: {match.group('message')}",
         ))
-    if any(line.strip() and not banner.match(line) for line in raw.splitlines()) and not findings:
+    if unknown:
         raise ValueError(
             "markdownlint-cli2 produced non-empty output that does not match "
             "its documented text or JSON schema"
@@ -520,6 +528,18 @@ def parse_atlas(raw: str) -> list[dict]:
         raise ValueError("atlas produced malformed JSON") from exc
 
     findings: list[dict] = []
+    steps = data.get("Steps", []) if isinstance(data, dict) else []
+    if steps is None:
+        steps = []
+    if not isinstance(steps, list):
+        raise ValueError("atlas Steps must be a JSON array")
+    for step in steps:
+        if not isinstance(step, dict):
+            raise ValueError("atlas step entries must be JSON objects")
+        if step.get("Error"):
+            name = step.get("Name") or "migration step"
+            raise ValueError(f"atlas {name} failed: {step['Error']}")
+
     # Atlas JSON: { "Files": [ { "Name", "Reports": [ { "Diagnostics": [...] } ] } ] }
     if not isinstance(data, dict) or not isinstance(data.get("Files"), list):
         raise ValueError("atlas JSON is missing the Files array")
@@ -528,6 +548,8 @@ def parse_atlas(raw: str) -> list[dict]:
         if not isinstance(file_entry, dict):
             raise ValueError("atlas file entries must be JSON objects")
         fname = file_entry.get("Name") or "migration.sql"
+        if file_entry.get("Error"):
+            raise ValueError(f"atlas {fname} failed: {file_entry['Error']}")
         reports = file_entry.get("Reports") or []
         if not isinstance(reports, list):
             raise ValueError("atlas Reports must be a JSON array")
