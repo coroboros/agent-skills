@@ -282,7 +282,10 @@ def parse_markdownlint(raw: str) -> list[dict]:
             ))
         return findings
 
+    banner = re.compile(r"^markdownlint-cli2 v\d")
     for line_text in raw.splitlines():
+        if banner.match(line_text):
+            continue
         match = _MARKDOWNLINT_LINE.match(line_text.strip())
         if not match:
             continue
@@ -293,7 +296,7 @@ def parse_markdownlint(raw: str) -> list[dict]:
             source_tool="markdownlint-cli2",
             message=f"{match.group('rule')}: {match.group('message')}",
         ))
-    if raw.strip() and not findings:
+    if any(line.strip() and not banner.match(line) for line in raw.splitlines()) and not findings:
         raise ValueError(
             "markdownlint-cli2 produced non-empty output that does not match "
             "its documented text or JSON schema"

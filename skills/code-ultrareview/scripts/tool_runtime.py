@@ -105,8 +105,10 @@ def resolve(repo: Path, files: list[str], package: str, binary: str):
         raise ContractError(f"required analyzer is unavailable: {binary}")
     return [path], f"path:{path}", env
 
-def guidance(repo: Path, files: list[str], package: str) -> str:
+def guidance(repo: Path, files: list[str], package: str, binary: str) -> str:
     directory = _state(repo, files, package)
+    if not directory and not (repo / "package.json").is_file():
+        return f"Install {binary} on PATH and verify `command -v {binary}`"
     manager = package_manager_spec(repo, directory or repo)[0]
     if directory:
         command = {"npm": "npm ci --ignore-scripts", "pnpm":
@@ -134,14 +136,15 @@ def main() -> int:
         repo = args.repo.resolve(strict=True)
         files = args.files or read_scope(args.scope)["files_touched_list"]
         if args.action == "install":
-            print(guidance(repo, files, args.package))
+            print(guidance(repo, files, args.package, args.binary))
             return 0
         command, wrapper, env = resolve(repo, files, args.package, args.binary)
         if args.action == "probe":
             print(wrapper)
             return 0
         extra = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
-        if wrapper.startswith("project:"): os.chdir(wrapper.split(":", 2)[2])
+        if wrapper.startswith("project:"):
+            os.chdir(wrapper.split(":", 2)[2])
         os.execvpe(command[0], command + extra, env)
     except (OSError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

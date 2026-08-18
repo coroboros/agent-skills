@@ -23,7 +23,7 @@ Runs the repository's canonical test command as an atomic gate BEFORE the Phase 
 | `pnpm-lock.yaml` + non-empty `scripts.test` | `pnpm` | `pnpm test` |
 | `yarn.lock` + non-empty `scripts.test` | `yarn` | `yarn test` |
 | `package-lock.json` or `package.json` + non-empty `scripts.test` | `npm` | `npm test` |
-| `pyproject.toml` / requirements mentioning `pytest` + `uv.lock` | `pytest` | `uv run --frozen --offline pytest -x` |
+| `pyproject.toml` / requirements mentioning `pytest` + `uv.lock` | `pytest` | `uv run --frozen --offline --no-sync pytest -x` |
 | `pyproject.toml` / requirements mentioning `pytest` + `poetry.lock` | `pytest` | `poetry run pytest -x` |
 | Other Python manifest mentioning `pytest` | `pytest` | `pytest -x` |
 | A `test*.py` file containing a unittest test method | `unittest` | `python3 -m unittest discover` |

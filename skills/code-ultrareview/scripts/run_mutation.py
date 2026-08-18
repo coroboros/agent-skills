@@ -62,7 +62,7 @@ def relative_files(repo: Path, scope: dict, extensions: set[str]) -> list[str]:
 def stryker_files(repo: Path, scope: dict) -> list[str]:
     return [path for path in relative_files(repo, scope, JS_EXTENSIONS)
             if not path.endswith(".d.ts")
-            and "__tests__" not in PurePosixPath(path).parts
+            and not {"__tests__", "test", "tests"} & set(PurePosixPath(path).parts)
             and not JS_TEST_FILE.search(path)]
 
 
@@ -109,7 +109,7 @@ def preflight(repo: Path, scope: dict) -> tuple[dict, dict]:
         except ContractError as exc:
             missing.append({"tool": "stryker", "reason": str(exc),
                             "remediation": guidance(repo, js_files,
-                                                    "@stryker-mutator/core")})
+                                                    "@stryker-mutator/core", "stryker")})
     if files["python"]:
         executable = shutil.which("mutmut")
         if not executable:
@@ -248,9 +248,16 @@ def run_mutmut(runtime, output: Path, timeout: int) -> list[dict]:
         )
         source_line = "?"
         if definition:
+            # mutmut prints methods dedented and names them module.xǁClassǁmethod;
+            # match the def text, then narrow by the owning class when it is ambiguous.
             source = (repo / path).read_text(encoding="utf-8").splitlines()
-            matches = [index for index, value in enumerate(source, 1)
-                       if value.rstrip() == definition.group("definition").rstrip()]
+            wanted = definition.group("definition").strip()
+            matches = [index for index, value in enumerate(source, 1) if value.strip() == wanted]
+            owner = re.search(r"\.x(?:ǁ(?P<class>\w+)ǁ)?", mutant)
+            if len(matches) > 1 and owner and owner.group("class"):
+                classes = [index for index, value in enumerate(source, 1)
+                           if re.match(rf"class\s+{owner.group('class')}\b", value)]
+                matches = [index for index in matches if classes and index > classes[0]][:1]
             if len(matches) == 1:
                 source_line = str(matches[0])
         label = {"survived": "Surviving", "no tests": "Uncovered",

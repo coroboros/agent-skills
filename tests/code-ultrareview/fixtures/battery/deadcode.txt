@@ -1,2 +1,2 @@
-src/main.go:42:5: func unusedFn is unreachable
-src/helper.go:10:1: func anotherDead is unreachable
+src/main.go:42:5: unreachable func: unusedFn
+src/helper.go:10:1: unreachable func: anotherDead

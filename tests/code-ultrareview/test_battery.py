@@ -456,6 +456,48 @@ class TestAnalyzerExecution(unittest.TestCase):
         self.assertEqual(finding["source_tool"], "markdownlint-cli2")
         self.assertEqual(finding["file"], "README.md")
 
+    def test_markdownlint_silent_failure_blocks(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["README.md"], ["markdown"])
+            bin_dir = repo / "bin"
+            _shim(bin_dir, "markdownlint-cli2", "exit 1")
+            result = _run_battery(
+                repo, scope, bin_dir=bin_dir, axes="documentation"
+            )
+            state = json.loads(scope.read_text(encoding="utf-8"))
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("no parseable report", result.stderr)
+        self.assertFalse(state["tool_coverage"]["complete"])
+
+    def test_markdownlint_project_config_replaces_the_bundled_base(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["README.md"], ["markdown"])
+            bin_dir = repo / "bin"
+            _shim(bin_dir, "markdownlint-cli2", 'printf "%s\\n" "$@" > "$0.argv"\nexit 0')
+            base = _run_battery(repo, scope, bin_dir=bin_dir, axes="documentation")
+            base_argv = (bin_dir / "markdownlint-cli2.argv").read_text(encoding="utf-8")
+            (repo / ".markdownlint-cli2.jsonc").write_text("{}\n", encoding="utf-8")
+            project = _run_battery(repo, scope, bin_dir=bin_dir, axes="documentation")
+            project_argv = (bin_dir / "markdownlint-cli2.argv").read_text(encoding="utf-8")
+        self.assertEqual(base.returncode, 0, base.stderr)
+        self.assertEqual(project.returncode, 0, project.stderr)
+        self.assertIn("--config", base_argv)
+        self.assertNotIn("--config", project_argv)
+
+    def test_non_js_repo_gets_path_guidance_for_every_js_analyzer(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["src/main.rs", "README.md"], ["rust", "markdown"])
+            result, plan = _plan(repo, scope, repo / "bin")
+        self.assertEqual(result.returncode, 3)
+        self.assertTrue({"jscpd", "markdownlint-cli2"} <= _names(plan, "missing"))
+        for entry in plan["missing"]:
+            if entry["tool"] in {"jscpd", "markdownlint-cli2"}:
+                self.assertIn("on PATH", entry["install"])
+                self.assertNotIn("npm install", entry["install"])
+
     def test_markdownlint_crash_blocks_and_invalidates_previous_findings(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)

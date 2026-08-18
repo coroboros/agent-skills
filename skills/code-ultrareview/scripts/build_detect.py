@@ -114,7 +114,7 @@ def detect(repo: Path) -> dict:
         }
     if _python_manifest_uses_pytest(repo):
         if (repo / "uv.lock").is_file():
-            command, runner = "uv run --frozen --offline pytest -x", "uv"
+            command, runner = "uv run --frozen --offline --no-sync pytest -x", "uv"
         elif (repo / "poetry.lock").is_file():
             command, runner = "poetry run pytest -x", "poetry"
         else:

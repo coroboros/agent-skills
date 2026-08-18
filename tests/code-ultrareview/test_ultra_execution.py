@@ -175,7 +175,7 @@ class TestBuildDetect(unittest.TestCase):
 
     def test_locked_pytest_uses_project_runner(self):
         cases = (
-            ("uv.lock", "uv", "uv run --frozen --offline pytest -x"),
+            ("uv.lock", "uv", "uv run --frozen --offline --no-sync pytest -x"),
             ("poetry.lock", "poetry", "poetry run pytest -x"),
         )
         for lock, runner, command in cases:

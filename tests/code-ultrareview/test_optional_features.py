@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import shlex
 import os
 import signal
 import stat
@@ -351,7 +352,7 @@ class TestMutationGate(unittest.TestCase):
             repo = Path(tmp)
             scope = json.loads(_scope(repo, [
                 "src/app.ts", "src/app.test.ts", "src/types.d.ts",
-                "src/__tests__/helper.ts",
+                "src/__tests__/helper.ts", "tests/helper.ts", "test/setup.ts",
             ], ["typescript"]).read_text())
             files = run_mutation.stryker_files(repo, scope)
         self.assertEqual(files, ["src/app.ts"])
@@ -385,15 +386,18 @@ class TestMutationGate(unittest.TestCase):
         self.assertIn("command -v mvn", plan["missing"][0]["remediation"])
         self.assertNotIn("wrapper", plan["missing"][0]["remediation"])
 
-    def _mutmut(self, repo: Path, results: str, show: str = "") -> dict:
+    def _mutmut(self, repo: Path, results: str, show: str = "",
+                show_name: str = "calc.x_clamp__mutmut_5") -> dict:
         bin_dir = repo / "bin"
         body = (
             'case "${1:-}" in\n'
             '  run) exit 0 ;;\n'
             '  results) shift; [[ "$#" -eq 2 && "$1" == "--all" && "$2" == "true" ]] '
             '|| { echo "expected: results --all true" >&2; exit 64; }; '
-            f"printf '%b' {json.dumps(results)} ;;\n"
-            f"  show) printf '%b' {json.dumps(show)} ;;\n"
+            f"printf '%b' {json.dumps(results, ensure_ascii=False)} ;;\n"
+            f"  show) [[ \"${{2:-}}\" == {shlex.quote(show_name)} ]] "
+            '|| { echo "Could not find mutant" >&2; exit 1; }; '
+            f"printf '%b' {json.dumps(show, ensure_ascii=False)} ;;\n"
             '  *) exit 64 ;;\n'
             'esac'
         )
@@ -444,6 +448,29 @@ class TestMutationGate(unittest.TestCase):
         self.assertEqual(finding["source_tool"], "mutmut")
         self.assertEqual(finding["location"], "calc/__init__.py:5")
         self.assertEqual(finding["confidence"], 100)
+
+    def test_mutmut_method_survivor_maps_to_its_class(self):
+        results = "    calc.xǁBoxǁclamp__mutmut_1: survived\n"
+        show = (
+            "# calc.xǁBoxǁclamp__mutmut_1: survived\n--- calc/__init__.py\n"
+            "+++ calc/__init__.py\n@@ -1,2 +1,2 @@\n def clamp(self, value):\n"
+            "-    return max(0, value)\n+    return max(1, value)\n"
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _scope(repo, ["calc/__init__.py"], ["python"])
+            (repo / "calc/__init__.py").write_text(
+                "class Other:\n    def clamp(self, value):\n        return value\n\n\n"
+                "class Box:\n    def clamp(self, value):\n        return max(0, value)\n",
+                encoding="utf-8",
+            )
+            result, output = _run_mutation(
+                repo, scope,
+                env=self._mutmut(repo, results, show, "calc.xǁBoxǁclamp__mutmut_1"),
+            )
+            finding = json.loads((output / "mutation-findings.jsonl").read_text())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(finding["location"], "calc/__init__.py:7")
 
     def test_incomplete_mutmut_result_fails_closed(self):
         with tempfile.TemporaryDirectory() as tmp:

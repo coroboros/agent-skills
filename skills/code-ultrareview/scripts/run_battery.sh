@@ -111,6 +111,13 @@ if [[ -z "$SCOPE" || -z "$OUTPUT_DIR" ]]; then
   usage
   exit 2
 fi
+# Analyzers may run from a declaring subdirectory; keep the report tree absolute.
+if [[ "$DRY_RUN" -eq 0 ]]; then
+  if ! mkdir -p "$OUTPUT_DIR" || ! OUTPUT_DIR="$(cd "$OUTPUT_DIR" && pwd -P)"; then
+    echo "ERROR: cannot create output directory: $OUTPUT_DIR" >&2
+    exit 2
+  fi
+fi
 
 if [[ ! -r "$SCOPE" ]]; then
   echo "ERROR: scope.json not readable: $SCOPE" >&2
@@ -381,10 +388,6 @@ install_cmd() {
     api-extractor) package="@microsoft/api-extractor" ;;
   esac
   if [[ -n "$package" ]]; then
-    if [[ "$tool" == markdownlint-cli2 && ! -f "$REPO/package.json" ]]; then
-      printf '%s\n' "Install markdownlint-cli2 on PATH and verify \`command -v markdownlint-cli2\`"
-      return
-    fi
     local args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
       --package "$package" --binary "$tool" install)
     local file
@@ -749,14 +752,19 @@ run_markdownlint() {
   fi
   resolve_required_tool markdownlint-cli2 || return $?
   # MD013's arbitrary line-length default overwhelms review signal in projects
-  # that have not chosen a Markdown style. The bundled file is a base config:
-  # repository and nested configs still override it normally.
-  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" \
-    --config "$MARKDOWNLINT_BASE_CONFIG" --no-globs "${md_files[@]}"
+  # that have not chosen a Markdown style. The bundled base config applies only
+  # when the repository declares none: a project config may reference relative
+  # modules that resolve against the config file passed on the command line.
+  local config=(--config "$MARKDOWNLINT_BASE_CONFIG")
+  if compgen -G "$REPO/.markdownlint-cli2.*" >/dev/null || compgen -G "$REPO/.markdownlint.*" >/dev/null; then
+    config=()
+  fi
+  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" ${config[@]+"${config[@]}"} --no-globs "${md_files[@]}"
   capture_rc="$CAPTURE_RC"
   capture_succeeded markdownlint-cli2 "$capture_rc" "$err" || return $?
   if [[ "$capture_rc" -eq 1 ]]; then
     cat "$err" >> "$out"
+    require_findings_report markdownlint-cli2 "$capture_rc" "$out" || return $?
   fi
   mark_dispatched markdownlint-cli2
 }

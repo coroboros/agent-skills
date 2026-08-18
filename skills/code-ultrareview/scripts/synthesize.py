@@ -42,7 +42,7 @@ def _load_module(name: str):
 
 synthesis_core = _load_module("synthesis_core")
 findings_to_jsonl = _load_module("findings_to_jsonl")
-coverage_contract = _load_module("manifest")
+manifest_contract = _load_module("manifest")
 
 GIT_TIMEOUT_S = 10
 
@@ -118,7 +118,7 @@ def validate_coverage(scope: dict) -> bool:
         problems.append("skipped analyzer manifest is invalid")
     elif tools_skipped:
         problems.append("analyzers were skipped")
-    if scope.get("coverage_complete") is not True or not coverage_contract.coverage_complete(scope):
+    if scope.get("coverage_complete") is not True or not manifest_contract.coverage_complete(scope):
         problems.append("coverage manifest is not complete")
     if build is not None and not isinstance(build, dict):
         problems.append("build verification manifest is invalid")
@@ -173,14 +173,14 @@ def load_findings(path: Path) -> list[dict]:
 
 def load_scope(path: Path) -> dict:
     try:
-        return coverage_contract.read_scope(path)
+        return manifest_contract.read_scope(path)
     except ValueError as exc:
         raise CoverageError(str(exc)) from exc
 
 
 def _file_identity(path: Path) -> dict:
     try:
-        return coverage_contract.file_identity(path)
+        return manifest_contract.file_identity(path)
     except ValueError as exc:
         raise CoverageError(str(exc)) from exc
 
@@ -216,7 +216,7 @@ def _input_identity(coverage: dict, key: str, label: str) -> dict:
 
 def _verify_identity(identity: dict, label: str) -> None:
     try:
-        coverage_contract.verify_file_identity(identity, label)
+        manifest_contract.verify_file_identity(identity, label)
     except ValueError as exc:
         raise CoverageError(str(exc)) from exc
 
@@ -233,7 +233,7 @@ def _load_manifest_findings(
 ) -> tuple[list[dict], dict]:
     manifest = _manifest_identity(coverage, label)
     try:
-        verified = coverage_contract.verify_jsonl_output(coverage, supplied_path, label)
+        verified = manifest_contract.verify_jsonl_output(coverage, supplied_path, label)
     except ValueError as exc:
         raise CoverageError(str(exc)) from exc
     findings = load_findings(verified)
