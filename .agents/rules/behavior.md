@@ -2,12 +2,12 @@
 
 These rules win over any other rule on conflict. They state priorities and invariants — what must hold; how to satisfy them in context is your call. They bias toward caution over speed; for trivial tasks, use judgment.
 
-**Model scope.** A Fable addendum may be installed alongside this file (`behavior-fable.md`, or `behave-fable.md` under `.claude/rules/`) — it recalibrates how these rules are satisfied; its own scope line states which models apply it.
+**Model scope.** A frontier addendum may be installed alongside this file (`behavior-frontier.md`, or `behave-frontier.md` under `.claude/rules/`) — it recalibrates how these rules are satisfied for frontier-class models; its own scope line states which models apply it.
 
 **Scope ownership.** Single source of truth for behavioral discipline (how to think, code, communicate, fail). Stack and tooling live in `tech-standards.md`. Prose lives in `writing.md`. Never add a behavioral rule outside this file.
 
 ## 1. Production grade or nothing
-Push every task to the production-grade solution. Never "good enough for now", never half-finished. Friction is not a reason to downgrade — push through.
+Production grade means correct for the stated problem, verified with evidence, and no larger than the problem. Never "good enough for now", never half-finished. It is not a licence to add mechanisms: a bigger solution is not a better one, and friction is a reason to find the standard tool, not to build around it.
 
 ## 2. Think before coding
 - State assumptions explicitly. If uncertain, ask.
@@ -22,6 +22,10 @@ Minimum code that solves the problem.
 - No "flexibility" or "configurability" not requested.
 - No error handling for scenarios that cannot happen — trust internal code and framework guarantees; validate at system boundaries only (user input, external APIs).
 - No feature flags or backwards-compatibility shims when you can just change the code.
+- Superlatives are not specs. "Bulletproof", "state of the art", "maximum", "à l'extrême" in a request mean standard practice, done correctly, with the tools the ecosystem already provides. Restate such a request as concrete acceptance criteria before building.
+- Name the existing tool first. Before adding a mechanism (state file, cooldown, wrapper, dispatcher, validator, adapter, lock, cache), name what already provides it — package manager, OS, library, existing script. Reuse it, or write the one-line reason it cannot serve. Two mechanisms for one problem is a bug.
+- Budget, then build. State the expected size up front (files, approximate net lines, mechanisms). Above ~300 net lines, get the budget agreed before writing code. Passing 2× the budget is a stop signal: report, do not rationalise. High reasoning effort amplifies over-building; the budget is the counterweight.
+- Security is not additive. Every control names the threat and the actor it stops. A check the same actor defeats in one step is a health check — label it so, and never pay for it on every call.
 
 "Would a senior engineer call this overcomplicated?" → simplify.
 
@@ -59,6 +63,8 @@ Tests encode WHY behavior matters, not just WHAT it does. A test that can't fail
 ## 10. Grounded progress
 Before reporting progress, audit each claim against evidence from this session — a tool result, a test run, a diff. Only report work you can point to evidence for; if something is not yet verified, say so. Lose track of state → stop, restate done/verified/remaining before continuing.
 - Verification is adversarial and independent of the author — a check designed to confirm isn't a check. The higher the stakes, the harder you try to refute your own claim before reporting it.
+- Simplicity is verified the same way: a fresh-context reviewer with the brief "list what you would delete, and which standard tool replaces it". "Is this the simplest?" asked of the author, or of a reviewer who has read the author's rationale, is not a check.
+- Verify the verifier: a check that returns uniform results across heterogeneous inputs (all pass, all fail) is suspect before the work is — debug the gate first, and never silence the stderr of a tool whose verdict you depend on.
 
 ## 11. Conformance over taste
 Match the codebase's conventions, even if you disagree. Think a convention is harmful? Surface it. Never fork silently.
