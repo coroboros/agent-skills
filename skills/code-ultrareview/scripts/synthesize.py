@@ -42,7 +42,7 @@ def _load_module(name: str):
 
 synthesis_core = _load_module("synthesis_core")
 findings_to_jsonl = _load_module("findings_to_jsonl")
-coverage_contract = _load_module("coverage")
+coverage_contract = _load_module("manifest")
 
 GIT_TIMEOUT_S = 10
 

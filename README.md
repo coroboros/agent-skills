@@ -335,7 +335,7 @@ Eight-axis judgment code review at full strength, in-session. The default runs e
 | `--repo-kind <kind>` | Override the scope classifier. `<kind>` ∈ `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo at `.code-ultrareview.yaml`; the flag wins on conflict. Invalid value exits 2 |
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
 | `--verify-build` | Run the canonical project test command as an atomic gate. Missing prerequisites, failures, and timeouts block; generic results never re-score findings |
-| `--mutation-test` | Stryker targets changed JS/TS files; configured Pitest/mutmut runs emit changed-file survivors and uncovered mutations. Maven and Gradle run from `PATH` in offline mode; `pyproject.toml` mutation config requires Python 3.11+. Missing config/tool, incomplete evaluation, or a failed run blocks the review |
+| `--mutation-test` | Stryker targets changed JS/TS source files; configured Pitest/mutmut runs emit changed-file survivors and uncovered mutations. Maven and Gradle run from `PATH` in offline mode. Missing config/tool, incomplete evaluation, or a failed run blocks the review |
 | `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), one failing test per confirmed bug. Diff preview + per-file confirmation |
 | `--include-prose` | Coherence axis compares README freeform paragraphs (default: structured fields only) |
 | `--axes <list>` | Comma-separated axes subset (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |

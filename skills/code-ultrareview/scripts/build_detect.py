@@ -113,10 +113,16 @@ def detect(repo: Path) -> dict:
             "available": shutil.which(js_tool) is not None,
         }
     if _python_manifest_uses_pytest(repo):
+        if (repo / "uv.lock").is_file():
+            command, runner = "uv run --frozen --offline pytest -x", "uv"
+        elif (repo / "poetry.lock").is_file():
+            command, runner = "poetry run pytest -x", "poetry"
+        else:
+            command, runner = "pytest -x", "pytest"
         return {
             "tool": "pytest",
-            "test_command": "pytest -x",
-            "available": shutil.which("pytest") is not None,
+            "test_command": command,
+            "available": shutil.which(runner) is not None,
         }
     if _has_unittest_suite(repo):
         return {

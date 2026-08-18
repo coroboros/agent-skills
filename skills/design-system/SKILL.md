@@ -3,6 +3,15 @@ name: design-system
 description: Govern an existing DESIGN.md during UI work. Enforce token-backed colors, typography, spacing, and radius when the file exists; steps aside when it does not. Use for token-affecting edits and seven subcommands, four backed by the canonical CLI — audit, diff, export, spec, migrate, init, and extension drift checks. CLI-backed operations stop with exact remediation when the canonical validator is unavailable or invalid.
 when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user changes the theme or references visual tokens in an existing DESIGN.md. Full redesigns / new visual direction → /award-design. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
 argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
+paths:
+  - src/components/**
+  - src/app/**
+  - src/pages/**
+  - src/layouts/**
+  - src/styles/**
+  - src/features/*/components/**
+  - DESIGN.md
+  - tailwind.config.*
 license: MIT
 allowed-tools: Read Write Edit Grep Glob Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
 metadata:

@@ -115,7 +115,7 @@ class TestUniversalContract(unittest.TestCase):
             "vale": "{}",
             "deadcode": "",
             "gocyclo": "",
-            "dupl": "found 0 clones:\n",
+            "dupl": "\nFound total 0 clone groups.\n",
             "cargo-machete": (
                 "cargo-machete did not find any unused dependencies\n"
             ),
@@ -450,6 +450,9 @@ class TestGoToolParsers(unittest.TestCase):
         for f in findings:
             self.assertEqual(f["axis"], "simplification")
 
+    def test_dupl_accepts_real_zero_group_trailer(self):
+        self.assertEqual(bi.parse_dupl("\nFound total 0 clone groups.\n"), [])
+
 
 class TestCargoMacheteParser(unittest.TestCase):
     def test_unused_deps(self):
@@ -458,6 +461,7 @@ class TestCargoMacheteParser(unittest.TestCase):
         self.assertEqual(len(names), 2)
         self.assertTrue(any("serde_json" in n for n in names))
         self.assertTrue(any("regex" in n for n in names))
+        self.assertEqual({f["file"] for f in findings}, {"./Cargo.toml"})
 
 
 # ---------------------------------------------------------------------------

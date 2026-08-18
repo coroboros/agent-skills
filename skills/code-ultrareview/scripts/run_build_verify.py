@@ -30,8 +30,8 @@ if str(_SCRIPT_DIR) not in sys.path:
 
 import build_detect  # noqa: E402
 import process_timeout  # noqa: E402
-from coverage import read_scope, set_phase, write_json_atomic, write_jsonl_atomic  # noqa: E402
-from tool_runtime import package_manager_spec  # noqa: E402
+from manifest import read_scope, set_phase, write_json_atomic, write_jsonl_atomic  # noqa: E402
+from tool_runtime import OFFLINE, package_manager_spec  # noqa: E402
 
 CONFIDENCE_THRESHOLD = 80
 OUTPUT_TAIL_LINES = 100
@@ -99,13 +99,7 @@ def _reports_zero_tests(tool: str | None, output: str) -> bool:
 
 def _run_build(repo: Path, test_command: str, tool: str | None, timeout: int) -> dict:
     command_env = os.environ.copy()
-    command_env.update({
-        "COREPACK_ENABLE_NETWORK": "0",
-        "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0",
-        "COREPACK_ENABLE_AUTO_PIN": "0",
-        "COREPACK_DEFAULT_TO_LATEST": "0",
-        "YARN_ENABLE_NETWORK": "0",
-    })
+    command_env.update(OFFLINE)
     result = process_timeout.run_process(
         test_command,
         shell=True,
@@ -199,9 +193,17 @@ def _missing_runner_remediation(repo: Path, tool: str | None) -> str:
         )
     if tool == "pytest":
         if (repo / "uv.lock").is_file():
-            instruction = "Run `uv sync --locked`"
+            return (
+                "Install uv from its official guide, run `uv sync --locked`, "
+                "verify `command -v uv`, and rerun the exact command printed below: "
+                "https://docs.astral.sh/uv/getting-started/installation/"
+            )
         elif (repo / "poetry.lock").is_file():
-            instruction = "Run `poetry install --sync`"
+            return (
+                "Install Poetry from its official guide, run `poetry install --sync`, "
+                "verify `command -v poetry`, and rerun the exact command printed below: "
+                "https://python-poetry.org/docs/#installation"
+            )
         elif (repo / "requirements-dev.txt").is_file():
             instruction = "Run `python3 -m pip install -r requirements-dev.txt`"
         elif (repo / "requirements.txt").is_file():

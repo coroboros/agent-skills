@@ -9,7 +9,7 @@ import shlex
 import shutil
 import sys
 from pathlib import Path
-from coverage import read_scope
+from manifest import read_scope
 
 DEPENDENCIES = ("devDependencies", "dependencies", "optionalDependencies")
 OFFLINE = dict.fromkeys(("COREPACK_ENABLE_NETWORK", "COREPACK_ENABLE_DOWNLOAD_PROMPT",
@@ -18,7 +18,6 @@ OFFLINE = dict.fromkeys(("COREPACK_ENABLE_NETWORK", "COREPACK_ENABLE_DOWNLOAD_PR
 MARKERS = (("pnpm-lock.yaml", "pnpm"), ("yarn.lock", "yarn"), ("bun.lock", "bun"),
            ("bun.lockb", "bun"), ("package-lock.json", "npm"),
            ("npm-shrinkwrap.json", "npm"))
-
 class ContractError(ValueError):
     code = 3
 class InputError(ContractError):
@@ -98,7 +97,7 @@ def resolve(repo: Path, files: list[str], package: str, binary: str):
         if manager == "yarn" and pnp:
             if not shutil.which("yarn"):
                 raise ContractError("declared Yarn PnP runtime requires yarn on PATH")
-            command = ["yarn", "--cwd", str(directory), "run", "-B", binary]
+            command = ["yarn", "run", "-B", binary]
             return command, f"project:yarn-pnp:{directory}", env
         raise ContractError(f"declared analyzer is not installed: {package}")
     path = shutil.which(binary)
@@ -142,6 +141,7 @@ def main() -> int:
             print(wrapper)
             return 0
         extra = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
+        if wrapper.startswith("project:"): os.chdir(wrapper.split(":", 2)[2])
         os.execvpe(command[0], command + extra, env)
     except (OSError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

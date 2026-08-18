@@ -23,7 +23,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 INGEST="$SCRIPT_DIR/battery_ingest.py"
 PROCESS_TIMEOUT="$SCRIPT_DIR/process_timeout.py"
 TOOL_RUNTIME="$SCRIPT_DIR/tool_runtime.py"
-COVERAGE="$SCRIPT_DIR/coverage.py"
+MANIFEST="$SCRIPT_DIR/manifest.py"
 PERF_RULES_DIR="$SCRIPT_DIR/../references/perf-rules"
 MARKDOWNLINT_BASE_CONFIG="$SCRIPT_DIR/../references/markdownlint-base.markdownlint-cli2.jsonc"
 
@@ -134,7 +134,7 @@ if ! REPO="$(cd "$REPO" 2>/dev/null && pwd -P)"; then
   exit 2
 fi
 
-if ! scope_error="$(python3 "$COVERAGE" "$SCOPE" 2>&1)"; then
+if ! scope_error="$(python3 "$MANIFEST" "$SCOPE" 2>&1)"; then
   echo "ERROR: invalid Code Ultrareview scope: $scope_error" >&2
   echo "ERROR: remediation: rerun scope.py to recreate scope.json, then rerun Code Ultrareview." >&2
   emit_rerun
@@ -143,15 +143,22 @@ fi
 
 FINDINGS_FINAL="$OUTPUT_DIR/tool-findings.jsonl"
 PREFLIGHT_FINAL="$OUTPUT_DIR/tool-preflight.json"
+RESOLVE_ERROR_FILE="$OUTPUT_DIR/raw/.resolve.stderr"
+
+if [[ "$DRY_RUN" -eq 1 ]]; then
+  RESOLVE_ERROR_FILE="$(mktemp "${TMPDIR:-/tmp}/code-ultrareview-preflight.XXXXXX")" || exit 4
+  trap 'rm -f "$RESOLVE_ERROR_FILE"' EXIT
+fi
 
 # Invalidate the previous public result before validating project manifests or
-# resolving analyzers. A failed rerun must never leave a stale complete verdict.
-if ! python3 - "$SCOPE" "$AXES" "$SCRIPT_DIR" <<'PY'
+# resolving analyzers. A dry run is read-only; a failed real rerun must never
+# leave a stale complete verdict.
+if [[ "$DRY_RUN" -eq 0 ]] && ! python3 - "$SCOPE" "$AXES" "$SCRIPT_DIR" <<'PY'
 from pathlib import Path
 import sys
 
 sys.path.insert(0, sys.argv[3])
-from coverage import update_scope
+from manifest import update_scope
 
 selected_axes = [axis.strip() for axis in sys.argv[2].split(",") if axis.strip()]
 state = {
@@ -174,19 +181,19 @@ then
   emit_rerun
   exit 4
 fi
-if ! rm -f "$FINDINGS_FINAL"; then
+if [[ "$DRY_RUN" -eq 0 ]] && ! rm -f "$FINDINGS_FINAL"; then
   echo "ERROR: stale analyzer findings could not be removed from $FINDINGS_FINAL" >&2
   echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, remove the stale findings file, then rerun Code Ultrareview." >&2
   emit_rerun
   exit 4
 fi
-if ! rm -f "$PREFLIGHT_FINAL"; then
+if [[ "$DRY_RUN" -eq 0 ]] && ! rm -f "$PREFLIGHT_FINAL"; then
   echo "ERROR: stale analyzer preflight could not be removed from $PREFLIGHT_FINAL" >&2
   echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, remove the stale preflight path, then rerun Code Ultrareview." >&2
   emit_rerun
   exit 4
 fi
-if ! mkdir -p "$OUTPUT_DIR/raw"; then
+if [[ "$DRY_RUN" -eq 0 ]] && ! mkdir -p "$OUTPUT_DIR/raw"; then
   echo "ERROR: analyzer output directory could not be created: $OUTPUT_DIR/raw" >&2
   echo "ERROR: remediation: verify that $OUTPUT_DIR is writable, then rerun Code Ultrareview." >&2
   emit_rerun
@@ -374,6 +381,10 @@ install_cmd() {
     api-extractor) package="@microsoft/api-extractor" ;;
   esac
   if [[ -n "$package" ]]; then
+    if [[ "$tool" == markdownlint-cli2 && ! -f "$REPO/package.json" ]]; then
+      printf '%s\n' "Install markdownlint-cli2 on PATH and verify \`command -v markdownlint-cli2\`"
+      return
+    fi
     local args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
       --package "$package" --binary "$tool" install)
     local file
@@ -448,7 +459,7 @@ resolve_tool() {
       --package "$package" --binary "$tool")
     for file in "${JS_RELEVANT_FILES[@]}"; do args+=(--file "$file"); done
     args+=(probe)
-    wrapper="$("${args[@]}" 2>"$OUTPUT_DIR/raw/$tool.resolve.stderr")"
+    wrapper="$("${args[@]}" 2>"$RESOLVE_ERROR_FILE")"
     RESOLVE_RC=$?
     if [[ "$RESOLVE_RC" -eq 0 ]]; then
       RESOLVED_COMMAND=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
@@ -458,10 +469,10 @@ resolve_tool() {
       done
       RESOLVED_COMMAND+=(exec --)
       RESOLVED_WRAPPER="$wrapper"
-      rm -f "$OUTPUT_DIR/raw/$tool.resolve.stderr"
+      rm -f "$RESOLVE_ERROR_FILE"
       return 0
     fi
-    RESOLVE_ERROR="$(cat "$OUTPUT_DIR/raw/$tool.resolve.stderr" 2>/dev/null)"
+    RESOLVE_ERROR="$(cat "$RESOLVE_ERROR_FILE" 2>/dev/null)"
     return 1
   fi
   local path_tool
@@ -583,9 +594,15 @@ import sys
 
 with open(sys.argv[1], encoding="utf-8") as handle:
     errors = json.load(handle).get("errors", [])
-if errors:
+blocking = [item for item in errors
+            if str(item.get("level", "error")).lower() not in {"warn", "warning"}]
+warnings = [item for item in errors if item not in blocking]
+for item in warnings:
+    print("WARNING: Semgrep reported a non-blocking analyzer warning: "
+          + json.dumps(item, sort_keys=True))
+if blocking:
     print("ERROR: Semgrep reported analyzer errors:")
-    for item in errors:
+    for item in blocking:
         print(json.dumps(item, sort_keys=True))
     raise SystemExit(1)
 PY
@@ -718,7 +735,7 @@ run_markdownlint() {
   local out="$OUTPUT_DIR/raw/markdownlint-cli2.txt"
   local err="$OUTPUT_DIR/raw/markdownlint-cli2.stderr"
   local md_files=()
-  local f capture_rc parsed
+  local f capture_rc
   if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
     for f in "${FILES_TOUCHED[@]}"; do
       [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("$REPO/$f")
@@ -739,17 +756,7 @@ run_markdownlint() {
   capture_rc="$CAPTURE_RC"
   capture_succeeded markdownlint-cli2 "$capture_rc" "$err" || return $?
   if [[ "$capture_rc" -eq 1 ]]; then
-    parsed="$(mktemp "$OUTPUT_DIR/raw/.markdownlint-findings.XXXXXX")" || return 4
-    grep -E '^[^:]+:[0-9]+(:[0-9]+)?[[:space:]]+MD[0-9]+' "$out" "$err" \
-      | sed 's|^[^:]*:||' >"$parsed" || true
-    if [[ ! -s "$parsed" ]]; then
-      rm -f "$parsed"
-      echo "ERROR: markdownlint-cli2 exited 1 without parseable lint findings." >&2
-      echo "ERROR: analyzer stderr: $err" >&2
-      emit_rerun
-      return 4
-    fi
-    mv "$parsed" "$out"
+    cat "$err" >> "$out"
   fi
   mark_dispatched markdownlint-cli2
 }
@@ -1021,7 +1028,7 @@ import sys
 
 scope_path, axes, destination, script_dir = sys.argv[1:5]
 sys.path.insert(0, script_dir)
-from coverage import write_json_atomic
+from manifest import write_json_atomic
 
 cursor = 5
 available_count = int(sys.argv[cursor])
@@ -1106,7 +1113,7 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, sys.argv[3])
-from coverage import update_scope
+from manifest import update_scope
 
 scope_path = Path(sys.argv[1])
 with Path(sys.argv[2]).open(encoding="utf-8") as handle:
@@ -1217,7 +1224,7 @@ import sys
 
 out_path, scope_path, preflight_path, findings_path, script_dir = sys.argv[1:6]
 sys.path.insert(0, script_dir)
-from coverage import update_scope, write_json_atomic
+from manifest import update_scope, write_json_atomic
 
 dispatched = sys.argv[6:]
 write_json_atomic(Path(out_path), {"skipped": []})

@@ -173,6 +173,26 @@ class TestBuildDetect(unittest.TestCase):
             result = build_detect.detect(repo)
         self.assertEqual(result["tool"], "pytest")
 
+    def test_locked_pytest_uses_project_runner(self):
+        cases = (
+            ("uv.lock", "uv", "uv run --frozen --offline pytest -x"),
+            ("poetry.lock", "poetry", "poetry run pytest -x"),
+        )
+        for lock, runner, command in cases:
+            with self.subTest(runner=runner), tempfile.TemporaryDirectory() as t:
+                repo = Path(t)
+                (repo / "pyproject.toml").write_text(
+                    "[tool.pytest.ini_options]\n", encoding="utf-8"
+                )
+                (repo / lock).write_text("", encoding="utf-8")
+                with mock.patch.object(
+                    build_detect.shutil, "which", return_value=f"/bin/{runner}"
+                ):
+                    result = build_detect.detect(repo)
+                self.assertEqual(result["tool"], "pytest")
+                self.assertEqual(result["test_command"], command)
+                self.assertTrue(result["available"])
+
     def test_python_manifest_without_runner_does_not_invent_unittest(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)

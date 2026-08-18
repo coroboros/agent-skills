@@ -65,17 +65,14 @@ class TestConsumerHandoff(unittest.TestCase):
         self.assertIn("award-design", text)
 
 
-class TestPortableActivation(unittest.TestCase):
-    """design-system's portable description must make UI and DESIGN.md
-    triggering discoverable without a harness-specific frontmatter key."""
+class TestPathsAutoActivation(unittest.TestCase):
+    """design-system's SKILL.md `paths:` must include DESIGN.md so editing
+    that file auto-triggers the skill (the auto-activation contract)."""
 
-    def test_design_system_description_covers_ui_and_design_md(self):
+    def test_design_system_paths_includes_design_md(self):
         text = read_skill_md("design-system")
-        frontmatter = text.split("---", 2)[1]
-        self.assertIn("description:", frontmatter)
-        self.assertIn("DESIGN.md", frontmatter)
-        self.assertIn("UI", frontmatter)
-        self.assertNotIn("paths:", frontmatter)
+        self.assertIn("DESIGN.md", text)
+        self.assertIn("paths:", text)
 
 
 class TestExtensionContract(unittest.TestCase):

@@ -1,3 +1,7 @@
-cargo-machete found the following unused dependencies in /project/Cargo.toml:
-serde_json
-regex
+cargo-machete found the following unused dependencies in this directory:
+fixture-rust -- ./Cargo.toml:
+	serde_json
+	regex
+
+If you believe cargo-machete has detected an unused dependency incorrectly,
+you can add it to the ignore list.

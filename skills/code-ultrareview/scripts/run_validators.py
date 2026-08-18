@@ -56,7 +56,7 @@ _SCRIPT_DIR = Path(__file__).resolve().parent
 if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
-from coverage import (  # noqa: E402
+from manifest import (  # noqa: E402
     file_identity as _file_identity,
     read_required_diff as _read_text,
     read_scope as _read_json,

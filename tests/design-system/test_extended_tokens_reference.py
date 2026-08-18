@@ -105,11 +105,17 @@ class TestSkillMdRulesBullet(unittest.TestCase):
         self.assertIn("audit-extensions", self.text)
         self.assertIn("subcommand-audit-extensions.md", self.text)
 
-    def test_frontmatter_uses_portable_activation_metadata(self):
+    def test_frontmatter_preserves_activation_paths(self):
         frontmatter = self.text.split("---", 2)[1]
         for key in ("description:", "argument-hint:", "when_to_use:"):
             self.assertIn(key, frontmatter)
-        self.assertNotIn("paths:", frontmatter)
+        paths = frontmatter.split("paths:\n", 1)[1].split("\nlicense:", 1)[0]
+        self.assertEqual(paths.splitlines(), [
+            "  - src/components/**", "  - src/app/**", "  - src/pages/**",
+            "  - src/layouts/**", "  - src/styles/**",
+            "  - src/features/*/components/**", "  - DESIGN.md",
+            "  - tailwind.config.*",
+        ])
 
 
 class TestSpecMdExtendingRules(unittest.TestCase):

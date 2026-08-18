@@ -19,11 +19,12 @@ SCRIPTS = REPO_ROOT / "skills" / "code-ultrareview" / "scripts"
 RUN_BUILD = SCRIPTS / "run_build_verify.py"
 RUN_MUTATION = SCRIPTS / "run_mutation.py"
 PROCESS_TIMEOUT = SCRIPTS / "process_timeout.py"
+MUTATION_FIXTURES = REPO_ROOT / "tests/code-ultrareview/fixtures/mutation"
 
 if str(SCRIPTS) not in sys.path:
     sys.path.insert(0, str(SCRIPTS))
 
-import coverage as coverage_contract  # noqa: E402
+import manifest as manifest_contract  # noqa: E402
 import run_mutation  # noqa: E402
 import tool_runtime  # noqa: E402
 
@@ -238,7 +239,7 @@ class TestToolRuntime(unittest.TestCase):
         self.assertEqual(command, [str(binary.resolve())])
         self.assertEqual(wrapper, f"project:binary:{package.resolve()}")
 
-    def test_yarn_pnp_is_accepted_without_node_modules(self):
+    def test_yarn_pnp_runs_from_its_declaring_project(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             (repo / "src").mkdir()
@@ -257,8 +258,27 @@ class TestToolRuntime(unittest.TestCase):
                 command, wrapper, _ = tool_runtime.resolve(
                     repo, ["src/app.ts"], "analyzer-package", "analyzer"
                 )
-        self.assertEqual(command[-3:], ["run", "-B", "analyzer"])
+        self.assertEqual(command, ["yarn", "run", "-B", "analyzer"])
         self.assertEqual(wrapper, f"project:yarn-pnp:{repo.resolve()}")
+
+    def test_project_runtime_exec_changes_to_declaring_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _scope(repo, ["src/app.ts"], ["typescript"])
+            (repo / "package.json").write_text(json.dumps({
+                "devDependencies": {"analyzer-package": "1.0.0"},
+            }), encoding="utf-8")
+            binary = repo / "node_modules/.bin/analyzer"
+            _executable(binary, "exit 0")
+            with mock.patch.object(sys, "argv", [
+                str(SCRIPTS / "tool_runtime.py"), "--repo", str(repo),
+                "--scope", str(scope), "--package", "analyzer-package",
+                "--binary", "analyzer", "exec",
+            ]), mock.patch.object(tool_runtime.os, "chdir") as chdir, \
+                    mock.patch.object(tool_runtime.os, "execvpe", side_effect=SystemExit):
+                with self.assertRaises(SystemExit):
+                    tool_runtime.main()
+        chdir.assert_called_once_with(str(repo.resolve()))
 
 
 class TestMutationGate(unittest.TestCase):
@@ -287,6 +307,54 @@ class TestMutationGate(unittest.TestCase):
         self.assertIn("project's test environment", result.stderr)
         self.assertIn("command -v mutmut", result.stderr)
         self.assertFalse((output / "mutation-findings.jsonl").exists())
+
+    def test_declared_stryker_never_falls_back_to_global_binary(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope_path = _scope(repo, ["src/app.ts"], ["typescript"])
+            (repo / "package.json").write_text(json.dumps({
+                "devDependencies": {"@stryker-mutator/core": "9.4.0"},
+            }), encoding="utf-8")
+            bin_dir = repo / "bin"
+            _executable(bin_dir / "stryker", "exit 0")
+            scope = json.loads(scope_path.read_text())
+            with mock.patch.dict(os.environ, {"PATH": str(bin_dir)}):
+                plan, runtimes = run_mutation.preflight(repo, scope)
+        self.assertNotIn("stryker", runtimes)
+        self.assertEqual(plan["missing"][0]["tool"], "stryker")
+        self.assertIn("declared analyzer is not installed", plan["missing"][0]["reason"])
+
+    def test_stryker_real_schema_ignores_disabled_mutants(self):
+        findings = run_mutation.parse_stryker(
+            MUTATION_FIXTURES / "stryker.json", Path("/repo"), Path("/repo"),
+            ["src/app.ts"],
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["location"], "src/app.ts:1:27")
+        self.assertIn("Surviving", findings[0]["finding"])
+
+    def test_stryker_pending_mutant_is_incomplete(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            report = Path(tmp) / "mutation.json"
+            payload = json.loads(
+                (MUTATION_FIXTURES / "stryker.json").read_text(encoding="utf-8")
+            )
+            payload["files"]["src/app.ts"]["mutants"][0]["status"] = "Pending"
+            report.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaisesRegex(run_mutation.MutationFailure, "Pending"):
+                run_mutation.parse_stryker(
+                    report, Path("/repo"), Path("/repo"), ["src/app.ts"]
+                )
+
+    def test_stryker_scope_excludes_tests_and_declarations(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = json.loads(_scope(repo, [
+                "src/app.ts", "src/app.test.ts", "src/types.d.ts",
+                "src/__tests__/helper.ts",
+            ], ["typescript"]).read_text())
+            files = run_mutation.stryker_files(repo, scope)
+        self.assertEqual(files, ["src/app.ts"])
 
     def test_jvm_preflight_reports_one_actionable_build_error(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -338,25 +406,43 @@ class TestMutationGate(unittest.TestCase):
             result, output = _run_mutation(
                 repo,
                 _scope(repo, ["src/app.py"], ["python"]),
-                env=self._mutmut(repo, "app.x__mutmut_1: killed\n"),
+                env=self._mutmut(repo, "    app.x__mutmut_1: killed\n"),
             )
             findings = (output / "mutation-findings.jsonl").read_text()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(findings, "")
 
-    def test_mutmut_survivor_maps_to_changed_file(self):
-        show = "--- a/src/app.py\n+++ b/src/app.py\n@@ -1 +1 @@\n-old\n+new\n"
+    def test_mutmut_zero_evaluated_mutants_blocks(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             result, output = _run_mutation(
                 repo,
                 _scope(repo, ["src/app.py"], ["python"]),
-                env=self._mutmut(repo, "app.x__mutmut_1: survived\n", show),
+                env=self._mutmut(repo, ""),
+            )
+        self.assertEqual(result.returncode, 4)
+        self.assertIn("zero evaluated mutants", result.stderr)
+        self.assertFalse((output / "mutation-findings.jsonl").exists())
+
+    def test_mutmut_survivor_maps_to_changed_file(self):
+        results = (MUTATION_FIXTURES / "mutmut-results.txt").read_text()
+        show = (MUTATION_FIXTURES / "mutmut-show.txt").read_text()
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _scope(repo, ["calc/__init__.py"], ["python"])
+            (repo / "calc/__init__.py").write_text(
+                '"""Fixture."""\n\nCONSTANT = 1\n\ndef clamp(value):\n'
+                '    return max(0, value)\n', encoding="utf-8",
+            )
+            result, output = _run_mutation(
+                repo,
+                scope,
+                env=self._mutmut(repo, results, show),
             )
             finding = json.loads((output / "mutation-findings.jsonl").read_text())
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(finding["source_tool"], "mutmut")
-        self.assertEqual(finding["location"], "src/app.py:1")
+        self.assertEqual(finding["location"], "calc/__init__.py:5")
         self.assertEqual(finding["confidence"], 100)
 
     def test_incomplete_mutmut_result_fails_closed(self):
@@ -516,15 +602,15 @@ class TestCoverageArtifacts(unittest.TestCase):
                 payload["files_touched_list"] = [path]
                 scope.write_text(json.dumps(payload), encoding="utf-8")
                 with self.assertRaisesRegex(ValueError, "stay inside"):
-                    coverage_contract.read_scope(scope)
+                    manifest_contract.read_scope(scope)
 
     def test_tampered_output_is_rejected_by_manifest(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             scope = _scope(repo, ["README.md"], ["markdown"])
             output = repo / "findings.jsonl"
-            coverage_contract.write_jsonl_atomic(output, [])
-            coverage_contract.set_phase(
+            manifest_contract.write_jsonl_atomic(output, [])
+            manifest_contract.set_phase(
                 scope,
                 "tool",
                 {"complete": True, "applicable": [], "executed": []},
@@ -533,17 +619,17 @@ class TestCoverageArtifacts(unittest.TestCase):
             output.write_text("{}\n", encoding="utf-8")
             state = json.loads(scope.read_text())["tool_coverage"]
             with self.assertRaisesRegex(ValueError, "changed after prepare"):
-                coverage_contract.verify_jsonl_output(state, output, "tool findings")
+                manifest_contract.verify_jsonl_output(state, output, "tool findings")
 
     def test_atomic_write_preserves_previous_file_on_replace_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
             target = Path(tmp) / "state.json"
             target.write_text("old\n", encoding="utf-8")
             with mock.patch.object(
-                coverage_contract.os, "replace", side_effect=OSError("fail")
+                manifest_contract.os, "replace", side_effect=OSError("fail")
             ):
                 with self.assertRaises(OSError):
-                    coverage_contract.write_json_atomic(target, {"new": True})
+                    manifest_contract.write_json_atomic(target, {"new": True})
             self.assertEqual(target.read_text(), "old\n")
 
 

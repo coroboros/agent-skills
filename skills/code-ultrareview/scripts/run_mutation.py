@@ -12,12 +12,13 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path, PurePosixPath
 
-from coverage import read_scope, set_phase, write_jsonl_atomic
+from manifest import read_scope, set_phase, write_jsonl_atomic
 from process_timeout import run_process
 from tool_runtime import ContractError, InputError, guidance, resolve
 
 JS_EXTENSIONS = {".js", ".jsx", ".ts", ".tsx", ".mjs", ".cjs", ".mts", ".cts"}
 JVM_EXTENSIONS = {".java", ".kt", ".kts", ".scala"}
+JS_TEST_FILE = re.compile(r"(?:^|/)[^/]+\.(?:test|spec)\.(?:[cm]?[jt]sx?)$")
 
 
 class MutationFailure(RuntimeError):
@@ -58,6 +59,13 @@ def relative_files(repo: Path, scope: dict, extensions: set[str]) -> list[str]:
             if PurePosixPath(path).suffix in extensions and (repo / path).is_file()]
 
 
+def stryker_files(repo: Path, scope: dict) -> list[str]:
+    return [path for path in relative_files(repo, scope, JS_EXTENSIONS)
+            if not path.endswith(".d.ts")
+            and "__tests__" not in PurePosixPath(path).parts
+            and not JS_TEST_FILE.search(path)]
+
+
 def project_build(repo: Path, files: list[str]):
     builds = set()
     for relative in files:
@@ -81,7 +89,7 @@ def project_build(repo: Path, files: list[str]):
 
 def preflight(repo: Path, scope: dict) -> tuple[dict, dict]:
     files = {
-        "javascript-typescript": relative_files(repo, scope, JS_EXTENSIONS),
+        "javascript-typescript": stryker_files(repo, scope),
         "python": relative_files(repo, scope, {".py"}),
         "jvm": relative_files(repo, scope, JVM_EXTENSIONS),
     }
@@ -140,8 +148,8 @@ def parse_stryker(report: Path, repo: Path, project: Path,
     if not isinstance(files, dict):
         raise MutationFailure("invalid Stryker report: files must be an object")
     prefix = project.relative_to(repo).as_posix()
-    terminal = {"Killed", "Survived", "NoCoverage", "Timeout",
-                "RuntimeError", "CompileError"}
+    terminal = {"Killed", "Survived", "NoCoverage", "Timeout", "RuntimeError",
+                "CompileError", "Ignored"}
     results, incomplete = [], []
     for path, payload in files.items():
         repo_path = (PurePosixPath(prefix) / path).as_posix() if prefix != "." else path
@@ -152,7 +160,7 @@ def parse_stryker(report: Path, repo: Path, project: Path,
             raise MutationFailure(f"invalid Stryker mutants for {path}")
         for mutant in mutants:
             status = mutant.get("status") if isinstance(mutant, dict) else None
-            if status in {"Ignored", "Pending"}:
+            if status == "Pending":
                 incomplete.append(f"{repo_path}: {status}")
                 continue
             if status not in terminal:
@@ -202,19 +210,23 @@ def run_mutmut(runtime, output: Path, timeout: int) -> list[dict]:
     terminal = {"caught by type check", "killed", "survived", "no tests",
                 "suspicious", "timeout", "segfault"}
     incomplete = {"skipped", "check was interrupted by user", "not checked"}
+    evaluated = False
     rows = []
     for number, raw in enumerate(results.read_text().splitlines(), 1):
         if not raw.strip():
             continue
         if ": " not in raw:
             raise MutationFailure(f"invalid mutmut results line {number}: {raw}")
-        mutant, status = raw.rsplit(": ", 1)
+        mutant, status = (part.strip() for part in raw.rsplit(": ", 1))
         if not mutant or status not in terminal | incomplete:
             raise MutationFailure(f"invalid mutmut results line {number}: {raw}")
+        evaluated = True
         if status in incomplete:
             raise MutationFailure(f"incomplete mutmut results: {mutant}: {status}")
         if status in {"survived", "no tests", "suspicious"}:
             rows.append((mutant, status))
+    if not evaluated:
+        raise MutationFailure("mutmut reported zero evaluated mutants")
     findings = []
     shows = output / "mutmut-shows.txt"
     shows.write_text("")
@@ -225,16 +237,26 @@ def run_mutmut(runtime, output: Path, timeout: int) -> list[dict]:
         with shows.open("a", encoding="utf-8") as handle:
             handle.write(f"=== {status}\t{mutant} ===\n{body}\n")
         match = re.search(r"^---\s+(?:a/)?([^\t\n]+)", body, re.MULTILINE)
-        line = re.search(r"^@@\s+-\d+(?:,\d+)?\s+\+(\d+)", body, re.MULTILINE)
         if not match:
             raise MutationFailure(f"cannot locate source file for mutmut mutant {mutant}")
         path = PurePosixPath(match.group(1).strip()).as_posix()
         if path not in changed:
             continue
+        definition = re.search(
+            r"^[ -](?P<definition>\s*(?:async\s+)?def\s+[A-Za-z_]\w*\s*\([^\n]*)",
+            body, re.MULTILINE,
+        )
+        source_line = "?"
+        if definition:
+            source = (repo / path).read_text(encoding="utf-8").splitlines()
+            matches = [index for index, value in enumerate(source, 1)
+                       if value.rstrip() == definition.group("definition").rstrip()]
+            if len(matches) == 1:
+                source_line = str(matches[0])
         label = {"survived": "Surviving", "no tests": "Uncovered",
                  "suspicious": "Suspicious"}[status]
         findings.append(finding(
-            "mutmut", f"{path}:{line.group(1) if line else '?'}",
+            "mutmut", f"{path}:{source_line}",
             f"{label} mutmut mutant: {mutant}",
             "Add a focused assertion that decisively kills this mutant.",
         ))

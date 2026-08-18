@@ -32,7 +32,7 @@ from pathlib import Path
 _SCRIPT_ROOT = Path(__file__).resolve().parent.parent
 if str(_SCRIPT_ROOT) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_ROOT))
-from coverage import file_identity, set_phase, write_json_atomic  # noqa: E402
+from manifest import file_identity, set_phase, write_json_atomic  # noqa: E402
 
 # Allow `python3 run.py ...` direct invocation by adding the parent dir to sys.path.
 if __package__ is None or __package__ == "":

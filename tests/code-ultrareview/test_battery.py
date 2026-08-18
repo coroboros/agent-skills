@@ -44,6 +44,21 @@ def _python_shim(directory: Path) -> None:
     )
 
 
+def _jscpd_empty(directory: Path) -> None:
+    _shim(
+        directory,
+        "jscpd",
+        'while [[ $# -gt 0 ]]; do\n'
+        '  if [[ "$1" == "--output" ]]; then\n'
+        '    mkdir -p "$2"\n'
+        '    printf \'{"duplicates":[]}\\n\' > "$2/jscpd-report.json"\n'
+        '    exit 0\n'
+        '  fi\n'
+        '  shift\n'
+        'done\nexit 2',
+    )
+
+
 def _touch(repo: Path, relative: str, body: str = "") -> None:
     path = repo / relative
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -184,6 +199,30 @@ class TestInputAndDispatch(unittest.TestCase):
         self.assertFalse(stale.exists())
         self.assertFalse(state["tool_coverage"]["complete"])
         self.assertFalse(state["coverage_complete"])
+
+    def test_dry_run_preserves_previous_completed_battery(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(
+                repo, ["README.md"], ["markdown"],
+                tool_coverage={"complete": True}, coverage_complete=True,
+            )
+            output = repo / "out"
+            output.mkdir()
+            previous = output / "tool-findings.jsonl"
+            previous.write_text('{"message":"previous"}\n', encoding="utf-8")
+            bin_dir = repo / "bin"
+            _shim(bin_dir, "markdownlint-cli2")
+            result = _run_battery(
+                repo, scope, bin_dir=bin_dir, output_dir=output,
+                axes="documentation", dry_run=True,
+            )
+            state = json.loads(scope.read_text(encoding="utf-8"))
+            previous_text = previous.read_text(encoding="utf-8")
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(state["tool_coverage"]["complete"])
+        self.assertTrue(state["coverage_complete"])
+        self.assertEqual(previous_text, '{"message":"previous"}\n')
 
     def test_language_matrix_and_triggers(self):
         cases = (
@@ -327,6 +366,16 @@ class TestPreflightAndResolution(unittest.TestCase):
         self.assertEqual(state["tool_coverage"]["executed"], ["markdownlint-cli2"])
         self.assertTrue(state["tool_coverage"]["complete"])
 
+    def test_markdown_only_repo_gets_path_install_guidance(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["README.md"], ["markdown"])
+            result, plan = _plan(repo, scope, repo / "bin", axes="documentation")
+        self.assertEqual(result.returncode, 3)
+        self.assertEqual(_names(plan, "missing"), {"markdownlint-cli2"})
+        self.assertIn("on PATH", plan["missing"][0]["install"])
+        self.assertNotIn("npm install", plan["missing"][0]["install"])
+
     def test_preflight_available_set_equals_executed_set(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
@@ -387,6 +436,26 @@ class TestPreflightAndResolution(unittest.TestCase):
 
 
 class TestAnalyzerExecution(unittest.TestCase):
+    def test_markdownlint_real_text_shape_is_ingested_once(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["README.md"], ["markdown"])
+            bin_dir = repo / "bin"
+            _shim(
+                bin_dir,
+                "markdownlint-cli2",
+                "echo 'markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)'\n"
+                "echo 'README.md:1 error MD022/blanks-around-headings "
+                "Headings should be surrounded by blank lines' >&2\nexit 1",
+            )
+            result = _run_battery(
+                repo, scope, bin_dir=bin_dir, axes="documentation"
+            )
+            finding = json.loads((repo / "out/tool-findings.jsonl").read_text())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(finding["source_tool"], "markdownlint-cli2")
+        self.assertEqual(finding["file"], "README.md")
+
     def test_markdownlint_crash_blocks_and_invalidates_previous_findings(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
@@ -417,7 +486,7 @@ class TestAnalyzerExecution(unittest.TestCase):
             )
             state = json.loads(scope.read_text(encoding="utf-8"))
         self.assertEqual(failed.returncode, 4)
-        self.assertIn("without parseable lint findings", failed.stderr)
+        self.assertIn("does not match its documented text or JSON schema", failed.stderr)
         self.assertFalse(final.exists())
         self.assertFalse(state["tool_coverage"]["complete"])
         self.assertFalse(state["coverage_complete"])
@@ -428,26 +497,22 @@ class TestAnalyzerExecution(unittest.TestCase):
             scope = _write_scope(repo, ["main.go"], ["go"])
             trace = repo / "trace.log"
             bin_dir = repo / "bin"
-            _shim(
-                bin_dir,
-                "jscpd",
-                'while [[ $# -gt 0 ]]; do\n'
-                '  if [[ "$1" == "--output" ]]; then\n'
-                '    mkdir -p "$2"\n'
-                '    printf \'{"duplicates":[]}\\n\' > "$2/jscpd-report.json"\n'
-                '    exit 0\n'
-                '  fi\n'
-                '  shift\n'
-                'done\nexit 2',
-            )
+            _jscpd_empty(bin_dir)
             _shim(bin_dir, "lizard")
-            for tool, rc in (("deadcode", 0), ("gocyclo", 1), ("dupl", 0)):
+            for tool, rc in (("deadcode", 0), ("gocyclo", 1)):
                 _shim(
                     bin_dir,
                     tool,
                     f'printf "{tool}|%s|%s|%s|%s\\n" "$GOFLAGS" "$GOPROXY" '
                     f'"$GOTOOLCHAIN" "$*" >> {shlex.quote(str(trace))}\nexit {rc}',
                 )
+            _shim(
+                bin_dir,
+                "dupl",
+                f'printf "dupl|%s|%s|%s|%s\\n" "$GOFLAGS" "$GOPROXY" '
+                f'"$GOTOOLCHAIN" "$*" >> {shlex.quote(str(trace))}\n'
+                "printf '\\nFound total 0 clone groups.\\n'",
+            )
             result = _run_battery(
                 repo,
                 scope,
@@ -504,6 +569,45 @@ class TestAnalyzerExecution(unittest.TestCase):
             )
         self.assertEqual(result.returncode, 4)
         self.assertIn("Semgrep reported analyzer errors", result.stderr)
+
+    def test_semgrep_warning_does_not_block_complete_results(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["src/app.py"], ["python"])
+            bin_dir = repo / "bin"
+            _shim(
+                bin_dir,
+                "semgrep",
+                "printf '{\"results\":[],\"errors\":[{\"level\":\"warn\","
+                "\"message\":\"partial parse\"}]}\\n'",
+            )
+            result = _run_battery(
+                repo, scope, bin_dir=bin_dir, axes="performance"
+            )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("non-blocking analyzer warning", result.stderr)
+
+    def test_cargo_machete_real_unused_dependency_shape_is_ingested(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            scope = _write_scope(repo, ["src/lib.rs", "Cargo.toml"], ["rust"])
+            bin_dir = repo / "bin"
+            _jscpd_empty(bin_dir)
+            _shim(bin_dir, "lizard")
+            _shim(
+                bin_dir,
+                "cargo-machete",
+                "printf 'cargo-machete found the following unused dependencies "
+                "in this directory:\\nrustfix -- ./Cargo.toml:\\n\\tserde\\n\\n"
+                "If you believe cargo-machete detected this incorrectly.\\n'\nexit 1",
+            )
+            result = _run_battery(
+                repo, scope, bin_dir=bin_dir, axes="simplification"
+            )
+            findings = [json.loads(line) for line in
+                        (repo / "out/tool-findings.jsonl").read_text().splitlines()]
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(any(item["source_tool"] == "cargo-machete" for item in findings))
 
     def test_final_findings_publish_failure_keeps_coverage_incomplete(self):
         with tempfile.TemporaryDirectory() as tmp:

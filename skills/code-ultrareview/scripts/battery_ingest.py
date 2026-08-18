@@ -669,6 +669,7 @@ def parse_dupl(raw: str) -> list[dict]:
 
     loc_re = re.compile(r"(?P<file>[^\s]+\.go):(?P<start>\d+),(?P<end>\d+)")
     summary_re = re.compile(r"^found\s+(?P<count>\d+)\s+clones?:$", re.IGNORECASE)
+    total_re = re.compile(r"^Found total (?P<count>\d+) clone groups?\.$")
     for line in raw.splitlines():
         stripped = line.strip()
         if not stripped:
@@ -678,6 +679,10 @@ def parse_dupl(raw: str) -> list[dict]:
         summary = summary_re.fullmatch(stripped)
         if summary:
             clone_count = int(summary.group("count"))
+            continue
+        total = total_re.fullmatch(stripped)
+        if total:
+            clone_count = int(total.group("count"))
             continue
         m = loc_re.search(stripped)
         if m:
@@ -695,13 +700,15 @@ def parse_dupl(raw: str) -> list[dict]:
 
 
 _MACHETE_HEADER = re.compile(
-    r"cargo-machete found the following unused dependencies in (?P<file>.+):"
+    r"cargo-machete found the following unused dependencies in .+:"
 )
+_MACHETE_CRATE = re.compile(r"^\S+ -- (?P<file>.+Cargo\.toml):$")
 
 
 def parse_cargo_machete(raw: str) -> list[dict]:
     findings: list[dict] = []
     current_file: str | None = None
+    saw_dependency = False
     recognized = 0
     unknown: list[str] = []
     clean_re = re.compile(
@@ -712,13 +719,18 @@ def parse_cargo_machete(raw: str) -> list[dict]:
     for line in raw.splitlines():
         stripped = line.strip()
         if not stripped:
+            if saw_dependency:
+                break
             continue
         if clean_re.search(stripped):
             recognized += 1
             continue
-        m = _MACHETE_HEADER.search(line)
-        if m:
-            current_file = m.group("file").strip()
+        if _MACHETE_HEADER.fullmatch(stripped):
+            recognized += 1
+            continue
+        crate = _MACHETE_CRATE.fullmatch(stripped)
+        if crate:
+            current_file = crate.group("file")
             recognized += 1
             continue
         if current_file is None:
@@ -731,6 +743,7 @@ def parse_cargo_machete(raw: str) -> list[dict]:
             unknown.append(stripped)
             continue
         recognized += 1
+        saw_dependency = True
         findings.append(_emit(
             file=current_file, line_start=1, line_end=1,
             severity="Low", axis=TOOL_TO_AXIS["cargo-machete"],

@@ -23,7 +23,9 @@ Runs the repository's canonical test command as an atomic gate BEFORE the Phase 
 | `pnpm-lock.yaml` + non-empty `scripts.test` | `pnpm` | `pnpm test` |
 | `yarn.lock` + non-empty `scripts.test` | `yarn` | `yarn test` |
 | `package-lock.json` or `package.json` + non-empty `scripts.test` | `npm` | `npm test` |
-| `pyproject.toml` / `requirements.txt` mentioning `pytest` | `pytest` | `pytest -x` |
+| `pyproject.toml` / requirements mentioning `pytest` + `uv.lock` | `pytest` | `uv run --frozen --offline pytest -x` |
+| `pyproject.toml` / requirements mentioning `pytest` + `poetry.lock` | `pytest` | `poetry run pytest -x` |
+| Other Python manifest mentioning `pytest` | `pytest` | `pytest -x` |
 | A `test*.py` file containing a unittest test method | `unittest` | `python3 -m unittest discover` |
 | `Cargo.toml` | `cargo` | `cargo test` |
 | `go.mod` | `go` | `go test ./...` |
@@ -70,7 +72,7 @@ Produces an independently manifested mutation-findings stream. Axis preparation 
 `run_mutation.py` reads `scope.json["languages"]` and `scope.json["files_touched_list"]`:
 
 - **JS/TS** — requires `@stryker-mutator/core` declared in `package.json`, its executable local/workspace-hoisted or Yarn Plug'n'Play `stryker`, and `stryker.config.*`. A declared dependency never falls back to a global version. The `--mutate` argument contains only changed `.ts/.tsx/.js/.jsx/.mjs/.cjs` files.
-- **Python** — requires `mutmut` on `PATH` and `source_paths` under `[mutmut]` in `setup.cfg` or `[tool.mutmut]` in `pyproject.toml`. The `pyproject.toml` path requires Python 3.11+ so the standard-library `tomllib` parser can validate it without adding a runtime dependency. mutmut v3 executes the configured project scope; findings are filtered to changed `.py` files.
+- **Python** — requires `mutmut` on `PATH` and project mutation configuration. mutmut v3 executes the configured project scope; findings are filtered to changed `.py` files.
 - **JVM (Maven)** — requires `mvn` on `PATH`, `pom.xml`, and `org.pitest:pitest-maven` under `build.plugins`. It runs `mvn --offline -q -B pitest:mutationCoverage`; findings are filtered to changed JVM source files.
 - **JVM (Gradle)** — requires `gradle` on `PATH` and the `info.solidsoft.pitest` plugin in `build.gradle` or `build.gradle.kts`. It runs `gradle --offline --no-daemon pitest`; remediation stays Gradle-specific.
 
@@ -78,8 +80,8 @@ Produces an independently manifested mutation-findings stream. Axis preparation 
 
 Each tool writes its native report:
 
-- **Stryker** — validates `reports/mutation/mutation.json` against the Mutation Report Schema. `Survived` and `NoCoverage` mutants become Tests-axis findings with `location: "<file>:<line>:<col>"`; a successful run with zero changed-file mutants is valid and emits no findings.
-- **mutmut** — runs `mutmut results --all true`, validates every mutmut v3 `name: status` row, and calls `mutmut show <name>` for every terminal row to map it to a file and line. Killed, caught-by-type-check, survived, no-tests, suspicious, timeout, and segfault rows mapped to changed files prove evaluation; only `survived`, `no tests`, and `suspicious` rows become findings. `not checked`, interrupted, or zero evaluated mutants block as incomplete. All commands use bounded process-group timeouts.
+- **Stryker** — validates `reports/mutation/mutation.json` against the Mutation Report Schema. `Survived` and `NoCoverage` mutants become Tests-axis findings with `location: "<file>:<line>:<col>"`; `Ignored` is intentional and `Pending` blocks as incomplete. A successful run with zero changed-file mutants is valid and emits no findings.
+- **mutmut** — runs `mutmut results --all true`, validates every mutmut v3 `name: status` row, and calls `mutmut show <name>` for findings to map them to a changed file and its unique function definition. Killed, caught-by-type-check, survived, no-tests, suspicious, timeout, and segfault rows prove evaluation; only `survived`, `no tests`, and `suspicious` rows become findings. `not checked`, interrupted, or zero evaluated mutants block as incomplete. All commands use bounded process-group timeouts.
 - **Pitest** — validates each fresh canonical `mutations.xml` under `target/pit-reports/**` for Maven or `build/reports/pitest/**` for Gradle. `SURVIVED` and `NO_COVERAGE` rows mapped to changed files become findings; a successful run with no mapped survivors is valid. Any nonzero Pitest exit blocks before report parsing, even if a fresh report exists.
 
 All parsed findings emit to `<output-dir>/mutation-findings.jsonl` with the canonical schema:

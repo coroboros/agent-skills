@@ -5,6 +5,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=designmd-runtime.sh
 source "$SCRIPT_DIR/designmd-runtime.sh"
 ORIGINAL_ARGS=("$@")
 
