@@ -25,7 +25,7 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 
 From `scripts/battery_ingest.py:_semgrep_axis`:
 
-- `semgrep` findings where `check_id` starts with `code-ultrareview-` OR `metadata.axis == "performance"` route here.
+- `semgrep` findings route here only when `check_id` starts with `code-ultrareview-` AND `metadata.axis == "performance"`.
 - Bundled rules in `references/perf-rules/`:
   - `n-plus-one-sqlalchemy.yml` — Python SQLAlchemy N+1.
   - `n-plus-one-sequelize.yml` — JS Sequelize N+1.
@@ -43,7 +43,7 @@ All tool findings carry `confidence: 100` and skip validators.
 
 | `repo_kind` | Behavior |
 |-------------|----------|
-| `skills` | Skills are not perf-sensitive (one-shot CLI invocations). Axis emits a single info finding "Skipped — skills repo" and exits. |
+| `skills` | Review executable scripts and long-running commands normally. For instruction-only diffs with no executable surface, emit the canonical `{"axis":"performance","no_findings":true}` marker. |
 | `app` | Full review — request path, page load, hydration. |
 | `library` | Full review — library consumers care about allocations. |
 | `python`, `rust`, `go` | Full review with language-native patterns (Python async, Rust allocations, Go goroutine leaks). |

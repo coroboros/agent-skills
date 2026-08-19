@@ -1,0 +1,7 @@
+# calc.x_clamp__mutmut_5: survived
+--- calc/__init__.py
++++ calc/__init__.py
+@@ -1,2 +1,2 @@
+ def clamp(value):
+-    return max(0, value)
++    return max(1, value)

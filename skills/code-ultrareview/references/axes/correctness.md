@@ -11,7 +11,7 @@ Anchor: `references/anthropic-verbatim.md` § HIGH SIGNAL review criteria (Agent
 - Race conditions and resource leaks — unawaited promises, unclosed handles, missing locks.
 - Single-source-of-truth violations — a literal (path, URL, endpoint, constant, version, env-var name) duplicated by the diff in two or more places, where divergence would break behavior. Cite both sites.
 - Docstring / comment drift — the diff makes code disagree with the comment on the same line or block.
-- Spec-claim divergence — when the diff, README, or CLAUDE.md cites a named normative spec (`RFC <N>`, `WHATWG`, `ISO/IEC <N>`, `OpenAPI`), and the implementation contradicts a quoted clause. Spec text is the evidence; confidence ≥ 80.
+- Spec-claim divergence — when the diff, README, or project instruction chain cites a named normative spec (`RFC <N>`, `WHATWG`, `ISO/IEC <N>`, `OpenAPI`), and the implementation contradicts a quoted clause. Spec text is the evidence; confidence ≥ 80.
 
 ## Out of scope (false positives — silence at source)
 
@@ -19,7 +19,7 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 
 - Pre-existing bugs on lines the diff does not touch — surfaces as `Pre-existing` tier, never flips the verdict.
 - Anything a typechecker / compiler / linter would catch — type errors, missing imports, formatting. CI handles those.
-- Stylistic preferences without a CLAUDE.md rule — `style` axis owns those.
+- Stylistic preferences without an explicit project instruction — `style` axis owns those.
 - Intentional behavior changes related to the diff's purpose — not bugs.
 - Real bugs on unchanged lines — out of scope; the diff did not cause them.
 
@@ -27,10 +27,10 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 
 From `scripts/battery_ingest.py:TOOL_TO_AXIS`:
 
-- `semgrep` (default routing) — generic pattern findings. Confidence 100, skip validators.
-- Performance-specific semgrep rules (prefix `code-ultrareview-` or `metadata.axis: performance`) route to the Performance axis, NOT here.
+- No deterministic tool findings route to Correctness from the standard battery.
+- Semgrep runs only the bundled `code-ultrareview-*` performance rules; every accepted Semgrep finding routes to the Performance axis. Generic or mismatched Semgrep rules invalidate the report instead of falling back to Correctness.
 
-The Correctness axis ALSO runs without tool input on repos with no semgrep coverage — LLM judgment carries the axis.
+Correctness is an LLM-judgment axis and always runs even though its filtered tool input is empty.
 
 ## Severity calibration
 
@@ -55,8 +55,8 @@ The Correctness axis ALSO runs without tool input on repos with no semgrep cover
 
 The Phase 3 orchestrator passes:
 
-- `scope.json` — repo kind, languages, files touched, CLAUDE.md chain.
-- `tool-findings.jsonl` filtered to `axis: correctness` — semgrep generic findings only.
+- `scope.json` — repo kind, languages, files touched, instruction chain.
+- `tool-findings.jsonl` filtered to `axis: correctness` — empty under the standard battery.
 - The diff itself (resolved by Phase 1).
 - This brief.
 - `references/anthropic-verbatim.md` — rubric + false-positive list.

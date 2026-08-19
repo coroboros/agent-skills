@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-"""Phase 4 Haiku-validator orchestrator for code-ultrareview.
+"""Phase 4 fresh-context-validator orchestrator for code-ultrareview.
 
-The main thread launches one Haiku validator per still-sub-80 finding
+The main thread launches one fresh-context validator per still-sub-80 finding
 from Phase 3, batched at ten parallel — subagents cannot spawn other
 subagents (Anthropic's documented contract: `Agent` tool is reserved
 for the main thread). This module is the deterministic half:
 
 1. Filter the sub-80 finding set from Phase 3 — confidence-100 tool
    findings skip validation entirely.
-2. Locate the deepest matching CLAUDE.md snippet from the chain so the
+2. Locate the deepest matching project-instruction snippet from the chain so the
    validator can re-check whether the cited rule actually exists.
 3. Build the per-finding validator prompt — citing
    `references/anthropic-verbatim.md` rubric VERBATIM, plus the
-   CLAUDE.md re-check requirement.
+   project-instruction re-check requirement.
 4. Write per-finding input bundles to disk so the main-thread orchestrator
    can `Read` them and fan out `Task` calls in batches of ten.
 
@@ -23,8 +23,8 @@ and reasons, then applies the A2 promote/demote routing on top of
 Canonical schemas:
 
     axis-findings.jsonl            # produced by Phase 3 axis subagents
-    validator-input/{NNNN}.json    # {finding, diff_context, claude_md_*, paths}
-    validator-prompt/{NNNN}.txt    # full Haiku prompt blob
+    validator-input/{NNNN}.json    # {finding, diff_context, instruction_*, paths}
+    validator-prompt/{NNNN}.txt    # full validator prompt blob
     validated-findings.jsonl       # produced by ingest
 
 CLI:
@@ -43,17 +43,33 @@ CLI:
 from __future__ import annotations
 
 import argparse
+import ast
 import importlib.util
 import json
 import re
 import sys
-from pathlib import Path
+import uuid
+from pathlib import Path, PurePosixPath
 from typing import TypeVar
+
+_SCRIPT_DIR = Path(__file__).resolve().parent
+if str(_SCRIPT_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_DIR))
+
+from manifest import (  # noqa: E402
+    file_identity as _file_identity,
+    read_required_diff as _read_text,
+    read_scope as _read_json,
+    set_phase as _set_phase,
+    verify_file_identity as _verify_file_identity,
+    verify_jsonl_output as _verify_jsonl_output,
+    write_jsonl_atomic as _write_jsonl_atomic,
+)
 
 # Reuse synthesis_core primitives — single source of truth for the
 # 80 threshold, the [unverified] prefix, and the severity restoration
 # semantics. A divergence here breaks the A2 contract; tests enforce it.
-_SYNTH_PATH = Path(__file__).resolve().parent / "synthesis_core.py"
+_SYNTH_PATH = _SCRIPT_DIR / "synthesis_core.py"
 _spec = importlib.util.spec_from_file_location("synthesis_core", _SYNTH_PATH)
 assert _spec is not None and _spec.loader is not None
 synthesis_core = importlib.util.module_from_spec(_spec)
@@ -64,8 +80,8 @@ PROMOTION_CAP = synthesis_core.PROMOTION_CAP
 UNVERIFIED_PREFIX = synthesis_core.UNVERIFIED_PREFIX
 
 # Soft concurrency cap — Anthropic's `code-review` plugin batches one
-# Haiku validator per finding at ten parallel; the deep research echoes
-# the same community-observed limit.
+# Fresh-context validator per finding at ten parallel; Anthropic's Haiku
+# implementation and the deep research echo the same community-observed limit.
 MAX_BATCH_SIZE = 10
 
 # Anthropic-verbatim source — every validator prompt cites it.
@@ -80,21 +96,24 @@ DIFF_CONTEXT_LINES = 40
 # The validator prompt requires both keys on separate lines.
 _SCORE_RE = re.compile(r"^\s*score\s*:\s*(\d+)\s*$", re.IGNORECASE | re.MULTILINE)
 _REASON_RE = re.compile(r"^\s*reason\s*:\s*(.+)$", re.IGNORECASE | re.MULTILINE)
+_RUN_ID_RE = re.compile(r"^\s*run-id\s*:\s*([a-f0-9]+)\s*$", re.IGNORECASE | re.MULTILINE)
 
 
 def filter_sub_threshold(findings: list[dict]) -> list[dict]:
-    """Return only findings with confidence in `(0, CONFIDENCE_THRESHOLD)`.
+    """Return findings with confidence in `[0, CONFIDENCE_THRESHOLD)`.
 
     Excludes:
-    - confidence-0 findings — A2 already drops these (false positives).
     - confidence-100 findings — deterministic tool battery output;
       validators never see them.
     - confidence ≥ threshold — already verified; no validator pass.
+
+    Confidence zero is still a claim emitted by an axis reviewer. Validation,
+    not a sentinel convention, decides whether it is refuted or surfaced.
     """
     out: list[dict] = []
     for f in findings:
         conf = int(f.get("confidence", 0))
-        if 0 < conf < CONFIDENCE_THRESHOLD:
+        if 0 <= conf < CONFIDENCE_THRESHOLD:
             out.append(f)
     return out
 
@@ -113,12 +132,112 @@ def batch(items: list[_T], size: int = MAX_BATCH_SIZE) -> list[list[_T]]:
     return [items[i:i + size] for i in range(0, len(items), size)]
 
 
-def find_claude_md_snippet(
+def _frontmatter_paths(body: str) -> list[str] | None:
+    """Return a rule's `paths` patterns, or None when it is unscoped."""
+    lines = body.splitlines()
+    if not lines or lines[0].strip() != "---":
+        return None
+    try:
+        end = next(i for i, line in enumerate(lines[1:], 1) if line.strip() == "---")
+    except StopIteration:
+        return None
+
+    frontmatter = lines[1:end]
+    for index, line in enumerate(frontmatter):
+        if not re.match(r"^paths\s*:", line):
+            continue
+        value = line.split(":", 1)[1].strip()
+        raw_patterns: list[str] = []
+        if value:
+            if value.startswith("[") and value.endswith("]"):
+                try:
+                    parsed = json.loads(value)
+                except json.JSONDecodeError:
+                    try:
+                        parsed = ast.literal_eval(value)
+                    except (SyntaxError, ValueError):
+                        parsed = None
+                if isinstance(parsed, list) and all(
+                    isinstance(item, str) for item in parsed
+                ):
+                    raw_patterns.extend(parsed)
+                else:
+                    raw_patterns.extend(value[1:-1].split(","))
+            else:
+                raw_patterns.append(value)
+        else:
+            for nested in frontmatter[index + 1:]:
+                if nested and not nested[0].isspace():
+                    break
+                match = re.match(r"^\s*-\s*(.+?)\s*$", nested)
+                if match:
+                    raw_patterns.append(match.group(1))
+        return [
+            pattern.strip().strip("'\"")
+            for pattern in raw_patterns
+            if pattern.strip().strip("'\"")
+        ]
+    return None
+
+
+def _expand_braces(pattern: str) -> list[str]:
+    match = re.search(r"\{([^{}]+)\}", pattern)
+    if not match:
+        return [pattern]
+    expanded: list[str] = []
+    for choice in match.group(1).split(","):
+        replacement = pattern[:match.start()] + choice + pattern[match.end():]
+        expanded.extend(_expand_braces(replacement))
+    return expanded
+
+
+def _globstar_variants(pattern: str) -> list[str]:
+    variants = [pattern]
+    marker = "**/"
+    if marker in pattern:
+        variants.extend(_globstar_variants(pattern.replace(marker, "", 1)))
+    return variants
+
+
+def _glob_matches(pattern: str, finding_path: str) -> bool:
+    path = PurePosixPath(finding_path.removeprefix("./").strip("/"))
+    return any(
+        path.match(variant.removeprefix("./").strip("/"))
+        for item in _expand_braces(pattern)
+        for variant in _globstar_variants(item)
+    )
+
+
+def _instruction_applies(path_str: str, location: str, body: str) -> bool:
+    """Return whether an instruction file can govern the finding."""
+    path = Path(path_str)
+    finding_path = "" if location == "(repo)" else location.split(":", 1)[0]
+    if not path.is_absolute() and finding_path:
+        parts = path.parts
+        scope_parts = parts[:-1]
+        for marker in (".agents", ".claude"):
+            if marker in parts:
+                scope_parts = parts[:parts.index(marker)]
+                break
+        scope = "/".join(scope_parts)
+        if scope and finding_path != scope and not finding_path.startswith(f"{scope}/"):
+            return False
+
+    patterns = _frontmatter_paths(body)
+    if patterns is None:
+        return True
+    return bool(finding_path) and any(
+        _glob_matches(pattern, finding_path) for pattern in patterns
+    )
+
+
+def find_instruction_snippet(
     rule_text: str,
-    claude_md_chain: list[str],
+    instruction_chain: list[str],
     repo_dir: Path,
+    location: str = "",
 ) -> tuple[str | None, str | None]:
-    """Return `(path, snippet)` for the deepest CLAUDE.md file whose body
+    """Return `(path, snippet)` for the deepest instruction file whose body
     contains `rule_text`, case-insensitive substring match.
 
     The chain is ordered root-to-deepest; deepest match wins so nested
@@ -135,7 +254,7 @@ def find_claude_md_snippet(
     if not needle:
         return (None, None)
     best: tuple[str | None, str | None] = (None, None)
-    for path_str in claude_md_chain:
+    for path_str in instruction_chain:
         path = Path(path_str)
         if not path.is_absolute():
             path = repo_dir / path
@@ -144,6 +263,8 @@ def find_claude_md_snippet(
         try:
             body = path.read_text(encoding="utf-8")
         except (OSError, UnicodeDecodeError):
+            continue
+        if not _instruction_applies(path_str, location, body):
             continue
         lower = body.lower()
         idx = lower.find(needle)
@@ -187,18 +308,18 @@ def extract_diff_context(diff_text: str, location: str) -> str:
 PROMPT_TEMPLATE = """\
 # Validator: re-score sub-80 finding
 
-You are a Haiku validator for code-ultrareview Phase 4. One axis
+You are a fresh-context validator for code-ultrareview Phase 4. One axis
 reviewer judged the finding below at sub-80 confidence. Re-score it
-0-100 against the VERBATIM Anthropic rubric and verify the CLAUDE.md
+0-100 against the VERBATIM Anthropic rubric and verify the project-instruction
 citation, if any.
 
 ## Your contract
 
 - Read `{anthropic_verbatim}` and apply the 0-100 confidence rubric VERBATIM.
 - Read `{anthropic_verbatim}` and silence false positives per the documented taxonomy.
-- Re-check the CLAUDE.md citation: if the finding cites a rule, confirm
+- Re-check the project-instruction citation: if the finding cites a rule, confirm
   the rule text is actually present in the snippet below; demote with
-  reason "CLAUDE.md rule not found at {claude_md_path}" when absent.
+  reason "Instruction rule not found at {instruction_path}" when absent.
 - Do NOT check build signal or attempt to build / typecheck. CI does that
   separately (per the verbatim agent-assumption rule).
 - Do NOT propose a new finding. Only re-score the one given.
@@ -215,16 +336,17 @@ citation, if any.
 {diff_context}
 ```
 
-## CLAUDE.md snippet ({claude_md_path})
+## Project instruction snippet ({instruction_path})
 
 ```
-{claude_md_snippet}
+{instruction_snippet}
 ```
 
 ## Output
 
-Emit EXACTLY two lines to stdout, in this order, nothing else:
+Emit EXACTLY three lines to stdout, in this order, nothing else:
 
+    run-id: {run_id}
     score: <integer 0-100>
     reason: <single-line explanation, ≤ 200 chars>
 
@@ -241,25 +363,27 @@ tool. Synthesis owns report emission.
 def build_validator_prompt(
     finding: dict,
     diff_context: str,
-    claude_md_snippet: str | None,
-    claude_md_path: str | None,
+    instruction_snippet: str | None,
+    instruction_path: str | None,
     anthropic_verbatim_path: str,
+    run_id: str = "direct-call",
 ) -> str:
-    """Build the Haiku validator prompt for a single finding.
+    """Build the fresh-context validator prompt for a single finding.
 
-    Missing CLAUDE.md snippet renders explicit "(not found in
-    claude_md_chain)" placeholders so the validator can apply the
+    Missing instruction snippet renders explicit "(not found in
+    instruction_chain)" placeholders so the validator can apply the
     demote-with-reason rule deterministically.
     """
-    snippet = claude_md_snippet or "(not found in claude_md_chain)"
-    path = claude_md_path or "(none)"
+    snippet = instruction_snippet or "(not found in instruction_chain)"
+    path = instruction_path or "(none)"
     return PROMPT_TEMPLATE.format(
         anthropic_verbatim=anthropic_verbatim_path,
         finding_json=json.dumps(finding, indent=2, sort_keys=False),
         location=finding.get("location", "?"),
         diff_context=diff_context or "(no diff context)",
-        claude_md_snippet=snippet,
-        claude_md_path=path,
+        instruction_snippet=snippet,
+        instruction_path=path,
+        run_id=run_id,
     )
 
 
@@ -271,6 +395,8 @@ def prepare_validator_bundle(
     output_dir: Path,
     skill_dir: Path,
     repo_dir: Path | None = None,
+    run_id: str = "direct-call",
+    input_hashes: dict | None = None,
 ) -> dict:
     """Write per-finding input + prompt files; return their absolute paths.
 
@@ -278,10 +404,13 @@ def prepare_validator_bundle(
     and `output_dir/validator-prompt/{NNNN}.txt`. The `NNNN` prefix is
     zero-padded so directory listings sort in dispatch order.
     """
-    chain = list(scope.get("claude_md_chain", []))
+    chain = list(scope.get("instruction_chain") or [])
     rule_text = str(finding.get("rule") or finding.get("finding", ""))
-    claude_md_path, claude_md_snippet = find_claude_md_snippet(
-        rule_text, chain, repo_dir or Path.cwd(),
+    instruction_path, instruction_snippet = find_instruction_snippet(
+        rule_text,
+        chain,
+        repo_dir or Path.cwd(),
+        str(finding.get("location", "")),
     )
 
     diff_context = extract_diff_context(
@@ -300,11 +429,13 @@ def prepare_validator_bundle(
     anthropic_path = str((skill_dir / ANTHROPIC_VERBATIM).resolve())
 
     bundle = {
+        "run_id": run_id,
+        "input_hashes": input_hashes or {},
         "index": index,
         "finding": finding,
         "diff_context": diff_context,
-        "claude_md_path": claude_md_path,
-        "claude_md_snippet": claude_md_snippet,
+        "instruction_path": instruction_path,
+        "instruction_snippet": instruction_snippet,
         "anthropic_verbatim_path": anthropic_path,
     }
     input_path.write_text(
@@ -314,9 +445,10 @@ def prepare_validator_bundle(
     prompt = build_validator_prompt(
         finding=finding,
         diff_context=diff_context,
-        claude_md_snippet=claude_md_snippet,
-        claude_md_path=claude_md_path,
+        instruction_snippet=instruction_snippet,
+        instruction_path=instruction_path,
         anthropic_verbatim_path=anthropic_path,
+        run_id=run_id,
     )
     prompt_path.write_text(prompt, encoding="utf-8")
 
@@ -325,6 +457,7 @@ def prepare_validator_bundle(
         "finding_id": finding.get("location", "?"),
         "input_path": str(input_path),
         "prompt_path": str(prompt_path),
+        "run_id": run_id,
     }
 
 
@@ -335,6 +468,8 @@ def prepare(
     output_dir: Path,
     skill_dir: Path,
     repo_dir: Path | None = None,
+    run_id: str = "direct-call",
+    input_hashes: dict | None = None,
 ) -> dict:
     """Filter sub-80 findings + write all bundles + return the batch plan.
 
@@ -353,16 +488,23 @@ def prepare(
             output_dir=output_dir,
             skill_dir=skill_dir,
             repo_dir=repo_dir,
+            run_id=run_id,
+            input_hashes=input_hashes,
         )
     batches = batch(list(range(len(sub_findings))))
     return {
         "count": len(sub_findings),
         "batches": batches,
         "bundles": bundles,
+        "run_id": run_id,
+        "input_hashes": input_hashes or {},
     }
 
 
-def parse_validator_output(stdout: str) -> tuple[int, str]:
+def parse_validator_output(
+    stdout: str,
+    expected_run_id: str | None = None,
+) -> tuple[int, str]:
     """Parse `score: <int>` + `reason: <text>` from validator stdout.
 
     Raises `ValueError` when either line is missing or malformed — the
@@ -371,6 +513,10 @@ def parse_validator_output(stdout: str) -> tuple[int, str]:
     """
     if not stdout:
         raise ValueError("validator stdout is empty")
+    if expected_run_id is not None:
+        run_match = _RUN_ID_RE.search(stdout)
+        if not run_match or run_match.group(1) != expected_run_id:
+            raise ValueError("validator stdout run-id does not match prepare")
     score_match = _SCORE_RE.search(stdout)
     if not score_match:
         raise ValueError("validator stdout missing `score:` line")
@@ -416,6 +562,7 @@ def _demote_finding(finding: dict, score: int, reason: str) -> dict:
 def ingest(
     validator_results: list[dict],
     sub_threshold_findings: list[dict],
+    expected_run_id: str | None = None,
 ) -> list[dict]:
     """Apply validator scores to the sub-80 finding set.
 
@@ -429,18 +576,40 @@ def ingest(
     demoted findings stay in Unverified state with the validator's
     reason recorded in `meta.validator_reason`.
     """
-    by_index = {r["index"]: r for r in validator_results}
+    expected = set(range(len(sub_threshold_findings)))
+    seen: set[int] = set()
+    by_index: dict[int, dict] = {}
+    for result in validator_results:
+        if not isinstance(result, dict):
+            raise ValueError("validator result must be a JSON object")
+        if expected_run_id is not None and result.get("run_id") != expected_run_id:
+            raise ValueError("validator result run_id does not match prepare")
+        index = result.get("index")
+        if isinstance(index, bool) or not isinstance(index, int):
+            raise ValueError("validator result index must be an integer")
+        if index in seen:
+            raise ValueError(f"duplicate validator result index: {index}")
+        seen.add(index)
+        score = result.get("score")
+        reason = result.get("reason")
+        if isinstance(score, bool) or not isinstance(score, int) or not 0 <= score <= 100:
+            raise ValueError(f"invalid validator score at index {index}")
+        if not isinstance(reason, str) or not reason.strip():
+            raise ValueError(f"missing validator reason at index {index}")
+        by_index[index] = result
+    if seen != expected:
+        missing = sorted(expected - seen)
+        unexpected = sorted(seen - expected)
+        detail = []
+        if missing:
+            detail.append(f"missing indexes {missing}")
+        if unexpected:
+            detail.append(f"unexpected indexes {unexpected}")
+        raise ValueError("validator coverage incomplete: " + "; ".join(detail))
+
     out: list[dict] = []
     for i, finding in enumerate(sub_threshold_findings):
-        result = by_index.get(i)
-        if result is None:
-            # A2 forbids silent drop: a missing validator result keeps the
-            # finding at its original sub-80 confidence with an explicit reason.
-            out.append(_demote_finding(
-                finding, int(finding.get("confidence", 0)),
-                "Validator produced no output — treat as unverified",
-            ))
-            continue
+        result = by_index[i]
         score = int(result["score"])
         reason = str(result.get("reason", ""))
         if score >= CONFIDENCE_THRESHOLD:
@@ -450,29 +619,43 @@ def ingest(
     return out
 
 
-def _read_jsonl(path: Path) -> list[dict]:
+def _read_jsonl_strict(path: Path) -> list[dict]:
     if not path.is_file():
-        return []
+        raise ValueError(f"JSONL file not found: {path}")
     out: list[dict] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        line = line.strip()
-        if not line:
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
             continue
         try:
-            out.append(json.loads(line))
-        except json.JSONDecodeError:
-            continue
+            record = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"malformed JSONL at {path}:{line_number}") from exc
+        if not isinstance(record, dict):
+            raise ValueError(f"JSONL record must be an object at {path}:{line_number}")
+        out.append(record)
     return out
 
 
-def _read_json(path: Path) -> dict:
-    return json.loads(path.read_text(encoding="utf-8"))
+def _verify_axis_findings(scope: dict, findings_path: Path) -> None:
+    coverage = scope.get("axis_coverage")
+    _verify_jsonl_output(coverage, findings_path, "axis findings")
 
 
-def _read_text(path: Path) -> str:
-    if not path.is_file():
-        return ""
-    return path.read_text(encoding="utf-8")
+def _verify_validator_inputs(scope: dict) -> str:
+    coverage = scope.get("validator_coverage")
+    if not isinstance(coverage, dict):
+        raise ValueError(
+            "validator coverage manifest is missing; rerun validator preparation"
+        )
+    run_id = coverage.get("run_id")
+    if not isinstance(run_id, str) or not run_id:
+        raise ValueError("validator run_id is missing; rerun validator preparation")
+    identities = coverage.get("input_hashes")
+    if not isinstance(identities, dict):
+        raise ValueError("validator input manifest is missing")
+    for key in ("diff", "axis_findings"):
+        _verify_file_identity(identities.get(key), key.replace("_", " "))
+    return run_id
 
 
 def _default_skill_dir() -> Path:
@@ -481,7 +664,7 @@ def _default_skill_dir() -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Phase 4 Haiku-validator orchestrator for code-ultrareview"
+        description="Phase 4 fresh-context-validator orchestrator for code-ultrareview"
     )
     sub = parser.add_subparsers(dest="cmd", required=True)
 
@@ -507,7 +690,7 @@ def main() -> int:
     )
     prep.add_argument(
         "--repo-dir", default=None,
-        help="Repo root for resolving relative CLAUDE.md paths "
+        help="Repo root for resolving relative instruction paths "
         "(default: current working directory)",
     )
 
@@ -527,6 +710,10 @@ def main() -> int:
         "--output", required=True,
         help="Path to write validated-findings.jsonl",
     )
+    ing.add_argument(
+        "--scope", required=True,
+        help="Path to scope.json whose coverage manifest must be completed",
+    )
 
     args = parser.parse_args()
 
@@ -538,9 +725,36 @@ def main() -> int:
             print(f"ERROR: scope.json not found: {scope_path}", file=sys.stderr)
             return 2
 
-        scope = _read_json(scope_path)
-        findings = _read_jsonl(findings_path)
-        diff_text = _read_text(diff_path)
+        try:
+            scope = _read_json(scope_path)
+            axis_coverage = scope.get("axis_coverage")
+            if not isinstance(axis_coverage, dict):
+                raise ValueError(
+                    "axis coverage manifest is missing; rerun axis ingestion"
+                )
+            validator_state = {
+                "complete": False,
+                "expected": 0,
+                "completed": 0,
+            }
+            _set_phase(scope_path, "validator", validator_state)
+            scope = _read_json(scope_path)
+            if axis_coverage.get("complete") is not True:
+                raise ValueError(
+                    "axis coverage is incomplete; finish every requested axis "
+                    "before validator dispatch"
+                )
+            _verify_axis_findings(scope, findings_path)
+            findings = _read_jsonl_strict(findings_path)
+            diff_text = _read_text(diff_path)
+            run_id = uuid.uuid4().hex
+            input_hashes = {
+                "diff": _file_identity(diff_path),
+                "axis_findings": _file_identity(findings_path),
+            }
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"ERROR: validator coverage incomplete: {exc}", file=sys.stderr)
+            return 4
         output_dir = Path(args.output_dir).resolve()
         skill_dir = (
             Path(args.skill_dir).resolve()
@@ -558,7 +772,21 @@ def main() -> int:
             output_dir=output_dir,
             skill_dir=skill_dir,
             repo_dir=repo_dir,
+            run_id=run_id,
+            input_hashes=input_hashes,
         )
+        count = int(result["count"])
+        validator_state = {
+            "complete": count == 0,
+            "expected": count,
+            "completed": 0,
+            "run_id": run_id,
+            "input_hashes": input_hashes,
+        }
+        if count == 0:
+            _set_phase(scope_path, "validator", validator_state, findings_path)
+        else:
+            _set_phase(scope_path, "validator", validator_state)
         sys.stdout.write(json.dumps(result, indent=2, sort_keys=False) + "\n")
         return 0
 
@@ -566,19 +794,72 @@ def main() -> int:
         findings_path = Path(args.findings)
         results_path = Path(args.results)
         output_path = Path(args.output)
+        scope_path = Path(args.scope)
 
-        all_findings = _read_jsonl(findings_path)
-        sub_findings = filter_sub_threshold(all_findings)
-        results = _read_jsonl(results_path)
-        validated = ingest(results, sub_findings)
+        try:
+            scope = _read_json(scope_path)
+            previous = scope.get("validator_coverage")
+            if not isinstance(previous, dict):
+                raise ValueError(
+                    "validator coverage manifest is missing; rerun validator preparation"
+                )
+            validator_state = {
+                "complete": False,
+                "expected": int(previous.get("expected") or 0),
+                "completed": 0,
+                "run_id": previous.get("run_id"),
+                "input_hashes": previous.get("input_hashes"),
+            }
+            _set_phase(scope_path, "validator", validator_state)
+            scope = _read_json(scope_path)
+            if output_path.exists():
+                output_path.unlink()
+            if (scope.get("axis_coverage") or {}).get("complete") is not True:
+                raise ValueError(
+                    "axis coverage is incomplete; rerun axis ingestion before "
+                    "validator ingestion"
+                )
+            run_id = _verify_validator_inputs(scope)
+            _verify_axis_findings(scope, findings_path)
+            all_findings = _read_jsonl_strict(findings_path)
+            sub_findings = filter_sub_threshold(all_findings)
+            if scope["validator_coverage"]["expected"] != len(sub_findings):
+                raise ValueError(
+                    "validator input count does not match the prepared coverage "
+                    "manifest; rerun validator preparation"
+                )
+            results = _read_jsonl_strict(results_path)
+            validated_sub = ingest(
+                results,
+                sub_findings,
+                expected_run_id=run_id,
+            )
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"ERROR: validator coverage incomplete: {exc}", file=sys.stderr)
+            return 4
 
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with output_path.open("w", encoding="utf-8") as fh:
-            for f in validated:
-                fh.write(json.dumps(f, sort_keys=False) + "\n")
+        validated_iter = iter(validated_sub)
+        validated = []
+        for finding in all_findings:
+            confidence = int(finding.get("confidence", 0))
+            if 0 <= confidence < CONFIDENCE_THRESHOLD:
+                validated.append(next(validated_iter))
+            else:
+                validated.append(finding)
+
+        _write_jsonl_atomic(output_path, validated)
+        validator_state = {
+            "complete": True,
+            "expected": len(sub_findings),
+            "completed": len(results),
+            "run_id": run_id,
+            "input_hashes": previous.get("input_hashes"),
+        }
+        _set_phase(scope_path, "validator", validator_state, output_path)
         sys.stdout.write(
             json.dumps({
-                "input_count": len(sub_findings),
+                "input_count": len(all_findings),
+                "validated_count": len(sub_findings),
                 "output_count": len(validated),
                 "output_path": str(output_path.resolve()),
             }, indent=2) + "\n"

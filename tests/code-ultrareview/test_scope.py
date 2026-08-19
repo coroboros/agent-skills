@@ -1,7 +1,7 @@
 """Tests for skills/code-ultrareview/scripts/scope.py.
 
 Covers repo-kind classification (reusing the committed fixtures under
-`fixtures/classify/`), CLAUDE.md hierarchy ordering, Coherence-axis
+`fixtures/classify/`), cross-agent instruction-chain ordering, Coherence-axis
 activation triggers, and languages detection. Diff resolution is covered
 end-to-end via temp-repo init.
 """
@@ -40,6 +40,7 @@ def _init_repo(repo: Path) -> None:
     subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.com"], check=True)
     subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
     subprocess.run(["git", "-C", str(repo), "config", "commit.gpgsign", "false"], check=True)
+    subprocess.run(["git", "-C", str(repo), "config", "core.hooksPath", os.devnull], check=True)
 
 
 def _commit(repo: Path, msg: str = "init") -> None:
@@ -247,84 +248,241 @@ class TestRepoKindCLI(unittest.TestCase):
         self.assertIn("invalid choice", r.stderr.lower())
 
 
+class TestScopeFailures(unittest.TestCase):
+    def test_clean_dirty_tree_exits_2_without_scope(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            _init_repo(repo)
+            (repo / "README.md").write_text("# Clean\n", encoding="utf-8")
+            _commit(repo)
+            result = subprocess.run(
+                [sys.executable, str(SCRIPT), "--repo", str(repo), "--dirty-tree"],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
+        self.assertEqual(result.returncode, 2)
+        self.assertEqual(result.stdout, "")
+        self.assertIn("review scope is empty", result.stderr)
+
+    def test_failed_git_diff_raises_instead_of_returning_empty_scope(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            _init_repo(repo)
+            (repo / "README.md").write_text("# Initial\n", encoding="utf-8")
+            _commit(repo)
+            with self.assertRaisesRegex(RuntimeError, "git diff --numstat failed"):
+                scope.diff_files(repo, "missing-ref", "HEAD")
+
+
 # ---------------------------------------------------------------------------
-# CLAUDE.md chain ordering
+# Cross-agent instruction chain ordering
 # ---------------------------------------------------------------------------
 
 
-class TestClaudeMdChain(unittest.TestCase):
-    """Spec AC: root + .claude/rules/ files appear in claude_md_chain ordered
-    root-to-deepest."""
+class TestInstructionChain(unittest.TestCase):
+    """The baseline follows effective entrypoints from broad to specific."""
 
     def setUp(self):
-        # Hide the global ~/.claude/rules during these tests so the chain
+        # Hide global agent rules during these tests so the chain
         # only reflects the temp repo's content.
         self._old_home = os.environ.get("HOME")
+        self._old_codex_home = os.environ.get("CODEX_HOME")
         self._tmp_home = tempfile.mkdtemp(prefix="scope-test-home-")
         os.environ["HOME"] = self._tmp_home
+        os.environ["CODEX_HOME"] = str(Path(self._tmp_home) / ".codex")
 
     def tearDown(self):
         if self._old_home is not None:
             os.environ["HOME"] = self._old_home
         else:
             os.environ.pop("HOME", None)
+        if self._old_codex_home is not None:
+            os.environ["CODEX_HOME"] = self._old_codex_home
+        else:
+            os.environ.pop("CODEX_HOME", None)
         import shutil
         shutil.rmtree(self._tmp_home, ignore_errors=True)
 
-    def test_root_claude_md_first(self):
+    def test_agents_override_replaces_agents_at_the_same_level(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
+            (repo / "AGENTS.md").write_text("# shared\n", encoding="utf-8")
+            (repo / "AGENTS.override.md").write_text("# override\n", encoding="utf-8")
             (repo / "CLAUDE.md").write_text("# root\n", encoding="utf-8")
-            chain = scope.claude_md_chain(repo, [])
-            self.assertEqual(chain[0], "CLAUDE.md")
+            chain = scope.instruction_chain(repo, [])
+            self.assertEqual(
+                chain,
+                ["AGENTS.override.md", "CLAUDE.md"],
+            )
 
-    def test_root_plus_claude_rules_ordering(self):
-        # Spec AC: root CLAUDE.md + .claude/rules/<name>.md → both present,
-        # root first, rules after, sorted alphabetically by filename.
+    def test_empty_agents_override_falls_back_to_agents(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text("# root\n", encoding="utf-8")
-            rules = repo / ".claude" / "rules"
-            rules.mkdir(parents=True)
-            (rules / "behave.md").write_text("# behave\n", encoding="utf-8")
-            (rules / "writing.md").write_text("# writing\n", encoding="utf-8")
-            chain = scope.claude_md_chain(repo, [])
+            (repo / "AGENTS.md").write_text("# shared\n", encoding="utf-8")
+            (repo / "AGENTS.override.md").write_text("\n", encoding="utf-8")
+            self.assertEqual(scope.instruction_chain(repo, []), ["AGENTS.md"])
+
+    def test_shared_and_claude_rules_are_recursive(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Read `.agents/rules/` before reviewing.\n", encoding="utf-8",
+            )
+            shared = repo / ".agents" / "rules"
+            shared.mkdir(parents=True)
+            (shared / "behavior.md").write_text("# behavior\n", encoding="utf-8")
+            claude = repo / ".claude" / "rules" / "frontend"
+            claude.mkdir(parents=True)
+            (claude / "behave.md").write_text("# behave\n", encoding="utf-8")
+            (claude / "writing.md").write_text("# writing\n", encoding="utf-8")
+            chain = scope.instruction_chain(repo, [])
             self.assertEqual(chain, [
-                "CLAUDE.md",
-                ".claude/rules/behave.md",
-                ".claude/rules/writing.md",
+                "AGENTS.md",
+                ".agents/rules/behavior.md",
+                ".claude/rules/frontend/behave.md",
+                ".claude/rules/frontend/writing.md",
             ])
 
-    def test_nested_claude_md_in_changed_dir(self):
-        # Nested CLAUDE.md in a directory containing a touched file appears
-        # AFTER root CLAUDE.md and BEFORE project rules.
+    def test_unreferenced_shared_rules_are_not_loaded(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
+            (repo / "AGENTS.md").write_text("# project\n", encoding="utf-8")
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "behavior.md").write_text("# behavior\n", encoding="utf-8")
+
+            self.assertEqual(scope.instruction_chain(repo, []), ["AGENTS.md"])
+
+    def test_only_explicitly_referenced_shared_rule_is_loaded(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Read `.agents/rules/a.md` before reviewing.\n",
+                encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "a.md").write_text("# a\n", encoding="utf-8")
+            (rules / "b.md").write_text("# b\n", encoding="utf-8")
+
+            self.assertEqual(scope.instruction_chain(repo, []), [
+                "AGENTS.md",
+                ".agents/rules/a.md",
+            ])
+
+    def test_explicit_dot_slash_shared_rule_is_loaded(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Read `./.agents/rules/a.md` before reviewing.\n",
+                encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "a.md").write_text("# a\n", encoding="utf-8")
+
+            self.assertEqual(scope.instruction_chain(repo, []), [
+                "AGENTS.md",
+                ".agents/rules/a.md",
+            ])
+
+    def test_claude_alternate_and_local_entrypoints_are_included(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / ".claude").mkdir()
+            (repo / ".claude" / "CLAUDE.md").write_text(
+                "# project\n", encoding="utf-8",
+            )
+            (repo / "CLAUDE.local.md").write_text(
+                "# local\n", encoding="utf-8",
+            )
+            self.assertEqual(scope.instruction_chain(repo, []), [
+                ".claude/CLAUDE.md",
+                "CLAUDE.local.md",
+            ])
+
+    def test_user_instructions_precede_project_instructions(self):
+        home = Path(self._tmp_home)
+        (home / ".agents").mkdir(parents=True)
+        (home / ".agents" / "AGENTS.md").write_text(
+            "# global shared\n", encoding="utf-8",
+        )
+        (home / ".claude").mkdir(parents=True)
+        (home / ".claude" / "CLAUDE.md").write_text(
+            "# global claude\n", encoding="utf-8",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text("# project\n", encoding="utf-8")
+            chain = scope.instruction_chain(repo, [])
+        self.assertEqual(Path(chain[0]).name, "AGENTS.md")
+        self.assertIn("/.agents/AGENTS.md", chain[0])
+        self.assertIn("/.claude/CLAUDE.md", chain[1])
+        self.assertEqual(chain[2], "AGENTS.md")
+
+    def test_empty_codex_home_uses_the_default_location(self):
+        home = Path(self._tmp_home)
+        codex_home = home / ".codex"
+        codex_home.mkdir(parents=True)
+        (codex_home / "AGENTS.md").write_text(
+            "# global codex\n", encoding="utf-8",
+        )
+        os.environ["CODEX_HOME"] = ""
+        with tempfile.TemporaryDirectory() as td:
+            chain = scope.instruction_chain(Path(td), [])
+        self.assertEqual(chain, [str((codex_home / "AGENTS.md").resolve())])
+
+    def test_duplicate_override_does_not_activate_same_level_fallback(self):
+        home = Path(self._tmp_home)
+        agents_home = home / ".agents"
+        codex_home = home / ".codex"
+        agents_home.mkdir(parents=True)
+        codex_home.mkdir(parents=True)
+        shared_override = agents_home / "AGENTS.override.md"
+        shared_override.write_text("# shared override\n", encoding="utf-8")
+        (codex_home / "AGENTS.override.md").symlink_to(shared_override)
+        (codex_home / "AGENTS.md").write_text(
+            "# shadowed fallback\n", encoding="utf-8",
+        )
+
+        with tempfile.TemporaryDirectory() as td:
+            chain = scope.instruction_chain(Path(td), [])
+
+        self.assertEqual(chain, [str(shared_override.resolve())])
+
+    def test_nested_entrypoints_only_follow_changed_directories(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text("# shared\n", encoding="utf-8")
             (repo / "CLAUDE.md").write_text("# root\n", encoding="utf-8")
             sub = repo / "skills" / "foo"
             sub.mkdir(parents=True)
+            (sub / "AGENTS.md").write_text("# nested shared\n", encoding="utf-8")
             (sub / "CLAUDE.md").write_text("# nested\n", encoding="utf-8")
             (sub / "SKILL.md").write_text("---\nname: foo\n---\n", encoding="utf-8")
-            chain = scope.claude_md_chain(repo, ["skills/foo/SKILL.md"])
+            chain = scope.instruction_chain(repo, ["skills/foo/SKILL.md"])
+            self.assertIn("AGENTS.md", chain)
+            self.assertIn("skills/foo/AGENTS.md", chain)
             self.assertIn("CLAUDE.md", chain)
             self.assertIn("skills/foo/CLAUDE.md", chain)
-            # Root before nested.
+            self.assertLess(chain.index("AGENTS.md"), chain.index("skills/foo/AGENTS.md"))
             self.assertLess(chain.index("CLAUDE.md"), chain.index("skills/foo/CLAUDE.md"))
 
     def test_nested_not_included_when_dir_unchanged(self):
-        # If the nested CLAUDE.md's directory has no touched files, it must NOT
+        # If the nested entrypoint's directory has no touched files, it must NOT
         # appear in the chain — only changed-dir lineage counts.
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text("# root\n", encoding="utf-8")
             (repo / "skills" / "foo").mkdir(parents=True)
+            (repo / "skills" / "foo" / "AGENTS.md").write_text("# nested\n", encoding="utf-8")
             (repo / "skills" / "foo" / "CLAUDE.md").write_text("# nested\n", encoding="utf-8")
             # Touch a file in a different subtree.
             (repo / "src").mkdir()
             (repo / "src" / "a.py").write_text("pass\n", encoding="utf-8")
-            chain = scope.claude_md_chain(repo, ["src/a.py"])
+            chain = scope.instruction_chain(repo, ["src/a.py"])
+            self.assertNotIn("skills/foo/AGENTS.md", chain)
             self.assertNotIn("skills/foo/CLAUDE.md", chain)
-
 
 # ---------------------------------------------------------------------------
 # Coherence activation
@@ -392,12 +550,69 @@ class TestDetectLanguages(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
+# Target-side changed line ranges
+# ---------------------------------------------------------------------------
+
+
+class TestChangedLineRanges(unittest.TestCase):
+    def test_dirty_tree_tracks_modified_hunks_and_full_untracked_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            _init_repo(repo)
+            tracked = repo / "src" / "app.py"
+            tracked.parent.mkdir()
+            tracked.write_text(
+                "one\ntwo\nthree\nfour\nfive\nsix\n",
+                encoding="utf-8",
+            )
+            _commit(repo)
+            tracked.write_text(
+                "one\nTWO\nthree\nfour\nFIVE\nsix\n",
+                encoding="utf-8",
+            )
+            untracked = repo / "src" / "new.py"
+            untracked.write_text("alpha\nbeta\n", encoding="utf-8")
+
+            ranges = scope.changed_line_ranges(
+                repo,
+                "HEAD",
+                "HEAD",
+                ["src/app.py", "src/new.py"],
+                dirty_tree=True,
+            )
+
+        self.assertEqual(ranges["src/app.py"], [[2, 2], [5, 5]])
+        self.assertEqual(ranges["src/new.py"], [[1, 2]])
+
+    def test_deletion_only_hunk_has_no_target_lines(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            _init_repo(repo)
+            tracked = repo / "app.py"
+            tracked.write_text("one\ntwo\nthree\n", encoding="utf-8")
+            _commit(repo)
+            tracked.write_text("one\nthree\n", encoding="utf-8")
+
+            ranges = scope.changed_line_ranges(
+                repo,
+                "HEAD",
+                "HEAD",
+                ["app.py"],
+                dirty_tree=True,
+            )
+
+        self.assertEqual(ranges["app.py"], [])
+
+
+# ---------------------------------------------------------------------------
 # End-to-end scope assembly (dirty-tree path — bypasses resolve_base.sh)
 # ---------------------------------------------------------------------------
 
 
 class TestBuildScopeDirtyTree(unittest.TestCase):
-    """Spec AC: scope.json carries repo_kind, claude_md_chain, activates_coherence,
+    """scope.json carries both instruction-chain keys during migration.
+
+    It also carries repo_kind, activates_coherence,
     files_touched_list, tools_skipped (empty)."""
 
     def setUp(self):
@@ -423,7 +638,8 @@ class TestBuildScopeDirtyTree(unittest.TestCase):
             (repo / "skills" / "foo" / "SKILL.md").write_text(
                 "---\nname: foo\ndescription: x\n---\n", encoding="utf-8",
             )
-            (repo / "CLAUDE.md").write_text("# root\n", encoding="utf-8")
+            (repo / "AGENTS.md").write_text("# shared\n", encoding="utf-8")
+            (repo / "CLAUDE.md").write_text("@AGENTS.md\n", encoding="utf-8")
             _commit(repo)
             # Touch marketplace.json so it appears in the dirty tree.
             (repo / ".claude-plugin" / "marketplace.json").write_text(
@@ -436,7 +652,12 @@ class TestBuildScopeDirtyTree(unittest.TestCase):
             self.assertTrue(payload["activates_coherence"],
                             "marketplace.json change must trigger coherence")
             self.assertIn(".claude-plugin/marketplace.json", payload["files_touched_list"])
-            self.assertIn("CLAUDE.md", payload["claude_md_chain"])
+            self.assertEqual(
+                payload["changed_line_ranges"][".claude-plugin/marketplace.json"],
+                [[1, 1]],
+            )
+            self.assertIn("AGENTS.md", payload["instruction_chain"])
+            self.assertIn("CLAUDE.md", payload["instruction_chain"])
             self.assertEqual(payload["tools_skipped"], [])
             self.assertEqual(payload["rule"], "dirty-tree")
 

@@ -71,9 +71,7 @@ class TestPathsAutoActivation(unittest.TestCase):
 
     def test_design_system_paths_includes_design_md(self):
         text = read_skill_md("design-system")
-        # The frontmatter `paths:` block lists DESIGN.md as an auto-trigger.
         self.assertIn("DESIGN.md", text)
-        # Also expect the `paths:` key in YAML frontmatter.
         self.assertIn("paths:", text)
 
 

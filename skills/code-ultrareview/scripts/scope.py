@@ -2,7 +2,7 @@
 """Phase 1 scope detector for code-ultrareview.
 
 Deterministic, no LLM. Resolves the review base + target, classifies the
-repository kind (8 kinds + unknown), reads the CLAUDE.md chain, detects
+repository kind (8 kinds + unknown), reads the project instruction chain, detects
 languages from the diff, and decides whether the conditional Coherence
 axis activates. Emits one JSON object on stdout — `scope.json` — read by
 every downstream phase.
@@ -32,11 +32,13 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
 
 GIT_TIMEOUT_S = 30
+_HUNK_HEADER = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
 
 # Repo-kind precedence order — skills > monorepo > docs > app > library >
 # {python, rust, go} > unknown.
@@ -95,6 +97,8 @@ _EXT_TO_LANG = {
     ".jsx": "javascript",
     ".mjs": "javascript",
     ".cjs": "javascript",
+    ".mts": "typescript",
+    ".cts": "typescript",
     ".go": "go",
     ".rs": "rust",
     ".java": "java",
@@ -125,7 +129,7 @@ def run_git(repo: Path, *args: str) -> subprocess.CompletedProcess:
 def _untracked_files(repo: Path) -> list[str]:
     r = run_git(repo, "ls-files", "--others", "--exclude-standard")
     if r.returncode != 0:
-        return []
+        raise RuntimeError(f"git ls-files failed: {r.stderr.strip() or 'unknown error'}")
     return [line for line in r.stdout.splitlines() if line]
 
 
@@ -160,8 +164,9 @@ def diff_files(repo: Path, base: str, target: str,
         r = run_git(repo, "diff", "--numstat", "HEAD")
     else:
         r = run_git(repo, "diff", "--numstat", f"{base}..{target}")
-    if r.returncode == 0:
-        loc = _parse_numstat(r.stdout, files, loc)
+    if r.returncode != 0:
+        raise RuntimeError(f"git diff --numstat failed: {r.stderr.strip() or 'unknown error'}")
+    loc = _parse_numstat(r.stdout, files, loc)
 
     if dirty_tree:
         for path in _untracked_files(repo):
@@ -178,6 +183,68 @@ def diff_files(repo: Path, base: str, target: str,
                 files.append(path)
 
     return loc, files
+
+
+def _merge_line_ranges(ranges: list[list[int]]) -> list[list[int]]:
+    merged: list[list[int]] = []
+    for start, end in sorted(ranges):
+        if merged and start <= merged[-1][1] + 1:
+            merged[-1][1] = max(merged[-1][1], end)
+        else:
+            merged.append([start, end])
+    return merged
+
+
+def changed_line_ranges(
+    repo: Path,
+    base: str,
+    target: str,
+    files: list[str],
+    *,
+    dirty_tree: bool = False,
+) -> dict[str, list[list[int]]]:
+    """Return added/modified target-line ranges for every touched path."""
+    untracked = set(_untracked_files(repo)) if dirty_tree else set()
+    result: dict[str, list[list[int]]] = {}
+
+    for path in files:
+        if path in untracked:
+            full = repo / path
+            try:
+                with full.open("r", encoding="utf-8", errors="ignore") as handle:
+                    line_count = sum(1 for _ in handle)
+            except OSError:
+                line_count = 0
+            result[path] = [[1, line_count]] if line_count else []
+            continue
+
+        diff_range = "HEAD" if dirty_tree else f"{base}..{target}"
+        patch = run_git(
+            repo,
+            "diff",
+            "--unified=0",
+            "--no-color",
+            "--no-ext-diff",
+            diff_range,
+            "--",
+            path,
+        )
+        ranges: list[list[int]] = []
+        if patch.returncode != 0:
+            raise RuntimeError(
+                f"git diff failed for {path}: {patch.stderr.strip() or 'unknown error'}"
+            )
+        for line in patch.stdout.splitlines():
+            match = _HUNK_HEADER.match(line)
+            if not match:
+                continue
+            start = int(match.group(1))
+            count = int(match.group(2) or "1")
+            if count > 0:
+                ranges.append([start, start + count - 1])
+        result[path] = _merge_line_ranges(ranges)
+
+    return result
 
 
 def resolve_base(repo: Path, override: str | None = None,
@@ -409,54 +476,115 @@ def classify_repo(repo: Path, override: str | None = None) -> tuple[str, dict]:
     }
 
 
-def claude_md_chain(repo: Path, files_touched: list[str]) -> list[str]:
-    """Return ordered list of CLAUDE.md and `.claude/rules/*.md` files.
+def instruction_chain(repo: Path, files_touched: list[str]) -> list[str]:
+    """Return the cross-agent instruction baseline, broadest to most specific.
 
-    Ordering, root-to-deepest:
-      1. Repo `CLAUDE.md` at root (if present).
-      2. Nested `CLAUDE.md` files in directories that contain a changed file,
-         walking each touched path's ancestor chain (excluding the root,
-         since it is added in step 1).
-      3. Project rules — `.claude/rules/*.md` sorted by filename.
-      4. Global rules — `~/.claude/rules/*.md` sorted by filename.
-
-    All paths are returned relative to `repo` for the first three; global
-    rules use absolute paths.
+    At each relevant directory, `AGENTS.override.md` wins over `AGENTS.md`.
+    Claude-specific entrypoints and referenced shared rule files follow the
+    shared entrypoint at the same level. Project paths are relative to `repo`;
+    user instruction paths are absolute.
     """
     chain: list[str] = []
+    seen: set[Path] = set()
 
-    root_claude = repo / "CLAUDE.md"
-    if root_claude.is_file():
-        chain.append("CLAUDE.md")
+    def read_nonempty(path: Path) -> str | None:
+        if not path.is_file():
+            return None
+        try:
+            body = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeDecodeError):
+            return None
+        return body if body.strip() else None
 
-    seen: set[str] = {"CLAUDE.md"} if root_claude.is_file() else set()
-    nested: list[tuple[int, str]] = []  # (depth, rel_path)
-    for path in files_touched:
-        parts = Path(path).parts
-        for i in range(1, len(parts)):
-            dir_rel = "/".join(parts[:i])
-            candidate = repo / dir_rel / "CLAUDE.md"
-            if not candidate.is_file():
+    def add(path: Path, body: str | None = None) -> bool:
+        if body is None:
+            body = read_nonempty(path)
+        if body is None:
+            return False
+        resolved = path.resolve()
+        if resolved in seen:
+            return True
+        seen.add(resolved)
+        try:
+            chain.append(str(path.relative_to(repo)))
+        except ValueError:
+            chain.append(str(path.resolve()))
+        return True
+
+    def add_rules(directory: Path) -> None:
+        if not directory.is_dir():
+            return
+        for rule in sorted(directory.rglob("*.md")):
+            add(rule)
+
+    def add_agents_level(directory: Path) -> str | None:
+        """Add and return the effective shared entrypoint at one level."""
+        for name in ("AGENTS.override.md", "AGENTS.md"):
+            candidate = directory / name
+            body = read_nonempty(candidate)
+            if body is None:
                 continue
-            rel = f"{dir_rel}/CLAUDE.md"
-            if rel in seen:
-                continue
-            seen.add(rel)
-            nested.append((i, rel))
-    nested.sort(key=lambda x: (x[0], x[1]))
-    chain.extend(rel for _, rel in nested)
+            add(candidate, body)
+            return body
+        return None
 
-    rules_dir = repo / ".claude" / "rules"
-    if rules_dir.is_dir():
-        for rule in sorted(rules_dir.glob("*.md")):
-            chain.append(str(rule.relative_to(repo)))
+    def add_referenced_shared_rules(body: str, relative_root: Path) -> None:
+        """Add only rule files or directories named by the shared entrypoint."""
+        pattern = re.compile(
+            r"(?<![\w/])(?:(?P<home>~/)|\./)?\.agents/rules"
+            r"(?P<suffix>(?:/[A-Za-z0-9._-]+)*)/?"
+        )
+        for match in pattern.finditer(body):
+            if match.group("home"):
+                home_value = os.environ.get("HOME")
+                if not home_value:
+                    continue
+                root = Path(home_value) / ".agents" / "rules"
+            else:
+                root = relative_root
+            parts = tuple(
+                part for part in match.group("suffix").split("/") if part
+            )
+            if ".." in parts:
+                continue
+            target = root.joinpath(*parts)
+            if parts and target.suffix == ".md":
+                add(target)
+            elif target.is_dir():
+                add_rules(target)
+
+    relevant_dirs: set[Path] = {repo}
+    for touched in files_touched:
+        parts = Path(touched).parts[:-1]
+        for depth in range(1, len(parts) + 1):
+            relevant_dirs.add(repo.joinpath(*parts[:depth]))
+    ordered_dirs = sorted(
+        relevant_dirs,
+        key=lambda path: (len(path.relative_to(repo).parts), str(path)),
+    )
 
     home = os.environ.get("HOME", "")
     if home:
-        global_rules = Path(home) / ".claude" / "rules"
-        if global_rules.is_dir():
-            for rule in sorted(global_rules.glob("*.md")):
-                chain.append(str(rule.resolve()))
+        home_path = Path(home)
+        body = add_agents_level(home_path / ".agents")
+        if body is not None:
+            add_referenced_shared_rules(body, home_path / ".agents" / "rules")
+        codex_home_value = os.environ.get("CODEX_HOME")
+        codex_home = Path(codex_home_value) if codex_home_value else home_path / ".codex"
+        body = add_agents_level(codex_home)
+        if body is not None:
+            add_referenced_shared_rules(body, codex_home / "rules")
+        add(home_path / ".claude" / "CLAUDE.md")
+        add_rules(home_path / ".claude" / "rules")
+
+    for directory in ordered_dirs:
+        body = add_agents_level(directory)
+        if body is not None:
+            add_referenced_shared_rules(body, directory / ".agents" / "rules")
+        add(directory / "CLAUDE.md")
+        add(directory / ".claude" / "CLAUDE.md")
+        add(directory / "CLAUDE.local.md")
+        add_rules(directory / ".claude" / "rules")
 
     return chain
 
@@ -494,8 +622,17 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         resolved_target = target
 
     loc, files = diff_files(repo, base, resolved_target, dirty_tree=dirty_tree)
+    if not files:
+        raise RuntimeError("review scope is empty: the selected diff has no changed files")
+    line_ranges = changed_line_ranges(
+        repo,
+        base,
+        resolved_target,
+        files,
+        dirty_tree=dirty_tree,
+    )
     repo_kind, signals = classify_repo(repo, override=repo_kind_override)
-    chain = claude_md_chain(repo, files)
+    chain = instruction_chain(repo, files)
     coherence = activates_coherence(files)
     languages = detect_languages(files)
 
@@ -507,10 +644,11 @@ def build_scope(repo: Path, *, base_override: str | None = None,
         "repo_kind": repo_kind,
         "repo_kind_signals": signals,
         "languages": languages,
-        "claude_md_chain": chain,
+        "instruction_chain": chain,
         "loc_changed": loc,
         "files_touched": len(files),  # derived count; canonical key is files_touched_list
         "files_touched_list": files,
+        "changed_line_ranges": line_ranges,
         "activates_coherence": coherence,
         "tools_skipped": [],
     }

@@ -42,12 +42,99 @@ def _load_module(name: str):
 
 synthesis_core = _load_module("synthesis_core")
 findings_to_jsonl = _load_module("findings_to_jsonl")
+manifest_contract = _load_module("manifest")
 
 GIT_TIMEOUT_S = 10
 
 CONFIDENCE_THRESHOLD = synthesis_core.CONFIDENCE_THRESHOLD
 SEVERITY_MARKERS = synthesis_core.SEVERITY_MARKERS
 CANONICAL_AXES = synthesis_core.CANONICAL_AXES
+
+
+class CoverageError(ValueError):
+    pass
+
+
+def validate_coverage(scope: dict) -> bool:
+    """Require deterministic proof that every requested phase completed.
+
+    Returns whether the requested axes represent a full review. Scoped reviews
+    remain useful, but can never emit the repository-wide Ship verdict.
+    """
+    tool_value = scope.get("tool_coverage")
+    axis_value = scope.get("axis_coverage")
+    validator_value = scope.get("validator_coverage")
+    tool = tool_value if isinstance(tool_value, dict) else {}
+    axis = axis_value if isinstance(axis_value, dict) else {}
+    validator = validator_value if isinstance(validator_value, dict) else {}
+    build = scope.get("build_coverage")
+    mutation = scope.get("mutation_coverage")
+    reconcile = scope.get("reconcile_coverage")
+    problems: list[str] = []
+    if not isinstance(tool_value, dict):
+        problems.append("tool battery manifest missing or invalid")
+    if not isinstance(axis_value, dict):
+        problems.append("axis review manifest missing or invalid")
+    if not isinstance(validator_value, dict):
+        problems.append("validator manifest missing or invalid")
+    if tool.get("complete") is not True:
+        problems.append("tool battery incomplete")
+    if axis.get("complete") is not True:
+        problems.append("axis review incomplete")
+    requested = axis.get("requested")
+    completed = axis.get("completed")
+    if not isinstance(requested, list) or not all(
+        isinstance(item, str) and item for item in requested
+    ):
+        problems.append("requested axis manifest is invalid")
+    if not isinstance(completed, list) or not all(
+        isinstance(item, str) and item for item in completed
+    ):
+        problems.append("completed axis manifest is invalid")
+    if requested != completed:
+        problems.append("requested axes do not match completed axes")
+    if validator.get("complete") is not True:
+        problems.append("validator phase incomplete")
+    expected = validator.get("expected")
+    validated = validator.get("completed")
+    if (
+        isinstance(expected, bool)
+        or not isinstance(expected, int)
+        or expected < 0
+        or isinstance(validated, bool)
+        or not isinstance(validated, int)
+        or validated < 0
+    ):
+        problems.append("validator count manifest is invalid")
+    if expected != validated:
+        problems.append("validator result count is incomplete")
+    tools_missing = scope.get("tools_missing")
+    tools_skipped = scope.get("tools_skipped")
+    if not isinstance(tools_missing, list):
+        problems.append("missing analyzer manifest is invalid")
+    elif tools_missing:
+        problems.append("required analyzers are missing")
+    if not isinstance(tools_skipped, list):
+        problems.append("skipped analyzer manifest is invalid")
+    elif tools_skipped:
+        problems.append("analyzers were skipped")
+    if scope.get("coverage_complete") is not True or not manifest_contract.coverage_complete(scope):
+        problems.append("coverage manifest is not complete")
+    if build is not None and not isinstance(build, dict):
+        problems.append("build verification manifest is invalid")
+    elif isinstance(build, dict) and build.get("complete") is not True:
+        problems.append("requested build verification is incomplete")
+    if mutation is not None and not isinstance(mutation, dict):
+        problems.append("mutation coverage manifest is invalid")
+    elif isinstance(mutation, dict) and mutation.get("complete") is not True:
+        problems.append("requested mutation coverage is incomplete")
+    if reconcile is not None and not isinstance(reconcile, dict):
+        problems.append("reconcile coverage manifest is invalid")
+    elif isinstance(reconcile, dict) and reconcile.get("complete") is not True:
+        problems.append("requested reconcile coverage is incomplete")
+    if problems:
+        raise CoverageError("; ".join(problems))
+    return bool(axis.get("full"))
 
 _SEVERITY_SECTIONS = (
     ("🔴 High", "High", "H"),
@@ -78,17 +165,149 @@ _DEFERRALS = (
 )
 
 
-def load_findings(path: Path | None) -> list[dict]:
-    if path is None:
-        return []
-    if not path.exists():
-        return []
+def load_findings(path: Path) -> list[dict]:
+    if not path.is_file():
+        raise CoverageError(f"required findings file is missing: {path}")
     return findings_to_jsonl.load_findings(path)
 
 
 def load_scope(path: Path) -> dict:
-    with path.open(encoding="utf-8") as handle:
-        return json.load(handle)
+    try:
+        return manifest_contract.read_scope(path)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
+
+
+def _file_identity(path: Path) -> dict:
+    try:
+        return manifest_contract.file_identity(path)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
+
+
+def _manifest_identity(coverage: dict, label: str) -> dict:
+    path = coverage.get("output")
+    digest = coverage.get("sha256")
+    count = coverage.get("finding_count")
+    if not isinstance(path, str) or not path:
+        raise CoverageError(f"{label} output path is missing")
+    if not isinstance(digest, str) or len(digest) != 64:
+        raise CoverageError(f"{label} output digest is missing")
+    if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+        raise CoverageError(f"{label} finding count is invalid")
+    return {"path": str(Path(path).resolve()), "sha256": digest, "count": count}
+
+
+def _input_identity(coverage: dict, key: str, label: str) -> dict:
+    inputs = coverage.get("input_hashes")
+    if not isinstance(inputs, dict):
+        raise CoverageError(f"{label} input manifest is missing")
+    identity = inputs.get(key)
+    if not isinstance(identity, dict):
+        raise CoverageError(f"{label} {key.replace('_', ' ')} identity is missing")
+    path = identity.get("path")
+    digest = identity.get("sha256")
+    if not isinstance(path, str) or not path:
+        raise CoverageError(f"{label} {key.replace('_', ' ')} path is missing")
+    if not isinstance(digest, str) or len(digest) != 64:
+        raise CoverageError(f"{label} {key.replace('_', ' ')} digest is missing")
+    return {"path": str(Path(path).resolve()), "sha256": digest}
+
+
+def _verify_identity(identity: dict, label: str) -> None:
+    try:
+        manifest_contract.verify_file_identity(identity, label)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
+
+
+def _require_same_identity(left: dict, right: dict, label: str) -> None:
+    if left["path"] != right["path"] or left["sha256"] != right["sha256"]:
+        raise CoverageError(f"{label} does not match the preceding phase")
+
+
+def _load_manifest_findings(
+    coverage: dict,
+    supplied_path: Path,
+    label: str,
+) -> tuple[list[dict], dict]:
+    manifest = _manifest_identity(coverage, label)
+    try:
+        verified = manifest_contract.verify_jsonl_output(coverage, supplied_path, label)
+    except ValueError as exc:
+        raise CoverageError(str(exc)) from exc
+    findings = load_findings(verified)
+    return findings, manifest
+
+
+def load_run_artifacts(
+    scope: dict,
+    *,
+    validated_path: Path,
+    tool_path: Path,
+    mutation_path: Path | None,
+) -> tuple[list[dict], list[dict], list[dict]]:
+    """Load only artifacts cryptographically bound to this review run."""
+    tool = scope.get("tool_coverage") or {}
+    axis = scope.get("axis_coverage") or {}
+    validator = scope.get("validator_coverage") or {}
+    if not isinstance(axis.get("run_id"), str) or not axis["run_id"]:
+        raise CoverageError("axis run_id is missing")
+    if not isinstance(validator.get("run_id"), str) or not validator["run_id"]:
+        raise CoverageError("validator run_id is missing")
+
+    tool_findings, tool_output = _load_manifest_findings(
+        tool, tool_path, "tool findings"
+    )
+    axis_output = _manifest_identity(axis, "axis findings")
+    _verify_identity(axis_output, "axis findings")
+    validated_findings, validator_output = _load_manifest_findings(
+        validator, validated_path, "validated findings"
+    )
+
+    axis_tool_input = _input_identity(axis, "tool_findings", "axis")
+    _verify_identity(axis_tool_input, "axis tool findings")
+    _require_same_identity(axis_tool_input, tool_output, "axis tool findings")
+    validator_axis_input = _input_identity(
+        validator, "axis_findings", "validator"
+    )
+    _verify_identity(validator_axis_input, "validator axis findings")
+    _require_same_identity(
+        validator_axis_input, axis_output, "validator axis findings"
+    )
+    axis_diff = _input_identity(axis, "diff", "axis")
+    validator_diff = _input_identity(validator, "diff", "validator")
+    _verify_identity(axis_diff, "axis diff")
+    _verify_identity(validator_diff, "validator diff")
+    _require_same_identity(validator_diff, axis_diff, "validator diff")
+
+    mutation_findings: list[dict] = []
+    mutation = scope.get("mutation_coverage")
+    if isinstance(mutation, dict) and mutation.get("applicable") is True:
+        if mutation_path is None:
+            raise CoverageError(
+                "applicable mutation findings were not supplied to synthesis"
+            )
+        mutation_findings, mutation_output = _load_manifest_findings(
+            mutation, mutation_path, "mutation findings"
+        )
+        axis_mutation_input = _input_identity(
+            axis, "mutation_findings", "axis"
+        )
+        _verify_identity(axis_mutation_input, "axis mutation findings")
+        _require_same_identity(
+            axis_mutation_input, mutation_output, "axis mutation findings"
+        )
+    elif mutation_path is not None:
+        raise CoverageError(
+            "mutation findings were supplied without applicable mutation coverage"
+        )
+
+    # Keep the validated output comparison explicit even when zero validators
+    # made it identical to the axis output.
+    if validator_output["count"] != len(validated_findings):
+        raise CoverageError("validated findings count changed while loading")
+    return validated_findings, tool_findings, mutation_findings
 
 
 def load_positives(path: Path | None) -> list[str]:
@@ -126,7 +345,20 @@ def synthesize(
     verified = [synthesis_core.assign_anthropic_tier(f) for f in verified]
     verified = synthesis_core.order(verified)
     unverified = synthesis_core.order(unverified)
-    verdict = synthesis_core.compute_verdict(verified)
+    full_review = bool((scope.get("axis_coverage") or {}).get("full", True))
+    verdict = (
+        synthesis_core.compute_verdict(verified)
+        if full_review
+        else {
+            "label": "Scoped findings only",
+            "rationale": (
+                "Only the explicitly selected axes were reviewed; no "
+                "repository-wide verdict is available."
+            ),
+            "drivers": [],
+            "scoped": True,
+        }
+    )
     counts = synthesis_core.compute_severity_counts(verified)
     summary = build_axis_summary(scope, verified, unverified)
     return {
@@ -148,7 +380,13 @@ def build_axis_summary(
     the axis (🔴 → 🟠 → 🟢 → `—` when zero verified)."""
     rows: list[dict] = []
     coherence_active = bool(scope.get("activates_coherence"))
-    axes = [*CANONICAL_AXES, "coherence"]
+    coverage = scope.get("axis_coverage") or {}
+    if coverage.get("requested"):
+        axes = list(coverage["requested"])
+        if coverage.get("full") and "coherence" not in axes:
+            axes.append("coherence")
+    else:
+        axes = [*CANONICAL_AXES, "coherence"]
     for axis in axes:
         verified_in_axis = [f for f in verified if f.get("axis") == axis]
         unverified_in_axis = [f for f in unverified if f.get("axis") == axis]
@@ -206,8 +444,8 @@ def render_markdown(
     parts.append(_render_findings(result["verified"], result["unverified"]))
     parts.append(_render_what_looks_good(positives))
     parts.append(_render_verdict(result["verdict"]))
-    parts.append(_render_tools_skipped(scope.get("tools_skipped") or []))
-    parts.append(_render_did_not_check(scope.get("tools_skipped") or []))
+    parts.append(_render_tools_skipped())
+    parts.append(_render_did_not_check())
     if reconcile_block:
         parts.append(reconcile_block.strip())
     if apply_safe_block:
@@ -229,12 +467,18 @@ def _render_header(
     languages = ", ".join(scope.get("languages") or []) or "—"
     changed_files = scope.get("files_touched_list") or []
     files_count = len(changed_files)
-    chain = scope.get("claude_md_chain") or []
+    chain = scope.get("instruction_chain") or []
     rules_baseline = (
-        f"CLAUDE.md chain + {len(chain)} files" if chain
-        else "skipped — no rules baseline found"
+        f"instruction chain + {len(chain)} files" if chain
+        else "none — Style used observable repository conventions"
     )
     coherence = "active" if scope.get("activates_coherence") else "inactive"
+    axis_coverage = scope.get("axis_coverage") or {}
+    coverage_label = (
+        "full"
+        if axis_coverage.get("full", True)
+        else "scoped: " + ", ".join(axis_coverage.get("requested") or [])
+    )
 
     red = counts.get("🔴", 0)
     orange = counts.get("🟠", 0)
@@ -248,6 +492,7 @@ def _render_header(
         f"**Repo:** {repo_kind} · **Languages:** {languages}",
         f"**Rules baseline:** {rules_baseline}",
         f"**Reviewed:** {files_count} changed file(s)",
+        f"**Coverage:** {coverage_label}",
         f"**Coherence axis:** {coherence}",
         f"**Findings:** {red} 🔴 · {orange} 🟠 · {green} 🟢 (verified) · {unv} unverified",
         "",
@@ -389,38 +634,22 @@ def _render_verdict(verdict: dict) -> str:
         lines.append("Drivers:")
         for driver in drivers:
             lines.append(f"- {driver}")
-    lines.append("")
-    lines.append(
-        "Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important "
-        "→ Fix-then-ship; else Ship. Unverified findings are excluded."
-    )
+    if not verdict.get("scoped"):
+        lines.append("")
+        lines.append(
+            "Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important "
+            "→ Fix-then-ship; else Ship. Unverified findings are excluded."
+        )
     return "\n".join(lines)
 
 
-def _render_tools_skipped(tools: list) -> str:
+def _render_tools_skipped() -> str:
     lines = ["---", "", "## 🧰 Tools skipped", ""]
-    if not tools:
-        lines.append("_None — every detected tool ran._")
-        return "\n".join(lines)
-    lines.append(
-        "Tools the battery would have run but couldn't. Install commands "
-        "surface verbatim from `scope.json[\"tools_skipped\"]`."
-    )
-    lines.append("")
-    lines.append("| Tool | Axis | Install |")
-    lines.append("|------|------|---------|")
-    for entry in tools:
-        if isinstance(entry, dict):
-            tool = entry.get("tool", "?")
-            axis = entry.get("axis", "?")
-            install = entry.get("install", "?")
-        else:
-            tool, axis, install = str(entry), "?", "?"
-        lines.append(f"| `{tool}` | {axis} | `{install}` |")
+    lines.append("_None — every applicable analyzer completed successfully._")
     return "\n".join(lines)
 
 
-def _render_did_not_check(tools_skipped: list) -> str:
+def _render_did_not_check() -> str:
     lines = [
         "---",
         "",
@@ -431,15 +660,6 @@ def _render_did_not_check(tools_skipped: list) -> str:
     ]
     for name, body in _DEFERRALS:
         lines.append(f"- **{name}** — {body}")
-    if tools_skipped:
-        lines.append(
-            "- **Tools listed in `## 🧰 Tools skipped` above** — install them "
-            "to recover the coverage."
-        )
-    else:
-        lines.append(
-            "- **Tools listed in `## 🧰 Tools skipped` above** — none this run."
-        )
     return "\n".join(lines)
 
 
@@ -490,8 +710,16 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--scope", required=True, type=Path)
     parser.add_argument("--findings", required=True, type=Path,
                         help="Validated axis findings JSONL (post Phase 4).")
-    parser.add_argument("--tool-findings", type=Path, default=None,
-                        help="Tool battery findings (confidence-100).")
+    parser.add_argument("--tool-findings", required=True, type=Path,
+                        help="Required tool battery findings JSONL. Pass the "
+                             "battery output even when it is empty.")
+    parser.add_argument(
+        "--mutation-findings",
+        type=Path,
+        default=None,
+        help="Required when mutation coverage is applicable; must match the "
+             "mutation run manifest exactly.",
+    )
     parser.add_argument("--positives", type=Path, default=None,
                         help="Positives JSONL — feeds `✅ What looks good`.")
     parser.add_argument("--slug", default=None,
@@ -515,10 +743,39 @@ def main(argv: list[str] | None = None) -> int:
                         action=argparse.BooleanOptionalAction, default=True)
     args = parser.parse_args(argv)
 
-    scope = load_scope(args.scope)
-    findings: list[dict] = []
-    findings.extend(load_findings(args.findings))
-    findings.extend(load_findings(args.tool_findings))
+    try:
+        scope = load_scope(args.scope)
+        validate_coverage(scope)
+    except (CoverageError, OSError, json.JSONDecodeError, ValueError) as exc:
+        print(
+            f"ERROR: Code Ultrareview cannot synthesize a verdict: {exc}",
+            file=sys.stderr,
+        )
+        print(
+            "ERROR: complete the missing phase or install the analyzers named "
+            "by the preflight, then rerun the review.",
+            file=sys.stderr,
+        )
+        return 4
+    try:
+        validated, tool_findings, mutation_findings = load_run_artifacts(
+            scope,
+            validated_path=args.findings,
+            tool_path=args.tool_findings,
+            mutation_path=args.mutation_findings,
+        )
+    except (CoverageError, OSError, ValueError) as exc:
+        print(
+            f"ERROR: Code Ultrareview cannot synthesize a verdict: {exc}",
+            file=sys.stderr,
+        )
+        print(
+            "ERROR: rerun the failed axis/validator phase to recreate the "
+            "findings file, then rerun synthesis.",
+            file=sys.stderr,
+        )
+        return 4
+    findings = [*validated, *tool_findings, *mutation_findings]
     positives = load_positives(args.positives)
     slug = args.slug or "review"
 
