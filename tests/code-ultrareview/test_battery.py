@@ -564,96 +564,32 @@ class TestAnalyzerExecution(unittest.TestCase):
             raw = repo / "out/raw"
             self.assertEqual([(raw / name).read_text() for name in
                               ("markdownlint-cli2.txt", "markdownlint-cli2.stderr")],
-                             ["unexpected markdownlint output\n", "config diagnostic\n"])
-            self.assertTrue(all((raw / name).is_file() for name in
-                                (".markdownlint-cli2.base.txt",
-                                 ".markdownlint-cli2.base.stderr")))
+                             ["unexpected markdownlint output", "config diagnostic"])
         self.assertEqual(result.returncode, 4, result.stderr)
         self.assertFalse(state["tool_coverage"]["complete"])
 
-    def test_markdownlint_project_config_replaces_the_bundled_base(self):
+    def test_markdownlint_runs_once_with_the_base_config_and_repo_relative_paths(self):
+        # markdownlint-cli2 layers .markdownlint-cli2.* / .markdownlint.* found in
+        # the repository tree on top of --config, so nested project configs keep
+        # precedence without a second invocation (verified against 0.23.2).
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
-            scope = _write_scope(repo, ["README.md"], ["markdown"])
-            bin_dir = repo / "bin"
-            _shim(bin_dir, "markdownlint-cli2", 'printf "%s\\n" "$@" > "$0.argv"\nexit 0')
-            base = _run_battery(repo, scope, bin_dir=bin_dir, axes="documentation")
-            base_argv = (bin_dir / "markdownlint-cli2.argv").read_text(encoding="utf-8")
-            (repo / ".markdownlint-cli2.jsonc").write_text("{}\n", encoding="utf-8")
-            project = _run_battery(repo, scope, bin_dir=bin_dir, axes="documentation")
-            project_argv = (bin_dir / "markdownlint-cli2.argv").read_text(encoding="utf-8")
-        self.assertEqual(base.returncode, 0, base.stderr)
-        self.assertEqual(project.returncode, 0, project.stderr)
-        self.assertIn("--config", base_argv)
-        self.assertNotIn("--config", project_argv)
-
-    def test_markdownlint_partitions_nested_config_from_bundled_base(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            repo = Path(tmp)
-            _touch(repo, "README.md", "# Root\n")
             _touch(repo, "packages/docs/.markdownlint.jsonc", '{"MD041": false}\n')
-            _touch(repo, "apps/wiki/.markdownlint.jsonc",
-                   '{"default": false, "MD013": {"line_length": 20}}\n')
-            _touch(repo, "apps/wiki/long.md", "A deliberately long Markdown line.\n")
-            _touch(repo, "package.json", '{"devDependencies":{"markdownlint-cli2":"1.0.0"}}')
-            binary = repo / "node_modules/.bin/markdownlint-cli2"
-            log = repo / "markdownlint-invocations.log"
-            _shim(
-                binary.parent,
-                binary.name,
-                "rc=0\nsummary='Summary: 0 issues in 0 files'\n"
-                "case \"${!#}\" in\n"
-                "  packages/docs/*) "
-                "grep -q '\"MD041\": false' packages/docs/.markdownlint.jsonc "
-                "|| exit 2 ;;\n"
-                "  apps/wiki/*) "
-                "grep -q '\"line_length\": 20' apps/wiki/.markdownlint.jsonc "
-                "|| exit 2; "
-                "rc=1; summary='Summary: 1 issue in 1 file' ;;\n"
-                "  *) [[ \" $* \" == *' --config '* ]] || exit 2 ;;\nesac\n"
-                "{\n"
-                '  printf "cwd=%s\\n" "$PWD"\n'
-                '  for arg in "$@"; do printf "arg=%s\\n" "$arg"; done\n'
-                '  printf "end\\n"\n'
-                f"}} >> {shlex.quote(str(log))}\n"
-                "printf '%s\\n' 'markdownlint-cli2 v0.23.2 "
-                "(markdownlint v0.41.1)' \"Finding: ${!#}\" 'Linting: 1 file'\n"
-                "printf '%s' \"$summary\"\n"
-                "diagnostic=\"${!#}:1:21 error MD013/line-length Line length "
-                "[Expected: 20; Actual: 34]\"\n"
-                "[[ $rc -eq 0 ]] && printf '%s' 'markdownlint-stderr' >&2 || "
-                "printf '%s' \"$diagnostic\" >&2\n"
-                "exit \"$rc\"",
-            )
-            files = ["README.md", "packages/docs/content/guide.md", "apps/wiki/long.md"]
+            files = ["README.md", "packages/docs/guide.md"]
             scope = _write_scope(repo, files, ["markdown"])
-            result = _run_battery(repo, scope, axes="documentation")
-            blocks = log.read_text(encoding="utf-8").split("end\n")
-            invocations = [block.splitlines() for block in blocks if block]
-            raw_out = (repo / "out/raw/markdownlint-cli2.txt").read_text()
-            raw_err = (repo / "out/raw/markdownlint-cli2.stderr").read_text()
-            findings = [json.loads(line) for line in
-                        (repo / "out/tool-findings.jsonl").read_text().splitlines()]
+            bin_dir = repo / "bin"
+            log = repo / "invocations.log"
+            _shim(bin_dir, "markdownlint-cli2",
+                  f'{{ printf "cwd=%s\\n" "$PWD"; printf "arg=%s\\n" "$@"; printf "end\\n"; }} >> {shlex.quote(str(log))}\nexit 0')
+            result = _run_battery(repo, scope, bin_dir=bin_dir, axes="documentation")
+            invocations = [block for block in log.read_text().split("end\n") if block]
         self.assertEqual(result.returncode, 0, result.stderr)
-        readme, guide, wiki = files
-        banner = "markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)"
-        clean = "{}\nFinding: {}\nLinting: 1 file\nSummary: 0 issues in 0 files\n"
-        issue = ("{}\nFinding: {}\nLinting: 1 file\nSummary: 1 issue in 1 file\n"
-                 "{}:1:21 error MD013/line-length Line length "
-                 "[Expected: 20; Actual: 34]\n")
-        self.assertEqual(raw_out, clean.format(banner, readme) +
-                         clean.format(banner, guide) + issue.format(banner, wiki, wiki))
-        self.assertEqual(raw_err, "markdownlint-stderr\n" * 2 +
-                         f"{wiki}:1:21 error MD013/line-length Line length "
-                         "[Expected: 20; Actual: 34]\n")
-        self.assertEqual([finding["file"] for finding in findings], ["apps/wiki/long.md"])
-        self.assertEqual(len(invocations), 3, invocations)
-        base_call = next(call for call in invocations if f"arg={readme}" in call)
-        project_calls = [call for call in invocations if call is not base_call]
-        self.assertEqual({call[0] for call in invocations}, {f"cwd={repo.resolve()}"})
-        base_config = BATTERY.parent / "../references/markdownlint-base.markdownlint-cli2.jsonc"
-        self.assertIn(f"arg={base_config}", base_call)
-        self.assertTrue(all("arg=--config" not in call for call in project_calls))
+        self.assertEqual(len(invocations), 1, invocations)
+        base_config = (BATTERY.parent / "../references/markdownlint-base.markdownlint-cli2.jsonc")
+        self.assertIn(f"cwd={repo.resolve()}", invocations[0])
+        self.assertIn(f"arg=--config\narg={base_config}", invocations[0])
+        for relative in files:
+            self.assertIn(f"arg={relative}\n", invocations[0])
 
     def test_non_js_repo_gets_path_guidance_for_every_js_analyzer(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -700,10 +636,7 @@ class TestAnalyzerExecution(unittest.TestCase):
             raw = output / "raw"
             self.assertEqual([(raw / name).read_text() for name in
                               ("markdownlint-cli2.txt", "markdownlint-cli2.stderr")],
-                             ["partial analyzer output\n", "Cannot find module markdownlint\n"])
-            self.assertTrue(all((raw / name).is_file() for name in
-                                (".markdownlint-cli2.base.txt",
-                                 ".markdownlint-cli2.base.stderr")))
+                             ["partial analyzer output", "Cannot find module markdownlint"])
             self.assertFalse(final.exists())
         self.assertEqual(failed.returncode, 4)
         self.assertIn("failed with exit code 2", failed.stderr)

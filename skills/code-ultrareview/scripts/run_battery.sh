@@ -756,30 +756,11 @@ run_jscpd() {
   mark_dispatched jscpd
 }
 
-merge_markdownlint_evidence() {
-  local out="$1" err="$2" invocation_out="$3" invocation_err="$4"
-  if cat "$invocation_out" >>"$out" && printf '\n' >>"$out" &&
-    cat "$invocation_err" >>"$err" && printf '\n' >>"$err"
-  then
-    return 0
-  fi
-  echo "ERROR: failed to merge Markdownlint evidence files." >&2
-  emit_rerun
-  return 4
-}
-
 run_markdownlint() {
   local out="$OUTPUT_DIR/raw/markdownlint-cli2.txt"
   local err="$OUTPUT_DIR/raw/markdownlint-cli2.stderr"
   local md_files=()
-  local configured_md_files=()
-  local configured_md_file_dirs=()
-  local configured_md_dirs=()
-  local base_md_files=()
-  local f capture_rc config_dir project_config seen i config_index=0
-  local group group_label invocation_out invocation_err
-  local group_files=()
-  local config=()
+  local f capture_rc
   if [[ ${#FILES_TOUCHED[@]} -gt 0 ]]; then
     for f in "${FILES_TOUCHED[@]}"; do
       [[ "$f" =~ \.md$ && -f "$REPO/$f" ]] && md_files+=("$f")
@@ -793,79 +774,19 @@ run_markdownlint() {
   fi
   resolve_required_tool markdownlint-cli2 || return $?
   # MD013's arbitrary line-length default overwhelms review signal in projects
-  # that have not chosen a Markdown style. Keep project-configured files in a
-  # separate invocation so Markdownlint-cli2 can resolve nested precedence.
-  for f in "${md_files[@]}"; do
-    project_config=0
-    config_dir="$(dirname "$REPO/$f")"
-    while [[ "$config_dir" == "$REPO" || "$config_dir" == "$REPO/"* ]]; do
-      if compgen -G "$config_dir/.markdownlint-cli2.*" >/dev/null || compgen -G "$config_dir/.markdownlint.*" >/dev/null; then
-        project_config=1
-        break
-      fi
-      [[ "$config_dir" == "$REPO" ]] && break
-      config_dir="$(dirname "$config_dir")"
-    done
-    if [[ "$project_config" -eq 1 ]]; then
-      configured_md_files+=("$f")
-      configured_md_file_dirs+=("$config_dir")
-      seen=0
-      for group in ${configured_md_dirs[@]+"${configured_md_dirs[@]}"}; do
-        [[ "$group" == "$config_dir" ]] && seen=1
-      done
-      [[ "$seen" -eq 1 ]] || configured_md_dirs+=("$config_dir")
-    else
-      base_md_files+=("$f")
-    fi
-  done
-
-  if ! { : >"$out" && : >"$err"; }; then
-    echo "ERROR: failed to initialize Markdownlint evidence files." >&2
+  # that have not chosen a Markdown style. The bundled file is a base config:
+  # markdownlint-cli2 still layers the repository's own .markdownlint-cli2.* and
+  # .markdownlint.* files on top of it, nested directories included.
+  _capture "$out" "$err" -- "${RESOLVED_COMMAND[@]}" \
+    --config "$MARKDOWNLINT_BASE_CONFIG" --no-globs "${md_files[@]}"
+  capture_rc="$CAPTURE_RC"
+  capture_succeeded markdownlint-cli2 "$capture_rc" "$err" || return $?
+  if [[ "$capture_rc" -eq 1 ]] && ! { printf '\n'; cat "$err"; } >> "$out"; then
+    echo "ERROR: failed to assemble Markdownlint evidence." >&2
     emit_rerun
     return 4
   fi
-  for group in base ${configured_md_dirs[@]+"${configured_md_dirs[@]}"}; do
-    group_files=()
-    config=()
-    group_label="base"
-    if [[ "$group" == "base" ]]; then
-      group_files=(${base_md_files[@]+"${base_md_files[@]}"})
-      config=(--config "$MARKDOWNLINT_BASE_CONFIG")
-    else
-      config_index=$((config_index + 1))
-      group_label="configured-$config_index"
-      for ((i = 0; i < ${#configured_md_files[@]}; i++)); do
-        [[ "${configured_md_file_dirs[$i]}" == "$group" ]] && group_files+=("${configured_md_files[$i]}")
-      done
-    fi
-    [[ ${#group_files[@]} -gt 0 ]] || continue
-    invocation_out="$OUTPUT_DIR/raw/.markdownlint-cli2.${group_label}.txt"
-    invocation_err="$OUTPUT_DIR/raw/.markdownlint-cli2.${group_label}.stderr"
-    _capture "$invocation_out" "$invocation_err" -- \
-      "${RESOLVED_COMMAND[@]}" \
-      ${config[@]+"${config[@]}"} \
-      --no-globs \
-      "${group_files[@]}"
-    capture_rc="$CAPTURE_RC"
-    if ! capture_succeeded markdownlint-cli2 "$capture_rc" "$invocation_err"; then
-      merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || :
-      return 4
-    fi
-    if [[ "$capture_rc" -eq 1 ]] &&
-      ! { printf '\n' >>"$invocation_out" && cat "$invocation_err" >>"$invocation_out"; }
-    then
-      echo "ERROR: failed to assemble Markdownlint invocation evidence." >&2
-      merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || :
-      emit_rerun
-      return 4
-    fi
-    if ! require_semantic_report markdownlint-cli2 "$capture_rc" "$invocation_out"; then
-      merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || :
-      return 4
-    fi
-    merge_markdownlint_evidence "$out" "$err" "$invocation_out" "$invocation_err" || return 4
-    rm -f "$invocation_out" "$invocation_err"
-  done
+  require_semantic_report markdownlint-cli2 "$capture_rc" "$out" || return $?
   mark_dispatched markdownlint-cli2
 }
 
