@@ -1,15 +1,15 @@
 # Agent Skills
 
-<!-- agents-config:behave:start -->
+<!-- behavior-rules:start -->
 ## Rule Index
 
-_Project-level behavior reinforcement installed by `behave`; re-run `behave` to refresh this managed block._
+_Project-level behavior guidance indexed from `.agents/rules/`._
 
 Before planning or editing, read this rule first:
 
-- `.agents/rules/behavior.md` - canonical behavior discipline: production-grade, surgical, fail-loud, never-invent.
-- `.agents/rules/behavior-fable.md` - Fable addendum — model scope stated in the file.
-<!-- agents-config:behave:end -->
+- `.agents/rules/behavior.md` - canonical behavior discipline: production-grade, size budget, surgical, fail-loud, never-invent.
+- `.agents/rules/behavior-frontier.md` - Frontier addendum — model scope stated in the file.
+<!-- behavior-rules:end -->
 
 Public collection of installable AI agent skills for Claude Code and compatible agents. Each skill is a self-contained folder in `skills/` with a `SKILL.md` at its root.
 

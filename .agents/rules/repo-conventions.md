@@ -108,7 +108,7 @@ coroboros/agent-skills/
 ├── .agents/
 │   └── rules/             # Canonical repo-specific rules, indexed by AGENTS.md
 ├── .claude/
-│   └── rules/             # Claude Code behavior adapters installed by `behave`
+│   └── rules/             # Claude Code behavior adapters
 ├── .claude-plugin/        # Plugin marketplace manifest (category grouping)
 │   └── marketplace.json
 ├── assets/                # Shared brand assets (logo, icons)
