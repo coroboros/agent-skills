@@ -83,6 +83,16 @@ class TestRepoRootIsAValidPath(unittest.TestCase):
         self.assertTrue((REPO_ROOT / ".claude-plugin" / "marketplace.json").is_file(),
                         "REPO_ROOT does not contain .claude-plugin/marketplace.json")
 
+    def test_cross_agent_instruction_entrypoints(self):
+        """AGENTS.md is canonical; Claude's adapter imports it without duplication."""
+        self.assertTrue((REPO_ROOT / "AGENTS.md").is_file(),
+                        "REPO_ROOT does not contain canonical AGENTS.md")
+        self.assertEqual(
+            (REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8"),
+            "@AGENTS.md\n",
+            "CLAUDE.md must remain a thin import of canonical AGENTS.md",
+        )
+
 
 class TestGetSkillDirsContract(unittest.TestCase):
     """Returns a sorted list of `Path` objects, each pointing to a skill

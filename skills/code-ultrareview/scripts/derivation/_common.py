@@ -86,6 +86,7 @@ class Artifact:
     kind: str  # "forge" | "spec" | "apex-plan" | "pr-body" | "issue-body" | "doc"
     freshness_days: int = -1
     claims: list = field(default_factory=list)
+    required: bool = False
 
 
 @dataclass

@@ -1,6 +1,6 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the 5-phase pipeline (scope → tool battery → 8 axis reviewers → Haiku validators on sub-80 → synthesis), the 8 always-on axes (correctness, simplification, tests, documentation, style, intent, design-api, performance) plus the conditional Coherence axis (activates on metadata in diff), the report shape (per-severity 🔴 High / 🟠 Medium / 🟢 Low + ⚠️ Unverified sub-sections, each ## section emoji-prefixed and HR-separated), the deferral contract (security → /security-review; runtime perf + flaky detection out of scope), no-silent-drop (A2) routing, the Anthropic verbatim rubric + Haiku validator CLAUDE.md re-check, repo-kind classification (skills/app/library/docs/monorepo/python/rust/go/unknown), the four opt-in flags (--verify-build promotes sub-80 via build verification, --mutation-test routes surviving mutants to Tests axis, --reconcile activates Intent-axis derivation sub-mode with GAP/SCOPE-ADD/DECISION-OVERRIDE/CONSISTENT taxonomy, --apply-safe gates surgical writers with diff preview + per-file confirmation), the tool battery's zero-install posture (npx/uvx-preferred, graceful skip on missing native binaries, never auto-install), and reference routing.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the 5-phase pipeline (scope → atomic deterministic tool battery → 8 axis reviewers → fresh-context validators on sub-80 → synthesis), the 8 always-on axes plus conditional Coherence, the canonical report shape, deferrals, no-silent-drop routing, repo-kind classification, opt-in build/mutation/reconciliation/writer gates, exact remediation, and reference routing. Applicable analyzer coverage is fail-closed: tools resolve only from project declarations or installed PATH binaries, never through runtime package resolution, and missing or invalid coverage blocks every verdict.",
   "evals": [
     {
       "id": 1,
@@ -33,15 +33,15 @@
     {
       "id": 5,
       "name": "reads-declared-base-from-rules",
-      "prompt": "/code-ultrareview (clean tree; the repo CLAUDE.md declares the source branch is `develop`)",
+      "prompt": "/code-ultrareview (clean tree; the repo AGENTS.md declares the source branch is `develop`)",
       "expected_output": "Before running the resolver, the skill reads the rule hierarchy, finds the declared source branch (e.g. develop), and passes it via -b. rule=explicit; base is merge-base(develop, HEAD) — a diffable ancestor SHA. This is the skill-layer rung — resolve_base.sh itself never parses rule files.",
       "files": []
     },
     {
       "id": 6,
-      "name": "style-axis-cites-claude-md-rule",
-      "prompt": "/code-ultrareview (a changed file violates a rule written in .claude/rules/)",
-      "expected_output": "The Style axis reports the violation with the exact rule line quoted verbatim and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not. The Haiku validator (Phase 4) re-checks the cited CLAUDE.md rule actually exists in `claude_md_chain` — if absent at the cited path, the finding is demoted with `CLAUDE.md rule not found at <path>`.",
+      "name": "style-axis-cites-project-instruction-rule",
+      "prompt": "/code-ultrareview (a changed file violates a .agents/rules/ rule indexed from AGENTS.md)",
+      "expected_output": "The Style axis reports the violation with the exact rule line quoted verbatim, its instruction source path, and a file:line location. Only violations introduced by the diff are reported; pre-existing violations on unchanged lines are not. The fresh-context validator re-checks that the cited rule exists in the applicable `instruction_chain`; if absent at the cited path, the finding is demoted with `Instruction rule not found at <path>`.",
       "files": []
     },
     {
@@ -82,15 +82,15 @@
     {
       "id": 11,
       "name": "graceful-degradation-no-rules-baseline",
-      "prompt": "/code-ultrareview (repo has no CLAUDE.md, no .claude/rules, no ~/.claude/rules)",
-      "expected_output": "The Style axis is skipped. The header states `Style axis: skipped — no rules baseline found`. The other 7 axes still run and the report is produced — the skill remains useful on any repo. The skip is stated, never silent.",
+      "prompt": "/code-ultrareview (repo and user scopes have no applicable AGENTS.override.md, AGENTS.md, .agents/rules, CLAUDE.md, .claude/CLAUDE.md, CLAUDE.local.md, or .claude/rules)",
+      "expected_output": "The Style axis still runs. With an empty instruction chain it may report only changed-line violations backed by repeated neighboring repository evidence; otherwise it emits no findings. The header states `Rules baseline: none — Style used observable repository conventions`. It is never marked skipped and never invents a preference from a single example.",
       "files": []
     },
     {
       "id": 12,
       "name": "sub-80-routes-to-unverified-not-dropped",
       "prompt": "/code-ultrareview (changes contain one real high-impact bug at confidence 90 plus a maybe-issue scored at 70)",
-      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue first passes through the Haiku validator (Phase 4); if the validator demotes (stays sub-80), the finding appears in ### ⚠️ Unverified with the prefix [unverified] and the validator's reason in the recommendation (e.g. `CLAUDE.md rule not found at .claude/rules/api.md` or `Sub-80 confidence (70) — verify locally before action`). Neither is dropped — A2 no-silent-drop contract.",
+      "expected_output": "The high-impact bug appears in ### 🔴 High (confidence 90). The maybe-issue first passes through the fresh-context validator; if the validator demotes (stays sub-80), the finding appears in ### ⚠️ Unverified with the prefix [unverified] and the validator's reason in the recommendation (e.g. `Instruction rule not found at .agents/rules/api.md` or `Sub-80 confidence (70) — verify locally before action`). Neither is dropped — A2 no-silent-drop contract.",
       "files": []
     },
     {
@@ -172,24 +172,30 @@
     },
     {
       "id": 25,
-      "name": "verify-build-flag-promotes-confirmed-finding",
-      "prompt": "/code-ultrareview --verify-build (a sub-80 Correctness finding that the build run confirms via a failing test)",
-      "expected_output": "Phase 3.5 runs `scripts/run_build_verify.py`: `build_detect.py` picks the canonical test command, the build runs, and the failing exit promotes the finding through `synthesis_core.iterate_unverified` (+30 confidence, capped 95, floored 80). The unverified prefix is stripped, original severity is restored, the finding moves into the matching verified sub-section (### 🔴 High / ### 🟠 Medium / ### 🟢 Low). The finding skips Phase 4 validators (build verification is the stronger signal). Without `--verify-build`, Phase 3.5 does not run.",
+      "name": "verify-build-flag-is-an-atomic-project-test-gate",
+      "prompt": "/code-ultrareview --verify-build (a sub-80 Correctness finding exists and the canonical project test command fails)",
+      "expected_output": "Phase 3.5 runs `scripts/run_build_verify.py`: `build_detect.py` requires a real canonical test command, marks build coverage incomplete, removes stale output, and runs the command once even when all findings are already at or above 80. A missing command or runner exits 3 with project-aware install/configuration guidance plus the exact Code Ultrareview rerun; zero tests, failure, timeout, execution error, or malformed input exits 4 with the canonical test command and exact rerun. No path changes finding confidence because a generic build result cannot prove a specific finding. Without `--verify-build`, Phase 3.5 does not run.",
       "files": []
     },
     {
       "id": 26,
-      "name": "haiku-validator-demotes-bad-claude-md-citation",
-      "prompt": "/code-ultrareview (a sub-80 Style axis finding cites a CLAUDE.md rule that doesn't exist at the cited path)",
-      "expected_output": "Phase 4 launches one Haiku validator for the finding. The validator re-checks the cited rule against `claude_md_chain` from `scope.json`, finds no matching rule at the cited path, and demotes with `CLAUDE.md rule not found at <path>`. The finding lands in ### ⚠️ Unverified with that reason text verbatim. A2 contract preserved — never silently dropped.",
+      "name": "validator-demotes-bad-instruction-citation",
+      "prompt": "/code-ultrareview (a sub-80 Style axis finding cites an AGENTS.md rule that does not exist at the cited path)",
+      "expected_output": "Phase 4 launches one fresh-context validator for the finding. The validator re-checks the cited rule against `instruction_chain` from `scope.json`, finds no matching rule at the cited path, and demotes with `Instruction rule not found at <path>`. The finding lands in ### ⚠️ Unverified with that reason text verbatim. A2 contract preserved — never silently dropped.",
       "files": []
     },
     {
       "id": 27,
       "name": "mutation-test-flag-routes-surviving-mutants-to-tests-axis",
       "prompt": "/code-ultrareview --mutation-test (changed file in a JS/TS repo with Stryker config)",
-      "expected_output": "Phase 2 extension runs `scripts/run_mutation.sh` per language (Stryker for JS/TS, mutmut for Python, pitest-maven for JVM) scoped to changed files only. Surviving mutants route to the Tests axis as 🟠 Medium findings with `confidence: 100` (deterministic CLI output — skips Phase 4 validators). Runtime can exceed 10 minutes; default 600 s timeout overridable via `MUTATION_TIMEOUT`. Without `--mutation-test`, the extension does not run.",
-      "files": []
+      "expected_output": "Phase 2 extension runs `scripts/run_mutation.py` per applicable language: Stryker targets changed JS/TS files, while project-configured mutmut and Pitest runs are filtered to changed Python/JVM findings. Every applicable language is preflighted before execution. Only documented terminal statuses count as evaluated: Stryker Ignored is intentional, Stryker Pending and mutmut skipped/interrupted/not checked block, and any unknown changed-file Pitest status blocks. Missing project config or tools exits 3 with exact language- and build-system-aware remediation; failure, timeout, stale/missing report, incomplete status, or malformed report exits 4. Surviving mutants publish atomically through an independently manifested stream, route to the Tests axis as 🟠 Medium with confidence 100, and reach final synthesis only after digest/run verification. Runtime can exceed 10 minutes; default 600 s timeout is overridable via `MUTATION_TIMEOUT`. The script never installs or resolves packages at runtime.",
+      "files": [],
+      "expectations": [
+        "Stryker Killed, Survived, NoCoverage, Timeout, RuntimeError, CompileError, and Ignored are terminal; Pending changed-file mutants block the mutation gate.",
+        "mutmut maps every killed, caught by type check, survived, no tests, suspicious, timeout, and segfault terminal row with `mutmut show`; only survived, no tests, and suspicious rows become findings, while skipped, interrupted, or not checked results block the mutation gate.",
+        "Pitest accepts only its documented terminal status set for changed-file mutations; an unknown status blocks rather than being counted.",
+        "No mutation findings stream or repository verdict is published while any applicable mutation result remains incomplete or unsupported."
+      ]
     },
     {
       "id": 28,
@@ -256,24 +262,77 @@
     },
     {
       "id": 37,
-      "name": "tool-battery-graceful-skip-missing-oasdiff",
+      "name": "tool-battery-blocks-atomically-on-missing-oasdiff",
       "prompt": "/code-ultrareview (OpenAPI repo without `oasdiff` installed; diff touches openapi.yaml)",
-      "expected_output": "Phase 2 attempts `oasdiff` (no npx/uvx wrapper), finds no PATH binary, emits `WARN: oasdiff not found — install: brew install oasdiff` to stderr AND appends `oasdiff` to `scope.json[\"tools_skipped\"]`. The Design/API axis loses its oasdiff input but still runs LLM judgment. The report's `## 🧰 Tools skipped` table lists `oasdiff | design-api | brew install oasdiff`. The closing `## 🛡️ What I did NOT check` section references the skipped tool. Skill NEVER auto-installs — no `brew install`, `cargo install`, `go install`, `pip install`, or `npm install -g` runs.",
+      "expected_output": "Phase 2 preflight detects that oasdiff is applicable and unavailable, records incomplete tool coverage plus the missing analyzer, exits 3 before any analyzer or axis reviewer starts, and prints the exact project-aware install command plus the exact Code Ultrareview command to rerun. It emits no partial report or verdict and never invokes npx, uvx, brew install, cargo install, go install, pip install, or npm install itself. After the user installs oasdiff, the entire review restarts from preflight.",
       "files": []
     },
     {
       "id": 38,
       "name": "preflight-lists-detected-and-missing-tools",
       "prompt": "/code-ultrareview --preflight",
-      "expected_output": "Runs `scripts/preflight_tools.sh`. Lists detected tools per `scope.json[\"repo_kind\"]` + languages, prints install commands for missing ones. Informational only — no review runs, no tool installs. Exit code reflects whether all expected tools are available.",
+      "expected_output": "Runs `scripts/preflight_tools.sh --scope <scope.json>`. Lists every applicable analyzer with its resolved project/PATH command or exact install guidance. No analyzer, review, or install runs. It exits 0 only when coverage is complete and exits 3 when any applicable analyzer is unavailable.",
       "files": []
     },
     {
       "id": 39,
       "name": "axis-subset-runs-only-named-axes",
       "prompt": "/code-ultrareview --axes correctness,tests",
-      "expected_output": "Phase 3 launches only the named axes — 2 parallel subagents (Correctness, Tests). The Axis summary table shows only those two rows; the others are absent (not present as skipped — the user asked for a subset, not a degradation). Tool battery findings filter to those axes' routing only. Coherence does not run regardless of metadata in diff (subset overrides conditional activation).",
+      "expected_output": "Phase 2 preflights and runs only analyzers applicable to the requested axes, then Phase 3 launches only Correctness and Tests. Axis preparation and ingest reject missing, extra, or substituted axes. Coherence does not run even when metadata changed because the explicit subset wins. The output says `Scoped findings only` and never emits a repository-wide Ship, Fix-then-ship, or Needs work verdict; naming all axes explicitly is still scoped mode.",
       "files": []
+    },
+    {
+      "id": 40,
+      "name": "analyzer-integrity-blocks-atomically",
+      "prompt": "Run /code-ultrareview on a branch whose diff changes api/openapi.yaml and api/admin-openapi.yaml. On the first run oasdiff is not installed. After installing it and rerunning, Semgrep exits successfully but its JSON report contains a non-empty errors array.",
+      "expected_output": "Per `references/orchestration.md`, each deterministic analyzer gap stops and blocks the review atomically with exact repair and rerun guidance; neither run can emit a partial verdict.",
+      "files": [],
+      "expectations": [
+        "The first run exits 3 before any analyzer, axis reviewer, validator, or synthesis step; it names oasdiff, identifies the Design/API gap, and prints an exact install command plus the Code Ultrareview rerun step.",
+        "The second run treats Semgrep's non-empty errors array as analyzer failure, exits 4, and prints the report and stderr paths, exact repair or install guidance, and the Code Ultrareview rerun step.",
+        "Neither run marks deterministic tool coverage complete or emits Ship, Fix-then-ship, Needs work, or any partial Code Ultrareview report.",
+        "The skill never invokes npx, uvx, or another package resolver to install or execute an analyzer at review time."
+      ]
+    },
+    {
+      "id": 41,
+      "name": "python-skill-build-and-performance-coverage",
+      "prompt": "Run /code-ultrareview --axes correctness,tests,performance --verify-build on a Python skill repository whose changed executable helper performs synchronous I/O inside an async function. Initially pyproject.toml declares no pytest dependency or configuration and there is no unittest suite. Then pytest is configured but reports zero collected tests with exit 0. Finally add one collectable test and rerun.",
+      "expected_output": "Build verification fails closed until a real test suite executes, then the scoped review covers Performance for the executable skill code.",
+      "files": [],
+      "expectations": [
+        "A Python manifest alone never invents an unittest command; the first preflight exits 3 with exact pytest or unittest remediation and a rerun instruction.",
+        "A configured runner that reports zero collected tests is normalized to no-tests-collected, exits 4, and tells the user to add a collectable test before rerunning.",
+        "After the real test executes, prepare and ingest cover exactly correctness, tests, and performance; missing, extra, or substituted axes are rejected before synthesis.",
+        "Performance reviews the changed executable helper because repo_kind skills is not an exemption; only an instruction-only diff may emit the canonical performance no_findings marker.",
+        "The successful output says Scoped findings only and does not emit a repository-wide Ship, Fix-then-ship, or Needs work verdict."
+      ]
+    },
+    {
+      "id": 42,
+      "name": "mutation-and-reconcile-remain-atomic",
+      "prompt": "Run /code-ultrareview --mutation-test --reconcile gh:pr:42 on a Gradle JVM project that changes src/main/java/App.java. Initially the info.solidsoft.pitest plugin is absent. After configuring it, GitHub CLI cannot fetch PR 42. Finally rerun with an available but stale PR artifact containing explicit intent claims.",
+      "expected_output": "Mutation and explicitly requested intent evidence are both atomic gates; after remediation, stale explicit evidence keeps its claims with the documented severity cap.",
+      "files": [],
+      "expectations": [
+        "The missing Gradle plugin exits 3 before mutation, axis review, or synthesis; guidance names info.solidsoft.pitest, the PATH-installed `gradle --offline --no-daemon pitest` runner, and the exact Code Ultrareview rerun without suggesting Maven or a project wrapper.",
+        "The skill never installs or resolves a mutation package at runtime and emits no verdict while mutation coverage is incomplete.",
+        "The unavailable explicit gh:pr:42 source exits 3 with gh installation, authentication, and reference checks plus an instruction to rerun with the same --reconcile value.",
+        "No Intent synthesis or verdict is emitted while the requested source is missing; once fetched, stale explicit evidence retains extracted claims instead of becoming summary-only, and stale-derived severity remains capped by policy."
+      ]
+    },
+    {
+      "id": 43,
+      "name": "workspace-mutation-resolution-is-explicit-and-offline",
+      "prompt": "Run /code-ultrareview --mutation-test on a Yarn Plug'n'Play monorepo where packages/a and packages/b each declare @stryker-mutator/core and both contain changed JavaScript. Then narrow the review to packages/a, first without a Stryker config and then with a config whose run exits 7.",
+      "expected_output": "Stryker resolution follows the changed files to one authoritative declaration, never guesses across workspaces, and never resolves a package at review time. Every blocked or failed run prints exact recovery and publishes no final mutation stream.",
+      "files": [],
+      "expectations": [
+        "The first preflight exits 3 before any analyzer starts, names both declaring workspaces, and prints the exact package-manager command that declares @stryker-mutator/core once at the repository root.",
+        "The narrowed preflight resolves packages/a through Yarn Plug'n'Play with COREPACK_ENABLE_NETWORK=0, COREPACK_DEFAULT_TO_LATEST=0, YARN_ENABLE_NETWORK=0, an explicit --cwd packages/a, and `run -B stryker`; a missing config prints that same offline command with `init`.",
+        "After the config exists, Stryker runs from packages/a and report paths are normalized back to repository-relative packages/a paths.",
+        "Exit 7 fails the mutation gate with the exact lockfile restore or install command plus the exact Code Ultrareview rerun; no mutation-findings.jsonl or repository verdict is published."
+      ]
     }
   ]
 }

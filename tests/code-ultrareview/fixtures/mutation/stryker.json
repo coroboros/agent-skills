@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "2.0",
+  "thresholds": {
+    "high": 80,
+    "low": 60
+  },
+  "files": {
+    "src/app.ts": {
+      "language": "typescript",
+      "source": "export const answer = () => 42;\n",
+      "mutants": [
+        {
+          "id": "0",
+          "mutatorName": "BlockStatement",
+          "description": "Empty block statement",
+          "replacement": "{}",
+          "location": {
+            "start": {"line": 1, "column": 27},
+            "end": {"line": 1, "column": 29}
+          },
+          "status": "Ignored"
+        },
+        {
+          "id": "1",
+          "mutatorName": "ArithmeticOperator",
+          "description": "Replaced 42 with 0",
+          "replacement": "0",
+          "location": {
+            "start": {"line": 1, "column": 27},
+            "end": {"line": 1, "column": 29}
+          },
+          "status": "Survived"
+        }
+      ]
+    }
+  }
+}

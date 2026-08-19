@@ -3,7 +3,7 @@
 A realistic DESIGN.md (Google standard — frontmatter tokens + 8 prose
 sections in canonical order) must be parseable by the consumer's
 expectations. This locks the schema contract end-to-end without
-requiring the npx-backed audit.sh to run (that's covered by
+requiring the external designmd CLI to run (that's covered by
 tests/design-system/test_cli.py).
 
 Pinning this in `_pipeline/` rather than per-skill catches drift on
@@ -134,7 +134,7 @@ class TestSpecCommitsToCanonicalKeys(unittest.TestCase):
 # These tests run the same structural checks against malformed fixtures
 # and assert the checks correctly identify the problem. Together with the
 # happy-path tests above, this gives the cluster a proper schema audit
-# without requiring the consumer's npx-backed audit.sh to run.
+# without requiring the consumer's external designmd CLI to run.
 
 FIXTURES_DIR = Path(__file__).parent / "fixtures"
 MALFORMED_MISSING_TOKEN = FIXTURES_DIR / "malformed_missing_token.md"

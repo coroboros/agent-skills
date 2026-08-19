@@ -334,7 +334,9 @@ class TestVersionGraph(unittest.TestCase):
                 json.dumps({"metadata": {"version": "1.25.0"}}), encoding="utf-8"
             )
             # Real git repo with tag at 1.24.0 — _from_git_tag needs `.git`.
-            env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
+            env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull,
+                   "GIT_CONFIG_SYSTEM": os.devnull,
+                   "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
                    "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
             subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
@@ -353,7 +355,9 @@ class TestVersionGraph(unittest.TestCase):
             (repo / ".claude-plugin" / "marketplace.json").write_text(
                 json.dumps({"metadata": {"version": "1.24.0"}}), encoding="utf-8"
             )
-            env = {**os.environ, "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
+            env = {**os.environ, "GIT_CONFIG_GLOBAL": os.devnull,
+                   "GIT_CONFIG_SYSTEM": os.devnull,
+                   "GIT_AUTHOR_NAME": "t", "GIT_COMMITTER_NAME": "t",
                    "GIT_AUTHOR_EMAIL": "t@e", "GIT_COMMITTER_EMAIL": "t@e"}
             subprocess.run(["git", "-C", str(repo), "init", "-q"], check=True, env=env)
             subprocess.run(["git", "-C", str(repo), "add", "."], check=True, env=env)
@@ -384,6 +388,79 @@ class TestSpecConformanceStub(unittest.TestCase):
         self.assertEqual(findings[0].severity, "Low")
         self.assertEqual(findings[0].confidence, 50)
         self.assertIn("spec-conformance", findings[0].recommendation.lower())
+
+    def test_agents_instruction_spec_mention_is_detected(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("RFC 9110", findings[0].finding)
+
+    def test_empty_agents_override_falls_back_to_agents(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.override.md").write_text("\n", encoding="utf-8")
+            (repo / "AGENTS.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("RFC 9110", findings[0].finding)
+
+    def test_nonempty_agents_override_replaces_agents(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.override.md").write_text(
+                "Use project defaults.\n", encoding="utf-8",
+            )
+            (repo / "AGENTS.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
+
+    def test_shared_rule_spec_mention_is_detected(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.md").write_text(
+                "Read `.agents/rules/http.md`.\n", encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "http.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(len(findings), 1)
+        self.assertIn("RFC 9110", findings[0].finding)
+
+    def test_unreferenced_shared_rule_is_not_an_instruction(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            (repo / "AGENTS.md").write_text(
+                "Use the repository conventions.\n", encoding="utf-8",
+            )
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "http.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
+
+    def test_orphaned_shared_rule_is_not_an_instruction(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            rules = repo / ".agents" / "rules"
+            rules.mkdir(parents=True)
+            (rules / "http.md").write_text(
+                "Implement RFC 9110 semantics.\n", encoding="utf-8",
+            )
+            findings = spec_conformance_graph.run(repo, _common.IgnoreFile())
+        self.assertEqual(findings, [])
 
     def test_allowlisted_spec_suppressed(self):
         with tempfile.TemporaryDirectory() as t:

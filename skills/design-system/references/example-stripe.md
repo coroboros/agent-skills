@@ -220,7 +220,7 @@ Top nav uses `nav-link` tokens. Active link states swap variant to secondary col
 - **Do** restrict the iridescent gradient to exactly two moments per page — hero and final CTA
 - **Do** use `{colors.primary}` for primary CTAs, links, and focus rings — one consistent accent
 - **Do** prefer surface color shifts over shadows for most elevation — shadows are reserved for the elevated tier only
-- **Do** run `npx @google/design.md lint DESIGN.md` before committing; export Tailwind via `npx @google/design.md export --format tailwind` after token changes
+- **Do** run `designmd lint DESIGN.md` before committing; export Tailwind via `designmd export --format tailwind` after token changes
 - **Don't** introduce a second gradient direction or additional gradient stops — the signature gradient is fixed at `135deg` with three stops
 - **Don't** use pure black (`#000`) anywhere — Deep Navy (`{colors.secondary}`) replaces it for text, shadows, and dividers
 - **Don't** layer multiple elevation signals (border + shadow + surface shift) — pick one per element

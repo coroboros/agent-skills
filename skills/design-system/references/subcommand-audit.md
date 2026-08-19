@@ -34,8 +34,8 @@ The script exits `0` when the lint has zero errors, `1` when errors are present 
    ```bash
    bash "$SKILL_DIR"/scripts/audit.sh <path>
    ```
-   The script emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file. Parse `RESULT: json=<tmp-path>` and `Read` that file to get `findings[]` and `summary`.
-3. **Handle CLI unavailability.** If `RESULT: status=npx-missing`, fall back to manual validation against `references/design-md-spec.md` — without a parser we can only check structural invariants (YAML present, eight sections in canonical order, no duplicate headings). Report what was checked and what was not.
+   The script emits `RESULT: key=value` lines and writes the raw CLI JSON to a temp file. Parse `RESULT: json=<tmp-path>`, read that file to get `findings[]` and `summary`, then remove the temp file.
+3. **Handle every non-`ok` status.** Stop and surface the emitted `remediation=` and exact `rerun=` values. This includes a missing or unsupported PATH command, command failure, and invalid output. Do not substitute structural inspection for the canonical parser and lint rules.
 4. **Compose the report** using the template below.
 5. **Save** under `~/.agents/output/{project}/design-system/audit/report.md` if `-s`.
 6. **Return summary line** to the user: `✅ clean` or `⚠️ <n> warnings (acceptable)` or `❌ <n> errors — fix before shipping`.
@@ -189,15 +189,16 @@ Locate `/award-design`'s reference files via this order:
 
 1. `"$SKILL_DIR"/../award-design/references/anti-patterns.md` (sibling install — the standard case when both skills come from `coroboros/agent-skills`)
 2. `.claude/skills/award-design/references/anti-patterns.md` (project-local install)
-3. `~/.claude/skills/award-design/references/anti-patterns.md` (user install)
+3. `~/.agents/skills/award-design/references/anti-patterns.md` (cross-agent user install)
+4. `~/.claude/skills/award-design/references/anti-patterns.md` (Claude-only user install)
 
 Use `Glob` to check each location. First match wins. Same probe pattern for `exemplars.md`.
 
-If neither anti-patterns.md nor exemplars.md is found at any location, report to the user:
+Resolve `anti-patterns.md` and `exemplars.md` independently. If either catalog is absent at every allowed location, list the missing catalog name(s) and report to the user:
 
-> `--strict` requires `/award-design` installed. Install with `npx skills add coroboros/agent-skills --skill award-design`, or run the standard audit (drop `--strict`).
+> `--strict` requires the complete `/award-design` catalogs (`anti-patterns.md` and `exemplars.md`). Install with `npx skills add coroboros/agent-skills --skill award-design`, repair the incomplete install, or run the standard audit (drop `--strict`).
 
-Then fall back to the standard audit flow — do not silently ignore the flag.
+Stop the strict audit when either catalog is missing. Never emit a partial strict result: the anti-pattern scan and exemplar calibration are both part of the requested contract, so a standard audit is not an equivalent fallback.
 
 ### Strict findings block
 

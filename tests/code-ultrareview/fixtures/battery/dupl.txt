@@ -1,5 +1,5 @@
-found 1 clones:
+found 2 clones:
+  src/a.go:10,30
+  src/b.go:50,70
 
-src/a.go:10,30
-src/b.go:50,70
-
+Found total 1 clone groups.

@@ -14,6 +14,7 @@ identically regardless of the runner's GitHub auth state.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import subprocess
@@ -45,12 +46,33 @@ def _env() -> dict:
     return env
 
 
-def _run_cli(repo: Path, reconcile: str = "@auto", *extra: str) -> dict:
-    r = subprocess.run(
-        [sys.executable, str(RUN_SCRIPT), "--repo", str(repo),
-         "--reconcile", reconcile, *extra],
-        env=_env(), capture_output=True, text=True, timeout=15,
+def _write_scope(path: Path) -> None:
+    path.write_text(
+        json.dumps({
+            "files_touched": 1,
+            "files_touched_list": ["fixture.md"],
+            "languages": ["Markdown"],
+        }) + "\n",
+        encoding="utf-8",
     )
+
+
+def _run_cli_process(repo: Path, reconcile: str = "@auto", *extra: str):
+    with tempfile.TemporaryDirectory() as td:
+        runtime = Path(td)
+        scope = runtime / "scope.json"
+        output = runtime / "reconcile.json"
+        _write_scope(scope)
+        return subprocess.run(
+            [sys.executable, str(RUN_SCRIPT), "--repo", str(repo),
+             "--scope", str(scope), "--output", str(output),
+             "--reconcile", reconcile, *extra],
+            env=_env(), capture_output=True, text=True, timeout=15,
+        )
+
+
+def _run_cli(repo: Path, reconcile: str = "@auto", *extra: str) -> dict:
+    r = _run_cli_process(repo, reconcile, *extra)
     if r.returncode != 0:
         raise AssertionError(f"run.py exit {r.returncode}: {r.stderr}")
     return json.loads(r.stdout)
@@ -211,6 +233,7 @@ class TestRunResolveInputs(unittest.TestCase):
             artifacts = run_module.resolve_inputs(repo, [str(f)])
         self.assertEqual(len(artifacts), 1)
         self.assertEqual(artifacts[0].kind, "spec")
+        self.assertTrue(artifacts[0].required)
 
     def test_directory_resolves_to_each_md(self):
         with tempfile.TemporaryDirectory() as t:
@@ -221,6 +244,20 @@ class TestRunResolveInputs(unittest.TestCase):
             (d / "b.md").write_text("# b", encoding="utf-8")
             artifacts = run_module.resolve_inputs(repo, [str(d)])
         self.assertEqual(len(artifacts), 2)
+
+    def test_missing_explicit_path_is_a_prerequisite_error(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            with self.assertRaises(run_module.ReconcilePrerequisiteError):
+                run_module.resolve_inputs(repo, ["missing-spec.md"])
+
+    def test_empty_explicit_directory_is_a_prerequisite_error(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            plans = repo / "plans"
+            plans.mkdir()
+            with self.assertRaises(run_module.ReconcilePrerequisiteError):
+                run_module.resolve_inputs(repo, [str(plans)])
 
     def test_issue_url_resolves_to_gh_issue_token(self):
         with tempfile.TemporaryDirectory() as t:
@@ -251,7 +288,23 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
         self.assertGreaterEqual(len(out["artifacts"]), 1)
         self.assertGreaterEqual(out["artifacts"][0]["claim_count"], 1)
 
-    def test_stale_artifact_emits_summary_only(self):
+    def test_auto_detected_sources_without_claims_block(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            rfc = repo / "docs" / "rfcs" / "0001-notes.md"
+            rfc.parent.mkdir(parents=True)
+            rfc.write_text(
+                "# Notes\n\nThis document has no planning claims.\n",
+                encoding="utf-8",
+            )
+
+            result = _run_cli_process(repo, "@auto")
+
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("no extractable Acceptance criteria", result.stderr)
+        self.assertIn("repair the planning artifact", result.stderr)
+
+    def test_stale_explicit_artifact_still_emits_claims(self):
         # Copy the committed fixture into a non-git tempdir so freshness
         # falls back to mtime (the committed file's git timestamp is
         # recent and would otherwise override our backdate).
@@ -267,10 +320,39 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
             ancient = _time.time() - (100 * 86400)
             os.utime(dst, (ancient, ancient))
             out = _run_cli(repo, str(dst))
-        # Artifact present, no findings (summary-only because >90d).
         self.assertEqual(len(out["artifacts"]), 1)
-        self.assertEqual(out["findings"], [],
-                         f"expected no findings for stale artifact, got {out['findings']}")
+        self.assertGreaterEqual(len(out["findings"]), 1)
+        self.assertTrue(all(item["severity"] == "Low" for item in out["findings"]))
+
+    def test_explicit_source_without_extractable_claims_blocks(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            source = repo / "notes.md"
+            source.write_text("# Notes\n\nNothing actionable.\n", encoding="utf-8")
+            result = _run_cli_process(repo, str(source))
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("contains no extractable", result.stderr)
+        self.assertIn("then rerun Code Ultrareview", result.stderr)
+
+    def test_unclosed_frontmatter_blocks(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            source = repo / "spec.md"
+            source.write_text(
+                "---\ntitle: Broken\n## Acceptance criteria\n- [ ] Works\n",
+                encoding="utf-8",
+            )
+            result = _run_cli_process(repo, str(source))
+        self.assertEqual(result.returncode, 4, result.stderr)
+        self.assertIn("unclosed frontmatter", result.stderr)
+
+    def test_explicit_pr_unavailable_blocks_with_auth_remediation(self):
+        with tempfile.TemporaryDirectory() as t:
+            result = _run_cli_process(Path(t), "@pr")
+        self.assertEqual(result.returncode, 3, result.stderr)
+        self.assertIn("source is unavailable or empty", result.stderr)
+        self.assertIn("gh auth login", result.stderr)
+        self.assertIn("same --reconcile value", result.stderr)
 
     def test_allowlisted_path_suppresses_findings(self):
         fixture = FIXTURES / "allowlisted"
@@ -291,12 +373,44 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
 
 
 class TestRunOutputSchema(unittest.TestCase):
-    def test_output_has_required_top_level_keys(self):
+    def test_auto_without_any_source_blocks_instead_of_no_op(self):
         with tempfile.TemporaryDirectory() as t:
-            out = _run_cli(Path(t), reconcile="@auto")
-        for key in ("lens", "artifacts", "findings"):
-            self.assertIn(key, out)
-        self.assertEqual(out["lens"], "derivation")
+            result = _run_cli_process(Path(t), reconcile="@auto")
+            self.assertEqual(result.returncode, 3, result.stderr)
+            self.assertIn("@auto found no planning artifact", result.stderr)
+
+    def test_cli_persists_hashed_complete_coverage_manifest(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            spec = repo / "spec.md"
+            spec.write_text(
+                "# Spec\n\n## Goals\n\n- Preserve the contract\n",
+                encoding="utf-8",
+            )
+            scope = repo / "scope.json"
+            _write_scope(scope)
+            output = repo / "reconcile.json"
+            result = subprocess.run(
+                [
+                    sys.executable, str(RUN_SCRIPT),
+                    "--repo", str(repo),
+                    "--scope", str(scope),
+                    "--output", str(output),
+                    "--reconcile", str(spec),
+                ],
+                env=_env(), capture_output=True, text=True, timeout=15,
+            )
+
+            self.assertEqual(result.returncode, 0, result.stderr)
+            coverage = json.loads(scope.read_text())["reconcile_coverage"]
+            self.assertTrue(coverage["complete"])
+            self.assertEqual(coverage["status"], "complete")
+            self.assertEqual(coverage["output"], str(output.resolve()))
+            self.assertEqual(
+                coverage["sha256"], hashlib.sha256(output.read_bytes()).hexdigest()
+            )
+            self.assertEqual(coverage["finding_count"], 1)
+            self.assertEqual(json.loads(result.stdout), json.loads(output.read_text()))
 
     def test_finding_carries_required_fields(self):
         with tempfile.TemporaryDirectory() as t:

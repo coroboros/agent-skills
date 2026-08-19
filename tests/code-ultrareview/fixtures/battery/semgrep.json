@@ -1,17 +1,6 @@
 {
   "results": [
     {
-      "check_id": "python.lang.security.audit.subprocess-shell-true",
-      "path": "src/exec.py",
-      "start": {"line": 10, "col": 1, "offset": 100},
-      "end": {"line": 10, "col": 30, "offset": 130},
-      "extra": {
-        "message": "subprocess.Popen with shell=True allows shell injection",
-        "severity": "ERROR",
-        "metadata": {"category": "security"}
-      }
-    },
-    {
       "check_id": "code-ultrareview-sync-io-in-async-py",
       "path": "src/async_foo.py",
       "start": {"line": 5, "col": 4, "offset": 50},

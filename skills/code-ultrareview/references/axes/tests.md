@@ -30,7 +30,7 @@ Anchor: `references/anthropic-verbatim.md` § False-positive taxonomy.
 
 ## Tool inputs (Phase 2)
 
-No deterministic tool findings route to this axis from the standard battery. The `--mutation-test` opt-in runs `Stryker` / `Pitest` / `mutmut` and routes surviving mutants here as 🟠 Medium.
+No deterministic tool findings route to this axis from the standard battery. The `--mutation-test` opt-in runs configured Stryker / Pitest / mutmut projects and routes changed-file surviving, uncovered, or suspicious mutants here as 🟠 Medium. A missing tool or configuration, failed run, malformed report, zero evaluated mutants, or incomplete mutation state blocks the review before any Tests-axis verdict.
 
 ## Severity calibration
 

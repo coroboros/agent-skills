@@ -19,5 +19,6 @@
   "db:studio": "drizzle-kit studio",
   "test": "vitest run",
   "test:watch": "vitest",
-  "test:e2e": "playwright test"
+  "test:e2e": "playwright test",
+  "design:audit": "designmd lint DESIGN.md"
 }

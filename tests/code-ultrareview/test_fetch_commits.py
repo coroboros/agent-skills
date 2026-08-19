@@ -20,6 +20,9 @@ def _git(args: list[str], cwd: Path) -> None:
         capture_output=True,
         env={
             **os.environ,
+            # Fixture repositories must not inherit signing or global hooks.
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_SYSTEM": os.devnull,
             # Deterministic identity for fixture commits — these are throwaway.
             "GIT_AUTHOR_NAME": "Test",
             "GIT_AUTHOR_EMAIL": "test@example.invalid",

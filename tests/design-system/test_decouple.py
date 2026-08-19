@@ -6,12 +6,24 @@ for lack of a file and never authors a design from scratch. These assertions
 would FAIL on the pre-refactor SKILL.md, which delegated to /award-design or
 forced `init` whenever a DESIGN.md was absent."""
 
+import json
 import re
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_MD = REPO_ROOT / "skills" / "design-system" / "SKILL.md"
+AUDIT_REFERENCE = (
+    REPO_ROOT / "skills" / "design-system" / "references" / "subcommand-audit.md"
+)
+MIGRATE_REFERENCE = (
+    REPO_ROOT / "skills" / "design-system" / "references" / "subcommand-migrate.md"
+)
+INIT_REFERENCE = (
+    REPO_ROOT / "skills" / "design-system" / "references" / "subcommand-init.md"
+)
+EVALS = REPO_ROOT / "skills" / "design-system" / "evals" / "evals.json"
+README = REPO_ROOT / "README.md"
 
 
 def _body():
@@ -105,9 +117,72 @@ class TestNoExtractSubcommand(unittest.TestCase):
     def test_subcommand_count_pinned_at_seven(self):
         """The description pins seven subcommands — an eighth (e.g. extract) breaks this guard."""
         self.assertIn(
-            "seven CLI-backed subcommands", _frontmatter(),
+            "seven subcommands, four backed by the canonical CLI", _frontmatter(),
             "the description must pin the subcommand count at seven",
         )
+
+
+class TestCrossAgentRuntimeContracts(unittest.TestCase):
+    def test_shared_brand_guidance_uses_cross_agent_instructions(self):
+        text = _body()
+        self.assertIn("applicable project instructions", text)
+        self.assertIn("AGENTS.md", text)
+        self.assertIn("CLAUDE.md", text)
+
+    def test_strict_mode_probes_shared_agents_install(self):
+        text = AUDIT_REFERENCE.read_text(encoding="utf-8")
+        self.assertIn(
+            "~/.agents/skills/award-design/references/anti-patterns.md", text
+        )
+
+    def test_strict_mode_stops_when_either_catalog_is_absent(self):
+        text = AUDIT_REFERENCE.read_text(encoding="utf-8")
+        self.assertIn("Resolve `anti-patterns.md` and `exemplars.md` independently", text)
+        self.assertIn("If either catalog is absent", text)
+        self.assertIn("requires the complete `/award-design` catalogs", text)
+        self.assertIn(
+            "npx skills add coroboros/agent-skills --skill award-design", text
+        )
+        self.assertIn("Stop the strict audit when either catalog is missing", text)
+        self.assertIn("Never emit a partial strict result", text)
+        self.assertIn("drop `--strict`", text)
+
+    def test_strict_mode_contract_matches_readme_and_eval(self):
+        readme = README.read_text(encoding="utf-8")
+        self.assertIn("if either is absent, stop with the install command", readme)
+        self.assertIn("instruct the user to drop `--strict`", readme)
+
+        evals = json.loads(EVALS.read_text(encoding="utf-8"))["evals"]
+        strict_eval = next(case for case in evals if case["id"] == 7)
+        self.assertIn("award-design is not installed", strict_eval["prompt"])
+        self.assertIn("npx skills add coroboros/agent-skills --skill award-design", strict_eval["expected_output"])
+        self.assertIn("drop `--strict`", strict_eval["expected_output"])
+        self.assertIn("does not emit a degraded strict result", strict_eval["expected_output"])
+
+        partial_eval = next(case for case in evals if case["id"] == 8)
+        self.assertIn("only anti-patterns.md is present", partial_eval["prompt"])
+        self.assertIn("exemplars.md", partial_eval["expected_output"])
+        self.assertIn("no partial strict result", partial_eval["expected_output"])
+
+    def test_migration_preflights_before_any_write(self):
+        text = MIGRATE_REFERENCE.read_text(encoding="utf-8")
+        preflight = text.index("Preflight the canonical CLI before any write")
+        candidate = text.index("Write a candidate temp file")
+        commit = text.index("Commit atomically")
+        self.assertLess(preflight, candidate)
+        self.assertLess(candidate, commit)
+        self.assertIn("leaves the source and final output untouched", text)
+
+    def test_init_preflights_and_audits_before_atomic_commit(self):
+        text = INIT_REFERENCE.read_text(encoding="utf-8")
+        preflight = text.index("Preflight the canonical CLI before any write")
+        candidate = text.index("Write a candidate temp file")
+        audit = text.index("Run audit on the candidate")
+        commit = text.index("Commit atomically")
+        self.assertLess(preflight, candidate)
+        self.assertLess(candidate, audit)
+        self.assertLess(audit, commit)
+        self.assertIn("leaves the final path untouched", text)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 {
   "skill_name": "design-system",
-  "description": "Behavioural evaluation set for the design-system skill. Cases pin token-only governance of an existing DESIGN.md, the step-aside behaviour when no file exists, and the CLI-backed subcommand routing (audit, migrate, audit-extensions).",
+  "description": "Behavioural evaluation set for the design-system skill. Cases pin token-only governance of an existing DESIGN.md, deliberate step-aside behavior when no file exists, extension drift, and atomic canonical-CLI routing. A missing, failed, or invalid designmd command blocks CLI-backed work with exact remediation; the skill never substitutes a reduced manual verdict.",
   "evals": [
     {
       "id": 1,
@@ -20,14 +20,14 @@
       "id": 3,
       "name": "audits-existing-design-md",
       "prompt": "Lint our DESIGN.md and tell me what's broken.",
-      "expected_output": "Routes to the audit subcommand and follows `references/subcommand-audit.md`: runs the Google CLI lint (or the manual fallback when the CLI is unavailable), then reports broken-ref, contrast, and missing-section findings with concrete fix proposals. Surfaces results as a human-readable report.",
+      "expected_output": "Routes to the audit subcommand and follows `references/subcommand-audit.md`: requires designmd on PATH, validates its structured output, then reports broken-ref, contrast, and missing-section findings with concrete fix proposals. A missing or invalid CLI blocks with the exact repair and rerun instruction; no reduced manual audit is presented as equivalent.",
       "files": []
     },
     {
       "id": 4,
       "name": "migrates-legacy-stitch",
       "prompt": "Our DESIGN.md is the old Stitch format with 9 numbered sections and no YAML. Port it.",
-      "expected_output": "Detects the legacy Stitch shape and routes to the migrate subcommand per `references/subcommand-migrate.md`, porting the 9 numbered sections into the Google standard (YAML frontmatter + 8 ordered prose sections), then audits the result before handing it back.",
+      "expected_output": "Detects the legacy Stitch shape and routes to the migrate subcommand per `references/subcommand-migrate.md`. It resolves and validates the canonical CLI before mutation, ports the 9 numbered sections into the Google standard (YAML frontmatter + 8 ordered prose sections) atomically, then audits the result before handing it back. Any missing, failed, or invalid CLI result blocks without a partial rewrite and prints exact remediation plus the rerun instruction.",
       "files": []
     },
     {
@@ -35,6 +35,34 @@
       "name": "audit-extensions-drift",
       "prompt": "Check that our motion and shadow tokens match the globals.css @theme block.",
       "expected_output": "Routes to the audit-extensions subcommand per `references/subcommand-audit-extensions.md`: checks bidirectional drift between the DESIGN.md extension namespaces, their prose references, and the globals.css `@theme` mirror — firing extension-missing-css, extension-orphan-css, and extension-broken-ref findings as appropriate.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "canonical-cli-integrity-on-path",
+      "prompt": "Audit and then migrate a legacy DESIGN.md. On the first attempt designmd is absent from PATH. After installing it, the CLI emits malformed JSON. After repairing the CLI output, rerun the migration and audit.",
+      "expected_output": "Every missing, runtime, or schema failure blocks atomically with exact remediation. Only a healthy designmd command on PATH may migrate and audit the file.",
+      "files": [],
+      "expectations": [
+        "The wrapper requires designmd on PATH, verifies designmd --version, and never invokes a package manager while the skill runs.",
+        "The first attempt stops before mutation and emits npm install --global --ignore-scripts @google/design.md plus the exact rerun instruction.",
+        "Malformed CLI JSON fails schema validation and stops without an audit verdict or partial migration.",
+        "The successful migration produces canonical YAML tokens plus the eight ordered prose sections and publishes the result only after validation.",
+        "The migrated file passes the canonical audit before the response considers the work complete."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "strict-audit-requires-award-design",
+      "prompt": "Run /design-system audit DESIGN.md --strict, but award-design is not installed.",
+      "expected_output": "Stops before presenting any standard or strict audit verdict. It states that `--strict` requires award-design, prints `npx skills add coroboros/agent-skills --skill award-design`, and tells the user to install it or drop `--strict`. It does not emit a degraded strict result.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "strict-audit-requires-both-catalogs",
+      "prompt": "Run /design-system audit DESIGN.md --strict when only anti-patterns.md is present in the award-design install and exemplars.md is missing.",
+      "expected_output": "Stops before presenting any standard or strict audit verdict, names exemplars.md as the missing catalog, and prints `npx skills add coroboros/agent-skills --skill award-design` with the alternatives to repair the install or drop `--strict`. It emits no partial strict result. The same hard stop applies when exemplars.md exists but anti-patterns.md is missing.",
       "files": []
     }
   ]

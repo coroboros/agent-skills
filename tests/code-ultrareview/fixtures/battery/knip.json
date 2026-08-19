@@ -1,23 +1,25 @@
-[
-  {
+{
+  "issues": [
+    {
     "file": "src/foo.ts",
     "owners": ["src/index.ts"],
-    "files": false,
+    "files": [],
     "exports": [
       {"name": "unusedExport", "line": 10, "col": 14}
     ],
     "types": [
       {"name": "UnusedType", "line": 20, "col": 1}
     ]
-  },
-  {
+    },
+    {
     "file": "src/dead-file.ts",
-    "files": true
-  },
-  {
+      "files": [{"name": "src/dead-file.ts"}]
+    },
+    {
     "file": "package.json",
     "devDependencies": [
       {"name": "stale-dep"}
     ]
-  }
-]
+    }
+  ]
+}

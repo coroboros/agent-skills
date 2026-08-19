@@ -5,8 +5,8 @@
 # Determines, deterministically, what a clean-tree review diffs against,
 # via an explicit precedence ladder. The skill prints the chosen rule in
 # the report header so the review target is never silent. The "repo-declared
-# base" precedence is owned by the skill (it reads CLAUDE.md / .claude/rules
-# in-context and passes the result via -b); this script is pure git topology.
+# base" precedence is owned by the skill (it reads the project instruction
+# chain in context and passes the result via -b); this script is pure git topology.
 #
 # Usage:
 #   resolve_base.sh [-b <ref>]

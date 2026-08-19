@@ -281,8 +281,9 @@ Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
 **Requirements**
 
-- `pnpm` — enable via Corepack: `corepack enable && corepack prepare pnpm@latest --activate`
-- Node.js ≥ 22
+- stable even-numbered Node.js >= 22.12.0
+- `pnpm` — provision a reviewed version via Corepack (`corepack enable && corepack install --global pnpm@<reviewed-version>`) or the official pnpm installer
+- [`jq`](https://jqlang.org/download/)
 
 **Usage**
 
@@ -296,20 +297,20 @@ Scaffold new web projects with an opinionated stack on Cloudflare Workers.
 
 | Scaffold | Framework | Infra | Key stack |
 |----------|-----------|-------|-----------|
-| `next-cloudflare` | Next.js (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
-| `astro-cloudflare` | Astro (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
+| `next-cloudflare` | Next.js 16 (App Router) | Cloudflare Workers (OpenNext) | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest, Playwright |
+| `astro-cloudflare` | Astro 6 (SSG-first) | Cloudflare Workers | Zero JS default, Content Collections, SEO rules |
 
 Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-Runs the official framework CLI, overlays the opinionated config (Biome, Cloudflare Workers, CLAUDE.md, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. Chains to `/award-design` then `/design-system` for design tokens.
+Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` and `/design-system` are optional follow-on handoffs for design tokens.
 
 ---
 
 #### code-ultrareview
 
-Eight-axis judgment code review at full strength, in-session — every axis run, full battery, no sampling. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
+Eight-axis judgment code review at full strength, in-session. The default runs every axis and the full applicable battery with no sampling; `--axes` is an explicitly scoped mode with no repository verdict. The 8 axes (Correctness, Simplification, Tests, Documentation, Style, Intent, Design/API, Performance) run as parallel `Explore` subagents on Claude Code or the harness equivalent; Coherence joins as a 9th when a manifest, `SKILL.md`, `tsconfig.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`, or root `README.md` is in the diff. In-session on the user's own subscription — distinct from Anthropic's remote `/ultrareview`.
 
 **Usage**
 
@@ -317,7 +318,7 @@ Eight-axis judgment code review at full strength, in-session — every axis run,
 /code-ultrareview                              # full 8-axis review, print report
 /code-ultrareview -s                           # save the report + JSONL for /apex -f
 /code-ultrareview -b origin/main               # review HEAD against an explicit base
-/code-ultrareview --verify-build               # promote sub-80 findings via real build verification
+/code-ultrareview --verify-build               # require the canonical project test gate to pass
 /code-ultrareview --mutation-test              # add Stryker / Pitest / mutmut on changed files
 /code-ultrareview --reconcile @auto            # add Intent-axis derivation sub-mode
 /code-ultrareview --apply-safe                 # full review + gated low-risk fixes
@@ -333,34 +334,34 @@ Eight-axis judgment code review at full strength, in-session — every axis run,
 | `-b <ref>` | Override the review base (skip auto-detection) |
 | `--repo-kind <kind>` | Override the scope classifier. `<kind>` ∈ `skills`, `app`, `library`, `docs`, `monorepo`, `python`, `rust`, `go`, `unknown`. Persistent per-repo at `.code-ultrareview.yaml`; the flag wins on conflict. Invalid value exits 2 |
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
-| `--verify-build` | Confirm sub-80 findings against a real build before validation |
-| `--mutation-test` | Stryker (JS/TS), Pitest (JVM), or mutmut (Python) on changed files only. Surviving mutants route to the Tests axis as Medium severity |
+| `--verify-build` | Run the canonical project test command as an atomic gate. Missing prerequisites, failures, and timeouts block; generic results never re-score findings |
+| `--mutation-test` | Stryker targets changed JS/TS source files; configured Pitest/mutmut runs emit changed-file survivors and uncovered mutations. Maven and Gradle run from `PATH` in offline mode. Missing config/tool, incomplete evaluation, or a failed run blocks the review |
 | `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), one failing test per confirmed bug. Diff preview + per-file confirmation |
 | `--include-prose` | Coherence axis compares README freeform paragraphs (default: structured fields only) |
 | `--axes <list>` | Comma-separated axes subset (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
-| `--preflight` | List detected tools per repo_kind + install commands for missing ones. Informational, no install |
+| `--preflight` | Validate applicable analyzers and print exact install commands. Exits 3 when coverage is incomplete; never installs |
 
 **The five phases**
 
-1. **Scope** — deterministic, no LLM: resolves the diff, classifies the repo (one of 9 kinds), reads the CLAUDE.md chain, decides whether Coherence activates.
+1. **Scope** — deterministic, no LLM: resolves the diff, classifies the repo (one of 9 kinds), reads the cross-agent instruction chain, decides whether Coherence activates.
 2. **Tool battery** — per-language static analysis (table below); findings carry `confidence: 100` and skip validation. Never auto-installs.
 3. **Axis review** — 8–9 parallel `Explore` subagents, each scoped to its axis with the diff + filtered tool findings, scoring 0–100 against the verbatim Anthropic rubric.
-4. **Validation** — a Haiku validator re-scores every sub-80 finding. A2 no-silent-drop: promoted (≥80), demoted with reason, or surfaced in `### ⚠️ Unverified` — never omitted. `--verify-build` runs before this.
-5. **Synthesis** — dedup, inter-axis precedence, a `Ship` / `Fix-then-ship` / `Needs work` verdict, Conventional Comments JSONL, and a mandatory `What I did NOT check` closing section (defers security to `/security-review`, runtime perf, flaky detection, skipped tools).
+4. **Validation** — a fresh-context validator (Haiku on Claude Code) re-scores every sub-80 finding. A2 no-silent-drop: promoted (≥80), demoted with reason, or surfaced in `### ⚠️ Unverified` — never omitted. `--verify-build` runs before this.
+5. **Synthesis** — dedup, inter-axis precedence, a `Ship` / `Fix-then-ship` / `Needs work` verdict, Conventional Comments JSONL, and a mandatory `What I did NOT check` closing section (defers security to `/security-review`, runtime perf, flaky detection).
 
 **Tool battery — tool → axis**
 
-`npx` / `uvx` wrappers are zero-install (cached after first run); native binaries are PATH-only, skipped gracefully when absent. Run `/code-ultrareview --preflight` for the exact list on the repo plus install commands for the missing ones.
+The battery resolves every applicable analyzer before running the first one. A JavaScript declaration at the repository root or one workspace covering every input relevant to that tool is authoritative: the battery runs that direct or hoisted binary. In a Yarn Plug'n'Play project, where `node_modules/.bin` is intentionally absent, it invokes the declared binary through Yarn with network access disabled. Multiple declarations or mixed declared and undeclared package scopes block until the analyzer is declared once at the repository root. Without a declaration, it may use an installed `PATH` command. It never resolves packages at runtime. Missing or failed analyzers block with exact remediation and rerun commands before any axis reviewer or verdict. Run `/code-ultrareview --preflight` to validate the current repo.
 
-| Tool | Axis | Wrapper |
-|------|------|---------|
-| `knip` | Simplification (JS/TS dead code) | `npx` |
-| `jscpd` | Simplification (cross-language duplication) | `npx` |
-| `markdownlint-cli2` | Documentation (Markdown lint) | `npx` |
-| `api-extractor` | Design/API (TS public surface) | `npx` |
-| `lizard` | Simplification (cyclomatic complexity) | `uvx` |
-| `vulture` | Simplification (dead Python code) | `uvx` |
-| `semgrep` | Correctness + Performance (perf-rules) | `uvx` |
+| Tool | Axis | Source |
+| --- | --- | --- |
+| `knip` | Simplification (JS/TS dead code) | declared project (node_modules/PnP), else PATH |
+| `jscpd` | Simplification (structural cross-language clones; default 15 lines / 100 tokens) | declared project (node_modules/PnP), else PATH |
+| `markdownlint-cli2` | Documentation (project-overridable structural lint; neutral line-length and compact-table base) | declared project (node_modules/PnP), else PATH |
+| `api-extractor` | Design/API (TS public surface) | declared project (node_modules/PnP), else PATH |
+| `lizard` | Simplification (cyclomatic complexity) | PATH |
+| `vulture` | Simplification (dead Python code) | PATH |
+| `semgrep` | Performance (bundled perf-rules only) | PATH |
 | `vale` | Documentation (prose lint) | native |
 | `oasdiff` | Design/API (OpenAPI breaking changes) | native |
 | `atlas` | Design/API (DB migration lint) | native |
@@ -374,7 +375,8 @@ Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO find
 **Rules**
 
 - **Zero auto-install** — never runs `brew` / `cargo` / `go` / `pip` / `npm -g`; natives are installed explicitly.
-- **Cite precisely** — every finding carries `file:line`; CLAUDE.md findings quote the violated rule verbatim.
+- **Atomic coverage** — a missing or failed applicable analyzer stops before axis review; fix the printed prerequisite and rerun.
+- **Cite precisely** — every finding carries `file:line`; instruction-rule findings quote the violated rule verbatim and name its source file.
 
 **Sources**
 
@@ -457,20 +459,20 @@ Each archetype anchors to a canonical reference (article-credentialed; Spatial O
 
 #### design-system
 
-Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Auto-activates during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit and never authors a design file from scratch (that is `/award-design`'s job; it forces a universe, writes the DESIGN.md, and builds the frontend). Exposes seven CLI-backed subcommands for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
+Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Activates by intent during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit or invents a design direction (that is `/award-design`'s job; it forces a universe, writes the DESIGN.md, and builds the frontend). Exposes seven subcommands, four backed by the canonical CLI, for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
 
 **Requirements**
 
-- `npx` (for the `@google/design.md` CLI wrapped by `audit`, `diff`, `export`, `spec`). Missing → subcommands fall back to manual validation against the bundled spec.
+- `designmd` on `PATH`: `npm install --global --ignore-scripts @google/design.md`, then `designmd --version`. Bundled wrappers never resolve packages at runtime; a missing, failed, or invalid CLI blocks with exact repair and rerun guidance.
 
 **Usage**
 
-Auto-activates when editing:
+Use during UI edits such as:
 - `src/components/**`, `src/app/**`, `src/pages/**`, `src/layouts/**`, `src/styles/**`
 - `src/features/*/components/**`
 - `DESIGN.md`, `tailwind.config.*`
 
-Also invocable directly via `/design-system` with one of seven subcommands:
+It is also invocable directly via `/design-system` with one of seven subcommands:
 
 ```bash
 /design-system audit                                # lint ./DESIGN.md, report with fix proposals
@@ -505,7 +507,7 @@ Also invocable directly via `/design-system` with one of seven subcommands:
 | `-s` | `audit`, `diff`, `audit-extensions` | Save the report to `~/.agents/output/{project}/design-system/{sub}/report.md` |
 | `-o <path>` | `export`, `spec`, `migrate`, `init` | Output file (defaults vary by subcommand) |
 | `--json` | `audit`, `diff`, `spec`, `audit-extensions` | Raw JSON instead of the formatted report |
-| `--strict` | `audit`, `audit-extensions` | `audit`: cross-check the DESIGN.md against `/award-design`'s anti-patterns catalog. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
+| `--strict` | `audit`, `audit-extensions` | `audit`: require both `/award-design` catalogs (`anti-patterns.md` and `exemplars.md`); if either is absent, stop with the install command or instruct the user to drop `--strict`. `audit-extensions`: promote `extension-orphan-css` warnings to errors |
 | `--rules` | `spec` | Append the active lint rules table |
 | `--rules-only` | `spec` | Output only the lint rules |
 | `--format tailwind\|dtcg` | `export` | Target format (default: `tailwind`) |
@@ -531,7 +533,7 @@ Eight ordered prose sections: Overview, Colors, Typography, Layout, Elevation & 
 
 **Lint rules** — `audit` runs the Google CLI rules (`broken-ref`, `contrast-ratio` at WCAG AA, `section-order`, …); `audit-extensions` adds project-side extension rules. Severities, fix strategies, and per-rule logic: `references/cli-reference.md`.
 
-Ships a condensed spec, CLI + subcommand references, deterministic scripts, and two example DESIGN.md files. Never authors a design file — that is `/award-design`'s job; design-system governs from there.
+Ships a condensed spec, CLI + subcommand references, deterministic scripts, and two example DESIGN.md files. The default governance flow never invents or authors a design; `/award-design` owns that job. The explicit `init` subcommand is limited to a minimal token scaffold when requested.
 
 **Sources**
 
@@ -1133,7 +1135,7 @@ Companion repos install by `owner/repo` shorthand.
 
 ## Pipeline
 
-Skills chain together by design. Each works standalone; chaining covers longer workflows without extra tooling.
+Each skill works standalone. When the referenced companion skills are installed, the optional handoffs below cover longer workflows without extra integration.
 
 ### Thinking → Planning → Building
 
@@ -1221,7 +1223,7 @@ python3 ~/.claude/skills/brand-voice/scripts/lint_all.py .   audit every BRAND-V
 
 <br>
 
-All dependencies are optional — each skill works standalone.
+Skill-to-skill links are optional: each skill installs independently. Declared JavaScript tools restore the existing dependency graph; undeclared JavaScript tools and native CLIs get an exact add/install command. Skills never resolve tool packages while they run. Project-creation skills may install the dependencies the user requested.
 
 ```mermaid
 graph LR
