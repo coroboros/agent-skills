@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic anti-slop scanner — award-design pre-flight, the verify phase.
+"""Deterministic anti-slop scanner — award-design pre-flight, a chunk's Verify.
 
 Scans built frontend sources for countable AI-design tells. Heuristic by
 design: it catches, it never clears — a clean run ticks no pre-flight box.
@@ -34,7 +34,6 @@ or zero files scanned (a wrong path must never read as a clean build).
 """
 
 import argparse
-import json
 import math
 import re
 import struct
@@ -96,7 +95,7 @@ def _bezier_character(y1, y2):
 # (1280×720 frames rendered up to 2880×1800 device px behind a self-graded
 # asset table). Rendered width is unknowable without a browser, so the floor
 # rides layout signals — a `sizes` attribute (slot computed at the 1920 audit
-# ceiling), cover-fit CSS, a full-bleed form / hero context,
+# ceiling), cover-fit CSS, a hero-classed context,
 # fetchpriority="high", or a numbered scrub sequence — and every finding
 # carries px measured from the file header (PNG IHDR / JPEG SOF / GIF /
 # WebP VP8·VP8L·VP8X; AVIF is skipped: ISOBMFF box-walking exceeds stdlib
@@ -191,8 +190,8 @@ def _srcset_refs(srcset):
 
 class _ImageRefParser(HTMLParser):
     """Collects <img>/<source> refs with their layout floor: a `sizes` slot, or
-    the full-bleed floor when the tag sits in a full-bleed form / hero-classed
-    ancestor or carries fetchpriority="high"."""
+    the full-bleed floor when the tag sits in a hero-classed ancestor or
+    carries fetchpriority="high"."""
 
     def __init__(self):
         super().__init__()
@@ -201,8 +200,7 @@ class _ImageRefParser(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
-        heroish = (bool(IMG_HERO_HINT_RE.search(a.get("class") or ""))
-                   or "full-bleed" in (a.get("data-ad-form") or ""))
+        heroish = bool(IMG_HERO_HINT_RE.search(a.get("class") or ""))
         context = heroish or (bool(self.stack) and self.stack[-1][1])
         if tag in ("img", "source"):
             floor, signal = 0, ""
@@ -602,59 +600,11 @@ def iter_files(paths):
 
 
 PROJECT_RULE_IDS = {"EMDASH", "H1-COUNT", "MAIN-LANDMARK", "REDUCED-MOTION", "EYEBROW-DENSITY",
-                    "FONT-COUNT", "COPY-LANG", "FORM-SLOT", "COPY-ECHO"}
+                    "FONT-COUNT", "COPY-LANG", "COPY-ECHO"}
 
 
-# FORM-SLOT: inside a section-form root ([data-ad-form]) the form owns the
-# layout and every direct child must be a named slot — a slotless child is
-# freeform layout smuggled back inside the form, the exact defect class the
-# forms exist to kill. Slot names are validated against the library manifest's
-# forms contract when it is readable; a missing manifest skips only the
-# name check, never the direct-child check.
 VOID_TAGS = {"area", "base", "br", "col", "embed", "hr", "img", "input",
              "link", "meta", "param", "source", "track", "wbr"}
-
-
-def _load_form_contracts():
-    manifest = Path(__file__).resolve().parent.parent / "assets" / "components" / "manifest.json"
-    try:
-        data = json.loads(manifest.read_text(encoding="utf-8"))
-        return {f["id"]: {s["name"] for s in f.get("slots", [])}
-                for f in data.get("forms", [])}
-    except (OSError, ValueError, KeyError, TypeError):
-        return {}
-
-
-class _FormSlotParser(HTMLParser):
-    """Tracks [data-ad-form] roots; flags a direct child element without
-    data-slot, and a slot name outside the form's manifest contract."""
-
-    def __init__(self, contracts):
-        super().__init__()
-        self.contracts = contracts
-        self.stack = []  # (tag, is_form_root, form_id)
-        self.violations = []  # (line, message)
-
-    def handle_starttag(self, tag, attrs):
-        a = dict(attrs)
-        if self.stack and self.stack[-1][1]:
-            form_id = self.stack[-1][2]
-            slot = a.get("data-slot")
-            line = self.getpos()[0]
-            if slot is None:
-                self.violations.append(
-                    (line, f"<{tag}> is a direct child of [data-ad-form=\"{form_id}\"] with no data-slot"))
-            elif form_id in self.contracts and slot not in self.contracts[form_id]:
-                self.violations.append(
-                    (line, f"slot \"{slot}\" is not in the {form_id} form's contract"))
-        if tag not in VOID_TAGS:
-            self.stack.append((tag, "data-ad-form" in a, a.get("data-ad-form", "")))
-
-    def handle_endtag(self, tag):
-        for i in range(len(self.stack) - 1, -1, -1):
-            if self.stack[i][0] == tag:
-                del self.stack[i:]
-                break
 
 
 # COPY-ECHO: a kicker/eyebrow directly above a heading that repeats one of its
@@ -1023,7 +973,6 @@ def scan_paths(paths, archetype=""):
 
     project_blob = "\n".join(texts.values())
     has_focus_visible = bool(FOCUS_VISIBLE.search(project_blob))
-    form_contracts = _load_form_contracts()
 
     emdash_count = 0
     emdash_hits = []
@@ -1092,23 +1041,6 @@ def scan_paths(paths, archetype=""):
                     str(path),
                     f"{len(month_hits)} distinct non-English months: "
                     f"{', '.join(month_hits[:6])}"))
-
-        # FORM-SLOT — section-form roots own their layout; a slotless direct
-        # child or an uncontracted slot name is freeform smuggled inside.
-        if ("FORM-SLOT" not in suppressed and ext in {".html", ".htm"}
-                and "data-ad-form" in text):
-            parser = _FormSlotParser(form_contracts)
-            try:
-                parser.feed(text)
-            except Exception:
-                pass  # a malformed document is other rules' problem
-            for line_no, message in parser.violations:
-                findings.append(Finding(
-                    "FORM-SLOT", FAIL,
-                    "section-form slot violation — the form owns the layout; "
-                    "direct children carry data-slot from the form's contract "
-                    "(components/README.md, section forms)",
-                    f"{path}:{line_no}", message))
 
         # COPY-ECHO — a kicker directly above a heading that repeats one of its
         # content words (the ARDEN "THE 2026 SEASON" / "season" defect).

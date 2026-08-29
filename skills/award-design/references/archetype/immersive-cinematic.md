@@ -16,7 +16,7 @@
 
 **Macrostructures it runs.**
 - `portrait-procession` — one person told through facets over a DOM page, a recurring 3D feature between them, the close returning the opening subject. Route here when the subject is a single personality; the 3D feature requires a WebGL path. (Lando Norris, winner-verified)
-- `rooms-procession` — discrete staged 3D alcoves sharing one canvas and one camera rig, scroll transitioning the camera room to room. Route here when the brief supplies a SET of artifacts; requires a WebGL path. (Cartier Watches & Wonders 2025, Hubtown, winner-verified)
+- Rooms procession — discrete staged 3D alcoves sharing one canvas and one camera rig, scroll transitioning the camera room to room. No catalog slug of its own yet. Route here when the brief supplies a set of artifacts; requires a WebGL path. (Cartier Watches & Wonders 2025, Hubtown, winner-verified)
 - `engine-world` — the engine is the page and there is no "after the hero": a camera Z-dive on one object (Oryzo), an aerial flythrough over rendered terrain (Primland), or a free-roam one-verb world (Messenger, Bruno Simon). Route here when the brief reduces to one object, one place, or one verb. Never commit without a WebGL path. (winner-verified)
 - `gated-reel` — a costumed threshold that doubles as the sound unlock, then an operable reel of treated stills. Route here when the brief is a treated archive or a festival. (Siena Film Foundation, winner-verified)
 - `studio-reel` — a live-rendered ground under a manifesto line and a discipline-tagged reel. Route here for a studio selling the medium itself; never commit the live-3D hero without a WebGL path. (Lusion v3, winner-verified)

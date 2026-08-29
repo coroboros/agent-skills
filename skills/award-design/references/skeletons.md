@@ -23,7 +23,7 @@ import Lenis from 'lenis';
 
 // GSAP is read off the runtime rather than imported, because this rig has to work
 // on a page that never loaded it — a static import would make the fallback below
-// unreachable dead code. Same contract as assets/components/smooth-scroll.js.
+// unreachable dead code.
 export function initSmoothScroll({ lerp = 0.1, wheelMultiplier = 1 } = {}) {
   const gsap = globalThis.gsap;
   const ScrollTrigger = gsap ? globalThis.ScrollTrigger : null;
@@ -340,4 +340,4 @@ Common failure: `.reveal { opacity: 0 }` authored in base CSS with the observer 
 
 ## Cross-references
 
-`stack-facts.md` (every version, package, and support number these skeletons depend on) · `motion-palette.md` (which mechanic the world calls for, and the CSS scroll-driven path for décor) · `text-effects.md` (type as a motion surface) · `foundations.md` (type ramps, easing lexicon, spring registers, UX and a11y floors) · `assets/components/` (the shipped, annotated implementations these skeletons are distilled from).
+`stack-facts.md` (every version, package, and support number these skeletons depend on) · `motion-palette.md` (which mechanic the world calls for, and the CSS scroll-driven path for décor) · `text-effects.md` (type as a motion surface) · `foundations.md` (type ramps, easing lexicon, spring registers, UX and a11y floors).

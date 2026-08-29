@@ -30,9 +30,9 @@ def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-def _path():
-    m = re.search(r"^## The path\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
-    assert m is not None, "## The path section missing"
+def _verify():
+    m = re.search(r"^## Verify, then ship\n(.*?)(?=^## )", _body(), re.DOTALL | re.MULTILINE)
+    assert m is not None, "## Verify, then ship section missing"
     return m.group(1)
 
 
@@ -79,38 +79,6 @@ class TestNavigationPatternsReference(unittest.TestCase):
                       "reads are rAF-coalesced, not throttled")
 
 
-class TestNavComponentImplementsTheAccumulator(unittest.TestCase):
-    """The library component must implement the machine navigation-patterns.md
-    prescribes. Two dead builds both shipped nav flicker from the same root: the
-    component tested the raw per-frame delta while the reference prescribed
-    accumulators — a reference/component contradiction no test drove. Harness
-    evidence (2026-07-17): raw delta = 19 hide/show flips under ±3px jitter;
-    accumulator = 0 flips, 1 transition per genuine intent."""
-
-    def setUp(self):
-        comp = SKILL_DIR / "assets" / "components" / "show-on-scroll-up-nav.js"
-        self.src = comp.read_text(encoding="utf-8")
-
-    def test_direction_from_accumulators_never_raw_delta(self):
-        self.assertIn("downAcc", self.src)
-        self.assertIn("upAcc", self.src)
-        self.assertNotIn("y > lastY", self.src,
-                         "raw-delta direction test — the flicker root two dead builds shipped")
-
-    def test_direction_change_resets_the_opposite_accumulator(self):
-        self.assertRegex(self.src, r"upAcc\s*=\s*0;\s*downAcc\s*\+=")
-        self.assertRegex(self.src, r"downAcc\s*=\s*0;\s*upAcc\s*-?=")
-
-    def test_dy_zero_holds_state(self):
-        self.assertIn("dy == 0", self.src)
-        self.assertIn("hold", self.src.lower())
-
-    def test_tolerances_exposed_as_css_custom_properties(self):
-        for prop in ("--ad-nav-top-guard", "--ad-nav-hide-tol", "--ad-nav-show-tol"):
-            with self.subTest(prop=prop):
-                self.assertIn(prop, self.src)
-
-
 class TestNavOverHeroEncoding(unittest.TestCase):
     """ARDEN shipped an opaque bone bar over the hero photo — decapitation from
     pixel 0 — while passing every gate, because the transparent-over-hero rule
@@ -143,84 +111,6 @@ class TestNavOverHeroEncoding(unittest.TestCase):
         self.assertIn("(detector: NAV-HERO-OPAQUE)", self.body)
 
 
-class TestNavHeroSurfaceComponent(unittest.TestCase):
-    """The persistent-bar surface axis had no covering id — the winner norm
-    (a quiet persistent bar over the hero) could not be composed, so a build
-    fell back to a hand-authored opaque bar. nav-hero-surface fills it: surface
-    only, hero-bottom sentinel, no visibility hiding."""
-
-    def setUp(self):
-        self.comp = SKILL_DIR / "assets" / "components" / "nav-hero-surface.js"
-        self.src = self.comp.read_text(encoding="utf-8")
-
-    def test_file_exists_and_in_manifest(self):
-        import json
-        self.assertTrue(self.comp.is_file())
-        manifest = json.loads((SKILL_DIR / "assets" / "components" / "manifest.json").read_text(encoding="utf-8"))
-        ids = {c["id"] for c in manifest["components"]}
-        self.assertIn("nav-hero-surface", ids)
-
-    def test_grounds_on_hero_sentinel_not_scrolly(self):
-        self.assertIn("IntersectionObserver", self.src)
-        self.assertIn("sentinel", self.src.lower())
-        self.assertIn("is-grounded", self.src)
-
-    def test_no_hero_forces_solid(self):
-        # navigation-patterns.md: a page with no hero forces the solid state
-        self.assertRegex(self.src, r"setGrounded\(true\)")
-
-    def test_surface_axis_only_never_hides(self):
-        # this component owns surface, not visibility — no is-hidden axis here
-        self.assertNotIn("is-hidden", self.src,
-                         "nav-hero-surface is the surface axis only; hiding belongs to show-on-scroll-up-nav")
-
-    def test_reduced_motion_path(self):
-        self.assertIn("prefers-reduced-motion", self.src)
-
-
-class TestShowNavGainsSentinel(unittest.TestCase):
-    """The surface axis grounded at a fixed 64px scrollY — grounding the bar while
-    it still floated over a full-viewport hero. navigation-patterns.md prescribes a
-    hero-bottom sentinel; the component now implements it (fallback to threshold on
-    a hero-less page)."""
-
-    def setUp(self):
-        comp = SKILL_DIR / "assets" / "components" / "show-on-scroll-up-nav.js"
-        self.src = comp.read_text(encoding="utf-8")
-
-    def test_surface_axis_uses_sentinel_observer(self):
-        self.assertIn("IntersectionObserver", self.src)
-        self.assertIn("sentinel", self.src.lower())
-
-    def test_threshold_is_fallback_only(self):
-        # is-scrolled is threshold-driven only when no sentinel observer runs
-        self.assertRegex(self.src, r"if \(!surfaceObserver\) nav\.classList\.toggle\('is-scrolled'")
-
-    def test_accumulator_visibility_axis_intact(self):
-        # the sentinel upgrade must not touch the flicker-proof visibility machine
-        self.assertIn("downAcc", self.src)
-        self.assertIn("upAcc", self.src)
-        self.assertIn("dy == 0", self.src)
-
-
-class TestIndexRowAccentGutter(unittest.TestCase):
-    """The recurring craft nit the owner flagged 2-3 times: the index-row accent
-    rule (::before at left:0) butted the row numeral because neither the component
-    nor the form reserved a gutter. The rule now sits in a reserved left gutter."""
-
-    def setUp(self):
-        comp = SKILL_DIR / "assets" / "components" / "index-row-hover.js"
-        self.src = comp.read_text(encoding="utf-8")
-
-    def test_row_reserves_an_accent_gutter(self):
-        # the row insets its content so the left accent rule clears the numeral
-        self.assertIn("padding-inline-start:var(--ad-idx-gutter", self.src,
-                      "the row must reserve a gutter for the left accent rule")
-
-    def test_gutter_token_documented(self):
-        self.assertIn("--ad-idx-gutter", self.src)
-
-
 class TestOverflowClipDiscipline(unittest.TestCase):
     def test_anti_pattern_tell_present(self):
         ap = _read("anti-patterns.md").lower()
@@ -240,7 +130,7 @@ class TestVerifyGranularity(unittest.TestCase):
     def setUp(self):
         self.pf = _read("preflight.md")
         self.pf_low = self.pf.lower()
-        self.path = _path()
+        self.verify = _verify()
 
     def test_preflight_hover_leave_box(self):
         self.assertIn("hover→leave", self.pf,
@@ -256,13 +146,14 @@ class TestVerifyGranularity(unittest.TestCase):
         self.assertIn("animation-timeline", self.pf,
                       "the degraded check names the scroll-timeline @supports guard")
 
-    def test_build_loop_runs_per_chapter(self):
-        """The conformance loop is per chapter now: the render-floor payload
-        sweeps each chapter as it lands, and the driven hover→leave / seam /
+    def test_render_floor_sweep_runs_per_chunk(self):
+        """The render-floor sweep is per chunk: the payload sweeps
+        each chunk as it lands, and the driven hover→leave / seam /
         degraded-render boxes above are what it feeds. A loop deferred to the
-        end is the mobile collapse nobody re-drove."""
-        self.assertIn("After each chapter, inject `assets/render-floor.js` and fix what it names",
-                      self.path)
+        review chunk is the mobile collapse nobody re-drove."""
+        self.assertIn("after each chunk, inject `assets/render-floor.js` and sweep "
+                      "375/768/1024/1440/1920 on the pages the chunk touches",
+                      self.verify)
 
 
 if __name__ == "__main__":

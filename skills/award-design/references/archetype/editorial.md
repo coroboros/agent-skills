@@ -9,7 +9,7 @@
 - A frosted `backdrop-filter:blur()` bar with a contrasting-colour `border-bottom`; contrast comes from ink inversion tied to the section behind.
 - The `mix-blend-mode:difference` circular follower. The editorial default is the real system pointer.
 - Uniform fire-once `y:30, .6s, ease-out` reveals on everything — winners run slower expo/quint eases and mask by line or word.
-- A generic percentage-counter preloader; a card-grid opener; a hero carousel — lateral motion is hand-driven or it IS the content.
+- A generic percentage-counter preloader; a card-grid opener; a hero carousel — lateral motion is hand-driven or it is the content.
 - A centered hero with twin CTAs; a poured-text wall; self-narration or process credits; raw stock; mixed copy register.
 - The same interaction mechanism cloned across button, link, image and nav.
 - A mono all-caps eyebrow stamped above every `h2`. The kicker ships only when it carries a category or date the title and its position do not.
@@ -18,7 +18,7 @@
 - `gated-reel` — a costumed threshold, a featured-work masthead, then an archive the reader threads by hand. Route here when the brief supplies a treated-still archive and a ritual of entry. (Siena Film Foundation, winner-verified structure)
 - `standfirst-stack` — serif statement, belief index, release cards, mission close; even intensity, the voice living in the chrome. Route here when the brief is an institution, reading-first, spectacle explicitly forbidden. (Anthropic, winner-verified)
 - `maison-scroll` — instant paint, value chapters alternating with editorial blocks, commerce hidden behind "Discover". Route here for editorial commerce where restraint is the register. (Truekind Skincare — a light skincare SOTD, carried cross-archetype)
-- The continuous-surface resolution — a loader that IS the opening scene, then one infinite reel or one operable video field as the whole body, no hero/sections seam. Route here when the brief is a single continuous material. No page-anatomy slug names it yet; build it from `fullscreen-vertical-reel` + `continuous-work-transition`. (Bisous, Codrops-verified; KAI a single-product variant)
+- The continuous-surface resolution — a loader that is the opening scene, then one infinite reel or one operable video field as the whole body, no hero/sections seam. Route here when the brief is a single continuous material. No page-anatomy slug names it yet; build it as a full-screen vertical reel with continuous work transitions. (Bisous, Codrops-verified; KAI a single-product variant)
 
 **Exemplar.**
 

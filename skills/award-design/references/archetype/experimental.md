@@ -19,7 +19,7 @@
 - `engine-world`, free-roam — no scroll; the funnel jobs collapse into an operable 3D space and landmarks are the nav. Route here when the brief names a verb the visitor performs: drive, walk, pilot. (Bruno's Portfolio, winner-verified)
 - `engine-world`, journey — one continuous in-engine scene whose section breaks are shader seams; the wheel drives a camera, not a document. Route here when the brief supplies discrete projects that can each own a zone. (Igloo Inc SOTY 2024; Lusion v3 Developer SOTY 2023)
 - `type-index` — a corner counter boots straight into a giant-type index over a live WebGL field; no marketing hero, no prose, and the climax is on-click. Route here when a body of named work is itself the argument. (Aristide Benoist, winner-verified)
-- Physics field — elements are rigid bodies with weight and restitution that you grab, throw and tumble; the simulation is the medium and the reward. Route here when the brief's objects have tactile identity. It runs the `engine-world` shape on a 2D engine; the library form is `physics-tumble-field`. (MoMoney, winner-verified)
+- Physics field — elements are rigid bodies with weight and restitution that you grab, throw and tumble; the simulation is the medium and the reward. Route here when the brief's objects have tactile identity. It runs the `engine-world` shape on a 2D engine. (MoMoney, winner-verified)
 
 **Exemplar.**
 

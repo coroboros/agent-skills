@@ -15,9 +15,9 @@
 - A bank of fire-once IntersectionObserver reveals, inert on the second pass — which is the pass a jury scrolls.
 
 **Macrostructures it runs.**
-- `argument-scroll` — one held claim argued beat by beat, the `<h1>` deferred to the footer. Route here when the brief states ONE product promise. (Terminal Industries, winner-verified)
+- `argument-scroll` — one held claim argued beat by beat, the `<h1>` deferred to the footer. Route here when the brief states one product promise. (Terminal Industries, winner-verified)
 - `gallery-stack` — the work is the argument: a type intro assembling over a main gallery of full-bleed figures, route-transition SPA across the detail views. Route here when the brief supplies a body of visual work. (Gabriel Contassot, Stefan Vitasović, winner-verified)
-- `scene-scroll` — a real rendered medium is the signature and the hero transformation is the one loud peak. Route here when the brief has something to show *transforming*, not only to argue. (Terminal's `<canvas>` frame-sequence, Pacome Pertant's Three.js reel)
+- scene scroll (no catalog slug of its own yet) — a real rendered medium is the signature and the hero transformation is the one loud peak. Route here when the brief has something to show *transforming*, not only to argue. (Terminal's `<canvas>` frame-sequence, Pacome Pertant's Three.js reel)
 - `standfirst-stack` — even reading cadence, no spectacle spike, the voice living in the chrome. Route here only when the brief explicitly forbids spectacle.
 
 **Exemplar.**

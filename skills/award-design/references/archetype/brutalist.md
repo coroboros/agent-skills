@@ -15,7 +15,7 @@
 - The dead middle: entrance reveals with nothing welded to the scrollbar behind them.
 
 **Macrostructures it runs.**
-- `studio-index` — loader-into-navbar or char-diff identity hero, no in-fold CTA, hover-charged work index, footer-as-finale where the single peak lands last. The PRIMARY spine, and the only one grounded in a source that calls its site brutalist. Route here when the work is the argument. (Eloy Benoffi, winner-verified; Treize Grammes supporting)
+- `studio-index` — loader-into-navbar or char-diff identity hero, no in-fold CTA, hover-charged work index, footer-as-finale where the single peak lands last. The primary spine, and the only one grounded in a source that calls its site brutalist. Route here when the work is the argument. (Eloy Benoffi, winner-verified; Treize Grammes supporting)
 - `argument-scroll` — in-character loader → drawn-SVG type-as-image hero → the lineup as the capped peak at ~40% → community band → FAQ rest → oversized reprise close. Route here when the brief has a bill to prove: festival, conference, event. (FlowFest 2025, SOTD-verified order, brutalist-adjacent)
 - `studio-reel` — a stepped-counter loader Flipping into a showreel, a vertical case slider scrubbed by scroll, contact close. Route here when a reel is the product. (Joffrey Spitzer, technique — no award verified)
 
@@ -23,7 +23,7 @@
 
 | site | award | signature |
 |---|---|---|
-| Eloy Benoffi · `eloyb.design` | Awwwards Honorable Mention + GSAP Site of the Day + CSSDA Best UI / Best UX / Best Innovation / Special Kudos — an HM carries no published overall score; the line's scored anchors are Sui Overflow 7.48 (SOTD 2025-04-15) and Naked City 7.34 (SOTD 2026-01-23) | The spectacle is DEFERRED to the footer: mousemove clones the CTA up to 200 copies under `mix-blend-mode:difference`, exiting on `back.in(1.7)`. A scrubbed flower-pluck field (`scrub:8`) and different-speed title rows (`yPercent -300`, `scrub:0.6`) shear the entire scroll beneath it, so the loudest interaction lands last. |
+| Eloy Benoffi · `eloyb.design` | Awwwards Honorable Mention + GSAP Site of the Day + CSSDA Best UI / Best UX / Best Innovation / Special Kudos — an HM carries no published overall score; the line's scored anchors are Sui Overflow 7.48 (SOTD 2025-04-15) and Naked City 7.34 (SOTD 2026-01-23) | The spectacle is deferred to the footer: mousemove clones the CTA up to 200 copies under `mix-blend-mode:difference`, exiting on `back.in(1.7)`. A scrubbed flower-pluck field (`scrub:8`) and different-speed title rows (`yPercent -300`, `scrub:0.6`) shear the entire scroll beneath it, so the loudest interaction lands last. |
 
 **Reflexes — enumerate, then reject by name before committing.**
 1. Hot pink `#FF90E8` on white, 3px black borders, 6px hard shadows: the Gumroad screenshot.

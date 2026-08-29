@@ -25,7 +25,7 @@
 
 | site | award | signature |
 |---|---|---|
-| Anime.js v4 · `animejs.com` | Awwwards SOTD 2025-05-06 — 7.62 overall, Developer Award 7.84 with Animations/Transitions 9.00 | Left-copy / right-demo hero whose red-dot period pulses and whose subject word swaps on a loop — that IS the intro. Then a run of pinned `100lvh` panels over one persistent `position:fixed` demo layer: copy cross-fades while the demo runs the heading's claim and you drag or scrub it, page-wide token recolor per section. The peak replays instead of spending. |
+| Anime.js v4 · `animejs.com` | Awwwards SOTD 2025-05-06 — 7.62 overall, Developer Award 7.84 with Animations/Transitions 9.00 | Left-copy / right-demo hero whose red-dot period pulses and whose subject word swaps on a loop — that is the intro. Then a run of pinned `100lvh` panels over one persistent `position:fixed` demo layer: copy cross-fades while the demo runs the heading's claim and you drag or scrub it, page-wide token recolor per section. The peak replays instead of spending. |
 
 **Reflexes — enumerate, then reject by name before committing.**
 1. Three equal cards in a row, an icon on top of each, rounded corners — the feature row wearing a bento label.

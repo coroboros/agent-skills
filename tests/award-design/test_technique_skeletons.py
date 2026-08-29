@@ -8,9 +8,7 @@ the value that actually decides whether it works is in the code.
 
 The Lenis skeleton gets its own class. The bug it closes — `autoRaf: true`
 alongside a `gsap.ticker` driver, two rAF clocks advancing one instance twice
-a frame — shipped in the research article and in foundations.md for a year;
-`assets/components/smooth-scroll.js` is the verified-correct implementation
-this skeleton is distilled from, and the test compares the two.
+a frame — shipped in the research article and in foundations.md for a year.
 """
 
 import re
@@ -21,7 +19,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_DIR = REPO_ROOT / "skills" / "award-design"
 REFS = SKILL_DIR / "references"
 SKELETONS = REFS / "skeletons.md"
-SMOOTH_SCROLL = SKILL_DIR / "assets" / "components" / "smooth-scroll.js"
 
 # (heading letter, the phrase the heading must carry)
 SEVEN = (
@@ -147,7 +144,7 @@ class TestClosingContract(unittest.TestCase):
 
 
 class TestLenisWiringIsTheFixedForm(unittest.TestCase):
-    """The one skeleton with a shipped counter-example on disk."""
+    """The one skeleton whose wrong form shipped for a year."""
 
     @classmethod
     def setUpClass(cls):
@@ -198,17 +195,6 @@ class TestLenisWiringIsTheFixedForm(unittest.TestCase):
         self.assertIn("autoRaf: true", failure, "the failure line must name the wrong value")
         self.assertIn("two rAF clocks", failure, "the failure line must name the mechanism")
         self.assertIn("scrub", failure, "the failure line must name what breaks")
-
-    def test_matches_the_verified_component_wiring(self):
-        """smooth-scroll.js is the implementation that got this right; the
-        skeleton is a distillation of it, not an independent guess."""
-        component = SMOOTH_SCROLL.read_text(encoding="utf-8")
-        self.assertNotIn("autoRaf", component, "the component must stay the correct reference")
-        for shared in ("lenis.on('scroll', ScrollTrigger.update)",
-                       "gsap.ticker.lagSmoothing(0)"):
-            with self.subTest(line=shared):
-                self.assertIn(shared, component)
-                self.assertIn(shared, self.code)
 
 
 class TestSkeletonSpecifics(unittest.TestCase):

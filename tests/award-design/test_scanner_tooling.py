@@ -96,7 +96,7 @@ class TestImageDimsParsers(unittest.TestCase):
 class TestImgNativeRes(unittest.TestCase):
     """The dirty fixture rebuilds that dead build's defect in miniature: a
     low-res scrub sequence referenced only through a JS directory literal, a
-    cover-fit CSS poster, a full-bleed-figure picture, and an under-shipped
+    cover-fit CSS poster, a hero-classed picture, and an under-shipped
     sizes slot. Every finding is REVIEW (a static proxy never FAILs on a guess)
     and every excerpt carries the px measured from the header — machine numbers
     for the §7 asset-fidelity box, never the builder's own table."""
@@ -148,7 +148,7 @@ class TestImgNativeRes(unittest.TestCase):
         """A hotlink or a missing file cannot be measured — honest silence,
         never a guessed number (UNSPLASH owns the hotlink complaint)."""
         html = ('<!doctype html><html><body>'
-                '<section data-ad-form="full-bleed-figure"><figure data-slot="media">'
+                '<section class="hero"><figure data-slot="media">'
                 '<img src="https://cdn.example.com/big.jpg" width="4000" height="2000" alt="x">'
                 '<img src="assets/img/missing.png" width="4000" height="2000" alt="y">'
                 '</figure></section></body></html>')

@@ -183,7 +183,7 @@ Reach for GSAP only when the signature needs it; default to CSS scroll-driven an
 
 ### Signature easing lexicon
 
-The easing IS the personality. Generic `ease` / `ease-in-out` is the motion equivalent of Inter on an H1.
+The easing is the personality. Generic `ease` / `ease-in-out` is the motion equivalent of Inter on an H1.
 
 - `back.out(1.7)` — overshoot-and-settle; entrances with character.
 - `elastic.out(1, 0.3)` — springy bounce; playful, Bold / Maximal.
@@ -247,7 +247,7 @@ Small contextual photos embedded between words at type-height, acting as visual 
 
 Best for high-Variance archetypes (Editorial, Bold/Maximal, Experimental). Avoid on Minimalist or Corporate Luxury where it competes with whitespace.
 
-**Custom cursors** (creative agency staple): a lerped follower — pointer position read on `pointermove`, the visual eased toward it inside one rAF, written as `transform` only, `aria-hidden`, and disabled under `(hover: none)`. Shipped implementations rather than a re-derivation: `assets/components/custom-contextual-cursor.js`, `magnetic-cursor.js`, `minimal-cursor-signature.js`.
+**Custom cursors** (creative agency staple): a lerped follower — pointer position read on `pointermove`, the visual eased toward it inside one rAF, written as `transform` only, `aria-hidden`, and disabled under `(hover: none)`.
 
 **Magnetic buttons**: Distance from cursor to element center → proportional displacement.
 
@@ -255,7 +255,7 @@ Best for high-Variance archetypes (Editorial, Bold/Maximal, Experimental). Avoid
 
 ### Image techniques
 
-**Clip-path reveals**: an `inset()` curtain transitioned from one edge, fired once by IntersectionObserver. Cheap because the clip's parameters are not tracked per input frame — a `clip-path` that chases the pointer repaints every frame instead (`motion-palette.md`, moving windows). Shipped: `assets/components/clip-reveal.js`, `image-curtain.js`.
+**Clip-path reveals**: an `inset()` curtain transitioned from one edge, fired once by IntersectionObserver. Cheap because the clip's parameters are not tracked per input frame — a `clip-path` that chases the pointer repaints every frame instead (`motion-palette.md`, moving windows).
 
 **Mix-blend-mode**: `difference` on text overlaying images.
 
