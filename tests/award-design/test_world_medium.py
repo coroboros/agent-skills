@@ -110,9 +110,9 @@ class TestUnverifiedRenderCapArchetypeWired(unittest.TestCase):
     build that self-classifies its verb 'non-interactive' cannot duck it."""
 
     def test_cap_wired_to_archetype(self):
-        pf = _ref("preflight.md")
-        self.assertIn("any immersive-cinematic / experimental build, caps at "
-                      "**not done — unverified render**", pf)
+        pf = _ref("gate/review.md")
+        self.assertIn("any immersive-cinematic or experimental build, caps at "
+                      "**not done — unverified render**", pf.lower())
 
 
 class TestR1RefutesMediumAmbition(unittest.TestCase):

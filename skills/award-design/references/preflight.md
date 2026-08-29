@@ -1,6 +1,6 @@
 # Pre-flight — the mechanical floor
 
-The verify phase of the path. Runs on the built site, before the fresh-context review (R2). Everything here is countable or binary — no taste lives in this file: quality is R2's job, and clearing this floor is necessary, never sufficient. Every box ticks or the build is not done — fix, re-run, then proceed. Where a rule offers an override, the override is written into the verdict and tied to the brief; an unstated override is a fail.
+A chunk's Verify, and the review chunk whole. Runs on the built pages, before the fresh-context review (R2). Everything here is countable or binary — no taste lives in this file: quality is R2's job, and clearing this floor is necessary, never sufficient. Every box ticks or the build is not done — fix, re-run, then proceed. Where a rule offers an override, the override is written into the verdict and tied to the brief; an unstated override is a fail.
 
 `anti-patterns.md` is the catalog behind the tells (rationale, fixes, failure modes). When a box is unclear, read its catalog entry — never guess it away.
 
@@ -43,7 +43,7 @@ Catalog: `anti-patterns.md`. One violation reads as AI-generated regardless of e
 - [ ] **Theme lock** — one theme for the whole page; no section flips light↔dark mid-scroll. Override: a single deliberate color-block device, declared in the DESIGN.md.
 - [ ] **Accent lock** — one accent color, identical role everywhere. Bold/Maximal and Experimental run multi-hue by design — there the lock is role consistency, not count.
 - [ ] **Shape lock** — one corner-radius system applied everywhere.
-- [ ] **Emphasis lock** — in-headline emphasis uses italic or bold of the SAME family.
+- [ ] **Emphasis lock** — in-headline emphasis uses italic or bold of the same family.
 - [ ] **Register lock** — one copy register per page, unless the DESIGN.md declares the mix; one motion register page-wide `(scanner: EASE-OVERSHOOT names every overshoot/elastic curve — judge each against the declared register)`
 
 ## 4. Countable
@@ -52,7 +52,7 @@ Each is a number computed from the rendered page. Cite the count in the verdict.
 
 - [ ] **Eyebrows** — default none; when used, ≤ `ceil(sectionCount / 3)`, hero counts as one `(scanner: EYEBROW-DENSITY)`
 - [ ] **Fonts** — ≤ 3 families page-wide, plus at most one mono outlier `(scanner: FONT-COUNT)`
-- [ ] **Marquees** — ≤ 1 per page; any auto-moving strip pauses on hover AND focus (WCAG 2.2.2)
+- [ ] **Marquees** — ≤ 1 per page; any auto-moving strip pauses on hover and focus (WCAG 2.2.2)
 - [ ] **Zigzag** — ≤ 2 consecutive image-text split rows; a third only if it inverts composition
 - [ ] **Grid fill** — N items render as exactly N cells, zero filler cells
 - [ ] **Hero stack** — ≤ 4 stacked text elements; no trust-strip, logo wall, or pricing teaser inside the hero
@@ -106,7 +106,7 @@ Re-read every visible string — headlines, buttons, captions, alt text, errors.
 
 - [ ] Every heavy layer cites the source it was truth-sourced from (step 7) with one checkable freshness token (current version or a recently-changed API fact)
 - [ ] Assets follow the acquisition protocol; no stock hotlinks — downloaded, optimized, graded `(scanner: UNSPLASH)`
-- [ ] **Asset fidelity, measured** — every signature asset (full-bleed, scrubbed, zoomed) holds ≥ device pixels at its worst rendered moment, numbers from the machine readout `(scanner: IMG-NATIVE-RES)`; scrubbed sequences are distinct real frames at ~90+ per section
+- [ ] **Asset fidelity, measured** — every signature asset (full-bleed, scrubbed, zoomed) holds ≥ device pixels at its worst rendered moment, numbers from the machine readout `(scanner: IMG-NATIVE-RES)`, the rule in `imagery.md` §Native resolution or nothing; scrubbed sequences are distinct real frames at ~90+ per section
 - [ ] Brand logos are real SVG marks with light + dark variants; the same mark drives the favicon, both verified rendered
 
 ## 8. Driven in the browser
@@ -116,7 +116,7 @@ Resolve the browser rung (`external-truth.md`). Full-page captures never fire sc
 - [ ] Full-page screenshots at 375px, 768px, 1024px, 1440px, 1920px — the render-floor sweep (`assets/render-floor.js`) — taken and read, one line per screenshot; fold check at 1280×800 (H1, subtext, CTA inside the first viewport)
 - [ ] Computed `font-family` on display text resolves to the committed face `(detector: FONT-RESOLVE)`
 - [ ] The signature driven live: fires, completes, holds frame — 60fps target on a sustained ≥55fps floor (`stack-facts.md`) and LCP < 1.5s, from a trace with its provenance cited; an asserted number is a fail. Its own text overlay (readings, captions, HUD labels) holds at every width 320–1920. A pointer/scroll-tracked window (loupe, torch, follow-reveal) is driven under a trace: Composite-only frames, zero per-frame paint `(scanner: MOVING-BG-POS, BG-ATTACH-FIXED, TRACKED-CLIP, TRACKED-ORIGIN)`
-- [ ] Every animated control driven hover→leave (and focus→blur): the fill enters AND retracts inside its shape — the spill shows only mid-transition. The wordmark follows the enrollment rule (live-probed: 0/6 winners build a bespoke wordmark hover) — a live-text wordmark joins the site's one link-hover grammar verbatim; a drawn logo rests static under hover
+- [ ] Every animated control driven hover→leave (and focus→blur): the fill enters and retracts inside its shape — the spill shows only mid-transition. The wordmark follows the enrollment rule (live-probed: 0/6 winners build a bespoke wordmark hover) — a live-text wordmark joins the site's one link-hover grammar verbatim; a drawn logo rests static under hover
 - [ ] Section seams captured, footer included: no decorative layer bleeds across a boundary; a full-bleed image grades into its neighbour, never a hard cut into a flat band
 - [ ] **Loader handoff** (when present) — the fold behind the curtain or counter is already composed when it lifts, verified in the browser
 - [ ] **Route change** (multi-route builds) — one real route change driven live: the committed transition plays, back-button and scroll restoration hold
@@ -128,11 +128,11 @@ Resolve the browser rung (`external-truth.md`). Full-page captures never fire sc
 - [ ] **Degraded renders** — one JS-disabled render (every section's content visible) and one modern-CSS-degraded render: every scroll-driven animation is `@supports (animation-timeline: …)`-guarded with the safe state as the base; with motion off (`prefers-reduced-motion` + JS kill) every section frame reads as a deliberately composed layout, the climax resolving to a poster frame
 - [ ] Console clean at every width
 
-No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict, each with the code-level fallback noted and the verbatim failed probe (ToolSearch for the browser MCP is the mandatory first probe on an MCP-capable harness). Gaps cap the status at **READY-UNVERIFIED**; a build whose committed signature is interactive, or any immersive-cinematic / experimental build, caps at **NOT DONE — unverified render**. Falsely ticking a browser box is worse than declaring the gap; declaring a gap the harness could have closed is the same fail.
+No browser tooling on the harness → this section's boxes convert to **declared gaps** in the verdict, each with the code-level fallback noted and the verbatim failed probe (ToolSearch for the browser MCP is the mandatory first probe on an MCP-capable harness). Gaps cap the ship label per `gate/review.md` §The ship label. Falsely ticking a browser box is worse than declaring the gap; declaring a gap the harness could have closed is the same fail.
 
 ## Verdict block
 
-Emit this block, filled, as the verify phase's artifact. `NOT DONE` blocks ship until the listed items clear.
+Emit this block, filled, as the review chunk's artifact. `NOT DONE` blocks ship until the listed items clear.
 
 ```markdown
 ## Pre-flight verdict — <build name>
@@ -144,7 +144,7 @@ Emit this block, filled, as the verify phase's artifact. `NOT DONE` blocks ship 
 **Perf:** LCP <n>s · CLS <n> · INP <n>ms · signature fps <n> — provenance: <trace/tool ref>
 **Justified overrides:** <rule → one-line, brief-tied justification — or "none">
 **Tooling gaps:** <verbatim failed probe → declared gaps — or "none">
-**Status:** READY | READY-UNVERIFIED — <browser gates dark> | NOT DONE — <blocking items>
+**Status:** READY | REVIEWED-SAME-CONTEXT | NOT DONE — <blocking items> (browser gates dark → listed under Tooling gaps; caps per `gate/review.md` §The ship label)
 ```
 
 Blocking is defined, not felt: any unticked box or any FAIL without a written justification → NOT DONE. READY requires §8 evidence. The R2 review receives this verdict but reads the pixels first — its desire read outranks a clean floor.

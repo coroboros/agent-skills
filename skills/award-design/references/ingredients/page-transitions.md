@@ -1,6 +1,6 @@
 # Page Transitions
 
-The choreography over the URL change — distinct from the intro loader (`preloaders.md`) and in-page scroll reveals. Fifteen multi-page winners read live: every route transition is JS-orchestrated; zero ship the native View Transitions API as their signature. Router split: Taxi ×3 · Barba ×2 · Nuxt ×4 · Next ×3 · custom SPA ×3. Loads from truth sourcing through the build step with `preloaders.md` — the two commit as one arrival language.
+The choreography over the URL change — distinct from the intro loader (`preloaders.md`) and in-page scroll reveals. Fifteen multi-page winners read live: every route transition is JS-orchestrated; zero ship the native View Transitions API as their signature. Router split: Taxi ×3 · Barba ×2 · Nuxt ×4 · Next ×3 · custom SPA ×3. Loads from truth sourcing through the chunks that commit the surface with `preloaders.md` — the two commit as one arrival language.
 
 Tags as in `preloaders.md`; (grounded) = re-checked against library docs, MDN, web.dev — not memory.
 

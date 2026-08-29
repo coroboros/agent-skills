@@ -127,7 +127,7 @@ class TestScopedPath(unittest.TestCase):
     def test_scaling_keeps_the_gates(self):
         scoped = self._scoped()
         self.assertIn("never silently regenerate", scoped)
-        self.assertIn("runs the render-floor sweep plus a scoped review", scoped,
+        self.assertIn("runs the chunk's full Verify plus a scoped review", scoped,
                       "a scoped run still sweeps and still reviews")
 
     def test_full_protocol_triggers_enumerated(self):
@@ -299,7 +299,7 @@ class TestReviewAntiAnchoring(unittest.TestCase):
     def test_reviewer_judges_before_reading_reports(self):
         review = _ref("gate/review.md")
         self.assertIn("**Inventory before anchoring.**", review)
-        self.assertIn("BEFORE reading the direction contract, the DESIGN.md, "
+        self.assertIn("before reading the direction contract, the DESIGN.md, "
                       "or any mechanical report", review,
                       "the reviewer must form judgment first, read reports second")
 

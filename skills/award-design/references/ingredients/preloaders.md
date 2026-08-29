@@ -1,6 +1,6 @@
 # Preloaders
 
-The first beat of the arrival layer. Preloaders are archetype-conditional, never default — of 19 winners read live, 7 ship none and 12 earn one. Every verified loader carries a **handoff** into the hero; a loader with no handoff appears in zero winners. The loader is the universe's first sentence — numerals, curtain, and exit gesture pre-state the `DESIGN.md` palette and signature, never decorate a wait. Loads from truth sourcing through the build step; commit the family together with `page-transitions.md` — one arrival language per site.
+The first beat of the arrival layer. Preloaders are archetype-conditional, never default — of 19 winners read live, 7 ship none and 12 earn one. Every verified loader carries a **handoff** into the hero; a loader with no handoff appears in zero winners. The loader is the universe's first sentence — numerals, curtain, and exit gesture pre-state the `DESIGN.md` palette and signature, never decorate a wait. Loads from truth sourcing through the chunks that commit the surface; commit the family together with `page-transitions.md` — one arrival language per site.
 
 Tags — (winner-verified) live CSS/DOM read; (shipped) observed, not read; (technique) documented, no winner verified; (heuristic) asserted in the record, never measured.
 

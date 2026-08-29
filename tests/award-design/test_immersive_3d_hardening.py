@@ -137,7 +137,7 @@ class TestSequenceFidelityFloor(unittest.TestCase):
         menu = body[body.index("## Spectacle menu"):]
         hero = menu[menu.index("**The hero beat.**"):menu.index("**The continuation beats**")]
         self.assertIn("sequence-fidelity floor", hero)
-        self.assertIn("ZERO winner precedent", hero)
+        self.assertIn("zero winner precedent", hero)
 
 
 class TestAxis3InputCorrectness(unittest.TestCase):

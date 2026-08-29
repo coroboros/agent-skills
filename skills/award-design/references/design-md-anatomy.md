@@ -9,7 +9,7 @@ The DESIGN.md is the committed universe — award-design writes it when none exi
 | Canonical | `colors`, `typography`, `rounded`, `spacing`, `components` | yes (broken-ref, contrast-ratio, missing-primary, etc.) |
 | Extension (preserved) | `motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers` | no (preserved-but-unvalidated per spec); validated by `/design-system audit-extensions` against the `globals.css` `@theme` mirror |
 
-Components bind ONLY to the 8 canonical property tokens — `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`. Extension tokens are referenced from prose only (e.g., `{motion.duration-reveal-slow}`), never as `components:` keys. The closed property-token set is the empirical lint-failure mode.
+Components bind only to the 8 canonical property tokens — `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`. Extension tokens are referenced from prose only (e.g., `{motion.duration-reveal-slow}`), never as `components:` keys. The closed property-token set is the empirical lint-failure mode.
 
 ## Award-grade prose mapping
 
@@ -37,7 +37,7 @@ Production-hardening implementation guardrails (viewport units, autoplay belt-an
 
 ## The DESIGN.md never prescribes a tell
 
-The spec drives the build, so a tell written into the DESIGN.md ships as one — a build shipped a native `<select>` and a `not-allowed` cursor because its own Components section prescribed both. The DESIGN.md **never** specifies a native form control or a native blocked/disabled cursor: it specifies uplifted controls (`appearance: none` + a custom affordance) and a disabled treatment that keeps `cursor: default`. It authors colour in OKLCH and sizing in rem (`foundations.md`), never hardcoded literals a later scrim then duplicates. The Components section carries the **interaction substrate** — the one coherent low-amplitude hover/reveal vocabulary applied to every interactive element, and the two-or-three section-tied signature echoes (`interaction-signatures.md`) — not just the hero's beat. The verify phase's code-craft pass (`code-review.md`) overrides this file where a line here still prescribes a tell.
+The spec drives the build, so a tell written into the DESIGN.md ships as one — a build shipped a native `<select>` and a `not-allowed` cursor because its own Components section prescribed both. The DESIGN.md **never** specifies a native form control or a native blocked/disabled cursor: it specifies uplifted controls (`appearance: none` + a custom affordance) and a disabled treatment that keeps `cursor: default`. It authors colour in OKLCH and sizing in rem (`foundations.md`), never hardcoded literals a later scrim then duplicates. The Components section carries the **interaction substrate** — the one coherent low-amplitude hover/reveal vocabulary applied to every interactive element, and the two-or-three section-tied signature echoes (`interaction-signatures.md`) — not just the hero's beat. The review chunk's code-craft pass (`code-review.md`) overrides this file where a line here still prescribes a tell.
 
 ## Palette desirability — the lived A/B
 

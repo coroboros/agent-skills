@@ -171,11 +171,11 @@ Hero Scale is independent of Hero Architecture — a Cinematic Center hero can r
 
 ### Banned in hero
 
-Stamp/badge icons floating on the headline; pill tags directly under the H1 (use eyebrow tags ABOVE instead); raw stats / numbers as hero content (those belong in the Interest section).
+Stamp/badge icons floating on the headline; pill tags directly under the H1 (use eyebrow tags above instead); raw stats / numbers as hero content (those belong in the Interest section).
 
 ## 5. Mobile Collapse Mandates
 
-Asymmetric layouts above the `md` breakpoint MUST collapse aggressively below 768px. Half the Awwwards Usability score lives on mobile; layouts that "work technically" but visibly drift on phones tank scores.
+Asymmetric layouts above the `md` breakpoint must collapse aggressively below 768px. Half the Awwwards Usability score lives on mobile; layouts that "work technically" but visibly drift on phones tank scores.
 
 ### Universal collapse rules
 
@@ -206,7 +206,7 @@ Three concrete rules that prevent the highest-impact mobile performance failures
 
 ### Magnetic micro-physics
 
-When implementing magnetic-button or cursor-following effects, NEVER use React `useState` for the continuous animation. Use exclusively Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle. Each `useState` update triggers a re-render of the component tree; on a continuous mouse-move, this collapses mobile frame rate.
+When implementing magnetic-button or cursor-following effects, never use React `useState` for the continuous animation. Use exclusively Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle. Each `useState` update triggers a re-render of the component tree; on a continuous mouse-move, this collapses mobile frame rate.
 
 ```javascript
 // Wrong — re-renders 60×/second on mouse move
@@ -224,22 +224,22 @@ useEffect(() => {
 
 ### Backdrop-blur scope
 
-`backdrop-filter` is GPU-expensive. Apply it ONLY to fixed or sticky elements — navbars, modal overlays, command palettes. Never to scrolling content or large content areas. Mobile Safari drops to 15–20fps on a scrolling page with full-section `backdrop-blur`.
+`backdrop-filter` is GPU-expensive. Apply it only to fixed or sticky elements — navbars, modal overlays, command palettes. Never to scrolling content or large content areas. Mobile Safari drops to 15–20fps on a scrolling page with full-section `backdrop-blur`.
 
 ### Perpetual animation isolation
 
-Any infinite loop or perpetual micro-animation MUST be:
+Any infinite loop or perpetual micro-animation must be:
 
 1. Memoized via `React.memo`
 2. Isolated in its own microscopic Client Component (`"use client"` at the top)
 3. Never trigger re-renders in the parent layout
 4. Use `transform` and `opacity` exclusively — no layout-triggering properties (`top`, `left`, `width`, `height`)
 
-For lists with `staggerChildren`, the parent (`variants`) and children MUST live in the identical Client Component tree. If data is fetched asynchronously, pass it as props to a centralized Parent Motion wrapper. Mismatched trees break the orchestration silently.
+For lists with `staggerChildren`, the parent (`variants`) and children must live in the identical Client Component tree. If data is fetched asynchronously, pass it as props to a centralized Parent Motion wrapper. Mismatched trees break the orchestration silently.
 
 ### Grain and noise overlays
 
-Apply procedural noise filters EXCLUSIVELY to fixed `pointer-events: none` pseudo-elements (e.g., `position: fixed; inset: 0; z-index: 50; pointer-events: none`). Never to scrolling containers — continuous GPU repaints collapse mobile frame rate. Static PNG grain overlays read as the AI version; procedural Canvas or WebGL noise is the credentialed alternative.
+Apply procedural noise filters exclusively to fixed `pointer-events: none` pseudo-elements (e.g., `position: fixed; inset: 0; z-index: 50; pointer-events: none`). Never to scrolling containers — continuous GPU repaints collapse mobile frame rate. Static PNG grain overlays read as the AI version; procedural Canvas or WebGL noise is the credentialed alternative.
 
 ## 7. Window Chrome — real captures only
 

@@ -48,7 +48,7 @@ class TestDrivenTraceBox(unittest.TestCase):
     # law survives in the motion-palette canon
     def test_compositor_clean_trace_law(self):
         mp = _read("motion-palette.md")
-        self.assertIn("verified compositor-clean at the verify phase with a performance trace", mp)
+        self.assertIn("verified compositor-clean at verify with a performance trace", mp)
         self.assertIn("zero per-frame paint/raster", mp)
 
     def test_screenshots_cannot_prove_no_pop(self):

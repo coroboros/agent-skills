@@ -3,7 +3,7 @@ that competent builds leave unconsidered (loader, nav, cursor, hero architecture
 footer moment, route transitions, sound). The empirical 6.5 ceiling includes
 surfaces the model never decided on — an arrival with no loader decision, a
 template footer, a hard route cut. The roster catalog lives in
-award-imperatives.md; the build step commits each surface from it or declares it
+award-imperatives.md; each chunk commits its surface from it or declares it
 out with a reason — an unconsidered surface is a gap, never a style choice."""
 
 import unittest
@@ -52,8 +52,8 @@ class TestRosterCatalog(unittest.TestCase):
 class TestBuildStepCommit(unittest.TestCase):
     def test_commit_sentence(self):
         s = _skill()
-        self.assertIn("commit the award surfaces", s)
-        self.assertIn("declare each out with a reason", s)
+        self.assertIn("the award surfaces — loader, nav, cursor, footer moment, "
+                      "route transitions, sound — committed or declared out with a reason", s)
 
     def test_footer_closes_live(self):
         review = (REFS / "gate" / "review.md").read_text(encoding="utf-8").lower()

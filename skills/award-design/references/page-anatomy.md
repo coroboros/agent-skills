@@ -1,6 +1,6 @@
 # Page Anatomy
 
-Whole-page shapes, funnel pacing, and closes, consolidated from the nine archetype page recipes (winner corpus, adversarially refuted). Loads at the build step, before the design_plan commits a macrostructure and a footer; the archetype's page recipe refines the committed entry.
+Whole-page shapes, funnel pacing, and closes, consolidated from the nine archetype page recipes (winner corpus, adversarially refuted). Loads at the chunk that commits the surface, before the design_plan commits a macrostructure and a footer; the archetype's page recipe refines the committed entry.
 
 ## Macrostructures — the page shapes winners ship
 

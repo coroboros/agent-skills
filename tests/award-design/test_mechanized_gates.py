@@ -30,8 +30,8 @@ def _gate(rel):
 class TestStatusCeiling(unittest.TestCase):
     def test_three_status_model(self):
         pf = _read("preflight.md")
-        self.assertIn("ready-unverified", pf)
-        self.assertIn("caps at **not done — unverified render**", pf)
+        self.assertIn("ready | reviewed-same-context | not done", pf)
+        self.assertIn("caps at **not done — unverified render**", _gate("review.md"))
 
     def test_tooling_gaps_carry_the_probe(self):
         self.assertIn("verbatim failed probe", _read("preflight.md"))

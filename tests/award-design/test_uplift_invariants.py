@@ -187,7 +187,7 @@ class TestRetrofitPlaybook(unittest.TestCase):
     def test_what_not_to_retrofit_section_present(self):
         """The negative-space section is what makes the playbook honest —
         it tells the agent when retrofit isn't the right tool."""
-        self.assertIn("What NOT to retrofit", self.body,
+        self.assertIn("What not to retrofit", self.body,
                       "retrofit.md must keep the 'What NOT to retrofit' boundary section")
 
 

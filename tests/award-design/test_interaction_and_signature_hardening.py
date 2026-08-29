@@ -179,12 +179,12 @@ class TestCodeReviewGate(unittest.TestCase):
 
 class TestPalettesWiredIntoProtocol(unittest.TestCase):
     def test_load_map_prices_the_palettes(self):
-        # the palettes bind as the build commits the surface — priced, pulled by
+        # the palettes bind as a chunk commits the surface — priced, pulled by
         # heading, never loaded whole ahead of a commit
         row = _load_map()
         self.assertIn("`interaction-signatures.md`", row)
         self.assertIn("`text-effects.md`", row)
-        self.assertIn("pull by heading as the build commits the surface", row)
+        self.assertIn("pull by heading as a chunk commits the surface", row)
 
     def test_motion_palette_cross_links_siblings(self):
         mp = _read("motion-palette.md")

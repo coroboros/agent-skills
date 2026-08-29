@@ -87,8 +87,8 @@ class TestAwardImperativesReference(unittest.TestCase):
 
     def test_per_archetype_expression_table(self):
         # every archetype's canonical winner appears in the per-archetype table
-        for winner in ["Terminal Industries", "FlowFest", "Siena", "Ponpon",
-                       "Lando Norris", "Bruno Simon", "Cartier", "Anime.js"]:
+        for winner in ["Terminal Industries", "Eloy Benoffi", "Siena", "Ponpon",
+                       "Lando Norris", "Bruno Simon", "Cartier", "Anime.js", "Igloo"]:
             with self.subTest(winner=winner):
                 self.assertIn(winner, self.imp,
                               f"per-archetype expression missing winner: {winner}")
@@ -126,12 +126,14 @@ class TestRubricRecalibration(unittest.TestCase):
 
 class TestSkillWiring(unittest.TestCase):
     def test_build_step_commits_the_award_surfaces(self):
-        """The imperatives bind through the roster: the build step commits each
+        """The imperatives bind through the roster: the ladder commits each
         award surface by name or declares it out, and award-imperatives.md is
         the catalog those names come from."""
         path = _path()
-        self.assertIn("commit the award surfaces", path)
-        self.assertIn("declare each out with a reason", path,
+        self.assertIn("then the award surfaces — loader, nav, cursor, footer moment, "
+                      "route transitions, sound — committed or declared out with a reason",
+                      path)
+        self.assertIn("committed or declared out with a reason", path,
                       "an unconsidered surface is a gap, never a style choice")
         for surface in ("loader", "nav", "cursor", "footer moment",
                         "route transitions", "sound"):
@@ -142,17 +144,24 @@ class TestSkillWiring(unittest.TestCase):
 
     def test_contract_commits_nav_and_signature(self):
         path = _path()
-        self.assertIn("commit the award surfaces (loader, nav, cursor", path,
+        self.assertIn("the award surfaces — loader, nav, cursor", path,
                       "the nav pattern must be an explicit award-surface commit")
         self.assertIn("**SIGNATURE** (verb · medium · trigger", path,
                       "the signature must be a contract block, named by verb and medium")
 
     def test_hero_gate_is_comparative(self):
+        """The hero is the ladder's first visual chunk, judged comparatively
+        before any section is built — a hero that loses re-enters by cause."""
         path = _path()
-        self.assertIn("Hero first", path,
-                      "the path must gate the hero first, comparatively, before the rest")
-        self.assertIn("A fresh-context judge picks beside the archetype's live exemplar",
+        self.assertIn("then the hero — 2–3 genuinely distinct directions through one "
+                      "shared render frame", path,
+                      "the ladder must gate the hero comparatively, before the sections")
+        self.assertLess(path.find("the shell first"), path.find("then the hero"))
+        self.assertLess(path.find("then the hero"), path.find("then the sections"))
+        self.assertIn("a fresh-context judge (`references/gate/hero.md`) picking beside the archetype's live exemplar",
                       path, "the hero gate compares against the archetype's exemplar")
+        self.assertIn("Only a hero that clears this earns the rest of the ladder",
+                      _read("chunk-template.md"))
 
     def test_gates_carry_the_veto_and_the_comparative_read(self):
         self.assertIn("premise veto", _gate("concept.md"),

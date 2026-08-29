@@ -22,7 +22,7 @@ Pick one per layer. Howler for discrete cues, Tone for a living bed; never both 
 
 ## The unlock gate — resume on first gesture
 
-Browsers start the audio context **suspended**. It resumes only inside a real user gesture (`pointerdown`, `keydown`, `click`) — `mousemove`, `scroll`, `wheel`, `pointermove` do not count. NEVER autoplay audio.
+Browsers start the audio context **suspended**. It resumes only inside a real user gesture (`pointerdown`, `keydown`, `click`) — `mousemove`, `scroll`, `wheel`, `pointermove` do not count. Never autoplay audio.
 
 ```javascript
 // Howler — context is created lazily; first play() inside a gesture resumes it.
@@ -49,7 +49,7 @@ On reload the unlock repeats — a per-navigation browser constraint with no wor
 
 - **Micro-sounds ≤ 0.3s**, low gain, felt not heard. A hover tick is 60–120ms; a send/success cue up to 300ms.
 - **Ambient bed at 0.05–0.15 gain.** Above 0.2 it competes with the user's own music and reads as intrusive.
-- **OFF by default, opt-in.** No sound plays until the user enables it. The first gesture primes the context; it does not start the bed.
+- **Off by default, opt-in.** No sound plays until the user enables it. The first gesture primes the context; it does not start the bed.
 - **A persistent, visible mute/sound toggle is mandatory** — fixed corner, present on every view, reflecting current state.
 
 ```javascript
@@ -61,7 +61,7 @@ bedGain.gain.rampTo(isMuted ? 0 : 0.1, 0.4); // Tone.Gain node
 
 ## Accessibility and policy
 
-- NEVER autoplay audio. NEVER convey information by sound alone — every cue pairs with a visible state change (the toggle flips, the field clears, the row highlights).
+- Never autoplay audio. Never convey information by sound alone — every cue pairs with a visible state change (the toggle flips, the field clears, the row highlights).
 - Honor `prefers-reduced-motion: reduce` as a calm signal: keep sound **off**, and have the toggle default to muted.
 - Give the toggle an accessible label that names the action and reflects state: `aria-label="Mute sound"` / `aria-label="Enable sound"`, `aria-pressed` tracking on/off.
 - Respect the browser autoplay policy — the unlock gate above is how you comply, not a workaround around it.

@@ -111,7 +111,7 @@ class TestModelSplitWired(unittest.TestCase):
     def test_load_map_prices_the_palette(self):
         row = _load_map()
         self.assertIn("`motion-palette.md`", row)
-        self.assertIn("pull by heading as the build commits the surface", row)
+        self.assertIn("pull by heading as a chunk commits the surface", row)
 
     def test_anti_pattern_names_rehide_on_scroll_up(self):
         ap = _read("anti-patterns.md")

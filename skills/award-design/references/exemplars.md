@@ -7,6 +7,7 @@ Real-world sites that exemplify each archetype. Use them as visual anchors durin
 - When conceiving the universe, at the archetype recommendation: share 2–3 exemplars alongside it so the user can visually confirm the fit.
 - When the user is undecided between archetypes: contrast exemplars side by side ("this vs this — which direction?") before calibrating.
 - When building (and writing the DESIGN.md): these sites are fair game as visual references for the Overview section ("atmosphere in the spirit of [brand]").
+- At the gates — R1 (`gate/concept.md`), the hero judge (`gate/hero.md`), and the review (`gate/review.md`): the brief's archetype section holds the URL of the live exemplar the tier-1 Exemplar row names.
 
 Do not copy tokens from these sites directly — copy the *character*. Token copying produces generic clones. Atmosphere capture produces fresh systems that feel like the reference without imitating it.
 
@@ -38,7 +39,8 @@ Typography is the design — flat fills, raw geometry, deliberate anti-polish. R
 
 | Brand | URL | Signature |
 |---|---|---|
-| **FlowFest 2025** *(canonical, SOTD July 2025)* | flowfest.co.uk | Warm illustrated brutalist — cream + rainbow arches + chunky display |
+| **Eloy Benoffi** *(canonical, GSAP SOTD + CSSDA)* | eloyb.design | Glitch-maximal portfolio — ASCII flowers, random-stagger reveals, clone-storm footer |
+| FlowFest 2025 *(SOTD 29 Jul 2025)* | flowfest.co.uk | Warm illustrated brutalist — cream + rainbow arches + chunky display |
 | Gumroad | gumroad.com | Saturated hot-pink-on-white with 2–4px black rules |
 | The Verge | theverge.com | Orange-on-black, 2px rules, aggressive sans/serif mixing |
 | Pitchfork | pitchfork.com | Editorial serif + orange callouts, unapologetic density |
@@ -52,7 +54,7 @@ Serif + sans-serif pairing, magazine grids, pull quotes, long-form reading as fi
 | Brand | URL | Signature |
 |---|---|---|
 | **Siena Film Foundation** *(canonical, SOTD + Dev March 2025)* | siena.film | Dark cinematic-poster editorial — vintage-poster type over film stills, dual-menu nav |
-| **Truekind Skincare** *(SOTD April 2025)* | truekindskincare.com | Warm-magazine editorial e-commerce — Editorial New + PP Mori, floating product stills, product-color page transitions |
+| Truekind Skincare *(SOTD April 2025)* | truekindskincare.com | Warm-magazine editorial e-commerce — Editorial New + PP Mori, floating product stills, product-color page transitions |
 | BLAED Agency *(HM Nov 2025 + CSSDA)* | blaedagency.com | Kinetic display type scrubbed against scroll — letters stretch/rotate/settle on a single-page canvas timeline, runway cadence |
 | Sin Expo 2025 *(HM 2025, Annual Nominee)* | awwwards.com/sites/sin-expo-2025 | Art objects as levitating elements over pure negative space, custom display face, parallax-drift on scroll |
 | CalArts Graphic Design 2025 *(HM Jul 2025 + CSSDA)* | design2025.calarts.edu | Interactive grad-yearbook — routed editorial sections, per-cohort typographic identity |
@@ -70,7 +72,6 @@ Organized chaos, 4–6+ colors, kinetic typography as art. Character turned to e
 | **Ponpon Mania** *(canonical, SOTM Oct 2025)* | ponpon-mania.com | Bright illustrated comic — orange/pink/purple panels, sheep DJ narrative |
 | Mat Voyce *(SOTD + FWA)* | matvoyce.tv | Kinetic type-as-image — F37 Judge widths dancing on cream, per-letter roll nav |
 | Exat Typeface *(SOTD + CSSDA WOTM + FWA)* | exat.hottype.co | Type specimen as maximal — variable-font showcase, blue/red recolor, 3D line rotations |
-| Eloy Benoffi *(GSAP SOTD + CSSDA)* | eloyb.design | Glitch-maximal portfolio — ASCII flowers, random-stagger reveals, clone-storm footer |
 | KOKUYO — Curiosity is Life *(SOTD + Dev Dec 2025)* | kokuyo.com/en/special/curiosity-is-life | Pop-up-book 3D metaphor — colorful fullscreen scenes unfold like paper spreads across a past/present/future arc |
 | MindMarket *(SOTD + SOTM Dec 2025)* | awwwards.com/sites/mindmarket | A single SVG thread draws itself along the scroll as both wayfinding and metaphor, over bold flats and animated characters |
 | Navigate *(SOTD + SOTM Apr 2025)* | awwwards.com/sites/navigate | Character animations with idle pause-loops as the primary motion channel — not scroll — vibrant two-tone |

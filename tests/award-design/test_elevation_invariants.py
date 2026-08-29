@@ -25,7 +25,7 @@ def _read(path):
 
 class TestNamedTrapsAndCountableChecks(unittest.TestCase):
     """The harvest added falsifiable named traps the catalog lacked, and the
-    protocol rebuild moved the countable table to its single home — the verify-phase
+    protocol rebuild moved the countable table to its single home — a chunk's Verify
     gate (preflight.md §4). Each check keeps a brief-tied override (or a
     declared archetype scope) so it raises the floor without manufacturing a
     new monoculture; anti-patterns.md keeps the rationale and a pointer."""
@@ -280,7 +280,7 @@ class TestShipReadyFloor(unittest.TestCase):
         return _read(REFS / "gate" / "review.md")
 
     def test_impose_tier_rides_the_preflight_floor(self):
-        """The protocol splits the floor: the Impose tier binds at the verify-phase
+        """The protocol splits the floor: the Impose tier binds at a chunk's Verify
         craft floor, which cites it as its catalog and carries the 8-state
         contract box."""
         preflight = _read(REFS / "preflight.md")

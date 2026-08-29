@@ -25,7 +25,7 @@ Reference docs, cited as optional deep-dives. None is mandated — CSS-native-fi
 
 ## Component kits — scaffold only, then restyle past their defaults
 
-These ship fast but carry a recognizable default look — the exact source of the 2026 AI-landing-page monoculture (beams, sparkles, spotlight cards, animated gradients, 3D-tilt cards). Scaffold structure from them, then restyle hard past their defaults: swap the font, kill the stock gradient, retime the motion, re-token the color. Shipped unmodified, they ARE the tell.
+These ship fast but carry a recognizable default look — the exact source of the 2026 AI-landing-page monoculture (beams, sparkles, spotlight cards, animated gradients, 3D-tilt cards). Scaffold structure from them, then restyle hard past their defaults: swap the font, kill the stock gradient, retime the motion, re-token the color. Shipped unmodified, they are the tell.
 
 | Kit / asset | URL | The default to restyle past |
 |---|---|---|

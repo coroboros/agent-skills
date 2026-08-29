@@ -60,8 +60,8 @@ class TestUniverseIsMandatory(unittest.TestCase):
         path = _path()
         self.assertIn("**The contract.** Six blocks", path,
                       "the universe is a committed contract, not an intention")
-        self.assertIn('Close with **FINISH:** "this build ends with the review, '
-                      'the verdict, and DESIGN.md."', path,
+        self.assertIn('Close with **FINISH:** "the direction ends with DESIGN.md and the ladder; '
+                      'the build ends with the review chunk\'s verdict."', path,
                       "the contract states its own terminus")
 
     def test_design_md_is_not_optional(self):
@@ -164,7 +164,7 @@ class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
 
 class TestDesignPlanCommit(unittest.TestCase):
     """The design_plan carries the spines, the seed and the six-block contract
-    before any build file exists — paced like a score, verified per chapter, and
+    before any build file exists — paced like a score, verified per chunk, and
     amendable only in writing."""
 
     def test_design_plan_is_binding_and_pre_markup(self):
@@ -196,9 +196,9 @@ class TestDesignPlanCommit(unittest.TestCase):
         self.assertIn("Claimed = shown", path)
         self.assertIn("cut only by a written amendment, never in cleanup", path)
 
-    def test_per_chapter_browser_gate(self):
-        self.assertIn("After each chapter, inject `assets/render-floor.js`", _path())
+    def test_per_chunk_browser_gate(self):
         verify = _section("Verify, then ship")
+        self.assertIn("after each chunk, inject `assets/render-floor.js`", verify)
         self.assertIn("sweep 375/768/1024/1440/1920", verify)
         self.assertIn("one browser session per run", verify)
 
@@ -206,7 +206,7 @@ class TestDesignPlanCommit(unittest.TestCase):
         """The gate is a loop, not a single look — and a bounded one: one fix
         batch, one recheck, and the second verdict ends work whatever it says."""
         review = _ref("gate/review.md")
-        self.assertIn("Fixes apply in ONE batch", review)
+        self.assertIn("Fixes apply in one batch", review)
         self.assertIn("the second verdict ends work whatever it says", review)
         self.assertIn("A finding is dismissed only with a measurement", review,
                       "residue is measured out, never glanced away")
@@ -224,7 +224,7 @@ class TestDesignPlanCommit(unittest.TestCase):
         """Models compose section by section — locally fine, globally flat.
         The build paces the page like a score: one climax, at least one rest."""
         path = _path()
-        self.assertIn("Pace like a score", path)
+        self.assertIn("paced like a score", path)
         self.assertIn("with one climax", path)
         self.assertIn("at least one rest", path)
 
@@ -285,7 +285,7 @@ class TestWebGLDelegation(unittest.TestCase):
         self.carve = m.group(1)
 
     def test_single_subagent_only(self):
-        self.assertIn("ONE subagent", self.carve)
+        self.assertIn("one subagent", self.carve.lower())
 
     def test_scene_is_self_contained(self):
         self.assertIn("self-contained scene", self.carve.lower())

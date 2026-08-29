@@ -3,7 +3,7 @@ protocol rebuild added as gates.
 
 external-truth.md keeps heavy layers (GSAP, Three/R3F, Lenis, View Transitions,
 Web Audio, modern CSS) off training memory via a three-rung resolution ladder;
-preflight.md is the mechanical floor the verify phase ticks box by box. These tests pin
+preflight.md is the mechanical floor a chunk's Verify ticks box by box. These tests pin
 the ladder order, the verified install commands, the stale-signature
 tripwires, and the floor's section spine + verdict block."""
 
@@ -147,11 +147,12 @@ class TestPreflightGateStructure(unittest.TestCase):
         self.assertIn("resolves to the committed face", self.preflight,
                       "browser proof must carry the computed-font-resolution box")
 
-    def test_section_loop_lives_in_the_build_step(self):
-        # the conformance loop runs per chapter as it lands, not once at the end
+    def test_render_floor_sweep_runs_per_chunk(self):
+        # the render-floor sweep runs per chunk as it lands, not once at the review
         skill = (REFS.parent / "SKILL.md").read_text(encoding="utf-8")
-        self.assertIn("After each chapter, inject `assets/render-floor.js` and fix what it names",
-                      skill)
+        self.assertIn("after each chunk, inject `assets/render-floor.js`", skill)
+        self.assertIn("render-floor.js` through the browser rung (`references/external-truth.md`), sweep 375/768/1024/1440/1920", _read("chunk-template.md"),
+                      "every chunk's Verify block carries the sweep")
 
     def test_measurements_are_mandatory_when_connected(self):
         """'Where the tooling offers' was a latitude hole — a connected harness
@@ -172,7 +173,7 @@ class TestPreflightGateStructure(unittest.TestCase):
                 self.assertIn(field, verdict, f"verdict block missing field: {field}")
         # Three-status model from the enforceability audit: browserless runs cap
         # below READY instead of converting every driven gate into a free pass.
-        self.assertIn("READY | READY-UNVERIFIED", verdict)
+        self.assertIn("READY | REVIEWED-SAME-CONTEXT | NOT DONE", verdict)
         self.assertIn("NOT DONE", verdict)
 
     def test_no_js_floor_gated(self):

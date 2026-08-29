@@ -1,4 +1,4 @@
-"""award-design pre-flight scanner — the deterministic half of the verify-phase gate.
+"""award-design pre-flight scanner — the deterministic half of a chunk's Verify gate.
 
 The scanner exists so the countable anti-slop tells are machine-checked instead
 of self-attested. These tests pin four contracts: a dirty build trips every

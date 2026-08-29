@@ -76,7 +76,7 @@ class TestCompositionForcing(unittest.TestCase):
         """The palette binds because the design_plan commit loads the archetype's
         tier-2 file by heading — an unloaded palette composes nothing."""
         self.assertIn(
-            "tier-2 `references/<name>.md` — by heading via its Contents index | step 9, committing the section list",
+            "tier-2 `references/<name>.md` — by heading via its Contents index | step 8, committing the section list",
             _skill(), "the load map must price the tier-2 load at the section-list commit")
         for a in ARCHETYPES:
             with self.subTest(archetype=a):

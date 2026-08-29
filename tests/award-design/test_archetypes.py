@@ -40,6 +40,7 @@ CROSS_CUTTING = [
     "audit-rubric.md",
     "award-imperatives.md",
     "brand-extraction.md",
+    "chunk-template.md",
     "code-review.md",
     "copy-recipes.md",
     "design-md-anatomy.md",

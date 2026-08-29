@@ -74,7 +74,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Test for small, well-scoped tasks |
 | Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
-| Design | [award-design](#award-design) | Frontend design engineer for award-winning sites — forces a visual universe, builds it, audits any site |
+| Design | [award-design](#award-design) | Art director for award-winning sites — forces a visual universe, writes DESIGN.md and the build ladder, audits any site |
 | Design | [design-system](#design-system) | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
 | Claude Code | [claude-md](#claude-md) | Create and optimize CLAUDE.md and .claude/rules/ |
 | Claude Code | [agent-creator](#agent-creator) | Expert guidance for creating Claude Code subagents |
@@ -401,17 +401,18 @@ Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-de
 
 #### award-design
 
-Takes the lead on any frontend design, build, or redesign — an **art-director** (ambient forcing, not a phased checklist) targeting Awwwards SOTD 7.5+, FWA, CSSDA. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) when none exists, adapts to an existing one and alerts when it is thin, then **builds the frontend itself** under that direction. Frontend only — single-token tweaks route to `/design-system`, never backend. A **review mode** audits any site at any time.
+Takes the lead on any frontend design, build, or redesign — an **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, never backend. A **review mode** audits any site at any time.
 
 **Usage**
 
 ```bash
-/award-design landing page for a sustainable coffee brand
-/award-design -u https://linear.app portfolio for a motion designer
-/award-design review https://example.com         # audit an existing site
+/award-design landing page for a sustainable coffee brand            # direction → DESIGN.md + design-plan.md with the ladder
+/award-design chunk hero                                             # build one ladder chunk
+/award-design -u https://linear.app portfolio for a motion designer  # brand-extract a live site as the seed
+/award-design review https://example.com                             # audit an existing site
 ```
 
-`-u <url>` reverse-engineers the brand from a live site as the archetype seed; the observation informs the direction but doesn't constrain it — the brief is still the destination. `review <url|path>` runs the adversarial critic against any site at any time, no build required.
+A brief ends with the direction (DESIGN.md and `design-plan.md` with its ladder) and builds nothing; the ladder's chunks build, one per executor run. `chunk <id>`, or a pasted ladder chunk, builds that chunk alone and writes its Report into the ladder row. `-u <url>` reverse-engineers the brand from a live site as the archetype seed; the observation informs the direction but doesn't constrain it — the brief is still the destination. `review <url|path>` runs the adversarial critic against any site at any time, no build required.
 
 **Archetypes**
 
@@ -433,16 +434,17 @@ Each archetype anchors to a canonical winner (corpus-credentialed). The referenc
 
 - **Direction by dice, not by argmax** — the model writes 5–7 candidate spines, then a seeded roll (`scripts/direction_roll.py`, SHA-256, offline, reproducible from its printed key) assigns one with the model's top two structurally unreachable — a model's own ranking converges on the same direction every run. Challengers dealt from sibling archetypes must beat the assignment on audience identification and product clarity to take the build; the category standard stays on the table as the user's standing exit, never the model's recommendation
 - **The six-block contract** — THESIS · OWN-WORLD · STORY (the desire arc's five content answers) · FIRST-VIEWPORT · FORM+SEED · SIGNATURE (verb · medium · trigger · replay), ≤180 words, written before any build file and copied into the first artifact's opening comment. A block that reads like a mood is not decided yet; a fresh-context R1 refutes the concept before code exists
-- **Two-tier archetype knowledge** — nine ~40-line tier-1 files (DNA, anti-signals, reflex lists) pushed into context by the roll itself; nine tier-2 references loaded by heading (effect palettes, page recipes, mid-page life, spectacle menus, per-archetype component indexes), every claim carrying its evidence class — winner, shipped, technique, theory — and only the first three bind
+- **The ladder** — the direction run ends with `design-plan.md`, its build written under `LADDER:` as chunks from `references/chunk-template.md` (Read first · Implement · Verify · Out of scope · Report), in order: the shell → the hero (2–3 distinct directions through one shared render frame, a fresh-context judge picking beside the archetype's live exemplar) → the sections, paced like a score with one climax and at least one rest → the award surfaces (loader, nav, cursor, footer moment, route transitions, sound; each committed or declared out with a reason) → further pages → the review. One chunk per executor run: this skill in chunk mode, `/apex`, `/ultrapex`, or any agent; a chunk that would change DESIGN.md is handed back as a scope change
+- **Two-tier archetype knowledge** — nine ~40-line tier-1 files (DNA, anti-signals, reflex lists) pushed into context by the roll itself; nine tier-2 references loaded by heading (effect palettes, page recipes, mid-page life, spectacle menus), every claim carrying its evidence class — winner, shipped, technique, theory — and only the first three bind
 - **Techniques as skeletons, facts with dates** — seven complete wirings (`references/skeletons.md`) each closing on the failure it prevents (the Lenis autoRaf double-drive ships fixed); `references/stack-facts.md` is the dated authority for every version and support figure, with staleness surfaced by the scanner past 180 days
-- **A mechanical floor that cannot be argued with** — the static scanner (43 rules incl. the OPTICAL-* craft family), two browser payloads injected by the harness (`render-floor.js`: text-on-text, clipped glyphs, zero-width content, CTA-in-fold, missing mobile nav, per width 375–1920; `pixel-metrics.js`: emptiness, ink profile, ground commitment, accent frequency — evidence only), and the computed-style detector. One browser session per run; payloads never own a process
-- **The review owns the verdict** — one fresh-context driven audit (`references/gate/review.md`): inventory before anchoring, the comparative desire read beside the live exemplar (`DESIRE-READ: BEATS|LOSES — cause: concept|execution|craft` routes the remedy), a bounded fix loop, and a ship label the builder cannot write — READY only via the reviewer's synthesis or the human's yes, REVIEWED-SAME-CONTEXT when neither exists
+- **A mechanical floor that cannot be argued with** — the static scanner (42 rules incl. the OPTICAL-* craft family), two browser payloads injected by the harness (`render-floor.js`: text-on-text, clipped glyphs, zero-width content, CTA-in-fold, missing mobile nav, per width 375–1920; `pixel-metrics.js`: emptiness, ink profile, ground commitment, accent frequency — evidence only), and the computed-style detector, run by every chunk's Verify on the files and pages it touches. One browser session per run; payloads never own a process
+- **The review owns the verdict** — the ladder's last chunk, one fresh-context driven audit (`references/gate/review.md`): inventory before anchoring, the comparative desire read beside the live exemplar (`DESIRE-READ: BEATS|LOSES — cause: concept|execution|craft` routes the remedy), a bounded fix loop, and a ship label the builder cannot write — READY only via the reviewer's synthesis or the human's yes, REVIEWED-SAME-CONTEXT when neither exists
 - **Review mode standalone** — `award-design review <url|path>` runs the same instrument on any site: archetype derived from the target, scored against the awwwards rubric with the desire read and ordered findings, no ship label
 - **Anti-AI-slop hard constraints** — the AI-purple gradient, Inter/Roboto on the display face, pure `#000`/`#fff`, placeholder names and fake stats, meta-labels, eyebrow spam, scroll hijack, sub-device-resolution signature assets — match-and-refuse, machine-checked where a rule is named, overridden only by a quoted client clause
 - **Imagery** — real assets, an acquire-and-verify protocol for branded builds, every signature asset ≥ device pixels at its worst rendered moment, never faked out of divs
-- **WebGL/3D delegation** — a committed scene goes to ONE subagent under a tested delegation contract (DESIGN.md quoted verbatim, fidelity and input-correctness floors, poster-first LCP); the returned module is integrated in-context, never co-written
+- **WebGL/3D delegation** — a committed scene is one ladder chunk handed to one subagent under a tested delegation contract (DESIGN.md quoted verbatim, fidelity and input-correctness floors, poster-first LCP); the returned module is integrated in-context, never co-written
 - **Judging criteria** — Design 40%, Usability 30%, Creativity 20%, Content 10%; HM 6.5+, SOTD ~7.5+, routine SOTD 7.2–7.9. Performance measured with provenance: LCP < 1.5s, CLS < 0.05, INP < 100ms
-- **DESIGN.md handoff** — authors the DESIGN.md up front and builds under it; `/design-system` governs it afterward (drift, updates, audits). Clean author-vs-govern boundary
+- **DESIGN.md handoff** — authors the DESIGN.md up front and every chunk builds under it; `/design-system` governs it afterward (drift, updates, audits). Clean author-vs-govern boundary
 
 **Sources**
 
@@ -457,7 +459,7 @@ Each archetype anchors to a canonical winner (corpus-credentialed). The referenc
 
 #### design-system
 
-Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Activates by intent during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit or invents a design direction (that is `/award-design`'s job; it forces a universe, writes the DESIGN.md, and builds the frontend). Exposes seven subcommands, four backed by the canonical CLI, for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
+Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Activates by intent during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit or invents a design direction (that is `/award-design`'s job; it forces a universe, writes the DESIGN.md and the build ladder). Exposes seven subcommands, four backed by the canonical CLI, for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
 
 **Requirements**
 
@@ -1172,7 +1174,9 @@ Happy path, new project:
 ```
 /scaffold next-cloudflare              bootstrap project
       |
-/award-design "brief"                  force a universe (writes DESIGN.md) + build the frontend
+/award-design "brief"                  force a universe — writes DESIGN.md + design-plan.md (the ladder)
+      |
+/award-design chunk <id>               build the ladder one chunk per run (or /apex, /ultrapex, any agent)
       |
 /design-system audit                   lint the tokens, fix findings
       |

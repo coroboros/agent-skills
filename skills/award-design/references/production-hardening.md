@@ -17,7 +17,7 @@ Battle-tested patterns for shipping immersive web design to real devices, distil
 
 ## Tokenization
 
-Code samples in this file use literal values (durations, opacities, viewport units, scroll offsets) for clarity. In production, these MUST bind to DESIGN.md token namespaces — `motion.duration-*` for durations, `motion.ease-*` for easings, `opacity.*` for overlays, `heights.*` for viewport heights, `scrollTriggers.*` for fold offsets. Consume them as CSS custom properties (`var(--duration-reveal-slow)`) or Tailwind v4 utilities (`duration-reveal-slow`). Magic numbers in JS (`SPACER_MULTIPLIER`, scroll thresholds) read the corresponding `var(--scroll-*)` at startup, never hardcode. Full convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Validate with `/design-system audit-extensions DESIGN.md`.
+Code samples in this file use literal values (durations, opacities, viewport units, scroll offsets) for clarity. In production, these must bind to DESIGN.md token namespaces — `motion.duration-*` for durations, `motion.ease-*` for easings, `opacity.*` for overlays, `heights.*` for viewport heights, `scrollTriggers.*` for fold offsets. Consume them as CSS custom properties (`var(--duration-reveal-slow)`) or Tailwind v4 utilities (`duration-reveal-slow`). Magic numbers in JS (`SPACER_MULTIPLIER`, scroll thresholds) read the corresponding `var(--scroll-*)` at startup, never hardcode. Full convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Validate with `/design-system audit-extensions DESIGN.md`.
 
 ## Viewport units
 
@@ -348,7 +348,7 @@ Two spacers in a 1:2 ratio place content in the upper third **proportionally** a
 - Don't layer `rem` on top of `vh` on top of `%` — pick one system per axis
 - Don't `justify-center` when you mean "upper third" — the math works but the result drifts on tall vs short viewports
 
-### When breakpoints ARE correct
+### When breakpoints are correct
 
 Genuine structural change only: column-stack → side-by-side, nav hamburger → horizontal, hide/show different compositions. If you're only adjusting a spacing value, use a proportional unit.
 
@@ -378,9 +378,9 @@ Quirks surfaced by shipping to real devices. The **Scope** column flags where ea
 Desktop browser resize is not a mobile test. URL-bar toggle is the source of 80% of mobile-only bugs and no desktop browser reproduces it.
 
 - Preview via LAN URL (local dev server + wifi, or an HTTPS tunnel like ngrok / Cloudflare Tunnel for PWA and service-worker tests) and open on your actual phone
-- Test with URL bar expanded AND collapsed — scroll up to re-show it
+- Test with URL bar expanded and collapsed — scroll up to re-show it
 - Test in Low Power Mode / data-saver — triggers autoplay rejection you can't catch in dev (iOS Low Power, Android data-saver)
-- Test portrait AND landscape — landscape phone is ~400px tall, breaks most centered layouts
+- Test portrait and landscape — landscape phone is ~400px tall, breaks most centered layouts
 - **Test the return path.** Scroll to bottom, tap an external link, hit back. Chrome, Firefox, and Safari all bfcache-restore the page frozen mid-animation with inline styles preserved
 - **Test a cold re-open with scroll history.** Scroll down, close the tab (not just the page), reopen the URL — any browser may restore `scrollY` from session storage
 - **Test from a URL you've previously scrolled on.** Localhost has no scroll history for the origin; production does. The infamous *"works on local preview, broken on deployed"* symptom is almost always scroll restoration — reproducible on any browser, but iOS users trigger it constantly via app-switcher

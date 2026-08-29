@@ -2,7 +2,7 @@
 
 Award-grade builds live or die on library APIs that move faster than any training corpus: GSAP's plugins went free and its SplitText syntax changed, Three.js shipped WebGPU, same-document View Transitions went Newly available, Tailwind v4 dropped its PostCSS plugin. Code written from memory for these layers is where confident-looking builds silently break — so each heavy layer passes this gate before its first line of code.
 
-## The ladder — walk in order, stop at the first rung that resolves
+## The rung ladder — walk in order, stop at the first rung that resolves
 
 1. **Installed skill.** Check the available-skills list for a match (candidates below). Present → load it and follow it; it outranks memory and this file. A rung that is present but unusable (tool erroring, resource locked by another session) counts as absent — note why, take the next rung.
 2. **Offer the install.** No skill present and the layer is load-bearing for the signature → offer the user the install once, as one line with the exact command. Yes → install, load, follow. No, or no answer → next rung. Never stall the build on the offer. In a non-interactive run the offer is still *emitted* in the output — the user reads it later — and silence resolves it immediately.
@@ -26,13 +26,13 @@ A static minimalist page loads none of this; an Immersive scrolltelling build ma
 
 ## Browser verification — a gated capability too
 
-Rendering proof is not optional tooling — resolve it like a heavy layer, before the build step opens. A build that never rendered is a build nobody looked at.
+Rendering proof is not optional tooling — resolve it like a heavy layer, before the first chunk runs. A build that never rendered is a build nobody looked at.
 
 | Capability | Candidates (first present wins) | Install offer | Fallback |
 |---|---|---|---|
 | Screenshot · drive · console · traces | Chrome DevTools MCP (adds performance traces and LCP) · `dev-browser` CLI · `webwright` plugin | `npm install -g dev-browser && dev-browser install` | only a *declined* offer degrades to the code-level read + a declared gap in the verdict |
 
-The conformance loop at the build step and the browser proof (pre-flight §8) ride on this rung. State the rung and the presence check at truth sourcing. `dev-browser` is the sufficient default; a connected Chrome DevTools MCP makes its measurements *mandatory* — LCP and the signature's frame rate stop being declarable gaps (pre-flight §8).
+Every chunk's Verify and the browser proof (pre-flight §8) ride on this rung. State the rung and the presence check at truth sourcing. `dev-browser` is the sufficient default; a connected Chrome DevTools MCP makes its measurements *mandatory* — LCP and the signature's frame rate stop being declarable gaps (pre-flight §8).
 
 ## Product facts are gated too
 
@@ -40,7 +40,7 @@ A brief naming a real product, brand, or place gates its facts like a heavy laye
 
 ## Stale-signature tripwires
 
-Writing any of these from memory means the ladder was skipped — stop and resolve the layer first:
+Writing any of these from memory means the rung ladder was skipped — stop and resolve the layer first:
 
 - `import { motion } from "framer-motion"` in new code — the current package is `motion`, imported from `motion/react`.
 - Treating a GSAP plugin (SplitText, MorphSVG, ScrollSmoother) as paid Club territory — all plugins ship free in the public `gsap` npm package.

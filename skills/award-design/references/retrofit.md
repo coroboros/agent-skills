@@ -59,7 +59,7 @@ Loading skeletons use the Shimmer perpetual micro-interaction (pattern 11) at th
 
 After everything else. The polish layer: `letter-spacing` adjustments on display type (`-0.02em` to `-0.04em` on serifs and grotesks), `font-feature-settings: 'tnum'` on tabular numbers, `font-variation-settings` micro-shifts on hover for variable fonts, drop caps via `::first-letter`. Optical alignment, baseline grid lock, OpenType features. The kind of work that takes Typography from 8/10 to 10/10 — and that has no value until the underlying typography choice (step 1) and component architecture (step 5) are correct.
 
-## What NOT to retrofit
+## What not to retrofit
 
 Some interventions cost more than they return. Skip these unless the brief explicitly requires them:
 
@@ -75,7 +75,7 @@ SEO migration is the #1 redesign risk; analytics is #2. Without explicit user ap
 
 ## After the retrofit
 
-Run the same validation as a new project — the verify phase and the review (pre-flight + review mode):
+Run the same validation as a new project — each chunk's Verify and the review chunk (pre-flight + review mode):
 
 1. `references/anti-patterns.md` — axiomatic rejections first; if any present, the retrofit isn't done.
 2. `references/audit-rubric.md` — score the eight categories. The retrofit target is +2 points per category from the pre-fix baseline.
