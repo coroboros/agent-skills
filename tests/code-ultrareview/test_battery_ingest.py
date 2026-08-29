@@ -101,6 +101,51 @@ class TestUniversalContract(unittest.TestCase):
                 for f in bi.ingest_one(tool, raw):
                     self.assertEqual(f["source_tool"], tool)
 
+    def test_documented_empty_reports_are_accepted(self):
+        empty_reports = {
+            "knip": '{"issues": []}',
+            "jscpd": '{"duplicates": []}',
+            "markdownlint-cli2": "[]",
+            "api-extractor": "API Extractor completed successfully\n",
+            "lizard": "NLOC,CCN,token,PARAM,length,location\n",
+            "vulture": "",
+            "semgrep": '{"results": [], "errors": []}',
+            "oasdiff": "[]",
+            "atlas": '{"Files": []}',
+            "vale": "{}",
+            "deadcode": "",
+            "gocyclo": "",
+            "dupl": "\nFound total 0 clone groups.\n",
+            "cargo-machete": (
+                "cargo-machete did not find any unused dependencies\n"
+            ),
+        }
+        for tool, raw in empty_reports.items():
+            with self.subTest(tool=tool):
+                self.assertEqual(bi.ingest_one(tool, raw), [])
+
+    def test_nonempty_unknown_reports_fail_loud(self):
+        unknown_reports = {
+            "knip": "not-json",
+            "jscpd": "{}",
+            "markdownlint-cli2": "unknown markdownlint output",
+            "api-extractor": "unknown api-extractor output",
+            "lizard": "unknown lizard output",
+            "vulture": "unknown vulture output",
+            "semgrep": "{}",
+            "oasdiff": "{}",
+            "atlas": "{}",
+            "vale": "[]",
+            "deadcode": "unknown deadcode output",
+            "gocyclo": "unknown gocyclo output",
+            "dupl": "found 1 clone:\nunknown location\n",
+            "cargo-machete": "unknown cargo-machete output",
+        }
+        for tool, raw in unknown_reports.items():
+            with self.subTest(tool=tool):
+                with self.assertRaises(ValueError):
+                    bi.ingest_one(tool, raw)
+
 
 # ---------------------------------------------------------------------------
 # Routing — TOOL_TO_AXIS matrix.
@@ -124,8 +169,7 @@ class TestRouting(unittest.TestCase):
         "api-extractor": "design-api",
         "oasdiff": "design-api",
         "atlas": "design-api",
-        # semgrep static default is correctness; perf-rules override per finding
-        "semgrep": "correctness",
+        "semgrep": "performance",
     }
 
     def test_routing_table_matches_expected(self):
@@ -170,6 +214,16 @@ class TestKnipParser(unittest.TestCase):
         match = [f for f in self.findings if "stale-dep" in f["message"]]
         self.assertGreaterEqual(len(match), 1)
 
+    def test_knip_6_empty_issues_is_a_valid_empty_report(self):
+        self.assertEqual(bi.parse_knip('{"issues": []}'), [])
+
+    def test_legacy_array_report_remains_supported(self):
+        findings = bi.parse_knip(
+            '[{"file":"legacy.ts","files":true,"exports":[]}]'
+        )
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["file"], "legacy.ts")
+
 
 class TestJscpdParser(unittest.TestCase):
     def test_duplicate_block(self):
@@ -185,13 +239,38 @@ class TestJscpdParser(unittest.TestCase):
 
 class TestMarkdownlintParser(unittest.TestCase):
     def test_rule_id_and_description_carried(self):
-        findings = bi.parse_markdownlint(_read("markdownlint-cli2.json"))
+        findings = bi.parse_markdownlint(_read("markdownlint-cli2.txt"))
         self.assertEqual(len(findings), 2)
         first = findings[0]
         self.assertEqual(first["file"], "README.md")
         self.assertEqual(first["line_start"], 5)
         self.assertIn("MD013", first["message"])
         self.assertEqual(first["axis"], "documentation")
+
+    def test_default_cli_text_output_is_parsed(self):
+        raw = (
+            "README.md:3:10 error MD009/no-trailing-spaces "
+            "Trailing spaces [Expected: 0 or 2; Actual: 1]\n"
+            "docs/guide.md:7 MD041/first-line-heading/first-line-h1 "
+            "First line in a file should be a top-level heading\n"
+        )
+        findings = bi.parse_markdownlint(raw)
+        self.assertEqual(len(findings), 2)
+        self.assertEqual(findings[0]["file"], "README.md")
+        self.assertEqual(findings[0]["line_start"], 3)
+        self.assertIn("MD009/no-trailing-spaces", findings[0]["message"])
+        self.assertEqual(findings[1]["file"], "docs/guide.md")
+        self.assertEqual(findings[1]["line_start"], 7)
+
+    def test_clean_cli_progress_is_not_a_finding(self):
+        raw = ("markdownlint-cli2 v0.23.2 (markdownlint v0.41.1)\n"
+               "Finding: /tmp/docs/clean.md\nLinting: 1 file\n"
+               "Summary: 0 issues in 0 files\n")
+        self.assertEqual(bi.parse_markdownlint(raw), [])
+
+    def test_nonempty_unrecognized_output_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "documented text or JSON schema"):
+            bi.parse_markdownlint("unexpected markdownlint protocol output\n")
 
 
 class TestApiExtractorParser(unittest.TestCase):
@@ -210,6 +289,16 @@ class TestApiExtractorParser(unittest.TestCase):
         errors = [f for f in findings if f["severity"] == "High"]
         self.assertGreaterEqual(len(errors), 1)
         self.assertEqual(errors[0]["axis"], "design-api")
+
+    def test_clean_completion_marker_is_accepted(self):
+        findings = bi.parse_api_extractor(
+            "API Extractor completed successfully\n"
+        )
+        self.assertEqual(findings, [])
+
+    def test_nonempty_unrecognized_output_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "successful-completion marker"):
+            bi.parse_api_extractor("unexpected api-extractor protocol output\n")
 
 
 class TestLizardParser(unittest.TestCase):
@@ -248,16 +337,10 @@ class TestVultureParser(unittest.TestCase):
 
 
 class TestSemgrepParser(unittest.TestCase):
-    """AC: Generic semgrep → correctness. code-ultrareview-* rules → performance."""
+    """AC: Semgrep accepts only the bundled performance rule set."""
 
     def setUp(self):
         self.findings = bi.parse_semgrep(_read("semgrep.json"))
-
-    def test_generic_rule_routes_to_correctness(self):
-        generic = [f for f in self.findings if f["axis"] == "correctness"]
-        self.assertEqual(len(generic), 1)
-        self.assertIn("shell-true", generic[0]["message"])
-        self.assertEqual(generic[0]["severity"], "High")  # ERROR → High
 
     def test_bundled_perf_rules_route_to_performance(self):
         perf = [f for f in self.findings if f["axis"] == "performance"]
@@ -265,10 +348,65 @@ class TestSemgrepParser(unittest.TestCase):
         self.assertTrue(any("sync-io" in f["message"] for f in perf))
         self.assertTrue(any("n-plus-one" in f["message"] for f in perf))
 
+    def test_unexpected_generic_rule_is_an_invalid_report(self):
+        raw = json.dumps({
+            "results": [{
+                "check_id": "python.lang.security.audit.shell-true",
+                "path": "src/exec.py",
+                "start": {"line": 10},
+                "end": {"line": 10},
+                "extra": {
+                    "message": "generic rule",
+                    "severity": "ERROR",
+                    "metadata": {"category": "security"},
+                },
+            }],
+        })
+        with self.assertRaisesRegex(ValueError, "unexpected Semgrep rule"):
+            bi.parse_semgrep(raw)
+
+    def test_path_prefixed_bundled_rule_routes_to_performance(self):
+        raw = json.dumps({
+            "results": [{
+                "check_id": (
+                    "private.tmp.skill.references.perf-rules."
+                    "code-ultrareview-sync-io-in-async-py"
+                ),
+                "path": "src/exec.py",
+                "start": {"line": 10},
+                "end": {"line": 10},
+                "extra": {
+                    "message": "sync I/O in async code",
+                    "severity": "WARNING",
+                    "metadata": {"axis": "performance"},
+                },
+            }],
+        })
+        findings = bi.parse_semgrep(raw)
+        self.assertEqual(len(findings), 1)
+        self.assertEqual(findings[0]["axis"], "performance")
+
+    def test_bundled_prefix_without_performance_metadata_is_invalid(self):
+        raw = json.dumps({
+            "results": [{
+                "check_id": "code-ultrareview-sync-io-in-async-py",
+                "path": "src/exec.py",
+                "start": {"line": 10},
+                "end": {"line": 10},
+                "extra": {
+                    "message": "missing axis metadata",
+                    "severity": "WARNING",
+                    "metadata": {},
+                },
+            }],
+        })
+        with self.assertRaisesRegex(ValueError, "unexpected Semgrep rule"):
+            bi.parse_semgrep(raw)
+
     def test_severity_mapping(self):
-        # ERROR → High, WARNING → Medium
+        # Bundled fixture rules are WARNING → Medium.
         severities = {f["severity"] for f in self.findings}
-        self.assertEqual(severities, {"High", "Medium"})
+        self.assertEqual(severities, {"Medium"})
 
 
 class TestOasdiffParser(unittest.TestCase):
@@ -287,6 +425,17 @@ class TestAtlasParser(unittest.TestCase):
         for f in findings:
             self.assertEqual(f["axis"], "design-api")
             self.assertEqual(f["source_tool"], "atlas")
+
+    def test_step_error_is_an_analyzer_failure(self):
+        raw = json.dumps({"Steps": [{"Name": "Migration Integrity Check",
+                                     "Error": "checksum mismatch"}], "Files": []})
+        with self.assertRaisesRegex(ValueError, "checksum mismatch"):
+            bi.parse_atlas(raw)
+
+    def test_file_error_is_an_analyzer_failure(self):
+        raw = json.dumps({"Files": [{"Name": "atlas.sum", "Error": "checksum mismatch"}]})
+        with self.assertRaisesRegex(ValueError, "atlas.sum failed"):
+            bi.parse_atlas(raw)
 
 
 class TestValeParser(unittest.TestCase):
@@ -318,6 +467,9 @@ class TestGoToolParsers(unittest.TestCase):
         for f in findings:
             self.assertEqual(f["axis"], "simplification")
 
+    def test_dupl_accepts_real_zero_group_trailer(self):
+        self.assertEqual(bi.parse_dupl("\nFound total 0 clone groups.\n"), [])
+
 
 class TestCargoMacheteParser(unittest.TestCase):
     def test_unused_deps(self):
@@ -326,6 +478,7 @@ class TestCargoMacheteParser(unittest.TestCase):
         self.assertEqual(len(names), 2)
         self.assertTrue(any("serde_json" in n for n in names))
         self.assertTrue(any("regex" in n for n in names))
+        self.assertEqual({f["file"] for f in findings}, {"./Cargo.toml"})
 
 
 # ---------------------------------------------------------------------------
@@ -364,6 +517,116 @@ class TestCli(unittest.TestCase):
         lines = [json.loads(line) for line in r.stdout.splitlines() if line]
         self.assertGreater(len(lines), 0)
         self.assertTrue(all(f["source_tool"] == "knip" for f in lines))
+
+
+class TestDiffScope(unittest.TestCase):
+    def test_repository_wide_analyzer_findings_are_limited_to_changed_files(self):
+        findings = bi.parse_knip(_read("knip.json"))
+
+        filtered = bi.filter_to_changed_files(
+            findings,
+            ["src/foo.ts"],
+            Path("/project"),
+        )
+
+        self.assertGreater(len(filtered), 0)
+        self.assertEqual({finding["file"] for finding in filtered}, {"src/foo.ts"})
+
+    def test_absolute_paths_inside_repo_are_normalized(self):
+        finding = {
+            "file": "/project/Cargo.toml",
+            "line_start": 1,
+            "line_end": 1,
+            "severity": "Low",
+            "confidence": 100,
+            "axis": "simplification",
+            "source_tool": "cargo-machete",
+            "message": "unused dependency",
+        }
+
+        filtered = bi.filter_to_changed_files(
+            [finding], ["Cargo.toml"], Path("/project")
+        )
+
+        self.assertEqual(filtered[0]["file"], "Cargo.toml")
+        self.assertEqual(finding["file"], "/project/Cargo.toml")
+
+    def test_empty_changed_file_set_drops_repository_wide_findings(self):
+        findings = bi.parse_knip(_read("knip.json"))
+
+        self.assertEqual(
+            bi.filter_to_changed_files(findings, [], Path("/project")), []
+        )
+
+    def test_line_aware_findings_must_overlap_a_changed_hunk(self):
+        findings = [
+            {
+                "file": "README.md",
+                "line_start": line,
+                "line_end": line,
+                "severity": "Low",
+                "confidence": 100,
+                "axis": "documentation",
+                "source_tool": "markdownlint-cli2",
+                "message": f"finding at {line}",
+            }
+            for line in (5, 20, 30)
+        ]
+
+        filtered = bi.filter_to_changed_files(
+            findings,
+            ["README.md"],
+            Path("/project"),
+            {"README.md": [[4, 6], [29, 31]]},
+        )
+
+        self.assertEqual(
+            [finding["line_start"] for finding in filtered],
+            [5, 30],
+        )
+
+    def test_manifest_level_findings_remain_path_scoped(self):
+        finding = {
+            "file": "package.json",
+            "line_start": 1,
+            "line_end": 1,
+            "severity": "Medium",
+            "confidence": 100,
+            "axis": "simplification",
+            "source_tool": "knip",
+            "message": "unused dependency",
+        }
+
+        filtered = bi.filter_to_changed_files(
+            [finding],
+            ["package.json"],
+            Path("/project"),
+            {"package.json": [[20, 20]]},
+        )
+
+        self.assertEqual(filtered, [finding])
+
+    def test_missing_hunk_entry_drops_line_aware_finding(self):
+        finding = {
+            "file": "README.md",
+            "line_start": 1,
+            "line_end": 1,
+            "severity": "Low",
+            "confidence": 100,
+            "axis": "documentation",
+            "source_tool": "markdownlint-cli2",
+            "message": "pre-existing finding",
+        }
+
+        self.assertEqual(
+            bi.filter_to_changed_files(
+                [finding],
+                ["README.md"],
+                Path("/project"),
+                {},
+            ),
+            [],
+        )
 
 
 if __name__ == "__main__":

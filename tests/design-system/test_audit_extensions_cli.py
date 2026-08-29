@@ -2,7 +2,7 @@
 
 Exercises the bidirectional drift contract: YAML extensions ↔ globals.css @theme
 ↔ prose references. The script is self-contained Python (stdlib only) so the
-tests run on every contributor's machine — no npx, no @google/design.md, no
+tests run on every contributor's machine — no designmd binary and no
 Tailwind install required.
 """
 

@@ -1,6 +1,12 @@
 # Project: [Project Name] — Acquisition Site
 
-See @README.md for project overview and @package.json for available scripts.
+See @package.json for available scripts.
+
+## Rule Index
+Read the matching rule before planning or editing that surface:
+
+- `.agents/rules/cloudflare-tooling.md` — Cloudflare CLI scope, authentication, images, and destructive-command policy
+- `.agents/rules/seo.md` — required metadata, structured data, sitemap, robots, and performance budgets
 
 ## Architecture
 - Framework: Astro 6 (SSG-first, islands architecture) on Cloudflare Workers
@@ -11,10 +17,9 @@ See @README.md for project overview and @package.json for available scripts.
 ## UI
 - Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
 - If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
-- Otherwise validate directly: `npx @google/design.md lint DESIGN.md`
+- Otherwise validate directly with the installed project CLI: `pnpm design:audit`
 - IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
-- Tailwind utilities mapped to DESIGN.md tokens via `tailwind.config.ts`
-- CSS custom properties in `src/styles/global.css`
+- Tailwind v4 theme tokens and CSS custom properties in `src/styles/global.css`
 - No component library — Astro components are the components
 
 ## Commands
@@ -25,6 +30,7 @@ pnpm preview          # Preview built app locally (workerd)
 pnpm deploy           # Build + wrangler deploy
 pnpm check            # biome check --write
 pnpm typecheck        # astro check && tsc --noEmit
+pnpm design:audit     # Validate DESIGN.md with the project-local canonical CLI
 ```
 
 ## Key decisions
@@ -61,12 +67,6 @@ export const GET: APIRoute = () => new Response(JSON.stringify({}), {
 
 The `@astrojs/cloudflare` adapter does not (yet) expose `middlewareMode: 'edge'` or `staticHeaders: true` — these only exist on the Netlify, Vercel, and Node adapters.
 
-## SEO — non-negotiable
-@.claude/rules/seo.md
-
 ## Environment
 - `.dev.vars` for local Cloudflare bindings (gitignored)
 - Types generated via `pnpm cf-typegen`
-
-## Cloudflare tooling — non-negotiable
-@.claude/rules/cloudflare-tooling.md

@@ -31,7 +31,7 @@
   // vars in the CF Workers Build dashboard (Next inlines them into the client
   // bundle at build — they reach the browser anyway). Real secrets go via
   // `wrangler secret put <NAME>` / `wrangler secret bulk .dev.vars`, never
-  // here. See CLAUDE.md § Build & deploy.
+  // here. See AGENTS.md § Build & deploy.
   // "vars": { "NEXT_PUBLIC_SITE_URL": "https://example.com" },
 
   // --- OpenNext cache bindings (HARDCODED names — see open-next.config.ts) --

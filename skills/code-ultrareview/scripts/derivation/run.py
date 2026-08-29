@@ -9,7 +9,8 @@ CONSISTENT) happens downstream in the dispatched Explore subagent — this
 module owns deterministic structure + finding shape only.
 
 Usage:
-    python3 run.py --repo <path> --reconcile <input>[,<input>...] [--strict] [--json]
+    python3 run.py --repo <path> --scope <scope.json> --output <result.json> \
+        --reconcile <input>[,<input>...] [--strict] [--json]
 
 Input forms:
     @auto            — auto-detect at conventional paths
@@ -28,9 +29,13 @@ import re
 import sys
 from pathlib import Path
 
+_SCRIPT_ROOT = Path(__file__).resolve().parent.parent
+if str(_SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_ROOT))
+from manifest import file_identity, set_phase, write_json_atomic  # noqa: E402
+
 # Allow `python3 run.py ...` direct invocation by adding the parent dir to sys.path.
 if __package__ is None or __package__ == "":
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from derivation._common import (  # type: ignore[no-redef]
         Artifact,
         Finding,
@@ -77,18 +82,53 @@ GH_ISSUE_REF_RE = re.compile(r"gh:issue:([^/]+/[^/]+)#(\d+)")
 GH_PR_REF_RE = re.compile(r"gh:pr:(\d+)")
 
 
+def _set_reconcile_coverage(
+    scope_path: Path,
+    *,
+    status: str,
+    complete: bool,
+    output_path: Path,
+    finding_count: int | None = None,
+) -> None:
+    coverage = {
+        "requested": True,
+        "complete": complete,
+        "status": status,
+        "output": str(output_path.resolve()),
+    }
+    if complete:
+        identity = file_identity(output_path)
+        coverage.update({"sha256": identity["sha256"], "bytes": identity["bytes"]})
+    if finding_count is not None:
+        coverage["finding_count"] = finding_count
+    set_phase(scope_path, "reconcile", coverage)
+
+
+class ReconcilePrerequisiteError(RuntimeError):
+    pass
+
+
+class ReconcileCoverageError(RuntimeError):
+    pass
+
+
 def resolve_inputs(repo: Path, inputs: list) -> list:
     """Turn a list of --reconcile tokens into Artifact objects.
 
     Each input may be `@auto`, `@pr`, a path, `gh:pr:<N>`, `gh:issue:<ref>`,
-    or a GitHub issue URL. Missing/unfetchable inputs are silently skipped
-    — the orchestrator can detect the gap from the resulting list.
+    or a GitHub issue URL. Every explicit input is marked required so a
+    missing source or an extraction failure blocks before synthesis.
     """
     seen: set = set()
     artifacts: list = []
 
     def _add(art: Artifact):
         if art.path in seen:
+            if art.required:
+                for existing in artifacts:
+                    if existing.path == art.path:
+                        existing.required = True
+                        break
             return
         seen.add(art.path)
         artifacts.append(art)
@@ -98,17 +138,26 @@ def resolve_inputs(repo: Path, inputs: list) -> list:
         if not token:
             continue
         if token == "@auto":
-            for art in auto_detect(repo):
+            detected = auto_detect(repo)
+            if not detected:
+                raise ReconcilePrerequisiteError(
+                    "@auto found no planning artifact or current pull request"
+                )
+            for art in detected:
                 _add(art)
             continue
         if token == "@pr":
-            body = fetch_pr_body_text(repo)
-            if body:
-                _add(Artifact(path="gh:pr:current", kind="pr-body", freshness_days=0))
+            _add(Artifact(
+                path="gh:pr:current", kind="pr-body", freshness_days=0,
+                required=True,
+            ))
             continue
         m = GH_PR_REF_RE.match(token)
         if m:
-            _add(Artifact(path=f"gh:pr:{m.group(1)}", kind="pr-body", freshness_days=0))
+            _add(Artifact(
+                path=f"gh:pr:{m.group(1)}", kind="pr-body", freshness_days=0,
+                required=True,
+            ))
             continue
         m = GH_ISSUE_REF_RE.match(token) or ISSUE_URL_RE.match(token)
         if m:
@@ -117,6 +166,7 @@ def resolve_inputs(repo: Path, inputs: list) -> list:
                 path=f"gh:issue:{owner_repo}#{number}",
                 kind="issue-body",
                 freshness_days=-1,
+                required=True,
             ))
             continue
         path = Path(token).expanduser()
@@ -127,29 +177,55 @@ def resolve_inputs(repo: Path, inputs: list) -> list:
                 path=str(path),
                 kind=detect_artifact_kind(path),
                 freshness_days=freshness_days(path),
+                required=True,
             ))
         elif path.is_dir():
-            for child in sorted(path.glob("*.md")):
+            children = sorted(path.glob("*.md"))
+            if not children:
+                raise ReconcilePrerequisiteError(
+                    f"requested directory contains no Markdown artifacts: {path}"
+                )
+            for child in children:
                 _add(Artifact(
                     path=str(child),
                     kind=detect_artifact_kind(child),
                     freshness_days=freshness_days(child),
+                    required=True,
                 ))
+        else:
+            raise ReconcilePrerequisiteError(
+                f"requested reconcile path does not exist: {path}"
+            )
     return artifacts
 
 
 def _read_artifact_text(artifact: Artifact, repo: Path) -> str:
     """Return the textual contents of the artifact."""
     if artifact.path.startswith("gh:pr:"):
-        return fetch_pr_body_text(repo)
+        number = artifact.path.removeprefix("gh:pr:")
+        return fetch_pr_body_text(repo, None if number == "current" else number)
     if artifact.path.startswith("gh:issue:"):
         rest = artifact.path[len("gh:issue:") :]
         owner_repo, number = rest.split("#", 1)
         return fetch_issue_body_text(owner_repo, number)
     try:
-        return Path(artifact.path).read_text(encoding="utf-8", errors="replace")
-    except OSError:
+        return Path(artifact.path).read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
         return ""
+
+
+def _validate_resolved_artifact(artifact: Artifact, text: str) -> None:
+    if not text.strip():
+        raise ReconcilePrerequisiteError(
+            f"resolved reconcile source is unavailable or empty: {artifact.path}"
+        )
+    lines = text.splitlines()
+    if lines and lines[0].strip() == "---" and not any(
+        line.strip() == "---" for line in lines[1:]
+    ):
+        raise ReconcileCoverageError(
+            f"requested reconcile source has unclosed frontmatter: {artifact.path}"
+        )
 
 
 def _path_matches(entry: str, artifact_path: str) -> bool:
@@ -211,9 +287,17 @@ def run(repo: Path, inputs: list, ignore: IgnoreFile,
     artifacts = resolve_inputs(repo, inputs)
     art_summary: list = []
     findings: list = []
+    total_claims = 0
     for artifact in artifacts:
         text = _read_artifact_text(artifact, repo)
+        _validate_resolved_artifact(artifact, text)
         claims = extract_claims(text) if text else []
+        total_claims += len(claims)
+        if artifact.required and not claims:
+            raise ReconcileCoverageError(
+                "requested reconcile source contains no extractable Acceptance "
+                f"criteria, Goals, Decisions, or Tasks: {artifact.path}"
+            )
         art_summary.append({
             "path": artifact.path,
             "kind": artifact.kind,
@@ -222,7 +306,11 @@ def run(repo: Path, inputs: list, ignore: IgnoreFile,
         })
         if not claims:
             continue
-        if not should_emit_findings(artifact.freshness_days) and not strict:
+        if (
+            not artifact.required
+            and not should_emit_findings(artifact.freshness_days)
+            and not strict
+        ):
             continue
         # Cap to ≤5 findings per artifact (Risk #2 — overcorrection guard).
         emitted = 0
@@ -248,6 +336,11 @@ def run(repo: Path, inputs: list, ignore: IgnoreFile,
                 artifact_freshness_days=artifact.freshness_days,
             ).to_dict())
             emitted += 1
+    if total_claims == 0:
+        raise ReconcileCoverageError(
+            "resolved reconcile sources contain no extractable Acceptance "
+            "criteria, Goals, Decisions, or Tasks"
+        )
     return {
         "lens": "derivation",
         "artifacts": art_summary,
@@ -260,6 +353,11 @@ def main() -> int:
         description="Derivation lens — reconcile planning artifacts against the diff"
     )
     parser.add_argument("--repo", required=True, help="Repository root")
+    parser.add_argument("--scope", required=True, help="scope.json from Phase 1")
+    parser.add_argument(
+        "--output", required=True,
+        help="Atomic derivation JSON consumed by the Intent-axis bundle",
+    )
     parser.add_argument(
         "--reconcile", default="@auto",
         help="Comma-separated list of inputs (@auto / @pr / path / gh:pr:N / gh:issue:owner/repo#N / URL)",
@@ -271,15 +369,83 @@ def main() -> int:
     args = parser.parse_args()
 
     repo = Path(args.repo).expanduser().resolve()
+    scope_path = Path(args.scope).expanduser().resolve()
+    output_path = Path(args.output).expanduser().resolve()
     if not repo.is_dir():
         print(f"--repo path does not exist or is not a directory: {repo}",
               file=sys.stderr)
         return 2
+    if not scope_path.is_file():
+        print(f"--scope path does not exist or is not a file: {scope_path}",
+              file=sys.stderr)
+        return 2
 
     inputs = [tok.strip() for tok in args.reconcile.split(",") if tok.strip()]
-    ignore = load_ignore(repo)
-    result = run(repo, inputs, ignore, strict=args.strict)
-    print(json.dumps(result, indent=2))
+    if not inputs:
+        print("--reconcile requires at least one source", file=sys.stderr)
+        return 2
+    try:
+        _set_reconcile_coverage(
+            scope_path,
+            status="preflight",
+            complete=False,
+            output_path=output_path,
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"ERROR: cannot initialize reconcile coverage: {exc}", file=sys.stderr)
+        return 2
+    try:
+        ignore = load_ignore(repo)
+        result = run(repo, inputs, ignore, strict=args.strict)
+    except ReconcilePrerequisiteError as exc:
+        try:
+            _set_reconcile_coverage(
+                scope_path,
+                status="blocked",
+                complete=False,
+                output_path=output_path,
+            )
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
+        print(f"ERROR: {exc}", file=sys.stderr)
+        print(
+            "ERROR: remediation: restore/correct the source; for GitHub sources "
+            "install `gh`, run `gh auth login`, verify the reference, then rerun "
+            "Code Ultrareview with the same --reconcile value.",
+            file=sys.stderr,
+        )
+        return 3
+    except (ReconcileCoverageError, ValueError) as exc:
+        try:
+            _set_reconcile_coverage(
+                scope_path,
+                status="failed",
+                complete=False,
+                output_path=output_path,
+            )
+        except (OSError, ValueError, json.JSONDecodeError):
+            pass
+        print(f"ERROR: reconcile coverage is incomplete: {exc}", file=sys.stderr)
+        print(
+            "ERROR: remediation: repair the planning artifact or ignore file, "
+            "then rerun Code Ultrareview with the same --reconcile value.",
+            file=sys.stderr,
+        )
+        return 4
+    try:
+        write_json_atomic(output_path, result)
+        data = output_path.read_bytes()
+        _set_reconcile_coverage(
+            scope_path,
+            status="complete",
+            complete=True,
+            output_path=output_path,
+            finding_count=len(result.get("findings") or []),
+        )
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        print(f"ERROR: reconcile result could not be persisted: {exc}", file=sys.stderr)
+        return 4
+    sys.stdout.buffer.write(data)
     return 0
 
 

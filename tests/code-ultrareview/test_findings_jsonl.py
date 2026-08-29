@@ -211,6 +211,7 @@ class TestRemoteDetection(unittest.TestCase):
         )
         subprocess.run(
             ["git", "-C", str(repo), "-c", "user.email=t@t", "-c", "user.name=t",
+             "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
              "commit", "-q", "-m", "init"], check=True,
         )
         return repo
@@ -289,9 +290,9 @@ class TestRecordShape(unittest.TestCase):
 
     def test_validator_reason_surfaced(self):
         record = ftj.to_record(
-            _finding(meta={"validator_reason": "CLAUDE.md rule confirmed"})
+            _finding(meta={"validator_reason": "Instruction rule confirmed"})
         )
-        self.assertEqual(record["validator_reason"], "CLAUDE.md rule confirmed")
+        self.assertEqual(record["validator_reason"], "Instruction rule confirmed")
 
 
 class TestJsonlValidity(unittest.TestCase):

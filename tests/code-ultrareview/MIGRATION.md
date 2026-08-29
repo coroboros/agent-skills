@@ -62,13 +62,13 @@ Kept in `test_ultra_execution.py`: `TestBuildDetect`, `TestVersionSync`, `TestDe
 
 | File | Workstream | Coverage |
 |------|------------|----------|
-| `test_scope.py` | WS-1 | `scope.py` — diff resolution, repo-kind classification (9 kinds + compound + override + CLI), CLAUDE.md chain, Coherence activation, languages detection (40 tests) |
+| `test_scope.py` | WS-1 | `scope.py` — diff resolution, repo-kind classification (9 kinds + compound + override + CLI), cross-agent instruction chain, Coherence activation, languages detection |
 | `test_anthropic_verbatim.py` | WS-1 | Byte-parity between `references/anthropic-verbatim.md` and the upstream `claude-plugins-official` blocks |
-| `test_battery.py` | WS-2 | `run_battery.sh` per-language dispatch, graceful skip, no auto-install |
+| `test_battery.py` | WS-2 | `run_battery.sh` per-language dispatch, atomic missing/invalid-tool gates, no auto-install |
 | `test_battery_ingest.py` | WS-2 | Per-tool axis routing + canonical finding schema for all 14 parsers |
 | `test_axis_briefs.py` | WS-3 | Eight axis briefs + Coherence conditional — structure, repo-kind branches, anthropic-verbatim citation |
 | `test_axis_dispatch.py` | WS-3 | `axis_dispatch.py prepare` — bundle generation, per-axis filter, Coherence gating, parallel cap |
-| `test_validators.py` | WS-4 | `run_validators.py` — Haiku batching ≤10, CLAUDE.md re-check, A2 promote/demote, 100-confidence skip |
+| `test_validators.py` | WS-4 | `run_validators.py` — validator batching ≤10, project-instruction re-check, A2 promote/demote, 100-confidence skip |
 | `test_synthesis_core.py` | WS-5 | `synthesis_core.py` primitives — `SEVERITY_MARKERS`, `AXIS_PRIORITY`, `compute_verdict`, `iterate_unverified`, `assign_anthropic_tier`, `dedup_by_precedence` |
 | `test_synthesis.py` | WS-5 | `synthesize.py` end-to-end — dedup, inter-axis precedence, A2 routing, "What I did NOT check" closing |
 | `test_findings_jsonl.py` | WS-5 | `findings_to_jsonl.py` — Conventional Comments label mapping + permalink format |

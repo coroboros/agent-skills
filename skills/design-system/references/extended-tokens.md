@@ -6,7 +6,7 @@ The spec anticipates this. `references/design-md-spec.md:141-176` documents top-
 
 ## Why this convention exists
 
-Without a shared boundary, agents reinvent it — usually wrongly. A field deployment surfaced this empirically: 73 errors and 84 warnings on the first lint pass when the agent extended the YAML *and* re-bound 27 components to extension tokens via non-canonical property names (`modal.shadow: "{shadows.lifted}"`). Two fixes tangled into one failure. The extension namespaces were fine. The component bindings were not.
+Without a shared boundary, agents invent component keys that only one consumer understands. Extension namespaces are useful, but wiring them through non-canonical component properties makes exports and cross-agent behavior ambiguous.
 
 This convention separates the two:
 
@@ -106,7 +106,7 @@ Each namespace solves a recurring drift problem at award-grade register:
 
 1. **Top-level YAML namespaces, never nested inside `components:`.** The spec's "map-of-strings convention" (line 175) means each namespace value is a flat map. Two-level nesting (e.g. `motion: { durations: { ... }, easings: { ... } }`) breaks the spec's reference grammar — token paths are dot-delimited, agents resolve `motion.duration-reveal-slow`, not `motion.durations.reveal-slow`.
 
-2. Components bind ONLY to the 8 canonical property tokens. This is the closed set: `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`. Anything else (e.g. `shadow`, `motion`, `aspect`) is rejected by the lint as an unknown property — that is the field-tested failure mode and the reason this convention exists.
+2. Components bind only through the 8 portable properties: `backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`. Upstream accepts an unknown property such as `shadow`, `motion`, or `aspect` with a warning, but this skill treats it as a project-level portability failure because consumers do not share its semantics.
 
 3. **Reference extension tokens from prose, not from `components:`.** Prose can name them by canonical path:
    > "Hero reveals on scroll using `{motion.duration-reveal-slow}` with `{motion.ease-standard}`. Modal scrim sits at `{opacity.overlay-modal}` over the listing image at `{aspectRatios.listing}`."
@@ -149,15 +149,15 @@ Tailwind v4 then exposes utilities derived from these prefixes (`shadow-lifted`,
 
 After authoring or editing extensions:
 
-1. `/design-system audit DESIGN.md` — Google CLI lint. Must exit 0. Extensions are preserved-but-unvalidated; the lint fails only when components reference unknown properties or canonical tokens are broken.
-2. `/design-system export tailwind DESIGN.md > src/app/globals.css` (or merge into the existing `@theme` block) — generates the mirror.
+1. `/design-system audit DESIGN.md` — Google CLI lint. Must exit 0. Review the expected `token-like-ignored` warning for each extension map; unresolved references fail as `broken-ref`, while unknown component properties remain portability failures.
+2. Update the `globals.css` `@theme` mirror from the mapping table below. Canonical export output covers only the five portable token groups.
 3. `/design-system audit-extensions DESIGN.md` — bidirectional check between YAML extensions, prose references, and the CSS mirror. Must exit 0.
 
 The full pre-ship gate: both audits clean.
 
 ## Worked example
 
-A minimal extension block in DESIGN.md, lint-clean and audit-clean:
+A minimal extension block in DESIGN.md with no lint errors and a clean extension audit:
 
 ```yaml
 ---

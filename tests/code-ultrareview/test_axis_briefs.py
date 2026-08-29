@@ -11,7 +11,7 @@ Per-axis tests in this file pin the deterministic surface only:
 - Every brief carries the canonical headings the dispatcher templates against.
 - Every brief references anthropic-verbatim.md.
 - Per-axis specifics: Simplification cites code-simplifier; Performance lists
-  the bundled rules; Style describes the CLAUDE.md chain; Coherence lists
+  the bundled rules; Style describes the instruction chain; Coherence lists
   its six sub-graphs; tool-fed axes name their tool inputs.
 """
 
@@ -132,9 +132,10 @@ class TestAnthropicVerbatimReferenced(unittest.TestCase):
 
 class TestCorrectnessBrief(unittest.TestCase):
 
-    def test_lists_semgrep_as_tool_input(self):
-        body = _brief("correctness")
-        self.assertIn("semgrep", body.lower())
+    def test_has_no_deterministic_tool_input(self):
+        body = _brief("correctness").lower()
+        self.assertIn("no deterministic tool findings route to correctness", body)
+        self.assertIn("every accepted semgrep finding routes to the performance axis", body)
 
     def test_excludes_typechecker_caught_issues(self):
         body = _brief("correctness")
@@ -174,6 +175,11 @@ class TestTestsBrief(unittest.TestCase):
 
 class TestDocumentationBrief(unittest.TestCase):
 
+    def test_install_context_paths_are_cross_agent(self):
+        body = _brief("documentation")
+        self.assertIn("~/.agents/skills/<other>/", body)
+        self.assertIn("~/.claude/skills/<other>/", body)
+
     def test_lists_ai_vocabulary_terms(self):
         body = _brief("documentation")
         for term in ("delve", "tapestry", "underscore"):
@@ -187,14 +193,18 @@ class TestDocumentationBrief(unittest.TestCase):
 
 class TestStyleBrief(unittest.TestCase):
 
-    def test_describes_claude_md_chain(self):
+    def test_describes_cross_agent_instruction_chain(self):
         body = _brief("style")
+        self.assertIn("AGENTS.md", body)
         self.assertIn("CLAUDE.md", body)
-        self.assertIn("claude_md_chain", body)
+        self.assertIn("instruction_chain", body)
+        self.assertIn("AGENTS.override.md", body)
 
     def test_graceful_degradation_when_no_baseline(self):
         body = _brief("style")
-        self.assertIn("no rules baseline", body.lower())
+        self.assertIn("Style axis still runs", body)
+        self.assertIn("repeated neighboring repository evidence", body)
+        self.assertIn("never marked skipped", body)
 
 
 class TestIntentBrief(unittest.TestCase):
@@ -238,6 +248,16 @@ class TestPerformanceBrief(unittest.TestCase):
         body = _brief("performance")
         self.assertIn("benchmarks", body.lower())
         self.assertIn("flamegraph", body.lower())
+
+    def test_code_bearing_skills_are_not_skipped(self):
+        body = _brief("performance")
+        self.assertIn("Review executable scripts", body)
+        self.assertIn('"no_findings":true', body)
+        self.assertNotIn("Skipped — skills repo", body)
+
+    def test_semgrep_rules_require_prefix_and_axis_metadata(self):
+        body = _brief("performance")
+        self.assertIn("starts with `code-ultrareview-` AND", body)
 
 
 class TestCoherenceBrief(unittest.TestCase):

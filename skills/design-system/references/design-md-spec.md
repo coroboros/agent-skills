@@ -1,14 +1,14 @@
 # DESIGN.md Spec Reference
 
-<!-- Synchronized from github.com/google-labs-code/design.md docs/spec.md on 2026-04-23 (CLI v0.1.1). -->
+<!-- Authoring summary reconciled with github.com/google-labs-code/design.md 0.3.0 on 2026-07-18. Use /design-system spec for the exact installed artifact. -->
 <!-- Refresh when Google bumps a minor: `/design-system spec -o references/design-md-spec.md` and reconcile, or fetch `docs/spec.md` raw and re-condense. -->
 
 Condensed reference for the Google DESIGN.md open standard. Read this when authoring a new DESIGN.md, re-architecting an existing one, or auditing one for spec conformance.
 
 - **Canonical source**: [github.com/google-labs-code/design.md](https://github.com/google-labs-code/design.md) — `docs/spec.md`
-- **Version**: `alpha` (v0.1.x) — format may still change
-- **Live spec via CLI**: `npx @google/design.md spec` — always reflects the installed CLI version
-- **This file is a snapshot** — see the header comment above for the synchronization date and the refresh procedure. Treat the CLI + canonical source as authoritative when they diverge.
+- **Version reconciled here**: `0.3.0` — use the installed CLI for newer behavior
+- **Live spec via CLI**: `designmd spec` — reflects the installed CLI version
+- **This file is a condensed authoring summary**, not a verbatim snapshot. Treat the installed CLI plus canonical source as authoritative when they diverge.
 
 A DESIGN.md has two layers. YAML frontmatter holds **normative** design tokens; the markdown body holds **contextual** prose that explains when and why to apply them. Prose may use descriptive names ("Midnight Forest Green") that correspond to systematic token names (`primary`).
 
@@ -39,12 +39,12 @@ The frontmatter begins with a line containing exactly `---` and ends with a line
 
 | Type | Format | Example |
 |------|--------|---------|
-| **Color** (in `colors:`) | `#` + hex (sRGB), quoted string | `"#1A1C1E"` |
+| **Color** (in `colors:`) | any valid CSS color string, quoted | `"#1A1C1E"`, `"oklch(0.7 0.2 200)"` |
 | **Dimension** | number + unit (`px`, `em`, `rem`) | `48px`, `-0.02em`, `1.5rem` |
 | **Typography** | object | see below |
 | **Token reference** | `{path.to.token}` wrapped in braces | `{colors.primary}`, `{rounded.sm}` |
 
-In the `colors:` palette, values must be hex. Inside a `components:` entry, property values accept **any string** — hex, token reference, or a raw CSS string like `rgba(255, 255, 255, 0.1)` or `oklch(0.7 0.2 200)`. This lets components express translucency, gradients, or modern color syntaxes that the palette schema doesn't accept directly.
+The `colors:` palette accepts any valid CSS color string: hex, named colors, `rgb()`, `hsl()`, `hwb()`, wide-gamut functions such as `oklch()`, and `color-mix()`. Hex remains the recommended default for portability. Inside a `components:` entry, color properties accept the same CSS color strings or token references.
 
 ### Typography object
 
@@ -140,7 +140,7 @@ Used across many design systems. Not required but provided for consistency:
 
 ## Extending the spec — custom top-level YAML keys
 
-The spec defines five token groups (`colors`, `typography`, `rounded`, `spacing`, `components`) plus three top-level fields (`version`, `name`, `description`). The spec's Consumer Behavior table lists rules for unknown sections, color/typography/spacing names, and component properties, but **does not explicitly forbid unknown top-level YAML keys** — the linter (v0.1.1) ignores them, and standard YAML parsers preserve them, so consumers (agents, exporters) can read them. Treat this as convention rather than a hard spec guarantee; re-verify if Google tightens the schema in a later version.
+The spec defines five token groups (`colors`, `typography`, `rounded`, `spacing`, `components`) plus three top-level fields (`version`, `name`, `description`). Its Consumer Behavior table does not forbid unknown top-level YAML keys. Deliberate extension namespaces may remain in the source file, but the CLI reports `token-like-ignored` because canonical exports omit them. They are a project convention, not a portable schema feature.
 
 Two deliberate spec gaps worth extending via custom namespaces:
 
@@ -156,7 +156,7 @@ motion:
   easing-exit: cubic-bezier(0.4, 0, 1, 1)
 ```
 
-These tokens are preserved in the file. Agents that understand your project's conventions can consume them; the CLI won't validate them. Document the intended usage in the Overview or Layout prose.
+These tokens remain in the file for project-aware consumers. The canonical CLI does not validate or export them, so document intended usage in prose and validate the runtime mirror with `audit-extensions`.
 
 **Breakpoints.** The spec folds breakpoints into Layout prose. If tooling needs them as tokens:
 
@@ -174,15 +174,15 @@ Same behavior — preserved but unvalidated.
 - Pick distinct namespaces (`motion:`, `breakpoints:`, `z-index:`, `elevation-scale:`) — never shadow or collide with spec-defined groups.
 - Keep the shape consistent with the spec's map-of-strings convention so a future DTCG or Tailwind exporter could pick them up.
 - Document the namespace in the Overview or Do's and Don'ts so future maintainers know it's intentional, not drift.
-- **Components MUST stay within the closed set of 8 component property tokens.** Extension namespaces are referenced from prose only — never as `components:` property keys or values. Field-tested lint-failure mode: a component declaring `modal.shadow: "{shadows.lifted}"` cascades into broken-ref errors because `shadow` is not in the canonical property set.
+- **Components stay within the closed set of 8 portable component properties.** Upstream accepts an unknown property with a warning, but other consumers and exporters have no shared meaning for it. This skill therefore references extension namespaces from prose only and treats unknown component properties as a project-level portability failure. A `broken-ref` error is separate: it means the referenced token path does not exist.
 - For the curated namespace list and the canonical-vs-extension boundary used across this skill set, see `extended-tokens.md`. The `audit-extensions` subcommand validates the bidirectional contract (YAML ↔ prose ↔ `globals.css` `@theme`).
 
 ## Interoperability
 
 DESIGN.md tokens are inspired by the [W3C Design Token Format](https://www.designtokens.org/) — specifically the concept of typed token groups and the `{path.to.token}` reference syntax. They convert cleanly to other formats:
 
-- **Tailwind theme config** — `npx @google/design.md export --format tailwind DESIGN.md`
-- **DTCG tokens.json** (W3C Design Tokens Community Group) — `npx @google/design.md export --format dtcg DESIGN.md`
+- **Tailwind theme config** — `designmd export --format tailwind DESIGN.md`
+- **DTCG tokens.json** (W3C Design Tokens Community Group) — `designmd export --format dtcg DESIGN.md`
 - **Figma variables** — via the DTCG output and the Tokens Studio plugin
 - **Style Dictionary** — via the DTCG output
 

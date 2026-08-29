@@ -1,15 +1,15 @@
 # Agent Skills
 
-<!-- agents-config:behave:start -->
+<!-- behavior-rules:start -->
 ## Rule Index
 
-_Project-level behavior reinforcement installed by `behave`; re-run `behave` to refresh this managed block._
+_Project-level behavior guidance indexed from `.agents/rules/`._
 
 Before planning or editing, read this rule first:
 
-- `.agents/rules/behavior.md` - canonical behavior discipline: production-grade, surgical, fail-loud, never-invent.
-- `.agents/rules/behavior-fable.md` - Fable addendum — model scope stated in the file.
-<!-- agents-config:behave:end -->
+- `.agents/rules/behavior.md` - canonical behavior discipline: production-grade, size budget, surgical, fail-loud, never-invent.
+- `.agents/rules/behavior-frontier.md` - Frontier addendum — model scope stated in the file.
+<!-- behavior-rules:end -->
 
 Public collection of installable AI agent skills for Claude Code and compatible agents. Each skill is a self-contained folder in `skills/` with a `SKILL.md` at its root.
 
@@ -27,7 +27,7 @@ Public collection of installable AI agent skills for Claude Code and compatible 
 - **Authoring tool**: the official Anthropic `skill-creator` skill is mandatory for creating/updating skills. We do not build our own.
 - **Layout**: `skills/{name}/SKILL.md` + optional `steps/`, `templates/`, `scripts/`, `references/`. No per-skill `README.md`.
 - **Install**: `npx skills add coroboros/agent-skills --skill <name>` via [skills.sh](https://skills.sh).
-- **Runtime**: bash + Python 3 (stdlib only) for bundled scripts. Works anywhere with bash + `python3` and a filesystem. Skills ship via `npx skills add` and run without setup; the org-wide Bun preference does not apply. Some skills wrap external CLIs — each is declared in its SKILL.md.
+- **Runtime**: bash + Python 3 (stdlib only) for bundled scripts. Skills never resolve their own analyzer, converter, or helper packages while they run. Operations backed by external CLIs declare those prerequisites in their SKILL.md and fail with exact install plus rerun guidance when an applicable CLI is unavailable. A skill whose explicit purpose is project or package creation may install the project dependencies the user requested; the org-wide Bun preference does not apply to these portable scripts.
 - **Git** — branch `main`; no `CHANGELOG.md` (release notes live in the `gh release create` body only); version lives only in git tags and in `.claude-plugin/marketplace.json` `metadata.version` — there is no `package.json`, so no `pnpm version` bump. All other rules in `~/.agents/rules/git-conventions.md` apply.
 - **Security** — `cisco-ai-defense/skill-scanner` scans the `skills/` tree on every push and PR via `.github/workflows/scan-skills.yml` (policy `balanced`, fail-on `critical`). SHA-pinned to a tagged release; Dependabot auto-PRs new versions weekly.
 - **Validation** — `python3 -m unittest discover tests/` before reporting done; `scripts/sync_writing_rules.py` after editing a canonical `skill-*-rules.md` block.

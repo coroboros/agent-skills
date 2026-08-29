@@ -1,0 +1,16 @@
+---
+import "../styles/global.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>[Project Name]</title>
+  </head>
+  <body>
+    <main>
+      <h1>[Project Name]</h1>
+    </main>
+  </body>
+</html>

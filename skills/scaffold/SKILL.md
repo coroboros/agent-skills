@@ -1,8 +1,6 @@
 ---
 name: scaffold
-description: 'Bootstrap a new web project on a strictly opinionated Cloudflare Workers stack — Next.js 16 or Astro 6, TypeScript strict, pnpm, Biome, Tailwind. No fallbacks: no Vercel/Netlify, no ESLint/Prettier, no swap. Skip if the user wants any of these. Use when the user says "start a new project", "bootstrap", "init", "scaffold", "create a new site", or is working in an empty directory and wants production-ready foundations.'
-when_to_use: When the user wants to start a new web project from scratch with a production-ready stack on Cloudflare Workers. Keywords — scaffold, bootstrap, init, start, new project, create site, new app, empty directory, greenfield. Works on empty dirs or brand-new ones. Skip when the project already has `package.json` / `astro.config.*` / `next.config.*` — use `/design-system` or `/award-design` on existing projects. Skip when the user wants a non-Cloudflare stack — this skill is opinionated toward Workers.
-argument-hint: "<scaffold> [project-name]  — scaffolds: next-cloudflare, astro-cloudflare"
+description: 'Bootstrap a new web project on a strictly opinionated Cloudflare Workers stack — Next.js 16 or Astro 6, TypeScript strict, pnpm, Biome, Tailwind. Use whenever the user asks to start, bootstrap, initialize, or scaffold a site/app in an empty or new directory. No fallbacks: skip for existing projects with package.json or framework config, non-Cloudflare deployments, Vercel/Netlify, ESLint/Prettier, or stack substitutions.'
 license: MIT
 metadata:
   author: coroboros
@@ -10,9 +8,9 @@ metadata:
 
 # Scaffold
 
-Bootstrap `$ARGUMENTS` with the opinionated stack.
+Bootstrap the requested project with the opinionated stack.
 
-The deterministic work — environment preflight, template overlay, `package.json` merge, post-scaffold verification — happens in three bundled scripts. This skill parses `$ARGUMENTS`, runs the framework CLI, invokes the scripts in order, and turns their `RESULT:` lines into a concise report.
+The deterministic work — environment preflight, template overlay, `package.json` merge, post-scaffold verification — happens in three bundled scripts. Parse the invocation arguments, run the framework CLI, invoke the scripts in order, and turn their `RESULT:` lines into a concise report.
 
 ## Available scaffolds
 
@@ -21,7 +19,7 @@ The deterministic work — environment preflight, template overlay, `package.jso
 | `next-cloudflare` | Next.js 16 (App Router) | Cloudflare Workers via OpenNext | Drizzle + Neon, Better-Auth, shadcn/ui, Vitest + Playwright |
 | `astro-cloudflare` | Astro 6 (SSG-first, islands) | Cloudflare Workers | Zero JS by default, Content Collections, SEO rules |
 
-**Shared across all scaffolds:** TypeScript strict, pnpm, Biome (no ESLint/Prettier), Tailwind CSS, `.node-version` 22.
+**Shared across all scaffolds:** TypeScript strict, pnpm, Biome (no ESLint/Prettier), Tailwind CSS, `.node-version` 22.12.0.
 
 If the user does not specify a scaffold or is ambiguous, show this table and ask which one.
 
@@ -31,34 +29,33 @@ If the user does not specify a scaffold or is ambiguous, show this table and ask
 
 ### 1. Parse arguments
 
-Extract `{scaffold}` and `{project_name}` from `$ARGUMENTS`. Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`. Missing `{scaffold}` → show the *Available scaffolds* table and ask. Missing `{project_name}` → derive from cwd or ask. `{project_dir}` defaults to `.`.
+Extract `{scaffold}` and `{project_name}` from the invocation arguments. Aliases: `next-cf` → `next-cloudflare`, `astro-cf` → `astro-cloudflare`. Missing `{scaffold}` → show the *Available scaffolds* table and ask. Missing `{project_name}` → derive from cwd or ask. `{project_dir}` defaults to `.`.
 
 ### 2. Preflight
 
-`bash "$SKILL_DIR"/scripts/preflight.sh {project_dir}` → check `RESULT:` lines. Stop-conditions: `pnpm=no` → suggest `corepack enable && corepack prepare pnpm@latest --activate`; `node=too-old` → ask user to upgrade; `target=occupied` → confirm before proceeding; `ok=true` → continue.
+`bash "$SKILL_DIR"/scripts/preflight.sh "{project_dir}" "{project_name}"` → check `RESULT:` lines. Stop on `error=invalid-project-name`, `error=invalid-cloudflare-service-name`, or `error=invalid-target-name` and request the named constraint; on `pnpm=no`, `jq=no`, or `node=no|too-old|unsupported`, provide the official install or version remediation; on `target=occupied`, require an empty target including dotfiles. Continue only on `ok=true`.
 
 ### 3. Install
 
 Per-scaffold steps (framework CLI, conflict removal, dependency installs, CSS-token setup): `references/setup-{scaffold}.md`. Then apply the shared overlay:
 
 ```bash
-bash "$SKILL_DIR"/scripts/overlay_templates.sh {scaffold} {project_name} {project_dir}
+bash "$SKILL_DIR"/scripts/overlay_templates.sh "{scaffold}" "{project_name}" "{project_dir}"
 ```
 
-Writes opinionated configs (`biome.json`, `.gitignore`, `.worktreeinclude`, `CLAUDE.md`, `wrangler.jsonc`, framework configs), merges `package.json` scripts, sets `"type": "module"` / `"private": true`. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial. Requires `jq`.
+Writes opinionated configs (`biome.json`, `.worktreeinclude`, canonical `AGENTS.md`, thin `CLAUDE.md`, `.agents/rules/`, `.node-version`, `.dev.vars.example`, `wrangler.jsonc`, framework configs), ensures Tailwind is imported, merges the shared rules into the generator's `.gitignore`, and applies the validated name plus scripts and module settings to `package.json`. Every publication uses a same-directory temporary file and rejects destination or parent symlinks. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial.
 
 ### 4. Verify and summarize
 
-`bash "$SKILL_DIR"/scripts/verify_scaffold.sh {project_dir}` runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surface the first 60 diagnostic lines + a fix; do not mark the scaffold complete. On success, report files created and next steps: configure `.dev.vars`, run `/award-design <brief>`, then `/design-system audit DESIGN.md`, finally `pnpm dev`.
+`bash "$SKILL_DIR"/scripts/verify_scaffold.sh "{project_dir}"` runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surface the first 60 diagnostic lines + a fix; do not mark the scaffold complete. On success, report files created and next steps: configure `.dev.vars`, optionally hand off to `/award-design <brief>` and `/design-system audit DESIGN.md` when those skills are installed, then run `pnpm dev`.
 
 ## Rules
 
-- NEVER install ESLint or Prettier — Biome handles everything.
-- NEVER use CommonJS — ES modules only (`"type": "module"`).
-- ALWAYS use pnpm as package manager.
-- `target=occupied` is a warning, not a hard stop — ask before proceeding.
-- Do NOT create `README.md` — the user writes it.
-- Do NOT initialize git — the user manages their own git workflow.
+- Use Biome for linting and formatting.
+- Use ES modules (`"type": "module"`).
+- Use pnpm.
+- Treat `target=occupied` as a hard stop; this skill creates new projects only.
+- Preserve framework-generated `README.md`; leave project-specific documentation and Git initialization to the user.
 - For project-level decisions the scaffold deliberately does not make (i18n, dual auth, search, rich text, OG, MT, theme persistence, cache invalidation, admin uploads, CRM sync), read `"$SKILL_DIR"/references/decisions.md` and surface the relevant ones to the user after the summary report.
 
 ### astro-cloudflare specifics

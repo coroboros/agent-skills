@@ -6,6 +6,8 @@ and output payloads. That gives full determinism over both code paths
 plus the diagnostics-truncation behaviour.
 """
 
+from __future__ import annotations
+
 import os
 import shutil
 import stat

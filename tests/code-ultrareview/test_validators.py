@@ -2,8 +2,8 @@
 
 Covers the deterministic Phase 4 orchestrator contracts: sub-80 filter
 (tool findings never validated), batching cap (≤10 parallel),
-CLAUDE.md snippet lookup with deepest-match precedence, validator
-prompt construction (verbatim anthropic rubric, CLAUDE.md re-check,
+instruction snippet lookup with deepest-match precedence, validator
+prompt construction (verbatim Anthropic rubric, instruction re-check,
 agent-assumption rule), per-finding bundle preparation, validator
 stdout parsing, and the A2-preserving ingest contract (promote ≥80 /
 demote <80 / no silent drop).
@@ -15,6 +15,7 @@ not in this unit-test file — that work is non-deterministic LLM output.
 from __future__ import annotations
 
 import importlib.util
+import hashlib
 import json
 import subprocess
 import tempfile
@@ -45,6 +46,22 @@ def _load_synth():
 
 run_validators = _load_module()
 synthesis_core = _load_synth()
+
+
+def _identity(path: Path) -> dict:
+    data = path.read_bytes()
+    return {
+        "path": str(path.resolve()),
+        "sha256": hashlib.sha256(data).hexdigest(),
+    }
+
+
+def _scope_fields() -> dict:
+    return {
+        "languages": ["typescript"],
+        "files_touched": 1,
+        "files_touched_list": ["src/a.ts"],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -127,11 +144,10 @@ class TestFilterSubThreshold(unittest.TestCase):
         ])
         self.assertEqual(out, [])
 
-    def test_confidence_0_excluded(self):
-        """Confidence 0 is the false-positive sentinel from the rubric — A2
-        already drops these; validators never see them either."""
+    def test_confidence_0_included(self):
+        """Zero is a valid uncertain score and must receive validation."""
         out = run_validators.filter_sub_threshold([{"confidence": 0}])
-        self.assertEqual(out, [])
+        self.assertEqual(out, [{"confidence": 0}])
 
     def test_confidence_at_threshold_excluded(self):
         """80 is already verified; no validator pass needed."""
@@ -155,17 +171,17 @@ class TestFilterSubThreshold(unittest.TestCase):
         out = run_validators.filter_sub_threshold(findings)
         self.assertEqual(len(out), 4)
 
-    def test_mixed_set_keeps_only_sub_threshold_above_zero(self):
+    def test_mixed_set_keeps_every_sub_threshold_score_including_zero(self):
         findings = [
             {"confidence": 100, "id": "tool"},
-            {"confidence": 0, "id": "drop"},
+            {"confidence": 0, "id": "zero"},
             {"confidence": 50, "id": "keep"},
             {"confidence": 80, "id": "verified"},
             {"confidence": 75, "id": "keep2"},
         ]
         out = run_validators.filter_sub_threshold(findings)
         ids = {f["id"] for f in out}
-        self.assertEqual(ids, {"keep", "keep2"})
+        self.assertEqual(ids, {"zero", "keep", "keep2"})
 
 
 # ---------------------------------------------------------------------------
@@ -212,15 +228,15 @@ class TestBatch(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# find_claude_md_snippet — deepest-match precedence
+# find_instruction_snippet — deepest applicable match
 # ---------------------------------------------------------------------------
 
 
-class TestFindClaudeMdSnippet(unittest.TestCase):
+class TestFindInstructionSnippet(unittest.TestCase):
 
     def test_returns_none_when_chain_empty(self):
         with tempfile.TemporaryDirectory() as td:
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "production grade or nothing", [], Path(td),
             )
             self.assertIsNone(path)
@@ -228,8 +244,8 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
 
     def test_returns_none_when_rule_text_empty(self):
         with tempfile.TemporaryDirectory() as td:
-            path, snippet = run_validators.find_claude_md_snippet(
-                "", ["CLAUDE.md"], Path(td),
+            path, snippet = run_validators.find_instruction_snippet(
+                "", ["AGENTS.md"], Path(td),
             )
             self.assertIsNone(path)
             self.assertIsNone(snippet)
@@ -238,8 +254,8 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
         """Chain ordered root-to-deepest; nested overrides surface correctly."""
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            root = repo / "CLAUDE.md"
-            nested = repo / "src" / "CLAUDE.md"
+            root = repo / "AGENTS.md"
+            nested = repo / "src" / "AGENTS.md"
             nested.parent.mkdir(parents=True)
             root.write_text(
                 "## Behavior\n\nProduction grade or nothing.\n",
@@ -249,23 +265,42 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
                 "## Local override\n\nProduction grade or nothing. Stricter here.\n",
                 encoding="utf-8",
             )
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "production grade or nothing",
-                ["CLAUDE.md", "src/CLAUDE.md"],
+                ["AGENTS.md", "src/AGENTS.md"],
                 repo,
+                "src/auth.py:10",
             )
-            self.assertEqual(path, "src/CLAUDE.md")
+            self.assertEqual(path, "src/AGENTS.md")
             self.assertIn("Stricter here", snippet)
+
+    def test_nested_rule_from_another_subtree_does_not_match(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            (repo / "AGENTS.md").write_text(
+                "Use project conventions.\n", encoding="utf-8",
+            )
+            nested = repo / "web" / "AGENTS.md"
+            nested.parent.mkdir()
+            nested.write_text("Use project conventions. Web only.\n", encoding="utf-8")
+            path, snippet = run_validators.find_instruction_snippet(
+                "use project conventions",
+                ["AGENTS.md", "web/AGENTS.md"],
+                repo,
+                "api/routes.py:4",
+            )
+            self.assertEqual(path, "AGENTS.md")
+            self.assertNotIn("Web only", snippet)
 
     def test_returns_none_when_rule_absent_from_all(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text(
+            (repo / "AGENTS.md").write_text(
                 "## Behavior\n\nReadable code.\n", encoding="utf-8",
             )
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "an entirely different rule that does not exist anywhere",
-                ["CLAUDE.md"], repo,
+                ["AGENTS.md"], repo,
             )
             self.assertIsNone(path)
             self.assertIsNone(snippet)
@@ -273,14 +308,14 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
     def test_case_insensitive_match(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text(
+            (repo / "AGENTS.md").write_text(
                 "## Behavior\n\nNEVER COMMIT SECRETS to git.\n",
                 encoding="utf-8",
             )
-            path, _ = run_validators.find_claude_md_snippet(
-                "never commit secrets", ["CLAUDE.md"], repo,
+            path, _ = run_validators.find_instruction_snippet(
+                "never commit secrets", ["AGENTS.md"], repo,
             )
-            self.assertEqual(path, "CLAUDE.md")
+            self.assertEqual(path, "AGENTS.md")
 
     def test_absolute_path_in_chain_resolved_directly(self):
         with tempfile.TemporaryDirectory() as td:
@@ -288,7 +323,7 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
             external.write_text(
                 "Single source of truth for every value.\n", encoding="utf-8",
             )
-            path, snippet = run_validators.find_claude_md_snippet(
+            path, snippet = run_validators.find_instruction_snippet(
                 "single source of truth",
                 [str(external)],
                 Path(td) / "unrelated-repo",
@@ -296,6 +331,76 @@ class TestFindClaudeMdSnippet(unittest.TestCase):
             self.assertEqual(path, str(external))
             self.assertIn("Single source of truth", snippet)
 
+    def test_path_scoped_rule_does_not_apply_outside_its_glob(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            rule = repo / ".claude" / "rules" / "api.md"
+            rule.parent.mkdir(parents=True)
+            rule.write_text(
+                "---\npaths:\n  - \"src/api/**/*.ts\"\n---\n\nUse schema guards.\n",
+                encoding="utf-8",
+            )
+            path, snippet = run_validators.find_instruction_snippet(
+                "use schema guards",
+                [".claude/rules/api.md"],
+                repo,
+                "src/ui/card.ts:12",
+            )
+            self.assertIsNone(path)
+            self.assertIsNone(snippet)
+
+    def test_double_star_matches_direct_and_nested_files(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            rule = repo / ".claude" / "rules" / "api.md"
+            rule.parent.mkdir(parents=True)
+            rule.write_text(
+                "---\npaths:\n  - \"src/api/**/*.ts\"\n---\n\nUse schema guards.\n",
+                encoding="utf-8",
+            )
+            for location in ("src/api/route.ts:3", "src/api/v2/route.ts:3"):
+                with self.subTest(location=location):
+                    path, _ = run_validators.find_instruction_snippet(
+                        "use schema guards",
+                        [".claude/rules/api.md"],
+                        repo,
+                        location,
+                    )
+                    self.assertEqual(path, ".claude/rules/api.md")
+
+    def test_brace_expansion_matches_supported_extensions(self):
+        with tempfile.TemporaryDirectory() as td:
+            repo = Path(td)
+            rule = repo / ".agents" / "rules" / "frontend.md"
+            rule.parent.mkdir(parents=True)
+            rule.write_text(
+                "---\npaths: ['{src,lib}/**/*.{ts,tsx}']\n---\n\nUse design tokens.\n",
+                encoding="utf-8",
+            )
+            for location in ("src/card.tsx:8", "lib/theme/tokens.ts:2"):
+                with self.subTest(location=location):
+                    path, _ = run_validators.find_instruction_snippet(
+                        "use design tokens",
+                        [".agents/rules/frontend.md"],
+                        repo,
+                        location,
+                    )
+                    self.assertEqual(path, ".agents/rules/frontend.md")
+
+    def test_global_path_scoped_rule_still_honors_its_glob(self):
+        with tempfile.TemporaryDirectory() as td:
+            external = Path(td) / "global-rule.md"
+            external.write_text(
+                "---\npaths:\n  - \"docs/**/*.md\"\n---\n\nUse sentence case.\n",
+                encoding="utf-8",
+            )
+            path, _ = run_validators.find_instruction_snippet(
+                "use sentence case",
+                [str(external)],
+                Path(td) / "repo",
+                "src/app.ts:4",
+            )
+            self.assertIsNone(path)
 
 # ---------------------------------------------------------------------------
 # extract_diff_context
@@ -336,18 +441,17 @@ class TestExtractDiffContext(unittest.TestCase):
 
 
 class TestBuildValidatorPrompt(unittest.TestCase):
-    """Spec AC: validator prompt cites the verbatim anthropic rubric + the
-    CLAUDE.md re-check requirement + the agent-assumption rule."""
+    """The prompt cites the rubric, instruction check, and build boundary."""
 
     def _build(self, **overrides):
         finding = overrides.pop("finding", make_unverified_finding())
         return run_validators.build_validator_prompt(
             finding=finding,
             diff_context=overrides.get("diff_context", "@@ -1 +1 @@\n+bad\n"),
-            claude_md_snippet=overrides.get(
-                "claude_md_snippet", "Single source of truth."
+            instruction_snippet=overrides.get(
+                "instruction_snippet", "Single source of truth."
             ),
-            claude_md_path=overrides.get("claude_md_path", "CLAUDE.md"),
+            instruction_path=overrides.get("instruction_path", "AGENTS.md"),
             anthropic_verbatim_path=overrides.get(
                 "anthropic_verbatim_path",
                 str(SKILL_DIR / "references" / "anthropic-verbatim.md"),
@@ -365,12 +469,10 @@ class TestBuildValidatorPrompt(unittest.TestCase):
         self.assertIn("false positives", prompt)
         self.assertIn("documented taxonomy", prompt)
 
-    def test_cites_claude_md_re_check_requirement(self):
-        """Spec AC: validator confirms the rule exists in claude_md_chain
-        AND either promotes or demotes with 'CLAUDE.md rule not found at <path>'."""
+    def test_cites_instruction_re_check_requirement(self):
         prompt = self._build()
-        self.assertIn("CLAUDE.md", prompt)
-        self.assertIn("CLAUDE.md rule not found at", prompt)
+        self.assertIn("Project instruction snippet (AGENTS.md)", prompt)
+        self.assertIn("Instruction rule not found at", prompt)
 
     def test_cites_agent_assumption_rule(self):
         prompt = self._build()
@@ -388,9 +490,9 @@ class TestBuildValidatorPrompt(unittest.TestCase):
         self.assertIn("score:", prompt)
         self.assertIn("reason:", prompt)
 
-    def test_missing_claude_md_renders_placeholder(self):
-        prompt = self._build(claude_md_snippet=None, claude_md_path=None)
-        self.assertIn("not found in claude_md_chain", prompt)
+    def test_missing_instruction_renders_placeholder(self):
+        prompt = self._build(instruction_snippet=None, instruction_path=None)
+        self.assertIn("not found in instruction_chain", prompt)
         self.assertIn("(none)", prompt)
 
     def test_forbids_write_edit_bash(self):
@@ -412,12 +514,12 @@ class TestPrepareValidatorBundle(unittest.TestCase):
     def test_writes_input_and_prompt_files(self):
         with tempfile.TemporaryDirectory() as td:
             repo = Path(td)
-            (repo / "CLAUDE.md").write_text(
+            (repo / "AGENTS.md").write_text(
                 "Production grade or nothing.\n", encoding="utf-8",
             )
             output_dir = repo / "run"
             scope = {
-                "claude_md_chain": ["CLAUDE.md"],
+                "instruction_chain": ["AGENTS.md"],
                 "repo_kind": "app",
             }
             finding = make_unverified_finding(
@@ -437,36 +539,38 @@ class TestPrepareValidatorBundle(unittest.TestCase):
             )
             self.assertEqual(bundle["index"], 0)
             self.assertEqual(bundle["finding"]["location"], "src/auth.ts:42")
-            self.assertEqual(bundle["claude_md_path"], "CLAUDE.md")
-            self.assertIn("Production grade", bundle["claude_md_snippet"])
+            self.assertEqual(bundle["instruction_path"], "AGENTS.md")
+            self.assertIn("Production grade", bundle["instruction_snippet"])
             self.assertTrue(bundle["anthropic_verbatim_path"].endswith(
                 "references/anthropic-verbatim.md"
             ))
 
-    def test_bundle_with_no_matching_claude_rule(self):
+    def test_bundle_with_no_matching_instruction_rule(self):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             finding = make_unverified_finding(rule="rule that does not exist")
             result = run_validators.prepare_validator_bundle(
                 index=3, finding=finding,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
             bundle = json.loads(
                 Path(result["input_path"]).read_text(encoding="utf-8")
             )
-            self.assertIsNone(bundle["claude_md_path"])
-            self.assertIsNone(bundle["claude_md_snippet"])
+            self.assertIsNone(bundle["instruction_path"])
+            self.assertIsNone(bundle["instruction_snippet"])
             prompt = Path(result["prompt_path"]).read_text(encoding="utf-8")
-            self.assertIn("not found in claude_md_chain", prompt)
+            self.assertIn("not found in instruction_chain", prompt)
+
+            self.assertIsNone(bundle["instruction_snippet"])
 
     def test_zero_padded_filenames(self):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             result = run_validators.prepare_validator_bundle(
                 index=7, finding=make_unverified_finding(),
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -485,7 +589,7 @@ class TestPrepare(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             findings = [
-                {"confidence": 100, "source_tool": "semgrep", "axis": "correctness"},
+                {"confidence": 100, "source_tool": "semgrep", "axis": "performance"},
                 make_unverified_finding(confidence=70),
                 {"confidence": 0, "axis": "intent"},
                 make_unverified_finding(confidence=55, location="src/b.ts:5"),
@@ -493,13 +597,20 @@ class TestPrepare(unittest.TestCase):
             ]
             result = run_validators.prepare(
                 findings=findings,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
-            # Only the two sub-80 + above-zero findings made it through.
-            self.assertEqual(result["count"], 2)
-            self.assertEqual(len(result["bundles"]), 2)
+            # Every sub-80 finding, including confidence zero, is bundled.
+            self.assertEqual(result["count"], 3)
+            self.assertEqual(len(result["bundles"]), 3)
+
+            zero_bundle = json.loads(
+                Path(result["bundles"][1]["input_path"]).read_text(
+                    encoding="utf-8"
+                )
+            )
+            self.assertEqual(zero_bundle["finding"]["confidence"], 0)
 
     def test_25_findings_three_batches(self):
         with tempfile.TemporaryDirectory() as td:
@@ -512,7 +623,7 @@ class TestPrepare(unittest.TestCase):
             ]
             result = run_validators.prepare(
                 findings=findings,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -536,7 +647,7 @@ class TestPrepare(unittest.TestCase):
             findings = [tool_finding, make_unverified_finding(confidence=60)]
             result = run_validators.prepare(
                 findings=findings,
-                scope={"claude_md_chain": []},
+                scope={"instruction_chain": []},
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
@@ -557,10 +668,10 @@ class TestParseValidatorOutput(unittest.TestCase):
 
     def test_canonical_two_line_output(self):
         score, reason = run_validators.parse_validator_output(
-            "score: 90\nreason: Confirmed via CLAUDE.md citation"
+            "score: 90\nreason: Confirmed via project-instruction citation"
         )
         self.assertEqual(score, 90)
-        self.assertEqual(reason, "Confirmed via CLAUDE.md citation")
+        self.assertEqual(reason, "Confirmed via project-instruction citation")
 
     def test_tolerates_surrounding_chatter(self):
         score, reason = run_validators.parse_validator_output(
@@ -637,7 +748,7 @@ class TestIngestPromote(unittest.TestCase):
     def test_promote_caps_at_promotion_cap(self):
         findings = [make_unverified_finding(confidence=70)]
         # Validators may not exceed PROMOTION_CAP — keeps a ceiling
-        # parallel to build-verification's promotion bonus path.
+        # parallel to the historical build-verification promotion path.
         results = [{"index": 0, "score": 100, "reason": "absolutely certain"}]
         out = run_validators.ingest(results, findings)
         self.assertLessEqual(
@@ -681,17 +792,16 @@ class TestIngestDemote(unittest.TestCase):
         self.assertEqual(out[0]["meta"]["validator_reason"], reason)
 
 
-class TestIngestClaudeMdNotFound(unittest.TestCase):
-    """Spec AC: when the cited CLAUDE.md rule does not exist in
-    claude_md_chain, demote with 'CLAUDE.md rule not found at <path>'."""
+class TestIngestInstructionNotFound(unittest.TestCase):
+    """A missing cited instruction remains visible as a demotion reason."""
 
-    def test_demote_with_claude_md_rule_not_found_reason(self):
+    def test_demote_with_instruction_rule_not_found_reason(self):
         findings = [
             make_unverified_finding(
                 confidence=70, rule="single source of truth",
             ),
         ]
-        reason = "CLAUDE.md rule not found at .claude/rules/behave.md"
+        reason = "Instruction rule not found at .agents/rules/behavior.md"
         results = [{"index": 0, "score": 30, "reason": reason}]
         out = run_validators.ingest(results, findings)
         self.assertEqual(out[0]["meta"]["validator_reason"], reason)
@@ -717,21 +827,35 @@ class TestIngestA2NoDrop(unittest.TestCase):
         out = run_validators.ingest(results, findings)
         self.assertEqual(len(out), len(findings))
 
-    def test_missing_validator_result_surfaces_finding_with_reason(self):
-        """No result for a finding → kept as unverified, never dropped."""
+    def test_missing_validator_result_blocks_the_review(self):
+        """No result for a finding means validator coverage is incomplete."""
         findings = [
             make_unverified_finding(confidence=60, location="src/a.ts:1"),
             make_unverified_finding(confidence=55, location="src/b.ts:2"),
         ]
         # Validator only produced output for index 0.
         results = [{"index": 0, "score": 85, "reason": "ok"}]
-        out = run_validators.ingest(results, findings)
-        self.assertEqual(len(out), 2)
-        self.assertEqual(out[1]["meta"]["validator_outcome"], "demoted")
-        self.assertIn(
-            "no output",
-            out[1]["meta"]["validator_reason"].lower(),
-        )
+        with self.assertRaisesRegex(ValueError, "missing indexes"):
+            run_validators.ingest(results, findings)
+
+    def test_duplicate_or_unexpected_validator_indexes_block(self):
+        findings = [make_unverified_finding(confidence=60)]
+        with self.assertRaisesRegex(ValueError, "duplicate"):
+            run_validators.ingest(
+                [
+                    {"index": 0, "score": 80, "reason": "first"},
+                    {"index": 0, "score": 81, "reason": "duplicate"},
+                ],
+                findings,
+            )
+        with self.assertRaisesRegex(ValueError, "unexpected indexes"):
+            run_validators.ingest(
+                [
+                    {"index": 0, "score": 80, "reason": "first"},
+                    {"index": 1, "score": 81, "reason": "extra"},
+                ],
+                findings,
+            )
 
     def test_promoted_and_demoted_findings_partition_the_input(self):
         findings = [
@@ -763,10 +887,6 @@ class TestCliPrepare(unittest.TestCase):
             diff_path = tdir / "diff.patch"
             output_dir = tdir / "run"
 
-            scope_path.write_text(json.dumps({
-                "claude_md_chain": [],
-                "repo_kind": "app",
-            }), encoding="utf-8")
             sub_findings = [
                 make_unverified_finding(confidence=60, location="src/a.ts:1"),
                 make_unverified_finding(confidence=70, location="src/b.ts:2"),
@@ -776,6 +896,21 @@ class TestCliPrepare(unittest.TestCase):
                 encoding="utf-8",
             )
             diff_path.write_text("diff --git", encoding="utf-8")
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(json.dumps({
+                **_scope_fields(),
+                "instruction_chain": [],
+                "repo_kind": "app",
+                "tool_coverage": {"complete": True},
+                "axis_coverage": {
+                    "complete": True,
+                    "requested": ["correctness"],
+                    "completed": ["correctness"],
+                    "output": findings_identity["path"],
+                    "sha256": findings_identity["sha256"],
+                    "finding_count": len(sub_findings),
+                },
+            }), encoding="utf-8")
 
             proc = subprocess.run(
                 [
@@ -795,6 +930,50 @@ class TestCliPrepare(unittest.TestCase):
                 self.assertTrue(Path(info["input_path"]).is_file())
                 self.assertTrue(Path(info["prompt_path"]).is_file())
 
+    def test_cli_prepare_missing_diff_fails_without_bundles(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            scope_path = tdir / "scope.json"
+            findings_path = tdir / "axis-findings.jsonl"
+            output_dir = tdir / "run"
+            finding = make_unverified_finding(confidence=60)
+            findings_path.write_text(json.dumps(finding) + "\n", encoding="utf-8")
+            identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    **_scope_fields(),
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "output": identity["path"],
+                        "sha256": identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "coverage_complete": True,
+                }),
+                encoding="utf-8",
+            )
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "prepare",
+                    "--scope", str(scope_path),
+                    "--findings", str(findings_path),
+                    "--diff", str(tdir / "missing.patch"),
+                    "--output-dir", str(output_dir),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            self.assertIn("diff file is missing", proc.stderr)
+            self.assertFalse(output_dir.exists())
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertFalse(scope["validator_coverage"]["complete"])
+            self.assertFalse(scope["coverage_complete"])
+
 
 class TestCliIngest(unittest.TestCase):
 
@@ -804,8 +983,18 @@ class TestCliIngest(unittest.TestCase):
             findings_path = tdir / "axis-findings.jsonl"
             results_path = tdir / "validator-results.jsonl"
             output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
 
             findings = [
+                {
+                    "axis": "correctness",
+                    "severity": "High",
+                    "location": "src/critical.ts:1",
+                    "finding": "Verified finding",
+                    "recommendation": "Fix it",
+                    "confidence": 95,
+                },
                 make_unverified_finding(confidence=60, location="src/a.ts:1"),
                 make_unverified_finding(confidence=70, location="src/b.ts:2"),
             ]
@@ -813,11 +1002,103 @@ class TestCliIngest(unittest.TestCase):
                 "\n".join(json.dumps(f) for f in findings) + "\n",
                 encoding="utf-8",
             )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            run_id = "validator-run"
             results_path.write_text(
                 "\n".join(json.dumps(r) for r in [
-                    {"index": 0, "score": 90, "reason": "promote"},
-                    {"index": 1, "score": 40, "reason": "demote"},
+                    {"run_id": run_id, "index": 0, "score": 90, "reason": "promote"},
+                    {"run_id": run_id, "index": 1, "score": 40, "reason": "demote"},
                 ]) + "\n",
+                encoding="utf-8",
+            )
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(json.dumps({
+                **_scope_fields(),
+                "tool_coverage": {"complete": True},
+                "axis_coverage": {
+                    "complete": True,
+                    "output": findings_identity["path"],
+                    "sha256": findings_identity["sha256"],
+                    "finding_count": len(findings),
+                },
+                "validator_coverage": {
+                    "complete": False, "expected": 2, "completed": 0,
+                    "run_id": run_id,
+                    "input_hashes": {
+                        "diff": _identity(diff_path),
+                        "axis_findings": findings_identity,
+                    },
+                },
+                "coverage_complete": False,
+            }), encoding="utf-8")
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "ingest",
+                    "--findings", str(findings_path),
+                    "--results", str(results_path),
+                    "--output", str(output_path),
+                    "--scope", str(scope_path),
+                ],
+                capture_output=True, text=True, check=False,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            self.assertTrue(output_path.is_file())
+            lines = output_path.read_text(encoding="utf-8").splitlines()
+            self.assertEqual(len(lines), 3)
+            parsed = [json.loads(line) for line in lines]
+            self.assertEqual(parsed[0]["finding"], "Verified finding")
+            outcomes = [p["meta"]["validator_outcome"] for p in parsed[1:]]
+            self.assertEqual(outcomes, ["promoted", "demoted"])
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertTrue(scope["coverage_complete"])
+            self.assertEqual(scope["validator_coverage"]["completed"], 2)
+
+    def test_failed_rerun_invalidates_stale_validator_state_and_output(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            findings_path = tdir / "axis-findings.jsonl"
+            results_path = tdir / "validator-results.jsonl"
+            output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
+            findings_path.write_text(
+                json.dumps(
+                    make_unverified_finding(
+                        confidence=60,
+                        location="src/a.ts:1",
+                    )
+                ) + "\n",
+                encoding="utf-8",
+            )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            results_path.write_text("{malformed\n", encoding="utf-8")
+            output_path.write_text("stale\n", encoding="utf-8")
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    **_scope_fields(),
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "requested": ["correctness"],
+                        "completed": ["correctness"],
+                        "output": findings_identity["path"],
+                        "sha256": findings_identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "validator_coverage": {
+                        "complete": True,
+                        "expected": 1,
+                        "completed": 1,
+                        "run_id": "validator-run",
+                        "input_hashes": {
+                            "diff": _identity(diff_path),
+                            "axis_findings": findings_identity,
+                        },
+                    },
+                    "coverage_complete": True,
+                }),
                 encoding="utf-8",
             )
 
@@ -827,16 +1108,151 @@ class TestCliIngest(unittest.TestCase):
                     "--findings", str(findings_path),
                     "--results", str(results_path),
                     "--output", str(output_path),
+                    "--scope", str(scope_path),
                 ],
-                capture_output=True, text=True, check=False,
+                capture_output=True,
+                text=True,
+                check=False,
             )
-            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
-            self.assertTrue(output_path.is_file())
-            lines = output_path.read_text(encoding="utf-8").splitlines()
-            self.assertEqual(len(lines), 2)
-            parsed = [json.loads(line) for line in lines]
-            outcomes = [p["meta"]["validator_outcome"] for p in parsed]
-            self.assertEqual(outcomes, ["promoted", "demoted"])
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertFalse(scope["validator_coverage"]["complete"])
+            self.assertEqual(scope["validator_coverage"]["completed"], 0)
+            self.assertFalse(scope["coverage_complete"])
+            self.assertFalse(output_path.exists())
+
+    def test_stale_validator_run_id_is_rejected_and_output_removed(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            findings_path = tdir / "axis-findings.jsonl"
+            results_path = tdir / "validator-results.jsonl"
+            output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
+            findings_path.write_text(
+                json.dumps(make_unverified_finding(confidence=60)) + "\n",
+                encoding="utf-8",
+            )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            results_path.write_text(
+                json.dumps({
+                    "run_id": "stale-run",
+                    "index": 0,
+                    "score": 90,
+                    "reason": "stale",
+                }) + "\n",
+                encoding="utf-8",
+            )
+            output_path.write_text("stale output\n", encoding="utf-8")
+            findings_identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    **_scope_fields(),
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "output": findings_identity["path"],
+                        "sha256": findings_identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "validator_coverage": {
+                        "complete": False,
+                        "expected": 1,
+                        "completed": 0,
+                        "run_id": "current-run",
+                        "input_hashes": {
+                            "diff": _identity(diff_path),
+                            "axis_findings": findings_identity,
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "ingest",
+                    "--findings", str(findings_path),
+                    "--results", str(results_path),
+                    "--output", str(output_path),
+                    "--scope", str(scope_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            self.assertIn("run_id does not match prepare", proc.stderr)
+            self.assertFalse(output_path.exists())
+
+    def test_changed_axis_findings_after_prepare_are_rejected(self):
+        with tempfile.TemporaryDirectory() as td:
+            tdir = Path(td)
+            findings_path = tdir / "axis-findings.jsonl"
+            results_path = tdir / "validator-results.jsonl"
+            output_path = tdir / "validated-findings.jsonl"
+            scope_path = tdir / "scope.json"
+            diff_path = tdir / "diff.patch"
+            findings_path.write_text(
+                json.dumps(make_unverified_finding(confidence=60)) + "\n",
+                encoding="utf-8",
+            )
+            diff_path.write_text("diff --git", encoding="utf-8")
+            prepared_identity = _identity(findings_path)
+            scope_path.write_text(
+                json.dumps({
+                    **_scope_fields(),
+                    "tool_coverage": {"complete": True},
+                    "axis_coverage": {
+                        "complete": True,
+                        "output": prepared_identity["path"],
+                        "sha256": prepared_identity["sha256"],
+                        "finding_count": 1,
+                    },
+                    "validator_coverage": {
+                        "complete": False,
+                        "expected": 1,
+                        "completed": 0,
+                        "run_id": "current-run",
+                        "input_hashes": {
+                            "diff": _identity(diff_path),
+                            "axis_findings": prepared_identity,
+                        },
+                    },
+                }),
+                encoding="utf-8",
+            )
+            with findings_path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(make_unverified_finding(confidence=70)) + "\n")
+            results_path.write_text(
+                json.dumps({
+                    "run_id": "current-run",
+                    "index": 0,
+                    "score": 90,
+                    "reason": "promote",
+                }) + "\n",
+                encoding="utf-8",
+            )
+            output_path.write_text("stale output\n", encoding="utf-8")
+
+            proc = subprocess.run(
+                [
+                    "python3", str(SCRIPT), "ingest",
+                    "--findings", str(findings_path),
+                    "--results", str(results_path),
+                    "--output", str(output_path),
+                    "--scope", str(scope_path),
+                ],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+
+            self.assertEqual(proc.returncode, 4, proc.stderr)
+            self.assertIn("axis findings changed after prepare", proc.stderr)
+            self.assertFalse(output_path.exists())
 
 
 if __name__ == "__main__":

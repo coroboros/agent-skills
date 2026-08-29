@@ -59,14 +59,14 @@ The source is mostly prose with inline values. Use these patterns:
 
 **Components**. For each component mentioned in Component Stylings, extract its exact properties (background, text color, padding, height, radius) and express as YAML with token references where possible. Variants (hover, active) become separate entries with related key names.
 
-Unknown or ambiguous values: fill with a concrete guess AND mention in the migration report. Never silently invent a value.
+Unknown or ambiguous values: ask the user for the missing value and stop before mutation. Do not invent it. The migration report may list deterministic inferences from values that are present in the source, but it must never disguise a guess as extracted design intent.
 
 ## Workflow
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 1. **Detect format** (see heuristics above). Abort or confirm with the user if unsure.
-2. **Backup** the original as `<path>.legacy.<ISO-timestamp>`.
+2. **Preflight the canonical CLI before any write.** Run `bash "$SKILL_DIR"/scripts/audit.sh <input>` and capture its `RESULT:` lines. Exit `0` or `1` is acceptable only when `RESULT: status=ok`; legacy lint findings are expected. Every other status blocks the migration before backup, candidate creation, or output mutation. Surface the emitted `remediation=` and exact `rerun=` values.
 3. **Parse the source**:
    - Split on `##` headings to isolate sections.
    - For each section, extract tokens using the patterns above.
@@ -80,9 +80,10 @@ Unknown or ambiguous values: fill with a concrete guess AND mention in the migra
    - Shapes (new — compose from extracted radius values)
    - Components (reformat from old Component Stylings, reference YAML)
    - Do's and Don'ts (keep as-is; fold in anything testable from old Agent Prompt Guide)
-6. **Write** the new file (overwrite input or write to `-o <path>`).
-7. **Run audit** on the output: `bash "$SKILL_DIR"/scripts/audit.sh <output>`.
-8. **Compose migration report** — save as `<output>.migration.md` or include inline in the user-facing response.
+6. **Write a candidate temp file beside the intended output.** Do not modify the source or final output yet.
+7. **Audit the candidate** with `bash "$SKILL_DIR"/scripts/audit.sh <candidate>`. Continue only when `RESULT: status=ok` and `RESULT: exit-code=0`. A CLI/schema failure or lint error leaves the source and final output untouched; surface the candidate path, `remediation=`, `rerun=`, and findings as applicable.
+8. **Commit atomically.** For in-place migration, back up the original as `<path>.legacy.<ISO-timestamp>`, then rename the validated candidate onto `<path>`. With `-o`, rename the validated candidate onto the requested output and leave the source untouched.
+9. **Compose migration report** — save as `<output>.migration.md` or include inline in the user-facing response.
 
 ## Migration report template
 
@@ -113,7 +114,8 @@ Surface this report in the user's response. It's a trust artifact — the user s
 - **Source has partial sections** (e.g., no Typography Rules): skip the corresponding YAML group, note in the migration report, and the audit will flag `missing-typography` — expected.
 - **Non-Stitch format with some matching headings**: detection heuristics may false-positive. Always confirm with the user before overwriting.
 - **Values impossible to extract** (e.g., "various shades of blue" with no hex): prompt the user for each missing value; do not invent.
-- **Audit fails on the output**: do not revert. Surface the errors and let the user fix them; the backup is available if they want to start over.
+- **Canonical CLI or schema preflight fails**: stop before writing anything. Surface the exact install and rerun commands.
+- **Candidate audit reports lint errors**: keep the final output untouched. Surface the candidate path and findings so the migration logic can be corrected before retrying.
 
 ## When NOT to migrate
 
