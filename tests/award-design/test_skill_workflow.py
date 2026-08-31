@@ -207,7 +207,7 @@ class TestJudgingCriteria(unittest.TestCase):
 
 
 class TestReadTheRoom(unittest.TestCase):
-    """Step 0 loads atmosphere-calibration.md and DECLARES the three dial
+    """Step 0 loads atmosphere-calibration.md and declares the three dial
     values — silent dials cannot arbitrate later choices."""
 
     def _step_zero(self):

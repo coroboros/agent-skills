@@ -110,7 +110,7 @@ class TestEachSkeletonIsSelfContained(unittest.TestCase):
 
 class TestClosingContract(unittest.TestCase):
     """taste-skill §5's form: one flat Critical-points sentence, then one
-    Common-failure sentence that names the wrong value AND its fix. A skeleton
+    Common-failure sentence that names the wrong value and its fix. A skeleton
     without the failure line teaches the shape but not the trap, which is the
     only reason the file exists."""
 

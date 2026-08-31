@@ -66,7 +66,7 @@ class TestAdversarialCopyPass(unittest.TestCase):
 
 
 class TestOverlayClose(unittest.TestCase):
-    # superseded by the round-5 UAT: the close is findable because it is icon-only AND
+    # superseded by the round-5 UAT: the close is findable because it is icon-only and
     # sits at the trigger's exact point — the invariant (an unmissable exit, aria-named,
     # focus returned) survives in the new form
     def test_navigation_forces_in_place_iconic_close(self):

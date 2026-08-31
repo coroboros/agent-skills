@@ -4,8 +4,8 @@ The detector ships as a browser-injected file, so its safety properties are
 textual: no module syntax on the evaluate_script path, a parseable RULES
 registry, FLOORS as the one literal both the JS and detector.md mirror, and
 the catches-never-clears doctrine present where the model will read it. These
-tests also pin detector.md to the registry — a rule the reference never names
-is a rule the audit never runs."""
+tests also pin detector.md to the registry: a rule the reference omits never
+gets run in an audit."""
 
 import re
 import unittest

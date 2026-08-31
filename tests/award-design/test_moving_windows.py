@@ -4,7 +4,7 @@ pointermove over a 2.1x-scaled raster with no layer promotion: the compositor
 presented last-good raster under fresh geometry — bright content popping stale
 positions on the user's screen recording — and the copy-block clamp teleported its
 target, making the lerp lunge. The adversarial pass confirmed the paint-lag
-diagnosis, scoped the law to per-frame-TRACKED windows over transformed content
+diagnosis, scoped the law to per-frame-tracked windows over transformed content
 (fire-once reveals and 1:1 comparison wipes correctly use animated clip), corrected
 the overstated "clip-path is off-main-thread" line, and picked the performance
 trace over screenshots as the only driven form that can prove no-pop."""

@@ -9,8 +9,8 @@ hero-locked. These lock the closings: the medium-scoped delegation, the
 primary-verb rule, the written playable-object decision, the echo-as-mechanic
 law, the driven discovery beat, and the committed scroll-texture slot.
 
-Honesty note: these are prose-presence regression locks. The BITE lives in the
-driven preflight §8 boxes and the next UAT — no test here can verify a build
+Honesty note: these are prose-presence regression locks. The bite lives in the
+driven preflight §8 boxes and the next UAT; no test here can verify a build
 obeyed a judgment rule."""
 
 import unittest

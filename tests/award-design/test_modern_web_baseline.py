@@ -2,9 +2,9 @@
 winners ship and AI-generated code skips (OKLCH, rem + fluid clamp, CSS custom
 properties, factorization, modern primitives, semantic HTML, GPU motion).
 
-Framed as best practices to ADOPT (distinct from the tells to BAN in anti-patterns),
+Framed as best practices to adopt (distinct from the tells to ban in anti-patterns),
 grounded in the reference article + an adversarial Baseline-status research pass, with
-an anti-invention law: adoption tier follows CURRENT Baseline status, verified via
+an anti-invention law: adoption tier follows current Baseline status, verified via
 find-docs, never assumed from memory. Also locks the Core-Web-Vitals correction: the
 skill's LCP<1.5s budget is an award stretch, not Google's 'good' floor (2.5s)."""
 

@@ -2,11 +2,11 @@
 
 The palette rut is narrower than the direction rut and better documented: warm
 cream, serif, terracotta, or the GitHub-dark it swaps to when told "not cream"
-(`anti-patterns.md`). A seeded draw only escapes it if the POOL escapes it, so
-most of this file audits the curation rather than the arithmetic — the anti-cream
+(`anti-patterns.md`). A seeded draw only escapes it if the pool escapes it, so
+most of this file audits the curation rather than the arithmetic: the anti-cream
 band is empty of grounds, the hue buckets are spread instead of piled on the
 frequent hues, every seed names a physical material, and `quiet_safe` means one
-decidable thing so a regulated brief gets a real filter and not a label. The
+decidable thing so a regulated brief gets a working filter rather than a label. The
 draw's determinism is pinned separately: the printed key and command are the
 whole audit trail."""
 
@@ -40,7 +40,7 @@ FAMILIES = {"dark-base-accent", "mono-oklch-depth", "earthy-pastel",
 LOUD_FAMILIES = {"neon-microglow", "multi-hue-oklch"}
 QUIET_ACCENT_CHROMA = 0.17
 BUCKET_DEGREES = 30
-# A seed is a thing with a surface and a temperature; these are page styles.
+# Seeds name physical materials; this list holds the page styles the ban rejects.
 SOFTWARE_ARCHETYPES = ("dark mode", "light mode", "glassmorph", "neumorph", "material design",
                        "flat design", "skeuomorph", "brutalist", "editorial", "minimal")
 
@@ -91,7 +91,7 @@ class TestPoolShape(unittest.TestCase):
 
 class TestAntiCreamBand(unittest.TestCase):
     """The warm-neutral pale ground is the model default judges read as a tell.
-    It is barred from the GROUND role — accents and type may live anywhere."""
+    Only the ground role is barred; accents and type are unrestricted."""
 
     def test_band_definition_has_not_been_widened(self):
         self.assertEqual(anchor.CREAM_BAND,
@@ -109,7 +109,7 @@ class TestAntiCreamBand(unittest.TestCase):
 
 class TestHueSpread(unittest.TestCase):
     """An unseeded pick piles onto the frequent hues; a pool that does the same
-    hands the rut back. Every 30° bucket carries a ground, none carries a crowd."""
+    hands the rut back. The pool must cover every 30° bucket without crowding any."""
 
     def _buckets(self):
         return Counter(int(_oklch(seed["oklch_ground"])[2] // BUCKET_DEGREES)

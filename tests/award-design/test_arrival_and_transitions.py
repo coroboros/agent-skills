@@ -5,7 +5,7 @@ Two adversarially refuted dossiers (a 30-winner preloader corpus, a 15-winner ro
 corpus) settled the arrival record: loaders are archetype-conditional and live or die
 on the handoff into the hero; every verified route transition is JS-orchestrated
 (zero winners ship native View Transitions as the signature); and one site speaks one
-arrival language — the transition family rhymes with the loader family. A product-film
+arrival language: the transition family rhymes with the loader family. A product-film
 analysis adds the physics of any authored beat: slow-fast-boom-stop time allocation,
 the easing map, the pre-beat hold, and the three-channel focus switch. These pin the
 two ingredient files and the motion-palette section that encode it."""
@@ -49,7 +49,7 @@ class TestPreloadersIngredient(unittest.TestCase):
         self.assertIn("decorative counter over a static hero", self.body)
 
     def test_repeat_visit_and_reduced_motion_are_named_gaps(self):
-        # both absent from every winner read — adopted as build decisions, never winner-cited
+        # both absent from every winner read; adopted as build decisions without winner citations
         self.assertIn("sessionstorage", self.body)
         self.assertIn("prefers-reduced-motion", self.body)
         self.assertIn("record gap", self.body)
@@ -57,7 +57,7 @@ class TestPreloadersIngredient(unittest.TestCase):
     def test_lcp_honesty(self):
         self.assertIn("fixed-duration theater", self.body)
         self.assertIn("pre-composed", self.body)
-        # the ≤2.8s ceiling was asserted in the record, never frame-timed
+        # the record asserts the ≤2.8s ceiling; no winner was frame-timed
         self.assertIn("≤2.8s", self.body)
         self.assertIn("heuristic", self.body)
 

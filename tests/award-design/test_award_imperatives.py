@@ -1,6 +1,6 @@
 """award-design award-imperatives + comparative-review contract.
 
-The 2025–2030 award reference is imposed as gates, not left to taste: the
+The 2025–2030 award reference is imposed as gates rather than left to taste: the
 transverse imperatives (signature interaction, a real nav pattern, smooth-scroll
 narrative, clip-path reveals, micro-interactions, modern CSS, a measured perf
 budget, AVIF/WebP, mobile reconsidered) and the calibration that makes an
@@ -8,7 +8,7 @@ otherwise-lenient adversarial review strict — the exemplar comparison as the
 *primary* driver, the desire read raised from "screenshottable" to
 "beats-the-SOTD", and the premise/restraint veto that attacks the concept's idea.
 
-Each assertion would FAIL on the pre-upgrade skill, which had the adversarial
+Each assertion would fail on the pre-upgrade skill, which had the adversarial
 machinery but graded absolutely and left the recipe to judgment."""
 
 import re
@@ -86,7 +86,6 @@ class TestAwardImperativesReference(unittest.TestCase):
                       "the premise veto names art-directed cleverness as the failure")
 
     def test_per_archetype_expression_table(self):
-        # every archetype's canonical winner appears in the per-archetype table
         for winner in ["Terminal Industries", "Eloy Benoffi", "Siena", "Ponpon",
                        "Lando Norris", "Bruno Simon", "Cartier", "Anime.js", "Igloo"]:
             with self.subTest(winner=winner):
@@ -151,7 +150,7 @@ class TestSkillWiring(unittest.TestCase):
 
     def test_hero_gate_is_comparative(self):
         """The hero is the ladder's first visual chunk, judged comparatively
-        before any section is built — a hero that loses re-enters by cause."""
+        before any section is built; a hero that loses re-enters by cause."""
         path = _path()
         self.assertIn("then the hero — 2–3 genuinely distinct directions through one "
                       "shared render frame", path,

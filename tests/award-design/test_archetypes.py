@@ -1,4 +1,4 @@
-"""award-design has 9 archetypes — each must have its own reference file
+"""award-design has 9 archetypes; each must have its own reference file
 plus the supporting cross-cutting refs. Catches drift when an archetype is
 added to the SKILL.md selector without a matching reference file."""
 
@@ -14,7 +14,7 @@ SKILL_MD = SKILL_DIR / "SKILL.md"
 
 # Stable archetype identifiers (kebab-case file stems).
 #
-# IMPORTANT — cross-skill duplication: this list is mirrored in
+# Cross-skill duplication: this list is mirrored in
 # `skills/design-system/references/subcommand-init.md` (the kebab-case slug
 # enumeration in the "On archetype flavors" section). When adding, removing,
 # or renaming an archetype here, update that file in the same PR. The two
@@ -108,15 +108,15 @@ class TestArchetypeSignalMap(unittest.TestCase):
 
     def test_tier_one_archetype_route_is_priced(self):
         """Every archetype resolves through the same tier-1 path, and the load
-        map prices that load — an archetype reachable by signal but not by path
+        map prices that load. An archetype reachable by signal but not by path
         strands the same brief one step later."""
         text = SKILL_MD.read_text(encoding="utf-8")
         self.assertIn("references/archetype/<name>.md", text,
                       "the load map must route and price the tier-1 archetype file")
 
     def test_brief_signal_routing_is_inline_prose(self):
-        """Brief-signal → archetype routing is inline prose, not its own
-        section. Every archetype must stay reachable by a brief signal —
+        """Brief-signal → archetype routing is inline prose rather than its own
+        section. Every archetype must stay reachable by a brief signal,
         otherwise a vocabulary lookup routes nowhere."""
         signal_map = self._signal_map()
         for archetype in ARCHETYPES:
@@ -130,7 +130,7 @@ class TestArchetypeSignalMap(unittest.TestCase):
 class TestAtmosphereCalibration(unittest.TestCase):
     """Atmosphere Calibration has two tables that drive design decisions:
     (1) the axis-range table (3 axes × 3 ranges) and (2) the default-scores table
-    (9 archetypes × 3 axes). Both must stay aligned with the archetype list — drift
+    (9 archetypes × 3 axes). Both must stay aligned with the archetype list; drift
     here corrupts atmosphere calibration silently. Both tables live in
     references/atmosphere-calibration.md; SKILL.md carries only the pointer."""
 

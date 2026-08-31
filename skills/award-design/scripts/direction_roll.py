@@ -2,12 +2,12 @@
 """The anti-argmax roll — SHA-256 assignment over the model's own written spines.
 
 A model asked for a direction returns its argmax: the same safe concept every
-run, whatever the brief. Prompting around it does not move it — the rut is the
-sampler's, not the prompt's. The mechanism that does move it is external and
-mechanical: the model WRITES 5-7 candidate spines first, then a hash it does not
+run, whatever the brief. Prompting around it does not move it, because the rut
+belongs to the sampler rather than the prompt. What does move it is an external
+mechanism: the model writes 5-7 candidate spines first, then a hash it does not
 control assigns one. The floor is 3 — indexes 1 and 2 are unreachable, because
-the top of a self-ranked list IS the argmax and a roll that can return it is a
-roll the rut survives. The assignment lands in the padded tail on purpose; the
+the top of a self-ranked list is the argmax itself, and a roll that can return
+it leaves the rut intact. The assignment lands in the padded tail on purpose; the
 one-line viability note each spine carries is what keeps the tail buildable.
 
 Determinism is the whole point: the key is printed, the reproduction command is

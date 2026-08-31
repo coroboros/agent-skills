@@ -2,18 +2,18 @@
    every number here is a theory-class observation handed to the judge, who
    decides what it means. A rule that could FAIL belongs in render-floor.js.
 
-   It is not threshold-free, and pretending otherwise would be its own dishonesty:
-   GRID.emptyCell, GRID.groundCoverage, COLOR.matchTol, ACCENT.oklabTol /
-   .minChroma / .minOccurrences and MOTION.rectEps / .opacityEps all shape the
-   numbers below. Every one is a REPORTING parameter — it decides what gets
-   counted, never whether the page passes — and each ships in the output beside
-   the count it produced, so a reader can re-derive or discount it.
+   Thresholds exist here too: GRID.emptyCell, GRID.groundCoverage,
+   COLOR.matchTol, ACCENT.oklabTol / .minChroma / .minOccurrences and
+   MOTION.rectEps / .opacityEps all shape the numbers below. Each is a
+   reporting parameter — it decides what gets counted, never whether the page
+   passes — and each ships in the output beside the count it produced, so a
+   reader can re-derive or discount it.
 
    Sweep protocol. The harness owns the browser: it injects this file, and after
-   each resize calls run(). This payload never opens a browser, never resizes
-   one, never navigates, never touches the network. It scrolls exactly once — a
-   single programmatic step for the scroll proxy — and puts the page back where
-   it found it.
+   each resize calls run(). This payload does not open or resize a browser,
+   navigate, or touch the network. It scrolls exactly once — a single
+   programmatic step for the scroll proxy — and puts the page back where it
+   found it.
 
      const evidence = await awardPixelMetrics.run();
      await awardPixelMetrics.run({ accent: '#b34700', idleMs: 4000 });
@@ -29,15 +29,15 @@
                         of the 156 cells. That build: 28 cells effectively
                         empty, and the eye reads that as unfinished.
      inkProfile         covered-area share per viewport-height band. It ran
-                        8.2%–15.1% across 13 bands — a metronome, no climax,
-                        no rest, the same density everywhere.
+                        8.2%–15.1% across 13 bands — near-uniform density,
+                        with no climax and no rest.
      groundCommitment   the share of painted background area held by the single
                         dominant colour. That build held 26.7% against the
                         exemplar's 84.7%: a page that never commits to a ground.
      accentFrequency    how many elements per viewport band carry the accent.
                         It fired its blue 3–5× per viewport against its own
-                        one-per-viewport spec, so the accent meant CTA and
-                        link and focus and emphasis and stat simultaneously.
+                        one-per-viewport spec, so the accent carried the CTA,
+                        link, focus, emphasis, and stat roles at once.
      idleDelta          how many animated candidates move measurably while the
                         page sits untouched.
      scrollDelta        how many move differently from the page under one
@@ -53,20 +53,21 @@
    and no animation-name, and are visible here only through the inline transforms
    they write, so an element they move without a transform is missed. A hijacked
    or smoothed scroller may not honour a programmatic step — scrollDelta reports
-   the pixels it actually moved, so a zero there means the instrument, not the
-   page. Fixed and sticky subtrees sit out the motion proxies: they move against
-   the page by construction. The raster places fixed elements at the offset held
-   when run() was called. Coverage is per-cell occupancy, not painted alpha: a
-   1px hairline crossing a cell fills it. Colours are compared in OKLab; this
-   payload never needs the sRGB inverse, so it does not carry one. */
+   the pixels it actually moved, so a zero there points at the instrument rather
+   than the page. Fixed and sticky subtrees sit out the motion proxies: they
+   move against the page by construction. The raster places fixed elements at
+   the offset held when run() was called. Coverage is per-cell occupancy, not
+   painted alpha: a 1px hairline crossing a cell fills it. Colours are compared
+   in OKLab; this payload never needs the sRGB inverse, so it does not carry
+   one. */
 (() => {
   'use strict';
 
   const GRID = { quadCols: 12, quadRows: 13, rasterCols: 120, maxRasterRows: 1200, emptyCell: 0.02, groundCoverage: 0.9 };
-  // Two tolerances, two jobs. COLOR.matchTol decides "is this the same colour"
-  // for ground identity and ink; ACCENT.oklabTol decides "does this element
-  // carry the accent". Sharing one constant meant retuning the accent silently
-  // moved quadrantEmptiness and inkProfile.
+  // COLOR.matchTol and ACCENT.oklabTol do separate jobs: matchTol decides "is
+  // this the same colour" for ground identity and ink; oklabTol decides "does
+  // this element carry the accent". Sharing one constant meant retuning the
+  // accent silently moved quadrantEmptiness and inkProfile.
   const COLOR = { matchTol: 0.02 };
   const ACCENT = { oklabTol: 0.04, minOccurrences: 3, minChroma: 0.04 };
   const MOTION = { idleMs: 3000, scrollFraction: 0.5, settleMs: 250, maxCandidates: 200, rectEps: 0.5, opacityEps: 0.01 };
@@ -659,8 +660,8 @@
       idleDelta: idle,
       scrollDelta: scroll
     };
-    // The ground's lab is the internal key ink and accent are measured against,
-    // not evidence — the colour string above is what the judge reads.
+    // The ground's lab is only the internal key ink and accent are measured
+    // against; the judge reads the colour string above.
     delete ground.dominantLab;
 
     return {

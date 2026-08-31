@@ -4,9 +4,9 @@ The user rated a build the review scored ~7.9 at SOTD 2-3: gorgeous type-led her
 dead body. The failures the reviewers (self + fresh refuter) kept missing:
 
 - the interaction substrate is built HOMEOPATHIC (a ~3% figure scale, no wordmark/accent
-  response) or absent, and no single signature CARRIES through the whole scroll — the
+  response) or absent, and no single signature carries through the whole scroll — the
   page dies after the hero, again;
-- the review reads `:hover` rules in the CSS instead of DRIVING the interaction and
+- the review reads `:hover` rules in the CSS instead of driving the interaction and
   judging whether it is perceptible — the root of the score inflation;
 - ornamental section kickers ("THE CURRENT NUMBER", "SUBSCRIBE") stamped on every h2;
 - brand-story copy orphaned in the footer instead of presenting the subject in the body;
@@ -36,7 +36,6 @@ class TestPerceptibleSubstrate(unittest.TestCase):
     def test_figure_hover_perceptible(self):
         isig = _read("interaction-signatures.md")
         self.assertIn("perceptible contained zoom", isig)
-        # the escape-frame cause is named
         self.assertIn("escape its frame", isig)
 
     def test_minimalist_perceptible_not_invisible(self):

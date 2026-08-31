@@ -1,6 +1,6 @@
 """award-design in-page detector — pure-core behavior via node.
 
-The classifier boundaries ARE the product: the detector exists because a
+The classifier boundaries are the product: the detector exists because a
 :hover rule in the CSS was credited as alive while the page read dead. These
 tests require() the asset in node and hold the color math, the transform
 parsing, and every classifyDelta boundary to the floors — including the
@@ -74,8 +74,9 @@ class TestPureCore(unittest.TestCase):
 
 @unittest.skipUnless(shutil.which("node"), "node not on PATH")
 class TestClassifyDeltaBoundaries(unittest.TestCase):
-    """The floors are perceptibility thresholds — at the floor is felt, under
-    it is homeopathic. A drift here re-opens the credited-as-alive failure."""
+    """The floors are perceptibility thresholds: a delta at the floor is felt,
+    one under it is homeopathic. A drift here re-opens the credited-as-alive
+    failure."""
 
     def _classify(self, sample):
         return _node(f"d.classifyDelta({json.dumps(sample)})")
@@ -215,7 +216,7 @@ class TestClassifyNavHero(unittest.TestCase):
             {"hasMediaUnder": False, "alpha": 1, "hasBackdropFilter": False, "groundDeltaL": 0.3}))
 
     def test_frost_with_blur_is_review(self):
-        # Terminal's glass pill — winner-normal, judged not failed
+        # Terminal's glass pill — winner-normal, judged rather than failed
         self.assertEqual("REVIEW", self._classify(
             {"hasMediaUnder": True, "alpha": 0.8, "hasBackdropFilter": True, "groundDeltaL": 0.2}))
 

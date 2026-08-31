@@ -6,8 +6,8 @@ its anti-sameness guard.
 
 Each invariant exists because the harvest closed a real gap that would
 silently re-open if the section drifted. Test names describe the contract
-being pinned, not the implementation. Every assertion here would FAIL on the
-pre-elevation skill."""
+being pinned rather than the implementation. Every assertion here would fail
+on the pre-elevation skill."""
 
 import re
 import unittest
@@ -290,7 +290,7 @@ class TestShipReadyFloor(unittest.TestCase):
                       "the 8-state interactive contract rides the craft floor")
 
     def test_offer_tier_is_per_brief_never_auto_built(self):
-        """…and Offer is surfaced per brief once the verdict is in; the
+        """Offer is surfaced per brief once the verdict is in; the
         never-auto-built and single-fold exemptions live in the tier itself,
         pinned by TestShipReadyFloor.test_offer_tier_is_opt_in_production_weight."""
         review = self._review_gate().lower()
@@ -357,7 +357,6 @@ class TestMotionVocabulary(unittest.TestCase):
                       "atmosphere-calibration.md must carry the signal → dial inference table")
         cal = self.calibration.lower()
         self.assertIn("dashboard-like", cal, "inference table must map a representative signal")
-        # Contradictions surface, never average — the behavior rule the table must honor.
         self.assertIn("never average", cal,
                       "conflicting signals must surface as a contradiction, not be averaged")
 

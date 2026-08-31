@@ -18,7 +18,7 @@ gameable. What locks instead, at the judgment/forcing layer:
   L4  seamless-loop + hero-legibility as driven judgment
   L5' the code-read fingerprint = presence gate only; liveness = driven;
       archetype reviewer-supplied through `--archetype`, never read from the build;
-      the unverified-render cap wired to the ARCHETYPE, not the self-classified verb
+      the unverified-render cap wired to the archetype, not the self-classified verb
   L6  R1 refutes the medium's ambition, not only the spine
 """
 
@@ -35,7 +35,7 @@ def _ref(rel):
 
 
 class TestMediumDrivenLaw(unittest.TestCase):
-    """L1/L4 — the DNA 'or' gets a fidelity floor: rendered/scrubbed AND driven,
+    """L1/L4 — the DNA 'or' gets a fidelity floor: rendered/scrubbed and driven,
     never displayed; the decorative-canvas-over-static-photos escape is named."""
 
     def test_dna_medium_is_driven_not_displayed(self):

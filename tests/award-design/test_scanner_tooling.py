@@ -7,7 +7,7 @@ header and flags a full-bleed / cover-fit / sizes-slot / scrub-sequence
 surface under its layout floor — a failed reference build's defect (1280×720
 frames rendered up to 2880×1800 device px behind a self-graded asset table);
 EASE-OVERSHOOT names every overshoot/elastic easing in build code for the
-reviewer to judge against the ONE declared motion register."""
+reviewer to judge against the one declared motion register."""
 
 import importlib.util
 import struct
@@ -145,8 +145,9 @@ class TestImgNativeRes(unittest.TestCase):
         self.assertEqual([], [(f.rule_id, f.excerpt) for f in findings])
 
     def test_unresolvable_and_remote_refs_stay_silent(self):
-        """A hotlink or a missing file cannot be measured — honest silence,
-        never a guessed number (UNSPLASH owns the hotlink complaint)."""
+        """A hotlink or a missing file cannot be measured, so the rule stays
+        silent rather than guessing a number (UNSPLASH owns the hotlink
+        complaint)."""
         html = ('<!doctype html><html><body>'
                 '<section class="hero"><figure data-slot="media">'
                 '<img src="https://cdn.example.com/big.jpg" width="4000" height="2000" alt="x">'
@@ -167,7 +168,7 @@ class TestImgNativeRes(unittest.TestCase):
 
 
 class TestEaseOvershoot(unittest.TestCase):
-    """The register verdict is imposed (ONE register page-wide) but lives in
+    """The register verdict is imposed (one register page-wide) but lives in
     the DESIGN.md the scanner excludes — so every overshoot/elastic curve is
     named as REVIEW for the reviewer to judge, and nothing FAILs."""
 

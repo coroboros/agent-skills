@@ -36,8 +36,8 @@ class TestDesireArc(unittest.TestCase):
         self.assertIn("why come now", cr)
 
     def test_the_contract_carries_the_arc(self):
-        """The arc has to land in a committed block, not a mood: the direction
-        contract's STORY block is where it binds."""
+        """The arc has to land in a committed block rather than a mood; the
+        direction contract's STORY block is where it binds."""
         self.assertIn("**story** (the desire arc's five content answers", _skill())
         self.assertIn("the direction contract's story block", _read("copy-recipes.md"))
 

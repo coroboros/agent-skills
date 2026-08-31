@@ -1,5 +1,6 @@
-/* award-design in-page detector — probes state rules and measures computed deltas
-   so "perceptible" is a number, not a code-read. Catches, never clears. */
+/* award-design in-page detector. Probes state rules and measures computed
+   deltas, so a "perceptible" claim carries a measured value instead of a
+   code-read. Reports findings and never clears them. */
 (() => {
   'use strict';
 
@@ -71,7 +72,7 @@
   }
 
   // Chrome serializes oklch()-authored computed colors as oklch(…) — contrast
-  // and nav-border need rgb, so the inverse transform is not optional.
+  // and nav-border need rgb, so the inverse transform is required.
   function oklabToSrgb(lab) {
     const l = Math.pow(lab.L + 0.3963377774 * lab.a + 0.2158037573 * lab.b, 3);
     const m = Math.pow(lab.L - 0.1055613458 * lab.a - 0.0638541728 * lab.b, 3);
@@ -267,8 +268,8 @@
   }
 
   // Fold for peak-hold sampling: every frame diffs against the same rest
-  // snapshot, so discrete maxes instead of summing — a persistent clip-path
-  // change is one structural delta, not one per sampled frame.
+  // snapshot, so discrete maxes instead of summing; a persistent clip-path
+  // change counts as one structural delta rather than one per sampled frame.
   function peakChannels(a, b) {
     if (!a) return b;
     const out = maxChannels(a, b);
@@ -304,7 +305,8 @@
 
   // sample = { hasStateRule, hasAffordance, pageHasJs, channels }.
   // Channels without a floor (box-shadow, clip-path, pseudo appear/vanish) count
-  // as perceptible when they change at all — they are structural, not gradual.
+  // as perceptible when they change at all, because they are structural rather
+  // than gradual.
   function classifyDelta(sample, floors) {
     const f = Object.assign({}, FLOORS, floors || {});
     const ch = sample.channels || {};
@@ -526,7 +528,8 @@
     for (const sheet of Array.from(document.styleSheets)) {
       sheets++;
       let list;
-      // Cross-origin sheets throw on cssRules access — count them, never skip silently.
+      // Cross-origin sheets throw on cssRules access — count them rather than
+      // skipping silently.
       try { list = sheet.cssRules; } catch (e) { opaqueSheets++; continue; }
       if (list) walk(list);
     }
@@ -810,7 +813,7 @@
   // background-color). A white fallback would inflate groundDeltaL and fatally
   // fail an opaque SAME-ground bar (the winner-cited Cyd cream) whose real dark
   // ground is image-based — so the caller leaves groundDeltaL at 0 and the bar
-  // reads REVIEW, matching the "FAIL fires only on proof" doctrine.
+  // reads REVIEW, matching the rule that FAIL fires only on proof.
   function pageGroundRgb() {
     for (const el of [document.body, document.documentElement]) {
       if (!el) continue;
@@ -842,9 +845,10 @@
   }
 
   // NAV-HERO-OPAQUE / NAV-HERO-SURFACE: the decapitation gate. Rest-state only —
-  // past scroll the bar is meant to ground, so a grounded bar there is correct,
-  // not a finding. The winner norm floats transparent over the hero and gains
-  // ground at the hero's bottom; the bone strip painted from pixel 0 is the tell.
+  // past scroll the bar is meant to ground, so a grounded bar there is correct
+  // rather than a finding. The winner norm floats transparent over the hero
+  // and gains ground at the hero's bottom; the bone strip painted from pixel 0
+  // is the tell.
   function checkNavHeroSurface(all, findings) {
     if ((window.scrollY || window.pageYOffset || 0) > 1) return;
     const bars = new Set(document.querySelectorAll('header, nav'));
@@ -1038,7 +1042,7 @@
   // SECTION-DEAD — the "empty and dead" beat. Rasterize each tall top-level
   // section, mark cells that carry text or a perceptible medium, and flag when
   // the largest empty rectangle swallows most of it: sparse text stranded in a
-  // corner over a void is what a code-read misses and the eye names dead.
+  // corner over a void is what a code-read misses and what reads as dead on screen.
   function checkSectionDead(findings) {
     const vh = window.innerHeight, cols = 24;
     for (const section of document.querySelectorAll('section, article')) {

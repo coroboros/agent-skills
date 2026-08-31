@@ -2,12 +2,12 @@
 
 The skill already demands a memorable signature and compares to the winner, yet
 plateaus at a competent scroll-reveal: it supplied a *menu* of categories and let
-a generic signature be filed as a known gap. This hardening forces the invention —
+a generic signature be filed as a known gap. This hardening forces the invention:
 a method (derive the mechanic from the world's verb), a hard R1 gate (a category
 signature regenerates, never files), two-altitude forcing on the signature itself,
 and buildability removed as an excuse.
 
-Each assertion would FAIL before this hardening."""
+Each assertion would fail before this hardening."""
 
 import unittest
 from pathlib import Path

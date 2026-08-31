@@ -1,7 +1,7 @@
 """award-design — the editorial / copy hardening from the bell-foundry test build.
 
 The build honored the mechanical craft (OKLCH, rem, tonal arc, real Web Audio) but
-failed on COPY: self-narrating colophon ("a feature on… set in Bodoni Moda"), stacked
+failed on copy: self-narrating colophon ("a feature on… set in Bodoni Moda"), stacked
 label layers (eyebrow + folio + pyrometer + title all naming one section), a count
 costume ("first/second/third casting"), and over-written reading blocks. Both the
 self-review and a fresh refuter under-weighted it. This locks:
@@ -59,7 +59,6 @@ class TestCopyWeightedInDesireRead(unittest.TestCase):
     def test_audit_rubric_copy_in_desire_read(self):
         ar = _read("audit-rubric.md")
         self.assertIn("copy is inside the desire read", ar)
-        # craft cannot buy back bad copy
         self.assertIn("craft does not buy back bad copy", ar)
 
 

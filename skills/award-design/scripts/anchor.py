@@ -3,11 +3,11 @@
 
 Same rut as the direction roll, one layer down: asked for a palette, a model
 returns its argmax — warm cream, serif, terracotta — and generic negation only
-moves it to a *different* fixed palette. So the palette is not asked for, it is
-drawn. Each seed is a physical-world material (a thing with a surface, a
-temperature, a way of taking light), never a software archetype, because a
-material carries a light and a light carries a whole page; "dark mode" carries
-nothing.
+moves it to a *different* fixed palette. So the palette is drawn rather than
+asked for. Each seed is a physical-world material (a thing with a surface, a
+temperature, a way of taking light) rather than a software archetype, because
+a material implies a light that can drive a whole page, which an abstraction
+like "dark mode" cannot.
 
 Pool curation, three invariants the seeds are chosen against:
   * the anti-cream band (CREAM_BAND below) is never a GROUND — that warm-neutral

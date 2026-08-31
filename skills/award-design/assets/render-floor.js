@@ -1,11 +1,11 @@
 /* award-design render floor — the mechanical D2 floor. Every rule here names an
-   objectively broken thing and ships the boxes that prove it; nothing in this
-   file has an opinion about taste.
+   objectively broken thing and ships the boxes that prove it; no rule in this
+   file judges taste.
 
    Sweep protocol. The harness owns the browser: it injects this file, calls
    arm() once on load, then for each width in SWEEP (375, 768, 1024, 1440, 1920)
-   resizes the viewport and calls run(). This payload never opens a browser,
-   never resizes one, never navigates, never touches the network.
+   resizes the viewport and calls run(). This payload does not open or resize a
+   browser, navigate, or touch the network.
 
      awardRenderFloor.arm();                                // once, on load
      await awardRenderFloor.run();                          // after each resize
@@ -35,7 +35,7 @@
    a box by construction. Two UNRELATED elements are judged on geometry alone,
    including the case where one box sits wholly inside the other: a citation
    printing inside a label column's box is the most total form of text on text,
-   not an excuse to skip it.
+   and it is judged like any other pair.
    TEXT-CLIPPED measures the GLYPH box (range client rects), not the border box:
    a block element never grows past its containing block, so a nowrap heading in
    a narrower overflow:hidden parent has an in-bounds rect and out-of-bounds
@@ -45,7 +45,7 @@
    smaller box and an absolute size, because a 700×30px collision ruins a line of
    type whatever fraction of an 800×400 block it computes to. H-OVERFLOW is
    deliberately the same id and box as detector.js's — a harness merging both
-   payloads should dedupe it, not count it twice.
+   payloads should dedupe it rather than counting it twice.
 
    Honest limits. Canvas text is pixels: a label painted into a <canvas> is
    invisible here, so the residue canvas that sliced "500–1500 Hz" is a
@@ -291,11 +291,11 @@
     return check;
   }
 
-  // The glyph box, not the border box. A block-level element never grows past
-  // its containing block, so a nowrap heading inside a narrower overflow:hidden
-  // parent has an in-bounds RECT and out-of-bounds TYPE — the shape of the
-  // diagram that lost its trailing " m". Range client rects are the line boxes
-  // themselves, which is what actually gets cut.
+  // Measures the glyph box rather than the border box. A block-level element
+  // never grows past its containing block, so a nowrap heading inside a
+  // narrower overflow:hidden parent has an in-bounds RECT and out-of-bounds
+  // TYPE — the shape of the diagram that lost its trailing " m". Range client
+  // rects are the line boxes themselves, which is what actually gets cut.
   function textInkRect(el) {
     let rects;
     try {
@@ -540,7 +540,7 @@
       'px viewport — the page scrolls sideways'));
   }
 
-  // State lives ON the one global, not beside it. Re-injecting this file
+  // State lives on the awardRenderFloor global itself. Re-injecting this file
   // Object.assigns onto the existing object rather than replacing it, so the
   // armed listeners and their buffer survive a re-inject across the width sweep
   // without the payload owning a second window property.

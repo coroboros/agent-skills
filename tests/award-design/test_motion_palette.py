@@ -79,7 +79,7 @@ class TestMotionPaletteFile(unittest.TestCase):
                 self.assertIn(mech, self.mp)
 
     def test_story_leads_over_technique(self):
-        # the evidence tier measures proven-ness, never permission to win — story decides
+        # the evidence tier measures proven-ness rather than permission to win; story decides
         self.assertIn("story leads", self.mp)
         self.assertIn("terminal industries", self.mp)
         self.assertIn("not whether the build wins", self.mp)

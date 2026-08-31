@@ -142,7 +142,6 @@ class TestDesireReadTravels(unittest.TestCase):
         self.assertIn("travels into the ship report", low)
 
     def test_skip_vs_gap_doctrine(self):
-        # a false tick and a lazily declared gap are the same fail
         self.assertIn("Falsely ticking a browser box is worse than declaring the gap",
                       self.pf)
         self.assertIn("declaring a gap the harness could have closed is the same fail",

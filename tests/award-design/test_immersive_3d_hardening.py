@@ -1,7 +1,7 @@
 """award-design — the immersive/3D signature hardening (the seven axes).
 
-The NOIRE test exposed the weakest path: the WebGL delegation guaranteed a scene,
-not a good one. A primitive amber flacon shipped as "noire", the drag fired the
+The NOIRE test exposed the weakest path: the WebGL delegation guaranteed a scene
+but not a good one. A primitive amber flacon shipped as "noire", the drag fired the
 browser's native drag-ghost, the hit-area was on the title, the CTA was a
 saturated slab. These lock the fixes:
   1 fidelity governs the medium (real media can beat a primitive 3D),
@@ -12,7 +12,7 @@ saturated slab. These lock the fixes:
   6 the signature serves the identity, never bends it,
   7 a register-appropriate CTA (no saturated slab on a refined page).
 
-Each assertion would FAIL before this hardening."""
+Each assertion would fail before this hardening."""
 
 import re
 import unittest
@@ -38,7 +38,7 @@ def _gate(name):
 
 def _delegation():
     """The WebGL/3D delegation contract lives with the cheat the subagent
-    rides, not in the core path."""
+    rides rather than in the core path."""
     m = re.search(r"^## The delegation contract\n(.*?)(?=^## )",
                   _read("ingredients/web3d-for-sites.md"), re.DOTALL | re.MULTILINE)
     assert m is not None, "## The delegation contract section missing"

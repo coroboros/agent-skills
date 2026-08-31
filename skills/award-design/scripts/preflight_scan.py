@@ -2,7 +2,8 @@
 """Deterministic anti-slop scanner — award-design pre-flight, a chunk's Verify.
 
 Scans built frontend sources for countable AI-design tells. Heuristic by
-design: it catches, it never clears — a clean run ticks no pre-flight box.
+design: it reports findings and never certifies a build — a clean run ticks
+no pre-flight box.
 Line-based matching keeps rules cheap and auditable; multi-line constructs
 (an `<img>` split across lines) may escape a rule, which is the accepted
 trade-off: false negatives over false positives. Two rules honor that bias
@@ -94,8 +95,8 @@ def _bezier_character(y1, y2):
 # IMG-NATIVE-RES: shipped-dims-vs-layout — a failed reference build's defect
 # (1280×720 frames rendered up to 2880×1800 device px behind a self-graded
 # asset table). Rendered width is unknowable without a browser, so the floor
-# rides layout signals — a `sizes` attribute (slot computed at the 1920 audit
-# ceiling), cover-fit CSS, a hero-classed context,
+# comes from layout signals — a `sizes` attribute (slot computed at the 1920
+# audit ceiling), cover-fit CSS, a hero-classed context,
 # fetchpriority="high", or a numbered scrub sequence — and every finding
 # carries px measured from the file header (PNG IHDR / JPEG SOF / GIF /
 # WebP VP8·VP8L·VP8X; AVIF is skipped: ISOBMFF box-walking exceeds stdlib
@@ -351,8 +352,8 @@ ARCHETYPE_SUPPRESSIONS = {
 MAX_EXCERPTS_PER_RULE = 10
 
 # QUOTED-EXEMPLAR: winner strings quoted in references/copy-recipes.md — they
-# calibrate, they never ship. Single source: every entry here must appear
-# verbatim in that file (the test suite enforces the lockstep).
+# exist to calibrate and must never ship. Single source: every entry here must
+# appear verbatim in that file (the test suite enforces the lockstep).
 BANNED_EXEMPLARS = (
     "Réveillez votre croissance",
     "We have reinvented the future of logistics through the yard",
@@ -696,8 +697,8 @@ def _copy_echo_findings(text):
 # optical-craft.md is *installed* at build time, never detected, so these five
 # rules only read back the mechanical half of it: a tracking value that never
 # moved across the ramp, headline balance never asked for, statistics that
-# jitter, a shadow with no temperature, an unstyled selection. Every one is a
-# fact about the stylesheet, so every one is decidable — and every one is
+# jitter, a shadow with no temperature, an unstyled selection. Each is a
+# fact about the stylesheet, so each is decidable — and all five are
 # REVIEW, because the judgment (is this register deliberate?) is the reviewer's.
 #
 # All five share one precondition: a real built page — at least one stylesheet
@@ -827,7 +828,7 @@ def _optical_findings(texts):
     page_blob = "\n".join(pages)
     findings = []
 
-    # OPTICAL-TRACKING — the ramp that never moved.
+    # OPTICAL-TRACKING
     tracking = {}   # display px → set of letter-spacing values
     for _, _, css in sheets:
         for _, body in _css_decl_blocks(css):
@@ -850,7 +851,7 @@ def _optical_findings(texts):
             "project",
             f"letter-spacing: {values.pop()} on all {len(tracking)} display sizes ({sizes})"))
 
-    # OPTICAL-BALANCE — the cheapest line of typographic polish, unasked for.
+    # OPTICAL-BALANCE
     if HEADLINE_TAG_RE.search(page_blob) and not TEXT_WRAP_RE.search(style_blob):
         findings.append(Finding(
             "OPTICAL-BALANCE", REVIEW,
@@ -860,7 +861,7 @@ def _optical_findings(texts):
             f"{len(HEADLINE_TAG_RE.findall(page_blob))} h1–h3 element(s), "
             f"zero text-wrap balance/pretty declarations in {len(sheets)} stylesheet(s)"))
 
-    # OPTICAL-TABULAR — proportional figures in a column never line up.
+    # OPTICAL-TABULAR
     if STAT_SIGNATURE_RE.search(page_blob) and not TABULAR_RE.search(style_blob):
         findings.append(Finding(
             "OPTICAL-TABULAR", REVIEW,
@@ -871,7 +872,7 @@ def _optical_findings(texts):
             f"{len(STAT_SIGNATURE_RE.findall(page_blob))} stat/counter signature(s), "
             "zero tabular-nums declarations"))
 
-    # OPTICAL-SHADOW — elevation reads as light, and light has a temperature.
+    # OPTICAL-SHADOW
     if _ground_is_chromatic(style_blob):
         for path, first_line, css in sheets:
             for offset, line in enumerate(css.splitlines()):
@@ -884,7 +885,7 @@ def _optical_findings(texts):
                         "(optical-craft.md, Spatial optics)",
                         f"{path}:{line_no}", line.strip()[:120]))
 
-    # OPTICAL-SELECTION — the quiet layer's cheapest second-read detail.
+    # OPTICAL-SELECTION
     if not SELECTION_RE.search(style_blob):
         findings.append(Finding(
             "OPTICAL-SELECTION", REVIEW,

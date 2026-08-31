@@ -10,7 +10,7 @@ gaps that run surfaced as real shipped defects:
   3. verify-loop granularity — hover→leave, section seams, and a
      modern-CSS-degraded render (a scroll-scrim hit opacity:.82 unguarded).
 
-Each assertion would FAIL on the skill before this hardening."""
+Each assertion would fail on the skill before this hardening."""
 
 import re
 import unittest

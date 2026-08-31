@@ -31,7 +31,7 @@ MODULE_SYNTAX = re.compile(r"^(?:import\s|export\s|require\(|(?:const|let|var)\s
 BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
 LINE_COMMENT = re.compile(r"^\s*//.*$", re.M)
 
-# Severity per rule is the contract, not a detail: a REVIEW promoted to FAIL
+# Severity per rule is the contract: a REVIEW promoted to FAIL
 # turns a legal archetype choice into a blocker, and a FAIL demoted to REVIEW
 # lets broken type ship.
 EXPECTED_SEVERITY = {
@@ -146,7 +146,7 @@ class TestRenderFloorAsset(unittest.TestCase):
         dotted = set(re.findall(r"window\.(\w+)\s*=(?!=)", code))
         self.assertEqual({"awardRenderFloor"}, dotted)
         self.assertEqual([], re.findall(r"window\[[^\]]+\]\s*=(?!=)", code))
-        # assigns ONTO the existing object: re-injecting across the width sweep
+        # assigns onto the existing object: re-injecting across the width sweep
         # must not drop the armed listeners' buffer
         self.assertIn("Object.assign(window.awardRenderFloor || {}, api, { arm, run })", self.source)
 
@@ -170,7 +170,7 @@ class TestRenderFloorAsset(unittest.TestCase):
 
     def test_clipped_measures_the_glyph_box_not_the_border_box(self):
         """The canonical cut is a nowrap heading inside a narrower
-        overflow:hidden parent: the element's RECT is in bounds and its TYPE is
+        overflow:hidden parent: the element's rect is in bounds and its type is
         not. Measuring the border box misses it entirely, so the ancestor arm
         must run on range client rects."""
         self.assertIn("range.selectNodeContents(el)", self.source)
@@ -179,8 +179,8 @@ class TestRenderFloorAsset(unittest.TestCase):
         self.assertIn("rectEscape(ink, clip.rect", self.source)
 
     def test_track_exemption_needs_a_live_scroll_offset(self):
-        """overflow:hidden IS a scroll container, so scrollWidth > clientWidth is
-        true exactly when the box is cutting content. Using the scroll EXTENT as
+        """overflow:hidden is a scroll container, so scrollWidth > clientWidth is
+        true exactly when the box is cutting content. Using the scroll extent as
         a track exemption suppressed every ordinary clipped card; only a live
         offset proves something drives the box as a track."""
         self.assertIn("scrolledX: Math.abs(node.scrollLeft || 0) > 1", self.source)
@@ -421,7 +421,7 @@ class TestZeroBoxAndFoldAndNav(unittest.TestCase):
         self.assertEqual("TOGGLE", self._nav({"viewportW": 375, "hiddenNavLinks": 4, "hasToggle": True}))
 
     def test_a_logo_and_a_cta_do_not_cover_a_hidden_menu(self):
-        """Counting VISIBLE links would clear the shipped defect outright: the
+        """Counting visible links would clear the shipped defect outright: the
         header still renders a logo anchor and a CTA anchor while the real menu
         is display:none. The proof is the hidden links, not the visible ones."""
         self.assertEqual("MISSING", self._nav(

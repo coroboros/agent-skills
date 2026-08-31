@@ -4,8 +4,8 @@ structure (copy-recipes.md), the category-headline test at review, and the §6 c
 The transverse dossier read 22 winners live and extracted the headline shapes, CTA
 families, specificity anchors, and voice mechanics they share. These lock the encoded
 layer: the three governing laws verbatim, the contracted section headings, the rubric's
-category-headline test, the three §6 boxes, the CLICHE-COPY tag on the clichés box —
-and the scanner sync: every BANNED_EXEMPLARS string traces to a quote in
+category-headline test, the three §6 boxes, the CLICHE-COPY tag on the clichés box,
+and the scanner sync — every BANNED_EXEMPLARS string traces to a quote in
 copy-recipes.md, so no scanner constant orphans."""
 
 import importlib.util
@@ -101,9 +101,9 @@ class TestPreflightCopyFloor(unittest.TestCase):
 
 class TestLanguageLaw(unittest.TestCase):
     """The HALDANE validation shipped French sentences inside English copy —
-    conversation bleed: the model wrote in its working language, not the
-    deliverable's. The law: English unless the brief's exact ask names another
-    language; one language, page-wide; register devices only."""
+    conversation bleed, the model writing in its working language rather than
+    the deliverable's. The law: English unless the brief's exact ask names
+    another language; one language, page-wide; register devices only."""
 
     def test_law_verbatim_in_intro(self):
         raw = RECIPES.read_text(encoding="utf-8")

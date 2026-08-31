@@ -3,7 +3,7 @@
 The skill's anti-monoculture claim rests on one testable device: the model writes
 its 5-7 spines, then a hash it does not control assigns one, and the floor of 3
 puts the top of the model's own ranking out of reach. Every assertion here pins a
-property that, if it broke, would silently hand the direction back to the argmax —
+property that, if it broke, would silently hand the direction back to the argmax:
 the reachable range, the floor, the reproducibility of the printed key, the
 push-don't-pull stdout that survives a truncated read. The core math is
 recomputed independently in this file rather than read back from the module, so a
@@ -56,7 +56,7 @@ class TestRollMathematics(unittest.TestCase):
                 self.assertEqual(roll.roll_index("direction", key, count, 0)[0], expected)
 
     def test_top_two_spines_are_unreachable(self):
-        """The floor IS the anti-argmax device — a roll that can return spine 1
+        """The floor is the anti-argmax device — a roll that can return spine 1
         or 2 hands the direction straight back to the model's own ranking."""
         for count in (5, 6, 7):
             drawn = {roll.roll_index("direction", key, count, 0)[0] for key in KEYS}

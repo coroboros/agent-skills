@@ -11,9 +11,10 @@ arbitration + declared-vs-code check, contact locality, the press/strike input
 substrate, the instrument form with its no-cursor carve-out and dual invitation,
 and the drawer floor/ceiling split.
 
-Honesty note: prose-presence regression locks. The bite lives in the pre-build
-R1 verdict quote, the code pass's artifact reads, the driven §8 boxes, and the
-detector's census — no test here verifies a build obeyed a judgment rule."""
+Honesty note: these tests are prose-presence regression locks. The bite lives
+in the pre-build R1 verdict quote, the code pass's artifact reads, the driven
+§8 boxes, and the detector's census; no test here verifies a build obeyed a
+judgment rule."""
 
 import unittest
 from pathlib import Path
@@ -53,9 +54,9 @@ class TestTimestampedArbitration(unittest.TestCase):
 
     def test_single_product_exempt_but_not_a_world(self):
         """The exemption narrowed (world-medium round): a single displayed hero
-        PRODUCT stays exempt under real-media-first, but an immersive WORLD is
-        not a product and is never exempt — the escape a scroll-verb brief used
-        to walk to ship a static-image procession."""
+        product stays exempt under real-media-first, but an immersive world is
+        not a product and is never exempt. That exemption was the escape a
+        scroll-verb brief walked to ship a static-image procession."""
         si = _read("signature-invention.md")
         self.assertIn("a single displayed hero product", si)
         self.assertIn("an immersive world is not a product and is never exempt", si)

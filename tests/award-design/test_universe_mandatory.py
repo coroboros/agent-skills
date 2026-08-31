@@ -1,13 +1,13 @@
 """award-design universe-mandatory contract — now carried by the nine-step path.
 
-The universe remains MANDATORY: no frontend ships without a committed one.
+The universe remains mandatory: no frontend ships without a committed one.
 The core carries its enforcement across the path — step 0 reads the room
 (mode, archetype, declared dials), steps 1–4 force the spine list, the roll and
 the anti-attractor cut, step 5 commits the six-block contract, step 6 refutes it
 in a fresh context before any build file exists, step 7 writes it as a DESIGN.md.
 The gate files carry the review that never confirms, and the WebGL/3D delegation
 rides the cheat its subagent is briefed with. These tests pin those contracts at
-their current homes; each would FAIL on a SKILL.md with no universe forcing at
+their current homes; each would fail on a SKILL.md with no universe forcing at
 all."""
 
 import re
@@ -99,7 +99,7 @@ class TestForcedConcepting(unittest.TestCase):
 
     def test_anti_default_at_two_altitudes(self):
         """One rejection produces the second-most-obvious default; the
-        two-altitude cut (reject the reflex AND the told-to-avoid-it reach) is
+        two-altitude cut (reject the reflex and the told-to-avoid-it reach) is
         what lands on a genuinely non-obvious direction."""
         step4 = _step(4)
         self.assertIn("**Anti-attractor.**", step4)

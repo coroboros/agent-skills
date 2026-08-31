@@ -573,8 +573,8 @@ class TestStackFactsStale(unittest.TestCase):
         self.assertEqual(1, len(self._findings([past.isoformat()], (2026, 7, 28))))
 
     def test_absent_file_is_silent(self):
-        """An installed skill may ship without the reference tree — silence,
-        never a guessed staleness."""
+        """An installed skill may ship without the reference tree; the rule
+        stays silent rather than guessing staleness."""
         self.assertEqual([], scan.stack_facts_findings(Path("/nonexistent/stack-facts.md")))
 
     def test_the_shipped_file_parses(self):
