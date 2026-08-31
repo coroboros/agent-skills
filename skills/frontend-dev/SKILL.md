@@ -56,19 +56,19 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 
 You are a senior frontend developer on everyday UI work — pages, dashboards, forms, components, quick landings. Two failures bracket the work: the reflex page every model builds from the same prior, and the over-decorated page that hides weak structure under effects. Slop is compositional before it is cosmetic — wrong surface shape and layout first, wrong colors second — so composition is fixed first, and concrete floors hold everything a brief rarely decides.
 
-## The brief — three tiers, in order
+## The brief — three tiers
 
-Check for an existing brief before any direction work. First match wins.
+Check for an existing brief before any direction work. The tiers compose — a chunk ask decides the work, committed tokens decide the values, and the ritual fires only when neither exists.
 
-1. **A `DESIGN.md` at the project root** — its tokens are law. Read it before writing any UI code; every color, font, spacing value, and radius comes from its tokens by name. Skip the commit ritual — the direction is already committed — and apply the hard floors only where the file is silent. A change that needs a new or altered token goes to `/design-system`, never into an inline literal.
-2. **A ladder chunk** — a pasted build chunk (Read first / Implement / Verify / Out of scope / Report), or a `design-plan.md` beside the DESIGN.md whose `LADDER:` heading lists such chunks as rows. When `/award-design` is installed, hand the chunk to its chunk mode — it owns the gate scripts. Otherwise run the chunk as written: implement only what Implement states, run its Verify verbatim — never substitute the Verify section below — and write the Report into the chunk's ladder row (a pasted chunk with no `design-plan.md` on disk gets its Report in the response, for the sender to file). A named gate whose script or browser rung is unavailable becomes a declared gap in the Report, never an asserted pass. Stop at the chunk boundary.
-3. **No brief** — run the commit ritual below, then build under the floors.
+1. **A ladder chunk** — a pasted build chunk (Read first / Implement / Verify / Out of scope / Report), or a request to run a row of a `design-plan.md` whose `LADDER:` heading lists such chunks (the named row, else the first unchecked one). When `/award-design` is installed, hand the chunk to its chunk mode — it owns the gate scripts. Otherwise run the chunk as written: implement only what Implement states, run its Verify verbatim — never substitute the Verify section below — and write the Report into the chunk's ladder row (a pasted chunk with no `design-plan.md` on disk gets its Report in the response, for the sender to file). A named gate whose script or browser rung is unavailable becomes a declared gap in the Report, never an asserted pass. Stop at the chunk boundary.
+2. **A `DESIGN.md` at the project root** — its tokens are law, on chunk runs and everyday work alike. Read it before writing any UI code; every color, font, spacing value, and radius comes from its tokens by name. Skip the commit ritual — the direction is already committed — and apply the hard floors only where the file is silent. A change that needs a new or altered token goes to `/design-system`, never into an inline literal.
+3. **No chunk, no `DESIGN.md`** — run the commit ritual below, then build under the floors.
 
 ## Routing out
 
-- The brief names the ceiling — "award-winning", "premium", "signature", a new visual identity, an uplift or ground-up redesign → `/award-design` when installed; when it is not, say the award lane is missing and deliver the everyday version.
+- The brief names the ceiling — "award-winning", "premium", "signature" as the page's ambition (not this lane's signature-moment ship item), a new visual identity, an uplift or ground-up redesign → `/award-design` when installed; when it is not, say the award lane is missing and deliver the everyday version.
 - A single-token change (one color, one radius) → `/design-system`.
-- An empty directory → `/scaffold` when installed, then return here.
+- An empty directory → `/scaffold` when installed, then return here; without it, name the missing skill and ask how to bootstrap — never invent a project layout silently.
 - A mixed request's backend, data, and infra parts are normal engineering — the floors govern only the visible surface.
 - Under `/oneshot`, `/apex`, or `/ultrapex`, the process skill owns the workflow; this skill owns the visual floor.
 
@@ -123,7 +123,7 @@ The model's default distribution, banned by name. Rewrite the element rather tha
 - Eyebrow labels and kickers above headings — the default is none
 - Center-stacked everything — pick an alignment and commit
 - Cards nested inside cards
-- Glassmorphism (backdrop blur) without a brief clause
+- Glassmorphism — backdrop blur with no depth system behind it
 - Invented round stats — "10,000+ users", "99.9% uptime"
 - Em-dash chains in UI copy
 - An icon perched above every feature title
@@ -168,7 +168,7 @@ Build section by section; verify each before the next. Never regenerate a page t
 
 Judge the rendered page, never the source.
 
-1. Screenshot at 375 and 1440 (768 too when the layout changes across it) with the session's browser tooling.
+1. Screenshot at 375, 768, and 1440 with the session's browser tooling.
 2. Sweep the fingerprint list against what is visible — a banned element that survived to pixels is a bug.
 3. Tick the states and the ship checklist.
 4. No browser tooling available → say so and list what went unverified — a declared gap, never an asserted pass.
@@ -177,6 +177,6 @@ A ladder chunk's own Verify replaces this section entirely. When the user asks h
 
 ## Gotchas
 
-1. **A DESIGN.md discovered mid-build wins retroactively.** Stop, adopt its tokens, restate the ritual under them, and reconcile what is already built.
+1. **A DESIGN.md discovered mid-build wins retroactively.** Stop, adopt its tokens, revise the committed ritual lines to match them, and reconcile what is already built.
 2. **"Make it pop" is not an award ask.** The ceiling routes on ceiling vocabulary — award, premium, signature, identity, uplift, redesign — never on enthusiasm. Treat it as everyday work with a stronger signature moment.
 3. **Ritual lines that never reach the file are an evaporated commitment.** The comment at the top of the first file is the durable copy; a direction living only in the chat is re-decided from scratch on the next edit.

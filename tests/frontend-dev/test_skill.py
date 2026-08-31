@@ -53,21 +53,23 @@ class TestFrontmatterTier(unittest.TestCase):
 
 
 class TestBriefTiers(unittest.TestCase):
-    """The brief resolves in a fixed order: DESIGN.md, then a ladder chunk,
-    then the ritual. Reordering silently changes which authority wins."""
+    """The brief tiers compose: a chunk ask decides the work, DESIGN.md
+    decides the tokens, and the ritual fires only when neither exists.
+    A DESIGN.md-first precedence would make the chunk tier unreachable
+    (every ladder chunk lives in a project that already has a DESIGN.md)."""
 
     def _tiers(self):
-        section = _section("The brief — three tiers, in order")
+        section = _section("The brief — three tiers")
         self.assertIsNotNone(section, "brief-tiers section missing")
         return section
 
     def test_tier_order(self):
         tiers = self._tiers()
-        design = tiers.find("`DESIGN.md` at the project root")
         chunk = tiers.find("A ladder chunk")
-        ritual = tiers.find("No brief")
-        self.assertTrue(0 <= design < chunk < ritual,
-                        f"tiers out of order: {design}, {chunk}, {ritual}")
+        design = tiers.find("`DESIGN.md` at the project root")
+        ritual = tiers.find("No chunk, no")
+        self.assertTrue(0 <= chunk < design < ritual,
+                        f"tiers out of order: {chunk}, {design}, {ritual}")
 
     def test_chunk_defers_to_award_design_when_installed(self):
         self.assertIn("hand the chunk to its chunk mode", self._tiers())

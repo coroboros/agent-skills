@@ -402,7 +402,7 @@ Award-level art direction, the everyday frontend lane, and DESIGN.md token gover
 
 #### award-design
 
-An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, a new identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
+An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, signature, a new identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
 
 **Usage**
 
