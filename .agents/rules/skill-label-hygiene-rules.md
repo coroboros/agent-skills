@@ -32,13 +32,13 @@ The sync script and the parity test read this list:
 - ultrapex
 - code-ultrareview
 - oneshot
+- award-design
 
 Scope rule — skills whose primary output is shared external surface (code, commits, PR bodies, review prose, fix patches). Skills whose primary output is a per-project content artifact (DESIGN.md, BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, forge planning files) are deliberately excluded because (a) the user owns the vocabulary in those files and (b) the leak patterns rarely appear there.
 
 ## Excluded skills (with reason)
 
 - `agent-creator` — emits agent config files in `.claude/agents/` (per-project / global infrastructure); not a code-or-commit emitter. Low leak risk; add later if drift shows it.
-- `award-design` — emits DESIGN.md (per-project content artifact).
 - `brand-voice` — emits BRAND-VOICE.md (per-project content artifact).
 - `claude-md` — emits CLAUDE.md (per-project content artifact).
 - `forge` — emits per-project planning artifact whose format vocabulary IS `WS-N`; carve-out applies file-wide.

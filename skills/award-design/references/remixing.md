@@ -56,43 +56,45 @@ Brief: design studio that positions itself for luxury clients (fashion, hotels, 
 
 ### Tokens
 
+The values below are placeholders on purpose — this example teaches the *derivation*, and a remix that copies its faces, hexes, and ramp steps has inherited a universe instead of building one. Resolve every `{…}` against the brief.
+
 **Typography** (Brutalist system, Corporate Luxury face)
-- Display: a custom serif (or GT Sectra if off-shelf) at weight 400. Large scale jumps (48 → 88px on hero).
-- UI/body: a brutalist sans (GT America or Polysans) at weight 400. Tight tracking.
+- Display: `{typography.display}` — a licensed or custom serif at weight 400, on a display-led ratio so the ramp jumps rather than steps.
+- UI/body: `{typography.ui}` — a grotesque at weight 400, tight tracking.
 - Rationale: Brutalist's typographic *system* (aggressive mixing, scale jumps) wins. Corporate Luxury's serif character wins at display.
 
 **Color** (Brutalist palette rule, Luxury neutrals)
-- Neutrals: off-white (`#f5f3ee`) and near-black (`#1a1a1a`) — from Corporate Luxury (warm, not clinical).
-- Accent: a single saturated hue used as a 2px rule or a full-bleed section background — Brutalist treatment.
+- Neutrals: `{colors.ground}` and `{colors.ink}` — a warm off-white and a warm near-black from Corporate Luxury, never the clinical pair. Take the temperature from the brief's world; the overexposed off-white grounds are named and banned in `anti-patterns.md`.
+- Accent: `{colors.accent}`, one saturated hue used as a drawn rule or a full-bleed section background — Brutalist treatment.
 - Rationale: Corporate Luxury's warm neutrals reassure clients; Brutalist's single-accent-as-rule keeps it assertive.
 
 **Spacing**
-- Base 8. Scale `8/16/24/32/48/64/96/128` — tight Brutalist rhythm in UI, luxury breathing at section breaks (96+).
+- One base unit, one scale derived from it — tight Brutalist rhythm through the lower steps, luxury breathing at section breaks on the top two.
 - Rationale: Brutalist discipline wins for density; luxury pacing wins for section breaks.
 
 **Radii**
-- 0 everywhere except inputs (2px).
+- 0 everywhere except inputs, which take the smallest non-zero step.
 - Rationale: Brutalist geometry dominates. Serif display at weight 400 does not want rounded company.
 
 **Depth**
-- Flat. 2px rules replace shadows. One exception: editorial photography overlaps with text via `mix-blend-mode`.
+- Flat. Drawn rules replace shadows. One exception: editorial photography overlaps with text via `mix-blend-mode`.
 - Rationale: both parents agree on restraint here.
 
 **Component example — primary button**
-- Geometry from Brutalist: 0 radius, uppercase label, tight tracking, 12/24 padding.
-- Color from Corporate Luxury: near-black fill, off-white text. Hover: inverts.
+- Geometry from Brutalist: 0 radius, uppercase label, tight tracking, padding off two adjacent spacing steps.
+- Color from Corporate Luxury: `{colors.ink}` fill, `{colors.ground}` text. Hover: inverts.
 - Annotation: geometry 70% Brutalist, color 100% Corporate Luxury.
 
 **Do's**
-- Use one accent hue and use it as a 2px rule or full-bleed section, never as decoration (Brutalist rule).
-- Let editorial photography breathe — `max-width: 1280px`, generous top/bottom padding (Corporate Luxury rule).
-- Headlines land at 48, 64, or 88. Nothing in between (Brutalist rule).
+- Use one accent hue and use it as a drawn rule or full-bleed section, never as decoration (Brutalist rule).
+- Let editorial photography breathe — a capped reading measure, generous top/bottom padding (Corporate Luxury rule).
+- Headlines land on the committed ramp's display steps. Nothing in between (Brutalist rule).
 
 **Don'ts**
 - Drop shadows on any surface (both parents agree).
-- Pill buttons or radii above 2px (Brutalist rule).
+- Pill buttons, or any radius above the inputs' step (Brutalist rule).
 - More than one accent per viewport (Brutalist rule).
-- Sans-serif at display sizes above 48px — the serif owns display (remix-specific rule — this is where the identity lives).
+- Sans-serif at the ramp's display steps — the serif owns display (remix-specific rule — this is where the identity lives).
 
 ### Parent DNA verification
 

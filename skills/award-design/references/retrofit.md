@@ -19,7 +19,7 @@ Apply in order. Do not skip ahead unless the brief explicitly carves out a step 
 
 ### 1. Font swap
 
-Biggest instant lift, lowest risk. If the display face is Inter, Roboto, Arial, or any system font, the page is failing axiom #2 of `anti-patterns.md` from the first hero. Swap to a deliberate face — a custom mark, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Instrument Serif, Geist, PP Editorial New). Keep the body sans-serif if it's reasonable; the display change alone moves Typography 0/10 → 6/10 in a single deploy.
+Biggest instant lift, lowest risk. If the display face is Inter, Roboto, Arial, or any system font, the page is failing axiom #2 of `anti-patterns.md` from the first hero. Swap to a deliberate face — a custom mark, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Geist, PP Editorial New). Keep the body sans-serif if it's reasonable; the display change alone moves Typography 0/10 → 6/10 in a single deploy.
 
 The swap pulls from the archetype reference's typography section. If no archetype is set yet, run the brand-extraction flow first (`brand-extraction.md`) to seed the archetype hypothesis.
 
@@ -41,13 +41,13 @@ The deepest lift; also the slowest. After typography and color are right, asymme
 
 1. **Mobile collapse mandates** (`premium-patterns.md` pattern 5) — every asymmetric desktop layout collapses to single-column below 768px, all `transform`-rotation and negative-margin overlaps removed below `md`.
 2. **`min-h-[100dvh]`** replaces `h-screen` everywhere — `h-screen` jumps catastrophically on iOS Safari URL-bar toggle.
-3. **Section spacing** — push to `py-24` minimum on marketing pages, `py-32` to `py-48` on luxury and editorial. Density bias (`foundations.md` Layout) applies — under-spacing is the AI default.
-4. **Hero 2-Line Iron Rule** (`premium-patterns.md` pattern 4) — wide containers (`max-w-5xl` to `max-w-6xl`), `clamp()` scaling, H1 in 2–3 lines maximum.
+3. **Section spacing** — push to `py-24` minimum on marketing pages, `py-32` to `py-48` on luxury and editorial (a Density 7+ DESIGN.md keeps its calibrated tighter band). Density bias (`foundations.md` Layout) applies — under-spacing is the AI default.
+4. **Hero 2-Line Iron Rule** (`premium-patterns.md` pattern 4) — wide containers (`max-w-5xl` to `max-w-6xl`), `clamp()` scaling, H1 in ≤2 lines (a 3rd takes a written override).
 5. **Three equal cards** (axiom #6) — never. Vary card sizes, move to bento or editorial layouts, or use a dominant card with supporting detail.
 
 ### 5. Replace generic components
 
-Now the page can carry distinctive components. Replace the generic card (`border + shadow + white background`) with one of: Doppelrand (pattern 1), Liquid Glass (pattern 9), or a flat editorial card with hairline rules. Replace the always-pill-button with a Button-in-Button (pattern 2) on the primary CTA. Add eyebrow tags (pattern 3) above section headlines. The components are loaded from `premium-patterns.md`; pick by archetype and atmosphere band.
+Now the page can carry distinctive components. Replace the generic card (`border + shadow + white background`) with one of: Doppelrand (pattern 1), Liquid Glass (pattern 9), or a flat editorial card with hairline rules. Replace the always-pill-button with a Button-in-Button (pattern 2) on the primary CTA. Add eyebrow tags (pattern 3) only above the section headlines they genuinely inform — the H1-stands-alone default holds, rationed by preflight §4/§6. The components are loaded from `premium-patterns.md`; pick by archetype and atmosphere band.
 
 ### 6. Empty / error / loading states
 
@@ -59,24 +59,28 @@ Loading skeletons use the Shimmer perpetual micro-interaction (pattern 11) at th
 
 After everything else. The polish layer: `letter-spacing` adjustments on display type (`-0.02em` to `-0.04em` on serifs and grotesks), `font-feature-settings: 'tnum'` on tabular numbers, `font-variation-settings` micro-shifts on hover for variable fonts, drop caps via `::first-letter`. Optical alignment, baseline grid lock, OpenType features. The kind of work that takes Typography from 8/10 to 10/10 — and that has no value until the underlying typography choice (step 1) and component architecture (step 5) are correct.
 
-## What NOT to retrofit
+## What not to retrofit
 
 Some interventions cost more than they return. Skip these unless the brief explicitly requires them:
 
-- **Full archetype change** mid-retrofit. If the existing site is Bento and the user wants Spatial Organic, that's not a retrofit — that's a re-architect. Run the SKILL.md "Changing archetype mid-project" sub-flow instead, which regenerates the entire DESIGN.md from new foundations.
-- **Migrating animation libraries** (GSAP → Framer Motion or vice versa) for the sake of "modernization". Use whichever the codebase already runs; mixing the two in the same component tree is an axiom-#15 anti-pattern (`foundations.md` AI Tells technical).
+- **Full archetype change** mid-retrofit. If the existing site is Bento and the user wants Spatial Organic, that's not a retrofit — that's a re-architect. Re-enter the path at SPINES with the new archetype (SKILL.md gotcha 1), which regenerates the entire DESIGN.md from new foundations.
+- **Migrating animation libraries** (GSAP → Framer Motion or vice versa) for the sake of "modernization". Use whichever the codebase already runs; mixing the two in the same component tree is a Technical AI tell (`anti-patterns.md`).
 - **Adding a signature moment to a page that doesn't have a focal point**. Axiom #8 requires a signature, but bolting a kinetic typography reveal onto a generic centered hero just emphasizes the underlying template. Fix the hero composition first (step 4); the signature can ride on top.
 - **WebGL or 3D additions** to a site that doesn't carry the cinematic register. Performance cost is high; payoff is low if the rest of the site is SaaS-rhythm.
 - **Replacing all icons with custom SVGs** when the existing icon set is consistent and the brand has no icon-system stake. A library swap (Lucide → Phosphor) is a rounding error; a full custom-icon program is a six-week project. Pick one.
 
+## What never changes silently
+
+SEO migration is the #1 redesign risk; analytics is #2. Without explicit user approval, never modify: URL structure or route slugs; anchor IDs; primary nav labels; form field names or order (breaks analytics and autofill); the logo or wordmark; legal, consent, or cookie copy. Preserve the copy voice unless a rewrite was asked; honor existing accessibility wins (focus states, alt text, contrast); keep element IDs and classes that downstream tracking selects on. Record the pre-retrofit SEO baseline (ranking pages, meta titles, structured data, OG cards) before touching layout.
+
 ## After the retrofit
 
-Run the same validation as a new project — the review pass (filter + rubric):
+Run the same validation as a new project — each chunk's Verify and the review chunk (pre-flight + review mode):
 
 1. `references/anti-patterns.md` — axiomatic rejections first; if any present, the retrofit isn't done.
-2. `references/audit-rubric.md` — score the seven categories. The retrofit target is +2 points per category from the pre-fix baseline.
+2. `references/audit-rubric.md` — score the eight categories. The retrofit target is +2 points per category from the pre-fix baseline.
 3. `references/foundations.md` UX Quality and Accessibility sections — these are easy to defer during retrofit and easy to break.
-4. Visual review via `dev-browser` if available — screenshot before/after for the user to compare.
+4. Visual review through the browser ladder (`external-truth.md` — install offer applies) — screenshot before/after for the user to compare.
 
 Update DESIGN.md to reflect the post-retrofit state. The token diff between pre and post is a useful artifact for the team; export it via `/design-system diff DESIGN.md@HEAD~1 DESIGN.md`.
 
@@ -87,4 +91,4 @@ Update DESIGN.md to reflect the post-retrofit state. The token diff between pre 
 - `audit-rubric.md` — quantitative scoring; the retrofit aims to lift each category 2+ points
 - `premium-patterns.md` — components that replace the generic ones in step 5
 - `foundations.md` — typography, color, motion, and performance fundamentals applied throughout
-- SKILL.md "Changing archetype mid-project" — the alternative when the retrofit needs to become a re-architect
+- SKILL.md gotcha 1 (archetype flip → re-enter at SPINES) — the alternative when the retrofit needs to become a re-architect

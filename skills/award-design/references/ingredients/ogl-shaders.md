@@ -22,6 +22,11 @@ import { Renderer, Program, Mesh, Triangle, Color, Vec2 } from 'ogl';
 const vertex = /* glsl */ `attribute vec2 uv; attribute vec2 position; varying vec2 vUv;
   void main() { vUv = uv; gl_Position = vec4(position, 0.0, 1.0); }`;
 
+// The palette lives in DESIGN.md and exports to `@theme` as hex custom properties
+// (`../design-md-anatomy.md`), which is what OGL's Color parses. Read it off the root:
+// one source, no second copy of the palette to drift.
+const token = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
 const renderer = new Renderer({ dpr: Math.min(window.devicePixelRatio, 2), alpha: true });
 const gl = renderer.gl;
 canvasHost.appendChild(gl.canvas); // a positioned wrapper, not document.body
@@ -32,8 +37,8 @@ const program = new Program(gl, {
     uTime: { value: 0 },
     uRes: { value: new Vec2() },
     uPointer: { value: new Vec2(0.5, 0.5) },
-    uColorA: { value: new Color('#1A1A2E') }, // palette from DESIGN.md, never literals
-    uColorB: { value: new Color('#CCFF00') },
+    uColorA: { value: new Color(token('--color-surface')) }, // whichever two `colors.*` keys
+    uColorB: { value: new Color(token('--color-accent')) },  // the palette commits — never literals
   },
 });
 const mesh = new Mesh(gl, { geometry: new Triangle(gl), program });

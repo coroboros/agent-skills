@@ -1,6 +1,6 @@
 # Production Hardening
 
-Battle-tested patterns for shipping immersive web design to real devices, distilled from production incidents — not lab testing. Load this when implementing any project with video, scroll-driven cinematic reveals, or full-screen heroes.
+Battle-tested patterns for shipping immersive web design to real devices, distilled from production incidents — not lab testing. Load this when implementing any project with video, scroll-driven cinematic reveals, or full-screen heroes. These guards are boundary validations of documented browser behavior, not speculative error handling.
 
 **Scope note.** Most of the patterns here apply cross-browser (Chrome, Firefox, Safari on desktop; Chrome, Firefox, Safari on mobile). iOS Safari is the *sharpest test case* — it exposes these bugs first and hardest because of its strictest autoplay policy, aggressive bfcache restoration, synthetic scroll events during URL-bar settling, and layout timing quirks. **Passing iOS means passing everything else.** Each section below flags where a rule is genuinely iOS-only vs. where iOS is just the canary.
 
@@ -17,7 +17,7 @@ Battle-tested patterns for shipping immersive web design to real devices, distil
 
 ## Tokenization
 
-Code samples in this file use literal values (durations, opacities, viewport units, scroll offsets) for clarity. In production, these MUST bind to DESIGN.md token namespaces — `motion.duration-*` for durations, `motion.ease-*` for easings, `opacity.*` for overlays, `heights.*` for viewport heights, `scrollTriggers.*` for fold offsets. Consume them as CSS custom properties (`var(--duration-reveal-slow)`) or Tailwind v4 utilities (`duration-reveal-slow`). Magic numbers in JS (`SPACER_MULTIPLIER`, scroll thresholds) read the corresponding `var(--scroll-*)` at startup, never hardcode. Full convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Validate with `/design-system audit-extensions DESIGN.md`.
+Code samples in this file use literal values (durations, opacities, viewport units, scroll offsets) for clarity. In production, these must bind to DESIGN.md token namespaces — `motion.duration-*` for durations, `motion.ease-*` for easings, `opacity.*` for overlays, `heights.*` for viewport heights, `scrollTriggers.*` for fold offsets. Consume them as CSS custom properties (`var(--duration-reveal-slow)`) or Tailwind v4 utilities (`duration-reveal-slow`). Magic numbers in JS (`SPACER_MULTIPLIER`, scroll thresholds) read the corresponding `var(--scroll-*)` at startup, never hardcode. Full convention: [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Validate with `/design-system audit-extensions DESIGN.md`.
 
 ## Viewport units
 
@@ -45,9 +45,11 @@ Every award-design hero uses viewport-relative heights. Picking the wrong unit i
 **CSS fallback:**
 
 ```css
-.hero { height: 100vh; }
-@supports (height: 100svh) { .hero { height: 100svh; } }
+.hero { min-height: 100svh; }                       /* stable floor — Baseline 2022, same as dvh */
+@supports (height: 100dvh) { .hero { min-height: 100dvh; } }  /* dynamic where wanted */
 ```
+
+A bare `100vh` fallback line would trip the pre-flight scanner and misbehave on iOS anyway — engines old enough to lack `svh` also lack `dvh`; omit the legacy line.
 
 ## Reading svh from JS
 
@@ -128,7 +130,7 @@ Catch the `play()` promise silently. If the browser refuses (Low Power Mode, dat
 
 ### File size
 
-Hero video < 5 MB, ideally < 3 MB. `ffmpeg -crf 28 -preset slow`. Loop 8–15s. Longer = bandwidth for frames nobody watches.
+No award jury publishes a byte cap (`stack-facts.md`, `award-imperatives.md` #7), and the poster carries first paint either way — but a hero video past ~5 MB spends the connection's headroom on the critical path, so the loop starts late and the poster sits there on a median link. Compress toward 3 MB before trading any fidelity. `ffmpeg -crf 28 -preset slow`. Loop 8–15s. Longer = bandwidth for frames nobody watches.
 
 ## Scroll-driven cinematic sequences
 
@@ -244,18 +246,30 @@ function smoothScrollTo(target, duration) {
 
 Scroll-driven reveals hide elements via JS on first frame. Between first paint and script execution, they flash at full opacity.
 
-### Hide at the CSS layer (the floor)
+### Hide only where the reveal engine is confirmed present (the floor)
+
+Base CSS never hides content. The hidden state is scoped to a class the loader sets, so it exists only on a page whose script actually ran:
 
 ```css
-.scroll-reveal {
-  opacity: 0;
-  transform: translateY(16px);
-  will-change: opacity, transform;
+.scroll-reveal { opacity: 1; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html.js .scroll-reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    will-change: opacity, transform;
+  }
+  html.js #video-wrapper { opacity: 0; }
 }
-#video-wrapper { opacity: 0; }
 ```
 
-JS then takes over and animates these inline. CSS is the floor; JS is the driver.
+```html
+<!-- In <head>, inline and render-blocking: the class lands before first paint,
+     so the guarded hidden state is in place with no flash. -->
+<script>document.documentElement.classList.add('js');</script>
+```
+
+JS then takes over and animates these inline. The guarded rule is the floor; JS is the driver. Writing `opacity: 0` unguarded in base CSS instead is the page-blanking failure catalogued in `skeletons.md` §G — a no-JS load, a parse error, or one throw above the observer leaves the whole page blank, and it screenshots clean every time JS works. Both gates are load-bearing: the media query keeps a reduced-motion visitor out of the hidden state, the class keeps a script-less one out. The runnable form of the same pattern: `skeletons.md` §G.
 
 ### Handle `prefers-reduced-motion` synchronously
 
@@ -279,7 +293,7 @@ else if (scrollY < endPx) { /* interpolate */ }
 else                      { /* opacity = 1 */ }
 ```
 
-If `startPx` or `endPx` is `0` or `NaN` (corrupt svh, missed range lookup), **every element falls through to the `else` branch** — visible on top of the hero. The CSS `opacity: 0` floor only helps until JS runs; after that, bad JS paints over good CSS.
+If `startPx` or `endPx` is `0` or `NaN` (corrupt svh, missed range lookup), **every element falls through to the `else` branch** — visible on top of the hero. The guarded `opacity: 0` pre-state only holds until JS runs; after that, bad JS paints over good CSS.
 
 Guard `update()` so bad data can never paint the revealed state:
 
@@ -334,7 +348,7 @@ Two spacers in a 1:2 ratio place content in the upper third **proportionally** a
 - Don't layer `rem` on top of `vh` on top of `%` — pick one system per axis
 - Don't `justify-center` when you mean "upper third" — the math works but the result drifts on tall vs short viewports
 
-### When breakpoints ARE correct
+### When breakpoints are correct
 
 Genuine structural change only: column-stack → side-by-side, nav hamburger → horizontal, hide/show different compositions. If you're only adjusting a spacing value, use a proportional unit.
 
@@ -364,9 +378,9 @@ Quirks surfaced by shipping to real devices. The **Scope** column flags where ea
 Desktop browser resize is not a mobile test. URL-bar toggle is the source of 80% of mobile-only bugs and no desktop browser reproduces it.
 
 - Preview via LAN URL (local dev server + wifi, or an HTTPS tunnel like ngrok / Cloudflare Tunnel for PWA and service-worker tests) and open on your actual phone
-- Test with URL bar expanded AND collapsed — scroll up to re-show it
+- Test with URL bar expanded and collapsed — scroll up to re-show it
 - Test in Low Power Mode / data-saver — triggers autoplay rejection you can't catch in dev (iOS Low Power, Android data-saver)
-- Test portrait AND landscape — landscape phone is ~400px tall, breaks most centered layouts
+- Test portrait and landscape — landscape phone is ~400px tall, breaks most centered layouts
 - **Test the return path.** Scroll to bottom, tap an external link, hit back. Chrome, Firefox, and Safari all bfcache-restore the page frozen mid-animation with inline styles preserved
 - **Test a cold re-open with scroll history.** Scroll down, close the tab (not just the page), reopen the URL — any browser may restore `scrollY` from session storage
 - **Test from a URL you've previously scrolled on.** Localhost has no scroll history for the origin; production does. The infamous *"works on local preview, broken on deployed"* symptom is almost always scroll restoration — reproducible on any browser, but iOS users trigger it constantly via app-switcher

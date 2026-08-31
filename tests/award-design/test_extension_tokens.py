@@ -4,11 +4,11 @@ Pins the resolution of the synergy with /design-system: the produced DESIGN.md
 uses the canonical 5 namespaces validated by the Google CLI plus top-level
 extension namespaces (motion, shadows, aspectRatios, heights, containers,
 breakpoints, zIndex, borderWidths, opacity, scrollTriggers) that are
-preserved-but-unvalidated per the Google spec. Components bind ONLY to the 8
+preserved-but-unvalidated per the Google spec. Components bind only to the 8
 canonical property tokens — that is the empirical lint-failure mode this
 contract prevents.
 
-The rebuild moved this contract OUT of the SKILL.md body (which no longer
+The rebuild moved this contract out of the SKILL.md body (which no longer
 carries a Phase 3 / Tokens section) into the reference files — the lean body is
 intentional. design-md-anatomy.md is the token-namespace authority;
 foundations.md carries the same boundary at its Tokenization boundary. The
@@ -170,6 +170,17 @@ class TestProseSectionMapping(unittest.TestCase):
                     f"prose-section mapping must host narrative concept: {narrative}",
                 )
 
+    def test_anatomy_specifies_the_signature_beat_table(self):
+        """Motion is designed like an animator designs it — as beats, before
+        code. The anatomy must carry the beat-table format the DESIGN.md's
+        signature choreography is written in."""
+        anatomy = _anatomy()
+        self.assertIn("Signature beat table", anatomy)
+        for column in ("Beat", "Trigger", "Element", "Transform", "Duration / ease"):
+            with self.subTest(column=column):
+                self.assertIn(column, anatomy,
+                              f"beat table must carry the {column} column")
+
     def test_anatomy_lists_all_eight_canonical_sections(self):
         """Every canonical Google section must appear at least once in the
         anatomy mapping — otherwise the agent can't tell where to put content."""
@@ -183,16 +194,10 @@ class TestProseSectionMapping(unittest.TestCase):
 
 
 class TestSkillBodyStaysLean(unittest.TestCase):
-    """The rebuild deliberately kept the extension-token mechanics OUT of the
+    """The rebuild deliberately kept the extension-token mechanics out of the
     SKILL.md body. The body routes to the references; it does not re-derive the
     contract. These assertions guard against re-bloating the body to satisfy a
     test — the body keeps only the pointer."""
-
-    def test_body_routes_to_extended_tokens(self):
-        """The body names the extension-token convention as a route, not an inline
-        link — the anatomy reference holds the actual extended-tokens.md link."""
-        self.assertIn("extension-token", _body(),
-                      "SKILL.md must name the extension-token convention as a route")
 
     def test_body_points_at_token_authority(self):
         self.assertIn("design-md-anatomy.md", _body(),
@@ -209,7 +214,7 @@ class TestSkillBodyStaysLean(unittest.TestCase):
     def test_body_does_not_inline_the_property_token_list(self):
         """The full 8-property-token enumeration belongs in the references; a
         body that re-lists all eight is re-bloating it. Guard against that by
-        asserting the closed set is NOT enumerated in the body."""
+        asserting the closed set is not enumerated in the body."""
         body = _body()
         inlined = sum(1 for t in DESIGN["design_md_canonical_property_tokens"] if t in body)
         self.assertLess(

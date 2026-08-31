@@ -8,7 +8,7 @@ Sound is the riskiest layer on a site — wrong by default, off by default. Earn
 
 - The brief calls for UI micro-sounds (hover, toggle, send, success) or an ambient bed, and the archetype supports it — Immersive/Cinematic, Bold/Maximal, Experimental, some Spatial Organic and Editorial.
 - The lead delegates the audio module to you with the `DESIGN.md` as the brief.
-- Skip on Minimalist and Corporate Luxury unless the brief explicitly asks — silence is the louder choice there.
+- Skip on Minimalist — and on Corporate Luxury default to silence, unless the brief asks or the universe earns it Cartier-style (a bespoke, consent-gated soundscape is that archetype's canonical exception).
 
 ## Library choice
 
@@ -22,7 +22,7 @@ Pick one per layer. Howler for discrete cues, Tone for a living bed; never both 
 
 ## The unlock gate — resume on first gesture
 
-Browsers start the audio context **suspended**. It resumes only inside a real user gesture (`pointerdown`, `keydown`, `click`) — `mousemove`, `scroll`, `wheel`, `pointermove` do not count. NEVER autoplay audio.
+Browsers start the audio context **suspended**. It resumes only inside a real user gesture (`pointerdown`, `keydown`, `click`) — `mousemove`, `scroll`, `wheel`, `pointermove` do not count. Never autoplay audio.
 
 ```javascript
 // Howler — context is created lazily; first play() inside a gesture resumes it.
@@ -49,7 +49,7 @@ On reload the unlock repeats — a per-navigation browser constraint with no wor
 
 - **Micro-sounds ≤ 0.3s**, low gain, felt not heard. A hover tick is 60–120ms; a send/success cue up to 300ms.
 - **Ambient bed at 0.05–0.15 gain.** Above 0.2 it competes with the user's own music and reads as intrusive.
-- **OFF by default, opt-in.** No sound plays until the user enables it. The first gesture primes the context; it does not start the bed.
+- **Off by default, opt-in.** No sound plays until the user enables it. The first gesture primes the context; it does not start the bed.
 - **A persistent, visible mute/sound toggle is mandatory** — fixed corner, present on every view, reflecting current state.
 
 ```javascript
@@ -61,7 +61,7 @@ bedGain.gain.rampTo(isMuted ? 0 : 0.1, 0.4); // Tone.Gain node
 
 ## Accessibility and policy
 
-- NEVER autoplay audio. NEVER convey information by sound alone — every cue pairs with a visible state change (the toggle flips, the field clears, the row highlights).
+- Never autoplay audio. Never convey information by sound alone — every cue pairs with a visible state change (the toggle flips, the field clears, the row highlights).
 - Honor `prefers-reduced-motion: reduce` as a calm signal: keep sound **off**, and have the toggle default to muted.
 - Give the toggle an accessible label that names the action and reflects state: `aria-label="Mute sound"` / `aria-label="Enable sound"`, `aria-pressed` tracking on/off.
 - Respect the browser autoplay policy — the unlock gate above is how you comply, not a workaround around it.
@@ -120,4 +120,4 @@ A default click on a watch site, or generic chimes on a brutalist one, is the au
 - `audio-loop` skill — gapless loop from a real recording (the third row above), with the canonical raw Web Audio gesture-unlock snippet.
 - `../atmosphere-calibration.md` — the Motion score sets how present and active the bed should be.
 - `../design-md-anatomy.md` — where the sound palette lives in the brief; record tone/material/register alongside motion.
-- `../anti-patterns.md` — autoplay, stock cues, and information-by-sound-only are catalogued failures.
+- Audio failure modes pinned by this file: autoplay without a user gesture, stock cue packs, information carried by sound alone — each is stop-and-fix.

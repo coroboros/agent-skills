@@ -1,0 +1,45 @@
+/* award-design · editorial · warm-paper · Söhne/Söhne · full-bleed-hero · linear · nav:minimal-bar · footer:functional */
+:root {
+  --surface: oklch(96% 0.03 82);
+  --ink: oklch(22% 0.02 82);
+}
+body {
+  color: var(--ink);
+  background: var(--surface);
+}
+/* Tracking is a curve: it tightens as the size grows. */
+h1 {
+  font-size: 4.5rem;
+  letter-spacing: -0.04em;
+}
+h2 {
+  font-size: 2.5rem;
+  letter-spacing: -0.02em;
+}
+h3 {
+  font-size: 32px;
+  letter-spacing: -0.01em;
+}
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+.stat {
+  font-variant-numeric: tabular-nums;
+}
+/* The shadow carries the surface hue, so the elevation reads as light. */
+.card {
+  box-shadow: 0 18px 40px oklch(22% 0.02 82 / 0.28);
+}
+::selection {
+  background: var(--ink);
+  color: var(--surface);
+}
+a:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}

@@ -1,220 +1,313 @@
-"""award-design SKILL.md top-level structure — the ambient-forcing contract.
+"""award-design SKILL.md top-level structure — the path contract.
 
-The rebuild dropped the 4-phase Discovery/Decision/Tokens/Production workflow:
-the skill is now "ambient forcing, not a checklist" (art-director, not
-project-manager). This module pins the new section spine, the judging-criteria
-numbers, and the remix routing. The universe-mandatory / commit-and-prove /
-review-mode contracts are pinned in test_universe_mandatory.py; the moved-out
-token + atmosphere contracts in test_extension_tokens.py and test_archetypes.py.
-
-Each assertion here would FAIL on the pre-rebuild SKILL.md, which carried
-`## Workflow` with four `### Phase N — Title` headings and no ambient-forcing
-framing."""
+The skill runs on a fixed division of labor: machines catch defects
+(scanner/detector + the mechanical floor), fresh-context gates judge quality
+(R1/R2, desire read), and the builder designs freely between the two. A nine-step
+path carries the sequence, the roll forces the variance a model's own ranking
+cannot, and every reference load is priced in the load map. This module pins the
+section spine, the division of labor, the routing boundary, the scoped-run path,
+and the judging-criteria numbers."""
 
 import re
 import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-SKILL_MD = REPO_ROOT / "skills" / "award-design" / "SKILL.md"
+SKILL_DIR = REPO_ROOT / "skills" / "award-design"
+SKILL_MD = SKILL_DIR / "SKILL.md"
+REFS = SKILL_DIR / "references"
+PREFLIGHT_MD = REFS / "preflight.md"
 
 
 def _body():
     return SKILL_MD.read_text(encoding="utf-8")
 
 
-# The rebuilt skill's top-level spine — H2 sections, in document order. The
-# rebuild replaced the phased workflow with these; reordering or dropping one
-# changes the art-director framing the skill is built on.
+def _section(name):
+    """A `## <name>` section body, up to the next `##`."""
+    m = re.search(rf"^## {re.escape(name)}\b(.*?)(?=^##\s)", _body(),
+                  re.DOTALL | re.MULTILINE)
+    assert m is not None, f"## {name} section missing"
+    return m.group(1)
+
+
+def _ref(rel):
+    return (REFS / rel).read_text(encoding="utf-8")
+
+
+# The core spine — H2 sections, in document order.
 EXPECTED_SECTIONS = [
-    "## Ambient forcing, not a checklist",
-    "## Scope",
-    "## The universe is mandatory",
-    "## Build the frontend yourself, under the forcing",
-    "## Review mode",
-    "## Stack",
+    "## Routing",
+    "## The path",
+    "## The load map — every load is priced, none is free",
+    "## Hard constraints",
+    "## Verify, then ship",
+    "## Output discipline",
+    "## Gotchas",
 ]
 
 
-class TestAmbientForcingStructure(unittest.TestCase):
-    """The rebuilt skill is ambient forcing, not a phased checklist. The new
-    H2 spine must be present and ordered; the phased-workflow vocabulary must
-    be gone — its survival would mean the rebuild only half-landed."""
+class TestProtocolSpine(unittest.TestCase):
+    """Routing → the path → the priced load map → the constraints → verify is
+    the load-bearing structure: the sequence is what forces taste commitments
+    early, while they cost nothing to change. A missing or reordered section is
+    the rebuild half-landing."""
 
     def test_each_section_present(self):
         body = _body()
         for header in EXPECTED_SECTIONS:
             with self.subTest(section=header):
-                self.assertIn(header, body, f"top-level section missing: {header}")
+                self.assertIn(header, body, f"spine section missing: {header}")
 
     def test_sections_in_document_order(self):
         body = _body()
         positions = [body.find(h) for h in EXPECTED_SECTIONS]
         self.assertTrue(all(p != -1 for p in positions), "a spine section is missing")
-        self.assertEqual(
-            positions, sorted(positions),
-            "top-level sections are out of the contracted order",
-        )
+        self.assertEqual(positions, sorted(positions),
+                         "spine sections are out of the contracted order")
 
-    def test_art_director_framing_present(self):
-        """The framing line is the load-bearing reframe: the rules are ambient
-        air the build breathes, not phases to clear. Losing it returns the skill
-        to a checklist posture."""
+    def test_ambient_substitute_posture_is_gone(self):
+        """The old framing — ambient judgment replacing the path — must not
+        survive."""
         body = _body().lower()
-        self.assertIn("art-director, not a project-manager", body,
-                      "the art-director (not project-manager) framing must be stated")
-        self.assertIn("not phases to clear", body,
-                      "the rules must be framed as ambient forcing, not phases to clear")
+        for stale in ("ambient forcing, not a checklist", "not phases to clear"):
+            with self.subTest(phrase=stale):
+                self.assertNotIn(stale, body,
+                                 f"the ambient-substitute posture must not survive: {stale!r}")
 
-    def test_no_phased_workflow_survives(self):
-        """The 4-phase workflow is gone. Neither a `## Workflow` section nor any
-        `### Phase N — Title` heading may remain."""
+    def test_builder_keeps_design_authority(self):
+        """Machines catch defects, fresh eyes judge quality — and between the
+        two the builder designs with full authority. Losing that line
+        overcorrects into a checklist-only skill."""
         body = _body()
-        self.assertNotRegex(
-            body, r"(?m)^## Workflow\b",
-            "the `## Workflow` section must not survive the rebuild",
-        )
-        self.assertNotRegex(
-            body, r"(?m)^### Phase \d+ —",
-            "no `### Phase N — Title` heading may survive the rebuild",
-        )
+        self.assertIn("you design with full authority", body)
+        self.assertIn("quality is judged beside a live exemplar, never scored by a number",
+                      body, "checks are countable facts, never the judgment")
 
-    def test_old_phase_titles_gone(self):
-        """The four phase titles, as phase headings, must not return."""
+
+class TestDivisionOfLabor(unittest.TestCase):
+    """Three instruments keep the builder's freedom honest — the machine checks,
+    the fresh-context gates, and the roll that forces variance — and the two
+    gates (R1 before any file, R2 on the render) are where quality is judged."""
+
+    def test_three_instruments_named(self):
         body = _body()
-        for phase in ("Discovery", "Decision", "Tokens", "Production"):
-            with self.subTest(phase=phase):
-                self.assertNotRegex(
-                    body, rf"(?m)^###.*\b{phase}\b",
-                    f"phase heading '{phase}' must not survive as an H3",
-                )
+        self.assertIn("Machines catch defects", body)
+        self.assertIn("a fresh-context review judges quality", body)
+        self.assertIn("scripts/direction_roll.py", body,
+                      "the roll is the third instrument — forced variance, not taste")
+
+    def test_gates_are_binary_with_written_overrides(self):
+        """The binary-gate discipline lives in the mechanical floor: countable
+        or binary, and every override written into the verdict."""
+        preflight = PREFLIGHT_MD.read_text(encoding="utf-8")
+        self.assertIn("countable or binary", preflight)
+        self.assertIn("the override is written into the verdict and tied to the brief",
+                      preflight)
+
+    def test_fresh_context_gates_r1_r2(self):
+        self.assertIn("A fresh context refutes the concept per `references/gate/concept.md` "
+                      "before any build file exists", _section("The path"),
+                      "R1 must refute the concept before any build file exists")
+        self.assertIn("One driven audit, fresh context", _section("Verify, then ship"),
+                      "R2 must be a fresh-context audit of the rendered site")
 
 
-class TestScopeBoundary(unittest.TestCase):
-    """Scope is the discipline that keeps the skill from sprawling: it takes the
-    lead on frontend, routes single-token tweaks to /design-system, and never
-    touches backend. All three must be stated or the auto-trigger over-reaches."""
+class TestScopedPath(unittest.TestCase):
+    """A bounded change on a healthy DESIGN.md scales the path instead of
+    running the full ceremony — without this declared short path, the skill's
+    authority dies the first time a model reasonably bails on it."""
 
-    def _scope(self):
-        body = _body()
-        m = re.search(r"^## Scope\b.*?\n(.*?)(?=^##\s)", body, re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## Scope section missing")
+    def _scoped(self):
+        m = re.search(r"^- \*\*Scoped runs — scale, never skip\.\*\*(.*?)(?=\n- |\n\n)",
+                      _body(), re.DOTALL | re.MULTILINE)
+        self.assertIsNotNone(m, "the scoped-run clause is missing from Routing")
         return m.group(1)
 
-    def test_takes_the_lead_on_frontend(self):
-        scope = self._scope().lower()
-        self.assertIn("take the lead", scope,
-                      "Scope must state the skill takes the lead on frontend")
+    def test_scaling_keeps_the_gates(self):
+        scoped = self._scoped()
+        self.assertIn("never silently regenerate", scoped)
+        self.assertIn("runs the chunk's full Verify plus a scoped review", scoped,
+                      "a scoped run still sweeps and still reviews")
+
+    def test_full_protocol_triggers_enumerated(self):
+        scoped = self._scoped()
+        for trigger in ("A redesign", "missing or thin DESIGN.md", "new page family"):
+            with self.subTest(trigger=trigger):
+                self.assertIn(trigger, scoped)
+
+    def test_scaling_is_declared(self):
+        scoped = self._scoped()
+        self.assertIn("scoped run:", scoped,
+                      "the scaled run must be declared, or it is a skipped step")
+
+
+class TestRoutingBoundary(unittest.TestCase):
+    """Routing is the discipline that keeps the skill from sprawling: review
+    subcommand, single-token tweaks to /design-system, backend never, empty
+    directory to /scaffold."""
+
+    def _routing(self):
+        return _section("Routing")
 
     def test_single_token_routes_to_design_system(self):
-        scope = self._scope()
-        self.assertIn("/design-system", scope,
-                      "Scope must route single-token changes to /design-system")
-        self.assertRegex(
-            scope.lower(), r"single[- ]token",
-            "Scope must name the single-token-change route-out explicitly",
-        )
+        routing = self._routing()
+        self.assertIn("/design-system", routing)
+        self.assertRegex(routing.lower(), r"single[- ]token")
 
     def test_never_touches_backend(self):
-        scope = self._scope().lower()
-        self.assertIn("never", scope)
-        self.assertIn("backend", scope)
-        self.assertIn("frontend only", scope,
-                      "Scope must declare the skill frontend-only")
+        self.assertIn("backend, data, infra → never", self._routing().lower())
 
     def test_empty_dir_routes_to_scaffold(self):
-        self.assertIn("/scaffold", self._scope(),
-                      "Scope must route an empty directory to /scaffold first")
+        self.assertIn("/scaffold", self._routing())
+
+    def test_review_subcommand_routed(self):
+        self.assertIn("award-design review <url|path>", self._routing())
 
 
 class TestAutoTriggerInWhenToUse(unittest.TestCase):
     """The auto-trigger-from-line-1 contract lives in the `when_to_use`
-    frontmatter (the trigger surface), not the body. It must declare the
-    take-the-lead posture and the same scope route-outs."""
+    frontmatter (the trigger surface), not the body."""
 
     def _when_to_use(self):
-        # `when_to_use:` is a single logical line in the YAML frontmatter.
         m = re.search(r"(?m)^when_to_use:\s*(.+)$", _body())
         self.assertIsNotNone(m, "when_to_use frontmatter field missing")
         return m.group(1)
 
     def test_auto_triggers_from_line_one(self):
         wtu = self._when_to_use().lower()
-        self.assertIn("auto-trigger", wtu,
-                      "when_to_use must declare the skill auto-triggers")
-        self.assertIn("take the lead", wtu,
-                      "when_to_use must state the take-the-lead-from-line-1 posture")
+        self.assertIn("auto-trigger", wtu)
+        self.assertIn("take the lead", wtu)
 
     def test_routes_single_token_and_ignores_backend(self):
         wtu = self._when_to_use().lower()
-        self.assertIn("/design-system", wtu,
-                      "when_to_use must route single-token changes to /design-system")
-        self.assertIn("backend", wtu,
-                      "when_to_use must state it ignores backend work")
+        self.assertIn("/design-system", wtu)
+        self.assertIn("backend", wtu)
 
     def test_review_subcommand_advertised(self):
-        wtu = self._when_to_use()
-        self.assertIn("award-design review", wtu,
-                      "when_to_use must advertise the `award-design review <url|path>` mode")
+        self.assertIn("award-design review", self._when_to_use())
 
 
 class TestJudgingCriteria(unittest.TestCase):
-    """The judging-criteria section pins the Awwwards weighting (40/30/20/10)
-    and the score floors (6.5+ Honorable Mention, 7.5+ SOTD). These numbers are
-    the contract — drift means the skill's recommendations stop matching the
-    actual judging signal."""
-
-    def test_judging_criteria_section_exists(self):
-        self.assertIn("## Judging criteria", _body())
+    """The Awwwards weighting (40/30/20/10) is the contract the core carries;
+    the score floors and the tier's measured ceiling calibrate the rubric. Drift
+    means the skill's recommendations stop matching the judging signal."""
 
     def test_weights_documented(self):
         body = _body()
         for label, pct in [("Design", 40), ("Usability", 30),
-                            ("Creativity", 20), ("Content", 10)]:
+                           ("Creativity", 20), ("Content", 10)]:
             with self.subTest(label=label, pct=pct):
-                # Format: `Design 40%` — match the label adjacent to its weight.
-                self.assertRegex(
-                    body, rf"{label}\s*{pct}%",
-                    f"judging weight '{label} {pct}%' missing or mis-formatted",
-                )
+                self.assertRegex(body, rf"{label}\s*{pct}\b")
 
     def test_score_floors_documented(self):
+        self.assertIn("7.5+", _body(), "the core must carry the SOTD bar")
+        self.assertIn("Honorable Mention starts at 6.5+", _ref("exemplars.md"),
+                      "the HM floor calibrates the corpus R1 judges against")
+
+
+class TestReadTheRoom(unittest.TestCase):
+    """Step 0 loads atmosphere-calibration.md and declares the three dial
+    values — silent dials cannot arbitrate later choices."""
+
+    def _step_zero(self):
+        m = re.search(r"(?m)^0\. \*\*Read the room\.\*\*.*$", _body())
+        self.assertIsNotNone(m, "path step 0 (Read the room) missing")
+        return m.group(0)
+
+    def test_step_zero_loads_calibration_reference(self):
+        self.assertIn("references/atmosphere-calibration.md", self._step_zero())
+
+    def test_dials_declared_not_internal(self):
+        self.assertIn("Density / Variance / Motion", self._step_zero(),
+                      "step 0 must name the three dials")
         body = _body()
-        self.assertIn("6.5+", body, "Honorable Mention floor (6.5+) not cited")
-        self.assertIn("7.5", body, "SOTD floor (7.5+) not cited")
-
-
-class TestAtmosphereCalibrationRouting(unittest.TestCase):
-    """The 1-10 atmosphere axes (Density / Variance / Motion) moved into
-    references/atmosphere-calibration.md; SKILL.md carries only the pointer.
-    The body must route there rather than re-deriving the ranges inline —
-    the lean body is intentional."""
-
-    def test_skill_routes_to_calibration_reference(self):
-        self.assertIn("references/atmosphere-calibration.md", _body(),
-                      "SKILL.md must route atmosphere calibration to its reference file")
-
-    def test_three_axes_named_at_the_pointer(self):
-        """The pointer names the axes so the reader knows what calibration
-        covers — Density / Variance / Motion."""
-        body = _body()
-        m = re.search(r"atmosphere.{0,60}references/atmosphere-calibration\.md",
-                      body, re.IGNORECASE | re.DOTALL)
-        self.assertIsNotNone(m, "atmosphere-calibration pointer prose missing")
-        self.assertRegex(
-            m.group(0), r"Density.*Variance.*Motion",
-            "the calibration pointer must name the Density / Variance / Motion axes",
-        )
-
-
-class TestRemixingFallback(unittest.TestCase):
-    """The remix fallback documents the path when the brief refuses a single
-    archetype. It routes to references/remixing.md rather than re-deriving the
-    mix rules inline — the routing-to-reference contract is what matters."""
+        self.assertIn("The dials live in DESIGN.md Overview prose", body,
+                      "the dials must land in the DESIGN.md, never stay silent")
+        self.assertIn("never as token groups", body)
 
     def test_remix_routes_to_reference(self):
-        self.assertIn("references/remixing.md", _body(),
-                      "SKILL.md must route hybrid briefs to references/remixing.md")
+        self.assertIn("Hybrid → `references/remixing.md`", _body(),
+                      "hybrid briefs must route to references/remixing.md")
+
+
+class TestTruthSourcing(unittest.TestCase):
+    """The truth step is the fact gate: versions and support resolve through
+    stack-facts.md's per-row trust/fetch class instead of training memory, and
+    assets are secured before the build."""
+
+    def _truth_step(self):
+        m = re.search(r"(?m)^7\. \*\*DESIGN\.md and truth\.\*\*.*$", _body())
+        self.assertIsNotNone(m, "path step 7 (DESIGN.md and truth) missing")
+        return m.group(0)
+
+    def test_loads_the_fact_source_and_imagery(self):
+        step = self._truth_step()
+        self.assertIn("references/stack-facts.md", step)
+        self.assertIn("references/imagery.md", step)
+
+    def test_heavy_layers_never_from_memory(self):
+        self.assertIn("never re-derive the Lenis/GSAP wiring from memory", _body())
+        facts = _ref("stack-facts.md")
+        for layer in ("GSAP", "SplitText", "Three.js", "Lenis", "View Transitions"):
+            with self.subTest(layer=layer):
+                self.assertIn(layer, facts, f"stack-facts.md must carry the {layer} row")
+        self.assertTrue((REFS / "ingredients" / "web-audio.md").is_file(),
+                        "the Web Audio layer keeps its own cheat")
+
+    def test_the_fetch_class_is_the_gate(self):
+        step = self._truth_step()
+        self.assertIn("the authority for versions and support", step)
+        self.assertIn("fetch fresh docs only for its fetch-class rows", step,
+                      "a fetch-class row is re-verified before its code is written")
+        self.assertIn("trust the rest", step)
+
+
+class TestMechanicalFloor(unittest.TestCase):
+    """Verify is the mechanical floor: the scanner with the archetype, then the
+    browser payloads, and a FAIL either gets fixed or gets a written line."""
+
+    def _verify(self):
+        return _section("Verify, then ship")
+
+    def test_runs_the_scanner_with_the_archetype(self):
+        verify = self._verify()
+        self.assertIn("scripts/preflight_scan.py", verify)
+        self.assertIn("--archetype", verify)
+
+    def test_scanner_catches_never_clears(self):
+        body = _body()
+        self.assertIn("The scanner is a heuristic, not a judge", body)
+        self.assertIn("A clean scan means nothing mechanical was caught", body,
+                      "the scanner must be framed as catching, never clearing")
+
+    def test_a_fail_blocks_or_is_justified_in_writing(self):
+        verify = self._verify()
+        self.assertIn("fix every FAIL or justify it in one written line tied to the brief",
+                      verify)
+        self.assertIn("fix-only", verify,
+                      "detector and render-floor FAILs take no prose override")
+
+    def test_the_review_report_is_the_verdict_artifact(self):
+        self.assertIn("its report is the verdict artifact", self._verify())
+
+
+class TestReviewAntiAnchoring(unittest.TestCase):
+    """R2 judges the pixels before it reads the machine output — mechanical
+    findings received early anchor the reviewer."""
+
+    def test_reviewer_judges_before_reading_reports(self):
+        review = _ref("gate/review.md")
+        self.assertIn("**Inventory before anchoring.**", review)
+        self.assertIn("before reading the direction contract, the DESIGN.md, "
+                      "or any mechanical report", review,
+                      "the reviewer must form judgment first, read reports second")
+
+    def test_concept_veto_wired(self):
+        self.assertIn("**Premise veto.**", _ref("gate/concept.md"),
+                      "R1 must run the premise veto against the concept")
+        self.assertIn("concept veto", _ref("audit-rubric.md").lower(),
+                      "the rubric keeps the concept veto it scores with")
 
 
 if __name__ == "__main__":

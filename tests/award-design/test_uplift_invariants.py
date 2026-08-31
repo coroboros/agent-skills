@@ -10,7 +10,7 @@ test_universe_mandatory.py.)
 
 Each invariant exists because the previous review surfaced a real failure mode
 that would re-emerge if the section drifted. Test names describe the contract
-being pinned, not the implementation."""
+being pinned rather than the implementation."""
 
 import re
 import unittest
@@ -43,8 +43,8 @@ class TestOutputDisciplineSection(unittest.TestCase):
     def test_section_names_representative_tells(self):
         """The lean rebuild trimmed the SKILL.md section to a few representative
         truncation tells and routes the full catalog to anti-patterns.md. The
-        section must still name the canonical examples so the rule is stated, not
-        just hinted — but the exhaustive marker list (e.g. `// TODO`) lives in
+        section must still name the canonical examples so the rule is stated
+        rather than hinted; the exhaustive marker list (e.g. `// TODO`) lives in
         the reference now, asserted by TestAntiPatternsOutputDiscipline."""
         for marker in ("[remaining sections similar]", "for brevity",
                        "the rest follows the same pattern"):
@@ -187,7 +187,7 @@ class TestRetrofitPlaybook(unittest.TestCase):
     def test_what_not_to_retrofit_section_present(self):
         """The negative-space section is what makes the playbook honest —
         it tells the agent when retrofit isn't the right tool."""
-        self.assertIn("What NOT to retrofit", self.body,
+        self.assertIn("What not to retrofit", self.body,
                       "retrofit.md must keep the 'What NOT to retrofit' boundary section")
 
 

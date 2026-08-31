@@ -32,7 +32,7 @@ The sync script and the parity test read this list:
 - code-ultrareview
 - oneshot
 
-Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design authors a DESIGN.md but its primary output is the built frontend (code), so it is declared, not excluded.
+Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design authors a DESIGN.md and the build ladder, then builds each ladder chunk as code, so it is declared, not excluded.
 
 ## Excluded skills (with reason)
 

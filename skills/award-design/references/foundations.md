@@ -10,17 +10,17 @@ Code samples in this file (CSS custom properties, animation values, scroll patte
 
 Lock the craft layer; derive the framework from the archetype; adapt to existing projects; keep hosting orthogonal.
 
-- **Locked universal craft** (every build, every framework): GSAP + Lenis + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere.
+- **Locked universal craft** (every build, every framework): GSAP + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere. Lenis is the tier norm where the archetype's palette line commits wheel smoothing — never universal: Bento's canon is native scroll, and the archetype line governs (`award-imperatives.md` #3).
 - **Framework by archetype**: Astro for content/perf archetypes (Minimalist, Editorial, Corporate-Luxury, Bento) — zero-JS by default is the LCP win; TanStack Start (React on Vite + Nitro) for motion/3D archetypes (Immersive, Experimental, Bold, Spatial-Organic) — React Three Fiber and Motion are native there. Motion (Framer) and R3F belong to the TanStack path only; on Astro, motion is GSAP + CSS scroll-driven inside islands.
 - **Existing project's stack wins** — adapt, never migrate. A content archetype whose signature is sustained interactive 3D promotes to the TanStack path (the signature outranks the perf default).
-- **Pin** the TanStack Start version (v1 RC as of mid-2026 — feature-complete, API-stable, production-capable). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
+- **Pin** the TanStack Start version — resolve the current release line before scaffolding (`external-truth.md`'s ladder; `stack-facts.md` holds the row and says why it is not carried as a number). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
 - **Host orthogonal** via Nitro (40+ deploy presets). `/scaffold` is one optional Cloudflare deploy preset, never assumed.
 
 ## Typography Systems
 
 ### Fluid scales
 
-Eliminate breakpoint-based sizing. Seamless scaling across all viewports:
+Eliminate breakpoint-based sizing. Continuous scaling across all viewports:
 
 ```css
 :root {
@@ -37,7 +37,7 @@ Eliminate breakpoint-based sizing. Seamless scaling across all viewports:
 
 Single file containing all weights, widths, styles — real-time animation of `font-variation-settings` on hover and scroll.
 
-**Sans-serif**: PP Neue Montreal, ABC Diatype, Inter, GT Flexa, Fragment
+**Sans-serif**: PP Neue Montreal, ABC Diatype, Inter (body/fallback only — never the display face), GT Flexa, Fragment
 **Serif display**: GT Super, GT Sectra, Editorial New
 **Extended/display**: Monument Extended, Sharp Grotesk, Druk Wide
 
@@ -51,22 +51,7 @@ Single file containing all weights, widths, styles — real-time animation of `f
 
 ### Kinetic typography
 
-GSAP SplitText (free since Webflow acquisition) — the standard:
-
-```javascript
-SplitText.create(".headline", {
-  type: "lines, words",
-  mask: "lines",
-  autoSplit: true,
-  onSplit(self) {
-    return gsap.from(self.words, {
-      y: 100, autoAlpha: 0, stagger: 0.05,
-      duration: 1, ease: "power3.out",
-      scrollTrigger: { trigger: self.elements[0], start: "top 80%" }
-    });
-  }
-});
-```
+GSAP SplitText is the standard. Executable form — `SplitText.create`, `autoSplit`, `mask: 'lines'`, and the returned-tween `onSplit` that survives a late font swap — is `skeletons.md` §D; licensing and version facts are `stack-facts.md`.
 
 ## Color Theory
 
@@ -82,19 +67,21 @@ Perceptually uniform color manipulation. Eliminates "muddy middle" in gradients:
 .muted   { background: oklch(from var(--brand) l calc(c - 0.08) h); }
 ```
 
+Derive the neutrals too: surfaces, borders, and shadows carry the brand hue at low chroma (`oklch(from var(--brand) 0.96 0.01 h)` for a surface, shadows tinted with the surface hue). A foreign gray border or a pure-black shadow on a warm page is the mismatch tell — the page has one light, and light has a temperature.
+
 ### Dark mode
 
 82% of mobile users prefer dark. Never pure black (#000) or pure white (#FFF):
 - Backgrounds: #121212, #1E1E1E, or deep navies (#14213D)
 - Text: off-whites (#E0E0E0)
-- Design tokens via CSS custom properties for seamless light/dark switching
+- Design tokens via CSS custom properties for clean light/dark switching
 
 ### Dominant color strategies
 
 1. Dark base + single vibrant accent (most common on winners)
 2. Monochromatic depth via OKLCH lightness variations
 3. Earthy muted pastels (sustainability/wellness brands)
-4. Neon micro-glow accents against dark surfaces
+4. Neon micro-glow accents against dark surfaces — authored, never the GitHub-dark default (uniform `#0D1117` + generic cyan/purple glow; see anti-patterns)
 5. OKLCH multi-hue gradients replacing flat sRGB
 
 ## Layout
@@ -117,14 +104,7 @@ For cross-browser production gotchas (scroll-restoration traps in Chrome/Firefox
 
 ### Broken grids
 
-```css
-.broken-grid {
-  display: grid;
-  grid-template-columns: 1fr 2fr 10fr 3fr 3fr 3fr 3fr 3fr 6fr 6fr 3fr;
-}
-.hero-image { grid-column: 3/9; grid-row: 2/7; }
-.overlay-text { grid-column: 4/11; grid-row: 4/6; z-index: 2; }
-```
+An asymmetric column ramp (`1fr 2fr 10fr 3fr 3fr …`, eleven-ish uneven tracks) with content spanning arbitrary `grid-column` / `grid-row` ranges and deliberate overlap via `z-index`. The break out of the 12-column default is the point — even tracks read as a template no matter what sits in them.
 
 ### CSS Subgrid
 
@@ -165,7 +145,7 @@ A multi-section page that lands every section on the same anchor, the same surfa
 - **Composition Anchor diversity** — across all sections, at least **3 different anchor positions** must appear (centered statement, top-left lead, bottom-left over image, bottom-right CTA cluster, left-third + right-two-thirds, off-grid editorial offset, image-as-canvas). Hero must vary away from the AI default of left-text / right-image.
 - **Background Mode variation** — pick one per section; vary across the page so no two consecutive sections share the same surface treatment (solid + inline asset, subtle texture/paper/grid, full-bleed image + overlay, editorial side-image, flat color block + detail crop, cinematic tonal gradient, color-blocked diptych).
 - **CTA variation** — vary the call-to-action shape at least once across the site. Default pill on every section is templated. Mix in: outline/ghost, underlined inline link, banner-style full-width, oversized headline + tiny hint, CTA as caption.
-- **Section size variety** — mix section ambition deliberately across the page. Some large/rich (full-bleed hero, immersive showcase), some mini/minimalist (single-line statement, tight detail block), some medium editorial. Uniform section heights produce slab-rhythm; mixed ambition produces premium scrollscape.
+- **Section size variety** — mix section ambition deliberately across the page. Some large/rich (full-bleed hero, immersive feature stage), some mini/minimalist (single-line statement, tight detail block), some medium editorial. Uniform section heights produce slab-rhythm; mixed ambition produces premium scrollscape.
 
 Apply on multi-section landing pages and product narratives where a default rhythm would otherwise dominate. Not applicable to single-fold portfolios or pure docs. Cross-references: `premium-patterns.md` Hero Architecture options, `anti-patterns.md` predictable symmetric layouts.
 
@@ -175,102 +155,35 @@ Bias toward slightly more whitespace between sections than feels natural. Defaul
 
 ## Animation Toolkit
 
-### GSAP + ScrollTrigger (industry standard)
+These are the wirings a build reproduces wrong from memory. Each whole-file form, with the failure it closes, is in `skeletons.md` — load the section, not the file. Every version, bundle size, and support number they depend on is in `stack-facts.md`.
 
-```javascript
-const tl = gsap.timeline({
-  scrollTrigger: {
-    trigger: '.section', start: 'top top', end: '+=1000',
-    scrub: 1, pin: true
-  }
-});
-tl.to('.title', { opacity: 1, y: 0 })
-  .to('.image', { scale: 1.2 })
-  .to('.text', { opacity: 1 });
-```
+| Mechanic | What it is | Skeleton |
+|---|---|---|
+| GSAP + ScrollTrigger | the pin/scrub choreography engine | §B |
+| Lenis | smooth scroll on native `scrollTo`, so `position: sticky` and Intersection Observer keep working (it replaced Locomotive) | §A — with the GSAP ticker wiring |
+| GSAP SplitText | line/word/char splitting that survives a late font swap | §D |
+| Three.js | the 3D signature, WebGPU path with the WebGL fallback | §E |
+| View Transitions API | native page and element morphs, both document scopes | §F |
+| IntersectionObserver reveal | the fire-once content reveal that persists | §G |
 
-### Lenis (~2KB, smooth scrolling)
+### CSS Scroll-Driven Animations (off the main thread)
 
-Replaced Locomotive Scroll. Uses native `scrollTo`, preserves `position: sticky` and Intersection Observer:
-
-```javascript
-const lenis = new Lenis({ autoRaf: true });
-lenis.on('scroll', ScrollTrigger.update);
-gsap.ticker.add((time) => lenis.raf(time * 1000));
-gsap.ticker.lagSmoothing(0);
-```
-
-### View Transitions API (native page transitions)
-
-Cross-document transitions:
-
-```css
-@view-transition { navigation: auto; }
-```
-
-Named element morph (thumbnail → full hero):
-
-```css
-.thumbnail { view-transition-name: product-hero; }
-.full-image { view-transition-name: product-hero; }
-```
-
-Scoped transitions (Chrome 140+), React `<ViewTransition />` integration.
-
-### CSS Scroll-Driven Animations (off main thread, guaranteed 60fps)
-
-```css
-.card {
-  animation: fade-in linear forwards;
-  animation-timeline: view();
-  animation-range: entry 0% entry 100%;
-}
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(50px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-```
-
-`animation-trigger` (Chrome 145) enables scroll-triggered time-based animations.
+`animation-timeline: view()` / `scroll()` with `animation: <name> linear both` and an `animation-range` — the right tool for *decorative* motion, reversible for free because progress *is* scroll position. The canonical code and the load-bearing details (`linear` deliberate, `both` fill, stagger by range not delay, `view()` vs `scroll(root block)`) are `motion-palette.md`; content reveals never scrub — bound to visibility they re-hide on scroll-up — and route to `skeletons.md` §G. The emerging `animation-trigger` primitive and every support figure: `stack-facts.md`.
 
 ### Signature scroll skeletons
 
-Two scroll choreographies cover most signature moments. Both are GSAP — reach for it only when the signature needs it; default to CSS Scroll-Driven Animations (above) for routine reveals. No library is mandated and no build-time `npx` step is introduced; GSAP loads at runtime only when a signature moment calls for it.
+Two choreographies cover most signature moments, both GSAP.
 
-**Sticky-stack** (panels pin and stack as you scroll):
+- **Sticky-stack** — panels pin and stack as you scroll. `pinSpacing: false` is what makes them share scroll space instead of pushing the page taller; it is the defining detail of the pattern.
+- **Horizontal-pan** — vertical scroll drives horizontal travel. `ease: 'none'` with an `end` equal to the travel distance locks the pan to the scrollbar, and the wrapper is pinned while the track moves; pinning the element you animate produces jitter and offset drift (the official GSAP caveat).
 
-```javascript
-ScrollTrigger.create({
-  trigger: '.panel',
-  start: 'top top',          // pin the moment its top hits the viewport top
-  end: '+=100%',
-  pin: true,
-  pinSpacing: false,         // stacked panels share scroll space — no taller page
-});
-```
+Both, with the full pin-gotcha list — `'top top'` and nothing else, one cleanup path, `ScrollTrigger.refresh()` after any late layout move, no nesting inside a parent timeline, `scrub` never sharing a trigger with `toggleActions`, no shipped markers, one sticky per stacking context — are `skeletons.md` §B and §C.
 
-`pinSpacing: false` is what makes panels stack instead of pushing the page taller — the defining detail of the pattern.
-
-**Horizontal-pan** (vertical scroll drives horizontal travel):
-
-```javascript
-gsap.to('.track', {
-  x: () => -(track.scrollWidth - innerWidth),
-  ease: 'none',              // 1:1 with scroll, never an eased curve
-  scrollTrigger: {
-    trigger: '.track',
-    pin: true,
-    scrub: 1,
-    end: () => '+=' + (track.scrollWidth - innerWidth),  // distance == travel
-  },
-});
-```
-
-`ease: 'none'` with an `end` equal to the travel distance keeps the pan locked to the scrollbar.
+Reach for GSAP only when the signature needs it; default to CSS scroll-driven animations for routine *decorative* motion, and route content reveals to the fire-once IntersectionObserver. No library is mandated and no build-time author step is introduced; GSAP loads at runtime only when a signature moment calls for it.
 
 ### Signature easing lexicon
 
-The easing IS the personality. Generic `ease` / `ease-in-out` is the motion equivalent of Inter on an H1.
+The easing is the personality. Generic `ease` / `ease-in-out` is the motion equivalent of Inter on an H1.
 
 - `back.out(1.7)` — overshoot-and-settle; entrances with character.
 - `elastic.out(1, 0.3)` — springy bounce; playful, Bold / Maximal.
@@ -288,6 +201,8 @@ CSS-native equivalent, no library — `linear()` interpolates a spring or curve 
 ```
 
 Pin durations and eases to `motion.*` extension tokens; never author easings ad-hoc per component. Linear (constant-velocity) easing stays banned for UI transitions — see anti-patterns; `ease: 'none'` above is the deliberate exception for scrubbed scroll.
+
+Exits run at 60–70% of their entrance duration — leaving is acknowledgment, arriving is the event. Motion direction encodes hierarchy: forward navigation slides one way, back reverses it; siblings share an axis.
 
 ### Reduced-motion gate (GSAP)
 
@@ -332,19 +247,7 @@ Small contextual photos embedded between words at type-height, acting as visual 
 
 Best for high-Variance archetypes (Editorial, Bold/Maximal, Experimental). Avoid on Minimalist or Corporate Luxury where it competes with whitespace.
 
-**Custom cursors** (creative agency staple):
-
-```javascript
-const lerp = (a, b, n) => (1 - n) * a + n * b;
-let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
-document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
-function animate() {
-  cursorX = lerp(cursorX, mouseX, 0.15);
-  cursorY = lerp(cursorY, mouseY, 0.15);
-  cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
-  requestAnimationFrame(animate);
-}
-```
+**Custom cursors** (creative agency staple): a lerped follower — pointer position read on `pointermove`, the visual eased toward it inside one rAF, written as `transform` only, `aria-hidden`, and disabled under `(hover: none)`.
 
 **Magnetic buttons**: Distance from cursor to element center → proportional displacement.
 
@@ -352,33 +255,15 @@ function animate() {
 
 ### Image techniques
 
-**Clip-path reveals** (hardware-accelerated):
-
-```css
-.image-reveal {
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
-}
-.image-reveal.visible { clip-path: inset(0 0 0 0); }
-```
+**Clip-path reveals**: an `inset()` curtain transitioned from one edge, fired once by IntersectionObserver. Cheap because the clip's parameters are not tracked per input frame — a `clip-path` that chases the pointer repaints every frame instead (`motion-palette.md`, moving windows).
 
 **Mix-blend-mode**: `difference` on text overlaying images.
 
 ### Advanced CSS
 
-**Container queries** for self-aware components:
+**Container queries** for self-aware components: `container-type: inline-size` on the wrapper, `@container (min-width: …)` on the child. A card that reads its own slot beats one that reads the viewport.
 
-```css
-.card-container { container-type: inline-size; }
-@container (min-width: 400px) { .card { display: flex; gap: 1rem; } }
-```
-
-**`:has()` for conditional styling** without JS:
-
-```css
-.grid:has(:nth-child(4):last-child) { grid-template-columns: repeat(2, 1fr); }
-:root:has(#dark-mode:checked) { color-scheme: dark; --bg: #111; }
-```
+**`:has()` for conditional styling** without JS: the count-aware grid (`.grid:has(:nth-child(4):last-child)`), the state-driven root (`:root:has(#dark-mode:checked)`), the sibling dim on a hovered row.
 
 **`@property` for animatable gradients**:
 
@@ -393,17 +278,9 @@ function animate() {
 
 ### WebGL
 
-**Three.js** for maximum control (~150KB). **React Three Fiber + Drei** for React. **OGL** (29KB) for lightweight shaders. **WebGPU** (Three.js r171+): 200K objects at 60fps vs 15K at 15fps with WebGL.
+**Three.js** for maximum control. **React Three Fiber + Drei** for React. **OGL** for lightweight shaders. The WebGPU renderer is the current path for object counts a WebGL scene cannot hold; it falls back to WebGL2 on its own, and the bootstrap is `skeletons.md` §E. Every revision number, package name, and bundle size for this row and the motion libraries below it: `stack-facts.md` — none of them is stable enough to carry here.
 
-| Library | Size | Best for |
-|---------|------|----------|
-| GSAP | ~23KB | Complex timelines, scroll |
-| Motion (Framer) | 34KB / 4.6KB lazy | React UI transitions |
-| Lenis | ~2KB | Smooth scrolling |
-| Locomotive v5 | 9.4KB | Parallax + detection |
-| Motion One | 3.8KB | Lightweight vanilla |
-
-Locked universal layer (every framework): GSAP + Lenis + CSS scroll-driven + View Transitions + variable fonts + OKLCH. Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
+Locked universal layer (every framework): GSAP + CSS scroll-driven + View Transitions + variable fonts + OKLCH; Lenis joins where the archetype's palette line commits wheel smoothing (Bento's canon is native scroll — the archetype line governs). Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
 
 ### Spring physics — canonical values
 
@@ -435,35 +312,35 @@ motion:
 
 `stiffness: 100, damping: 20` is the weight-and-mass register that reads as "premium" rather than "snappy". Buttons, cards, and modal entries default to this. The snappier variant (`180 / 18`) belongs to active-state feedback (press, drag) where the extra responsiveness is felt as control. Linear easing is banned across the system — see anti-patterns.
 
+## Copy
+
+Judges read the headline before they see the grid — the words are half the design, written in the universe's register, never filled in after.
+
+- **The swap test**: if the H1 pastes cleanly onto a competitor's site, it is not a headline, it is a category label. "Design without limits" fails; "The yard, run by software" (Terminal Industries) passes.
+- **Concrete noun + verb beats abstract benefit.** Pull the noun from the product's actual world (the yard, the ledger, the kiln) — abstraction is the default the model reaches for when it hasn't decided what the product is.
+- **The subhead does the explaining.** The H1 lands the world in ≤6 words; the subhead earns the claim in ≤20. Inverting that (explanatory H1, poetic subhead) is the amateur order.
+- **Numbers only when true** — a real metric beats an adjective; an invented one fails the copy audit (`preflight.md` §6).
+- **One register, held.** The DESIGN.md Overview names the copy register; every string on the page speaks it — buttons, empty states, error messages, `alt` text included.
+- Sentence case reads more refined than Title Case On Every Header — see anti-patterns Content tells.
+- **Scrub via the copy audit, not a generic humanizer.** Site copy is voice-locked diegetic writing; run it against the AI-vocabulary list and the pre-flight copy audit (§6) — a general-purpose tell-scrubber flattens the register it took a universe to build.
+
 ## Performance
 
 ### GPU compositing
 
-Only animate: `transform`, `opacity`, `filter`, `backdrop-filter`:
+Only animate `transform`, `opacity`, `filter`, `backdrop-filter`. Never `width` / `height` / `top` / `left` — a hover that moves an element `left: 100px` relayouts the page every frame; the same move as `transform: translateX(100px)` never leaves the compositor.
 
-```css
-/* Never */ .box:hover { width: 200px; left: 100px; }
-/* Always */ .box:hover { transform: translateX(100px) scale(1.05); }
-```
+`will-change` only on elements actively animating — blanket `will-change`/`force3D` "just in case" costs memory and repaints. Kill or pause tweens the moment their element leaves the viewport.
 
 ### Lazy loading
 
 - `content-visibility: auto` on below-fold sections
-- Intersection Observer for images and animation init
-- Dynamic imports for heavy libraries when section enters viewport
-
-```javascript
-const observer = new IntersectionObserver(([entry]) => {
-  if (entry.isIntersecting) {
-    import('gsap').then(({ gsap }) => { /* init */ });
-    observer.disconnect();
-  }
-});
-```
+- Intersection Observer for images and animation init (the observer shape is `skeletons.md` §G — `disconnect()` or `unobserve()` on first intersection, always)
+- Dynamic imports for heavy libraries when the section enters the viewport: `import('gsap').then(…)` inside that observer, so the bundle is fetched on approach rather than on load
 
 ### Image optimization
 
-AVIF > WebP > JPEG via `<picture>`. AVIF ~50% smaller than JPEG. Font loading: `font-display: swap` + `<link rel="preload">`.
+AVIF > WebP > JPEG via `<picture>`. AVIF ~50% smaller than JPEG. Font loading: `font-display: swap` + `<link rel="preload">`. Self-host the files (or the framework's font module) — a Google Fonts `<link>` in production is a third-party request on the critical path and a GDPR exposure.
 
 ### Prerendering
 
@@ -475,7 +352,7 @@ AVIF > WebP > JPEG via `<picture>`. AVIF ~50% smaller than JPEG. Font loading: `
 
 ### Targets
 
-LCP < 1.5s · CLS < 0.05 · INP < 100ms · Total weight < 3MB · 60fps sustained
+LCP < 1.5s · CLS < 0.05 · INP < 100ms · ≥55fps sustained · critical path lean, heavy assets streamed — no byte cap, signature fidelity never traded (`award-imperatives.md` #7)
 
 ## UX Quality
 
@@ -517,6 +394,9 @@ body {
 - Display errors inline next to the field; focus first error on submit
 - Disable `spellcheck` on emails, codes, and usernames
 - Warn before navigation with unsaved changes
+- `autocomplete` + meaningful `name` on every input; never `autocomplete="off"` on non-auth fields. Checkbox/radio: label and control share one hit target. Placeholders show a real example and end with `…` — never restate the label.
+- Validate on blur, never per keystroke; error text below the field with `min-height: 1lh` reserved so the layout doesn't jump.
+- Input states change color, never border-width (width shifts move the layout); the focus ring is an `outline`, not a border swap; input height matches the adjacent button's height; disabled is a full treatment, never opacity alone.
 
 ### Typography micro-rules
 
@@ -536,6 +416,7 @@ Use `…` (U+2026) not `...`. Use curly quotes `"` `"` not straight quotes. Non-
 - URL must reflect visible state (filters, tabs, pagination, open panels) — judges test deep-linking
 - `<a>`/`<Link>` for navigation (Cmd/Ctrl+click must work), `<button>` for actions — never `<div onClick>`
 - Destructive actions need confirmation dialog or undo window
+- Anchor targets carry `scroll-margin-top` matching the fixed nav height, or the nav eats every anchored heading
 
 ### Dark mode
 
@@ -577,11 +458,11 @@ Native `<select>` elements need explicit `background-color` and `color` in dark 
 
 ### prefers-reduced-motion
 
-Replace motion with opacity — never remove all animation:
+Zero the durations — never kill transforms. A `transform: none !important` wildcard destroys transform-carried *state* (the nav's `translateY(-100%)` hidden position, an open panel's resting offset); reduced motion strips transitions and keeps state, so everything still flips, it just snaps (navigation-patterns.md, interaction-signatures.md):
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  * { transition: opacity 0.2s ease !important; transform: none !important; animation-duration: 0.01ms !important; }
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
 ```
 
@@ -599,7 +480,7 @@ For JS: detect preference, disable smooth scroll, reduce particles, simplify tra
 
 | Studio | Signature | Key wins |
 |--------|-----------|----------|
-| **Locomotive** (Montreal) | Smooth scroll pioneers, Lenis/GSAP | Agency of Year 7x consecutive |
+| **Locomotive** (Montreal) | Smooth scroll pioneers, Lenis/GSAP | Agency of the Year, multi-year — streak length unverified |
 | **Active Theory** (LA) | Cinematic WebGL, pitch-black canvases | Emmy nominations, LCP ~1.3s despite shaders |
 | **Resn** (Wellington) | Gooey interactions, game design | 60 SOTD, 11 SOTM, 2 SOTY |
 | **Immersive Garden** (Paris) | Luxury brand immersion | Agency of Year 2025, Louis Vuitton |
