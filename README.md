@@ -75,6 +75,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
 | Design | [award-design](#award-design) | Art director for award-winning sites — forces a visual universe, writes DESIGN.md and the build ladder, audits any site |
+| Design | [frontend-dev](#frontend-dev) | Everyday frontend lane — commit ritual, surface archetypes, hard floors, fingerprint ban |
 | Design | [design-system](#design-system) | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
 | Claude Code | [claude-md](#claude-md) | Create and optimize CLAUDE.md and .claude/rules/ |
 | Claude Code | [agent-creator](#agent-creator) | Expert guidance for creating Claude Code subagents |
@@ -304,7 +305,7 @@ Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` and `/design-system` are optional follow-on handoffs for design tokens.
+Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` (award-level direction), `/frontend-dev` (everyday UI), and `/design-system` are optional follow-on handoffs.
 
 ---
 
@@ -392,16 +393,16 @@ Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO find
 
 ### Design Skills
 
-Recommend design archetypes and enforce DESIGN.md tokens across UI — `award-design`, `design-system`.
+Award-level art direction, the everyday frontend lane, and DESIGN.md token governance — `award-design`, `frontend-dev`, `design-system`.
 
 <details>
-<summary><em>award-design · design-system</em></summary>
+<summary><em>award-design · frontend-dev · design-system</em></summary>
 
 <br>
 
 #### award-design
 
-Takes the lead on any frontend design, build, or redesign — an **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, never backend. A **review mode** audits any site at any time.
+An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, a new identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
 
 **Usage**
 
@@ -454,6 +455,39 @@ Each archetype anchors to a canonical winner (corpus-credentialed). The referenc
 - [greensock/gsap-skills](https://github.com/greensock/gsap-skills) — motion canon, deferred to by name when installed
 - [Vercel Web Interface Guidelines](https://github.com/vercel-labs/web-interface-guidelines) — UX quality rules
 - [dev-browser](https://github.com/SawyerHood/dev-browser) — CLI visual review
+
+---
+
+#### frontend-dev
+
+The **everyday frontend lane** — pages, dashboards, forms, components, quick landings. Commits a five-line direction (SURFACE · WORLD · TYPE · COLOR · SIGNATURE) before any code, fixes composition by **surface archetype**, holds **hard floors** on type, spacing, color, and motion, and refuses the model's **fingerprint** page by name. Reads a DESIGN.md or an award-design ladder chunk as the brief when one exists. One file, fully resident — no references, no scripts.
+
+**Usage**
+
+```bash
+/frontend-dev add a changelog page          # everyday work — ritual, floors, fresh-pixels verify
+/frontend-dev build the admin dashboard     # Monitor surface — dense grid, full states, no hero
+/frontend-dev quick landing for the beta    # Persuade surface — conversion lines above the ritual
+```
+
+**Key features**
+
+- **The commit ritual** — five lines with concrete values, written in the response and copied into the first file's top comment; the first instinct is named and rejected, identity derives from the subject's world, never a template
+- **Surface archetypes** — seven compositions (Persuade, Monitor, Decide, Create, Browse, Read, Enter) decided by what the page is for; hero-plus-cards fits exactly one of them
+- **Hard floors** — snapped type scale, body ≥ 16px, 45–75ch measure, base-4 spacing, one accent at accent work, contrast ≥ 4.5:1, the separation ladder (spacing → dividers → tint → borders → shadows), one easing family, a reduced-motion branch always
+- **The fingerprint ban** — ten model defaults matched and refused: the purple gradient, Inter on display, three equal cards, eyebrows, center-stack, nested cards, default glassmorphism, invented stats, em-dash copy, icon toppers
+- **States and ship** — five interactive states, three data states, and a ship checklist (375/768/1440, designed 404, alt text, skip link, keyboard path, zero console errors, one signature moment)
+- **Conversion pass for landings** — OFFER / AUDIENCE / ACTION above the ritual; proof beside claims, an objections section, risk reversal, one CTA repeated
+- **Brief consumption** — DESIGN.md tokens are law when present; an award-design ladder chunk runs under its own Verify, or hands to `/award-design` chunk mode when installed; award asks, single-token changes, and empty directories route to `/award-design`, `/design-system`, `/scaffold`
+
+**Sources**
+
+- [elayadesign/ai-design-skills](https://github.com/elayadesign/ai-design-skills) — the resident single-file lane, conversion before visuals, terminal checklists
+- [elayadesign/redesign-skill](https://github.com/elayadesign/redesign-skill) — the "make it look better" register
+- [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) — surface archetypes; slop as a compositional defect
+- [pbakaus/impeccable](https://github.com/pbakaus/impeccable) — the first-instinct-is-spent commitment, measured verification
+- [Nutlope/hallmark](https://github.com/Nutlope/hallmark) — the fingerprint ban lists
+- [openai/plugins](https://github.com/openai/plugins) — the separation ladder, state coverage, blocking gates
 
 ---
 
@@ -1187,6 +1221,16 @@ Happy path, new project:
 /design-system                         enforce tokens going forward (auto-activate; steps aside if no DESIGN.md)
 ```
 
+Everyday project, no award ask:
+
+```
+/scaffold next-cloudflare              bootstrap project
+      |
+/frontend-dev "<feature>"              build under the ritual and the floors — reads DESIGN.md when one exists
+      |
+/design-system                         enforce tokens going forward (auto-activate; steps aside if no DESIGN.md)
+```
+
 Legacy project with a Stitch 9-section DESIGN.md:
 
 ```
@@ -1234,6 +1278,9 @@ graph LR
   issues -->|"-f #N"| apex
 
   scaffold --> award-design
+  scaffold --> frontend-dev
+  award-design -->|ladder chunk| frontend-dev
+  frontend-dev <-->|DESIGN.md| design-system
   award-design <-->|DESIGN.md| design-system
 
   brand-voice -->|"BRAND-VOICE.md / -f"| humanize-en

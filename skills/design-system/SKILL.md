@@ -49,10 +49,10 @@ When a `DESIGN.md` exists at the project root, read it **before** writing any UI
 
 **No `DESIGN.md`? Step aside.** The default governance mode neither requires nor creates one. It never blocks an edit for lack of a DESIGN.md and never invents a design direction — that is `/award-design`'s job (it forces a universe, writes the DESIGN.md up front, then builds the frontend under it). So:
 
-- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which authors the DESIGN.md up front and builds the frontend under it.
+- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which authors the DESIGN.md up front and builds the frontend under it; everyday UI work belongs to `/frontend-dev` when installed.
 - A bare token scaffold is needed now and `/award-design` is unavailable → `/design-system init [archetype]` is a minimal fallback, not the primary path.
 
-Phrase the pointer as an optional handoff, never as a prerequisite: "Design System imposes no prerequisite here; use `/award-design` if you want it to define and build the new visual direction." Do not say the user must create DESIGN.md before editing.
+Phrase the pointer as an optional handoff, never as a prerequisite: "Design System imposes no prerequisite here; use `/award-design` if you want it to define and build the new visual direction, or `/frontend-dev` for everyday UI work." Do not say the user must create DESIGN.md before editing.
 
 If a legacy Stitch-format `DESIGN.md` is detected (9 numbered sections, `## Agent Prompt Guide` heading, no YAML frontmatter): suggest `/design-system migrate <path>` to port it before proceeding.
 

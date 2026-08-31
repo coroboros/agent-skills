@@ -1,0 +1,76 @@
+{
+  "skill_name": "frontend-dev",
+  "description": "Behavioural evaluation set for the frontend-dev skill, the everyday frontend lane. A no-brief run opens with the five-line commit ritual (SURFACE / WORLD / TYPE / COLOR / SIGNATURE, concrete values, copied into the first file's top comment) and builds under the hard floors, the surface-archetype table, and the fingerprint ban. A DESIGN.md at the root makes its tokens law and skips the ritual; a ladder chunk goes to /award-design chunk mode when installed, else runs as written with unavailable gates declared as gaps. Ceiling vocabulary hands off to /award-design, a single-token change to /design-system, an empty directory to /scaffold; backend parts of a mixed request pass through as normal engineering. Landing pages add the OFFER / AUDIENCE / ACTION conversion lines. Re-run: one with-skill subagent per case (frozen skill copy, prompt verbatim), grade the produced artifacts against expected_output — never a protocol narration. Cases that describe a DESIGN.md at the project root inline its content in the prompt; files stays empty.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "everyday-page-runs-commit-ritual",
+      "prompt": "Add a public changelog page to our product site (Astro). Entries grouped by month, latest on top. Make it look nice.",
+      "expected_output": "Opens with the five-line commit ritual in the response — SURFACE (Read — one measured column, nav out of the text), WORLD (the product's own vocabulary as the identity source), TYPE (two named faces, no Inter/Roboto/Arial on display), COLOR (ground, ink, one accent as values — no pure #000/#fff), SIGNATURE (one deliberate moment) — every line carrying a concrete value or proper noun, then copies the block into a comment at the top of the first file touched. Builds the page under the hard floors (snapped type scale, body ≥16px, 45–75ch measure, base-4 spacing, separation by spacing before borders or shadows) with real copy and no fingerprint element. States and the ship checklist are ticked; the page is verified from screenshots at 375 and 1440, or the missing browser tooling is declared. 'Make it look nice' stays in this lane — no /award-design hand-off, no DESIGN.md authored.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "design-md-tokens-are-law",
+      "prompt": "Add a pricing table section to the homepage. DESIGN.md at the project root, in full:\n\n---\nname: Ledgerline\ncolors:\n  ground: '#F6F3EC'\n  ink: '#22201C'\n  accent: '#B4552D'\ntypography:\n  display: 'Tiempos Headline'\n  body: 'Untitled Sans'\nspacing:\n  base: '4px'\nrounded:\n  base: '6px'\n---\n# Overview\nWarm ledger-paper editorial. Confident, matter-of-fact.",
+      "expected_output": "Reads the DESIGN.md first and treats its tokens as law: the section uses ground, ink, accent, the two named faces, the 4px spacing base, and the 6px radius by token name — no new literal values, no second accent. The commit ritual is skipped because the direction is already committed; the hard floors apply only where the file is silent (measure, states, focus-visible, hit targets). A change that would need a new or altered token is routed to /design-system rather than written inline. No DESIGN.md edit, no regeneration, no /award-design hand-off.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "ladder-chunk-runs-under-its-own-verify",
+      "prompt": "/award-design is not installed here. DESIGN.md and design-plan.md are at the project root from an earlier award-design run. Run this chunk:\n\n### s3-faq — the objections section\n\n**Read first**\n- `DESIGN.md` §2 Colors · §3 Typography\n- design_plan: the contract (THESIS)\n\n**Implement**\n1. An objections section — five real questions, one-paragraph answers, accordion collapsed by default.\n2. Tokens by DESIGN.md name only.\n3. Reduced-motion: no height animation, instant toggle.\n\n**Verify**\n- `python3 <skill root>/scripts/preflight_scan.py src/components/Faq.astro --archetype editorial` → 0 FAIL\n- render-floor sweep 375/768/1024/1440/1920 on / → 0 FAIL\n- screenshots 1440 and 375 attached\n\n**Out of scope**\n- the pricing band above",
+      "expected_output": "Runs the chunk as written and nothing more: implements only what Implement states (the accordion with tokens by DESIGN.md name and the reduced-motion branch), leaves the pricing band untouched, and runs the chunk's own Verify verbatim instead of the skill's fresh-pixels section. The preflight scanner and render-floor gates name scripts from the absent /award-design install, so each unavailable gate is a declared gap in the Report — named, never asserted as passed. The Report lands in the ladder row (status, deviations with reasons, gate outputs or gaps) and the run stops at the chunk boundary: no next chunk, no ship label, no ritual, no direction work. With /award-design installed, the same paste would be handed to its chunk mode instead of running here.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "award-ask-hands-off",
+      "prompt": "Build our new agency site — it has to be award-winning, Awwwards-level, a real signature piece. Start with the homepage.",
+      "expected_output": "Hands off instead of building: 'award-winning', 'Awwwards-level', and 'signature' are ceiling vocabulary, so the run recommends `/award-design` with the brief and writes no page, no ritual, no DESIGN.md. If /award-design is reported absent from the session, the response says the award lane is missing and offers the everyday version under this skill's floors as the fallback — it never silently delivers an everyday page as an award piece.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "single-token-routes-to-design-system",
+      "prompt": "Change the accent color to #1E5EFF everywhere. There's a DESIGN.md at the root.",
+      "expected_output": "Redirects to /design-system: one color is a single-token change, and with a DESIGN.md present the token is updated there first, then propagated — never restyled by hand with the literal. The run writes no UI code, runs no ritual, and its only output is the hand-off naming /design-system and the token to change.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "dashboard-is-the-lane",
+      "prompt": "Design our internal admin dashboard for the customer-success team. Lots of tables and metrics. No DESIGN.md in the repo.",
+      "expected_output": "Takes the work — an internal dashboard is this skill's lane, not an award ask. The ritual's SURFACE line names Monitor: dense data grid, scannable numbers, hierarchy driven by what changed, and no hero — a hero on a dashboard is the named compositional failure. Tables get real column labels, data views ship loading, empty, and error states, destructive actions are guarded, and the floors hold (two faces, snapped scale, one accent on the working actions, focus-visible, ≥44px targets). No hand-off to /award-design and no refusal: the dashboard is built here.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "landing-gets-conversion-pass",
+      "prompt": "Quick landing page for Driftless, a beta fly-fishing trip planner. Email signup is the goal. One page, tonight.",
+      "expected_output": "Adds the three conversion lines above the ritual's five — OFFER (the planner in one sentence), AUDIENCE (the one reader), ACTION (the email signup) — then commits SURFACE as Persuade. Above the fold: a headline stating outcome plus mechanism, one real proof element, the CTA visible without scrolling. Middle: benefits before features, at most 3 steps, named proof. Bottom: objections in their own section, risk reversal near the CTA, the single signup action repeated with no competing CTA. Copy is real from the first render, stats are sourced or flagged, and the fingerprint list stays clear. 'Quick' keeps it in this lane; it does not escalate to /award-design.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "fingerprint-dodged-on-neutral-brief",
+      "prompt": "Design a features page for our AI meeting-notes SaaS. Nothing fancy, just clean and modern.",
+      "expected_output": "The neutral brief is where the reflex page appears, so the ritual names the first instinct — purple-to-blue gradient, Inter display, three equal cards, an icon above every feature title — and chooses against it, deriving WORLD from meeting-notes material (transcripts, timestamps, margins, highlighter marks) rather than a SaaS template. The built page contains none of the ten fingerprint items: no eyebrow labels, no glassmorphism, no invented round stats, no center-stacked default, no nested cards. 'Clean and modern' is treated as a mood, not a decision — the ritual's lines carry the concrete values that replace it.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "empty-directory-scaffolds-first",
+      "prompt": "Build a marketing site for my woodworking studio. The project folder is completely empty.",
+      "expected_output": "Routes to /scaffold first — an empty directory gets a project skeleton before any UI work — then returns to this skill's path: the ritual (WORLD drawn from the studio's materials — grain, joinery, shop-drawing vocabulary), the Persuade composition with the conversion lines, the floors, and the fresh-pixels verify. If /scaffold is absent from the session, the gap is named and the user is asked how to bootstrap rather than inventing a project layout silently.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "mixed-request-backend-passes-through",
+      "prompt": "Add a team-invites feature: an invite form with pending-invite list in settings, a POST /api/invites endpoint, and the invites table migration (Drizzle).",
+      "expected_output": "Splits the request along the visual boundary: the endpoint and the migration are normal engineering, written without design-lane ceremony — no ritual lines, no floors applied to a SQL file. The settings surface is the skill's part: SURFACE reads Decide (forms and tables, visible defaults, guarded destructive actions), the form's controls name their actions ('Send invite', 'Revoke'), the pending list ships loading, empty, and error states, and the floors hold. One coherent delivery, with the design rules governing only the visible surface — the backend half is neither refused nor gold-plated.",
+      "files": []
+    }
+  ]
+}
