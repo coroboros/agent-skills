@@ -1229,7 +1229,7 @@ Everyday project, no award ask:
       |
 /frontend-dev "<feature>"              build under the ritual and the floors — reads DESIGN.md when one exists
       |
-/design-system init <archetype>        (optional) scaffold a minimal DESIGN.md — tokens enforced from then on
+/design-system init <archetype>        (fallback) scaffold a minimal DESIGN.md — tokens enforced from then on
 ```
 
 Legacy project with a Stitch 9-section DESIGN.md:

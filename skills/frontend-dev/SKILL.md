@@ -69,7 +69,7 @@ Check for an existing brief before any direction work. The tiers compose — a c
 
 - The brief names the ceiling — "award-winning", "premium", "signature" as the page's ambition (not this lane's signature-moment ship item), a new visual identity, an uplift or ground-up redesign → `/award-design` when installed; when it is not, say the award lane is missing and deliver the everyday version.
 - A single-token change (one color, one radius) → `/design-system`.
-- No `DESIGN.md` is authored here — `/award-design` writes one, `/design-system init` scaffolds a minimal one.
+- No `DESIGN.md` is authored here — `/award-design` writes one; `/design-system init` is the bare fallback when that lane is not run.
 - An empty directory → `/scaffold` when installed, then return here; without it, name the missing skill and ask how to bootstrap — never invent a project layout silently.
 - A mixed request's backend, data, and infra parts are normal engineering — the floors govern only the visible surface.
 - Under `/oneshot`, `/apex`, or `/ultrapex`, the process skill owns the workflow; this skill owns the visual floor.
