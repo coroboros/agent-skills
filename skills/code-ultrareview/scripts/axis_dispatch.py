@@ -47,6 +47,7 @@ if str(_SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPT_DIR))
 
 from manifest import (  # noqa: E402
+    blocking_skips,
     file_identity as _file_identity,
     read_required_diff as _read_text,
     read_scope as _read_json,
@@ -626,7 +627,7 @@ def main() -> int:
                     "deterministic analyzer coverage is incomplete; "
                     "repair the battery and rerun Code Ultrareview"
                 )
-            if scope.get("tools_missing") or scope.get("tools_skipped"):
+            if scope.get("tools_missing") or blocking_skips(scope.get("tools_skipped")):
                 raise ValueError(
                     "deterministic analyzers are missing or skipped; "
                     "repair them and rerun Code Ultrareview"

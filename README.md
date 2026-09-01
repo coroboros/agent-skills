@@ -356,7 +356,7 @@ The battery resolves every applicable analyzer before running the first one. A J
 
 | Tool | Axis | Source |
 | --- | --- | --- |
-| `knip` | Simplification (JS/TS dead code) | declared project (node_modules/PnP), else PATH |
+| `knip` | Simplification (JS/TS dead code) | declared project (node_modules/PnP), else PATH; needs a covering `package.json` |
 | `jscpd` | Simplification (structural cross-language clones; default 15 lines / 100 tokens) | declared project (node_modules/PnP), else PATH |
 | `markdownlint-cli2` | Documentation (project-overridable structural lint; neutral line-length and compact-table base) | declared project (node_modules/PnP), else PATH |
 | `api-extractor` | Design/API (TS public surface) | declared project (node_modules/PnP), else PATH |
@@ -376,7 +376,7 @@ Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO find
 **Rules**
 
 - **Zero auto-install** — never runs `brew` / `cargo` / `go` / `pip` / `npm -g`; natives are installed explicitly.
-- **Atomic coverage** — a missing or failed applicable analyzer stops before axis review; fix the printed prerequisite and rerun.
+- **Atomic coverage** — a missing or failed applicable analyzer stops before axis review; fix the printed prerequisite and rerun. An analyzer that cannot apply to the scope is recorded as not applicable; the review continues.
 - **Cite precisely** — every finding carries `file:line`; instruction-rule findings quote the violated rule verbatim and name its source file.
 
 **Sources**

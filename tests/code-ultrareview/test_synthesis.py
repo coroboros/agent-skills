@@ -441,6 +441,22 @@ class TestWhatIDidNotCheck(unittest.TestCase):
         self.assertIn("analyzers were skipped", stderr)
         self.assertIn("rerun the review", stderr)
 
+    def test_not_applicable_tool_renders_without_blocking(self):
+        """Synthesis accepts a not-applicable entry and names it."""
+        scope = _scope(tools_skipped=[
+            {"tool": "knip", "axes": ["simplification"],
+             "coverage": "JS/TS dead code", "applicable": False,
+             "reason": "no package.json covers the changed JS/TS files"},
+        ])
+        with tempfile.TemporaryDirectory() as tmp:
+            stdout, stderr, rc = _run_synthesize(
+                scope, [], output_dir=Path(tmp),
+            )
+        self.assertEqual(rc, 0, stderr)
+        section = stdout.split("## 🧰 Tools skipped", 1)[1].split("---", 1)[0]
+        self.assertIn("`knip` — no package.json", section)
+        self.assertNotIn("_None —", section)
+
 
 # ---------------------------------------------------------------------------
 # 5. Required sections — every entry in the contract appears in the report

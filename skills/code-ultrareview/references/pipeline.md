@@ -22,6 +22,8 @@ Run `scripts/run_battery.sh`. Dispatch depends on changed files, languages, sele
 
 A JavaScript package declaration at the repository root or one workspace covering every tool-relevant input is authoritative. Execute its direct or workspace-hoisted project binary, or use offline `yarn run -B` for Yarn Plug'n'Play projects that deliberately have no `node_modules/.bin`. Multiple declarations or mixed declared and undeclared package scopes block until the dependency is declared once at the root; preflight prints the exact root package-manager command. If a declared binary is unavailable, restore the existing dependency graph with the detected package manager and lockfile. Only an undeclared analyzer may use an already installed `PATH` command or receive an add-dependency instruction. Never use `npx`, `pnpm dlx`, `bunx`, `yarn dlx`, `uvx`, or another runtime package resolver.
 
+Knip needs a manifest: it runs only when a `package.json` at the repository root or in one workspace covers the changed JavaScript/TypeScript files, from that directory. With none, the battery records Knip as not applicable (`applicable: false` in `tool-preflight.json`, `tools-skipped.json`, and `scope.json["tools_skipped"]`) and continues; later phases accept the entry and the report lists it under Tools skipped. Partial coverage, or several packages with no root manifest, exits 2 like an inconsistent declaration.
+
 Python and native analyzers use installed `PATH` commands. Universal performance Semgrep rules live under `perf-rules/`. Markdownlint partitions touched files by their nearest `.markdownlint-cli2.*` or `.markdownlint.*` ancestor; governed groups use CLI2's native per-file config resolution from the workspace root, while ungoverned files use the bundled neutral base. `jscpd` defaults to 15 lines and 100 tokens; `JSCPD_MIN_LINES` and `JSCPD_MIN_TOKENS` may make the threshold stricter.
 
 ## Atomic gates
@@ -31,7 +33,7 @@ Before running the first analyzer, mark tool coverage incomplete, remove stale p
 - Exit 2 for malformed scope, manifest, or other unsafe input. Invalidate stale findings and coverage first whenever the scope itself is valid.
 - Exit 3 for a missing analyzer, project declaration, or required configuration. Record `tool-preflight.json` and `scope.json["tools_missing"]`; print exact remediation and an argument-preserving rerun command.
 - Exit 4 for analyzer error, timeout, a missing or malformed required report, a findings exit code without at least one parsed finding, publication failure, or incomplete requested coverage. A schema-valid empty container is a clean report on exit 0. Empty text is also valid on exit 0 for Markdownlint, Lizard, Vulture, deadcode, gocyclo, dupl, and cargo-machete. API Extractor still requires its completion marker. Preserve evidence paths and print exact repair plus rerun guidance.
-- On either exit, publish no partial findings, launch no axis reviewers, and emit no repository verdict.
+- On exit 2, 3, or 4, publish no partial findings, launch no axis reviewers, and emit no repository verdict.
 
 Mutation, build verification, and reconcile maintain independent coverage state. Phase 3 and synthesis reject incomplete requested state even if a caller ignores an earlier nonzero exit.
 

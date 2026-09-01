@@ -285,9 +285,9 @@ class TestDidNotCheckSection(unittest.TestCase):
 
 
 class TestToolsSkippedSection(unittest.TestCase):
-    """`🧰 Tools skipped` always renders, even when no tools were skipped
-    (body: `_None — every detected tool ran._`). Documenting the table
-    shape with a tool example keeps the wire format stable."""
+    """`🧰 Tools skipped` always renders: one "- tool — reason" row per
+    analyzer recorded as not applicable, or the italic empty-state body
+    (`_None — every applicable analyzer completed successfully._`)."""
 
     def test_tools_skipped_section_present(self):
         text = _read()

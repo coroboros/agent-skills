@@ -44,18 +44,41 @@ def _parents(repo: Path, start: Path):
             return
         current = current.parent
 
-def _declaration(repo: Path, relative: str, package: str):
+def _covering_dir(repo: Path, relative: str, accepts) -> Path | None:
     repo = repo.resolve()
     target = (repo / relative).resolve()
     if target != repo and repo not in target.parents:
         raise InputError(f"scope path escapes the repository: {relative}")
     for directory in _parents(repo, target):
         path = directory / "package.json"
-        if path.is_file() and any(
-            package in _manifest(path).get(key, {}) for key in DEPENDENCIES
-        ):
+        if path.is_file() and accepts(path):
             return directory
     return None
+
+def _declaration(repo: Path, relative: str, package: str):
+    return _covering_dir(repo, relative, lambda path: any(
+        package in _manifest(path).get(key, {}) for key in DEPENDENCIES
+    ))
+
+def manifest_root(repo: Path, files: list[str]) -> Path | None:
+    """Partial or multi-package coverage with no root manifest would run the
+    analyzer against the wrong project, so it blocks like an inconsistent declaration."""
+    repo = repo.resolve()
+    # Deleted paths have no covering package; dispatch counts files on disk.
+    directories = [_covering_dir(repo, item, lambda path: True)
+                   for item in files if (repo / item).exists()]
+    covered = {item for item in directories if item is not None}
+    if not covered:
+        return None
+    if (repo / "package.json").is_file():
+        return repo
+    if None in directories:
+        raise InputError("scope mixes files inside and outside a package.json; "
+                         f"declare a root manifest at {repo / 'package.json'}")
+    if len(covered) != 1:
+        raise InputError("scope spans several package.json directories with no "
+                         f"root manifest; declare one at {repo / 'package.json'}")
+    return next(iter(covered))
 
 def package_manager_spec(repo: Path, directory: Path) -> tuple[str, str | None]:
     for parent in _parents(repo, directory):
@@ -124,12 +147,14 @@ def guidance(repo: Path, files: list[str], package: str, binary: str) -> str:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("probe", "exec", "install"))
+    parser.add_argument("action", choices=("probe", "exec", "install", "applicable"))
     parser.add_argument("--repo", type=Path, default=Path.cwd())
     parser.add_argument("--scope", type=Path, required=True)
     for option in ("--package", "--binary"):
         parser.add_argument(option, required=True)
     parser.add_argument("--file", action="append", dest="files")
+    parser.add_argument("--needs-manifest", action="store_true",
+                        help="run a PATH binary from the covering package.json directory")
     parser.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
     try:
@@ -138,6 +163,9 @@ def main() -> int:
         if args.action == "install":
             print(guidance(repo, files, args.package, args.binary))
             return 0
+        if args.action == "applicable":
+            # 10, not 1: an uncaught crash also exits 1 and must not read as "not applicable".
+            return 0 if manifest_root(repo, files) else 10
         command, wrapper, env = resolve(repo, files, args.package, args.binary)
         if args.action == "probe":
             print(wrapper)
@@ -145,6 +173,8 @@ def main() -> int:
         extra = args.arguments[1:] if args.arguments[:1] == ["--"] else args.arguments
         if wrapper.startswith("project:"):
             os.chdir(wrapper.split(":", 2)[2])
+        elif args.needs_manifest:
+            os.chdir(manifest_root(repo, files) or repo)
         os.execvpe(command[0], command + extra, env)
     except (OSError, ValueError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)

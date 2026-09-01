@@ -116,7 +116,7 @@ def validate_coverage(scope: dict) -> bool:
         problems.append("required analyzers are missing")
     if not isinstance(tools_skipped, list):
         problems.append("skipped analyzer manifest is invalid")
-    elif tools_skipped:
+    elif manifest_contract.blocking_skips(tools_skipped):
         problems.append("analyzers were skipped")
     if scope.get("coverage_complete") is not True or not manifest_contract.coverage_complete(scope):
         problems.append("coverage manifest is not complete")
@@ -444,7 +444,7 @@ def render_markdown(
     parts.append(_render_findings(result["verified"], result["unverified"]))
     parts.append(_render_what_looks_good(positives))
     parts.append(_render_verdict(result["verdict"]))
-    parts.append(_render_tools_skipped())
+    parts.append(_render_tools_skipped(scope.get("tools_skipped") or []))
     parts.append(_render_did_not_check())
     if reconcile_block:
         parts.append(reconcile_block.strip())
@@ -643,9 +643,15 @@ def _render_verdict(verdict: dict) -> str:
     return "\n".join(lines)
 
 
-def _render_tools_skipped() -> str:
+def _render_tools_skipped(tools_skipped: list) -> str:
     lines = ["---", "", "## 🧰 Tools skipped", ""]
-    lines.append("_None — every applicable analyzer completed successfully._")
+    if tools_skipped:
+        lines.extend(
+            f"- `{entry.get('tool', '?')}` — {entry.get('reason', 'not applicable')}"
+            for entry in tools_skipped
+        )
+    else:
+        lines.append("_None — every applicable analyzer completed successfully._")
     return "\n".join(lines)
 
 

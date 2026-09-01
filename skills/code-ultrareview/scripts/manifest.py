@@ -45,6 +45,16 @@ def read_scope(path: Path) -> dict:
     return payload
 
 
+def blocking_skips(entries: object) -> list:
+    """An analyzer recorded as not applicable is complete coverage, not a gap."""
+    if entries is None:
+        return []
+    if not isinstance(entries, list):
+        return [entries]
+    return [item for item in entries
+            if not (isinstance(item, dict) and item.get("applicable") is False)]
+
+
 def write_json_atomic(path: Path, payload: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
