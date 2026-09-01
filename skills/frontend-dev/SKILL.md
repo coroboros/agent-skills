@@ -1,7 +1,7 @@
 ---
 name: frontend-dev
-description: Senior frontend developer for everyday UI work — pages, dashboards, forms, components, quick landings. The default lane for "design this", "add a page", "build a dashboard", "make it look better" — commits a five-line direction before any code, fixes composition by surface archetype, holds hard floors on type, spacing, color, and motion, and refuses the model's fingerprint page. Reads a DESIGN.md or an award-design ladder chunk as the brief when one exists. Award-level asks route to award-design; single-token tweaks to design-system.
-when_to_use: When the user asks for everyday frontend work with no award ask — add a page, build a dashboard or settings screen, design a form or component, a quick landing, "make it look better". A DESIGN.md at the root makes its tokens law; a pasted design-plan ladder chunk runs as written, or goes to /award-design chunk mode when installed. NOT for "award-winning", "premium", "signature", a new visual identity, or an uplift or ground-up redesign — /award-design. NOT for a single-token change — /design-system. Empty directory — /scaffold first, then return here.
+description: Senior frontend developer for everyday UI work — pages, dashboards, forms, components, quick landings. The default lane for "design this", "add a page", "build a dashboard", "make it look better" — commits a five-line direction before any code when no brief exists, fixes composition by surface archetype, holds hard floors on type, spacing, color, and motion, and refuses the model's fingerprint page. Reads a DESIGN.md or an award-design ladder chunk as the brief when one exists. Award-level asks route to award-design; single-token tweaks to design-system.
+when_to_use: When the user asks for everyday frontend work with no award ask — add a page, build a dashboard or settings screen, design a form or component, a quick landing, "make it look better". A DESIGN.md at the root makes its tokens law; a pasted design-plan ladder chunk runs as written, or goes to /award-design chunk mode when installed. NOT for "award-winning", "premium", "signature", a new visual identity, or an uplift or ground-up redesign on a landing, portfolio, product or marketing site — /award-design (dashboards and internal tools stay here at any ambition). NOT for a single-token change — /design-system. Empty directory — /scaffold first, then return here.
 argument-hint: "<what to build or improve>"
 license: MIT
 metadata:
@@ -67,7 +67,7 @@ Check for an existing brief before any direction work. The tiers compose — a c
 
 ## Routing out
 
-- The brief names the ceiling — "award-winning", "premium", "signature" as the page's ambition (not this lane's signature-moment ship item), a new visual identity, an uplift or ground-up redesign → `/award-design` when installed; when it is not, say the award lane is missing and deliver the everyday version.
+- The brief names the ceiling — "award-winning", "premium", "signature" as the page's ambition (not this lane's signature-moment ship item), a new visual identity, an uplift or ground-up redesign — on a landing, portfolio, product or marketing site → `/award-design` when installed; when it is not, say the award lane is missing and deliver the everyday version. A dashboard or internal tool stays here at any ambition.
 - A single-token change (one color, one radius) → `/design-system`.
 - No `DESIGN.md` is authored here — `/award-design` writes one; `/design-system init` is the bare fallback when that lane is not run.
 - An empty directory → `/scaffold` when installed, then return here; without it, name the missing skill and ask how to bootstrap — never invent a project layout silently.
@@ -150,7 +150,7 @@ Before calling any page done:
 
 ## Landing pages — the Persuade lane
 
-A landing page is a conversion argument before it is a composition. Add three lines above the ritual's five — and they run on every Persuade surface, including the DESIGN.md tier, where they stand alone (the ritual's five stay skipped):
+A landing page is a conversion argument before it is a composition. Add three lines above the ritual's five — and they run on every Persuade surface outside a ladder chunk, including the DESIGN.md tier, where they stand alone (the ritual's five stay skipped):
 
 ```
 OFFER: <the one thing sold, in one sentence>

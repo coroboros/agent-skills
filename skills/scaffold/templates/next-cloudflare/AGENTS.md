@@ -21,10 +21,10 @@ APIs moved in 16 and most training data predates it. Before writing routing / ca
 - `experimental.ppr` → top-level `cacheComponents` (one flag controls ppr + useCache + dynamicIO). Not nested under `experimental`.
 
 ## UI
-- Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
+- Source of truth when one exists: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections); `/award-design` writes one, `/design-system init` scaffolds a minimal one
 - If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init` / `audit-extensions`
-- Otherwise validate directly with the installed project CLI: `pnpm design:audit`
-- IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
+- Otherwise, once the file exists, validate directly with the installed project CLI: `pnpm design:audit`
+- IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component; without one, `/frontend-dev` builds under its own floors
 - Tailwind utilities map to DESIGN.md tokens via the `@theme` block + CSS custom properties in `src/app/globals.css` (Tailwind v4 — no `tailwind.config.ts`)
 - Component library: shadcn/ui (`src/components/ui/`) — NEVER install full UI frameworks
 

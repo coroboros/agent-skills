@@ -6,7 +6,7 @@
       "id": 1,
       "name": "everyday-page-runs-commit-ritual",
       "prompt": "Add a public changelog page to our product site (Astro). Entries grouped by month, latest on top. Make it look nice.",
-      "expected_output": "Opens with the five-line commit ritual in the response — SURFACE (Read — one measured column, nav out of the text), WORLD (the product's own vocabulary as the identity source), TYPE (two named faces, no Inter/Roboto/Arial on display), COLOR (ground, ink, one accent as values — no pure #000/#fff), SIGNATURE (one deliberate moment) — every line carrying a concrete value or proper noun, then copies the block into a comment at the top of the first file touched. Builds the page under the hard floors (snapped type scale, body ≥16px, 45–75ch measure, base-4 spacing, separation by spacing before borders or shadows) with real copy and no fingerprint element. States and the ship checklist are ticked; the page is verified from screenshots at 375, 768, and 1440, or the missing browser tooling is declared. 'Make it look nice' stays in this lane — no /award-design hand-off, no DESIGN.md authored.",
+      "expected_output": "Opens with the five-line commit ritual in the response — SURFACE (Read or Browse, named with the composition it implies), WORLD (the product's own vocabulary as the identity source), TYPE (two named faces, no Inter/Roboto/Arial on display), COLOR (ground, ink, one accent as values — no pure #000/#fff), SIGNATURE (one deliberate moment) — every line carrying a concrete value or proper noun, then copies the block into a comment at the top of the first file touched. Builds the page under the hard floors (snapped type scale, body ≥16px, 45–75ch measure, base-4 spacing, separation by spacing before borders or shadows) with real copy and no fingerprint element. States and the ship checklist are ticked; the page is verified from screenshots at 375, 768, and 1440, or the missing browser tooling is declared. 'Make it look nice' stays in this lane — no /award-design hand-off, no DESIGN.md authored.",
       "files": []
     },
     {
@@ -34,7 +34,7 @@
       "id": 5,
       "name": "single-token-routes-to-design-system",
       "prompt": "Change the accent color to #1E5EFF everywhere. There's a DESIGN.md at the root.",
-      "expected_output": "Redirects to /design-system: one color is a single-token change, and with a DESIGN.md present the token is updated there first, then propagated — never restyled by hand with the literal. The run writes no UI code, runs no ritual, and its only output is the hand-off naming /design-system and the token to change.",
+      "expected_output": "Redirects to /design-system: one color is a single-token change, and with a DESIGN.md present the token changes there, never in an inline literal. The run writes no UI code, runs no ritual, and its only output is the hand-off naming /design-system and the token to change.",
       "files": []
     },
     {
@@ -70,6 +70,27 @@
       "name": "mixed-request-backend-passes-through",
       "prompt": "Add a team-invites feature: an invite form with pending-invite list in settings, a POST /api/invites endpoint, and the invites table migration (Drizzle).",
       "expected_output": "Splits the request along the visual boundary: the endpoint and the migration are normal engineering, written without design-lane ceremony — no ritual lines, no floors applied to a SQL file. The settings surface is the skill's part: SURFACE reads Decide (forms and tables, visible defaults, guarded destructive actions), the form's controls name their actions ('Send invite', 'Revoke'), the pending list ships loading, empty, and error states, and the floors hold. One coherent delivery, with the design rules governing only the visible surface — the backend half is neither refused nor gold-plated.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "design-md-discovered-mid-build",
+      "prompt": "Continue the pricing page: last session committed the five ritual lines as a comment at the top of src/pages/pricing.astro and built the hero. Since then a DESIGN.md landed at the project root — nobody has read it yet. Finish the page.",
+      "expected_output": "Stops before building further: the DESIGN.md wins retroactively. Reads it, adopts its tokens, revises the committed ritual lines to match them, and reconciles the hero already built — no inline literal survives beside a token the file names — then continues under the tokens. No second ritual runs; the hard floors apply only where the file is silent.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "persuade-under-design-md",
+      "prompt": "Quick landing for our beta, today. DESIGN.md is at the project root from an earlier award-design run — colors, typography, spacing, and radius tokens all there.",
+      "expected_output": "Writes the three conversion lines (OFFER / AUDIENCE / ACTION) and no ritual — the DESIGN.md is the committed direction, so the five lines stay skipped and every color, font, spacing value, and radius comes from its tokens by name. The page carries the Persuade structure: an outcome-plus-mechanism headline with one proof element above the fold, benefits before features, an objections section, risk reversal near one repeated CTA. Verified at the three widths, or the missing browser tooling declared.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "chunk-hands-to-award-design-when-installed",
+      "prompt": "/award-design is installed in this session. DESIGN.md and design-plan.md are at the project root. Run this chunk:\n\n### s2-proof — the proof band\n\n**Read first**\n- `DESIGN.md` §2 Colors\n\n**Implement**\n1. A proof band under the hero: three named customer quotes, tokens by DESIGN.md name.\n\n**Verify**\n- render-floor sweep 375/768/1440 on / → 0 FAIL\n\n**Out of scope**\n- the hero above",
+      "expected_output": "Hands the chunk to /award-design chunk mode instead of running it here — it owns the gate scripts. Writes no UI code under this skill, runs no ritual, substitutes no Verify of its own; the only output is the hand-off naming /award-design chunk mode with the pasted chunk.",
       "files": []
     }
   ]

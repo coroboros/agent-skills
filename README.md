@@ -402,7 +402,7 @@ Award-level art direction, the everyday frontend lane, and DESIGN.md token gover
 
 #### award-design
 
-An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, signature, a new visual identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
+An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, signature, a new visual identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work and dashboards or internal tools at any ambition to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
 
 **Usage**
 
@@ -478,7 +478,7 @@ The **everyday frontend lane** — pages, dashboards, forms, components, quick l
 - **The fingerprint ban** — ten model defaults matched and refused: the purple gradient, Inter on display, three equal cards, eyebrows, center-stack, nested cards, default glassmorphism, invented stats, em-dash copy, icon toppers
 - **States and ship** — five interactive states, three data states, and a ship checklist (375/768/1440, designed 404, alt text, skip link, keyboard path, zero console errors, one signature moment)
 - **Conversion pass for landings** — OFFER / AUDIENCE / ACTION above the ritual; proof beside claims, an objections section, risk reversal, one CTA repeated
-- **Brief consumption** — DESIGN.md tokens are law when present; an award-design ladder chunk hands to `/award-design` chunk mode when installed, else runs under its own Verify; award asks, single-token changes, and empty directories route to `/award-design`, `/design-system`, `/scaffold`
+- **Brief consumption** — DESIGN.md tokens are law when present; an award-design ladder chunk hands to `/award-design` chunk mode when installed, else runs under its own Verify; award asks on a landing, portfolio, product or marketing site, single-token changes, and empty directories route to `/award-design`, `/design-system`, `/scaffold`; dashboards and internal tools stay at any ambition
 
 **Sources**
 
@@ -494,7 +494,7 @@ The **everyday frontend lane** — pages, dashboards, forms, components, quick l
 
 #### design-system
 
-Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Activates by intent during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit or invents a design direction (that is `/award-design`'s job; it forces a universe, writes the DESIGN.md and the build ladder). Exposes seven subcommands, four backed by the canonical CLI, for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
+Govern an existing `DESIGN.md` — the [Google DESIGN.md open standard](https://github.com/google-labs-code/design.md) (YAML frontmatter tokens + eight prose sections). Activates by intent during UI edits to enforce token-only sourcing **when a DESIGN.md is present**, and **steps aside when none exists** — it never blocks the edit or invents a design direction (that is `/award-design`'s job — it forces a universe, writes the DESIGN.md and the build ladder; everyday UI work without a file belongs to `/frontend-dev`). Exposes seven subcommands, four backed by the canonical CLI, for the full DESIGN.md lifecycle. `audit-extensions` closes the bidirectional drift loop between DESIGN.md extension namespaces (motion, shadows, aspect-ratios, heights, containers, breakpoints, z-index, border-widths, opacity, scroll-triggers — see `references/extended-tokens.md`) and the `globals.css` `@theme` mirror.
 
 **Requirements**
 
@@ -518,7 +518,7 @@ It is also invocable directly via `/design-system` with one of seven subcommands
 /design-system export dtcg -o tokens.json           # W3C DTCG format
 /design-system spec --rules                         # emit canonical spec + lint rules
 /design-system migrate ./legacy-DESIGN.md           # Stitch 9-section → Google standard
-/design-system init editorial                       # scaffold a minimal DESIGN.md
+/design-system init                                 # scaffold a minimal generic DESIGN.md
 /design-system audit-extensions                     # YAML ↔ prose ↔ globals.css drift check
 /design-system audit-extensions --strict            # promote orphan warnings to errors
 ```
@@ -1229,7 +1229,7 @@ Everyday project, no award ask:
       |
 /frontend-dev "<feature>"              build under the ritual and the floors — reads DESIGN.md when one exists
       |
-/design-system init <archetype>        (fallback) scaffold a minimal DESIGN.md — tokens enforced from then on
+/design-system init                    (fallback) scaffold a minimal DESIGN.md — tokens enforced from then on
 ```
 
 Legacy project with a Stitch 9-section DESIGN.md:
@@ -1281,7 +1281,7 @@ graph LR
   scaffold --> award-design
   scaffold --> frontend-dev
   frontend-dev -->|ladder chunk| award-design
-  award-design -->|everyday| frontend-dev
+  award-design -->|everyday, dashboards| frontend-dev
   frontend-dev <-->|DESIGN.md| design-system
   award-design <-->|DESIGN.md| design-system
 
