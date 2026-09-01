@@ -170,6 +170,8 @@ class TestStatesAndShip(unittest.TestCase):
 
     def test_interactive_and_data_states(self):
         section = self._section()
+        self.assertIn("ships five states", section)
+        self.assertIn("ships three", section)
         for state in ["default", "hover", "focus-visible", "disabled",
                       "loading", "empty", "error"]:
             with self.subTest(state=state):
@@ -213,7 +215,8 @@ class TestRoutingOut(unittest.TestCase):
     def test_ceiling_routes_to_award_design(self):
         routing = self._routing()
         self.assertIn("/award-design", routing)
-        for word in ["award-winning", "premium", "signature"]:
+        for word in ["award-winning", "premium", "signature",
+                     "visual identity", "uplift", "redesign"]:
             with self.subTest(word=word):
                 self.assertIn(word, routing)
 
@@ -226,7 +229,9 @@ class TestRoutingOut(unittest.TestCase):
         self.assertIn("/scaffold", self._routing())
 
     def test_backend_passes_through(self):
-        self.assertIn("backend", self._routing().lower())
+        routing = self._routing()
+        self.assertIn("backend", routing)
+        self.assertIn("normal engineering", routing)
 
 
 class TestSiblingRouting(unittest.TestCase):

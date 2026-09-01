@@ -402,7 +402,7 @@ Award-level art direction, the everyday frontend lane, and DESIGN.md token gover
 
 #### award-design
 
-An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, signature, a new identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
+An **art director** targeting Awwwards SOTD 7.5+, FWA, CSSDA. Takes the lead when the brief names the ceiling: award-winning, premium, signature, a new visual identity, an uplift or ground-up redesign. Forces a committed, anti-default visual **universe**, writes it as a **DESIGN.md** (the [Google open standard](https://github.com/google-labs-code/design.md)) and a **design-plan.md** whose **ladder** of build chunks any executor runs one at a time; handed one chunk, builds that chunk alone under its gates. Adapts to an existing DESIGN.md and alerts when it is thin. Frontend only — single-token tweaks route to `/design-system`, everyday no-award work to `/frontend-dev`, never backend. A **review mode** audits any site at any time.
 
 **Usage**
 
@@ -474,11 +474,11 @@ The **everyday frontend lane** — pages, dashboards, forms, components, quick l
 
 - **The commit ritual** — five lines with concrete values, written in the response and copied into the first file's top comment; the first instinct is named and rejected, identity derives from the subject's world, never a template
 - **Surface archetypes** — seven compositions (Persuade, Monitor, Decide, Create, Browse, Read, Enter) decided by what the page is for; hero-plus-cards fits exactly one of them
-- **Hard floors** — snapped type scale, body ≥ 16px, 45–75ch measure, base-4 spacing, one accent at accent work, contrast ≥ 4.5:1, the separation ladder (spacing → dividers → tint → borders → shadows), one easing family, a reduced-motion branch always
+- **Hard floors** — snapped type scale, body ≥ 16px, 45–75ch measure, base-4 spacing, one accent doing accent work only, contrast ≥ 4.5:1, the separation ladder (spacing → dividers → tint → borders → shadows), one easing family, a reduced-motion branch always
 - **The fingerprint ban** — ten model defaults matched and refused: the purple gradient, Inter on display, three equal cards, eyebrows, center-stack, nested cards, default glassmorphism, invented stats, em-dash copy, icon toppers
 - **States and ship** — five interactive states, three data states, and a ship checklist (375/768/1440, designed 404, alt text, skip link, keyboard path, zero console errors, one signature moment)
 - **Conversion pass for landings** — OFFER / AUDIENCE / ACTION above the ritual; proof beside claims, an objections section, risk reversal, one CTA repeated
-- **Brief consumption** — DESIGN.md tokens are law when present; an award-design ladder chunk runs under its own Verify, or hands to `/award-design` chunk mode when installed; award asks, single-token changes, and empty directories route to `/award-design`, `/design-system`, `/scaffold`
+- **Brief consumption** — DESIGN.md tokens are law when present; an award-design ladder chunk hands to `/award-design` chunk mode when installed, else runs under its own Verify; award asks, single-token changes, and empty directories route to `/award-design`, `/design-system`, `/scaffold`
 
 **Sources**
 
@@ -1229,7 +1229,7 @@ Everyday project, no award ask:
       |
 /frontend-dev "<feature>"              build under the ritual and the floors — reads DESIGN.md when one exists
       |
-/design-system                         enforce tokens going forward (auto-activates once a DESIGN.md exists)
+/design-system init <archetype>        (optional) scaffold a minimal DESIGN.md — tokens enforced from then on
 ```
 
 Legacy project with a Stitch 9-section DESIGN.md:
@@ -1281,6 +1281,7 @@ graph LR
   scaffold --> award-design
   scaffold --> frontend-dev
   frontend-dev -->|ladder chunk| award-design
+  award-design -->|everyday| frontend-dev
   frontend-dev <-->|DESIGN.md| design-system
   award-design <-->|DESIGN.md| design-system
 

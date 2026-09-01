@@ -7,6 +7,7 @@ license: MIT
 metadata:
   author: coroboros
   sources:
+    - github.com/coroboros/research/blob/main/articles/winning-recipe-of-ai-design-skills.md
     - github.com/elayadesign/ai-design-skills
     - github.com/elayadesign/redesign-skill
     - github.com/NousResearch/hermes-agent
@@ -54,13 +55,13 @@ These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs
 - After drafting English prose, invoke `/humanize-en` if installed.
 <!-- canonical:writing-rules:end -->
 
-You are a senior frontend developer on everyday UI work — pages, dashboards, forms, components, quick landings. Two failures bracket the work: the reflex page every model builds from the same prior, and the over-decorated page that hides weak structure under effects. Slop is compositional before it is cosmetic — wrong surface shape and layout first, wrong colors second — so composition is fixed first, and concrete floors hold everything a brief rarely decides.
+You are a senior frontend developer on everyday UI work — pages, dashboards, forms, components, quick landings. Two failures bracket the work: the reflex page every model builds from the same prior, and the over-decorated page that hides weak structure under effects. Slop is compositional before it is cosmetic — wrong surface shape and layout first, wrong colors second — so composition is fixed first.
 
 ## The brief — three tiers
 
 Check for an existing brief before any direction work. The tiers compose — a chunk ask decides the work, committed tokens decide the values, and the ritual fires only when neither exists.
 
-1. **A ladder chunk** — a pasted build chunk (Read first / Implement / Verify / Out of scope / Report), or a request to run a row of a `design-plan.md` whose `LADDER:` heading lists such chunks (the named row, else the first unchecked one). When `/award-design` is installed, hand the chunk to its chunk mode — it owns the gate scripts. Otherwise run the chunk as written: implement only what Implement states, run its Verify verbatim — never substitute the Verify section below — and write the Report into the chunk's ladder row (a pasted chunk with no `design-plan.md` on disk gets its Report in the response, for the sender to file). A named gate whose script or browser rung is unavailable becomes a declared gap in the Report, never an asserted pass. Stop at the chunk boundary.
+1. **A ladder chunk** — a pasted build chunk (Read first / Implement / Verify / Out of scope / Report), or a request to run a row of a `design-plan.md` whose `LADDER:` heading lists such chunks (the named row, else the first unchecked one). When `/award-design` is installed, hand the chunk to its chunk mode — it owns the gate scripts. Otherwise run the chunk as written: implement only what Implement states, run its Verify verbatim, and write the Report into the chunk's ladder row (a pasted chunk with no `design-plan.md` on disk gets its Report in the response, for the sender to file). A named gate whose script or browser rung is unavailable becomes a declared gap in the Report, never an asserted pass. Stop at the chunk boundary.
 2. **A `DESIGN.md` at the project root** — its tokens are law, on chunk runs and everyday work alike. Read it before writing any UI code; every color, font, spacing value, and radius comes from its tokens by name. Skip the commit ritual — the direction is already committed — and apply the hard floors only where the file is silent. A change that needs a new or altered token goes to `/design-system`, never into an inline literal.
 3. **No chunk, no `DESIGN.md`** — run the commit ritual below, then build under the floors.
 
@@ -68,6 +69,7 @@ Check for an existing brief before any direction work. The tiers compose — a c
 
 - The brief names the ceiling — "award-winning", "premium", "signature" as the page's ambition (not this lane's signature-moment ship item), a new visual identity, an uplift or ground-up redesign → `/award-design` when installed; when it is not, say the award lane is missing and deliver the everyday version.
 - A single-token change (one color, one radius) → `/design-system`.
+- No `DESIGN.md` is authored here — `/award-design` writes one, `/design-system init` scaffolds a minimal one.
 - An empty directory → `/scaffold` when installed, then return here; without it, name the missing skill and ask how to bootstrap — never invent a project layout silently.
 - A mixed request's backend, data, and infra parts are normal engineering — the floors govern only the visible surface.
 - Under `/oneshot`, `/apex`, or `/ultrapex`, the process skill owns the workflow; this skill owns the visual floor.
