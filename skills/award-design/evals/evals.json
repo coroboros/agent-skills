@@ -67,7 +67,7 @@
     },
     {
       "id": 10,
-      "name": "dashboard-declined-out-of-scope",
+      "name": "dashboard-routed-to-frontend-dev",
       "prompt": "Design our internal admin dashboard for the customer-success team. Lots of tables and metrics.",
       "expected_output": "Declines: an internal dashboard is everyday work with no award ask, not the ceiling this skill triggers on. Opens no design-plan.md, runs no roll, writes no DESIGN.md, no ladder, no chunk; styles no table or metric surface. The only output is the refusal naming the boundary and the hand-off naming /frontend-dev when installed.",
       "files": []

@@ -482,6 +482,7 @@ The **everyday frontend lane** — pages, dashboards, forms, components, quick l
 
 **Sources**
 
+- [The winning recipe of AI design skills (Coroboros Research)](https://github.com/coroboros/research/blob/main/articles/winning-recipe-of-ai-design-skills.md) — the eleven-system corpus read this lane distils
 - [elayadesign/ai-design-skills](https://github.com/elayadesign/ai-design-skills) — the resident single-file lane, conversion before visuals, terminal checklists
 - [elayadesign/redesign-skill](https://github.com/elayadesign/redesign-skill) — the "make it look better" register
 - [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent) — surface archetypes; slop as a compositional defect
@@ -1228,7 +1229,7 @@ Everyday project, no award ask:
       |
 /frontend-dev "<feature>"              build under the ritual and the floors — reads DESIGN.md when one exists
       |
-/design-system                         enforce tokens going forward (auto-activate; steps aside if no DESIGN.md)
+/design-system                         enforce tokens going forward (auto-activates once a DESIGN.md exists)
 ```
 
 Legacy project with a Stitch 9-section DESIGN.md:
@@ -1279,7 +1280,7 @@ graph LR
 
   scaffold --> award-design
   scaffold --> frontend-dev
-  award-design -->|ladder chunk| frontend-dev
+  frontend-dev -->|ladder chunk| award-design
   frontend-dev <-->|DESIGN.md| design-system
   award-design <-->|DESIGN.md| design-system
 

@@ -140,7 +140,7 @@ Every interactive element ships five states: default, hover, focus-visible, disa
 
 Before calling any page done:
 
-- Verified at 375, 768, and 1440 wide — no horizontal scroll, no collapsed layout
+- No horizontal scroll or collapsed layout at the three verify widths
 - Title, meta description, and favicon set; a designed 404 exists
 - Images carry alt text; a skip link exists; the page is keyboard-walkable
 - Zero console errors
@@ -178,5 +178,5 @@ A ladder chunk's own Verify replaces this section entirely. When the user asks h
 ## Gotchas
 
 1. **A DESIGN.md discovered mid-build wins retroactively.** Stop, adopt its tokens, revise the committed ritual lines to match them, and reconcile what is already built.
-2. **"Make it pop" is not an award ask.** The ceiling routes on ceiling vocabulary — award, premium, signature, identity, uplift, redesign — never on enthusiasm. Treat it as everyday work with a stronger signature moment.
-3. **Ritual lines that never reach the file are an evaporated commitment.** The comment at the top of the first file is the durable copy; a direction living only in the chat is re-decided from scratch on the next edit.
+2. **"Make it pop" is not an award ask.** The ceiling routes on the Routing out vocabulary, never on enthusiasm. Treat it as everyday work with a stronger signature moment.
+3. **Ritual lines that never reach the file are an evaporated commitment.** A direction living only in the chat is re-decided from scratch on the next edit.

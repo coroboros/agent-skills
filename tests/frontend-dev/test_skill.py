@@ -14,6 +14,7 @@ SKILL_MD = REPO_ROOT / "skills" / "frontend-dev" / "SKILL.md"
 AWARD_SKILL_MD = REPO_ROOT / "skills" / "award-design" / "SKILL.md"
 DESIGN_SYSTEM_MD = REPO_ROOT / "skills" / "design-system" / "SKILL.md"
 SCAFFOLD_MD = REPO_ROOT / "skills" / "scaffold" / "SKILL.md"
+CHUNK_TEMPLATE_MD = REPO_ROOT / "skills" / "award-design" / "references" / "chunk-template.md"
 
 
 def _frontmatter():
@@ -176,7 +177,7 @@ class TestStatesAndShip(unittest.TestCase):
 
     def test_ship_checklist_items(self):
         section = self._section()
-        for item in ["375, 768, and 1440", "favicon", "404", "alt text",
+        for item in ["verify widths", "favicon", "404", "alt text",
                      "skip link", "console errors", "signature moment"]:
             with self.subTest(item=item):
                 self.assertIn(item, section)
@@ -258,6 +259,30 @@ class TestSiblingRouting(unittest.TestCase):
     def test_scaffold_handoff_names_frontend_dev(self):
         self.assertIn("`/frontend-dev` (everyday UI)",
                       SCAFFOLD_MD.read_text(encoding="utf-8"))
+
+
+class TestVerifyFreshPixels(unittest.TestCase):
+    def test_screenshot_widths(self):
+        section = _section("Verify — fresh pixels")
+        self.assertIsNotNone(section, "verify section missing")
+        self.assertIn("375, 768, and 1440", section)
+
+
+class TestChunkContractParity(unittest.TestCase):
+    """Tier 1 quotes the chunk section names by value; the source of truth
+    is award-design's chunk template. If a heading is renamed there,
+    frontend-dev silently stops recognising chunks — this must fail first."""
+
+    NAMES = ["Read first", "Implement", "Verify", "Out of scope", "Report"]
+
+    def test_tier_quotes_the_template_headings(self):
+        tier = _section("The brief — three tiers")
+        self.assertIsNotNone(tier, "tiers section missing")
+        self.assertIn(" / ".join(self.NAMES), tier)
+        template = CHUNK_TEMPLATE_MD.read_text(encoding="utf-8")
+        for name in self.NAMES:
+            with self.subTest(name=name):
+                self.assertIn(f"**{name}**", template)
 
 
 if __name__ == "__main__":
