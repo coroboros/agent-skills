@@ -15,10 +15,10 @@ Read the matching rule before planning or editing that surface:
 - Content: Astro Content Collections or MDX in `src/content/`
 
 ## UI
-- Source of truth: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections)
+- Source of truth when one exists: DESIGN.md at project root (Google DESIGN.md format — YAML frontmatter tokens + 8 prose sections); `/award-design` writes one, `/design-system init` scaffolds a minimal one
 - If `/design-system` is installed (`npx skills add coroboros/agent-skills --skill design-system`): auto-activates on UI edits to enforce tokens; subcommands `audit` / `audit --strict` / `diff` / `export tailwind` / `migrate` / `init`
-- Otherwise validate directly with the installed project CLI: `pnpm design:audit`
-- IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component
+- Otherwise, once the file exists, validate directly with the installed project CLI: `pnpm design:audit`
+- IMPORTANT: Read DESIGN.md BEFORE creating or modifying any component; without one, `/frontend-dev` builds under its own floors
 - Tailwind v4 theme tokens and CSS custom properties in `src/styles/global.css`
 - No component library — Astro components are the components
 

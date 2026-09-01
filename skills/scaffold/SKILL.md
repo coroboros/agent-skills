@@ -47,7 +47,7 @@ Writes opinionated configs (`biome.json`, `.worktreeinclude`, canonical `AGENTS.
 
 ### 4. Verify and summarize
 
-`bash "$SKILL_DIR"/scripts/verify_scaffold.sh "{project_dir}"` runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surface the first 60 diagnostic lines + a fix; do not mark the scaffold complete. On success, report files created and next steps: configure `.dev.vars`, optionally hand off to `/award-design <brief>` and `/design-system audit DESIGN.md` when those skills are installed, then run `pnpm dev`.
+`bash "$SKILL_DIR"/scripts/verify_scaffold.sh "{project_dir}"` runs `pnpm biome check --write .` and `pnpm typecheck`. On failure, surface the first 60 diagnostic lines + a fix; do not mark the scaffold complete. On success, report files created and next steps: configure `.dev.vars`, optionally hand off to `/award-design <brief>` (award-level direction, then `/design-system audit DESIGN.md`) or `/frontend-dev` (everyday UI) when those skills are installed, then run `pnpm dev`.
 
 ## Rules
 

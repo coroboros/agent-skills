@@ -31,6 +31,7 @@ The sync script and the parity test read this list:
 - apex
 - ultrapex
 - code-ultrareview
+- frontend-dev
 - oneshot
 - award-design
 

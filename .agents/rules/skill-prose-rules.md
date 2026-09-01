@@ -39,6 +39,7 @@ The sync script and the parity test read this list:
 - claude-md
 - code-ultrareview
 - forge
+- frontend-dev
 - oneshot
 - suno-produce
 - write-clear-readme

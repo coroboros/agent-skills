@@ -1,7 +1,7 @@
 ---
 name: design-system
 description: Govern an existing DESIGN.md during UI work. Enforce token-backed colors, typography, spacing, and radius when the file exists; steps aside when it does not. Use for token-affecting edits and seven subcommands, four backed by the canonical CLI — audit, diff, export, spec, migrate, init, and extension drift checks. CLI-backed operations stop with exact remediation when the canonical validator is unavailable or invalid.
-when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user changes the theme or references visual tokens in an existing DESIGN.md. Full redesigns / new visual direction → /award-design. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
+when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user changes the theme or references visual tokens in an existing DESIGN.md. Full redesigns / new visual direction → /award-design. Everyday UI work with no DESIGN.md → /frontend-dev when installed. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
 argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
 paths:
   - src/components/**
@@ -25,7 +25,7 @@ metadata:
 
 Two modes for governing a project's visual identity:
 
-1. **Auto-activate** — when editing UI files (components, pages, layouts, styles, `DESIGN.md`, `tailwind.config.*`) **and a `DESIGN.md` is present**, the skill reads it first and enforces token-only sourcing for colors, typography, spacing, and corner radius. No `DESIGN.md`? It stays out of the way — a one-line pointer to `/award-design`, no enforcement, no block on the edit.
+1. **Auto-activate** — when editing UI files (components, pages, layouts, styles, `DESIGN.md`, `tailwind.config.*`) **and a `DESIGN.md` is present**, the skill reads it first and enforces token-only sourcing for colors, typography, spacing, and corner radius. No `DESIGN.md`? It stays out of the way — a one-line pointer to `/award-design` or `/frontend-dev`, no enforcement, no block on the edit.
 2. **Subcommands** — `/design-system <verb> [path]` exposes the full DESIGN.md lifecycle, built on the canonical `@google/design.md` CLI.
 
 ## Subcommand routing
@@ -49,10 +49,10 @@ When a `DESIGN.md` exists at the project root, read it **before** writing any UI
 
 **No `DESIGN.md`? Step aside.** The default governance mode neither requires nor creates one. It never blocks an edit for lack of a DESIGN.md and never invents a design direction — that is `/award-design`'s job (it forces a universe, writes the DESIGN.md up front, then builds the frontend under it). So:
 
-- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which authors the DESIGN.md up front and builds the frontend under it.
-- A bare token scaffold is needed now and `/award-design` is unavailable → `/design-system init [archetype]` is a minimal fallback, not the primary path.
+- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which authors the DESIGN.md up front and builds the frontend under it; everyday UI work belongs to `/frontend-dev` when installed.
+- A bare token scaffold is needed now and `/award-design` is unavailable or not selected → `/design-system init [archetype]` is a minimal fallback, not the primary path.
 
-Phrase the pointer as an optional handoff, never as a prerequisite: "Design System imposes no prerequisite here; use `/award-design` if you want it to define and build the new visual direction." Do not say the user must create DESIGN.md before editing.
+Phrase the pointer as an optional handoff, never as a prerequisite: "Design System imposes no prerequisite here; use `/award-design` if you want it to define and build the new visual direction, or `/frontend-dev` for everyday UI work, if installed." Do not say the user must create DESIGN.md before editing.
 
 If a legacy Stitch-format `DESIGN.md` is detected (9 numbered sections, `## Agent Prompt Guide` heading, no YAML frontmatter): suggest `/design-system migrate <path>` to port it before proceeding.
 
@@ -140,7 +140,7 @@ When no subcommand is matched — either activated from its description during a
 The default governance mode does not author a design file from scratch. When the user explicitly wants a DESIGN.md, it is born one of two ways:
 
 1. **`/award-design` authors it** (preferred) — it forces a universe and writes the full DESIGN.md up front, then builds the frontend under it. design-system governs the result from there.
-2. **`/design-system init [archetype]`** — a minimal token scaffold, only when `/award-design` is unavailable and a bare file is needed now.
+2. **`/design-system init [archetype]`** — a minimal token scaffold, only when `/award-design` is unavailable or not selected and a bare file is needed now.
 
 Either way, once the file exists, the change flow below applies. Atmosphere scores (Density, Variance, Motion) live in Overview prose, not YAML.
 
