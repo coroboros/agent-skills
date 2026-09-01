@@ -443,11 +443,6 @@ set_js_relevant_files_for_tool() {
   fi
 }
 
-# Knip reads the project's package.json; without a manifest covering the
-# changed JS/TS files it cannot run at all, which is not the same as being
-# uninstalled. Exit 1 records it as not applicable; exit 2 keeps the
-# mixed-scope guard (partial or multi-package coverage with no root manifest),
-# deferred like an invalid manifest so the rest of the plan still renders.
 knip_manifest_covers_scope() {
   local file rc
   local args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
@@ -458,8 +453,8 @@ knip_manifest_covers_scope() {
   rc=$?
   case "$rc" in
     0) return 0 ;;
-    1)
-      SKIPPED_ROWS+=("knip|$(tool_axes knip)|$(coverage_hint knip)|not applicable: no package.json covers the changed JS/TS files")
+    10)
+      SKIPPED_ROWS+=("knip|$(tool_axes knip)|$(coverage_hint knip)|no package.json covers the changed JS/TS files")
       return 1
       ;;
   esac

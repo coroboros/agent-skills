@@ -442,13 +442,11 @@ class TestWhatIDidNotCheck(unittest.TestCase):
         self.assertIn("rerun the review", stderr)
 
     def test_not_applicable_tool_renders_without_blocking(self):
-        """An analyzer that cannot apply is complete coverage, not a gap: the
-        battery records it with `applicable: false`, synthesis accepts the
-        scope, and the report names it so the reader sees what did not run."""
+        """Synthesis accepts a not-applicable entry and names it."""
         scope = _scope(tools_skipped=[
             {"tool": "knip", "axes": ["simplification"],
              "coverage": "JS/TS dead code", "applicable": False,
-             "reason": "not applicable: no package.json covers the changed JS/TS files"},
+             "reason": "no package.json covers the changed JS/TS files"},
         ])
         with tempfile.TemporaryDirectory() as tmp:
             stdout, stderr, rc = _run_synthesize(
@@ -456,7 +454,7 @@ class TestWhatIDidNotCheck(unittest.TestCase):
             )
         self.assertEqual(rc, 0, stderr)
         section = stdout.split("## 🧰 Tools skipped", 1)[1].split("---", 1)[0]
-        self.assertIn("`knip` — not applicable: no package.json", section)
+        self.assertIn("`knip` — no package.json", section)
         self.assertNotIn("_None —", section)
 
 

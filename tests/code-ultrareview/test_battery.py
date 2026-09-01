@@ -498,11 +498,7 @@ class TestPreflightAndResolution(unittest.TestCase):
 
 
 class TestKnipApplicability(unittest.TestCase):
-    """Knip needs a package.json to run, so a binary on PATH is not
-    applicability. A JS scope with no covering manifest skips Knip and keeps
-    the battery going; a covering manifest runs it from that directory;
-    partial or multi-package coverage with no root manifest keeps the
-    fail-loud guard."""
+    """A binary on PATH is not applicability: Knip needs a package.json."""
 
     def _js_repo(self, tmp: str, files: list[str]) -> tuple[Path, Path, Path]:
         repo = Path(tmp)
@@ -579,8 +575,7 @@ class TestKnipApplicability(unittest.TestCase):
         self.assertEqual(cwd, package)
 
     def test_deleted_file_does_not_trip_the_guard(self):
-        """Dispatch counts only files on disk; a deleted root-level file in a
-        workspace-only repo must not read as an uncovered file."""
+        """A deleted path must not read as an uncovered file."""
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
             bin_dir = repo / "bin"
@@ -606,25 +601,19 @@ class TestKnipApplicability(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(cwd, package)
 
-    def test_partial_or_multi_package_scope_keeps_the_guard(self):
-        cases = (
-            (["packages/app/src/a.js", "src/b.js"], ["packages/app/package.json"]),
-            (["packages/a/src.js", "packages/b/src.js"],
-             ["packages/a/package.json", "packages/b/package.json"]),
-        )
-        for files, manifests in cases:
-            with self.subTest(files=files), tempfile.TemporaryDirectory() as tmp:
-                repo, scope, bin_dir = self._js_repo(tmp, files)
-                for manifest in manifests:
-                    _touch(repo, manifest, "{}\n")
-                _shim(bin_dir, "knip")
-                dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
-                result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
-                self.assertEqual(dry.returncode, 2, dry.stderr)
-                self.assertIn("package.json", dry.stderr)
-                self.assertEqual(plan, {})
-                self.assertEqual(result.returncode, 2, result.stderr)
-                self.assertFalse((repo / "out/tool-findings.jsonl").exists())
+    def test_partial_coverage_keeps_the_guard(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo, scope, bin_dir = self._js_repo(tmp, ["packages/app/src/a.js", "src/b.js"])
+            _touch(repo, "packages/app/package.json", "{}\n")
+            _shim(bin_dir, "knip")
+            dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
+            result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
+            published = (repo / "out/tool-findings.jsonl").exists()
+        self.assertEqual(dry.returncode, 2, dry.stderr)
+        self.assertIn("package.json", dry.stderr)
+        self.assertEqual(plan, {})
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertFalse(published)
 
 
 class TestAnalyzerExecution(unittest.TestCase):

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Resolve declared JavaScript analyzers without downloading packages, and
-decide whether a manifest-bound analyzer applies to the scope at all."""
+"""Resolve declared JavaScript analyzers without downloading packages."""
 from __future__ import annotations
 
 import argparse
@@ -46,7 +45,6 @@ def _parents(repo: Path, start: Path):
         current = current.parent
 
 def _covering_dir(repo: Path, relative: str, accepts) -> Path | None:
-    """Nearest ancestor of a scope path whose package.json satisfies `accepts`."""
     repo = repo.resolve()
     target = (repo / relative).resolve()
     if target != repo and repo not in target.parents:
@@ -63,13 +61,10 @@ def _declaration(repo: Path, relative: str, package: str):
     ))
 
 def manifest_root(repo: Path, files: list[str]) -> Path | None:
-    """Directory whose package.json covers every file; None when none covers any.
-
-    A root manifest covers everything. Partial coverage, or several packages
-    with no root manifest, would run the analyzer against the wrong project,
-    so it blocks the way an inconsistent declaration does."""
+    """Partial or multi-package coverage with no root manifest would run the
+    analyzer against the wrong project, so it blocks like an inconsistent declaration."""
     repo = repo.resolve()
-    # Dispatch only counts files on disk; a deleted path has no package to cover it.
+    # Deleted paths have no covering package; dispatch counts files on disk.
     directories = [_covering_dir(repo, item, lambda path: True)
                    for item in files if (repo / item).exists()]
     covered = {item for item in directories if item is not None}
@@ -169,9 +164,8 @@ def main() -> int:
             print(guidance(repo, files, args.package, args.binary))
             return 0
         if args.action == "applicable":
-            root = manifest_root(repo, files)
-            print(f"manifest:{root}" if root else "none")
-            return 0 if root else 1
+            # 10, not 1: an uncaught crash also exits 1 and must not read as "not applicable".
+            return 0 if manifest_root(repo, files) else 10
         command, wrapper, env = resolve(repo, files, args.package, args.binary)
         if args.action == "probe":
             print(wrapper)

@@ -46,10 +46,11 @@ def read_scope(path: Path) -> dict:
 
 
 def blocking_skips(entries: object) -> list:
-    """Skipped-analyzer entries that block coverage. An analyzer recorded as
-    not applicable (``applicable: false``) is complete coverage, not a gap."""
-    if not isinstance(entries, list):
+    """An analyzer recorded as not applicable is complete coverage, not a gap."""
+    if entries is None:
         return []
+    if not isinstance(entries, list):
+        return [entries]
     return [item for item in entries
             if not (isinstance(item, dict) and item.get("applicable") is False)]
 
