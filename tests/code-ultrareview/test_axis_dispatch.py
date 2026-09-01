@@ -568,6 +568,27 @@ class TestCliPrepare(unittest.TestCase):
         self.assertIn("tool_coverage must be an object", result.stderr)
         self.assertNotIn("Traceback", result.stderr)
 
+    def test_prepare_accepts_not_applicable_skips_and_blocks_the_rest(self):
+        """`tools_skipped` blocks Phase 3 unless every entry is recorded as not
+        applicable — the battery's marker for an analyzer that cannot run
+        on this scope, which is complete coverage rather than a gap."""
+        base = {
+            "repo_kind": "app",
+            "languages": ["javascript"],
+            "tools_missing": [],
+            "tool_coverage": {"complete": True},
+        }
+        accepted = _run_prepare({**base, "tools_skipped": [
+            {"tool": "knip", "applicable": False,
+             "reason": "not applicable: no package.json covers the changed JS/TS files"},
+        ]})
+        blocked = _run_prepare({**base, "tools_skipped": [
+            {"tool": "knip", "reason": "operator skipped"},
+        ]})
+        self.assertEqual(accepted.returncode, 0, accepted.stderr)
+        self.assertEqual(blocked.returncode, 4)
+        self.assertIn("missing or skipped", blocked.stderr)
+
     def test_prepare_rejects_non_object_mutation_manifest_without_traceback(self):
         result = _run_prepare({
             "repo_kind": "app",

@@ -181,6 +181,30 @@ class TestBuildGate(unittest.TestCase):
 
 
 class TestToolRuntime(unittest.TestCase):
+    def test_manifest_root_decides_applicability(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            for relative in ("src/app.js", "packages/a/src.js", "packages/b/src.js"):
+                path = repo / relative
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("export {}\n", encoding="utf-8")
+            self.assertIsNone(tool_runtime.manifest_root(repo, ["src/app.js"]))
+            (repo / "packages/a/package.json").write_text("{}\n", encoding="utf-8")
+            self.assertEqual(
+                tool_runtime.manifest_root(repo, ["packages/a/src.js"]),
+                (repo / "packages/a").resolve(),
+            )
+            with self.assertRaisesRegex(tool_runtime.InputError, "inside and outside"):
+                tool_runtime.manifest_root(repo, ["packages/a/src.js", "src/app.js"])
+            (repo / "packages/b/package.json").write_text("{}\n", encoding="utf-8")
+            with self.assertRaisesRegex(tool_runtime.InputError, "several package.json"):
+                tool_runtime.manifest_root(repo, ["packages/a/src.js", "packages/b/src.js"])
+            (repo / "package.json").write_text("{}\n", encoding="utf-8")
+            self.assertEqual(
+                tool_runtime.manifest_root(repo, ["packages/a/src.js", "src/app.js"]),
+                repo.resolve(),
+            )
+
     def test_declared_analyzer_never_falls_back_to_path(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)

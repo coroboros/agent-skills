@@ -87,7 +87,9 @@ Algorithm: any 🔴 + Important → Needs work; else any 🟠 + Important → Fi
 
 ## 🧰 Tools skipped
 
-_None — every applicable analyzer completed successfully._
+- `{tool}` — {reason}
+
+_Body reads `_None — every applicable analyzer completed successfully._` when no analyzer was recorded as not applicable._
 
 ---
 

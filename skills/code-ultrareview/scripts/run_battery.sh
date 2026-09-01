@@ -332,7 +332,8 @@ want_tool() {
   case "$tool" in
     knip)
       (has_lang typescript || has_lang javascript) \
-        && has_existing_file_match '\.(js|jsx|ts|tsx|mjs|cjs)$'
+        && has_existing_file_match '\.(js|jsx|ts|tsx|mjs|cjs)$' \
+        && knip_manifest_covers_scope
       ;;
     jscpd)
       has_existing_file_match '\.(py|js|jsx|ts|tsx|mjs|cjs|go|rs|java|rb|php|cs|cpp|c|h|hpp|swift|kt)$'
@@ -442,10 +443,34 @@ set_js_relevant_files_for_tool() {
   fi
 }
 
+# Knip reads the project's package.json; without a manifest covering the
+# changed JS/TS files it cannot run at all, which is not the same as being
+# uninstalled. Exit 1 records it as not applicable; exit 2 keeps the
+# mixed-scope guard (partial or multi-package coverage with no root manifest),
+# deferred like an invalid manifest so the rest of the plan still renders.
+knip_manifest_covers_scope() {
+  local file rc
+  local args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
+    --package knip --binary knip)
+  set_js_relevant_files_for_tool knip
+  for file in "${JS_RELEVANT_FILES[@]}"; do args+=(--file "$file"); done
+  "${args[@]}" applicable >/dev/null 2>"$RESOLVE_ERROR_FILE"
+  rc=$?
+  case "$rc" in
+    0) return 0 ;;
+    1)
+      SKIPPED_ROWS+=("knip|$(tool_axes knip)|$(coverage_hint knip)|not applicable: no package.json covers the changed JS/TS files")
+      return 1
+      ;;
+  esac
+  PREFLIGHT_INPUT_ERROR="$(cat "$RESOLVE_ERROR_FILE" 2>/dev/null)"
+  return 1
+}
+
 resolve_tool() {
   local tool="$1"
   local package="" file wrapper
-  local args=()
+  local args=() runtime_flags=()
   RESOLVED_COMMAND=()
   RESOLVED_WRAPPER=""
   RESOLVE_RC=0
@@ -458,15 +483,16 @@ resolve_tool() {
   esac
   if [[ -n "$package" ]]; then
     set_js_relevant_files_for_tool "$tool"
+    [[ "$tool" == "knip" ]] && runtime_flags=(--needs-manifest)
     args=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
-      --package "$package" --binary "$tool")
+      --package "$package" --binary "$tool" ${runtime_flags[@]+"${runtime_flags[@]}"})
     for file in "${JS_RELEVANT_FILES[@]}"; do args+=(--file "$file"); done
     args+=(probe)
     wrapper="$("${args[@]}" 2>"$RESOLVE_ERROR_FILE")"
     RESOLVE_RC=$?
     if [[ "$RESOLVE_RC" -eq 0 ]]; then
       RESOLVED_COMMAND=(python3 "$TOOL_RUNTIME" --repo "$REPO" --scope "$SCOPE"
-        --package "$package" --binary "$tool")
+        --package "$package" --binary "$tool" ${runtime_flags[@]+"${runtime_flags[@]}"})
       for file in "${JS_RELEVANT_FILES[@]}"; do
         RESOLVED_COMMAND+=(--file "$file")
       done
@@ -1039,6 +1065,7 @@ done
 
 AVAILABLE_ROWS=()
 MISSING_ROWS=()
+SKIPPED_ROWS=()
 PREFLIGHT_INPUT_ERROR=""
 for tool in "${ALL_TOOLS[@]}"; do
   if want_tool "$tool"; then
@@ -1053,7 +1080,7 @@ for tool in "${ALL_TOOLS[@]}"; do
 done
 if [[ -n "$PREFLIGHT_INPUT_ERROR" ]]; then
   echo "$PREFLIGHT_INPUT_ERROR" >&2
-  echo "ERROR: remediation: repair the reported package.json, then rerun Code Ultrareview." >&2
+  echo "ERROR: remediation: repair the reported package.json, or declare one covering the changed JS/TS files, then rerun Code Ultrareview." >&2
   emit_rerun
   exit 2
 fi
@@ -1062,7 +1089,8 @@ render_plan() {
   local destination="$1"
   python3 - "$SCOPE" "$AXES" "$destination" "$SCRIPT_DIR" \
     "${#AVAILABLE_ROWS[@]}" ${AVAILABLE_ROWS[@]+"${AVAILABLE_ROWS[@]}"} \
-    "${#MISSING_ROWS[@]}" ${MISSING_ROWS[@]+"${MISSING_ROWS[@]}"} <<'PY'
+    "${#MISSING_ROWS[@]}" ${MISSING_ROWS[@]+"${MISSING_ROWS[@]}"} \
+    "${#SKIPPED_ROWS[@]}" ${SKIPPED_ROWS[@]+"${SKIPPED_ROWS[@]}"} <<'PY'
 import json
 from pathlib import Path
 import sys
@@ -1079,6 +1107,10 @@ cursor += available_count
 missing_count = int(sys.argv[cursor])
 cursor += 1
 missing_rows = sys.argv[cursor:cursor + missing_count]
+cursor += missing_count
+skipped_count = int(sys.argv[cursor])
+cursor += 1
+skipped_rows = sys.argv[cursor:cursor + skipped_count]
 
 with open(scope_path, encoding="utf-8") as handle:
     scope = json.load(handle)
@@ -1101,12 +1133,23 @@ def parse_missing(row):
         "install": install,
     }
 
+def parse_skipped(row):
+    tool, tool_axes, coverage, reason = row.split("|", 3)
+    return {
+        "tool": tool,
+        "axes": tool_axes.split(","),
+        "coverage": coverage,
+        "reason": reason,
+        "applicable": False,
+    }
+
 payload = {
     "repo_kind": scope.get("repo_kind"),
     "languages": sorted(scope.get("languages") or []),
     "selected_axes": [axis.strip() for axis in axes.split(",") if axis.strip()],
     "available": [parse_available(row) for row in available_rows],
     "missing": [parse_missing(row) for row in missing_rows],
+    "skipped": [parse_skipped(row) for row in skipped_rows],
     "complete": not missing_rows,
 }
 rendered = json.dumps(payload, indent=2) + "\n"
@@ -1168,7 +1211,7 @@ state = {
 }
 update_scope(
     scope_path,
-    fields={"tools_missing": plan["missing"], "tools_skipped": []},
+    fields={"tools_missing": plan["missing"], "tools_skipped": plan["skipped"]},
     phases={"tool": state},
 )
 PY
@@ -1268,9 +1311,9 @@ sys.path.insert(0, script_dir)
 from manifest import update_scope, write_json_atomic
 
 dispatched = sys.argv[6:]
-write_json_atomic(Path(out_path), {"skipped": []})
 with open(preflight_path, encoding="utf-8") as handle:
     plan = json.load(handle)
+write_json_atomic(Path(out_path), {"skipped": plan["skipped"]})
 state = {
     "complete": True,
     "selected_axes": plan["selected_axes"],
@@ -1280,7 +1323,7 @@ state = {
 }
 update_scope(
     Path(scope_path),
-    fields={"tools_dispatched": dispatched, "tools_missing": [], "tools_skipped": []},
+    fields={"tools_dispatched": dispatched, "tools_missing": [], "tools_skipped": plan["skipped"]},
     phases={"tool": state},
     outputs={"tool": Path(findings_path)},
 )

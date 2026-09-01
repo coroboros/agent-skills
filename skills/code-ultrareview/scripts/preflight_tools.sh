@@ -100,6 +100,13 @@ for entry in missing:
     print(f"  - {tool:<22} install: {install}")
     print(f"    {'':<22} axes: {axes}; coverage: {coverage}")
 
+skipped = plan.get("skipped") or []
+if skipped:
+    print()
+    print(f"Not applicable ({len(skipped)} tool{'s' if len(skipped) != 1 else ''}):")
+    for entry in skipped:
+        print(f"  - {entry.get('tool', '?'):<22} {entry.get('reason', '')}")
+
 print()
 if missing:
     print("BLOCKED: run every install command above, then rerun Code Ultrareview.")

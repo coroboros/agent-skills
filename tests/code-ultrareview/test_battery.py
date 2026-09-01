@@ -182,7 +182,9 @@ def _findings_exit_without_finding_case(repo: Path, tool: str) -> tuple[Path, Pa
                           "unused dependencies'\nexit 1", ("jscpd", "lizard")),
     }
     files, languages, axes, body, companions = cases[tool]
-    if tool == "api-extractor":
+    if tool == "knip":
+        _touch(repo, "package.json", "{}\n")
+    elif tool == "api-extractor":
         _touch(repo, "api-extractor.json", "{}\n")
     elif tool == "vale":
         _touch(repo, ".vale.ini", "StylesPath = styles\n")
@@ -288,8 +290,8 @@ class TestInputAndDispatch(unittest.TestCase):
             (
                 ["src/app.ts", "README.md"],
                 ["typescript"],
-                {"knip", "jscpd", "markdownlint-cli2", "lizard", "semgrep"},
-                set(),
+                {"jscpd", "markdownlint-cli2", "lizard", "semgrep"},
+                {"knip"},
             ),
             (
                 ["src/app.py"],
@@ -339,6 +341,7 @@ class TestInputAndDispatch(unittest.TestCase):
     def test_npx_and_uvx_do_not_resolve_analyzers(self):
         with tempfile.TemporaryDirectory() as tmp:
             repo = Path(tmp)
+            _touch(repo, "package.json", "{}\n")
             scope = _write_scope(
                 repo, ["src/app.ts", "src/app.py"], ["typescript", "python"]
             )
@@ -492,6 +495,136 @@ class TestPreflightAndResolution(unittest.TestCase):
             {"knip", "jscpd", "markdownlint-cli2", "lizard"},
         )
         self.assertEqual(_names(plan, "missing"), set())
+
+
+class TestKnipApplicability(unittest.TestCase):
+    """Knip needs a package.json to run, so a binary on PATH is not
+    applicability. A JS scope with no covering manifest skips Knip and keeps
+    the battery going; a covering manifest runs it from that directory;
+    partial or multi-package coverage with no root manifest keeps the
+    fail-loud guard."""
+
+    def _js_repo(self, tmp: str, files: list[str]) -> tuple[Path, Path, Path]:
+        repo = Path(tmp)
+        bin_dir = repo / "bin"
+        _jscpd_empty(bin_dir)
+        _shim(bin_dir, "lizard")
+        scope = _write_scope(repo, files, ["javascript"])
+        return repo, scope, bin_dir
+
+    def test_js_without_manifest_skips_knip_and_continues(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo, scope, bin_dir = self._js_repo(tmp, ["src/app.js"])
+            dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
+            result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
+            skipped = json.loads(
+                (repo / "out/tools-skipped.json").read_text(encoding="utf-8")
+            )
+            state = json.loads(scope.read_text(encoding="utf-8"))
+            diff_path = repo / "out/diff.patch"
+            diff_path.write_text("diff --git a/src/app.js b/src/app.js\n", encoding="utf-8")
+            prepared = subprocess.run(
+                [
+                    sys.executable, str(AXES), "prepare", "--scope", str(scope),
+                    "--findings", str(repo / "out/tool-findings.jsonl"), "--diff",
+                    str(diff_path), "--output-dir", str(repo / "out"),
+                    "--axes", "simplification",
+                ],
+                capture_output=True, text=True, check=False,
+            )
+        self.assertEqual(dry.returncode, 0, dry.stderr)
+        self.assertEqual(_names(plan, "available"), {"jscpd", "lizard"})
+        self.assertEqual(_names(plan, "missing"), set())
+        self.assertEqual(_names(plan, "skipped"), {"knip"})
+        self.assertIn("package.json", plan["skipped"][0]["reason"])
+        self.assertIs(plan["skipped"][0]["applicable"], False)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(prepared.returncode, 0, prepared.stderr)
+        self.assertEqual({entry["tool"] for entry in skipped["skipped"]}, {"knip"})
+        self.assertEqual({entry["tool"] for entry in state["tools_skipped"]}, {"knip"})
+        self.assertEqual(set(state["tool_coverage"]["executed"]), {"jscpd", "lizard"})
+        self.assertTrue(state["tool_coverage"]["complete"])
+
+    def test_root_manifest_runs_knip(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo, scope, bin_dir = self._js_repo(tmp, ["src/app.js"])
+            _touch(repo, "package.json", "{}\n")
+            _shim(bin_dir, "knip", "printf '%s\\n' '{\"issues\":[]}'")
+            dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
+            result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
+            state = json.loads(scope.read_text(encoding="utf-8"))
+        self.assertEqual(dry.returncode, 0, dry.stderr)
+        self.assertIn("knip", _names(plan, "available"))
+        self.assertEqual(plan["skipped"], [])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("knip", state["tool_coverage"]["executed"])
+        self.assertEqual(state["tools_skipped"], [])
+
+    def test_workspace_manifest_runs_knip_from_that_package(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            repo, scope, bin_dir = self._js_repo(tmp, ["packages/app/src/app.js"])
+            _touch(repo, "packages/app/package.json", "{}\n")
+            marker = repo / "knip-cwd"
+            _shim(
+                bin_dir, "knip",
+                f"pwd > {shlex.quote(str(marker))}\nprintf '%s\\n' '{{\"issues\":[]}}'",
+            )
+            dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
+            result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
+            cwd = Path(marker.read_text(encoding="utf-8").strip()).resolve()
+            package = (repo / "packages/app").resolve()
+        self.assertEqual(dry.returncode, 0, dry.stderr)
+        self.assertIn("knip", _names(plan, "available"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(cwd, package)
+
+    def test_deleted_file_does_not_trip_the_guard(self):
+        """Dispatch counts only files on disk; a deleted root-level file in a
+        workspace-only repo must not read as an uncovered file."""
+        with tempfile.TemporaryDirectory() as tmp:
+            repo = Path(tmp)
+            bin_dir = repo / "bin"
+            _jscpd_empty(bin_dir)
+            _shim(bin_dir, "lizard")
+            _touch(repo, "packages/app/src/a.js")
+            _touch(repo, "packages/app/package.json", "{}\n")
+            marker = repo / "knip-cwd"
+            _shim(
+                bin_dir, "knip",
+                f"pwd > {shlex.quote(str(marker))}\nprintf '%s\\n' '{{\"issues\":[]}}'",
+            )
+            scope = _write_scope(
+                repo, ["packages/app/src/a.js", "legacy-deleted.js"], ["javascript"],
+                create_files=False,
+            )
+            dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
+            result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
+            cwd = Path(marker.read_text(encoding="utf-8").strip()).resolve()
+            package = (repo / "packages/app").resolve()
+        self.assertEqual(dry.returncode, 0, dry.stderr)
+        self.assertIn("knip", _names(plan, "available"))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(cwd, package)
+
+    def test_partial_or_multi_package_scope_keeps_the_guard(self):
+        cases = (
+            (["packages/app/src/a.js", "src/b.js"], ["packages/app/package.json"]),
+            (["packages/a/src.js", "packages/b/src.js"],
+             ["packages/a/package.json", "packages/b/package.json"]),
+        )
+        for files, manifests in cases:
+            with self.subTest(files=files), tempfile.TemporaryDirectory() as tmp:
+                repo, scope, bin_dir = self._js_repo(tmp, files)
+                for manifest in manifests:
+                    _touch(repo, manifest, "{}\n")
+                _shim(bin_dir, "knip")
+                dry, plan = _plan(repo, scope, bin_dir, axes="simplification")
+                result = _run_battery(repo, scope, bin_dir=bin_dir, axes="simplification")
+                self.assertEqual(dry.returncode, 2, dry.stderr)
+                self.assertIn("package.json", dry.stderr)
+                self.assertEqual(plan, {})
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertFalse((repo / "out/tool-findings.jsonl").exists())
 
 
 class TestAnalyzerExecution(unittest.TestCase):
