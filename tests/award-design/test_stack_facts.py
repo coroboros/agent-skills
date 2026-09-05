@@ -184,33 +184,14 @@ class TestNoOtherReferenceRestatesAFact(unittest.TestCase):
                     re.search(r"~\s*8[0-9]%\s*(?:global|support)", body),
                     f"{name} restates a scroll-driven support figure — point it at stack-facts.md")
 
-    # Open duplicates, named so the debt is visible in code rather than in a
-    # note: these three archetype references still carry `r171+` where the
-    # stack-facts row says r167, and one calls WebGPU "production-ready" where
-    # the vendor still calls it experimental. They belong to the archetype
-    # restructure; delete an entry here when its file is corrected.
-    WEBGPU_REVISION_DEBT = {"immersive-cinematic.md", "experimental.md", "spatial-organic.md"}
-
     def test_the_webgpu_revision_claim_lives_only_here(self):
         """Scoped to the whole reference tree, not to the files the split
         happened to edit — a check that only looks where the author worked
         confirms the edit instead of testing the invariant."""
         for name, body in self.others.items():
-            if name in self.WEBGPU_REVISION_DEBT:
-                continue
             with self.subTest(reference=name):
                 self.assertIsNone(re.search(r"\br1\d{2}\+", body),
                                   f"{name} states a Three.js revision — that fact is stack-facts.md's")
-
-    def test_the_revision_debt_list_stays_honest(self):
-        """The exemptions are debt, not permission. When a file stops carrying
-        the claim it must leave this list, or the list becomes a place to hide
-        the next one."""
-        for name in self.WEBGPU_REVISION_DEBT:
-            with self.subTest(reference=name):
-                self.assertIn(name, self.others, f"{name} no longer exists — drop it from the debt list")
-                self.assertRegex(self.others[name], r"\br1\d{2}\+",
-                                 f"{name} no longer states a revision — drop it from the debt list")
 
     def test_the_technique_references_point_here(self):
         for name in ("foundations.md", "motion-palette.md", "text-effects.md", "skeletons.md"):

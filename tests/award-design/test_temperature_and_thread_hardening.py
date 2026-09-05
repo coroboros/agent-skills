@@ -51,7 +51,8 @@ class TestAmbientChannel(unittest.TestCase):
         self.assertIn("minimalist may declare ambient absence", ix)
 
     def test_density_read_commits_the_idle_channel(self):
-        self.assertIn("minimalist may omit ambient idle", _gate("review.md"))
+        self.assertIn("a reading register may be static", _gate("review.md"))
+        self.assertIn("a declared live scene must sustain its medium", _gate("review.md"))
 
     def test_review_density_read_carries_the_channel(self):
         r = _gate("review.md")

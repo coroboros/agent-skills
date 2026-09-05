@@ -2,7 +2,7 @@
 
 Battle-tested patterns for shipping immersive web design to real devices, distilled from production incidents — not lab testing. Load this when implementing any project with video, scroll-driven cinematic reveals, or full-screen heroes. These guards are boundary validations of documented browser behavior, not speculative error handling.
 
-**Scope note.** Most of the patterns here apply cross-browser (Chrome, Firefox, Safari on desktop; Chrome, Firefox, Safari on mobile). iOS Safari is the *sharpest test case* — it exposes these bugs first and hardest because of its strictest autoplay policy, aggressive bfcache restoration, synthetic scroll events during URL-bar settling, and layout timing quirks. **Passing iOS means passing everything else.** Each section below flags where a rule is genuinely iOS-only vs. where iOS is just the canary.
+**Scope note.** Test the actual browser/device paths. iOS Safari is a useful stress case for autoplay, viewport changes and restoration; passing it does not establish Chrome or Firefox behavior. The incident notes below identify observed triggers, not universal timing guarantees.
 
 ## Contents
 
@@ -79,7 +79,7 @@ Never let a corrupt svh (`0` or `NaN`) reach reveal math — see [Fail-safe reve
 
 ## Cross-browser video autoplay
 
-**Scope:** truly cross-browser. Chrome and Firefox also block autoplay in data-saver / low-battery / strict-privacy modes; iOS Safari is just the strictest default. `playsinline` is iOS-specific (harmless elsewhere); MP4-before-WebM is Safari-wide (desktop + iOS); `disableRemotePlayback` is a desktop Safari fix. Belt-and-suspenders works everywhere.
+**Scope:** autoplay can be refused under browser or user policy. Keep an intentional poster and handle the play promise on every target browser. Source order is a delivery choice, not a claim that Safari lacks WebM; support facts belong in `stack-facts.md`.
 
 Autoplay policy diverges across engines. HTML attributes alone are not enough.
 
@@ -101,11 +101,11 @@ Autoplay policy diverges across engines. HTML attributes alone are not enough.
 - `muted` + `playsinline` = minimum for iOS autoplay
 - `webkit-playsinline` = legacy iOS attribute, harmless elsewhere
 - `disableRemotePlayback` stops AirPlay/Cast picker on hover (desktop Safari)
-- `preload="auto"` ensures enough buffer for the `play()` promise to resolve
+- `preload="auto"` requests buffering; the browser may ignore the hint or refuse playback
 
 ### Source order — MP4 first, WebM second
 
-Safari only plays MP4. Browsers pick the first supported source. WebM first means Safari never looks at the MP4.
+The example prefers MP4 as its delivery choice. Safari supports WebM; source selection and codec support vary by target, and source order alone is not a playback guarantee. Verify the actual encoded files and retain the poster on failure. See the [WebKit Safari 17.4 media notes](https://webkit.org/blog/15063/webkit-features-in-safari-17-4/) and the dated support owner.
 
 ### JS — harden autoplay
 
@@ -134,189 +134,134 @@ No award jury publishes a byte cap (`stack-facts.md`, `award-imperatives.md` #7)
 
 ## Scroll-driven cinematic sequences
 
-**Scope:** mixed — see per-rule scope below. The *patterns* (threshold crossings, cancellable glides, custom smooth scroll) are universal. The *triggers* that expose the bugs are mobile-dominant, with iOS Safari as the sharpest case.
+**Scope:** an explicitly committed cinematic glide, where the page advances through an authored sequence after forward input. Ordinary content scrolling keeps native control. A numeric threshold crossing alone does not establish user intent: restoration, focus, anchors and scripts can all move the page.
 
-Trivial on desktop, minefield on mobile. iOS fires spurious `scroll` events during URL-bar settling and rubber-band bounces — with zero touch/wheel input.
+Preserve the chosen restoration policy. Use `history.scrollRestoration = 'manual'` only when the application owns restoration, and restore its state on back/forward navigation. Resetting every visit to the top is an explicit arrival choice, not a universal fix for animation state.
 
-### The synthetic-event trap
+### Input, settling and cancellation
 
-**Scope:** primarily iOS Safari (most aggressive). Chrome Android can fire stray scroll events during URL-bar animation too, but less frequently. `history.scrollRestoration = 'auto'` is the default in **all major browsers** (Chrome, Firefox, Safari) — the scroll-restoration bug is fully cross-browser, not iOS-specific.
+The example requires recent trusted forward input before arming a crossing. It waits for the input/scroll burst to settle before beginning its glide, so the initiating wheel gesture does not immediately cancel its own animation. Once running, fresh wheel, keyboard or pointer interaction cancels it. Reduced motion and cleanup cancel both pending and active work.
 
-On page load:
+Input correlation is bounded evidence, not a browser-provided scroll-cause flag. Call the returned `cancel()` before programmatic navigation, focus or scroll changes; use direct user activation instead when the application cannot distinguish those paths. The thresholds, destination, duration and easing below come from the committed motion/scroll tokens.
 
-- iOS emits `scroll` events while the URL bar animates — no user input (Android Chrome does this milder)
-- iOS can fire a stray `touchmove` from tap-to-open, edge-swipe-back, or a finger brush (Android rarer)
-- **All browsers** restore previous `scrollY` by default (`history.scrollRestoration = 'auto'`) — lands the user mid-animation on reload. Chrome and Firefox bfcache also preserves this state across back-navigation, not only iOS
+```javascript
+export function initCinematicScroll({ threshold, target, duration, ease }) {
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let lastY = scrollY, forwardUntil = 0, touchY = null;
+  let armed = true, active = false, frame = 0, pending = 0;
 
-Any of these triggers a naive "auto-scroll to end" before the user has intentionally scrolled.
-
-### Rule 1 — kill scroll restoration first
-
-**Scope:** universal — default `'auto'` in Chrome, Firefox, Safari. bfcache preserves scroll+animation state in all three engines since ~2022.
-
-Before any cinematic logic:
-
-```js
-if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-window.scrollTo(0, 0);
-```
-
-**Why:** without this, a user who previously scrolled past reveal ranges lands on reload with `scrollY` already there — every reveal computes into the fully-revealed branch at opacity 1, stacked on top of the still-full hero. The first scroll "fixes" it, which is how the bug first shows up.
-
-**How to apply:** also matters for bfcache (navigate back from external link → any modern browser restores with `scrollY` + inline styles preserved). Explains the classic *"works on local preview, broken on production"* — localhost has no scroll history, production does. The symptom appears on **any** browser with history; iOS surfaces it most often because iOS users hit bfcache constantly via app-switcher.
-
-### Rule 2 — detect threshold *crossings*, not thresholds *above*
-
-**Scope:** pattern is universal and robust on every browser. The trigger that makes this *necessary* (stray events before real user scroll) is mobile-dominant and iOS-sharpest, but even on desktop a programmatic `scrollTo` from focus/hash-change can set a "has scrolled" flag falsely.
-
-A sticky `userHasInteracted` flag is not sufficient — a stray `touchmove` (or any programmatic scroll) can set it before the user has actually scrolled. The robust signal: fire auto-scroll only when `scrollY` **crosses** the threshold between two frames. Only a real forward scroll produces a crossing.
-
-```js
-let lastScrollY = 0;
-let autoScrollArmed = true;
-let isGliding = false;
-
-function update() {
-  const scrollY = window.scrollY;
-
-  if (
-    autoScrollArmed && !isGliding &&
-    svh > 0 &&
-    lastScrollY < svh && scrollY >= svh   // crossed from below
-  ) {
-    autoScrollArmed = false;
-    smoothScrollTo(maxScroll, 5000);
+  function cancel() {
+    clearTimeout(pending);
+    cancelAnimationFrame(frame);
+    pending = frame = 0;
+    active = false;
+    forwardUntil = 0;
   }
-  if (scrollY < svh * 0.5) autoScrollArmed = true;   // re-arm on scroll-back
 
-  lastScrollY = scrollY;
+  function start() {
+    pending = 0;
+    if (motion.matches) return;
+    const from = scrollY, to = target(), started = performance.now();
+    if (![from, to, duration].every(Number.isFinite) || duration <= 0) return;
+    active = true;
+    function tick(now) {
+      if (!active) return;
+      const progress = Math.min((now - started) / duration, 1);
+      window.scrollTo({ top: from + (to - from) * ease(progress), behavior: 'instant' });
+      if (progress < 1) frame = requestAnimationFrame(tick);
+      else { active = false; frame = 0; }
+    }
+    frame = requestAnimationFrame(tick);
+  }
+
+  function afterSettle() {
+    clearTimeout(pending);
+    pending = setTimeout(start, 150); // gesture-settle debounce, not authored motion duration
+  }
+
+  function onInput(event) {
+    if (!event.isTrusted) return;
+    if (event.type === 'pointermove' && event.pointerType !== 'touch' && !event.buttons) return;
+    if (active) { cancel(); return; }
+    let forward = false;
+    if (event.type === 'wheel') forward = event.deltaY > 0;
+    if (event.type === 'keydown') {
+      forward = ['ArrowDown', 'PageDown', 'End'].includes(event.key)
+        || (event.key === ' ' && !event.shiftKey);
+    }
+    if (event.type === 'pointerdown') touchY = event.clientY;
+    if (event.type === 'pointermove') {
+      forward = touchY !== null && event.clientY < touchY;
+      touchY = event.clientY;
+    }
+    if (forward && !motion.matches) {
+      forwardUntil = performance.now() + 200;
+      if (pending) afterSettle();
+    } else {
+      cancel();
+    }
+  }
+
+  function onScroll() {
+    const y = scrollY, boundary = threshold();
+    if (!Number.isFinite(boundary) || boundary <= 0) { cancel(); lastY = y; return; }
+    if (y < boundary * 0.5) { armed = true; if (!active) cancel(); }
+    if (!active && armed && !motion.matches && forwardUntil > performance.now()
+        && lastY < boundary && y >= boundary) {
+      armed = false;
+      afterSettle();
+    } else if (pending) {
+      afterSettle();
+    }
+    lastY = y;
+  }
+
+  const inputs = ['wheel', 'keydown', 'pointerdown', 'pointermove'];
+  inputs.forEach(type => addEventListener(type, onInput, { passive: true }));
+  addEventListener('scroll', onScroll, { passive: true });
+  const onMotion = () => { if (motion.matches) cancel(); };
+  motion.addEventListener('change', onMotion);
+  return {
+    cancel,
+    destroy() {
+      cancel();
+      inputs.forEach(type => removeEventListener(type, onInput));
+      removeEventListener('scroll', onScroll);
+      motion.removeEventListener('change', onMotion);
+    },
+  };
 }
 ```
 
-No interaction flag, no spurious firing, re-armable. Works *only because* scroll restoration is manual and initial `scrollY = 0` — the two rules are paired.
-
-### Rule 3 — cancellable glides, carefully
-
-**Scope:** universal desktop. The "same continuous gesture kills its own glide" trap happens on Chrome, Firefox, Safari identically — not browser-specific.
-
-Users must interrupt a running auto-scroll. But the event that triggered it (typically `wheel`) will fire again and cancel its own effect if you're not careful.
-
-```js
-// Safe: touchstart cancels. DO NOT add wheel — same gesture kills its own glide.
-window.addEventListener('touchstart', cancelGlide, { passive: true });
-```
-
-### Rule 4 — re-triggerable, not one-shot
-
-Users scroll back to re-watch. Let the cinematic re-fire:
-
-```js
-if (scrollY < threshold * 0.5) autoScrollTriggered = false;
-```
-
-### Custom smooth-scroll (cancellation + cinematic easing)
-
-**Scope:** the hard ~3s cap is iOS Safari specifically. On desktop the cap is softer/absent, but the other reasons to roll your own (control over duration, easing, interruptibility) are universal — `scrollTo({ behavior: 'smooth' })` and CSS `scroll-behavior: smooth` give you neither anywhere.
-
-```js
-function smoothScrollTo(target, duration) {
-  const start = window.scrollY;
-  const distance = target - start;
-  const startTime = performance.now();
-  glideCancelled = false;
-  isGliding = true;
-
-  function step(now) {
-    if (glideCancelled) { isGliding = false; return; }
-    const t = Math.min((now - startTime) / duration, 1);
-    const eased = t < 0.5 ? 4*t**3 : 1 - (-2*t + 2)**3 / 2; // easeInOutCubic
-    window.scrollTo(0, start + distance * eased);
-    if (t < 1) requestAnimationFrame(step);
-    else isGliding = false;
-  }
-  requestAnimationFrame(step);
-}
-```
-
-`easeInOutCubic` feels cinematic; linear feels robotic.
+The controller re-arms only after returning below half the trigger distance. It does not block native input. Validate wheel, touch, keyboard interruption, restored navigation and preference changes on the target devices; no fixed native smooth-scroll duration is assumed.
 
 ## Fail-safe reveal logic
 
-**Scope:** universal. Every browser has a paint-before-JS window; mobile Safari just has the widest (slower JS startup = the flash is a full second), but the fix applies everywhere.
+**Scope:** content stays readable when initialization is late, blocked or broken. Decorative cinematic layers may disappear on failure, but the information they accompany remains in the normal document flow.
 
-Scroll-driven reveals hide elements via JS on first frame. Between first paint and script execution, they flash at full opacity.
+### Readiness belongs to the actual engine
 
-### Hide only where the reveal engine is confirmed present (the floor)
+Use `skeletons.md` §G for fire-once content reveals: visible base CSS, a reduced-motion gate, then per-element `data-reveal-ready` only after the observer successfully registers that element. Already-visible copy stays visible when initialization arrives late. The lifecycle restores all content on setup/update failure, teardown or a reduced-motion change.
 
-Base CSS never hides content. The hidden state is scoped to a class the loader sets, so it exists only on a page whose script actually ran:
+A generic `html.js` flag set by an independent head script cannot protect against failure of the later reveal bundle. Do not pre-hide the page under that marker or under unconditional base opacity. An authored hero entrance can initialize before its first paint when possible; a delayed entrance must yield to readable content.
 
-```css
-.scroll-reveal { opacity: 1; }
+### Invalid measurements restore the static composition
 
-@media (prefers-reduced-motion: no-preference) {
-  html.js .scroll-reveal {
-    opacity: 0;
-    transform: translateY(16px);
-    will-change: opacity, transform;
-  }
-  html.js #video-wrapper { opacity: 0; }
-}
-```
+Check each measurement before using it. Zero can be a valid start offset; non-finite values, a nonpositive viewport reference, or an end before its start are not valid ranges.
 
-```html
-<!-- In <head>, inline and render-blocking: the class lands before first paint,
-     so the guarded hidden state is in place with no flash. -->
-<script>document.documentElement.classList.add('js');</script>
-```
-
-JS then takes over and animates these inline. The guarded rule is the floor; JS is the driver. Writing `opacity: 0` unguarded in base CSS instead is the page-blanking failure catalogued in `skeletons.md` §G — a no-JS load, a parse error, or one throw above the observer leaves the whole page blank, and it screenshots clean every time JS works. Both gates are load-bearing: the media query keeps a reduced-motion visitor out of the hidden state, the class keeps a script-less one out. The runnable form of the same pattern: `skeletons.md` §G.
-
-### Handle `prefers-reduced-motion` synchronously
-
-```js
-if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-  for (const el of revealElements) {
-    el.style.opacity = '1';
-    el.style.transform = 'translateY(0)';
-  }
-  // Skip the scroll observer setup entirely
-}
-```
-
-### Make corrupt measurements fail-safe, not fail-visible
-
-Progressive reveal logic typically has three branches:
-
-```js
-if (scrollY < startPx)    { /* opacity = 0 */ }
-else if (scrollY < endPx) { /* interpolate */ }
-else                      { /* opacity = 1 */ }
-```
-
-If `startPx` or `endPx` is `0` or `NaN` (corrupt svh, missed range lookup), **every element falls through to the `else` branch** — visible on top of the hero. The guarded `opacity: 0` pre-state only holds until JS runs; after that, bad JS paints over good CSS.
-
-Guard `update()` so bad data can never paint the revealed state:
-
-```js
-function update() {
-  const scrollY = window.scrollY;
-
-  if (svh <= 0 || !Number.isFinite(svh) || scrollY <= SCROLL_THRESHOLD) {
-    hideReveals();   // measurement corrupt OR still at top → hide
+```javascript
+function updateReveal({ svh, startPx, endPx }, restoreStaticLayout, renderProgress) {
+  if (![svh, startPx, endPx].every(Number.isFinite) || svh <= 0 || endPx <= startPx) {
+    restoreStaticLayout(); // visible copy in normal flow, with the poster if needed
+    console.error('Invalid reveal range; using the static composition.');
     return;
   }
-  // normal branch logic
+  const progress = Math.max(0, Math.min(1, (scrollY - startPx) / (endPx - startPx)));
+  renderProgress(progress);
 }
 ```
 
-**Rule of thumb:** the happy path must be *proven-correct* before the code can reach the fully-revealed branch. If any ingredient is missing, default to hidden. "Invisible on bug" is infinitely better than "everything stacked on top of the hero on bug".
-
-### Don't
-
-- Don't use `display: none` — won't contribute to layout, flex centering shifts when reveals appear
-- Don't use `visibility: hidden` — breaks opacity transitions
-- Don't put reveal init inside `DOMContentLoaded` + a 50ms "safety" timeout — that timeout *is* the flash
-- Don't trust the CSS `opacity: 0` floor alone — the JS that overwrites it must also refuse to write `opacity: 1` on corrupt inputs
+The project supplies `restoreStaticLayout` and `renderProgress`; the former removes cinematic positioning/readiness and shows the committed static layout. Wrap project-specific rendering errors with the same restoration and a visible diagnostic. Reduced motion takes this static branch before any animation setup and when the preference changes. Do not solve stacked cinematic overlays by hiding reader content on error.
 
 ## Proportional layout
 
@@ -359,35 +304,35 @@ Quirks surfaced by shipping to real devices. The **Scope** column flags where ea
 | Thing | Behavior | Scope | Workaround |
 |-------|----------|-------|------------|
 | `autoplay` HTML attribute | Often ignored in low-power / data-saver states | iOS strictest; Chrome/Firefox also block | Set `muted`/`defaultMuted` from JS, call `play()` explicitly |
-| `scrollTo({ behavior: 'smooth' })` | Capped at ~3s for any distance | **iOS-specific hard cap** | Custom rAF-based smooth scroll |
+| Native smooth-scroll duration | Browser-controlled timing | Cross-browser | Use an explicitly committed cancellable glide only when authored timing is needed |
 | `position: fixed` + `bottom-0` | Anchors to layout viewport, not visual | All mobile browsers with animated URL bar | `h-dvh` container + explicit bottom padding |
 | `100vh` | = `lvh` — too tall when URL bar shows | All mobile browsers | `svh` or `dvh` based on use |
-| `scroll` events at page load | 5–10 synthetic events during URL-bar settling | iOS most aggressive; Chrome Android milder | Gate auto-behaviors on `scrollY` *crossings* |
-| `history.scrollRestoration` | Defaults to `'auto'` — restores across reloads | **Universal** (Chrome + Firefox + Safari) | `'manual'` + `scrollTo(0, 0)` at boot |
-| bfcache preserves inline styles + scrollY | Frozen mid-animation on back-navigation | Chrome, Firefox, Safari since ~2022 | Same fix as above — manual scroll restoration + re-run init |
+| Scroll changes without new intent | Restoration, viewport changes, anchors or scripts can move the page | Cross-browser | A threshold alone cannot authorize an automatic glide; correlate input and cancel programmatic paths |
+| `history.scrollRestoration` | Browser restoration can resume mid-page | Cross-browser | Preserve restoration or implement an explicit application-owned policy |
+| bfcache preserves scene state | Navigation can resume mid-animation | Cross-browser | Reconcile restored state on the return path; test the chosen policy |
 | `clientHeight` of svh-sized element | Can return `0` on first script tick | **iOS-specific** layout-timing quirk | Fallback to `innerHeight`, re-measure in `rAF` + `load` |
 | Stray `touchmove` | Tap-to-open, edge-swipe-back all fire it | iOS-dominant; Android rarer | Never use sticky `userHasInteracted` flag for destructive behavior |
-| MP4 required before WebM in sources | Safari won't fall through source list | **Safari desktop + iOS** | MP4 first, WebM second |
+| Video source selection | Codec/container support depends on the target | Cross-browser | Verify actual encodes and poster fallback; Safari supports WebM |
 | `touch-action: manipulation` | Sometimes swallows taps on `<a>` | iOS-specific | Test real device, not emulator |
 | `webkit-playsinline` | Required for inline video in older WebViews | iOS-specific | Always include; harmless elsewhere |
 
 ## Real-device test workflow
 
-**Scope:** the workflow applies to any mobile browser. iOS is the priority target because it surfaces the widest set of bugs fastest — if your scroll-driven hero survives an iOS device with bfcache restore and scroll history, it almost certainly survives Chrome Android too. Don't skip Android — but if you only have time for one, choose iOS.
+**Scope:** test the mobile browsers and devices required by the project. iOS and Android exercise different rendering, media and navigation behavior; passing on one does not establish support for the other. Prioritize the audience's devices and record any untested targets.
 
-Desktop browser resize is not a mobile test. URL-bar toggle is the source of 80% of mobile-only bugs and no desktop browser reproduces it.
+Desktop browser resize does not reproduce mobile browser chrome. Test URL-bar expansion and collapse on a real device because they change the visible viewport.
 
 - Preview via LAN URL (local dev server + wifi, or an HTTPS tunnel like ngrok / Cloudflare Tunnel for PWA and service-worker tests) and open on your actual phone
 - Test with URL bar expanded and collapsed — scroll up to re-show it
 - Test in Low Power Mode / data-saver — triggers autoplay rejection you can't catch in dev (iOS Low Power, Android data-saver)
 - Test portrait and landscape — landscape phone is ~400px tall, breaks most centered layouts
-- **Test the return path.** Scroll to bottom, tap an external link, hit back. Chrome, Firefox, and Safari all bfcache-restore the page frozen mid-animation with inline styles preserved
+- **Test the return path.** Scroll to bottom, tap an external link, hit back. When eligible for bfcache, a page may resume with preserved animation and inline-style state; verify the actual restored result
 - **Test a cold re-open with scroll history.** Scroll down, close the tab (not just the page), reopen the URL — any browser may restore `scrollY` from session storage
-- **Test from a URL you've previously scrolled on.** Localhost has no scroll history for the origin; production does. The infamous *"works on local preview, broken on deployed"* symptom is almost always scroll restoration — reproducible on any browser, but iOS users trigger it constantly via app-switcher
+- **Test from a URL you've previously scrolled on.** Both localhost and deployed origins can have scroll history. Compare fresh navigation, reload and restored navigation before attributing a deployment-only failure to scroll restoration
 
 ### Fix at the right layer
 
-When debugging a visual bug, resist fixing at JS if it's really a CSS concern. Scroll-reveal FOUC feels like JS timing (add a delay, wait for load), but the correct fix is four lines of CSS (`.scroll-reveal { opacity: 0 }`). JS workarounds for CSS problems always come back.
+Keep the visible fallback in CSS and readiness in the engine that owns the effect. Delays and unconditional `.scroll-reveal { opacity: 0 }` can conceal timing problems while making initialization failures blank the content. Use the verified lifecycle in `skeletons.md` §G.
 
 ## Source
 

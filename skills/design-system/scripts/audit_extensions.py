@@ -93,25 +93,35 @@ def parse_yaml_extensions(yaml_text):
         if not stripped:
             i += 1
             continue
-        m = re.match(r"^([a-zA-Z][a-zA-Z0-9_]*):\s*$", line)
+        m = re.match(r"^([a-zA-Z][a-zA-Z0-9_]*):\s*(.*)$", stripped)
         if m and m.group(1) in EXTENSION_NAMESPACES:
             ns = m.group(1)
+            if m.group(2) not in ("", "{}"):
+                raise ValueError(
+                    f"line {i + 2}: `{ns}` requires a two-space-indented flat map "
+                    "or {}; inline and nested mappings are unsupported"
+                )
             extensions[ns] = {}
             i += 1
+            inline_empty = m.group(2) == "{}"
             while i < n:
                 child = lines[i]
                 child_stripped = child.split("#", 1)[0].rstrip()
                 if not child_stripped:
                     i += 1
                     continue
-                if not child.startswith("  "):
+                if not child[0].isspace():
                     break
+                if inline_empty:
+                    raise ValueError(f"line {i + 2}: `{ns}: {{}}` cannot have indented entries")
                 cm = re.match(r"^  ([a-zA-Z][a-zA-Z0-9_-]*):\s*(.*)$", child)
-                if cm:
+                if cm and cm.group(2).strip() and not cm.group(2).lstrip().startswith(("{", "[")):
                     extensions[ns][cm.group(1)] = cm.group(2).strip()
                     i += 1
                 else:
-                    break
+                    raise ValueError(
+                        f"line {i + 2}: `{ns}` requires two-space-indented scalar tokens"
+                    )
         else:
             i += 1
     return extensions
@@ -204,16 +214,6 @@ def find_globals_css(start_dir):
     return None
 
 
-def expected_css_prefixes(extensions):
-    prefixes = set()
-    for ns in extensions:
-        if ns == "motion":
-            prefixes.update(MOTION_PREFIXES)
-        elif ns in NAMESPACE_TO_CSS_PREFIX:
-            prefixes.add(NAMESPACE_TO_CSS_PREFIX[ns])
-    return prefixes
-
-
 def audit(design_path, css_path, strict=False):
     text = design_path.read_text(encoding="utf-8")
     fm, body, body_line_offset = split_frontmatter(text)
@@ -224,7 +224,15 @@ def audit(design_path, css_path, strict=False):
             "findings": {"errors": [], "warnings": [], "infos": []},
         }
 
-    extensions = parse_yaml_extensions(fm)
+    try:
+        extensions = parse_yaml_extensions(fm)
+    except ValueError as exc:
+        return {
+            "status": "invalid-extensions",
+            "summary": {"errors": 1, "warnings": 0, "infos": 0},
+            "findings": {"errors": [{"rule": "extension-unsupported-shape", "message": str(exc)}],
+                         "warnings": [], "infos": []},
+        }
     css_text = css_path.read_text(encoding="utf-8")
     css_props = parse_css_theme(css_text)
 
@@ -247,7 +255,9 @@ def audit(design_path, css_path, strict=False):
                     ),
                 })
 
-    prefixes = expected_css_prefixes(extensions)
+    # Removed namespaces can leave CSS behind. Only the documented extension
+    # prefixes belong to this audit; unrelated properties remain untouched.
+    prefixes = (*NAMESPACE_TO_CSS_PREFIX.values(), *MOTION_PREFIXES)
     for css_var in sorted(css_props):
         if any(css_var.startswith(p) for p in prefixes):
             if css_var not in yaml_css_vars:
@@ -342,12 +352,12 @@ def main(argv=None):
         print(f"RESULT: css={css_path}")
         if result["status"] == "ok":
             print(f"RESULT: extensions={','.join(result['extensions_found']) or '(none)'}")
-            print(f"RESULT: errors={result['summary']['errors']}")
-            print(f"RESULT: warnings={result['summary']['warnings']}")
-            print(f"RESULT: infos={result['summary']['infos']}")
-            for level in ("errors", "warnings", "infos"):
-                for f in result["findings"][level]:
-                    print(f"FINDING: level={level} rule={f['rule']} {f['message']}")
+        print(f"RESULT: errors={result['summary']['errors']}")
+        print(f"RESULT: warnings={result['summary']['warnings']}")
+        print(f"RESULT: infos={result['summary']['infos']}")
+        for level in ("errors", "warnings", "infos"):
+            for f in result["findings"][level]:
+                print(f"FINDING: level={level} rule={f['rule']} {f['message']}")
 
     return 1 if result.get("summary", {}).get("errors", 0) else 0
 

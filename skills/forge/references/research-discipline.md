@@ -39,8 +39,8 @@ Choose research angles according to the actual unresolved questions. Do not manu
 ## When to widen the net
 
 - Two angles converged but the answer feels too clean → add the third angle.
-- The premortem in Phase 2 surfaces a failure mode no source mentioned → launch one more research agent before Decide. This second round is automatic, not optional.
-- A load-bearing assumption is tagged `inherited convention` and you cannot find its origin → that is a research question worth one more subagent.
+- The premortem surfaces an uncovered consequential failure → investigate before Decide, directly in economy mode or with an independent agent when useful and available.
+- A load-bearing assumption is tagged `inherited convention` and its origin is unknown → investigate the specific evidence gap through the same available research path.
 
 ## When to stop
 

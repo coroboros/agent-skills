@@ -9,7 +9,7 @@
 | Tier | Owner | Scope |
 |---|---|---|
 | 1 — measured | `awardDetector.run()` | state-rule deltas vs floors, font resolution, contrast on solid grounds, nav border ink, token conformance, h1 wrap, ambient animations at rest, broken images, horizontal overflow, tap targets, per-section void |
-| 2 — driven | you + the browser tooling | real hovers on every UNMEASURED-JS selector, then `awardDetector.measure(sel)`; contact presses via `measureContact`; the open-drawer recount; scroll-up persistence; reduced-motion rerun; taps under touch emulation |
+| 2 — driven | you + the browser tooling | real hovers on every UNMEASURED-JS or UNMEASURED-CSS target and its related controls, then `awardDetector.measure(sel)`; contact presses via `measureContact`; the open-drawer recount; scroll-up persistence; reduced-motion rerun; taps under touch emulation |
 | judged | you, preflight §8 | composition, desire, fidelity, copy, pacing, seams — never delegated to the detector |
 
 ## Injection — per browser rung
@@ -18,9 +18,13 @@
 - **dev-browser** — same two steps through its page-eval: evaluate the file source once, then evaluate `await window.awardDetector.run({ face, archetype })` and read the JSON.
 - **No rung** — the detector never runs. Every box it feeds converts to a declared gap in the verdict (preflight §8), never to a tick.
 
+The H1 ceiling defaults to 2. Only the documented three-line client exception uses `run({ face, archetype, h1MaxLines: 3, h1OverrideReason: '<quoted client clause + DESIGN.md reference>' })`. Invalid options fail before DOM work. The report retains the effective options, canonical policy and an H1-OVERRIDE REVIEW; exceeding 3 still FAILs. This is an explicitly amended check, never a pass against the canonical two-line limit.
+
 ## Floors
 
 `FLOORS` in `detector.js` is the single source of truth; this table mirrors it. A channel at or above its floor is perceptible; every channel under → HOMEOPATHIC.
+
+If a diagnostic run supplies custom `floors`, its report records every effective floor beside `policy.canonicalFloors` and `floorsOverridden`. Preserve that provenance; a result under altered floors is not evidence that the canonical floor passed.
 
 | Channel | Floor | Under it |
 |---|---|---|
@@ -37,6 +41,7 @@ The substrate probe measures the **pointer (`:hover`) response only**. `:focus-v
 
 | Rule | Severity | Fires when |
 |---|---|---|
+| UNMEASURED-CSS | REVIEW | a state inside a complex selector cannot be assigned safely to one carrier; affected targets/controls are excluded from the measured denominator and require a driven check. An unresolvable selector makes the whole census unmeasured; coverage reports that gap. |
 | FONT-RESOLVE | FAIL | the committed face fails the width probe (`fonts.check` reports true for undeclared families, so metrics are the test), or a display element's first computed family is a system/generic or a never-rendering name — the silent-fallback bug |
 | SUBSTRATE-DEAD | FAIL | among measured interactive elements, zero classify OK, or DEAD + HOMEOPATHIC exceed half — the page-wide dead pattern |
 | DEAD | REVIEW | per element: pointer affordance, no state rule, zero delta, no JS to drive it |
@@ -51,7 +56,8 @@ The substrate probe measures the **pointer (`:hover`) response only**. `:focus-v
 | NAV-HERO-OPAQUE | FAIL | at rest (scrollY 0), a top bar over hero media paints an opaque (α ≥ 0.9), unblurred surface off the page ground — the decapitation band; transparent, scrim, or frost-with-blur over the hero is the winner norm |
 | NAV-HERO-SURFACE | REVIEW | any other owned surface over hero media at rest (frost + blur, translucent, or opaque same-ground) — judged in §8 against the archetype canon, never auto-cleared |
 | TOKEN-CONFORM | REVIEW | a computed color/background resolves to no `--*` token value (skipped when the page declares no color tokens) |
-| H1-LINES | FAIL | an h1 wraps past 2 line boxes at the current viewport |
+| H1-LINES | FAIL | an h1 exceeds the effective ceiling: 2 by default, or 3 under the recorded client exception |
+| H1-OVERRIDE | REVIEW | the three-line client exception is configured; records canonical 2, effective 3 and the quoted clause/reference for review |
 | IDLE-CHANNEL | REVIEW | zero animations running at rest — a running animation proves presence, not perceptibility; skipped entirely under `prefers-reduced-motion: reduce` |
 | IMG-BROKEN | FAIL | an image completed loading with zero natural width |
 | H-OVERFLOW | FAIL | `scrollWidth` exceeds the viewport — horizontal scroll |
@@ -61,7 +67,7 @@ The substrate probe measures the **pointer (`:hover`) response only**. `:focus-v
 
 Every selector in `substrate.selectors.unmeasuredJs` is driven with a **real** hover through the tooling (never a synthetic event), bracketed by `measure`: call `awardDetector.measure(sel)` once at rest (stores the snapshot), drive the hover and hold it past the declared transition duration (~400ms covers most), then call it again to get the classified delta; a mid-transition read measures zero. Write the result into the verdict as `UNMEASURED: n → driven: m`. When m < n on any element the design_plan names — the signature, the substrate classes, the nav — that preflight box is **NOT DONE**, never a declared gap: the tooling was present and the work was skipped.
 
-**Peak-hold — transients that settle before a read.** A click/press response on a spring (~140ms) is back at rest before any post-drive call lands, so a single `measure` read reports zero. `measurePeak(sel, windowMs)` shares the two-call protocol: the first call stores the rest snapshot; drive the transient; the second call samples every frame for `windowMs` (default 600ms) and returns the max per-channel delta — the crest, not the residue.
+**Peak-hold — transients that settle before a read.** Call `measurePeak(sel, windowMs, trigger)` at rest to store the snapshot and arm sampling on the actual input; then drive that input through the tooling. The second call reads the retained peak, even after a ~140ms spring has settled. Defaults are 600ms and `pointerdown`; choose `click` for release-triggered effects, `pointerenter` for hover, or `keydown` for keyboard effects. Sampling begins on that named event, not on the later read. An untriggered or frame-starved sample returns an error, not a DEAD verdict.
 
 **Contact presses.** For every design_plan-named struck object: `measureContact(sel, { secondaries: ['<selector>', …] })` at rest stores snapshots of the object and each declared secondary and arms the peak sampler on the object's next `pointerdown`; drive a **real** click/press; call `measureContact(sel)` again to read the peak-held channels and the classification. Because the sampler starts on the press itself, tool-call latency between the click and the read never loses the transient. `GLOBAL-SQUASH` returns a ready CONTACT-GLOBAL-SQUASH finding — carry it into the verdict: the only above-floor response is a whole-element scale/opacity on the object, the paper-cutout. `LOCAL` means something beyond the squash responded (a secondary, a structural channel, a translate/color on the object) — its quality stays judgment. `CANVAS` means the object is a canvas medium: pixels are invisible to computed style, so the deformation stays judgment — drive the press and watch.
 

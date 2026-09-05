@@ -220,6 +220,22 @@ class TestFindCycle(unittest.TestCase):
 
 
 class TestCLI(unittest.TestCase):
+    def test_duplicate_workstream_ids_fail_before_graph_overwrite(self):
+        for streams in (
+            _ws("WS-1") + _ws("WS-1"),
+            _ws("WS-1", deps="WS-2") + _ws("WS-2", deps="WS-1") + _ws("WS-1"),
+        ):
+            with self.subTest(streams=streams):
+                path = _write_temp(_spec(streams))
+                try:
+                    result = _run(path)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn("duplicate-workstream-id", result.stdout)
+                    self.assertIn("WS-1", result.stderr)
+                    self.assertIn("blocks 1 and", result.stderr)
+                finally:
+                    path.unlink()
+
     def test_no_args_exits_1(self):
         r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 1)

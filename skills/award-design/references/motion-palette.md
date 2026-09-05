@@ -30,13 +30,13 @@ The line is **content vs decoration**, not scrubbed vs triggered. A curtain wipe
 
 ### The editorial reversible content-reveal — declared, not default
 
-A reversible *content* reveal (copy that re-rolls on scroll-up for an alive feel) is legitimate for the Editorial and Immersive registers — but it is **opted into and declared in the DESIGN.md**, never the silent default, because it carries the NN/g cost. When taken, guard it with the **`cover`-phase range rule**: `animation-range: cover N% cover M%` — both endpoints inside the `cover` phase, so the element is fully on-screen the whole time it animates and only softens at the viewport edges, never vanishing while it is read. That rule keeps the reversible reveal from the jitter and content-hunting NN/g documents; it mitigates the cost, it does not erase it.
+A reversible *content* reveal (copy that re-rolls on scroll-up for an alive feel) is legitimate for the Editorial and Immersive registers — but it is **opted into and declared in the DESIGN.md**, never the silent default, because it carries the NN/g cost. Choose and measure its animation range so copy stays legible while being read. `cover` spans entry through exit; endpoints such as `cover 20%` do not guarantee that the whole element is on-screen. Test the chosen range at each target viewport and with content taller than the viewport. Keep full opacity through the reading interval and limit softening to verified edge positions. This mitigates the cost; it does not erase it.
 
 ## Browser reality — progressive enhancement is mandatory
 
 Native `animation-timeline` is **not Baseline** — the engine-by-engine split and the current support figure are one dated row in `stack-facts.md`, never quoted from memory here. So the resting state is **content visible**, and motion is layered on top only inside the `@supports (animation-timeline: view())` gate. A browser without the timeline, and a reduced-motion user, both render every element fully revealed with zero extra code — because the hidden / pre-animation state is defined *only inside* the gate, never in base CSS. This single discipline is what makes every scroll mechanic below safe to ship.
 
-Off-main-thread holds only for the compositor properties — `transform`, `opacity`, `filter` — and for `clip-path` **only when the clip's parameters are not tracked per input frame**: a fire-once inset wipe or a scroll-scrubbed mask pays its paint once or welds it to scroll, but a `clip-path` whose position chases the pointer repaints every frame (the moving-window law below). A scroll-driven animation of `width` / `top` / `height` janks like any other.
+Native timeline timing does not guarantee compositor execution or a frame rate. Prefer `transform` and `opacity`; filter and clip-path eligibility depends on the effect, browser and layer state, and font/geometry changes can require paint or layout. Verify the actual target path with a trace. The moving-window technique below avoids repeated tracked clipping, but it also needs measurement.
 
 ## Moving windows — compositor-clean tracking
 
@@ -85,27 +85,17 @@ Do not scrub a content reveal with `animation-timeline` — bound to visibility,
 .reveal { opacity: 1; }                                            /* base is VISIBLE — a dead script never blanks the page */
 
 @media (prefers-reduced-motion: no-preference) {
-  html.js .reveal { opacity: 0; transform: translateY(1.25rem); }  /* pre-state: motion-safe AND JS-alive only */
-  html.js .reveal[data-shown] { opacity: 1; transform: none;
+  .reveal[data-reveal-ready]:not([data-shown]) { opacity: 0; transform: translateY(1.25rem); }
+  .reveal[data-shown] { opacity: 1; transform: none;
     transition: opacity .8s var(--ease), transform .8s var(--ease); }
 }
 ```
-```html
-<!-- In <head>, inline and render-blocking, so the class lands before first paint. -->
-<script>document.documentElement.classList.add('js');</script>
-```
-```js
-const io = new IntersectionObserver((entries) => {
-  for (const e of entries) if (e.isIntersecting) {
-    e.target.setAttribute('data-shown', ''); io.unobserve(e.target);   // arrives and stays
-  }
-}, { rootMargin: '0px 0px -10% 0px' });
-```
-The pre-state is gated twice — inside `prefers-reduced-motion: no-preference` and behind the `html.js` class — so a reduced-motion user, a no-JS load, and one throw above the observer all leave the content visible. The base rule alone would blank the page for a motion-allowing visitor whose script never ran (`skeletons.md` §G). `animation-trigger: --t play-forwards` is the native replacement once it ships.
+
+Use the complete observer lifecycle in `skeletons.md` §G. It registers offscreen elements before setting `data-reveal-ready`, leaves already-visible content shown on delayed initialization, and restores content on failure, teardown or a reduced-motion change. A separate head script's `html.js` flag cannot prove that the later reveal engine loaded. `animation-trigger: --t play-forwards` is a future native replacement once the target support contract permits it.
 
 ### The reversible content-reveal (editorial, declared only)
 
-Only when the DESIGN.md declares it: the `animation-timeline` scrub above, applied to content, ranged `cover N% cover M%` (both endpoints in `cover`) so the copy never vanishes while read. The one place a content reveal is reversible — a deliberate register choice, not the default.
+Only when the DESIGN.md declares it: the `animation-timeline` scrub above, applied to content with a measured range that preserves full opacity while the copy is read. A `cover` percentage alone does not establish that guarantee. A reversible content reveal is a deliberate register choice, not the default.
 
 ## Reduced motion — three layers, always
 

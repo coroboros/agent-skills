@@ -78,6 +78,13 @@
       "prompt": "Change the accent token in this repository's DESIGN.md and propagate it here. The brand file is also consumed by two other repositories; leave those repositories alone.",
       "expected_output": "Update and validate the local token and authorized code consumers. Identify the two other consumers and report their needed change without editing them. No global propagation or renewed permission question for the already authorized local change.",
       "files": []
+    },
+    {
+      "id": 11,
+      "name": "extension-export-is-json-not-css",
+      "prompt": "Fix a missing --shadow-lifted mirror from DESIGN.md while preserving globals.css. The canonical Tailwind exporter is available and emits {\"theme\":{\"extend\":{\"colors\":{},\"fontFamily\":{},\"fontSize\":{},\"borderRadius\":{},\"spacing\":{}}}}.",
+      "expected_output": "Use the documented YAML-to-CSS mapping to merge the authorized shadow variable into @theme; canonical JSON does not contain extension tokens and is never redirected into globals.css. Audit names/references and inspect values separately. If showing v3 integration, merge exported.theme.extend, not the full outer object.",
+      "files": []
     }
   ]
 }

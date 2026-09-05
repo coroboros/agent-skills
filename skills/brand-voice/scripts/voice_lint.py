@@ -453,8 +453,8 @@ def _lint_isolated(text, path):
 def lint(text, path, allow_outside_skill=False):
     """Public entry point. Lints `text` (the file content) and walks the chain.
 
-    `path` is the file path used for chain resolution (relative paths in
-    `voice.extends` resolve against `path`'s directory).
+    `path` is the intended file identity for chain resolution; `text` supplies
+    its candidate content. Relative parents resolve against `path`'s directory.
     """
     isolated = _lint_isolated(text, path)
     for e in isolated.get("errors", []):
@@ -477,9 +477,15 @@ def lint(text, path, allow_outside_skill=False):
     chain_errors = []
     chain_warnings = []
 
-    if has_extends and path != "(stdin)":
+    if has_extends and path == "(stdin)":
+        chain_errors.append(_err(
+            "extends-parent-invalid", "voice.extends",
+            "inherited stdin requires --target-path <destination> to resolve the chain",
+            source="child",
+        ))
+    elif has_extends:
         try:
-            chain = resolve_extends_chain(path)
+            chain = resolve_extends_chain(path, root_data=data)
             chain_paths = [str(p) for p, _ in chain]
 
             for parent_path, _parent_data in chain[:-1]:
@@ -559,6 +565,9 @@ def main():
     )
     parser.add_argument("path", help="path to BRAND-VOICE.md (or '-' for stdin)")
     parser.add_argument(
+        "--target-path", help="validate candidate content at this final file identity without writing it",
+    )
+    parser.add_argument(
         "--allow-extends-outside-skill", action="store_true",
         help="suppress 'extends-path-outside-skill' warning",
     )
@@ -576,7 +585,7 @@ def main():
         print(f"error: '{args.path}' is not valid UTF-8: {exc}", file=sys.stderr)
         return 2
 
-    path_label = args.path if args.path != "-" else "(stdin)"
+    path_label = args.target_path or (args.path if args.path != "-" else "(stdin)")
     result = lint(text, path_label, allow_outside_skill=args.allow_extends_outside_skill)
     write_json(result)
     return 0 if result["verdict"] != "RED" else 1

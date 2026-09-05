@@ -102,14 +102,14 @@ Load `references/derivation-lens.md` and run its self-contained review. Compare 
 **Gating:**
 
 - **GAP** findings → **MUST PASS**. Completion blocks until the authorized missing work is implemented or a concrete blocker is reported. Do not ask again for already authorized fixes.
-- **SCOPE-ADD** findings → continue (advisory). Escalate to **Medium and require user acknowledgement** when the addition matches a `## Not Included` entry from the plan's negative scope.
-- **DECISION-OVERRIDE** findings → continue. Surface for user judgment.
+- **SCOPE-ADD** findings → remove unnecessary task-owned additions under `references/derivation-lens.md`; preserve unrelated pre-existing work. An addition outside the accepted mandate remains a scope decision for the user.
+- **DECISION-OVERRIDE** findings → apply the owner's disposition: record justified reversible implementation decisions; leave user-owned decisions pending.
 - **CONSISTENT** → no finding; counted in coverage.
 
 Log a one-line summary to `04-examine.md` (when `{save_mode}`):
 
 ```
-**Derivation lens:** GAP: <n> · SCOPE-ADD: <n> (advisory) · DECISION-OVERRIDE: <n> · CONSISTENT: <n>
+**Derivation lens:** GAP: <n> · SCOPE-ADD: <n> (disposition recorded) · DECISION-OVERRIDE: <n> · CONSISTENT: <n>
 ```
 
 **3.1 Typecheck**
@@ -198,7 +198,7 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 **Format:** ✓ Applied
 **Adversarial self-check:** ✓ {N findings resolved | skipped — trivial change}
 
-**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (advisory) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
+**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
 **Files Modified:** {list}
 
@@ -220,7 +220,7 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 - Lint: ✓ Passed
 - Tests: ✓ Passed
 
-**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (advisory) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
+**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
 **Files Modified:** {list}
 

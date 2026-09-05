@@ -81,7 +81,10 @@ BLOAT_CATEGORIES = {
     ],
 }
 
-IMPORT_RE = re.compile(r"@([^\s@]+\.md)")
+# Direct, whitespace-free @paths of any extension. A preceding word/path
+# character means an email or embedded token, not an import. Surrounding prose
+# punctuation is not part of the path; unusual filenames need a host check.
+IMPORT_RE = re.compile(r"(?<![\w./@+-])@([^\s@<>\"'`]+)")
 
 
 def mask_protected(text):
@@ -119,7 +122,9 @@ def check_imports(text, source_dir):
     text = mask_protected(text)
     broken = []
     for m in IMPORT_RE.finditer(text):
-        path = m.group(1)
+        path = m.group(1).rstrip(".,;:!?)]}")
+        if not path:
+            continue
         expanded = Path(path).expanduser()
         if not expanded.is_absolute():
             expanded = source_dir / expanded

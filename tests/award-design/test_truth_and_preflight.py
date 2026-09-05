@@ -61,11 +61,11 @@ class TestCapabilityMap(unittest.TestCase):
         self.assertIn("npx skills add https://github.com/greensock/gsap-skills",
                       self.truth)
 
-    def test_modern_web_guidance_row_with_skill_less_fallback(self):
+    def test_modern_web_docs_fallback_does_not_resolve_a_package(self):
         self.assertIn("npx skills add https://github.com/GoogleChrome/modern-web-guidance",
                       self.truth)
-        self.assertIn("npx -y modern-web-guidance@latest search", self.truth,
-                      "the docs fallback must work without the skill installed")
+        self.assertIn("Current MDN and official browser-platform documentation", self.truth)
+        self.assertNotIn("npx -y modern-web-guidance@latest", self.truth)
 
     def test_gate_is_proportional_to_usage(self):
         self.assertIn("static minimalist page loads none of this", self.truth,

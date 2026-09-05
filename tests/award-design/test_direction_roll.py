@@ -12,6 +12,7 @@ changed formula fails here instead of being ratified by its own implementation."
 import hashlib
 import importlib.util
 import math
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -194,6 +195,16 @@ class TestStdoutContract(unittest.TestCase):
         line = next(l for l in first.stdout.splitlines() if l.startswith("reproduce: "))
         replay = subprocess.run([sys.executable, *line[len("reproduce: "):].split()[1:]],
                                 cwd=SKILL_DIR, capture_output=True, text=True)
+        self.assertEqual(replay.stdout, first.stdout)
+
+    def test_accepted_manual_key_replays_as_one_argument(self):
+        first = _run('5', '--from', 'seed with spaces; literal $value')
+        self.assertEqual(first.returncode, 0)
+        line = next(line for line in first.stdout.splitlines() if line.startswith('reproduce: '))
+        command = shlex.split(line[len('reproduce: '):])
+        replay = subprocess.run([sys.executable, *command[1:]], cwd=SKILL_DIR,
+                                capture_output=True, text=True)
+        self.assertEqual(replay.returncode, 0, replay.stderr)
         self.assertEqual(replay.stdout, first.stdout)
 
 

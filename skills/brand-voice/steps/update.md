@@ -96,7 +96,7 @@ The authorized update proceeds after validation; audit/propose stays read-only.
 ### 6. Lint and write
 
 - Build the merged file in a temp file.
-- `voice_lint.py` — must return 0 (GREEN/YELLOW). RED → fix and re-lint.
+- Run `python3 "$SKILL_DIR"/scripts/voice_lint.py <candidate> --target-path <target>` — must return 0 (GREEN/YELLOW). This validates the candidate bytes at the final target identity, including relative parents and cycles; a temp filename alone is not sufficient. RED → fix and re-lint without touching the target or its ancestors.
 - Write the validated candidate under the existing update authorization. Preserve manual sections verbatim through the merge (§4) and report the applied diff.
 
 ### 7. Post-write report

@@ -20,7 +20,7 @@ class TestAuthorizationBoundaries(unittest.TestCase):
 
     def test_evals_cover_both_authorization_directions(self):
         cases = json.loads((ROOT / "evals" / "evals.json").read_text())["evals"]
-        self.assertEqual({case["name"] for case in cases}, {
+        self.assertTrue({
             "inherit-approved-plan", "latest-explicit-checkpoint-wins",
             "dirty-worktree-criterion-closure",
-        })
+        }.issubset({case["name"] for case in cases}))

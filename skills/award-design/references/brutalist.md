@@ -268,7 +268,7 @@ Route on the brief's declared inputs, never on a taste read: a studio, portfolio
 | welcome cards | 3 | y 3em→0, stagger −0.025 | 1s | `Expo.easeOut` |
 | H1 spans | 4 | `yPercent 100→0`, stagger −0.025 | 1s | `Expo.easeOut` |
 
-**Section chain** — the role order with its intensity map and the state each section owes. Build each role as its row describes; never improvise the hero or a section layout outside the chain.
+**Section chain** — example roles, intensity targets and states for this register. Choose the applicable rows and derive their order and form from the brief's story; this is a reference composition, not a mandatory page template. Intensity numbers are authoring targets, not measured jury scores.
 
 | role | form | pairs | intensity | state it owes |
 |---|---|---|---|---|

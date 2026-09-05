@@ -40,7 +40,7 @@ Scope rule — skills whose primary output is a claim, a finding, or a decision 
 ## Excluded skills (with reason)
 
 - oneshot — deliberately single-pass with a complexity circuit breaker; a refute-by-default loop contradicts its fast-path design. Correctness is governed by its execution-discipline and label-hygiene blocks.
-- frontend-dev — the everyday fast lane; its verification is the fresh-pixels sweep and the ship checklist, and a refute-by-default loop contradicts its everyday sizing. Correctness is governed by its execution-discipline and label-hygiene blocks.
+- frontend-dev — the frontend builder; ordinary work uses the fresh-pixels sweep and ship checklist, while a supplied award-design chunk carries its own verification and design-review gates. Correctness is governed by its execution-discipline and label-hygiene blocks; no separate blanket review loop is added.
 - agent-creator — emits agent config (`.claude/agents/`), not findings or decisions to verify.
 - design-system — governs DESIGN.md tokens; tooling/status output, not findings.
 - claude-md — emits CLAUDE.md (per-project content artifact), not findings.

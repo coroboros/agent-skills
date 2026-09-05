@@ -79,12 +79,36 @@ class TestResolvedBrand(unittest.TestCase):
             draft = root / "draft.md"
             draft.write_text("The file exists.")
             rules = root / "rules.json"
-            for value in ["[]", "broken", '{"voice":{"extends":"parent.md"}}']:
+            for value in ["[]", "broken", "{}", '{"voice":{"extends":"parent.md"}}',
+                          '{"voice":{"name":"Synthetic"},"merged":{"forbidden_lexicon":["launch"]}}',
+                          '{"voice":{"name":"Synthetic"},"forbidden_lexicon":42}',
+                          '{"voice":{"name":"Synthetic"},"forbidden_patterns":"emoji"}',
+                          '{"voice":{"name":"Synthetic"},"pronouns":{"forbid":false}}',
+                          '{"voice":{"name":"Synthetic"},"rewrite_rules":[{"reject":"launch"}]}',
+                          '{"voice":{"name":"Synthetic"},"lexical_exceptions":{"acronyms":[42]}}']:
                 rules.write_text(value)
                 for script in ["prescan.py", "validate.py"]:
                     result = self.run_cli(SCRIPTS / script, "--rules-json", rules, draft)
-                    self.assertNotEqual(result.returncode, 0, result.stdout)
+                    self.assertEqual(result.returncode, 1 if script == "prescan.py" else 2,
+                                     result.stdout + result.stderr)
                     self.assertEqual(result.stdout, "")
+                    self.assertNotIn("Traceback", result.stderr)
+
+    def test_semantic_rules_and_empty_lists_remain_valid(self):
+        rules = {"voice": {"name": "Synthetic"}, "forbidden_lexicon": [],
+                 "rewrite_rules": [], "forbidden_patterns": ["preserve uncertainty"],
+                 "contexts": {"report": {"tone": "measured"}},
+                 "pronouns": {"forbid": []}, "lexical_exceptions": {"acronyms": []}}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "rules.json"
+            source.write_text(json.dumps(rules))
+            draft = root / "draft.md"
+            draft.write_text("The file exists.")
+            for script in ("prescan.py", "validate.py"):
+                result = self.run_cli(SCRIPTS / script, "--rules-json", source, draft)
+                self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(source.read_text()), rules)
 
     def test_falsy_inheritance_directives_never_clean(self):
         with tempfile.TemporaryDirectory() as directory:

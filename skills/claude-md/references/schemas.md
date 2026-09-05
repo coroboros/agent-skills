@@ -38,7 +38,7 @@ Heuristic matches are candidates for semantic review. `summary.ok` describes the
 
 ## validate_rule_file report
 
-Emitted by `scripts/validate_rule_file.py <path>`.
+Emitted by `scripts/validate_rule_file.py <path>`. The check covers delimiters and the supported `paths:` string-list subset, not unrelated YAML keys. A successful result is not full YAML validation. Quote YAML indicators and brace/bracket globs in inline lists.
 
 ```json
 {

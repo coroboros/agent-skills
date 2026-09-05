@@ -46,6 +46,8 @@ Stable contracts. Other skills consume these outputs; changes here are breaking 
 
 `source`, `source_path`, and `parent_errors` are optional on every error/warning. `chain` and `merged_stats` are top-level optionals — present only when `voice.extends` resolved successfully. Order in `chain` is root-first.
 
+`voice_lint.py <candidate> --target-path <destination>` validates candidate content at its intended final identity without writing it. Relative parents and cycles use the destination path; ancestors are read from disk. Extract and update use this mode before replacing a canonical file.
+
 ### Verdict semantics
 
 - **GREEN** — zero errors, zero warnings. Ship it.

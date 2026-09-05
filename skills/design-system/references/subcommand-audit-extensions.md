@@ -53,6 +53,8 @@ The script exits `0` when zero errors, `1` when any errors are present (warnings
 
 Three rules, mirrored to the bidirectional contract in `extended-tokens.md`:
 
+The bundled parser accepts extension namespaces as two-space-indented flat maps, or `{}` for an empty map. Other declared shapes fail with `extension-unsupported-shape`; convert them to the documented block form and rerun. It checks names and prose references, not CSS/YAML value equivalence. Known extension prefixes remain checked even when a namespace has been removed from YAML; unrelated CSS properties are outside this audit.
+
 ### `extension-missing-css` (error)
 
 Every extension token in DESIGN.md YAML must have a matching CSS custom property in `globals.css` `@theme`, per the 1:1 mapping table in `extended-tokens.md`. Missing → error.
@@ -62,13 +64,13 @@ YAML:  shadows.lifted
 CSS:   --shadow-lifted   ← must exist in @theme block
 ```
 
-**Fix proposal**: run `/design-system export tailwind <path> > <css-path>` (or merge the export into the existing `@theme`) to regenerate the mirror. Re-audit.
+**Fix proposal**: map the missing YAML token into the existing `@theme` using `extended-tokens.md`, preserving unrelated CSS. The Tailwind exporter emits canonical JSON and cannot generate this extension mirror. Re-audit names and inspect the mirrored values against DESIGN.md.
 
 ### `extension-orphan-css` (warning, error under `--strict`)
 
 CSS custom properties matching the extension prefixes (`--shadow-*`, `--duration-*`, `--ease-*`, `--aspect-*`, `--height-*`, `--container-*`, `--breakpoint-*`, `--z-*`, `--border-*`, `--opacity-*`, `--scroll-*`) without a corresponding YAML extension token are orphans. Either drift (the YAML deleted a token, the CSS wasn't refreshed) or hand-authored CSS that bypassed the YAML.
 
-**Fix proposal**: either remove the orphan from CSS (drift cleanup) or add the corresponding YAML token (formalize the brand decision in DESIGN.md, then re-export to confirm).
+**Fix proposal**: remove the orphan from CSS or formalize the authorized brand decision as the corresponding YAML token. Re-audit names and inspect the mirror's values against DESIGN.md.
 
 ### `extension-broken-ref` (error)
 
@@ -89,7 +91,7 @@ Probes the project tree below the DESIGN.md path for the first matching file:
 | 5 | `app/globals.css` |
 | 6 | `src/app/global.css` |
 
-When none match, exits `1` with `RESULT: status=css-not-found`. The user must pass `--css <path>` explicitly, or scaffold the CSS layer (`/design-system export tailwind <path> > src/app/globals.css`).
+When none match, exits `1` with `RESULT: status=css-not-found`. Pass `--css <path>` for an existing stylesheet, or author the requested CSS layer with an `@theme` mirror from DESIGN.md. A Tailwind JSON export cannot scaffold globals.css.
 
 ## Report template
 
@@ -157,7 +159,7 @@ Status icon convention:
 
 ## When to run
 
-- After `/design-system export tailwind <path>` — confirm the mirror is in sync.
+- After an authorized DESIGN.md or CSS mirror edit — audit token names and inspect corresponding values; JSON export alone does not update the mirror.
 - Before opening a PR that touched DESIGN.md or `globals.css`.
 - In CI alongside `/design-system audit` — both must pass.
 

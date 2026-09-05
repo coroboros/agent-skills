@@ -279,18 +279,15 @@ class TestSkeletonSpecifics(unittest.TestCase):
     def test_io_reveal_keeps_the_base_state_visible(self):
         code = self.sections["G"]
         self.assertIn("io.unobserve(", code, "fire-once means the reveal persists")
-        self.assertIn("html.js", code,
-                      "the hidden state may only exist under the JS-added class")
+        self.assertIn("data-reveal-ready", code,
+                      "readiness must belong to the successfully initialized reveal engine")
         self.assertIn("prefers-reduced-motion: no-preference", code)
         self.assertNotIn("addEventListener('scroll'", code)
 
-    def test_io_reveal_sets_the_js_class_before_first_paint(self):
-        """A deferred module lets the browser paint the visible base, then blank
-        the in-view reveals when the class lands — a flash on exactly the slow
-        connections the visible-base rule exists for."""
+    def test_io_reveal_does_not_prehide_content_with_an_independent_head_script(self):
         code = self.sections["G"]
-        self.assertRegex(code, r"<script>document\.documentElement\.classList\.add\('js'\);</script>",
-                         "the class must be set by a render-blocking inline script in <head>")
+        self.assertNotIn("document.documentElement.classList.add", code)
+        self.assertNotIn("html.js", code)
 
     def test_io_reveal_returns_a_teardown_like_every_other_skeleton(self):
         self.assertIn("io.disconnect()", self.sections["G"])

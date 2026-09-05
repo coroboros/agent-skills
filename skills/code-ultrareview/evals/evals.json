@@ -333,6 +333,27 @@
         "After the config exists, Stryker runs from packages/a and report paths are normalized back to repository-relative packages/a paths.",
         "Exit 7 fails the mutation gate with the exact lockfile restore or install command plus the exact Code Ultrareview rerun; no mutation-findings.jsonl or repository verdict is published."
       ]
+    },
+    {
+      "id": 44,
+      "name": "canonical-forge-spec",
+      "prompt": "Review this implementation with --reconcile pointing to a validated Forge Spec whose workstreams express acceptance criteria below the bold Acceptance Criteria label. No optional reconcile summary was supplied.",
+      "expected_output": "Extract the canonical Forge criteria, bind the reconciled source to axis input, assess the retained claims against the implementation, and render Derivation coverage from the verified artifact. Do not report zero requirements because the section label is bold, or claim semantic verification from extraction counts alone.",
+      "files": []
+    },
+    {
+      "id": 45,
+      "name": "reconcile-artifact-swap",
+      "prompt": "Axis review has completed. Before synthesis the reconcile JSON is replaced by another internally valid artifact and a reassuring legacy reconcile-summary file is supplied. Finish the review.",
+      "expected_output": "Reject the changed reconcile identity against the axis input hash and stop synthesis until evidence is rebuilt and reviewed. The legacy summary cannot replace canonical evidence or supply unverified coverage.",
+      "files": []
+    },
+    {
+      "id": 46,
+      "name": "real-regression-test",
+      "prompt": "Write the accepted regression test in this repository using its existing node:test runner. The reviewed test imports the affected function and asserts the required behavior. No Vitest dependency exists.",
+      "expected_output": "Supply the reviewed runner-native test content and repository-relative destination to the writer. Preview and create the exact test without guessing a framework or inserting an unconditional failure. Verify that the same test fails for the reported behavior before the fix and passes after it. Refuse missing test content or an escaping destination.",
+      "files": []
     }
   ]
 }

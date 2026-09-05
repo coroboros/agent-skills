@@ -229,7 +229,7 @@ Route on the brief's declared inputs, never on a taste read: an established hous
 
 **Hero architectures** — *H-A slider maison* (Delvaux — classes and copy winner-verified; the easing numbers carried from earlier source reads, not re-verified this run): visual + scrim → serif SplitText title up behind a mask (dur 2, stagger .2, `power4.inOut`) → roll-swap / `--stroke` CTAs (~.2s) → figure `clip-path:inset()` wipe (1s). *H-B eyebrow + display Flip-handoff* (Son Daven — award, studio and stack winner-verified; every number below an executable default): `master-preloader` scene → logo Flips into the header → eyebrow rise → display `yPercent 250→0` behind a mask, ~1.2s, easeOutQuart → magnetic CTA, `elastic.out(1,0.3)`. *H-C in-engine statement* (Depo Luxe winner-verified; Cartier shipped + case study): loader → SVG logo fill → dissolve, no hard cut → H1 / universe settles, hidden gestures live from frame one. No fold CTA in shape H-C.
 
-**Section chain** — the role map with its intensity and the state each section owes. Build each role as its row describes; never improvise the hero or a section layout outside the chain.
+**Section chain** — example roles, intensity targets and states for this register. Choose the applicable rows and derive their order and form from the brief's story; this is a reference composition, not a mandatory page template. Intensity numbers are authoring targets, not measured jury scores.
 
 | role | form | pairs | intensity | state it owes |
 |---|---|---|---|---|

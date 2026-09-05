@@ -1,6 +1,9 @@
 """Tests for voice_lint.py error codes, validation order, and source discriminator."""
 
+import json
+import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -113,6 +116,60 @@ class TestChainErrors(unittest.TestCase):
         wrapping = next(e for e in result["errors"] if e["code"] == "extends-parent-invalid")
         self.assertIn("parent_errors", wrapping)
         self.assertGreater(len(wrapping["parent_errors"]), 0)
+
+
+class TestCandidateIdentity(unittest.TestCase):
+    def test_inherited_stdin_requires_final_identity(self):
+        result = lint(_read(FIXTURES / "child-pure-inherit.md"), "(stdin)")
+        self.assertEqual(result["verdict"], "RED")
+        self.assertIn("--target-path", result["errors"][0]["message"])
+
+    def test_candidate_uses_final_directory_without_writing_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            project = root / "project"
+            project.mkdir()
+            parent = project / "parent-corp.md"
+            parent.write_bytes((FIXTURES / "parent-corp.md").read_bytes())
+            target = project / "CHILD.md"
+            candidate = root / "candidate.md"
+            candidate.write_bytes((FIXTURES / "child-pure-inherit.md").read_bytes())
+            before = parent.read_bytes()
+            script = Path(__file__).resolve().parents[2] / "skills/brand-voice/scripts/voice_lint.py"
+            result = subprocess.run([sys.executable, str(script), str(candidate),
+                                     "--target-path", str(target)], text=True, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            report = json.loads(result.stdout)
+            self.assertEqual(report["chain"][-1], str(target.resolve()))
+            self.assertFalse(target.exists())
+            self.assertEqual(parent.read_bytes(), before)
+
+    def test_updated_candidate_cannot_hide_self_cycle_in_old_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "CHILD.md"
+            before = (FIXTURES / "parent-corp.md").read_bytes()
+            target.write_bytes(before)
+            candidate = _read(FIXTURES / "child-pure-inherit.md").replace("./parent-corp.md", "./CHILD.md")
+            result = lint(candidate, str(target))
+            self.assertEqual(result["verdict"], "RED")
+            self.assertIn("extends-cycle", _codes(result["errors"]))
+            self.assertEqual(target.read_bytes(), before)
+
+    def test_candidate_multi_hop_cycle_and_missing_parent_preserve_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target, parent = root / "CHILD.md", root / "parent-corp.md"
+            original = (FIXTURES / "parent-corp.md").read_bytes()
+            target.write_bytes(original)
+            child = _read(FIXTURES / "child-pure-inherit.md")
+            parent.write_text(child.replace("./parent-corp.md", "./CHILD.md"))
+            parent_before = parent.read_bytes()
+            result = lint(child, str(target))
+            self.assertIn("extends-cycle", _codes(result["errors"]))
+            result = lint(child.replace("./parent-corp.md", "./missing.md"), str(target))
+            self.assertIn("extends-parent-not-found", _codes(result["errors"]))
+            self.assertEqual(target.read_bytes(), original)
+            self.assertEqual(parent.read_bytes(), parent_before)
 
 
 class TestChainSuccess(unittest.TestCase):

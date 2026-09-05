@@ -46,12 +46,12 @@ Parse the first positional invocation argument. If it matches a verb below, load
 
 When a `DESIGN.md` exists at the project root, read it **before** writing any UI code: every color, font, spacing value, corner radius, and component style comes from this file — the YAML frontmatter tokens (normative values) or the prose explaining when and why to apply them.
 
-**No `DESIGN.md`? Step aside.** The default governance mode neither requires nor creates one. It never blocks an edit for lack of a DESIGN.md and never invents a design direction — that is `/award-design`'s job (it forces a universe, writes the DESIGN.md up front, then builds the frontend under it). So:
+**No `DESIGN.md`? Step aside.** The default governance mode neither requires nor creates one. It never blocks an edit for lack of a DESIGN.md and never invents a design direction — `/award-design` commits the direction and writes the DESIGN.md and build ladder; `/frontend-dev` or the authorized executor implements it. So:
 
-- Building or editing UI with no file → proceed. For a designed build, point to `/award-design`, which authors the DESIGN.md up front and builds the frontend under it; everyday UI work belongs to `/frontend-dev` when installed.
+- Building or editing UI with no file → proceed. For a designed build, point to `/award-design` for direction, then `/frontend-dev` or the authorized executor for implementation; everyday UI work belongs to `/frontend-dev` when installed.
 - A bare token scaffold is needed now and `/award-design` is unavailable or not selected → `/design-system init [archetype]` is a minimal fallback, not the primary path.
 
-Phrase the pointer as an optional handoff, never as a prerequisite: "Design System imposes no prerequisite here; use `/award-design` if you want it to define and build the new visual direction, or `/frontend-dev` for everyday UI work, if installed." Do not say the user must create DESIGN.md before editing.
+Phrase the pointer as an optional handoff, never as a prerequisite: "Design System imposes no prerequisite here; use `/award-design` to define a new visual direction, then `/frontend-dev` to build it, if installed." Do not say the user must create DESIGN.md before editing.
 
 If a legacy Stitch-format `DESIGN.md` is detected (9 numbered sections, `## Agent Prompt Guide` heading, no YAML frontmatter): suggest `/design-system migrate <path>` to port it before proceeding.
 
@@ -138,7 +138,7 @@ When no subcommand is matched — either activated from its description during a
 
 The default governance mode does not author a design file from scratch. When the user explicitly wants a DESIGN.md, it is born one of two ways:
 
-1. **`/award-design` authors it** (preferred) — it forces a universe and writes the full DESIGN.md up front, then builds the frontend under it. design-system governs the result from there.
+1. **`/award-design` authors it** (preferred) — it commits the direction and writes the full DESIGN.md and build ladder. `/frontend-dev` or the authorized executor builds it; design-system governs the result.
 2. **`/design-system init [archetype]`** — a minimal token scaffold, only when `/award-design` is unavailable or not selected and a bare file is needed now.
 
 Either way, once the file exists, the change flow below applies. Atmosphere scores (Density, Variance, Motion) live in Overview prose, not YAML.
@@ -190,7 +190,7 @@ Examples of token-affecting changes:
 
 ### Re-architecting
 
-A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Recommend or hand off to `/award-design` when the user wants that designed build — it writes a fresh DESIGN.md and builds under it. If `/award-design` is unavailable or not selected, design-system steps aside and does not block the edit. Any existing DESIGN.md is replaced whole, never patched in place.
+A fundamental visual change (new archetype, different atmosphere, complete restyle) is a new design, not a token update. Recommend or hand off to `/award-design` for the new direction, DESIGN.md and build ladder, then `/frontend-dev` or the authorized executor for implementation. If `/award-design` is unavailable or not selected, design-system steps aside and does not block the edit. Any existing DESIGN.md is replaced whole, never patched in place.
 
 ## Gotchas
 

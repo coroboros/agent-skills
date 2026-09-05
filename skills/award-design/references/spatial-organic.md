@@ -66,7 +66,7 @@ gsap.to('.hero-title', {
 });
 ```
 
-The native equivalent — a registered axis interpolated across a scroll view-range under `animation-timeline` — is the archetype's own signature move and runs off the main thread; see *Variable-font optical-axis scroll-morph* in the *Effect palette*.
+The native equivalent binds an axis to a scroll view-range through `animation-timeline`; see *Variable-font optical-axis scroll-morph* in the *Effect palette*. Native timing does not make glyph changes compositor-only: measure their rendering cost on the target device.
 
 ## Color
 
@@ -153,21 +153,25 @@ The Doppelrand technique (nested concentric containers — outer shell with hair
 
 Native-first. Browser APIs over JS libraries where possible.
 
-### CSS Scroll-Driven (off main thread, guaranteed 60fps)
+### CSS Scroll-Driven (decorative motion)
+
+Use native timelines for decorative layers; content reveals follow `skeletons.md` §G so text stays visible after entry. Compositor eligibility depends on the animated properties, not the timeline API. Prefer transform/opacity and measure effects such as blur or font-axis changes ([Chrome guidance](https://developer.chrome.com/docs/css-ui/scroll-driven-animations)).
 
 ```css
-/* Base state: fully visible — the pre-animation state lives only inside the
-   guard, so no-timeline browsers and reduced-motion users get revealed content
-   (motion-palette.md). */
+/* A decorative layer, separate from readable content. Unsupported timelines
+   and reduced motion retain the composed static appearance. */
+.organic-decor { opacity: 1; transform: none; filter: none; }
 @supports (animation-timeline: view()) {
-  .organic-reveal {
-    animation: emerge linear both;
-    animation-timeline: view();
-    animation-range: entry 0% entry 80%;
-  }
-  @keyframes emerge {
-    from { opacity: 0; transform: translateY(40px) scale(0.97); filter: blur(4px); }
-    to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  @media (prefers-reduced-motion: no-preference) {
+    .organic-decor {
+      animation: emerge linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 80%;
+    }
+    @keyframes emerge {
+      from { opacity: 0; transform: translateY(40px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
   }
 }
 ```
@@ -218,7 +222,7 @@ Organic easing — nothing linear, nothing mechanical.
 
 ## WebGPU (when 3D is needed)
 
-Three.js r171+ with automatic WebGL fallback. TSL (Three Shading Language) for shader logic in JS/TS:
+Check `stack-facts.md` for current Three.js renderer support, initialization and WebGL2 fallback. TSL (Three Shading Language) expresses shader logic in JS/TS; the complete initialization and poster lifecycle is `skeletons.md` §E:
 
 ```javascript
 import { WebGPURenderer } from 'three/webgpu';
@@ -269,7 +273,7 @@ Corpus — Igloo Inc (Awwwards SOTD 2024-07 + Site of the Year 2024 + Developer 
 
 **Text**
 - **Bespoke display as the artwork** — the typeface + scale is the signature before any motion: Exo Ape in Times, Granola in Melange, Cyd Stumpel in condensed Bueno, Arc in Marlin. Rotate off the overexposed kit sans. (≥4 sites.)
-- **Variable-font optical-axis scroll-morph** — the archetype's signature text move and its cheapest continuation channel: bind a registered variable axis (`wght`, `opsz`) to an element's scroll view-range through native `animation-timeline`, so `font-variation-settings` interpolates across `animation-range: entry X entry Y` — a display heading morphs on its own named timeline, the footer wordmark runs the axis on another. Reversible by construction, off the main thread, degrading to the static authored axis with no timeline support and under reduced motion. No other text mechanic executes it (the masked line reveal, the per-char assemble, the emphasis fill and the key-term accent are discrete or opacity effects). Cyd Stumpel carries it on its display title and its footer wordmark (mechanic winner-verified; the axis and amplitudes are unverified — pick a registered axis and tune the range to the face). The generic technique is verified through Codrops and Carmen Ansio.
+- **Variable-font optical-axis scroll-morph** — the archetype's signature text move and its cheapest continuation channel: bind a registered variable axis (`wght`, `opsz`) to an element's scroll view-range through native `animation-timeline`, so `font-variation-settings` interpolates across `animation-range: entry X entry Y` — a display heading morphs on its own named timeline, the footer wordmark runs the axis on another. Reversible by construction, with glyph-rendering cost that must be measured; use the static authored axis without timeline support and under reduced motion. No other text mechanic executes it (the masked line reveal, the per-char assemble, the emphasis fill and the key-term accent are discrete or opacity effects). Cyd Stumpel carries it on its display title and its footer wordmark (mechanic winner-verified; the axis and amplitudes are unverified — pick a registered axis and tune the range to the face). The generic technique is verified through Codrops and Carmen Ansio.
 - **Per-char scrub reveal** (hero only) — SplitText chars stagger in on scroll: `stagger: 0.02`, `duration: 0.25→0.2`, `ease: power2.out` (enter) / `power2.in` (exit), section hold `0.5–1.0`, section scrub `0.5`. Reserve for one or two hero lines. (Codrops build params; corroborated by Sculpting Harmony's kinetic type, SOTM Nov 2023, media-only.)
 - **Cinematic scroll scrub** — a pinned scene scrubbed to scroll on hand-tuned eases: `cinematicSilk 0.45,0.05,0.55,0.95`, `cinematicSmooth 0.25,0.1,0.25,1`, `ScrollSmoother { smooth: 4, smoothTouch: 0.1 }`, container `500vh–900vh`, text-overlay scrub `0.5–0.8`. Only when a real 3D/WebGL scene carries the story. (Igloo Inc, SOTY 2024 + Codrops.)
 
@@ -316,12 +320,12 @@ Route on the brief's declared inputs, never on a taste read: a real 3D or nature
 
 **Hero architectures** — *In-engine fold* (Igloo, shipped): the fold is the live scene; monospace HUD corners (wordmark, mission, scroll cue, sound toggle, node-graph) from frame ~0; no CTA. *Wordmark-marquee + portrait fold* (Cyd, winner-verified): repeating Bueno-VF wordmark strip overflowing the viewport edge → utility row + serif nav → portrait mounted on a periwinkle `#8082F8` clip-path blob + serif role headline; beats: badge sticker `scale-in` .4s @.2s `--bouncy-ease`; a second sticker scroll-retimed via `animation-timeline` (mechanics winner-verified, the ranges and durations illustrative). *Full-bleed photo + bottom-display fold* (Exo Ape, winner-verified): transparent nav → intro upper-left → stacked `Digital/Design/Experience` H1 (authored `25.6vw`) → "Scroll to explore" + custom cursor. *Designed WebGL enter* (OceanX, verified tag; Minh Pham, Iventions): asset-heavy scenes enter through an "Intro Transition WebGL" that resolves into the world instead of cutting. Shared law: no filled fold CTA — the call is a scroll cue or an email link. Either branch must be alive at rest once entered — a running shader, drifting orbs, a breathing idle — because a motion-dead, pointer-dead spatial hero is this archetype's first-impression defect.
 
-**Section chain** — the winner-verified order with its intensity map and the state each section owes. Build each role as its row describes; never improvise the hero or a section layout outside the chain.
+**Section chain** — example roles, intensity targets and states for this register. Choose the applicable rows and derive their order and form from the brief's story; this is a reference composition, not a mandatory page template. Intensity numbers are authoring targets, not measured jury scores.
 
 | role | form | pairs | intensity | state it owes |
 |---|---|---|---|---|
 | hero | wordmark-marquee + portrait fold (warm-organic); in-engine HUD fold (WebGL); giant-type index grid (density) | mark per-char \| per-line masked reveal; media clip-path reveal; ground WebGL shader ground \| ambient orb field; sticker variable-axis scroll-morph | 8 | the substrate is alive on the fold — a running scene, drifting orbs, or procedural noise, never a static frame; no filled CTA (scroll cue or email link); the warm register overflows the wordmark strip and mounts the portrait on a clip-path blob; the WebGL register runs HUD corners from frame ~0 for a single scene, or a designed enter-gate for asset-heavy Three.js |
-| continuation-substrate | WebGL shader ground; ambient orb field (no-3D ground); organic clip-path section edges; horizontal scroll chain | variable-axis scroll-morph; smooth wheel; ambient idle; wordmark-marquee drift; scroll-velocity skew | 7 | the persistent layer running under every section, reversible and compositor-only: the WebGL scene drifts and its transitions are the seams; the no-3D ground drifts 2–3 large-radius OKLCH orbs on 15–25s cycles behind glass while the variable-axis morph rides scroll view-ranges |
+| continuation-substrate | WebGL shader ground; ambient orb field (no-3D ground); organic clip-path section edges; horizontal scroll chain | variable-axis scroll-morph; smooth wheel; ambient idle; wordmark-marquee drift; scroll-velocity skew | 7 | the persistent layer running under every section, reversible and verified against the target frame budget: the WebGL scene drifts and its transitions are the seams; the no-3D ground drifts 2–3 large-radius OKLCH orbs on 15–25s cycles behind glass while the variable-axis morph rides scroll view-ranges |
 | proof / work-grid | morph-tile grid; index row list (spotlight); card list; native scroll-snap swipe (mobile) | border-radius morph + crossfade (fallback contained zoom 1.1); row spotlight-dim; spotlight sharpen (spotlit register) | 7 | figure hover is a radius morph rounder plus a resting graphic crossfading to the full image and a caption slide-up — geometry carries it, no accent, never a 1.02–1.03 twitch; the spotlit register sharpens the hovered figure while siblings blur and dim; index rows light an accent rule and surface metadata, siblings to ~45% |
 | feature / understanding | text/media split; type-as-image (role band) | h2 per-char masked reveal; prose emphasis fill; terms key-term accent; media clip-path reveal \| grayscale-to-colour curtain wipe | 5 | the rest beat — but the substrate behind it still moves, the orbs drift, the scene does not park; headings enter masked or per-char once; key terms carry the accent on first view; no pointer hover on prose |
 | spectacle peak | delegated WebGL scene; morph-tile grid (warm fold-peak) | WebGL shader ground; dolly zoom; scramble-decode (engine chrome) | 10 | the **one** dominant moment — Igloo's interactive particle simulation (colour-by-speed, glow on shape-shift, sound-synced), a documentary's deepest chapter, or the unverified type-index route morph on click; capped at one, placed late in the engine and documentary registers and at the fold in warm-organic; fully driven, never a static frame |
@@ -338,7 +342,7 @@ Route on the brief's declared inputs, never on a taste read: a real 3D or nature
 
 **Imagery art direction** — one grade page-wide or one deliberate split; never stock. Igloo: synthetic luminous ice over greyscale snow in fog. OceanX: deep-ocean grade, depth-layered, an environment rather than a backdrop (Africa's deep-sea frontiers, the Coral Triangle). Exo Ape: architecture photo + film, blue-hour desaturated, full-bleed, sand frame. Cyd: warm real portrait on periwinkle `#8082F8` clip-path shapes, split with pixel-art, stickers, type-as-image. Iventions and Minh Pham: the lighting is the art direction — each project lit as an installation, the grade coming from the rig. Sculpting Harmony (media-only): archival + 3D, pop-color chapters. In the unverified type-index register, greyscale photography in thin vertical bands over pure black (Aristide Benoist, out-of-window).
 
-**Mobile / touch** — pointer-driven classes go dormant on touch (pointer-parallax, the conic border shine, the spotlight sharpen, magnetic, the DOM follower, liquid-glass refraction), and depth arrives by scroll instead: native `animation-timeline` reveals and the variable-axis morph both run on touch, as do the clip-path reveals, so the archetype keeps its identity without a pointer. Horizontal-Layout chains convert to native horizontal swipe-snap rather than a pinned scrub; a diegetic ship or path nav degrades to an anchored nav + progress indicator. The WebGL substrate is reconsidered, not dropped — lower poly, fewer orbs, progressive quality, a static frame under low power. Glass keeps its opaque fallback and `backdrop-filter` stays only on fixed and sticky surfaces; ambient orbs sit on fixed `pointer-events: none` layers, never on scrolling ones. Press-class controls answer the tap with a 90–160ms flash floor, since the pointer displacement is dormant. Galleries become native scroll-snap swipe tracks riding OS momentum with tap-to-enlarge, the scored Mobile Excellence line. No follower cursor. `prefers-reduced-motion` freezes the scene and orbs to a legible frame and swaps scrubbed media to a poster — Cyd ships its whole motion set on View Transitions + native `animation-timeline`, mobile-safe by construction.
+**Mobile / touch** — pointer-driven classes go dormant on touch (pointer-parallax, the conic border shine, the spotlight sharpen, magnetic, the DOM follower, liquid-glass refraction), and depth arrives by scroll instead: native `animation-timeline` reveals and the variable-axis morph both run on touch, as do the clip-path reveals, so the archetype keeps its identity without a pointer. Horizontal-Layout chains convert to native horizontal swipe-snap rather than a pinned scrub; a diegetic ship or path nav degrades to an anchored nav + progress indicator. The WebGL substrate is reconsidered, not dropped — lower poly, fewer orbs, progressive quality, a static frame under low power. Glass keeps its opaque fallback and `backdrop-filter` stays only on fixed and sticky surfaces; ambient orbs sit on fixed `pointer-events: none` layers, never on scrolling ones. Press-class controls answer the tap with a 90–160ms flash floor, since the pointer displacement is dormant. Galleries become native scroll-snap swipe tracks riding OS momentum with tap-to-enlarge, the scored Mobile Excellence line. No follower cursor. `prefers-reduced-motion` freezes the scene and orbs to a legible frame and swaps scrubbed media to a poster — Cyd's native-API approach is a reference; verify support, reduced-motion behavior and performance on the actual target devices.
 
 **Variation** — this section chain is one legal costume of the archetype, never *the* skeleton. Structure is story-native: the body's sections derive from the universe's spine, then check against these roles for coverage — never the reverse. The axes serial winners measurably rotate between builds (21-artifact corpus, 5 studios): body content archetype and item counts, the one signature device (never reused across builds), the close mechanism, the hero medium, the index/HUD costume. What persists as DNA: type grammar, the motion register (the register itself, never the named reading/interaction kit — that kit is a device, rotated per build like the signature), annotation grammar as a form, engineering architecture. The same content archetype + item count + close mechanism recurring across two different-brand builds has zero winner precedent.
 

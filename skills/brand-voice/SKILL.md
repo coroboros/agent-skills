@@ -45,7 +45,7 @@ Parse the first positional token of `$ARGUMENTS`. If it matches a verb below, lo
 | `show` | Print the flat list of testable rules from the voice doc | [`steps/show.md`](./steps/show.md) |
 | (none) | See *Default workflow* below | (this file) |
 
-There is no `apply` subcommand. Application of the voice — rewriting prose to match it — is the consumer skill's job. The current consumer is `humanize-en -f BRAND-VOICE.md`, which calls `scripts/extract_rules.py --full` for chain-resolved flat rules. Any other skill that needs the voice contract follows the same path; alternative consumers can read the YAML frontmatter directly when their `allowed-tools` excludes Bash.
+There is no `apply` subcommand. Application of the voice — rewriting prose to match it — is the consumer skill's job. `humanize-en -f BRAND-VOICE.md` uses `scripts/extract_rules.py --resolved-json` so its semantic and mechanical passes share the effective mapping. Other consumers follow the same contract. Direct YAML is sufficient only for local rules without `voice.extends`; unavailable resolution of an inherited voice remains an explicit gap.
 
 ## Canonical file location
 
@@ -122,7 +122,7 @@ The Notion MCP is authorised through Claude Code's permission layer, not via thi
 
 Full schema, field constraints, manual-section markers, and section-heading normalisation rules: [`references/canonical-format.md`](./references/canonical-format.md). A complete reference example: [`references/example-chanel.md`](./references/example-chanel.md).
 
-The split is deliberate. Tooling reads YAML; humans read prose. Consumers like `humanize-en -f BRAND-VOICE.md` load only the rule block (50–150 lines via `extract_rules.py --full`), not the full doc, so the voice doc can be richly explained without bloating downstream contexts.
+The split is deliberate. Tooling reads YAML; humans read prose. Consumers like `humanize-en -f BRAND-VOICE.md` load the complete effective mapping via `extract_rules.py --resolved-json`, while `--full` is the readable inspection format. The source doc can carry richer explanations without requiring every consumer to load all prose.
 
 ## Pipeline integration
 
@@ -178,7 +178,7 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 ## Rules
 
 - **Canonical file is git-versioned.** Treat `./BRAND-VOICE.md` as a code asset. Diff before merge. The git history is the audit trail.
-- **Lint before write.** Every `extract` and `update` runs `voice_lint.py` on the synthesised content before the user is asked to approve. RED never reaches disk.
+- **Lint before write.** Every `extract` and `update` validates candidate content with `voice_lint.py --target-path <destination>` before the authorized write. RED never reaches the canonical target; audit/propose remains read-only.
 - **Respect the requested mode.** `extract` refuses an existing target and routes a requested refresh to `update`. An authorized `update` applies a validated diff while preserving manual sections; audit/propose and `diff` remain read-only. A source path alone grants no write authority.
 - **Manual sections are sacred.** A section marked `<!-- manual: true -->` is preserved verbatim by `update`. Do not re-synthesise.
 - **Resolve by source authority.** Apply the user's explicit correction or designated authoritative source and report the resolution. Ask only for materially different identities or rules whose authority remains unresolved; a routine requested value refresh needs no second confirmation.

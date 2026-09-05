@@ -2,8 +2,6 @@
 
 Every version, package name, Baseline status, support percentage, and performance threshold this skill cites lives here, once, with the date it was last checked. No other reference may state one of these numbers — they point here, and a number quoted from memory anywhere else is a bug.
 
-The rule is not yet fully enforced across the tree: `ingredients/web3d-for-sites.md`, `ingredients/ogl-shaders.md`, and three archetype references still carry their own Three.js / OGL figures, and `immersive-cinematic.md`, `experimental.md`, and `spatial-organic.md` still say `r171+` where the row below says r167. Those are open duplicates, tracked, not sanctioned.
-
 ## How to read a row
 
 - **checked** — when the row was last verified. `STACK-FACTS-STALE` (`scripts/preflight_scan.py`) emits a REVIEW notice once any row passes 180 days.
@@ -42,7 +40,7 @@ The rule is not yet fully enforced across the tree: `ingredients/web3d-for-sites
 | Three.js WebGPU minimum revision | **r167** — the `./webgpu` export and async `Renderer.init()` both landed there (absent in 0.166.0) | checked: 2026-07 | fetch | three.js Migration Guide · npm exports diff |
 | WebGPURenderer maturity | **still officially experimental** — "greatly improved" but not graduated. Ship it behind a poster and the WebGL2 fallback | checked: 2026-07 | fetch | threejs.org/manual (WebGPURenderer) |
 | WebGPURenderer init | `await renderer.init()` before the first render — requests the adapter, or falls back to WebGL2 | checked: 2026-07 | fetch | threejs.org/manual |
-| React Three Fiber / drei | React-path only (TanStack Start); never on an Astro path | checked: 2026-07 | trust | r3f.docs.pmnd.rs |
+| React Three Fiber / drei | Requires a React rendering context; use only where the existing project supplies one, including an intentional React island. Do not add React solely for a copied example | checked: 2026-09 | trust | r3f.docs.pmnd.rs/getting-started/introduction |
 | OGL | the light shader path when Three.js is more engine than the signature needs | checked: 2026-07 | trust | github.com/oframe/ogl |
 | Three.js bundle size | ~150 KB — 2025 figure, **not re-measured**; tree-shaking moves it a lot | checked: 2026-07 | fetch | pkg-size / bundlephobia |
 | OGL bundle size | ~29 KB — 2025 figure, **not re-measured** | checked: 2026-07 | fetch | pkg-size / bundlephobia |
@@ -106,7 +104,7 @@ Tiers per `modern-web-baseline.md`: **Widely** → adopt unguarded · **Newly** 
 | Font delivery | self-host (or the framework's font module) + `font-display: swap` + `<link rel="preload" as="font" crossorigin>` | checked: 2026-07 | trust | web.dev/font-best-practices |
 | Google Fonts `<link>` in production | a third-party request on the critical path and a GDPR exposure — never | checked: 2026-07 | trust | `foundations.md` Performance |
 | Above/below-fold image hints | `fetchpriority="high"` above the fold, `loading="lazy"` below; explicit `width`/`height` on every `<img>` | checked: 2026-07 | trust | web.dev/lcp |
-| GPU-composited property set | `transform` · `opacity` · `filter` · `backdrop-filter` — animate only these | checked: 2026-07 | trust | developer.chrome.com |
+| Animation cost | Prefer `transform` and `opacity`; compositor execution depends on the effect and rendering context. Measure filters, backdrop filters, and other animated properties on target devices | checked: 2026-09 | trust | developer.chrome.com/docs/css-ui/scroll-driven-animations |
 | Audit viewport range | 320–1920 CSS px; 1920 is the full-bleed resolution floor the scanner measures against | checked: 2026-07 | trust | `scripts/preflight_scan.py` IMG-NATIVE-RES |
 
 ## Refreshing this file

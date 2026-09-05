@@ -114,14 +114,14 @@ When in doubt, keep the original token and only adjust the connective tissue aro
 
 Default mode emits the rewrite and patterns removed. Under `-f`, add coverage for every resolved brand rule, separating mechanical results from semantic review. File edits include their diff and validation result (`clean | residuals | regression`). Audit/propose includes a diff preview without applying it. An invoking skill inherits the user's existing authorization for this target and mode; it cannot create authority for a new target or action.
 
-Full templates with the canonical column order and the approval contract: [`references/output-formats.md`](./references/output-formats.md).
+Full templates with the canonical column order and authorization boundaries: [`references/output-formats.md`](./references/output-formats.md).
 
 ## Rules
 
 Everything not listed below is already enforced by *Process* and *Preservation rules* above.
 
 - **Never** inject first-person voice, opinions, or colloquial hedges into neutral registers (docs, specs, formal READMEs, release notes). The source voice wins (default mode); under `-f`, the brand voice wins; only the AI tells and brand violations go.
-- **Never** drop a sentence entirely unless it is pure chatbot artifact (e.g., "I hope this helps!", "Let me know if you'd like me to expand on any section"). Every other sentence gets rewritten, not deleted.
+- Delete a whole sentence only when it is pure chatbot artifact or generic promotional filler with no substantive claim, such as pattern 25's unsupported positive conclusion. Preserve and rewrite every substantive claim, including uncertain or unattributed claims; lack of a source alone never authorizes deletion.
 - **Iteration is bounded** — default 1 pass; under `-f`, auto-iterate up to 3 (`detect → rewrite → validate`). Use `--iterate <N>` to override.
 - **Match the source register** — a commit message stays terse, a release note stays bulleted, a README paragraph stays prose.
 - **Coverage report is the contract** under `-f` — every YAML rule has a row, even with 0 hits. Skipping a rule from the report is a hard failure: the audit either ran or it didn't.

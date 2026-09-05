@@ -16,16 +16,36 @@ Archive the current `TRACK.md` and emit a refined one based on listener feedback
 
 ### 2. Determine next version number
 
-Count files matching `versions/v*.md` in the project folder. Next version is `v{N+1}` where `N` is the count. First revision archives the initial as `v1`.
+Read existing names matching `v<number>.md` in `versions/`. Next version is `v{N+1}` where `N` is the greatest numeric suffix, or zero when none exists. Gaps and unrelated filenames do not reuse a prior number. First revision archives the initial as `v1`.
 
 ### 3. Archive the current take
 
-Copy current `TRACK.md` to `versions/v{N+1}.md` verbatim. Use `cp`, not `mv` — the new TRACK.md will overwrite in step 8, and the archive must exist before that happens.
+Copy current `TRACK.md` to `versions/v{N+1}.md` verbatim with exclusive creation. The canonical take stays in place until step 8. Use the standard library's `xb` mode so an existing archive can never be overwritten, including a destination created concurrently:
 
 ```bash
-mkdir -p {path}/versions
-cp {path}/TRACK.md {path}/versions/v{N+1}.md
+python3 - "{path}" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+track_dir = Path(sys.argv[1])
+content = (track_dir / "TRACK.md").read_bytes()
+versions = track_dir / "versions"
+versions.mkdir(exist_ok=True)
+numbers = [int(match.group(1)) for entry in versions.iterdir()
+           if (match := re.fullmatch(r"v([0-9]+)\.md", entry.name))]
+archive = versions / f"v{max(numbers, default=0) + 1}.md"
+with archive.open("xb") as output:
+    try:
+        output.write(content)
+    except OSError:
+        archive.unlink()
+        raise
+print(archive)
+PY
 ```
+
+Keep the emitted archive path for the revision report. Any archive error stops the revision before the canonical file changes; a collision is reported, never retried by overwriting it.
 
 ### 4. Parse feedback into change axes
 

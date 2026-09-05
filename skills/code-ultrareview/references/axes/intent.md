@@ -21,7 +21,7 @@ Reconcile planning artifacts (forge plans, apex plans, PR body, issue body, `doc
 | `GAP` | Planning artifact specified X; the diff does not deliver X | Medium |
 | `SCOPE-ADD` | The diff includes X; planning artifact is silent on X | Low |
 | `DECISION-OVERRIDE` | Planning resolved decision X; the diff implements Y instead | Medium |
-| `CONSISTENT` | Claim verified in the diff (no finding row; counted in coverage) | — |
+| `CONSISTENT` | Claim verified in the diff (no finding row; the result schema does not emit a per-claim count) | — |
 
 Severity for `GAP` escalates to High when the artifact is a forge plan AND the claim is a numbered acceptance criterion.
 

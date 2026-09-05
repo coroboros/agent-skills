@@ -1,7 +1,7 @@
 ---
 name: suno-produce
 description: Create and revise Suno v5.5 prompt artifacts from a song, track or album brief. Produces TRACK.md, ALBUM.md for explicit multi-track work, and optional ARTIST.md identity. Validates prompt fields and preserves supplied lyrics. Artifact-only; audio generation stays in Suno. Pure lyric writing and audio post-production use other skills.
-when_to_use: When the user wants to create a song, track, EP, or album with Suno v5.5. Routes via `$ARGUMENTS` first token — `create` (default — synthesise TRACK.md from a brief, optionally ALBUM.md when album mode is detected), `revise <path> "<feedback>"` (archive current TRACK.md to versions/, emit a refined one), `validate <path>` (deterministic linter — char limits, descriptor counts, slider ranges, metatag canon, copyright/artist-citation contract). Triggers on "make a song", "write me a track", "produce a song", "song about", "lyrics for", "Suno prompt", "make an album", "EP about", "v5.5 prompt", "/suno", "/track". Skip when the user wants pure lyric writing without a Suno target (defer to a generic writing skill); when the request is broad music research (run `/forge` first then `-f` the result into this); when the request is audio post-production like loops or mastering (defer to `/audio-loop`).
+when_to_use: When the user wants a Suno v5.5 song, track, EP or album prompt. First token selects create (default), revise <path> "<feedback>", or validate <path>. Triggers on "make a song", "write me a track", "produce a song", "song about", "lyrics for Suno", "Suno prompt", "make an album", "EP about", "/suno", "/track". Pure lyrics without a Suno target belong to a writing skill. Broad music research may use /forge, then return its findings as brief context. Website audio looping belongs to /audio-loop; mastering needs another supported audio capability. Neither is Suno prompt production.
 argument-hint: "[create|revise|validate] <description-or-path> [-f ARTIST.md]"
 license: MIT
 compatibility: "Requires filesystem access and Python 3.10+ for artifact validation. Uses the host's supported question mechanism for consequential missing information. Produces local prompts; does not require or call a Suno API."
@@ -148,7 +148,7 @@ The default exists to avoid silent state-modifying actions. Every write goes thr
 ## When to defer to another skill
 
 - **Lyric craft for a Suno track** (structure, rhyme, meter, hook, prosody) → lives here; see [`references/songwriting-craft.md`](./references/songwriting-craft.md). **Non-musical prose with no Suno target** (essays, marketing copy) → a generic writing skill. The lyric format here includes bracket metatags and cues that read awkwardly elsewhere.
-- **Broad music research** ("what's working in 2026 indie folk") → `/forge`, then `-f` the brief back into this skill.
+- **Broad music research** ("what's working in 2026 indie folk") → `/forge` when available, then use its findings as the ordinary brief/context. `-f` remains reserved for ARTIST.md identity; a research report is not an artist binding.
 - **Audio post-production** → `/audio-loop` for web loops; Suno Studio 1.2 (Remove FX, Warp Markers) for everything else.
 - **Voice profile registration** — out of scope. Register Voices and train Custom Models in Suno's UI; this skill only consumes them via ARTIST.md.
 - **Brand-voice work** (writing voice for marketing copy) → `/brand-voice`. ARTIST.md is the music analog.

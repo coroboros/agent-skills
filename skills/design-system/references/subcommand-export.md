@@ -38,21 +38,21 @@ Convert DESIGN.md tokens to other token formats — Tailwind theme config or W3C
 
 ## Tailwind integration
 
-`export --format tailwind` produces a JSON config shaped for Tailwind's `theme.extend`. It fits naturally into Tailwind CSS v3's JS-config model:
+`export --format tailwind` produces `{ "theme": { "extend": { ... } } }` JSON. Merge its `theme.extend` map into the Tailwind CSS v3 config:
 
 ```typescript
 // tailwind.config.ts (Tailwind v3)
-import theme from './tailwind.theme.json';
+import exported from './tailwind.theme.json';
 
 export default {
   content: ['./src/**/*.{astro,tsx,ts,jsx,js}'],
   theme: {
-    extend: theme,
+    extend: exported.theme.extend,
   },
 };
 ```
 
-Tailwind **v4** uses a CSS-first `@theme` block instead of a JS config object, so the JSON isn't consumed directly. For v4, use the exported JSON as a reference when writing the `@theme` declaration, or run the DTCG export (`--format dtcg`) and transform via Style Dictionary into a v4-compatible CSS file. Either way, DESIGN.md stays the single source of truth.
+Tailwind **v4** uses a CSS-first `@theme` block instead of a JS config object. Use the exported JSON as reference when authoring or merging that CSS; this skill has no JSON-to-CSS generator. Preserve unrelated stylesheet content. DESIGN.md stays the single source of truth.
 
 For v3, merging under `extend` preserves Tailwind's defaults (responsive utilities, grayscale, built-in spacing) and layers DESIGN.md tokens on top. Replacing `theme:` directly (strict token-only) breaks those defaults — keep `extend` unless the user explicitly wants the strict path.
 
@@ -72,7 +72,7 @@ DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, 
 
 ```css
 @theme {
-  /* canonical (from `/design-system export tailwind` or hand-mirrored) */
+  /* canonical (manually mapped from the exported JSON) */
   --color-primary: #1a1c1e;
   /* extensions (mirror of YAML extension namespaces) */
   --duration-reveal-slow: 1200ms;
@@ -83,9 +83,9 @@ DESIGN.md extension namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, 
 }
 ```
 
-The exporter covers canonical token groups only. Verify generated output before merging it, then append the extension block from the mapping table when needed — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS variable per token.
+The exporter covers canonical token groups only and emits JSON. Author or update the CSS mirror from DESIGN.md and its mapping table — extensions follow flat naming (`shadows.lifted` → `--shadow-lifted`), one CSS variable per token. Never redirect the JSON export into a stylesheet.
 
-**Tailwind v3 (JS-config).** Same JSON output as canonical tokens; nest extension namespaces under `theme.extend` keys (`shadow:`, `aspectRatio:`, `screens:` for breakpoints, etc.) per Tailwind's documented mapping. Hand-merge the JSON if the CLI does not flatten them automatically.
+**Tailwind v3 (JS-config).** After importing the canonical map above, manually map needed extension tokens from DESIGN.md under the appropriate `theme.extend` keys (`boxShadow`, `aspectRatio`, `screens` for breakpoints, etc.). The exporter does not include these extensions.
 
 **After every export, run `/design-system audit-extensions <path>`** to confirm the mirror is in sync — catches missing CSS vars, orphans, and prose references that don't resolve. See `references/subcommand-audit-extensions.md`.
 

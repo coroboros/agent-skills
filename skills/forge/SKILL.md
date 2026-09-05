@@ -147,12 +147,12 @@ Frame the real problem, then research it wide.
 
 Diverge before converging, then stress-test.
 
-**Diverge.** Produce **≥3 approaches that differ in mechanism**, not three variants of one. State why each is structurally distinct. Vary them along a real axis — scope (small tweak vs. big bet), strategy (build vs. buy vs. defer), direction (add vs. remove). Include one approach that **removes or stops** something rather than adding, and one that **inverts the obvious default** ("what if we did the opposite?"). No scoring, no "recommended" yet.
+**Diverge.** Compare the viable approaches that differ in mechanism and state their structural differences. Use real axes — scope, build/buy/defer, add/remove — when the constraints permit them. Consider stopping or inverting the default where it could solve the accepted problem; do not manufacture alternatives to meet a count. A constrained binary choice stays binary. No scoring or recommendation yet.
 
-**Stress-test.** Pick a provisional leader and a runner-up, then:
+**Stress-test.** Pick a provisional leader and a viable runner-up when one exists, then:
 
 - **Premortem.** It's six months out and this approach failed badly. List every plausible cause in the past tense — imagining the failure as already certain surfaces more failure modes than "what could go wrong?".
-- **Steelman the runner-up.** Argue the second-best approach at full strength; name the condition under which it would win.
+- **Steelman the alternative.** Argue the runner-up at full strength and name when it would win. If constraints leave one viable option, test the load-bearing assumption that makes it viable.
 - Surface hidden costs (complexity, maintenance, vendor lock-in). Tag each load-bearing assumption: verified fact, assumption, or inherited convention. Ask whether a simpler path gets 80% of the value at 20% of the cost.
 
 Be rigorous, not contrarian. For a sharper angle — first-principles, inversion, reverse-brainstorm, elimination — read `references/thinking-tools.md` on demand.
@@ -161,7 +161,7 @@ Be rigorous, not contrarian. For a sharper angle — first-principles, inversion
 
 - **Round 1 — panel.** Assign independent critics when material uncertainty warrants them, each given the original user brief, constraints, source artifacts and evidence, the leader and runner-up summaries, and a distinct relevant lens, in priority order: overengineering/simplicity, load-bearing-assumption audit, the do-nothing/defer case, the runner-up's hidden-dimension win, and the premortem gaps. Select lenses for the actual risks. If subagents are unavailable or economy mode is selected, perform a separate self-check and report its lower independence.
 - **Barrier.** Merge findings by common cause and consequence. Resolve each with a demonstrated correction, cited counterevidence, or an explicit unresolved risk; the author's score cannot clear it.
-- **Round 2 — convergence.** Launch one fresh skeptic per surviving finding to kill it (refute in writing) or confirm it (escalate to a flip condition or a risk). Stop when findings degrade to nitpicks, or after 2 rounds total — forge emits a bounded plan, not code.
+- **Round 2 — convergence.** Recheck consequential unresolved findings where another pass can add evidence. Use a fresh skeptic when available and useful; economy mode or an unavailable agent uses a disclosed shared-context check. Correct, refute with evidence, or preserve the finding as unresolved with its decision consequence. Stop when no useful evidence remains or after two rounds; Forge emits a bounded plan, not code.
 
 Every finding flips the leader, is refuted with evidence, or is filed in Risks / Open questions — never silently dropped. For the lens skeletons and the convergence skeleton read `"$SKILL_DIR"/references/subagent-prompts.md`; for the panel roster, the dedup rule, the bounded-convergence loop, and the `{economy_mode}` skip, read `"$SKILL_DIR"/references/adversarial-panel.md`.
 

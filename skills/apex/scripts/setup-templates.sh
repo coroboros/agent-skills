@@ -64,10 +64,8 @@ mkdir -p "$OUTPUT_DIR"
 
 # Values pass through awk's ENVIRON[] array (literal strings, no escape
 # processing), eliminating both the sed s/// regex-metachar surface and the
-# awk -v backslash-escape interpretation. The inner loop uses index/substr
-# (literal substitution, never regex), so user-controlled TASK_DESCRIPTION can
-# carry any byte without breaking templating. W011 hardening surface flagged by
-# external scanners.
+# awk -v backslash-escape interpretation. Scan only the original template;
+# inserted values may contain literal template markers and are never rescanned.
 render_template() {
     local template_file="$1"
     local output_file="$2"
@@ -96,12 +94,23 @@ render_template() {
             keys[10] = "{{original_input}}";   vals[10] = ENVIRON["ORIGINAL_INPUT"]
         }
         {
-            for (i = 1; i <= 10; i++) {
-                while ((p = index($0, keys[i])) > 0) {
-                    $0 = substr($0, 1, p - 1) vals[i] substr($0, p + length(keys[i]))
+            rest = $0
+            rendered = ""
+            while (length(rest)) {
+                nearest = 0
+                selected = 0
+                for (i = 1; i <= 10; i++) {
+                    p = index(rest, keys[i])
+                    if (p > 0 && (nearest == 0 || p < nearest)) {
+                        nearest = p
+                        selected = i
+                    }
                 }
+                if (!selected) break
+                rendered = rendered substr(rest, 1, nearest - 1) vals[selected]
+                rest = substr(rest, nearest + length(keys[selected]))
             }
-            print
+            print rendered rest
         }
         ' "$template_file" > "$output_file"
 }

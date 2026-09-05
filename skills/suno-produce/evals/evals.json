@@ -28,6 +28,20 @@
       "prompt": "Create a Suno TRACK.md for an original hopeful folk song about returning home, with a repeatable hook and singable verses. Choose the arrangement details.",
       "expected_output": "Read references/songwriting-craft.md and references/track-schema.md; write original lyrics with deliberate stress, meter and hook structure, supply the required artifact fields, validate the candidate, and apply the authorized local result without a new planning checkpoint.",
       "files": []
+    },
+    {
+      "id": 5,
+      "name": "revision-preserves-gapped-archives",
+      "prompt": "Revise the supplied TRACK.md to soften the chorus. versions contains v1.md and v3.md with different earlier takes, plus v99-notes.md. Keep all prior takes.",
+      "expected_output": "Choose v4.md from the maximum numeric version and archive the current bytes using exclusive creation. Preserve every prior archive and the canonical take until the candidate validates. Report archive errors or collisions without overwriting anything.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "mastering-and-research-are-not-artist-bindings",
+      "prompt": "I have a forge music-research brief and a recorded song that needs mastering. Should I pass the research report as -f and use audio-loop for mastering?",
+      "expected_output": "Explain that -f binds ARTIST.md and the research findings belong in ordinary brief context. audio-loop is for matching website-loop work, not mastering; identify the missing appropriate audio capability without pretending to perform mastering or generating audio through Suno.",
+      "files": []
     }
   ]
 }

@@ -241,6 +241,44 @@ class TestJsonOutput(unittest.TestCase):
         self.assertGreater(doc["summary"]["errors"], 0)
 
 
+class TestExtensionBoundary(unittest.TestCase):
+    def run_case(self, yaml, css, *flags):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            design, stylesheet = root / "DESIGN.md", root / "globals.css"
+            design.write_text("---\n" + yaml + "\n---\n# Design\n")
+            stylesheet.write_text(css)
+            result = _run(str(design), "--css", str(stylesheet), "--json", *flags)
+            return result.returncode, json.loads(result.stdout)
+
+    def test_removed_namespace_keeps_its_css_orphans_visible(self):
+        css = "@theme {\n --shadow-lifted: 0 2px 4px black;\n --color-primary: blue;\n}\n"
+        code, report = self.run_case("colors:\n  primary: blue", css)
+        self.assertEqual(code, 0)
+        self.assertEqual([f["css_var"] for f in report["findings"]["warnings"]], ["--shadow-lifted"])
+        code, report = self.run_case("colors:\n  primary: blue", css, "--strict")
+        self.assertEqual(code, 1)
+        self.assertEqual([f["css_var"] for f in report["findings"]["errors"]], ["--shadow-lifted"])
+
+    def test_unsupported_declared_shapes_fail_explicitly(self):
+        for yaml in ("shadows: {lifted: x}", "shadows: []", "shadows: null",
+                     "shadows:\n    lifted: x", "shadows:\n  lifted:\n    value: x",
+                     "motion: {}\n  duration-reveal: 100ms"):
+            with self.subTest(yaml=yaml):
+                code, report = self.run_case(yaml, "@theme {\n --color-primary: blue;\n}\n")
+                self.assertEqual(code, 1)
+                self.assertEqual(report["status"], "invalid-extensions")
+                self.assertEqual(report["findings"]["errors"][0]["rule"], "extension-unsupported-shape")
+
+    def test_empty_and_absent_namespaces_remain_distinct_and_valid(self):
+        for yaml, namespaces in (("shadows: {}", ["shadows"]), ("colors:\n  primary: blue", [])):
+            with self.subTest(yaml=yaml):
+                code, report = self.run_case(yaml, "@theme {\n --color-primary: blue;\n --custom-widget: 1;\n}\n")
+                self.assertEqual(code, 0)
+                self.assertEqual(report["extensions_found"], namespaces)
+                self.assertEqual(report["summary"], {"errors": 0, "warnings": 0, "infos": 0})
+
+
 class TestPython3Required(unittest.TestCase):
     """The wrapper must check for python3 availability and emit a clean
     error when missing. Verified by inspecting the wrapper source — running

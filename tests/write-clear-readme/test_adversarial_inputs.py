@@ -93,9 +93,27 @@ class TestAnchorResolutionEdgeCases(unittest.TestCase):
             "Links: [first](#setup), [second](#setup-1).\n"
         )
         report = audit(text)
-        # Whether the implementation supports auto-disambiguation or not,
-        # the audit must not crash on the duplicate.
-        self.assertIn("anchors", report)
+        self.assertEqual(report["anchors"]["unresolved"], [])
+
+    def test_fenced_heading_cannot_create_anchor(self):
+        for fence, closing in (("```md", "```"), ("~~~~md", "~~~~"), ("````md", "````"),
+                               ("```md", "")):
+            with self.subTest(fence=fence, closing=closing):
+                report = audit(f"# Demo\n\n[Jump](#ghost)\n\n{fence}\n## Ghost\n{closing}\n")
+                self.assertEqual(report["anchors"]["unresolved"], [{"line": 3, "anchor": "ghost"}])
+
+    def test_suffixed_heading_collisions_keep_distinct_targets(self):
+        report = audit("## Usage\n\n## Usage\n\n## Usage-1\n\n"
+                       "[first](#usage) [second](#usage-1) [third](#usage-1-1)\n")
+        self.assertEqual(report["anchors"]["unresolved"], [])
+
+    def test_inline_code_in_heading_still_contributes_to_anchor(self):
+        report = audit("## Using `run`\n\n[Usage](#using-run)\n")
+        self.assertEqual(report["anchors"]["unresolved"], [])
+
+    def test_example_links_do_not_create_findings(self):
+        report = audit("# Demo\n\n```md\n[Example](#missing)\n```\n\n`[inline](#missing)`\n")
+        self.assertEqual(report["anchors"]["unresolved"], [])
 
     def test_anchor_with_unicode_heading_handled(self):
         """A heading with unicode (Café Notes) — the link must use the

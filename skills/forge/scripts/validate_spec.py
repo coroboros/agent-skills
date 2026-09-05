@@ -9,7 +9,7 @@ Checks:
   - One or more workstreams (### WS-N: headings under ## Workstreams)
   - Each workstream has Priority (P0/P1/P2) and Complexity (S/M/L/XL)
   - Each workstream has a non-empty Acceptance criteria block
-  - Dependencies reference real workstream IDs
+  - Workstream IDs are unique; dependencies reference real IDs
   - No cycles in the dependency graph
 
 Exit:
@@ -155,6 +155,16 @@ def main():
     if count == 0:
         print("RESULT: error=no-workstreams-section")
         return 1
+    occurrences = {}
+    for index, (ws_id, _) in enumerate(blocks, start=1):
+        if ws_id in occurrences:
+            print(
+                f"  {ws_id}: duplicate workstream ID in blocks "
+                f"{occurrences[ws_id]} and {index}", file=sys.stderr,
+            )
+            print("RESULT: error=duplicate-workstream-id")
+            return 1
+        occurrences[ws_id] = index
     known_ids = {ws_id for ws_id, _ in blocks}
     schema_errors = []
     for ws_id, block in blocks:

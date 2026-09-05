@@ -34,7 +34,7 @@ The sync script and the parity test read this list:
 - frontend-dev
 - oneshot
 
-Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design authors a DESIGN.md and the build ladder, then builds each ladder chunk as code, so it is declared, not excluded.
+Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design directs the design, proposes technical implementation in its build ladder and reviews the result; frontend-dev implements the chunks. The block applies to those technical proposals and reviews without making award-design the builder.
 
 ## Excluded skills (with reason)
 

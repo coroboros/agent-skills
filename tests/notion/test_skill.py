@@ -132,7 +132,7 @@ class TestGotchas(unittest.TestCase):
         from quietly removing the actionable detail."""
         body = _body()
         keywords = (
-            "selection_with_ellipsis",          # gotcha #1
+            "content_updates[].old_str",        # gotcha #1: active exact-match field
             "bottom of the parent page",        # gotcha #2
             "100 rows",                         # gotcha #3
             "current tool set",                 # gotcha #4 (capability discovery)

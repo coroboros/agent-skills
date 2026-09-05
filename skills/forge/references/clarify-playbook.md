@@ -48,4 +48,4 @@ The deep grill is the exception, never the default. Without an explicit signal, 
 - Asking before reading prior context.
 - Multiple Q&A rounds — the user spent the budget for thinking on answering procedural questions. The opt-in deep grill above is the deliberate exception, gated by an explicit user signal.
 - Asking yes/no questions disguised as open-ended — "should we use OAuth?" should be a decided call surfaced as an assumption, not a question.
-- Asking what the model can decide — taste calls, library picks, file layout, naming. Those are the engineering judgment calls Phase 3 owns.
+- Asking what the model can decide within scope — reversible library picks, file layout, naming. Material product, business, brand, or taste choices remain user-owned unless the user has already decided or delegated them.

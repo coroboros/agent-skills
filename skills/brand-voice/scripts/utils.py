@@ -389,8 +389,11 @@ def canonical_file_id(path):
 _VOICE_EXTENSIONS = (".md", ".mdx", ".markdown")
 
 
-def resolve_extends_chain(start_path, max_depth=MAX_EXTENDS_DEPTH):
+def resolve_extends_chain(start_path, max_depth=MAX_EXTENDS_DEPTH, *, root_data=None):
     """Walk the `voice.extends` chain from `start_path`.
+
+    `root_data` supplies candidate frontmatter at the intended `start_path`
+    identity without writing it there. Ancestors still come from disk.
 
     Returns an ordered list of `(Path, frontmatter_dict)` tuples, **root-first**
     (so callers can iterate parent → child).
@@ -407,27 +410,28 @@ def resolve_extends_chain(start_path, max_depth=MAX_EXTENDS_DEPTH):
     depth = 0
 
     while True:
-        if not current.is_file():
-            raise ExtendsError("extends-parent-not-found", current)
-
         file_id = canonical_file_id(current)
         if file_id in seen_ids:
             raise ExtendsError("extends-cycle", current)
         seen_ids.add(file_id)
 
-        try:
-            text = current.read_text(encoding="utf-8")
-        except OSError as exc:
-            raise ExtendsError("extends-parent-invalid", current, str(exc))
+        if depth == 0 and root_data is not None:
+            data = root_data
+        else:
+            if not current.is_file():
+                raise ExtendsError("extends-parent-not-found", current)
+            try:
+                text = current.read_text(encoding="utf-8")
+            except OSError as exc:
+                raise ExtendsError("extends-parent-invalid", current, str(exc))
 
-        fm, _body = split_frontmatter(text)
-        if fm is None:
-            raise ExtendsError("extends-parent-invalid", current, "no YAML frontmatter")
-
-        try:
-            data = parse_yaml_minimal(fm)
-        except ValueError as exc:
-            raise ExtendsError("extends-parent-invalid", current, str(exc))
+            fm, _body = split_frontmatter(text)
+            if fm is None:
+                raise ExtendsError("extends-parent-invalid", current, "no YAML frontmatter")
+            try:
+                data = parse_yaml_minimal(fm)
+            except ValueError as exc:
+                raise ExtendsError("extends-parent-invalid", current, str(exc))
         if not isinstance(data, dict):
             raise ExtendsError("extends-parent-invalid", current, "frontmatter root not a mapping")
 

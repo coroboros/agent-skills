@@ -33,8 +33,8 @@ The delegation's job is not "a scene renders" — it is *a scene a jury reads as
 ## Three.js vs R3F + Drei
 
 - **R3F + Drei** — default for any React build (this skill's TanStack Start path). Declarative scene graph, `useFrame` for per-frame work, automatic disposal of objects the reconciler owns, and Drei's site-grade helpers (`<Environment>`, `<Float>`, `<Instances>`, `<Detailed>`, `<View>`, `<AdaptiveDpr>`, `<PerformanceMonitor>`). Author against this unless told otherwise.
-- **Raw Three.js** — reach for it when there is no React in the target stack (an Astro island holding a single imperative canvas), or for a hand-tuned render loop / custom WebGLRenderTarget pipeline R3F would fight. ~150KB. You own the dispose graph yourself.
-- **OGL** (~29KB) — shader-only effects (a fragment-shader gradient field, an image-distortion plane) where a full scene graph is dead weight.
+- **Raw Three.js** — reach for it when there is no React in the target stack (an Astro island holding a single imperative canvas), or for a hand-tuned render loop / custom WebGLRenderTarget pipeline R3F would fight. You own the dispose graph yourself.
+- **OGL** — shader-only effects (a fragment-shader gradient field, an image-distortion plane) where a full scene graph is unnecessary. Resolve versions through `../stack-facts.md`; bundle cost comes from the actual build.
 
 Signature vs noise: 3D is the signature when it carries the brief — the product rotated through scroll, a generative hero that is the brand. It is noise when it floats behind real content as ambient decoration that costs LCP and battery for no memory gain. If a CSS gradient + grain would read the same, do that instead and skip the canvas.
 
@@ -86,7 +86,7 @@ export function Hero() {
 }
 ```
 
-With `frameloop="demand"`, nothing renders until you call `invalidate()`. Any mutation outside React — `OrbitControls`, a scroll handler, a tween — must request a frame:
+With `frameloop="demand"`, Fiber renders React changes as needed. Mutations outside React — an imperative control, a scroll handler, a tween — must request a frame:
 
 ```tsx
 const { invalidate } = useThree()
@@ -125,15 +125,52 @@ A continuously animating scene (idle particle drift) uses `frameloop="always"` i
 - **LOD** — Drei `<Detailed distances={[0, 10, 20]}>` swaps mesh density by camera distance; serve a low-poly `.glb` far out.
 - **Dispose on unmount** — R3F auto-disposes objects in its tree. Objects you create imperatively (geometries, materials, `WebGLRenderTarget`, manually loaded textures held in refs) you dispose yourself in the effect cleanup. Leaked GPU memory is the most common 3D regression.
 - **Cap pixelRatio** — `dpr={[1, 2]}`; a retina phone at raw DPR renders 9× the pixels for no visible gain.
-- **Pause offscreen** — gate the loop on tab visibility and viewport intersection; a hidden canvas burning the GPU drains battery and trips thermal throttling.
+- **Pause offscreen** — mount the activity component below inside `<Canvas>`. Fiber owns its render loop: use `setFrameloop`, not `gl.setAnimationLoop`. Intersection and tab visibility are ANDed; reduced motion allows a still demand-rendered scene. Every animation/scroll mutator must also honor the reduced branch below.
 
-  ```tsx
+```javascript
+import { useEffect, useState } from 'react';
+import { useThree } from '@react-three/fiber';
+
+export function useReducedMotion() {
+  const [reduced, setReduced] = useState(true); // static during server render and hydration
   useEffect(() => {
-    const onVis = () => (document.hidden ? gl.setAnimationLoop(null) : invalidate())
-    document.addEventListener('visibilitychange', onVis)
-    return () => document.removeEventListener('visibilitychange', onVis)
-  }, [])
-  ```
+    const query = matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
+  }, []);
+  return reduced;
+}
+
+export function SceneActivity() {
+  const { gl, get, setFrameloop, invalidate } = useThree();
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    const previousMode = get().frameloop;
+    let onScreen = false;
+    let visible = !document.hidden;
+    const sync = () => {
+      const active = onScreen && visible;
+      setFrameloop(active ? (reduced ? 'demand' : previousMode) : 'never');
+      if (active) invalidate();
+    };
+    const io = new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; sync(); });
+    const onVisibility = () => { visible = !document.hidden; sync(); };
+    io.observe(gl.domElement);
+    document.addEventListener('visibilitychange', onVisibility);
+    sync();
+    return () => {
+      io.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
+      setFrameloop(previousMode);
+    };
+  }, [gl, get, setFrameloop, invalidate, reduced]);
+  return null;
+}
+```
+
+This uses the documented Fiber render-mode API; verify the installed version's behavior through `stack-facts.md`, especially when multiple canvases share a scheduler. A poster-only reduced branch may instead unmount the scene and its activity component.
 
 - **Keep draw calls low** — merge static geometry, share materials, atlas textures. Watch the count in `r3f-perf`.
 
@@ -173,7 +210,7 @@ A rotate/drag/pointer signature that fights the browser reads as broken, however
 - **`prefers-reduced-motion`** — render a static poster frame or a still scene: no autoplay camera drift, no idle particle motion, no scroll-driven rotation. Branch at mount; if a GSAP skill drives the motion, its `matchMedia` reduced branch governs the scene too.
 
   ```tsx
-  const reduced = useReducedMotion()  // @react-three/drei
+  const reduced = useReducedMotion()  // the local matchMedia hook above
   useFrame((_, dt) => { if (!reduced) mesh.rotation.y += dt * 0.1 })
   ```
 

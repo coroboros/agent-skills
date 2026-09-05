@@ -58,7 +58,7 @@ class TestBuildStepCommit(unittest.TestCase):
     def test_footer_closes_live(self):
         review = (REFS / "gate" / "review.md").read_text(encoding="utf-8").lower()
         self.assertIn("brutalist arc may defer spectacle to the footer", review)
-        self.assertIn("immersive/experimental sustain their live medium", review)
+        self.assertIn("a declared live scene must sustain its medium", review)
 
     def test_page_catalogs_are_priced_in_the_load_map(self):
         s = _skill()

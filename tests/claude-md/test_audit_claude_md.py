@@ -112,6 +112,23 @@ class TestMasking(unittest.TestCase):
 
 
 class TestImportResolution(unittest.TestCase):
+    def test_extensionless_json_and_markdown_imports_resolve_from_source(self):
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "instructions"
+            source.mkdir()
+            names = ["README", "package.json", "guide.md"]
+            text = "See " + ", ".join("@" + name for name in names) + "."
+            self.assertEqual([hit["path"] for hit in check_imports(text, source)], names)
+            for name in names:
+                (source / name).write_text("content", encoding="utf-8")
+            self.assertEqual(check_imports(text, source), [])
+
+    def test_email_and_protected_non_markdown_examples_are_not_imports(self):
+        with tempfile.TemporaryDirectory() as td:
+            text = "user@example.com `@README`\n```text\n@package.json\n```\n<!-- @hidden -->\n(@missing.json)"
+            self.assertEqual(check_imports(text, Path(td)),
+                             [{"line": 6, "path": "missing.json"}])
+
     def test_literal_imports_are_not_resolved(self):
         with tempfile.TemporaryDirectory() as td:
             text = '`@missing.md`\n```md\n@also-missing.md\n```\n@real-missing.md\n'

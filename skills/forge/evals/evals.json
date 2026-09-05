@@ -176,6 +176,27 @@
       "prompt": "The critic says the plan drops the required retry-idempotency guarantee. The author replies that the guarantee is unnecessary. Review that rebuttal against the original brief, which explicitly requires idempotent retries.",
       "expected_output": "Use references/subagent-prompts.md to give the convergence skeptic the brief, constraints and relevant source artifacts alongside the finding and rebuttal. Inspect that evidence and confirm the omitted requirement; author confidence cannot remove an accepted criterion. Do not forward unrelated panel findings.",
       "files": []
+    },
+    {
+      "id": 26,
+      "name": "binary-choice",
+      "prompt": "Use /forge to decide whether to retain the present cache or remove it. Product constraints rule out replacing it, and these are the only two viable options.",
+      "expected_output": "Compare the two viable options against the constraints and record the actual runner-up and tradeoff. Do not fabricate a third architecture to satisfy a numerical minimum.",
+      "files": []
+    },
+    {
+      "id": 27,
+      "name": "economy-evidence-gap",
+      "prompt": "Use /forge -e for this small configuration decision. One vendor behavior remains unverified and no independent agent tool is available.",
+      "expected_output": "Investigate the consequential gap directly using available authoritative evidence. Do not require extra agents or claim a critic was run. If the behavior cannot be verified, preserve the uncertainty and its decision consequence.",
+      "files": []
+    },
+    {
+      "id": 28,
+      "name": "respect-taste-owner",
+      "prompt": "Use /forge to plan the page. I have chosen the existing brand palette. A new illustration style is still undecided and I have not delegated that taste decision.",
+      "expected_output": "Preserve the already chosen palette without reopening approval. Advance independent planning, then present the material illustration choice to the user instead of silently choosing or declaring implementation complete.",
+      "files": []
     }
   ]
 }

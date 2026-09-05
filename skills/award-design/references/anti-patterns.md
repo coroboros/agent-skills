@@ -9,7 +9,7 @@ Non-negotiable. If the design contains any of these, stop and fix — don't argu
 1. **Never use the AI-purple gradient.** `linear-gradient(135deg, #a855f7|#8b5cf6, #ec4899|#6366f1)` — any variant pairing purple with pink or purple with blue. The moment judges see it, they stop looking.
 2. **Never use Inter, Roboto, Arial, or system fonts as the display face.** They work as fallbacks and body. At the hero, they signal "no type decision was made". Pick deliberately — a custom face, a quality paid font (Söhne, Tiempos, GT, Apoc), or a distinctive free one (Geist, PP Editorial New). Instrument Serif and Fraunces are the two overexposed LLM-favorite display serifs — reach past them or justify (see *AI Tells → Typography*). Don't ship `font-family: 'Inter'` on an H1.
 3. **Never use pure black (`#000`) or pure white (`#FFF`).** Off-black (`#0a0a0a`, `#141413`, `#1a1a1a`) and off-white (`#fafafa`, `#f5f4ed`, `#faf9f5`). The shift is 1% on a color picker and 100% of the atmosphere.
-4. **Never use placeholder names or fake statistics.** "John Doe", "Sarah Chen", "Acme Corp", "99.99% uptime", "10,000+ happy customers", "50% faster". If content isn't real, write something specific and plausible — or keep the placeholder honest (`[client name]`, `[metric]`). The realistic-data rule: prefer `47.2%` to `99.99%`, `+1 (312) 847-1928` to `1234567`, `$99.00` to `$100.00`. Real data has texture; round numbers betray placeholder fill.
+4. **Use factual names and statistics.** Preserve supplied or verified names, metrics, prices and contact details, including round values. When a material fact is missing, obtain it or mark an honest draft placeholder (`[client name]`, `[metric]`) until resolved. Never invent a plausible identity, phone number, price or precise percentage to make the design look real; draft placeholders cannot become published claims.
 5. **Never ship the centered-hero-over-dark-image-with-generic-headline template.** The canonical AI landing page. Break one of those three: off-center the layout, use flat color or typographic hero, or write a headline that couldn't apply to another product.
 6. **Never ship 3 equal cards in a row as your feature section.** The "feature row" is the most recognized AI template. Vary card sizes, move to editorial or bento layouts, or use a dominant card with supporting detail — not equal thirds.
 7. **Never use emojis as UI icons.** Icon sets exist (Phosphor, Radix, Lucide, Iconify, custom SVG). Emojis in UI signal no design system.
@@ -75,7 +75,7 @@ A third, colder cluster is the **clinical minimal** — a near-neutral bone or o
 Generic negation does not fix it. "Don't use cream", "make it clean and minimal" shift the model to a *different* fixed palette, not to variety. Two counters work:
 
 - **Specify a concrete alternative** — exact palette hexes, typeface, corner radius, motion timing. The model follows explicit specs precisely.
-- **Propose directions first** — surface 2-4 distinct directions (bg hex / accent hex / typeface + one-line rationale) and let the user pick, instead of committing to the default silently. Conceiving the universe already works this way — it recommends an archetype and offers one optional confirm; surface that choice rather than committing to the default silently.
+- **Establish direction first** — follow SKILL.md's SPINES and roll procedure, honoring an explicit user-pinned direction and existing brand decisions. Show the committed rationale; the reference adds no separate shortlist or approval stage.
 
 ### Visual
 
@@ -133,9 +133,9 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 
 ### Content
 
-- Generic names: "John Doe", "Sarah Chen", "Jack Su" — use diverse, realistic-sounding names with cultural variety.
+- Invented names presented as real people or customers — use supplied or verified identities; mark unresolved names as draft placeholders.
 - **The category headline** — a hero promise any rival could sign. Read beside the archetype's quoted winner strings it names no place, no count, no material, no refusal (`copy-recipes.md`); the fix is the concept, never a copy edit.
-- Fake round numbers: "99.99%", "10,000+", "50% faster" — use organic, messy data: `47.2%`, `+1 (312) 847-1928`, `$99.00`.
+- Unsupported metrics, prices and contact details — verify or request the values. Roundness is no test of truth, and fabricated precision is still fabrication.
 - AI copywriting clichés: "Elevate", "Seamless", "Unleash", "Next-Gen", "Game-changer", "Delve", "Tapestry", "In the world of...", exclamation marks in success messages, "Oops!" error handling.
 - Title Case On Every Header — sentence case reads more refined.
 - Emojis in UI — use icons (Phosphor, Radix, or custom SVG).
@@ -177,7 +177,7 @@ Generic negation does not fix it. "Don't use cream", "make it clean and minimal"
 - React `useState` for magnetic hover or continuous animation. Use Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle (see `premium-patterns.md` performance locks).
 - `backdrop-filter: blur()` on scrolling content. Apply blur only to fixed/sticky elements (navbars, modal overlays). Otherwise mobile Safari drops to 15–20fps.
 - Static PNG grain overlays on scrolling containers — continuous GPU repaints. Apply procedural noise (Canvas/WebGL) to fixed `pointer-events: none` layers.
-- Perpetual animations not memoized in their own microscopic Client Component — re-renders the parent layout 60×/second and breaks performance budget.
+- Animation loops that update React state every frame and repeatedly render the parent layout — isolate measured React work where applicable, or use native CSS, Motion values or an imperative loop with lifecycle cleanup. CSS and vanilla animations do not require a Client Component or memoization.
 - Importing a package absent from `package.json` — check first; if missing, output the install command before the import. Assumed dependencies are broken builds.
 - Raw `<img>` hover scale on a bare photo (`group-hover:scale`, `:hover { transform: scale }` with no containment) — the stock image-zoom tell. The legitimate version is *contained*: the image scales slowly and slightly (≤3–6%) inside a non-moving `overflow: hidden` frame — a Ken-Burns held by the frame, paired with the frame's own treatment (`interaction-signatures.md`) — never a bare uncontained `scale` on the `<img>` itself.
 - A draggable poster / `<img>` under an interactive canvas — dragging to rotate grabs the image and shows the browser's native drag-ghost (a gray box with a ghost image). Set `draggable="false"`, `user-select: none`, `-webkit-user-drag: none`, `touch-action: none` on the canvas and every underlying img (`ingredients/web3d-for-sites.md` input floor).

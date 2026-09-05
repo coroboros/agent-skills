@@ -20,7 +20,7 @@ A static minimalist page loads none of this; an Immersive scrolltelling build ma
 | Three.js / R3F / drei | 3D scenes — Immersive, Experimental | any Three.js / React Three Fiber skill present | — | threejs.org/docs · r3f.docs.pmnd.rs |
 | Lenis | smooth-scroll foundation | — | — | github.com/darkroomengineering/lenis |
 | Motion (Framer Motion) | React UI motion, layout animations | any Motion skill present | — | motion.dev/docs |
-| View Transitions · scroll-driven CSS · popover/anchor · modern CSS | page morphs, off-thread reveals, any cutting-edge CSS, form UX, or a Core Web Vitals miss the build must debug | `modern-web-guidance` | `npx skills add https://github.com/GoogleChrome/modern-web-guidance` | `npx -y modern-web-guidance@latest search "<query>"` then `retrieve "<id>"` (runs without the skill) · MDN |
+| View Transitions · scroll-driven CSS · popover/anchor · modern CSS | page morphs, off-thread reveals, any cutting-edge CSS, form UX, or a Core Web Vitals miss the build must debug | `modern-web-guidance` | `npx skills add https://github.com/GoogleChrome/modern-web-guidance` | Current MDN and official browser-platform documentation; do not resolve a documentation package at runtime |
 | Web Audio / Howler | sound layer — Immersive, Experimental | `audio-loop` for ambient loop beds | — | `references/ingredients/web-audio.md` · howlerjs.com |
 | Raw WebGL / GLSL (OGL) | custom shader signatures | — | — | `references/ingredients/ogl-shaders.md` · github.com/oframe/ogl |
 

@@ -206,7 +206,7 @@ Three concrete rules that prevent the highest-impact mobile performance failures
 
 ### Magnetic micro-physics
 
-When implementing magnetic-button or cursor-following effects, never use React `useState` for the continuous animation. Use exclusively Framer Motion's `useMotionValue` and `useTransform` outside the React render cycle. Each `useState` update triggers a re-render of the component tree; on a continuous mouse-move, this collapses mobile frame rate.
+Keep continuous pointer animation outside component rerenders. In a React build already using Motion, `useMotionValue` and `useTransform` provide that path; native CSS, a coalesced imperative loop, or the project's existing animation engine can do the same. Do not add React or Motion solely for this recipe. Measure the actual frame cost.
 
 ```javascript
 // Wrong — re-renders 60×/second on mouse move
@@ -230,9 +230,9 @@ useEffect(() => {
 
 Any infinite loop or perpetual micro-animation must be:
 
-1. Memoized via `React.memo`
-2. Isolated in its own microscopic Client Component (`"use client"` at the top)
-3. Never trigger re-renders in the parent layout
+1. Isolated from parent layout updates
+2. Owned by one lifecycle with cleanup; apply React/client boundaries only in the matching stack
+3. Kept outside per-frame component rerenders; memoize only where it avoids actual work
 4. Use `transform` and `opacity` exclusively — no layout-triggering properties (`top`, `left`, `width`, `height`)
 
 For lists with `staggerChildren`, the parent (`variants`) and children must live in the identical Client Component tree. If data is fetched asynchronously, pass it as props to a centralized Parent Motion wrapper. Mismatched trees break the orchestration silently.
@@ -356,8 +356,8 @@ When the calibrated Motion atmosphere is **5 or higher**, ship at least one perp
 
 Per pattern 6, every perpetual animation **must** be:
 
-1. Memoized via `React.memo`
-2. Isolated in its own microscopic Client Component (`"use client"`)
+1. Isolated from parent layout updates and per-frame component rerenders
+2. Owned by one cleanup path in the committed stack; CSS-only animation needs no component wrapper
 3. Animating `transform` and `opacity` only — never `top`, `left`, `width`, `height`, `filter` (except `backdrop-filter` on a fixed layer)
 4. Wrapped in a `prefers-reduced-motion: reduce` swap that pauses the loop and serves a static frame
 

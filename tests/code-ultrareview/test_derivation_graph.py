@@ -79,6 +79,80 @@ def _run_cli(repo: Path, reconcile: str = "@auto", *extra: str) -> dict:
 
 
 class TestExtractor(unittest.TestCase):
+    def test_multiline_criteria_keep_the_outcome_and_source_start(self):
+        markdown = (
+            "**Acceptance criteria:**\n"
+            "- [ ] Given a successful first payment,\n"
+            "  when its callback is retried,\n"
+            "  then charge exactly once.\n"
+            "- [x] Given a provider timeout,\n"
+            "  when delivery resumes,\n"
+            "  then no duplicate is created.\n"
+            "**Technical notes:** internal detail\n"
+            "  This is not part of either criterion.\n"
+        )
+        claims = extractor.extract_claims(markdown)
+        self.assertEqual([(claim.kind, claim.source_line, claim.text) for claim in claims], [
+            ("ac", 2, "Given a successful first payment,\nwhen its callback is retried,\nthen charge exactly once."),
+            ("ac", 5, "Given a provider timeout,\nwhen delivery resumes,\nthen no duplicate is created."),
+        ])
+
+    def test_continuations_do_not_consume_the_next_section_or_unrelated_paragraph(self):
+        markdown = (
+            "## Acceptance criteria\n- [ ] First condition\n  with its outcome.\n\n"
+            "Unrelated paragraph.\n  An indented explanation of that paragraph.\n"
+            "## Other work\n  Unrelated scope.\n"
+            "## Goals\n- Preserve errors\n  through retries.\n"
+        )
+        claims = extractor.extract_claims(markdown)
+        self.assertEqual([claim.text for claim in claims],
+                         ["First condition\nwith its outcome.", "Preserve errors\nthrough retries."])
+
+    def test_canonical_forge_workstreams_preserve_all_criteria_and_boundaries(self):
+        template = (REPO_ROOT / "skills/forge/templates/forge-artifact.md").read_text()
+        header = next(line for line in template.splitlines()
+                      if line.startswith("**Acceptance criteria:**"))
+        workstreams = []
+        for number in (1, 2):
+            workstreams.append(
+                f"### WS-{number}: retry {number}\n"
+                "| Priority | P1 |\n| Complexity | S |\n| Depends on | — |\n"
+                "**Tasks:**\n- [ ] Implement handler\n"
+                f"{header}\n- [ ] Given retry {number}, when repeated, then charge once.\n"
+                f"- [x] AC-{number}: failure leaves the account unchanged.\n"
+                "**Technical notes:** implementation detail\n- [ ] Not a criterion\n"
+            )
+        markdown = "# Spec: retries\n## Workstreams\n" + "\n".join(workstreams)
+        with tempfile.TemporaryDirectory() as directory:
+            spec = Path(directory) / "forge-retries.md"
+            spec.write_text(markdown)
+            result = subprocess.run(
+                [sys.executable, str(REPO_ROOT / "skills/forge/scripts/validate_spec.py"), str(spec)],
+                capture_output=True, text=True, timeout=15,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+        claims = extractor.extract_claims(markdown)
+        criteria = [claim for claim in claims if claim.kind == "ac"]
+        self.assertEqual(len(criteria), 4)
+        self.assertEqual([claim.text for claim in criteria], [
+            "Given retry 1, when repeated, then charge once.",
+            "AC-1: failure leaves the account unchanged.",
+            "Given retry 2, when repeated, then charge once.",
+            "AC-2: failure leaves the account unchanged.",
+        ])
+        for claim in criteria:
+            self.assertIn(claim.text, markdown.splitlines()[claim.source_line - 1])
+        self.assertNotIn("Not a criterion", [claim.text for claim in claims])
+
+    def test_forge_field_ends_at_new_workstream_without_next_field(self):
+        claims = extractor.extract_claims(
+            "**Acceptance criteria:**\n- [ ] Actual AC\n"
+            "### WS-2: next\n- [ ] Unlabeled note\n"
+            "**Tasks:**\n- [ ] Actual task\n### WS-3: next\n- [ ] Another note\n"
+        )
+        self.assertEqual([(claim.kind, claim.text) for claim in claims],
+                         [("ac", "Actual AC"), ("task", "Actual task")])
+
     def test_extracts_ac_items(self):
         md = (
             "# Spec\n\n"

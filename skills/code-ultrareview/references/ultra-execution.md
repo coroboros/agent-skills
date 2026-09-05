@@ -108,6 +108,8 @@ The script preflights every applicable language before starting any mutation pro
 
 Activates the planning-artifact reconciliation branch of the Intent axis. The orchestrator already runs the Intent axis in standard mode (PR description vs diff, lockfile drift, generator drift); `--reconcile` adds a deterministic claim-extraction pass that produces `UNCLASSIFIED` placeholders for the Intent subagent to classify.
 
+An explicit `--axes` subset must include `intent` when reconciliation is requested. Preparation rejects an incompatible subset; ingestion and synthesis also reject a persisted reconcile run without Intent coverage. Include `intent` in the selected axes or omit `--reconcile` for a review that does not reconcile planning artifacts.
+
 | Field | Value |
 |-------|-------|
 | Entry point | `scripts/derivation/run.py` |
@@ -183,7 +185,7 @@ Strict full-agreement guard: writes the new value only when every present source
 
 ### `failing_test_writer`
 
-Given a confirmed bug + repro vector + expected failure message, writes one focused failing test under the host repo's test layout (Python `tests/test_<slug>.py` or TypeScript `tests/<slug>.test.ts`). Refuses to overwrite an existing test (`refusing: existing-test`). The body is a single `assert` (or `expect`) that fails on the unfixed code and passes after the user's fix.
+The reviewer first inspects the host's runner and test layout, then authors and reviews one focused executable regression test. Call `write(repo, bug_id, repro, expected_failure, test_content=..., test_path=..., yes=...)` with that exact content and a repository-relative test path. The writer previews and persists it additively; it does not infer Python/Vitest or generate tests from prose. Missing content or an invalid path refuses the write; existing tests are never overwritten. Verify that the test fails for the reported defect and passes after correcting only the implementation before claiming regression coverage. Writing the test alone proves neither result.
 
 ### Confirmation gate
 

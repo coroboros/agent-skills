@@ -61,19 +61,19 @@ Defer to these — do not embed their content in the skill body. Each is the sin
 | `ntn` CLI command reference | https://developers.notion.com/cli/reference/commands · `ntn <command> --help` |
 | Notion REST API reference | https://developers.notion.com/reference |
 
-## Gotchas (empirical — not in tool descriptions or `ntn --help`)
+## Gotchas
 
 These operational checks supplement the live tool schemas. Verify version-sensitive limits and returned shapes before relying on them.
 
-1. **`selection_with_ellipsis` matches rendered Markdown verbatim.** Copy the snippet from a fresh `notion-fetch`. Never paraphrase — Notion's validator rejects on first-character mismatch and the failure mode is silent.
-2. **New databases land at the bottom of the parent page's children.** To reposition: a two-op `notion-update-page update_content` call — prepend `<database url="…" data-source-url="…">` at the anchor block, then remove the original. Keep at least one reference present in the page so the child-deletion validator doesn't trip, or pass `allow_deleting_content: true` explicitly.
+1. **Targeted edits match fetched Markdown exactly.** Read the active update tool's schema; `update_content` currently uses `content_updates[].old_str` and `new_str`. Copy the existing snippet from a fresh `notion-fetch`, preserve whitespace, and narrow ambiguous matches. Use the returned error to correct a mismatch; never assume a rejected or queued edit completed.
+2. **New databases may land at the bottom of the parent page's children.** Verify placement with a fetch. For an authorized move, preserve the exact fetched child-page/database tags and follow the active edit schema. If child-deletion validation refuses an edit, preserve the error and read back the page before retrying; never enable `allow_deleting_content` to bypass a placement problem. An intended child deletion follows the tool's named-child confirmation requirement.
 3. **Batch limits follow the active schema.** Some `notion-create-pages` schemas allow 100 rows; verify the actual limit and use batching only within the user's write and readback constraints.
 4. **Discover the current tool set.** Read available descriptions and the changelog when something looks missing; release cadence is not a capability guarantee.
 5. **Writes fail with `archived ancestor` if any parent (page / database / data source) is in the trash.** `notion-fetch` against the data source still returns the schema, masking this during pre-flight — the failure only surfaces at write time. Before trusting pre-flight to greenlight writes on an unfamiliar target, `notion-fetch <page_id>` and check for the `deleted` attribute on the returned `<page>` tag.
 
 ## Maintenance
 
-This skill encodes only routing rules, the pre-flight, and the five stable gotchas above. Per-tool syntax → tool descriptions; CLI commands → `ntn --help`; Markdown rules → the `notion://docs/enhanced-markdown-spec` resource; capability evolution → https://developers.notion.com/page/changelog; auth → the CLI docs URL. A new MCP tool or `ntn` subcommand requires no skill update — discovery happens via the tool or CLI itself.
+This skill encodes routing rules, the pre-flight, and the operational checks above. Per-tool syntax → tool descriptions; CLI commands → `ntn --help`; Markdown rules → the `notion://docs/enhanced-markdown-spec` resource; capability evolution → https://developers.notion.com/page/changelog; auth → the CLI docs URL. A new MCP tool or `ntn` subcommand requires no skill update — discovery happens via the tool or CLI itself.
 
 ## Privacy
 

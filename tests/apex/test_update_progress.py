@@ -222,11 +222,21 @@ class TestUnknownStep(unittest.TestCase):
             r = _run("01-add-auth", "99", "ghost-step", "complete",
                      cwd=proj, home=home)
             updated = ctx.read_text(encoding="utf-8")
-        self.assertEqual(r.returncode, 0,
-                         f"unknown step should still exit 0; got {r.returncode}")
-        self.assertIn("Warning: Step not found", r.stderr)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("Error: Step not found", r.stderr)
+        self.assertNotIn("Progress updated", r.stdout)
         # File content is preserved because no row matched the awk replacement.
         self.assertEqual(updated, original)
+
+    def test_matching_row_in_later_section_is_not_progress(self):
+        with tempfile.TemporaryDirectory() as t:
+            proj, home = _dirs(t)
+            body = CONTEXT_TEMPLATE + "\n## Notes\n| 99-ghost-step | Pending | n/a |\n"
+            ctx = _seed(home, _project(proj), body=body)
+            result = _run("01-add-auth", "99", "ghost-step", "complete", cwd=proj, home=home)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(ctx.read_text(), body)
+            self.assertFalse(list((home / ".agents/output").glob(".apex-progress.*")))
 
 
 if __name__ == "__main__":

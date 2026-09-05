@@ -7,7 +7,7 @@ Type is a first-class interaction surface, not static copy waiting for a layout.
 A scroll-linked text effect is award-grade only inside these constraints. They come from the Nielsen Norman Group scroll-animation findings and are non-negotiable:
 
 - **Emphasize already-legible text — never reveal from invisible.** The base state is fully readable (dim ink, low-contrast-but-AA, or plain weight); the effect brightens, colors, or weights it as it enters the reading zone. Text that animates from `opacity: 0` / invisible → visible is a content reveal and falls under the fire-once rule (`motion-palette.md`); an *emphasis* fill on legible text does not hide anything.
-- **The finished state is the CSS default.** Author the emphasized/visible state as the resting CSS; the effect is layered on inside `@supports`. So a browser without scroll timelines, a reduced-motion user, and a reader scrolling back up all see fully legible, fully emphasized text — nothing to hunt for.
+- **The finished state is the CSS default.** Author the emphasized/visible state as resting CSS; layer the effect inside `@supports` and the motion-preference gate. Unsupported and reduced-motion browsers get the finished state. A declared reversible emphasis may dim again on scroll-up, while remaining fully legible.
 - **Fire-once-persist is the default; reversible is a declared exception.** A scrubbed emphasis reverses on scroll-up by default (dim again). That is tolerable only because the base is legible — but prefer fire-once-persist (emphasize as it arrives, then hold). A reversible emphasis is an Editorial/Immersive choice declared in the DESIGN.md and `cover`-phase-ranged (`motion-palette.md`), never the silent default.
 
 ## Browser reality — the Firefox tax
@@ -34,12 +34,12 @@ Pick what the world's voice calls for; do not run all of them, and never on ever
 The strongest text signature is meaning, not motion: the key terms of a line carry the brand accent while the rest stays neutral, so the copy is *read* — the eye lands on what matters. Ration it to genuine key terms (a product name, the verb of the sentence, the one number that matters); an accent on every third word is noise, and the accent stays the page's single accent (`preflight.md` accent lock). This is the layer that made Terminal Industries' walls of copy feel authored rather than dumped — the color did the reading.
 
 ```css
-/* emphasis-fill: legible base, brightened on scroll — visible default, motion inside the gate */
-.line { color: var(--ink-2); }                               /* AA-legible at rest */
+/* Declared reversible alternative; the default persisted effect uses the IO lifecycle. */
+.line { color: var(--ink-1); }                               /* finished fallback */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    .line { color: var(--ink-1); animation: warm linear both;
-      animation-timeline: view(); animation-range: entry 20% cover 45%; }
+    .line[data-scroll-emphasis="reversible"] { animation: warm linear both;
+      animation-timeline: view(); animation-range: cover 20% cover 45%; }
   }
 }
 @keyframes warm { from { color: var(--ink-2); } to { color: var(--ink-1); } }

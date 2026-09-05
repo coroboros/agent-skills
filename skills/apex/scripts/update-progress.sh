@@ -41,6 +41,7 @@ fi
 APEX_TEMP_DIR="${HOME}/.agents/output"
 mkdir -p "$APEX_TEMP_DIR"
 TEMP_FILE=$(mktemp "$APEX_TEMP_DIR/.apex-progress.XXXXXX")
+trap 'rm -f "$TEMP_FILE"' EXIT
 
 awk -v step="${STEP_NUMBER}-${STEP_NAME}" \
     -v status="$STATUS_SYMBOL" \
@@ -52,8 +53,9 @@ BEGIN { in_table = 0; found = 0 }
         print $0
         next
     }
+    if (in_table && $0 ~ /^## /) in_table = 0
 
-    if (in_table && $0 ~ "\\| " step " \\|") {
+    if (in_table && index($0, "| " step " |") == 1) {
         printf "| %s | %s | %s |\n", step, status, timestamp
         found = 1
         next
@@ -63,7 +65,8 @@ BEGIN { in_table = 0; found = 0 }
 }
 END {
     if (!found) {
-        print "Warning: Step not found in progress table" > "/dev/stderr"
+        print "Error: Step not found in progress table" > "/dev/stderr"
+        exit 1
     }
 }
 ' "$CONTEXT_FILE" > "$TEMP_FILE"

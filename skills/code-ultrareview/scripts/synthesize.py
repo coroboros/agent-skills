@@ -246,7 +246,7 @@ def load_run_artifacts(
     validated_path: Path,
     tool_path: Path,
     mutation_path: Path | None,
-) -> tuple[list[dict], list[dict], list[dict]]:
+) -> tuple[list[dict], list[dict], list[dict], dict | None]:
     """Load only artifacts cryptographically bound to this review run."""
     tool = scope.get("tool_coverage") or {}
     axis = scope.get("axis_coverage") or {}
@@ -281,6 +281,17 @@ def load_run_artifacts(
     _verify_identity(validator_diff, "validator diff")
     _require_same_identity(validator_diff, axis_diff, "validator diff")
 
+    reconcile_payload = manifest_contract.read_reconcile_payload(scope)
+    if reconcile_payload is not None:
+        if any("intent" not in (axis.get(field) or []) for field in ("requested", "completed")):
+            raise CoverageError("reconcile coverage requires completed intent review; rerun with intent in --axes")
+        reconcile_output = _manifest_identity(scope["reconcile_coverage"], "reconcile")
+        axis_reconcile_input = _input_identity(axis, "reconcile", "axis")
+        _verify_identity(axis_reconcile_input, "axis reconcile input")
+        _require_same_identity(axis_reconcile_input, reconcile_output, "axis reconcile input")
+    elif (axis.get("input_hashes") or {}).get("reconcile") is not None:
+        raise CoverageError("prepared reconcile coverage is missing")
+
     mutation_findings: list[dict] = []
     mutation = scope.get("mutation_coverage")
     if isinstance(mutation, dict) and mutation.get("applicable") is True:
@@ -307,7 +318,31 @@ def load_run_artifacts(
     # made it identical to the axis output.
     if validator_output["count"] != len(validated_findings):
         raise CoverageError("validated findings count changed while loading")
-    return validated_findings, tool_findings, mutation_findings
+    return validated_findings, tool_findings, mutation_findings, reconcile_payload
+
+
+def render_reconcile_coverage(payload: dict | None, findings: list[dict]) -> str | None:
+    if payload is None:
+        return None
+    artifacts = payload["artifacts"]
+    rows = ["## 📐 Derivation coverage", "", "| Artifact | Freshness (days) | Claims extracted |",
+            "|---|---|---|"]
+    for artifact in artifacts:
+        path = artifact["path"].replace("|", "\\|").replace("\n", " ")
+        rows.append(f"| {path} | {artifact.get('freshness_days', 'unknown')} | {artifact['claim_count']} |")
+    rows.extend([
+        "", f"Artifacts supplied: {len(artifacts)}. Claims extracted: "
+        f"{sum(a['claim_count'] for a in artifacts)}. Claims submitted to Intent: "
+        f"{len(payload['findings'])}.", "",
+        "| Retained finding classification | Count |", "|---|---|",
+    ])
+    for classification in ("GAP", "SCOPE-ADD", "DECISION-OVERRIDE"):
+        count = sum(f.get("classification") == classification for f in findings)
+        rows.append(f"| {classification} | {count} |")
+    rows.extend(["", "Extraction and submission counts are input coverage. Per-claim verified "
+                 "and CONSISTENT totals are unavailable from the axis result schema; "
+                 "zero retained findings does not measure those totals."])
+    return "\n".join(rows)
 
 
 def load_positives(path: Path | None) -> list[str]:
@@ -742,7 +777,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--owner-repo", default=None)
     parser.add_argument("--sha", default=None)
     parser.add_argument("--reconcile-summary", type=Path, default=None,
-                        help="Pre-rendered `## 📐 Derivation coverage` block.")
+                        help="Legacy option; coverage is rendered from the verified reconcile artifact.")
     parser.add_argument("--apply-safe-summary", type=Path, default=None,
                         help="Pre-rendered `## 🪛 --apply-safe summary` block.")
     parser.add_argument("--print", dest="echo",
@@ -764,12 +799,14 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 4
     try:
-        validated, tool_findings, mutation_findings = load_run_artifacts(
+        validated, tool_findings, mutation_findings, reconcile_payload = load_run_artifacts(
             scope,
             validated_path=args.findings,
             tool_path=args.tool_findings,
             mutation_path=args.mutation_findings,
         )
+        if args.reconcile_summary is not None and reconcile_payload is None:
+            raise CoverageError("--reconcile-summary requires verified reconcile coverage")
     except (CoverageError, OSError, ValueError) as exc:
         print(
             f"ERROR: Code Ultrareview cannot synthesize a verdict: {exc}",
@@ -789,7 +826,9 @@ def main(argv: list[str] | None = None) -> int:
 
     result = synthesize(scope, findings)
 
-    reconcile_block = _read_text(args.reconcile_summary)
+    reconcile_block = render_reconcile_coverage(
+        reconcile_payload, result["verified"] + result["unverified"]
+    )
     apply_safe_block = _read_text(args.apply_safe_summary)
     markdown = render_markdown(
         scope, result, slug=slug, positives=positives,

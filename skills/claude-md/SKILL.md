@@ -236,7 +236,7 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 ## Deterministic scripts
 
 - `scripts/audit_claude_md.py` — line-count + 6-category bloat scan + `@import` resolver. Run first for optimize — the JSON output proposes review candidates; revise consults it when drift is suspected. Python 3.7+.
-- `scripts/validate_rule_file.py` — YAML frontmatter + `paths:` glob validator for `.claude/rules/*.md`. Python 3.7+.
+- `scripts/validate_rule_file.py` — frontmatter delimiter + supported YAML `paths:` glob subset validator for `.claude/rules/*.md`; other YAML keys are not validated. Quote globs beginning with `*`, `!` or other YAML indicators. Python 3.7+.
 - `scripts/init_structure.sh` — idempotent scaffold for the three storage strategies (`single`, `hybrid`, `rules-only`). Preserves existing files by default; `--force` replaces them and requires applicable authorization.
 
 ## See also

@@ -1,12 +1,12 @@
 # OGL Shaders for Sites
 
-GLSL on a single full-screen quad — animated gradient mesh, noise background, image-to-image transition, hover displacement. OGL is ~29KB: a `Renderer`, a `Program`, and a screen triangle, no scene-graph overhead.
+GLSL on a single full-screen quad — animated gradient mesh, noise background, image-to-image transition, hover displacement. OGL uses a `Renderer`, a `Program`, and a screen triangle without a full scene graph. Resolve versions through `../stack-facts.md` and measure the actual bundle.
 
 **Drive every uniform from the committed `DESIGN.md`** — palette hexes as `vec3`, motion speed from the motion tokens, mood from the atmosphere scores. A shader keyed to the universe reads art-directed; the stock animated-rainbow (`cos(uv.xyx + t)`) reads like a template. Never ship the default.
 
 ## OGL vs Three.js
 
-- **OGL** — the visual is one quad with a fragment shader: gradient mesh, noise field, grain, image transition, pointer ripple. No geometry, no lights, no camera. Three.js (~150KB) is overkill here.
+- **OGL** — the visual is one quad with a fragment shader: gradient mesh, noise field, grain, image transition, pointer ripple. A screen triangle needs no scene lighting or camera; a full 3D scene graph may be unnecessary.
 - **Three.js / R3F** — real 3D is the signature: meshes, lighting, depth, a model that rotates through scroll. See `web3d-for-sites.md`.
 
 Decide by the *medium*: a gradient breathing behind a hero is a quad; a rotating helmet is geometry.
@@ -102,7 +102,9 @@ color += (g - 0.5) * 0.04;
 
 ```glsl
 vec2 d = vUv - uPointer;
-vec2 warp = vUv - normalize(d) * 0.03 * smoothstep(0.4, 0.0, length(d));
+float distanceToPointer = length(d);
+vec2 direction = d / max(distanceToPointer, 0.0001);
+vec2 warp = vUv - direction * 0.03 * (1.0 - smoothstep(0.0, 0.4, distanceToPointer));
 ```
 
 ## Uniforms from the universe
@@ -113,7 +115,7 @@ vec2 warp = vUv - normalize(d) * 0.03 * smoothstep(0.4, 0.0, length(d));
 
 ## Performance
 
-- One quad. Resolution-independent cost; complexity lives in the fragment, so keep loops bounded and branches few.
+- One quad keeps geometry and draw-call count constant. Fragment cost still grows with rendered pixels and shader complexity; keep loops bounded and branches few.
 - Cap DPR at 2 in the `Renderer` constructor — retina past 2× burns fill rate for no visible gain.
 - Gate the loop with an `IntersectionObserver` on the canvas: `e.isIntersecting` resumes (`raf ??= requestAnimationFrame(loop)`), offscreen cancels (`cancelAnimationFrame(raf); raf = null`). Pause on `visibilitychange` too.
 - No per-frame allocations: mutate `uPointer.value.set(...)`, never assign a fresh `Vec2`. Reuse colors and vectors.

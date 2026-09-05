@@ -74,8 +74,8 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Test for small, well-scoped tasks |
 | Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
-| Design | [award-design](#award-design) | Art direction and scoped builds — DESIGN.md, build ladder, and rendered review |
-| Design | [frontend-dev](#frontend-dev) | Everyday frontend work — surface archetypes, design constraints, and applicable state checks |
+| Design | [award-design](#award-design) | Art direction — DESIGN.md, build ladder, and rendered review |
+| Design | [frontend-dev](#frontend-dev) | Frontend implementation — design plans, surface archetypes, and applicable state checks |
 | Design | [design-system](#design-system) | Govern an existing DESIGN.md — token enforcement plus a CLI lifecycle |
 | Claude Code | [claude-md](#claude-md) | Create and optimize CLAUDE.md and .claude/rules/ |
 | Claude Code | [agent-creator](#agent-creator) | Expert guidance for creating Claude Code subagents |
@@ -305,7 +305,7 @@ Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` (award-level direction), `/frontend-dev` (everyday UI), and `/design-system` are optional follow-on handoffs.
+Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` (award-level direction), `/frontend-dev` (implementation), and `/design-system` are optional follow-on handoffs.
 
 Installed authentication and database dependencies are starting points; the scaffold does not implement application auth or schemas. Provider activation and further architecture choices follow the requested scope.
 
@@ -339,7 +339,7 @@ Eight-axis judgment code review at full strength, in-session. The default runs e
 | `--reconcile <input>` | Activate the Intent-axis derivation sub-mode. `<input>` ∈ `@auto`, `@pr`, an explicit path or directory, `gh:pr:<N>`, `gh:issue:<owner>/<repo>#<N>`, or a GitHub issue URL |
 | `--verify-build` | Run the canonical project test command as an atomic gate. Missing prerequisites, failures, and timeouts block; generic results never re-score findings |
 | `--mutation-test` | Stryker targets changed JS/TS source files; configured Pitest/mutmut runs emit changed-file survivors and uncovered mutations. Maven and Gradle run from `PATH` in offline mode. Missing config/tool, incomplete evaluation, or a failed run blocks the review |
-| `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), one failing test per confirmed bug. Diff preview + per-file confirmation |
+| `--apply-safe` | Opt-in writers — manifest version sync, structured-field description sync (full-agreement guard), model-authored regression tests for confirmed bugs. Diff preview + per-file confirmation |
 | `--include-prose` | Coherence axis compares README freeform paragraphs (default: structured fields only) |
 | `--axes <list>` | Comma-separated axes subset (e.g. `correctness,tests`). Default: all 8 + Coherence when triggered |
 | `--preflight` | Validate applicable analyzers and print exact install commands. Exits 3 when coverage is incomplete; never installs |
@@ -395,7 +395,7 @@ Bundled Semgrep perf-rules (`references/perf-rules/`) route N+1 and sync-IO find
 
 ### Design Skills
 
-Award-level art direction, the everyday frontend lane, and DESIGN.md token governance — `award-design`, `frontend-dev`, `design-system`.
+Award-level art direction, frontend implementation, and DESIGN.md token governance — `award-design`, `frontend-dev`, `design-system`.
 
 <details>
 <summary><em>award-design · frontend-dev · design-system</em></summary>
@@ -404,19 +404,19 @@ Award-level art direction, the everyday frontend lane, and DESIGN.md token gover
 
 #### award-design
 
-Art direction for ambitious landing pages, portfolios, and marketing sites. Establishes a visual direction in DESIGN.md and a build ladder in `design-plan.md`, adapting to the existing brand and selected archetype. Single-token changes use `/design-system`; everyday UI, dashboards, and internal tools use `/frontend-dev`. The brief determines whether the deliverable is direction, a selected chunk, a complete frontend build, or a read-only review.
+Art direction for ambitious landing pages, portfolios, and marketing sites. Establishes a visual direction in DESIGN.md and a build ladder in `design-plan.md`, adapting to the existing brand and selected archetype. `/frontend-dev` implements the plan; `/award-design` reviews the rendered result. Single-token changes use `/design-system`; everyday UI, dashboards, and internal tools use `/frontend-dev` directly.
 
 **Usage**
 
 ```bash
 /award-design direction only for a sustainable coffee brand          # DESIGN.md + design-plan.md, no page build
-/award-design build a landing page for a sustainable coffee brand    # direction, chunks and final review
-/award-design chunk hero                                             # build one ladder chunk
+/award-design build a landing page for a sustainable coffee brand    # direction, builder handoff and review
+/award-design chunk hero                                             # forward one ladder chunk to the builder
 /award-design -u https://linear.app portfolio for a motion designer  # brand-extract a live site as the seed
 /award-design review https://example.com                             # audit an existing site
 ```
 
-A direction-only request ends with DESIGN.md and `design-plan.md`. A full-build request continues through the ladder and final review under the task owner's responsibility. `chunk <id>`, or a supplied single chunk, ends at that chunk and records its result. `-u <url>` uses the observed brand as an archetype seed. `review <url|path>` is read-only. Missing required measurements or independent review remain explicit limitations.
+A direction-only request ends with DESIGN.md and `design-plan.md`. A full-build request continues through `/frontend-dev` implementation and director review under the task owner's responsibility, using the authorization already given. `chunk <id>` forwards the selected chunk to the builder and stops after its checks and result. `-u <url>` uses the observed brand as an archetype seed. `review <url|path>` is read-only. Missing required measurements or independent review remain explicit limitations.
 
 **Archetypes**
 
@@ -438,7 +438,7 @@ Each archetype anchors to a canonical winner (corpus-credentialed). The referenc
 
 - **Direction by dice** — the model writes 5–7 candidate spines, then a seeded roll (`scripts/direction_roll.py`, SHA-256, offline, reproducible from its printed key) assigns one with the model's top two structurally unreachable, because a model's own ranking converges on the same direction every run. Challengers dealt from sibling archetypes must beat the assignment on audience identification and product clarity to take the build; the category standard stays on the table as the user's standing exit, never the model's recommendation
 - **The six-block contract** — THESIS · OWN-WORLD · STORY · FIRST-VIEWPORT · FORM+SEED · SIGNATURE, recorded in `design-plan.md` before building and copied into the shell's opening design-contract comment. A reviewer challenges the concept before implementation
-- **The ladder** — records ordered chunks with their inputs, implementation, checks, and exclusions. Direction-only and selected-chunk requests stop at their boundary; the full-build owner executes the authorized ladder through review. Pacing and signature placement follow the selected archetype. DESIGN.md changes follow the authorized design-governance path
+- **The ladder** — records ordered chunks with their inputs, implementation, checks, and exclusions for `/frontend-dev`. Direction-only and selected-chunk requests stop at their boundary; the full-build owner carries the authorized ladder through builder execution and director review. Pacing and signature placement follow the selected archetype. DESIGN.md changes follow the authorized design-governance path
 - **Two-tier archetype knowledge** — nine ~40-line tier-1 files (DNA, anti-signals, reflex lists) pushed into context by the roll itself; nine tier-2 references loaded by heading (effect palettes, page recipes, mid-page life, spectacle menus), every claim carrying its evidence class — winner, shipped, technique, theory — and only the first three bind
 - **Techniques as skeletons, facts with dates** — seven complete wirings (`references/skeletons.md`) each closing on the failure it prevents (the Lenis autoRaf double-drive ships fixed); `references/stack-facts.md` is the dated authority for every version and support figure, with staleness surfaced by the scanner past 180 days
 - **The mechanical floor** — static checks and browser payloads inspect clipping, layout, navigation, and pixel evidence on affected surfaces. Explicit chunk checks and new layout or signature work require their rendered sweeps; a small scoped edit may reuse unchanged evidence. Missing browser measurements limit the verdict
@@ -463,7 +463,7 @@ Each archetype anchors to a canonical winner (corpus-credentialed). The referenc
 
 #### frontend-dev
 
-Build pages, dashboards, forms, and components within their existing design context. For a new direction, state SURFACE · WORLD · TYPE · COLOR · SIGNATURE in the response or design artifact; an edit inherits the surrounding direction. Surface archetypes guide composition, with concrete type, spacing, color, and motion constraints. DESIGN.md and explicit ladder chunks define the applicable scope.
+Build pages, dashboards, forms, and components, including award-design plans and selected ladder chunks. Consume the supplied direction and preserve its review gates. Without a supplied direction, state SURFACE · WORLD · TYPE · COLOR · SIGNATURE in the response or design artifact; an edit inherits the surrounding direction. Surface archetypes guide composition, with concrete type, spacing, color, and motion constraints. DESIGN.md and explicit ladder chunks define the applicable scope.
 
 **Usage**
 
@@ -471,6 +471,7 @@ Build pages, dashboards, forms, and components within their existing design cont
 /frontend-dev add a changelog page          # everyday work — ritual, floors, fresh-pixels verify
 /frontend-dev build the admin dashboard     # Monitor surface — dense grid, full states, no hero
 /frontend-dev quick landing for the beta    # Persuade surface — conversion lines above the ritual
+/frontend-dev implement chunk hero from design-plan.md  # consume the director's plan and checks
 ```
 
 **Key features**
@@ -481,7 +482,7 @@ Build pages, dashboards, forms, and components within their existing design cont
 - **The fingerprint ban** — ten model defaults matched and refused: the purple gradient, Inter on display, three equal cards, eyebrows, center-stack, nested cards, default glassmorphism, invented stats, em-dash copy, icon toppers
 - **States and verification** — reachable interactive and data states, responsive rendering, keyboard access, and console checks on the affected surface. A component fix does not create site-wide favicon, 404, or spectacle work
 - **Conversion pass for landings** — OFFER / AUDIENCE / ACTION above the ritual; proof beside claims, an objections section, risk reversal, one CTA repeated
-- **Brief consumption** — DESIGN.md tokens are law when present; an award-design ladder chunk hands to `/award-design` chunk mode when installed, else runs under its own Verify; award asks on a landing, portfolio, product or marketing site, single-token changes, and empty directories route to `/award-design`, `/design-system`, `/scaffold`; dashboards and internal tools stay at any ambition
+- **Brief consumption** — DESIGN.md tokens are law when present; supplied award-design chunks execute here with their checks and review gates. An award-level site without a direction first uses `/award-design`, then returns here for implementation. Single-token changes and empty directories route to `/design-system` and `/scaffold`; dashboards and internal tools stay at any ambition
 
 **Sources**
 
@@ -1224,7 +1225,9 @@ Happy path, new project:
       |
 /award-design "brief"                  force a universe — writes DESIGN.md + design-plan.md (the ladder)
       |
-/award-design chunk <id>               build the ladder one chunk per run (or /apex, /ultrapex, any agent)
+/frontend-dev implement design-plan.md  build the authorized ladder (or one selected chunk)
+      |
+/award-design review <url|path>         review the rendered result
       |
 /design-system audit                   lint the tokens, fix findings
       |
@@ -1293,8 +1296,8 @@ graph LR
 
   scaffold --> award-design
   scaffold --> frontend-dev
-  frontend-dev -->|ladder chunk| award-design
-  award-design -->|everyday, dashboards| frontend-dev
+  frontend-dev -->|direction needed or rendered review| award-design
+  award-design -->|plan or selected chunk| frontend-dev
   frontend-dev <-->|DESIGN.md| design-system
   award-design <-->|DESIGN.md| design-system
 

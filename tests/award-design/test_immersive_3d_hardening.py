@@ -181,7 +181,7 @@ class TestAxis4SourcedNotUsedWell(unittest.TestCase):
                         or "using it well" in w or "low-effort" in w)
 
     def test_r2_judges_execution_not_presence(self):
-        self.assertIn("not just that it runs", _gate("review.md"))
+        self.assertIn("judge execution quality, not just operation", _gate("review.md"))
 
 
 class TestAxis5ExecutionReview(unittest.TestCase):
@@ -189,7 +189,8 @@ class TestAxis5ExecutionReview(unittest.TestCase):
         r = _gate("review.md")
         self.assertIn("drive, don't read", r,
                       "the signature is driven, never read off the code")
-        self.assertIn("the signature as a real user", r)
+        self.assertIn("the signature's declared behavior as a real user", r)
+        self.assertIn("for a static signature, inspect its composition and legibility", r)
         self.assertIn("reads cgi", r)
 
     def test_imperative_one_execution_fidelity(self):

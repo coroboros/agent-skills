@@ -1,4 +1,4 @@
-"""frontend-dev — the everyday-lane contract documented in SKILL.md must remain stable."""
+"""frontend-dev — everyday UI and directed build chunks retain their scope."""
 
 import re
 import sys
@@ -38,7 +38,7 @@ def _section(heading):
 
 
 class TestFrontmatterTier(unittest.TestCase):
-    """frontend-dev ships portable: no compatibility string, no paths globs
+    """frontend-dev declares its capabilities without paths globs
     (paths would double-fire with design-system on the same UI files), no
     pinned model."""
 
@@ -74,8 +74,9 @@ class TestBriefTiers(unittest.TestCase):
         self.assertTrue(0 <= chunk < design < ritual,
                         f"tiers out of order: {chunk}, {design}, {ritual}")
 
-    def test_chunk_defers_to_award_design_when_installed(self):
-        self.assertIn("load and execute its chunk mode", self._tiers())
+    def test_ready_chunk_stays_with_the_builder(self):
+        self.assertIn("Implement the selected chunk", self._tiers())
+        self.assertIn("Do not route a ready build chunk back for direction", self._tiers())
         self.assertIn("Stop at the selected chunk boundary", self._tiers())
 
     def test_chunk_verify_runs_verbatim_with_declared_gaps(self):

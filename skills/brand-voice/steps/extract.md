@@ -105,10 +105,11 @@ Apply the synthesised voice to the prose itself: the doc must pass its own filte
 Write the synthesised content to a temp file under `/tmp/`. Run:
 
 ```bash
-python3 "$SKILL_DIR"/scripts/voice_lint.py /tmp/<file>.md
+python3 "$SKILL_DIR"/scripts/voice_lint.py /tmp/<file>.md --target-path <output-path>
 ```
 
 - Exit 0 (GREEN/YELLOW) → proceed.
+- `<output-path>` is the final `-o` destination (default `./BRAND-VOICE.md`), so relative parents and cycles are checked against the candidate's final identity without touching that path.
 - Exit 1 (RED) → fix the errors and re-lint. Do not write to disk with errors.
 - Exit 2 (I/O) → surface the error, abort.
 

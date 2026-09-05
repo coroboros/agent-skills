@@ -21,6 +21,20 @@
       "prompt": "Humanize this engineering README using our inherited brand rules. It uses important in a quoted API warning and lists three actual platform limits. The brand parent path does not exist.",
       "expected_output": "Consult references/patterns.md to distinguish literal technical content from rhetorical AI tells; preserve the quote and factual list. Refuse to perform a supposedly brand-compliant rewrite with an unresolved parent. Report the exact failed resolution and missing path, and keep dependent edits pending until the brand input is repaired.",
       "files": []
+    },
+    {
+      "id": 4,
+      "name": "sparse-facts-stay-sparse",
+      "prompt": "Humanize: Gallery 825 serves as the exhibition space. It boasts over 3,000 square feet. Experts believe its programme may affect attendance; the supplied source names no expert or study.",
+      "expected_output": "Preserve Gallery 825, over 3,000 square feet and the uncertain attributed attendance claim. Do not invent a study, year, source, room count or causal result. Simplify phrasing and identify the attribution gap without substituting new evidence.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "explicit-provenance-json-is-not-resolved-rules",
+      "prompt": "Validate the draft 'The launch is scheduled for Monday.' with --rules-json pointing to {\"voice\":{\"name\":\"Synthetic\"},\"merged\":{\"forbidden_lexicon\":[\"launch\"]}}.",
+      "expected_output": "Reject the provenance-shaped input with an input error and exact --resolved-json guidance. Do not emit clean or silently ignore the nested rules. Preserve the draft while the brand input is invalid.",
+      "files": []
     }
   ]
 }

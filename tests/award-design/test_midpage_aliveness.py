@@ -36,13 +36,12 @@ class TestMidPageLifeRows(unittest.TestCase):
                                 body.index("## scroll texture"))
 
 
-class TestDeadMiddleLaw(unittest.TestCase):
-    def test_layered_never_sequential(self):
+class TestLayeredMiddleRecipe(unittest.TestCase):
+    def test_channels_follow_the_committed_register(self):
         ix = _read("interaction-signatures.md")
-        self.assertIn(
-            "**the middle is layered, never sequential — the dead-middle law.**",
-            ix)
-        self.assertIn("the channels run together from hero to footer", ix)
+        self.assertIn("when the chosen register commits these channels", ix)
+        self.assertIn("minimalist's optional idle", ix)
+        self.assertIn("not a universal four-channel requirement", ix)
 
 
 class TestHoverOnText(unittest.TestCase):

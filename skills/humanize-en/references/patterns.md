@@ -2,6 +2,8 @@
 
 32 patterns grouped into six families. For each: what to watch for, why it reads as AI, a concrete before/after.
 
+Use only facts supplied in the input. A specificity or attribution gap remains a gap; a rewrite cannot invent a source, number, date or explanation. Parenthesized editorial actions below describe deletion or a needed source check, not replacement factual prose. Structural patterns are diagnostics unless the requested scope also authorizes restructuring.
+
 ## Contents
 
 - **Content patterns** — 1 Significance inflation · 2 Notability name-dropping · 3 Superficial -ing · 4 Promotional language · 5 Vague attributions · 6 Formulaic "Challenges" sections
@@ -25,7 +27,7 @@
 > The Statistical Institute was officially established in 1989, marking a pivotal moment in the evolution of regional statistics.
 
 **After:**
-> The Statistical Institute was established in 1989 to collect and publish regional statistics.
+> The Statistical Institute was officially established in 1989.
 
 ### 2. Notability name-dropping
 
@@ -37,7 +39,9 @@
 > Her views have been cited in The New York Times, BBC, Financial Times, and The Hindu.
 
 **After:**
-> In a 2024 New York Times interview, she argued that AI regulation should focus on outcomes rather than methods.
+> The New York Times, BBC, Financial Times, and The Hindu have cited her views.
+
+If the outlet list adds no useful context, propose removing it. Do not invent an interview, date or subject to justify the mention.
 
 ### 3. Superficial -ing analyses
 
@@ -49,7 +53,7 @@
 > The temple's colours resonate with natural beauty, symbolising bluebonnets, reflecting the community's deep connection to the land.
 
 **After:**
-> The temple uses blue and gold colours. The architect said these were chosen to reference local bluebonnets.
+> The temple's colours symbolise bluebonnets and the community's connection to the land.
 
 ### 4. Promotional language
 
@@ -61,7 +65,7 @@
 > Nestled within the breathtaking region, Alamata stands as a vibrant town with rich cultural heritage and stunning natural beauty.
 
 **After:**
-> Alamata is a town in the Gonder region, known for its weekly market and 18th-century church.
+> Alamata is a town in the region with cultural heritage and natural surroundings.
 
 ### 5. Vague attributions
 
@@ -73,7 +77,9 @@
 > Experts believe it plays a crucial role in the regional ecosystem.
 
 **After:**
-> The river supports several endemic fish species, according to a 2019 survey by the Chinese Academy of Sciences.
+> Experts believe it matters to the regional ecosystem.
+
+The experts remain unnamed in the input. Flag that source gap instead of supplying an invented survey or converting the attributed belief into an established fact.
 
 ### 6. Formulaic "Challenges and Future Prospects" sections
 
@@ -85,7 +91,7 @@
 > Despite challenges typical of urban areas, the city continues to thrive as an integral part of growth.
 
 **After:**
-> Traffic congestion increased after 2015 when three new IT parks opened. The municipal corporation began a drainage project in 2022.
+> The city continues to grow despite urban challenges.
 
 ---
 
@@ -101,7 +107,7 @@
 > Additionally, a distinctive feature showcases how these dishes have integrated into the traditional culinary landscape.
 
 **After:**
-> Pasta dishes, introduced during Italian colonisation, remain common in the south.
+> These dishes are part of the traditional cuisine.
 
 ### 8. Copula avoidance
 
@@ -113,7 +119,7 @@
 > Gallery 825 serves as the exhibition space. The gallery features four rooms and boasts over 3,000 square feet.
 
 **After:**
-> Gallery 825 is the exhibition space. The gallery has four rooms totalling 3,000 square feet.
+> Gallery 825 is the exhibition space. The gallery has four rooms and over 3,000 square feet.
 
 ### 9. Negative parallelisms and tailing negations
 
@@ -125,7 +131,7 @@
 > It's not just about the beat; it's part of the aggression.
 
 **After:**
-> The heavy beat adds to the aggressive tone.
+> The beat adds to the aggression.
 
 **Before (tailing negation):**
 > The options come from the selected item, no guessing.
@@ -141,7 +147,9 @@
 > The event features keynote sessions, panel discussions, and networking opportunities. Attendees can expect innovation, inspiration, and industry insights.
 
 **After:**
-> The event includes talks and panels, with informal networking between sessions.
+> The event includes keynote sessions, panel discussions, and networking opportunities.
+
+Three actual programme items remain three. Cut the promotional promise; do not alter the programme or invent when networking happens to change the count.
 
 ### 11. Synonym cycling (elegant variation)
 
@@ -151,7 +159,7 @@
 > The protagonist faces challenges. The main character must overcome obstacles. The central figure triumphs. The hero returns home.
 
 **After:**
-> The protagonist faces many challenges and eventually returns home triumphant.
+> The protagonist faces challenges and returns home triumphant.
 
 ### 12. False ranges
 
@@ -161,7 +169,7 @@
 > The journey has taken us from the singularity of the Big Bang to the cosmic web, from the birth of stars to the dance of dark matter.
 
 **After:**
-> The book covers the Big Bang, star formation, and current theories about dark matter.
+> We explored the Big Bang, the cosmic web, star formation, and dark matter.
 
 ### 13. Passive voice and subjectless fragments
 
@@ -171,7 +179,9 @@
 > No configuration file needed. The results are preserved automatically.
 
 **After:**
-> You do not need a configuration file. The system preserves the results automatically.
+> You do not need a configuration file. Results are preserved automatically.
+
+Keep the passive construction when the source does not identify the actor.
 
 ---
 
@@ -197,18 +207,21 @@ Keep an em-dash when it marks a genuine break in thought. Drop it when a comma o
 > It blends **OKRs**, **KPIs**, and tools such as the **Business Model Canvas** and **Balanced Scorecard**.
 
 **After:**
-> It blends OKRs, KPIs, and visual strategy tools like the Business Model Canvas and Balanced Scorecard.
+> It blends OKRs, KPIs, and tools such as the Business Model Canvas and Balanced Scorecard.
 
 ### 16. Inline-header vertical lists
 
 **Why AI:** `**Header:** restatement of the header.` — every bullet repeats the label.
 
 **Before:**
+
 > - **Performance:** Performance has been enhanced through optimised algorithms.
 > - **Security:** Security has been strengthened with encryption.
 
 **After:**
-> The update speeds up load times through optimised algorithms and adds end-to-end encryption.
+
+> - Optimised algorithms improve performance.
+> - Encryption strengthens security.
 
 ### 17. Title case headings
 
@@ -229,7 +242,7 @@ Match the surrounding repo or site convention — don't force sentence case if t
 > 💡 **Key Insight:** Users prefer simplicity
 
 **After:**
-> The product launches in Q3. User research showed a preference for simplicity.
+> The product launches in Q3. Users prefer simplicity.
 
 Preserve emojis when the source register uses them intentionally (changelog conventions, social posts, casual notes).
 
@@ -257,7 +270,7 @@ The Before uses curly `“…”` (U+201C / U+201D); the After uses straight `"�
 > Here is an overview of the French Revolution. I hope this helps! Let me know if you'd like me to expand on any section.
 
 **After:**
-> The French Revolution began in 1789 when financial crisis and food shortages led to widespread unrest.
+> (Delete the chatbot wrapper; retain the supplied overview of the French Revolution.)
 
 ### 21. Knowledge-cutoff disclaimers
 
@@ -267,7 +280,9 @@ The Before uses curly `“…”` (U+201C / U+201D); the After uses straight `"�
 > While specific details about the company's founding are not extensively documented in readily available sources, it appears to have been established sometime in the 1990s.
 
 **After:**
-> The company was founded in 1994, according to its registration documents.
+> The company appears to have been established in the 1990s; the available sources provide little detail.
+
+Retain meaningful uncertainty and the supplied date range. Stylistic confidence is not evidence.
 
 ### 22. Sycophantic tone
 
@@ -277,7 +292,7 @@ The Before uses curly `“…”` (U+201C / U+201D); the After uses straight `"�
 > Great question! You're absolutely right that this is a complex topic. That's an excellent point!
 
 **After:**
-> The economic factors you mentioned are relevant here.
+> This is a complex topic.
 
 ---
 
@@ -311,7 +326,7 @@ The Before uses curly `“…”` (U+201C / U+201D); the After uses straight `"�
 > The future looks bright for the company. Exciting times lie ahead as they continue their journey toward excellence.
 
 **After:**
-> The company plans to open two more locations next year.
+> (Delete the unsupported positive conclusion. Add no plans absent from the source.)
 
 ### 26. Hyphenated word-pair overuse
 
@@ -323,7 +338,7 @@ The Before uses curly `“…”` (U+201C / U+201D); the After uses straight `"�
 > The cross-functional team delivered a high-quality, data-driven report on our client-facing tools.
 
 **After:**
-> The team, drawn from engineering and product, delivered a thorough report based on usage data from our customer tools.
+> The team spans several functions and delivered a report of high quality, informed by data, on our tools for clients.
 
 Reformulate rather than merely strip hyphens — *cross functional* and *high quality* (unhyphenated) are not standard English and replace one tell with another. This pattern is soft: apply only when the hyphenation is uniformly consistent across the document and feels mechanical.
 
@@ -337,7 +352,7 @@ Reformulate rather than merely strip hyphens — *cross functional* and *high qu
 > The real question is whether teams can adapt. At its core, what really matters is organisational readiness.
 
 **After:**
-> The question is whether teams can adapt. That mostly depends on whether the organisation is ready to change its habits.
+> The question is whether teams can adapt and whether the organisation is ready.
 
 ### 28. Signposting and announcements
 
@@ -349,7 +364,7 @@ Reformulate rather than merely strip hyphens — *cross functional* and *high qu
 > Let's dive into how caching works in Next.js. Here's what you need to know.
 
 **After:**
-> Next.js caches data at multiple layers — request memoisation, the data cache, and the router cache.
+> (Remove the announcements and start with the supplied explanation of caching in Next.js.)
 
 ### 29. Fragmented headers
 
@@ -455,9 +470,11 @@ Keep `---` at genuinely major pivots (end of a long narrative introduction, boun
 > Additionally, industry observers have noted that adoption has accelerated from hobbyist experiments to enterprise-wide rollouts, from solo developers to cross-functional teams.
 
 **After one pass:**
-> AI coding assistants speed up some tasks. In a 2024 Google study, developers using Codex completed simple functions 55% faster than a control group but showed no improvement on debugging or architectural decisions.
+> AI-assisted coding is changing how engineers plan, revise, and deliver software.
 >
-> Adoption has moved from hobbyist experiments to enterprise rollouts, though independent productivity studies remain scarce.
+> Unnamed industry observers report accelerated adoption beyond hobbyist experiments, including enterprise rollouts and use by solo developers and teams.
+
+**Remaining source gap:** the input does not identify those observers. Keep that attribution qualified and flag the gap; this rewrite supplies no productivity measurements or new research claims.
 
 **Patterns removed:**
 - #20 Chatbot artifacts — "Great question!", "I hope this helps!"
@@ -465,7 +482,5 @@ Keep `---` at genuinely major pivots (end of a long narrative introduction, boun
 - #4 Promotional language — "groundbreaking", "nestled"
 - #8 Copula avoidance — "serves as"
 - #3 Superficial -ing — "underscoring", "marking", "reshaping"
-- #10 Rule of three — "ideate, iterate, and deliver"
 - #12 False ranges — "from hobbyist experiments to enterprise-wide rollouts, from solo developers to cross-functional teams"
-- #5 Vague attributions — "industry observers have noted"
 - #7 AI vocabulary — "additionally", "enduring", "transformative"
