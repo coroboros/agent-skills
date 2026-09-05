@@ -161,7 +161,7 @@ Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tes
 Two workflows trigger on every pull request and push to `main`:
 
 - `.github/workflows/ci.yml` runs the full `unittest` suite. Branch protection on `main` requires the `tests` status check — red tests block merge.
-- `.github/workflows/scan-skills.yml` calls Cisco's `skill-scanner` reusable workflow (policy `balanced`, fail-on `critical`) against the `skills/` tree. SHA-pinned to a tagged release; Dependabot opens a PR weekly when a new version lands.
+- `.github/workflows/scan-skills.yml` runs Cisco's `skill-scanner` recursively against the full `skills/` tree, including overlap checks (policy `balanced`, fail-on `critical`). SARIF uploads also run after scan failures. `.github/skill-scanner/requirements.txt` pins the scanner package version; actions are SHA-pinned. Dependabot checks both weekly. The upstream reusable workflow installs the latest package regardless of its workflow SHA, so it does not pin the scanner runtime.
 
 ## Spec validation posture
 

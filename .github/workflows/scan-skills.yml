@@ -9,11 +9,28 @@ on:
 jobs:
   scan:
     name: scan
-    uses: cisco-ai-defense/skill-scanner/.github/workflows/scan-skills.yml@ec7c7f09c38c30af00e145e113b69fae96cbeb1a # 2.0.13
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
-    with:
-      skill_path: skills
-      policy: balanced
-      fail_on_severity: critical
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.12"
+
+      - name: Install skill-scanner
+        run: python -m pip install -r .github/skill-scanner/requirements.txt
+
+      - name: Scan skills
+        run: >-
+          skill-scanner scan-all skills --recursive --check-overlap
+          --policy balanced --fail-on-severity critical
+          --format sarif --output results.sarif
+
+      - name: Upload SARIF to Code Scanning
+        if: ${{ !cancelled() && hashFiles('results.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@fddeee1a7ece751b577e409a89057319e3172939 # v4
+        with:
+          sarif_file: results.sarif

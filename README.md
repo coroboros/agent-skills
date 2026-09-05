@@ -1328,7 +1328,7 @@ Stdlib only. See [`.agents/rules/skill-authoring.md`](./.agents/rules/skill-auth
 
 ## Security
 
-Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner`](https://github.com/cisco-ai-defense/skill-scanner) — policy `balanced`, fail-on `critical`. The reusable workflow is SHA-pinned to a tagged release; Dependabot opens a PR when a new version lands.
+Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner`](https://github.com/cisco-ai-defense/skill-scanner), using policy `balanced` and failing on `critical` findings. The scanner package is version-pinned and actions are SHA-pinned; Dependabot checks both weekly.
 
 ---
 
