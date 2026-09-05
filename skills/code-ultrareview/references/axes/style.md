@@ -36,9 +36,11 @@ A rule-based finding MUST quote the rule text verbatim and include its source pa
 
 ## Severity calibration
 
-- 🔴 High — an applicable instruction explicitly marked `MANDATORY`, `NEVER`, `CRITICAL`, or equivalent is violated on a changed line.
-- 🟠 Medium — an unambiguous applicable instruction is violated without strong severity language.
+- 🔴 High — the violation has a demonstrated serious effect on correctness, safety, or an accepted outcome.
+- 🟠 Medium — the violation has a concrete material consequence requiring correction.
 - 🟢 Low — a changed line violates a repeated neighboring convention while no instruction baseline exists.
+
+Capitalization such as `MANDATORY` or `NEVER` establishes emphasis, not impact. Calibrate severity to the demonstrated consequence; a minor convention violation stays Low even when written in capitals.
 
 ## Repo-kind branches
 

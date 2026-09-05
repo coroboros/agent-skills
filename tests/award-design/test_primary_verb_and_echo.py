@@ -121,8 +121,8 @@ class TestDiscoveryBeat(unittest.TestCase):
 class TestScrollTextureSlot(unittest.TestCase):
     def test_density_read_names_the_channels(self):
         r = _gate("review.md")
-        self.assertIn("a scroll texture", r)
-        self.assertIn("one ambient idle channel", r)
+        self.assertIn("selected archetype", r)
+        self.assertIn("missing declared choreography", r)
 
     def test_every_palette_carries_the_rows(self):
         for a in ARCHETYPES:

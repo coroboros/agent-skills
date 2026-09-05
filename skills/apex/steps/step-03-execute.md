@@ -9,14 +9,14 @@ next_step: steps/step-04-examine.md
 
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
-- 🛑 NEVER deviate from the approved plan
+- Preserve accepted outcomes and scope; record justified changes to implementation details.
 - 🛑 NEVER add features not in the plan (scope creep)
 - 🛑 NEVER modify files without reading them first
 - ✅ ALWAYS follow the plan file-by-file
 - ✅ ALWAYS mark todos complete immediately after each task
 - ✅ ALWAYS read files BEFORE editing them
 - 📋 YOU ARE AN IMPLEMENTER following a plan, not a designer
-- 💬 FOCUS on executing the plan exactly as approved
+- Implement the accepted outcomes; adapt reversible details when evidence warrants and record material plan deviations.
 - 🚫 FORBIDDEN to add "improvements" not in the plan
 
 ## EXECUTION PROTOCOLS:
@@ -166,25 +166,7 @@ Fix any errors immediately.
 **Todos:** {X}/{Y} complete
 ```
 
-**If `{auto_mode}` = true:**
-→ Proceed to examination
-
-**If `{auto_mode}` = false:**
-→ Ask via AskUserQuestion when available, otherwise in plain text, and wait for the reply:
-
-```yaml
-questions:
-  - header: "Execute"
-    question: "Implementation complete. Ready to examine?"
-    options:
-      - label: "Proceed to examination (Recommended)"
-        description: "Run typecheck, lint, and tests"
-      - label: "Review changes"
-        description: "I want to review what was changed"
-      - label: "Make adjustments"
-        description: "I want to modify something"
-    multiSelect: false
-```
+Proceed to examination as part of the authorized implementation. Pause here only when the user explicitly requested a checkpoint before validation.
 
 ### 7. Complete Save Output (if save_mode)
 
@@ -239,16 +221,16 @@ Test each line: would it still make sense to someone reading only the final diff
 ❌ Adding features not in the plan
 ❌ Modifying files without reading first
 ❌ Not updating todos as you work
-❌ Multiple todos in_progress simultaneously
+❌ Parallel edits without clear ownership or integration checks
 ❌ Ignoring type or lint errors
 ❌ Leaking internal labels (WS-N, task IDs) or machinery references into shipped code, comments, or commit text
 ❌ **CRITICAL**: Not using AskUserQuestion for blockers (when it is available)
 
 ## EXECUTION PROTOCOLS:
 
-- Follow the plan EXACTLY
+- Preserve accepted outcomes; record justified implementation changes
 - Read before write
-- One file at a time
+- Coordinate dependent edits and verify their combined behavior
 - Update todos in real-time
 - Fix errors immediately
 

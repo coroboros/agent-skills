@@ -239,22 +239,22 @@ class TestCLI(unittest.TestCase):
         finally:
             path.unlink()
 
-    def test_too_few_workstreams_exits_1(self):
-        path = _write_temp(_spec(_ws("WS-1") + _ws("WS-2")))
+    def test_one_workstream_is_valid(self):
+        path = _write_temp(_spec(_ws("WS-1")))
         try:
             r = _run(path)
-            self.assertEqual(r.returncode, 1)
-            self.assertIn("ws-count-out-of-range", r.stdout)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("ok=true", r.stdout)
         finally:
             path.unlink()
 
-    def test_too_many_workstreams_exits_1(self):
+    def test_eight_workstreams_are_valid(self):
         ws = "".join(_ws(f"WS-{i}") for i in range(1, 9))  # 8 workstreams
         path = _write_temp(_spec(ws))
         try:
             r = _run(path)
-            self.assertEqual(r.returncode, 1)
-            self.assertIn("ws-count-out-of-range", r.stdout)
+            self.assertEqual(r.returncode, 0, r.stderr)
+            self.assertIn("ok=true", r.stdout)
         finally:
             path.unlink()
 

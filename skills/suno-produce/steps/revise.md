@@ -95,7 +95,7 @@ On GREEN or YELLOW (exit 0 or 2), `mv` the validated candidate over `{path}/TRAC
 
 ## Edge cases
 
-- **Feedback is contradictory** ("more energy in the chorus, but quieter") — surface the contradiction via `AskUserQuestion` (when `AskUserQuestion` is unavailable, ask in plain text and wait for the reply). Pick the resolution; do not paper over.
+- **Feedback appears contradictory** — first distinguish its musical dimensions: more rhythmic energy and lower loudness can coexist. State a routine interpretation and revise; ask through available question tooling or plain text only when the intended result remains irreconcilable or materially ambiguous.
 - **Feedback names a section that doesn't exist** ("the bridge feels off" but there is no `[Bridge]`) — surface, ask whether to add one or whether the user means a different section.
 - **Feedback targets audio that the prompt cannot reach** ("the vocals sound autotuned" when no autotune is in the prompt) — note that Suno's voice synthesis can introduce unsolicited processing; suggest adding `no autotune` to Exclude Styles, or attaching a Voice profile.
 - **No `versions/` directory yet** — first revise on a v0 track. Create the directory; archive the v0 TRACK.md as `versions/v1.md`.

@@ -1,19 +1,19 @@
 ---
 name: video-loop
-description: Create a looping background video — crossfade the loop point, encode optimized MP4 + WebM, optional poster frame. Use whenever the user has a video that needs to loop for web use (hero sections, backgrounds, landing-page ambience), wants to fix a visible jump at the loop point, or needs to optimize a clip for web delivery — even if they just say "make this loop smoothly" or "compress this for the site".
+description: Prepare a background video loop for a website with optional crossfade, MP4/WebM encoding and poster extraction. Use for loop joins or web delivery of an existing clip.
 when_to_use: When the user has a video that needs to loop without visible artifacts on the web (hero sections, backgrounds), or when the end-to-start transition is visible and needs a crossfade fix, or when optimizing video assets for web delivery (MP4 + WebM). Keywords — loop, video, background, hero, seamless, crossfade, encode, webm, mp4, ffmpeg, compress video, optimize video. For audio loops use `/audio-loop` (sibling — parallel architecture, loudness + gapless FLAC + Web Audio snippet). Skip for audio processing, cuts/trimming beyond looping, or motion-graphics work.
 argument-hint: "<input.mp4> [options] — e.g. /video-loop hero.mp4 -d 1.5"
 allowed-tools: Bash(ffmpeg *) Bash(ffprobe *) Bash(command *) Bash(bash *) Bash(stat *) Read
 license: MIT
+compatibility: "Requires bash, FFmpeg with libx264/libvpx-vp9 and ffprobe. Visual continuity verification requires playback or frame inspection in the target environment."
 metadata:
   author: coroboros
-  sources:
-    - ffmpeg.org
+  sources: "ffmpeg.org"
 ---
 
 # Video Loop
 
-Create a seamless looping background video from any source clip. A crossfade blends the last and first frames so the `<video loop>` transition is invisible, then the pipeline encodes web-optimized MP4 + WebM.
+Prepare a background video with an optional end-to-start crossfade and MP4/WebM encoding. Verify repeated playback before claiming an invisible transition; motion and source continuity can still make the join visible.
 
 All ffmpeg work happens in `scripts/video-loop.sh` — this skill validates inputs, optionally helps pick a good fade duration, invokes the script, and turns the script's summary into a human-readable report.
 
@@ -34,7 +34,7 @@ All ffmpeg work happens in `scripts/video-loop.sh` — this skill validates inpu
 
 ### 1. Validate tools
 
-Confirm `ffmpeg` and `ffprobe` are available: `command -v ffmpeg ffprobe`. If either is missing, stop and ask the user to install (macOS: `! brew install ffmpeg`, Debian/Ubuntu: `! sudo apt install ffmpeg`). Never auto-install.
+Confirm `ffmpeg` and `ffprobe` are available: `command -v ffmpeg ffprobe`. If either is missing, stop and ask the user to install (macOS: `brew install ffmpeg`, Debian/Ubuntu: `sudo apt install ffmpeg`). Never auto-install.
 
 ### 2. Analyze loop quality (optional but recommended)
 
@@ -57,7 +57,9 @@ bash "$SKILL_DIR"/scripts/video-loop.sh <input> [flags]
 
 The script does the rest: probes metadata, builds the lossless loop intermediate when crossfade is requested, encodes MP4 (H.264 + faststart) and WebM (VP9), optionally extracts a poster frame. It emits a machine-readable summary on stdout, one `RESULT: key=value` line per fact.
 
-### 4. Report
+### 4. Verify and report
+
+Play both outputs across several joins in the target browser, checking motion continuity and any crossfade ghosting. First/last-frame comparison alone cannot establish smooth motion. If playback inspection is unavailable, report encoding checks separately and leave visual continuity unverified. The script rejects any output that aliases its source, including a WebM in its own output directory; use `-o` elsewhere.
 
 Parse the `RESULT:` lines to compose:
 
@@ -92,9 +94,9 @@ Useful background for debugging "I still see a jump" reports. The script places 
 - `[xfade]` (F seconds): blends `A[end]` → `A[start]`. First frame = `A[D-F]`, last frame = `A[F]`
 - `[middle]` (D−2F seconds): untouched frames from `A[F]` to `A[D-F]`
 
-At the loop boundary, `[middle]` ends at `A[D-F]` and the player loops back to `[xfade]`, which starts at the same frame — invisible transition. If the xfade were placed at the end (`[middle][xfade]`), the xfade would end at `A[F]` but loop back to `A[0]` — a visible jump of F seconds.
+At the loop boundary, the middle approaches the source position where the crossfade begins; actual frame rounding and motion still need playback verification. If the xfade were placed at the end (`[middle][xfade]`), the xfade would end at `A[F]` but loop back to `A[0]` — a visible jump of F seconds.
 
-If the user reports a visible jump despite running the skill, first check whether they pointed at an already-encoded file (re-running re-encodes but doesn't re-loop). If the source is correct, try a longer `-d` — short fades are more visible on high-motion content.
+For a remaining jump, verify the source and inspect the transition before choosing another fade duration. Reprocessing with a fade enabled applies the loop edit again, so return to the original source instead of compounding edits.
 
 ## Rules
 

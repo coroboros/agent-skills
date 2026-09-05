@@ -1,6 +1,6 @@
-# .claude/rules/ Directory - Official Guide
+# Claude Code rules directory
 
-Complete guide to using modular rules with `.claude/rules/` directory, based on official Claude Code documentation.
+Local guidance based on the [official Claude Code memory documentation](https://code.claude.com/docs/en/memory). Examples illustrate layout; adapt their commands and policies to verified project conventions.
 
 ## Overview
 
@@ -149,7 +149,7 @@ File: `.claude/rules/testing.md`
 
 - Write tests in `__tests__/` directories
 - Use Vitest for unit tests
-- Minimum 80% coverage for new code
+- Run the project's required checks and affected behavioral tests
 - Run `pnpm test` before committing
 ```
 
@@ -191,8 +191,7 @@ paths:
 
 - Prefer Server Components (Next.js App Router)
 - Use `"use client"` only when needed for interactivity
-- Keep components under 300 lines
-- Extract hooks to separate files
+- Keep shared behavior in the existing owner; extract only when the change requires it
 ```
 
 ### User-Level Global Rule
@@ -203,7 +202,7 @@ File: `~/.claude/rules/preferences.md`
 # My Personal Coding Preferences
 
 - I prefer concise variable names (no unnecessary verbosity)
-- Always add error boundaries around async operations
+- Preserve the project's documented error-handling contract
 - Use early returns to reduce nesting
 ```
 

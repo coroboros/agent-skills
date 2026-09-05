@@ -10,11 +10,12 @@ The block below — including the two HTML-comment markers — is inserted verba
 <!-- canonical:execution-discipline:start -->
 ## Important — Engineering discipline
 
-These rules govern how this skill changes code — apply them whenever it writes, edits, or proposes a fix.
+Apply these rules when writing, editing, or proposing code.
 
-- Minimal scope. Only what's directly requested or clearly necessary — no extra files, no abstraction for one use, no configurability nobody asked for, no error handling for states that can't happen. Validate at system boundaries; trust internal code.
-- General solution, not the test cases. Implement the real logic for all valid inputs; never hard-code to inputs or bolt on workaround scripts to make a test pass. Tests verify the solution; they don't define it. A test is wrong? Say so — don't bend correct code to a broken test.
-- Investigate before claiming. Never speculate about code you haven't opened; read the referenced file before answering. Ground every claim in what you actually read, not a plausible guess.
+- Solve the accepted problem with the smallest complete change. Reuse existing mechanisms; preserve unrelated work. Validate external inputs and real failure states.
+- Read the affected implementation, callers, and shared utilities before editing. Ground code claims in inspected evidence.
+- Implement the general behavior. Tests must distinguish correct behavior from the defect; never hard-code to fixtures or preserve a demonstrably wrong test.
+- Carry scope, corrections, and existing authorization through handoffs. Run applicable required checks; repeat them only for changed behavior or unresolved failures.
 <!-- canonical:execution-discipline:end -->
 ```
 

@@ -1,15 +1,14 @@
 ---
 name: humanize-en
-description: Strip AI writing tells from English prose — em-dash overuse, rule of three, negative parallelisms, AI vocabulary (delve, tapestry, crucial, pivotal, underscore, showcase), vague attributions, promotional tone, conjunctive padding (moreover, furthermore, indeed), hedging, signposting, chatbot artifacts. Preserves meaning, structure, code blocks, links, anchors, and frontmatter — rewrites only the flagged phrasing. Operates on inline text or a prose file path; optionally loads a `BRAND-VOICE.md` via `-f` for brand-specific rules. Use whenever English prose needs to sound less machine-generated — "humanize this", "remove AI tells", "clean up the AI slop", "sounds like ChatGPT", "polish the English" — on READMEs, docs, release notes, blog drafts, PR bodies, or commit messages.
+description: Remove AI writing tells from English prose while preserving meaning, structure, code, links and quotations. Use for humanize this, remove AI slop and polish the English on inline text or prose files. Optional -f BRAND-VOICE.md applies brand rules with explicit mechanical and semantic coverage. Inherit authorized rewrite scope; audit/propose remains read-only. Structural README work belongs to write-clear-readme.
 when_to_use: Also invoked as a subroutine by other writing skills (e.g., `/write-clear-readme`) to scrub drafts before shipping. Skip for structural restructuring of a README (use `/write-clear-readme` instead), non-English text, or content where AI-authored tone is intentional (transcripts, dataset labels).
 argument-hint: "[-f <voice-doc>] [--iterate <N>] [--strict-code-only] [file-path | inline text]"
 allowed-tools: Read Write Edit Grep Glob Bash(python3 *)
 license: MIT
+compatibility: "Requires file access and Python 3.10+ for mechanical scans. Inherited brand rules additionally require brand-voice's resolver or its pre-resolved JSON output. Local-only brand scans work standalone; unresolved inheritance fails with extraction/install guidance."
 metadata:
   author: coroboros
-  sources:
-    - en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
-    - github.com/blader/humanizer
+  sources: "en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing; github.com/blader/humanizer"
 ---
 
 # Humanize EN
@@ -22,7 +21,7 @@ Additional context from the user: $ARGUMENTS
 
 This skill **removes** AI slop. Default mode (no `-f`): the goal is a clean, direct, human-edited register that preserves the source voice — universal AI tells stripped, no opinion injected. If the source is an opinion piece and the user explicitly asks for voice, `references/voice.md` covers the optional voice-calibration pass.
 
-Under `-f <voice-doc>`: the skill raises the bar. The brand voice becomes the primary contract — every rule in the loaded `BRAND-VOICE.md` (forbidden lexicon, pronouns, rewrite rules, forbidden patterns, lexical exceptions) is enforced deterministically by `prescan.py --brand`, then by the LLM pass, then re-validated by `validate.py`. The 32 universal patterns are the floor; the brand voice is the ceiling.
+Under `-f <voice-doc>`, the brand voice is the primary contract. Prescan and validation enforce mechanically detectable rules; the LLM reviews the remaining semantic rules. A mechanical `clean` result covers only those detectors, not every brand rule. Preserve source facts, code and quotations throughout.
 
 ## Brand voice integration (optional)
 
@@ -33,11 +32,11 @@ When `$ARGUMENTS` starts with `-f <voice-doc>`, load a `BRAND-VOICE.md` (typical
 Workflow:
 
 1. Strip `-f <voice-doc>` from the head of `$ARGUMENTS`. The remainder follows the *Input modes* table below as usual.
-2. Verify `<voice-doc>` exists with `Glob`. Missing or unreadable → degrade to default behavior with an explicit warning ("`<path>` not found — applying universal patterns only"). Never crash.
-3. **Resolve the rules** with `python3 <extract_rules.py> --full <voice-doc>` — flattens YAML, resolves any `voice.extends` chain, applies `_replace`/`_remove`, emits the merged rule block. Try `"$SKILL_DIR"/../brand-voice/scripts/extract_rules.py`, then `~/.claude/skills/brand-voice/scripts/extract_rules.py`, then `~/.agents/skills/brand-voice/scripts/extract_rules.py`. Non-zero exit surfaces chain-resolution errors (`extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`) and aborts. **Fallback** when no candidate resolves: warn *"brand-voice scripts unavailable; chain resolution skipped"* and `Read` the YAML directly — the fallback skips `voice.extends`.
-4. **Run the brand-aware prescan** alongside the universal one: `python3 "$SKILL_DIR"/scripts/prescan.py --brand <voice-doc> <file>`. It emits hits for every mechanically detectable YAML rule (forbidden lexicon, rewrite-rule rejects, all-caps emphasis, pronoun violations, signposting, negative parallelism, rule-of-three headings, rhetorical questions, emoji) plus the 8 universal patterns. Brand hits carry `source: "brand"` and a `rule_id`.
+2. Verify `<voice-doc>` exists and is readable. Missing explicit brand input blocks brand-aware completion; report the exact path/error instead of silently substituting universal-only success.
+3. **Resolve once.** Find the installed brand-voice skill through the harness, then its `scripts/extract_rules.py`; known fallback locations are the sibling skill and `~/.agents/skills/brand-voice` or `~/.claude/skills/brand-voice`. Run `python3 <extract_rules.py> --resolved-json <voice-doc> > <temporary-rules.json>` and read that JSON as the LLM's rule contract. It resolves `voice.extends` and `_replace`/`_remove` through the existing resolver. On failure, preserve stderr and stop brand-aware completion. If the resolver is absent and the voice has no inheritance, read its local YAML and use `--brand <voice-doc>` for both checks. Inherited input requires the resolver: report `npx skills add coroboros/agent-skills --skill brand-voice`, then the exact extraction and rerun commands; never claim parent coverage from child-only input.
+4. **Run the brand-aware prescan**: `python3 "$SKILL_DIR"/scripts/prescan.py --rules-json <temporary-rules.json> <file>`. Use the same resolved JSON for the LLM and both mechanical checks; do not rescan the original child path. Local-only fallback uses `--brand` instead. Brand hits carry `source: "brand"` and a `rule_id` alongside the 8 mechanically detectable universal patterns.
 5. **Cite per source.** Name each hit by source: pattern numbers for universal (`#14`), brand `rule_id`s for brand (`[no-hedging-imperative]`, `[forbidden_lexicon:game-changing]`, `[all_caps_emphasis]`). Brand rules win on direct conflict — a voice that *requires* em-dashes overrides pattern #14.
-6. **Validate after Edit** with `python3 "$SKILL_DIR"/scripts/validate.py --brand <voice-doc> [--baseline <pre-rewrite-hits.json>] <file>`. Outcomes: `clean` → emit *Coverage report* and exit. `residuals` → surface them; auto-iterate up to 3 passes (see *Iteration model*). `regression` → revert the offending edit and re-rewrite.
+6. **Validate the authorized edit** with `python3 "$SKILL_DIR"/scripts/validate.py --rules-json <temporary-rules.json> [--baseline <pre-rewrite-hits.json>] <file>` (or the local-only `--brand` input selected above). `clean` ends the mechanical pass; include semantic coverage before completion. `residuals` → surface and iterate within the cap; `regression` → repair the offending edit. Audit-only may validate a temporary proposed rewrite, leaving the target unchanged.
 7. Pseudo-tables (` ```text ` or unspecified-language fences) are scanned the same as prose under `-f` — see *Preservation rules*. Real code (` ```python `, ` ```bash `, etc.) stays verbatim.
 
 If the user wants brand-aware rewriting and no voice doc exists, defer: *"No `BRAND-VOICE.md` at `<path>`. Run `/brand-voice extract` first."*
@@ -52,8 +51,8 @@ Resolve `$ARGUMENTS` (after stripping any leading `-f <voice-doc>`) as follows:
 
 | Input shape | Behavior |
 |-------------|----------|
-| Empty | Propose the most recent prose target from session context (recent read/edit/draft) and confirm. Ask only when none is detectable. |
-| Prose file path | `Read` the file. Audit, propose a diff, apply only on explicit approval via `Edit`. |
+| Empty | Use the target and mode already authorized in the session. Ask only when the target or requested action is unclear. |
+| Prose file path | Read the file. An authorized rewrite/polish edits it; audit/propose remains read-only. A path alone does not authorize an edit. |
 | Non-prose file path | Refuse: *"Non-prose file — this skill targets prose documents, not structured data or source code."* Rewrite docstring or comment grammar manually. |
 | Inline text (anything else) | Humanize in place and return the rewritten text in the chat. |
 
@@ -66,15 +65,15 @@ Classify the first token via `Glob` (stay in `allowed-tools`, no shell-out): exi
 ## Process
 
 1. **Read fully** — the whole text, not one paragraph at a time. Patterns compound across sentences (rule-of-three + synonym cycling + promotional tone often ride together).
-2. **Prescan mechanically** — for file inputs, run `"$SKILL_DIR"/scripts/prescan.py <file>` (or pipe inline text via `-`). It emits a JSON hit-list for the 8 highest-signal universal patterns (#1, #4, #7, #8, #9, #14, #23, #28). Under `-f`, add `--brand <voice-doc>` so the same script also scans for every mechanically detectable brand rule (forbidden lexicon, rewrite-rule rejects, all-caps emphasis, pronoun violations, signposting, rhetorical questions, rule-of-three headings, emoji, negative parallelism). Subjective patterns (tone, rule-of-three in body prose, vague attributions) stay LLM-only.
+2. **Prescan mechanically** — for file inputs, run `python3 "$SKILL_DIR"/scripts/prescan.py <file>` (or pipe inline text via `-`). It detects 8 universal patterns (#1, #4, #7, #8, #9, #14, #23, #28). Under `-f`, use the resolved `--rules-json` or local-only `--brand` input selected in Brand voice integration. Subjective patterns (tone, rule-of-three in body prose, vague attributions) stay LLM-only.
 3. **Capture the baseline** — when `-f` is set and the input is a file, save the prescan output to a temp path before any rewrite. The validation gate consumes it via `--baseline` to detect regressions.
 4. **Full detect pass** — walk the 32 patterns in [`references/patterns.md`](./references/patterns.md) AND every YAML rule from the brand doc. Do not anchor on the prescan output — the catalogue walk catches what regex cannot, and under `-f` the catalogue is *both* the universal list and the brand rules.
 5. **Draft rewrite** — replace flagged phrasing with direct, specific alternatives. Keep sentence-level meaning intact. See *Preservation rules* below for what stays verbatim and what may still be adjusted.
 6. **Self-audit** —
    - Default mode: ask *"What still reads as obviously AI-generated?"* List remaining tells in 2–4 bullets. Revise.
    - Under `-f`: walk every `forbidden_pattern`, every `forbidden_lexicon` entry, every `pronouns.forbid` rule, and every `rewrite_rules[*].reject` from the loaded voice doc. Emit the *Coverage report* (see *Output format*) — missing rows are a hard failure, not a stylistic choice.
-7. **Validate** — for file inputs under `-f`, run `"$SKILL_DIR"/scripts/validate.py --brand <voice-doc> --baseline <prescan.json> <file>` after `Edit` applies. On `residuals`, iterate (up to the cap from *Iteration model*); on `regression`, revert and re-rewrite the affected passage; on `clean`, exit.
-8. **Report** — present the final rewrite plus the *Coverage report* (count-only by default, rule-by-rule under `-f`). For file inputs, propose the diff and wait for approval before `Edit`.
+7. **Validate** — use the same brand input as prescan with `python3 "$SKILL_DIR"/scripts/validate.py --baseline <prescan.json> <file>`. Validate the edited target or the temporary proposal according to the authorized mode. On `residuals`, iterate within the cap; on `regression`, repair the affected passage; on `clean`, finish the semantic review before reporting completion.
+8. **Report** — present the rewrite/diff plus the *Coverage report* (count-only by default, rule-by-rule under `-f`). Carry the user's existing target and mode through nested skill calls; do not reopen consent for an authorized edit. For audit/propose, report the proposal and leave the target unchanged.
 
 ## Quick reference — the 10 highest-signal tells
 
@@ -113,7 +112,7 @@ When in doubt, keep the original token and only adjust the connective tissue aro
 
 ## Output format
 
-Default mode emits `## Rewrite` + `## Patterns removed`. Under `-f`, the same shell with a `## Coverage report` table where every YAML rule appears as a row — even with 0 hits, since missing rows are a hard failure. For file paths, add a `## Diff preview` block and (under `-f`) a `## Validation report` with `status: clean | residuals | regression`, then `Apply? (yes/no)` — apply only on explicit `yes` from the end user, even when another skill invokes `/humanize-en` on their behalf.
+Default mode emits the rewrite and patterns removed. Under `-f`, add coverage for every resolved brand rule, separating mechanical results from semantic review. File edits include their diff and validation result (`clean | residuals | regression`). Audit/propose includes a diff preview without applying it. An invoking skill inherits the user's existing authorization for this target and mode; it cannot create authority for a new target or action.
 
 Full templates with the canonical column order and the approval contract: [`references/output-formats.md`](./references/output-formats.md).
 
@@ -139,15 +138,15 @@ Everything not listed below is already enforced by *Process* and *Preservation r
 - `references/voice.md` — optional voice calibration for opinion pieces or personal writing. Load only when the user explicitly asks for voice, personality, or a sample-matching pass.
 - `references/output-formats.md` — canonical templates for the Rewrite, Coverage report, Diff preview, and Validation report blocks. Load before emitting the final response when the shape needs to be reproduced exactly.
 - `references/schemas.md` — JSON shapes for prescan hits (universal + brand), eval samples, eval results, and validate.py output. Consult when editing any script that produces structured output.
-- `scripts/prescan.py` — regex-based pre-scan emitting a JSON hit-list. Without flags: 8 universal patterns. With `--brand <voice-doc>`: also emits brand hits with `source: "brand"` and per-rule `rule_id`s. With `--strict-code-only`: blanks every fenced block (legacy behaviour). Python 3.7+, no third-party deps.
-- `scripts/brand_prescan.py` — brand-aware detectors loaded by `prescan.py --brand`. Self-contained YAML parser so `humanize-en` works when `brand-voice` is not installed. Reads `lexical_exceptions.{acronyms,compound_idioms}` (top-level frontmatter key, see [brand-voice's canonical-format reference](https://github.com/coroboros/agent-skills/blob/main/skills/brand-voice/references/canonical-format.md)) to extend the hardcoded whitelists.
+- `scripts/prescan.py` — 8 universal detectors; `--rules-json <rules.json>` adds resolved brand rules, or `--brand <voice-doc>` adds local-only rules. Brand hits carry `source` and `rule_id`. `--strict-code-only` protects every fenced block.
+- `scripts/brand_prescan.py` — shared brand detectors and rule-input loading. Local YAML works standalone; inherited rules require the resolver's JSON. Reads `lexical_exceptions.{acronyms,compound_idioms}` to extend the default whitelists.
 - `scripts/validate.py` — post-rewrite gate. Re-runs prescan + brand checks on the rewritten file, classifies the outcome (`clean` / `residuals` / `regression`), and writes a JSON report. Exit 0 on clean+residuals, 1 on regression, 2 on argument or I/O errors. Required step under `-f` (Process step 7).
 - `scripts/utils.py` — shared I/O helpers (`read_text`, `read_json`, `write_json`, `mask_protected_regions`, `seeded_rng`). `mask_protected_regions` delegates to `prescan.py` so the two stay byte-identical.
 - `scripts/eval_patterns.py` — runs prescan over the eval corpus (`eval-corpus/samples/*.json` for universal, `eval-corpus/brand-voice/*.json` with `--brand` for brand). Scores per-sample pass/fail, emits a JSON report per `references/schemas.md` § *eval result*. Exit 0 on full pass, 1 on any failure. Run before editing detection patterns to baseline current coverage, then re-run to confirm no regression.
 
 ## Gotchas
 
-1. **`-f` with missing `extract_rules.py` silently degrades to universal patterns.** The 3-tier path fallback (`"$SKILL_DIR"/../brand-voice/scripts/extract_rules.py`, `~/.claude/skills/brand-voice/scripts/extract_rules.py`, `~/.agents/skills/brand-voice/scripts/extract_rules.py`) succeeds on standard installs but a non-standard layout (e.g., custom plugin dir) drops brand rules with a warning the model may overlook. Fix: pre-check the path before relying on brand-rule injection; the warning text is `brand-voice scripts unavailable; chain resolution skipped`.
-2. **`voice.extends` chain not resolved before prescan when scripts degrade.** When the fallback fires (above), `brand_prescan.py` reads the YAML directly and applies child rules only; parent constraints in the chain are skipped silently. Fix: when `--brand` is critical and scripts are unavailable, flatten the chain in the source file before invoking, or install `brand-voice` scripts at one of the canonical paths.
-3. **Pseudo-tables (` ```text ` with no language tag) are rewritten as prose.** Code blocks without a language hint are treated as prose-eligible content and may be rewritten; users expecting verbatim preservation get a surprise. Fix: tag every code/data block with a language hint (` ```python `, ` ```json `, ` ```text `); pass `--strict-code-only` to force preservation of all fenced blocks.
-4. **`--brand` chain-resolution errors don't always surface in the user-facing output.** `extract_rules.py` exits non-zero on `extends-cycle`, `extends-depth-exceeded`, `extends-parent-not-found`; the orchestrator sometimes drops the stderr in favor of running with degraded rules. Fix: when `--brand` is set, always check `scripts/extract_rules.py`'s exit code before continuing; non-zero means brand rules will be incomplete.
+1. **Missing resolver:** local-only rules still work through `--brand`; inherited rules stop with exact extraction/install guidance. Discover the installed skill path before using the known fallback locations. Never replace an explicitly requested brand pass with an unlabeled universal-only result.
+2. **One rule representation:** read the resolver's JSON and pass that same file to both scripts with `--rules-json`. Scanning the original child via `--brand` is rejected; do not flatten or mutate the user's source voice file to bypass the error.
+3. **Pseudo-tables (` ```text ` or no language tag) are prose-eligible.** Use a real code/data language tag such as `python` or `json`, or `--strict-code-only`, to preserve every fenced block. Do not rewrite quoted transcripts merely because their fence lacks a language.
+4. **Failed extraction:** preserve the resolver's exact stderr and exit code for cycles, depth or missing parents. A failed command's empty/partial output is not usable resolved rules; do not continue brand-aware completion with it.

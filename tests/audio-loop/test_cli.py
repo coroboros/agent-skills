@@ -211,6 +211,19 @@ class TestSuccessfulRunSchema(unittest.TestCase):
     LUFS post-condition math, and output existence."""
 
     @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
+    def test_short_clip_preserves_sample_count_after_frame_chunking(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "short.wav"
+            _make_wav(src, duration=2)
+            result = _run(str(src))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            output = _parse_results(result.stdout)["output_path"]
+            decoded = subprocess.run(
+                ["ffmpeg", "-v", "error", "-i", output, "-f", "s16le", "-"],
+                capture_output=True, check=True, timeout=30)
+            self.assertEqual(len(decoded.stdout), 44100 * 2 * 2 * 2)
+
+    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
     def test_full_pipeline_emits_full_schema(self):
         with tempfile.TemporaryDirectory() as td:
             src = Path(td) / "src.wav"
@@ -334,6 +347,15 @@ class TestLoudnormIntegrity(unittest.TestCase):
     pure tone, so the fixture is brown noise: a non-trivial loudness
     profile that forces a real measurement. If brown noise still produces
     `delta == 0`, the calculation is broken."""
+
+    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
+    def test_nonfinite_loudness_is_not_reported_successful(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "silent.wav"
+            _make_wav(src, duration=2, freq=0)
+            result = _run(str(src))
+            self.assertEqual(result.returncode, 3, result.stderr)
+            self.assertEqual(_parse_results(result.stdout).get("ok"), "false")
 
     @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
     def test_lufs_delta_nonzero_on_brown_noise(self):

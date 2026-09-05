@@ -67,10 +67,11 @@ class TestHybridMode(unittest.TestCase):
             self.assertTrue((tmp / "CLAUDE.md").is_file())
             self.assertTrue((tmp / ".claude" / "rules" / "style.md").is_file())
             self.assertTrue((tmp / ".claude" / "rules" / "testing.md").is_file())
-            # CLAUDE.md must reference the rule files via @-imports.
+            # Ordinary links preserve conditional loading of path-scoped rules.
             content = (tmp / "CLAUDE.md").read_text(encoding="utf-8")
-            self.assertIn("@.claude/rules/style.md", content)
-            self.assertIn("@.claude/rules/testing.md", content)
+            self.assertIn("(.claude/rules/style.md)", content)
+            self.assertIn("(.claude/rules/testing.md)", content)
+            self.assertNotIn("@.claude/rules/", content)
 
 
 class TestRulesOnlyMode(unittest.TestCase):

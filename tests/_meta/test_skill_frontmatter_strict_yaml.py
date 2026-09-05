@@ -14,9 +14,8 @@ This regression test enforces that every frontmatter line of the form
   - uses a flow collection (`[…]`, `{…}`), OR
   - contains no `": "` sequence inside the value.
 
-Scoped to the top-level frontmatter only — nested mapping values
-(e.g., `metadata.sources` list entries) are exempt because the strict
-parser handles them via collection context, not plain-scalar context.
+Scoped to top-level frontmatter. Nested metadata strings are checked for
+their field type by test_skill_frontmatter; this guard is not a full YAML parser.
 
 History: 1.25.0 shipped with two violations (scaffold's `description`
 and code-ultrareview's `when_to_use`), causing both skills to fail
@@ -68,6 +67,17 @@ class TestFrontmatterStrictYamlParse(unittest.TestCase):
 
     A failure here means `npx skills add <repo> --skill <name>` will
     silently drop the skill from discovery."""
+
+    def test_argument_hints_are_not_yaml_collections(self):
+        """Bracketed usage text needs quotes to remain a string in real YAML."""
+        for skill in get_skill_dirs():
+            frontmatter = _extract_frontmatter((skill / "SKILL.md").read_text())
+            for line in frontmatter.splitlines():
+                match = _TOP_LEVEL_KV.match(line)
+                if match and match.group(1) == "argument-hint":
+                    with self.subTest(skill=skill.name):
+                        self.assertFalse(match.group(2).lstrip().startswith(("[", "{")),
+                                         "Quote argument-hint to prevent a YAML collection")
 
     def test_no_unquoted_colon_space_in_plain_scalars(self):
         for skill in get_skill_dirs():

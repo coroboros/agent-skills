@@ -10,13 +10,12 @@ The block below — including the two HTML-comment markers — is inserted verba
 <!-- canonical:adversarial-verification:start -->
 ## Critical — Adversarial verification
 
-These rules govern how this skill trusts its own output — apply them whenever it verifies a claim, a defect, a source, or a decision before acting on it.
+Verify consequential findings and decisions before acting on them.
 
-- Refute by default. Treat each non-trivial finding as unproven until a fresh-context check fails to refute it — the context that produced a claim cannot reliably clear it.
-- No silent drop. Every finding flips the conclusion, is refuted in writing, or is filed as a risk or open question. A finding that vanishes without a verdict is a defect.
-- Don't re-litigate settled facts. Spend adversarial effort on load-bearing or contested claims; let established facts pass. Over-refutation manufactures false doubt — it does not add rigor.
-- Stay selective and cost-aware. Scale verification to the stakes; reversible, low-impact work gets a light touch, not a full adversarial sweep.
-- Concede only to a strong rebuttal. A weak counter folds into the finding or gets filed; it does not overturn it.
+- Seek counterexamples and independent evidence for load-bearing or contested claims. Use fresh reviewers when available and useful; label sequential self-review as less independent.
+- Resolve material findings by correction, evidence-backed refutation, or an explicit remaining risk. Never silently drop them.
+- Evidence decides, not reviewer counts or confidence alone. One reproducible defect can invalidate a conclusion.
+- Scale verification to the stakes. Keep settled facts settled and reversible, low-impact checks light.
 <!-- canonical:adversarial-verification:end -->
 ```
 
@@ -24,7 +23,7 @@ These rules govern how this skill trusts its own output — apply them whenever 
 
 Writing rules (`skill-prose-rules.md`) govern *style* of the prose a skill emits. Label hygiene (`skill-label-hygiene-rules.md`) governs *vocabulary leakage* into shipped artifacts. Execution discipline (`skill-execution-discipline-rules.md`) governs *how the skill changes code*. Adversarial verification governs *how the skill trusts its own findings* — refute-by-default, no-silent-drop, and the discipline to not manufacture doubt on settled facts. Different concern, different declared scope (claim/finding/decision emitters), different failure modes. Co-located in adjacent canonical blocks; never merged.
 
-The block carries philosophy only — no scoring scale. Each declared skill keeps its own mechanics: forge scores rebuttals on its Concession Threshold, code-ultrareview re-scores findings through confidence validators, apex gates its eXamine self-check by stakes, ultrapex scales its refuter panel to blast radius. The shared spine is the same; the numbers are local.
+The block defines evidence handling without a scoring scale. Each skill owns its review mechanics: forge challenges decisions, code-ultrareview validates observations in context, and implementation skills verify accepted outcomes. Local confidence rubrics do not establish factual certainty.
 
 ## Declared adversarial-verification skills
 

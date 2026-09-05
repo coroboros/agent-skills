@@ -43,8 +43,8 @@ Multiple inputs: `--reconcile @auto,gh:pr:42`.
 | Age | Behavior |
 |-----|----------|
 | ≤ 30 days | Default severity from the table above |
-| 31–90 days | Cap severity at `Low` regardless of classification |
-| > 90 days | Skip findings entirely — artifact appears in the coverage summary only |
+| 31–90 days | Auto-discovered historical context: cap at `Low`; explicitly accepted criteria retain consequence-based severity |
+| > 90 days | Auto-discovered history is summary-only; explicitly selected or currently accepted criteria remain in scope |
 
 The `--strict` flag disables both caps. Per-repo `.derivation-ignore` overrides allow path or claim allowlists (parser in `scripts/derivation/_common.py:load_ignore`).
 

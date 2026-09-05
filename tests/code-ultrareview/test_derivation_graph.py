@@ -323,6 +323,7 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
         self.assertEqual(len(out["artifacts"]), 1)
         self.assertGreaterEqual(len(out["findings"]), 1)
         self.assertTrue(all(item["severity"] == "Low" for item in out["findings"]))
+        self.assertTrue(out["artifacts"][0]["required"])
 
     def test_explicit_source_without_extractable_claims_blocks(self):
         with tempfile.TemporaryDirectory() as t:
@@ -428,7 +429,7 @@ class TestRunOutputSchema(unittest.TestCase):
             self.assertIn(key, finding, f"finding missing {key}")
         self.assertEqual(finding["lens"], "derivation")
 
-    def test_cap_5_findings_per_artifact(self):
+    def test_all_claims_emitted_per_artifact(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
             f = repo / "spec-many.md"
@@ -436,7 +437,7 @@ class TestRunOutputSchema(unittest.TestCase):
             f.write_text(f"# spec\n\n## Acceptance criteria\n\n{ac_lines}\n",
                          encoding="utf-8")
             out = _run_cli(repo, str(f))
-        self.assertLessEqual(len(out["findings"]), 5)
+        self.assertEqual(len(out["findings"]), 10)
         # With --strict, the cap lifts.
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)

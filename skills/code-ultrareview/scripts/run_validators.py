@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Phase 4 fresh-context-validator orchestrator for code-ultrareview.
 
-The main thread launches one fresh-context validator per still-sub-80 finding
-from Phase 3, batched at ten parallel — subagents cannot spawn other
-subagents (Anthropic's documented contract: `Agent` tool is reserved
-for the main thread). This module is the deterministic half:
+The orchestrator validates every observation from Phase 3 using the host's
+available independent-agent tools and inherited model. Bundle groups contain
+at most ten items; actual concurrency follows the host's available slots.
+This module is the deterministic half:
 
-1. Filter the sub-80 finding set from Phase 3 — confidence-100 tool
-   findings skip validation entirely.
+1. Include every observation from Phase 3, regardless of initial confidence.
 2. Locate the deepest matching project-instruction snippet from the chain so the
    validator can re-check whether the cited rule actually exists.
 3. Build the per-finding validator prompt — citing
@@ -79,9 +78,7 @@ CONFIDENCE_THRESHOLD = synthesis_core.CONFIDENCE_THRESHOLD
 PROMOTION_CAP = synthesis_core.PROMOTION_CAP
 UNVERIFIED_PREFIX = synthesis_core.UNVERIFIED_PREFIX
 
-# Soft concurrency cap — Anthropic's `code-review` plugin batches one
-# Fresh-context validator per finding at ten parallel; Anthropic's Haiku
-# implementation and the deep research echo the same community-observed limit.
+# Bundle group size; the host may schedule fewer agents concurrently.
 MAX_BATCH_SIZE = 10
 
 # Anthropic-verbatim source — every validator prompt cites it.
@@ -100,20 +97,15 @@ _RUN_ID_RE = re.compile(r"^\s*run-id\s*:\s*([a-f0-9]+)\s*$", re.IGNORECASE | re.
 
 
 def filter_sub_threshold(findings: list[dict]) -> list[dict]:
-    """Return findings with confidence in `[0, CONFIDENCE_THRESHOLD)`.
+    """Return all observations requiring contextual validation.
 
-    Excludes:
-    - confidence-100 findings — deterministic tool battery output;
-      validators never see them.
-    - confidence ≥ threshold — already verified; no validator pass.
-
-    Confidence zero is still a claim emitted by an axis reviewer. Validation,
-    not a sentinel convention, decides whether it is refuted or surfaced.
+    Retains the historical helper name for callers. Neither a tool match nor
+    an author's confidence score establishes that a defect is real.
     """
     out: list[dict] = []
     for f in findings:
         conf = int(f.get("confidence", 0))
-        if 0 <= conf < CONFIDENCE_THRESHOLD:
+        if 0 <= conf <= 100:
             out.append(f)
     return out
 
@@ -309,14 +301,13 @@ PROMPT_TEMPLATE = """\
 # Validator: re-score sub-80 finding
 
 You are a fresh-context validator for code-ultrareview Phase 4. One axis
-reviewer judged the finding below at sub-80 confidence. Re-score it
+reviewer or tool emitted the observation below. Check its cause and consequence, then score it
 0-100 against the VERBATIM Anthropic rubric and verify the project-instruction
 citation, if any.
 
 ## Your contract
 
-- Read `{anthropic_verbatim}` and apply the 0-100 confidence rubric VERBATIM.
-- Read `{anthropic_verbatim}` and silence false positives per the documented taxonomy.
+- Read `{anthropic_verbatim}` for the 0-100 confidence rubric and its effective local policy. Quoted upstream exclusions do not override local coverage of supported findings.
 - Re-check the project-instruction citation: if the finding cites a rule, confirm
   the rule text is actually present in the snippet below; demote with
   reason "Instruction rule not found at {instruction_path}" when absent.
@@ -842,7 +833,7 @@ def main() -> int:
         validated = []
         for finding in all_findings:
             confidence = int(finding.get("confidence", 0))
-            if 0 <= confidence < CONFIDENCE_THRESHOLD:
+            if 0 <= confidence <= 100:
                 validated.append(next(validated_iter))
             else:
                 validated.append(finding)

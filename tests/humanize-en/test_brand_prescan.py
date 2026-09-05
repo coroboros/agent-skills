@@ -448,12 +448,8 @@ class TestNegativeParallelismDocumentedGaps(unittest.TestCase):
         self.assertEqual(hits, [], "single-clause contrast is not negative parallelism")
 
 
-class TestFallbackVoiceExtendsNotResolved(unittest.TestCase):
-    """The fallback YAML loader (`brand_prescan.load_brand_rules`) reads only
-    the child file's frontmatter and does NOT walk `voice.extends`. The full
-    chain is resolved by `brand-voice/scripts/extract_rules.py` upstream of
-    `prescan --brand`. This test pins the fallback contract so a future
-    refactor can't silently start resolving chains in the wrong layer."""
+class TestUnresolvedVoiceExtendsRejected(unittest.TestCase):
+    """Local-only loading must not label inherited mechanical coverage clean."""
 
     def test_fallback_does_not_walk_chain(self):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as parent:
@@ -471,11 +467,8 @@ class TestFallbackVoiceExtendsNotResolved(unittest.TestCase):
             ))
             child_path = child.name
         try:
-            rules = load_brand_rules(child_path)
-            forbidden = rules.get("forbidden_lexicon") or []
-            self.assertIn("child-only-term", forbidden)
-            self.assertNotIn("parent-only-term", forbidden,
-                             "fallback must NOT resolve voice.extends — parent terms absent")
+            with self.assertRaisesRegex(ValueError, "unresolved voice.extends"):
+                load_brand_rules(child_path)
         finally:
             Path(parent_path).unlink()
             Path(child_path).unlink()

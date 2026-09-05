@@ -141,6 +141,14 @@ def _extract_block(skill_md: Path, start_marker: str, end_marker: str) -> str | 
 
 
 class TestCanonicalFiles(unittest.TestCase):
+    def test_claude_behavior_adapters_match_owners(self):
+        """Both hosts must receive the same general behavior rules."""
+        for suffix in ("", "-frontier"):
+            with self.subTest(rule=suffix or "core"):
+                source = REPO_ROOT / ".agents" / "rules" / f"behavior{suffix}.md"
+                adapter = REPO_ROOT / ".claude" / "rules" / f"behave{suffix}.md"
+                self.assertEqual(source.read_bytes(), adapter.read_bytes())
+
     def test_each_canonical_rule_file_exists_and_parses(self):
         for rule in CANONICAL_RULES:
             with self.subTest(rule=rule.id):
@@ -173,11 +181,9 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
                     )
 
     def test_canonical_block_placed_near_top(self):
-        """Auto-compaction protects the first 5000 tokens of each invoked skill.
-        Placing each canonical block within the first 70 lines keeps it inside that
-        window. The cap accommodates four stacked canonical blocks (adversarial-verification
-        + execution-discipline + label-hygiene + writing-rules) which together span
-        ~55-65 lines after H1."""
+        """Maintainer placement policy keeps shared guidance before the workflow.
+        The line cap accommodates four blocks; it is not a host context guarantee.
+        """
         for rule in CANONICAL_RULES:
             _, declared, _ = _parse_canonical(rule)
             for name in declared:

@@ -1,0 +1,26 @@
+{
+  "skill_name": "write-clear-readme",
+  "evals": [
+    {
+      "id": 1,
+      "name": "natural-language-polish-applies",
+      "prompt": "Polish this README's English in place. Preserve the headings, links and command examples exactly.",
+      "expected_output": "Use polish mode from the natural-language request, edit only prose under the existing authorization, preserve the specified structures, perform applicable checks and report the diff. A nested humanize-en pass does not reopen consent.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "readme-audit-does-not-write",
+      "prompt": "Audit this README's clarity and structure. I only want findings and a proposed diff.",
+      "expected_output": "Read the repository and README, run the applicable audit and return findings/proposal. Leave README and other repository files unchanged. Do not silently enter author or polish mode.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "unsupported-install-claim-stays-pending",
+      "prompt": "Write a README for this repository. No source, release or package metadata establishes an installation command, supported version or license. Draft the parts that can be grounded from the available files.",
+      "expected_output": "Inspect repository facts and draft supported purpose and usage information. Refuse to invent an install command, version or license; ask the user only for the missing authoritative facts and identify those sections as pending. Continue independent supported drafting within the existing authorization.",
+      "files": []
+    }
+  ]
+}

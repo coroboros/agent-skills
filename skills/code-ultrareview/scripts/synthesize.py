@@ -781,7 +781,9 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 4
-    findings = [*validated, *tool_findings, *mutation_findings]
+    # Raw observations are validated through axis ingestion. Re-adding them
+    # here would resurrect findings rejected by contextual validation.
+    findings = validated
     positives = load_positives(args.positives)
     slug = args.slug or "review"
 

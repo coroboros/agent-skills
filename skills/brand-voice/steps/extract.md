@@ -40,7 +40,7 @@ If no source flag is given (and `--extends` is not used), the skill enters inter
 - If `-o <path>` is omitted, target = `./BRAND-VOICE.md` at the current working directory.
 - If the target exists, abort with:
   > "`<path>` already exists. To refresh it, use `/brand-voice update`. To replace it, delete it first."
-  Do not overwrite. Refresh runs through `update`, which previews the diff and asks for confirmation — that's how accidental clobbering is prevented.
+  Do not overwrite in extract mode. A requested refresh runs through `update`, which preserves manual sections and reports its validated diff under the existing authorization.
 - If the parent directory of `-o` does not exist, abort with a clear `mkdir -p` suggestion.
 - **`--extends <parent_path>` pre-flight** — when the flag is present:
   1. Resolve `<parent_path>` (absolute or relative to CWD).
@@ -75,7 +75,7 @@ Resolve each `-u`, `-n`, `-d`, `-f` per `references/source-resolution.md`. Aggre
 If zero sources, dispatch interview mode:
 
 1. Read `references/interview-questions.md`.
-2. Ask each question via `AskUserQuestion` (when unavailable, ask in plain text), one at a time. Question 1 (identity) and at least one of question 2 or question 5 are required — without those there is nothing to write.
+2. Reuse the brief's answers; batch the consequential unanswered questions through the host's supported question tool or plain text. Identity and a concrete voice attribute or forbidden lexicon must be known; do not ask the entire bank when the source already supplies them.
 3. Stitch answers into the working draft with one H2 per question.
 
 ### 3. Synthesis
@@ -127,14 +127,14 @@ sentence_norms: measured (34 sentences)     # or: estimated (corpus under 30-sen
 Lint: GREEN (0 errors, 0 warnings)
 File: ./BRAND-VOICE.md (231 lines, 11 sections, 11 rules, 26 forbidden lexicon)
 
-Apply? (yes/no)
+<Authorized creation proceeds; audit/propose stops at the draft.>
 ```
 
-The user must answer `yes` explicitly. No silent write.
+An explicit creation request authorizes this target. Do not request another yes; a draft/audit-only request leaves it unchanged.
 
 ### 6. Write
 
-On `yes`:
+For the authorized creation:
 
 - `Write` to `-o <path>` (default `./BRAND-VOICE.md`).
 - If `-s` is set, also `Write` to `~/.agents/output/{project}/brand-voice/brand-voice-{slug}.md` (`{slug}` = kebab of `voice.name`; `{project}` = kebab-cased basename of the git toplevel, else cwd) and report its fully-expanded absolute path.
@@ -158,6 +158,6 @@ Next:
 - **One source fails, others succeed** — proceed with the survivors. Print the failure inline. The user can re-run later.
 - **Lint returns RED on first synthesis** — fix the synthesis without bothering the user. Common cause: missing `## 10. Counter-examples` (LLM forgot to include the section). Re-synthesise.
 - **Lint returns YELLOW after fix attempt** — present warnings to the user but proceed. YELLOW is acceptable per `references/schemas.md`.
-- **Conflict between sources (e.g., one says 'we' is forbidden, another says it's OK)** — surface via `AskUserQuestion`, never silent override. Record the user's choice in the doc.
+- **Conflict between sources** — use explicit user corrections and designated source authority, reporting the resolution. Ask only when a material conflict remains unresolved; record the resulting decision in the doc.
 - **Notion MCP not installed when `-n` is passed** — error per `references/source-resolution.md`. Suggest exporting Notion → MD and using `-d`.
 - **Source contributes zero rules** — proceed but warn: "`<source>` contributed nothing useful — typo, empty page, or non-prose content."

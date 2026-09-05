@@ -6,7 +6,7 @@ Usage:
     validate_spec.py <spec.md>
 
 Checks:
-  - 3-7 workstreams (### WS-N: headings under ## Workstreams)
+  - One or more workstreams (### WS-N: headings under ## Workstreams)
   - Each workstream has Priority (P0/P1/P2) and Complexity (S/M/L/XL)
   - Each workstream has a non-empty Acceptance criteria block
   - Dependencies reference real workstream IDs
@@ -155,11 +155,6 @@ def main():
     if count == 0:
         print("RESULT: error=no-workstreams-section")
         return 1
-    if count < 3 or count > 7:
-        print(f"  spec must have 3-7 workstreams, found {count}", file=sys.stderr)
-        print(f"RESULT: error=ws-count-out-of-range count={count}")
-        return 1
-
     known_ids = {ws_id for ws_id, _ in blocks}
     schema_errors = []
     for ws_id, block in blocks:

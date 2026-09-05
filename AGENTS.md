@@ -5,10 +5,10 @@
 
 _Project-level behavior guidance indexed from `.agents/rules/`._
 
-Before planning or editing, read this rule first:
+Before planning or editing, read these rules:
 
 - `.agents/rules/behavior.md` - canonical behavior discipline: production-grade, size budget, surgical, fail-loud, never-invent.
-- `.agents/rules/behavior-frontier.md` - Frontier addendum — model scope stated in the file.
+- `.agents/rules/behavior-frontier.md` - autonomous execution, inherited authorization, and proportionate verification.
 <!-- behavior-rules:end -->
 
 Public collection of installable AI agent skills for Claude Code and compatible agents. Each skill is a self-contained folder in `skills/` with a `SKILL.md` at its root.
@@ -17,7 +17,7 @@ Public collection of installable AI agent skills for Claude Code and compatible 
 
 - `.agents/rules/agentskills-spec.md` — canonical frontmatter, folder anatomy, size budget
 - `.agents/rules/claude-code-skills.md` — Claude Code extensions and string substitutions
-- `.agents/rules/skill-authoring.md` — mandatory `skill-creator` flow + the testing requirement
+- `.agents/rules/skill-authoring.md` — official `skill-creator`, local review policy, and required verification
 - `.agents/rules/repo-conventions.md` — flags, output paths, install, plugin marketplace, test placement
 - `.agents/rules/skill-{prose,label-hygiene,execution-discipline,adversarial-verification}-rules.md` — canonical blocks synced into declaring SKILL.md bodies by `scripts/sync_writing_rules.py`
 

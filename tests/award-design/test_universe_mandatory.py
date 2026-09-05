@@ -200,7 +200,7 @@ class TestDesignPlanCommit(unittest.TestCase):
         verify = _section("Verify, then ship")
         self.assertIn("after each chunk, inject `assets/render-floor.js`", verify)
         self.assertIn("sweep 375/768/1024/1440/1920", verify)
-        self.assertIn("one browser session per run", verify)
+        self.assertIn("Reuse one browser session", verify)
 
     def test_conformance_loop_is_bounded(self):
         """The gate is a loop, not a single look — and a bounded one: one fix
@@ -225,8 +225,9 @@ class TestDesignPlanCommit(unittest.TestCase):
         The build paces the page like a score: one climax, at least one rest."""
         path = _path()
         self.assertIn("paced like a score", path)
-        self.assertIn("with one climax", path)
-        self.assertIn("at least one rest", path)
+        self.assertIn("selected archetype's peak law", path)
+        self.assertIn("generic default: one climax and one rest", path)
+        self.assertIn("allow two peaks", path)
 
     def test_mobile_intent_committed(self):
         imp = _ref("award-imperatives.md")

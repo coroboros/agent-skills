@@ -1,6 +1,6 @@
 # Agent Skills Open Standard
 
-Skills in this repo conform to the [Agent Skills](https://agentskills.io) open standard — the portable, vendor-neutral contract for skill folders.
+Skills in this repo use the [Agent Skills specification](https://agentskills.io/specification), with documented Claude Code extensions and local authoring policies below. Extension support depends on the target loader; strict upload and packaging paths may reject them.
 
 ## Required
 
@@ -20,10 +20,10 @@ Skills in this repo conform to the [Agent Skills](https://agentskills.io) open s
 
 **Custom fields go under `metadata:`** — never at the top level. Example: `metadata.author`, `metadata.dependencies`.
 
-## Reserved
+## Local naming and markup policy
 
-- Names containing `anthropic` or `claude` are reserved.
-- No XML angle brackets (`<`, `>`) in frontmatter.
+- Avoid names containing `anthropic` or `claude` to prevent first-party confusion. This is repository policy, not a restriction in the open specification.
+- Do not use XML markup in frontmatter. Argument placeholders such as `<path>` are allowed. This is an authoring convention, not a YAML format constraint.
 
 ### Narrow exception — first-party filename conventions
 
@@ -35,8 +35,8 @@ No format restrictions. Plain Markdown is the norm — matches the reference imp
 
 ## Size budget
 
-- SKILL.md: under 500 lines, under 5,000 tokens.
-- Metadata: ~100 tokens per skill (always loaded).
+- Keep SKILL.md under 500 lines and approximately 5,000 tokens as repository policy, informed by the specification's progressive-disclosure guidance.
+- Descriptions load during discovery. Lead with the distinguishing trigger; the specification's approximate 100-token metadata estimate is guidance, not a universal loader limit.
 
 Exceed the budget only when genuinely needed. Offload detail into `references/`, `scripts/`, `assets/`, or `steps/` via progressive disclosure.
 

@@ -39,25 +39,12 @@ class TestDerivationLensReference(unittest.TestCase):
             self.assertIn(cls, self.ref, f"Reference must declare {cls}")
 
     def test_reference_severity_rules_documented(self):
-        """GAP blocks, SCOPE-ADD advisory, DECISION-OVERRIDE surfaces."""
-        self.assertIn("Block completion", self.ref, "GAP-block rule must be documented")
-        self.assertTrue(
-            "Advisory" in self.ref or "advisory" in self.ref,
-            "SCOPE-ADD advisory rule must be documented",
-        )
-        self.assertIn(
-            "Surface for user judgment",
-            self.ref,
-            "DECISION-OVERRIDE surface rule must be documented",
-        )
+        self.assertIn("do not claim completion", self.ref)
+        self.assertIn("outside authorization", self.ref)
+        self.assertIn("reversible implementation details", self.ref)
 
     def test_reference_cites_upstream_canonical(self):
-        """Reference cites code-ultrareview's Intent axis brief as canonical taxonomy."""
-        self.assertIn(
-            "code-ultrareview/references/axes/intent.md",
-            self.ref,
-            "Reference must cite the upstream canonical taxonomy",
-        )
+        self.assertIn("requires no sibling skill or analyzer", self.ref)
 
     def test_upstream_canonical_actually_exists(self):
         """The cited upstream file exists in this repo."""
@@ -67,18 +54,13 @@ class TestDerivationLensReference(unittest.TestCase):
         )
 
     def test_reference_documents_detection_protocol(self):
-        """Detection protocol mentions the code-ultrareview orchestrator path."""
-        self.assertIn(
-            "code-ultrareview/scripts/derivation/run.py",
-            self.ref,
-            "Detection protocol must reference the Python orchestrator path",
-        )
+        for source in ("committed", "staged", "unstaged", "untracked", "initial worktree status"):
+            self.assertIn(source, self.ref)
 
     def test_reference_documents_inline_fallback(self):
-        """Inline fallback protocol is documented for when the orchestrator is absent."""
-        self.assertIn("Inline protocol", self.ref)
-        self.assertIn("02-plan.md", self.ref, "Inline protocol must reference the plan file")
-        self.assertIn("git diff", self.ref, "Inline protocol must reference git diff")
+        self.assertIn("02-plan.md", self.ref)
+        self.assertIn("already satisfied before", self.ref)
+        self.assertIn("do not cap", self.ref)
 
     def test_step_04_invokes_derivation_lens_before_typecheck(self):
         """step-04 § 3.0 Derivation lens appears BEFORE § 3.1 Typecheck."""

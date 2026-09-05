@@ -51,7 +51,7 @@ class TestRoutingContract(unittest.TestCase):
 
     def test_cli_exceptions_section_present(self):
         body = _body()
-        self.assertIn("### Use the `ntn` CLI when (and only when):", body,
+        self.assertIn("### Use the `ntn` CLI when its capabilities fit:", body,
                       "missing CLI exceptions subsection in Routing")
 
     def test_each_cli_required_case_named(self):
@@ -64,7 +64,7 @@ class TestRoutingContract(unittest.TestCase):
     def test_default_path_disclaimer_present(self):
         """If none of the five CLI cases apply, the skill must say to stay on the MCP."""
         body = _body()
-        self.assertRegex(body, r"none of the five apply.*stay on the MCP",
+        self.assertRegex(body, r"available MCP supports.*stay on the MCP",
                          "missing the 'else stay on MCP' fallthrough rule")
 
 
@@ -135,7 +135,7 @@ class TestGotchas(unittest.TestCase):
             "selection_with_ellipsis",          # gotcha #1
             "bottom of the parent page",        # gotcha #2
             "100 rows",                         # gotcha #3
-            "2026-01-15",                       # gotcha #4 (MCP launch date)
+            "current tool set",                 # gotcha #4 (capability discovery)
             "archived ancestor",                # gotcha #5 (write failure on trashed parent)
         )
         for kw in keywords:

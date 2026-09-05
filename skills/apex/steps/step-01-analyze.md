@@ -55,6 +55,8 @@ Before exploring, THINK about what information you need and launch the RIGHT age
 
 ## YOUR TASK:
 
+Before editing, record the starting revision and initial worktree status in the existing task context. Preserve staged, unstaged, and relevant untracked changes so Examine can distinguish task work from pre-existing edits.
+
 Gather ALL relevant context about WHAT CURRENTLY EXISTS in the codebase related to the task.
 
 ---

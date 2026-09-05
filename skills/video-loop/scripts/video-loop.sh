@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# video-loop.sh — build a seamless looping background video (MP4 + WebM)
+# video-loop.sh — crossfade and encode a background video loop (MP4 + WebM)
 #
 # Usage:
 #   video-loop.sh <input> [-d <fade>] [-q <h264_crf>] [-w <vp9_crf>] [-o <out_dir>] [-p] [-C]
@@ -17,8 +17,8 @@
 #   probe → (optional crossfade → lossless intermediate) → encode MP4 → encode WebM → (optional poster)
 #
 # The crossfade is placed at the START of the output so the loop point is
-# invisible: middle ends at frame A[D-F], loops back to the xfade which also
-# starts at A[D-F]. Same frame — no jump.
+# near the same source position: middle approaches A[D-F], then loops back
+# to the xfade starting there. Verify motion continuity in actual playback.
 #
 # Emits a machine-readable summary on stdout prefixed with "RESULT:", one
 # key=value per line. Consumers parse these to report file sizes and deltas.
@@ -72,11 +72,21 @@ BASENAME=$(basename "$INPUT")
 STEM="${BASENAME%.*}"
 [[ -z "$OUT_DIR" ]] && OUT_DIR=$(dirname "$INPUT_ABS")
 mkdir -p "$OUT_DIR"
+OUT_DIR=$(cd "$OUT_DIR" && pwd -P)
 
 MP4="$OUT_DIR/${STEM}-opt.mp4"
 WEBM="$OUT_DIR/${STEM}.webm"
 POSTER_JPG="$OUT_DIR/${STEM}-poster.jpg"
 LOOP_TMP="/tmp/vl-loop-$$.mkv"
+
+TARGETS=("$MP4" "$WEBM")
+[[ $POSTER -eq 1 ]] && TARGETS+=("$POSTER_JPG")
+for target in "${TARGETS[@]}"; do
+  if [[ "$INPUT_ABS" == "$target" || "$INPUT_ABS" -ef "$target" ]]; then
+    echo "error: output would overwrite input ($target). Pass -o <dir> to write elsewhere." >&2
+    exit 1
+  fi
+done
 
 DURATION=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$INPUT_ABS")
 # stat has different flags on macOS (-f%z) vs GNU/Linux (-c%s); try both.

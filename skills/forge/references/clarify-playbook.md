@@ -13,7 +13,7 @@ Ask only when at least one of these holds:
 
 Otherwise: make the reasonable assumption, tag it `assumption` in the ledger, surface the shakiest as an open question. A recorded assumption the user can veto beats an open question that stalls.
 
-Under `{auto_mode}` = true: never ask. Decide and record.
+Under `{auto_mode}` = true, decide reversible details within existing authorization. User-owned decisions and missing authorization still require explicit input; silence supplies neither. Continue independent work while waiting.
 
 ## The five lenses
 

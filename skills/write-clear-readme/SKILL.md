@@ -1,41 +1,33 @@
 ---
 name: write-clear-readme
-description: Author, audit, or polish a project README — clarity, structure (Pattern A per-section collapse / Pattern B grouped / Pattern C per-entry), wording concision, anchor integrity. Reads the repo first, proposes diffs, applies on approval. Use when creating, restructuring, auditing, optimizing, or polishing a README for clarity, concision, or scannable structure — "write readme", "audit readme", "polish readme", "clarify readme", "optimize readme", "restructure readme", README clarity/wording — for long human-facing docs, skill libraries, npm SDK references, or CLI manuals.
+description: Author, restructure, audit or polish a project README for clarity and scannability. Reads repository truth, preserves anchors and code, and verifies rendering. Explicit author/polish requests apply local changes; audit/propose stays read-only. Use for README creation, wording, structure and navigation, including skill collections and CLI/SDK docs.
 when_to_use: Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
-disable-model-invocation: true
 allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *) Bash(python3 *) Bash(basename *) Bash(test *) Bash(ls *)
 license: MIT
+compatibility: "Requires project file access and Python 3.10+ for the bundled audit. Rendering checks use an available Markdown preview or browser; unavailable rendering remains an explicit verification gap."
 metadata:
   author: coroboros
 ---
-
-<!--
-Exception — `disable-model-invocation: true`. READMEs are high-stakes, user-facing
-artifacts; the agent should never autonomously decide to rewrite one based on a casual
-keyword. The user must explicitly invoke via `/write-clear-readme`. The `when_to_use`
-keywords still help the user discover the skill in the `/` menu listing (per
-`claude-code-skills.md`, skill listing is independent from model auto-invocation).
--->
 
 # Write Clear README
 
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
 
-These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+Apply these rules to emitted prose: docs, comments, commit messages, PR bodies, and release notes.
 
-- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Match surrounding punctuation, capitalization, and formatting.
 - Every sentence changes the reader's understanding. Cut it otherwise.
-- Front-load the verb — "Creates", not "This helps you create".
-- Concrete over abstract. Lists for ≥3 enumerable items.
+- Lead with the action or outcome.
+- Use concrete language and lists when they improve comparison or sequence.
 - Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
 - No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
 - No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
-- After drafting English prose, invoke `/humanize-en` if installed.
+- For substantive English prose, use `/humanize-en` if installed with the existing scope and authorization. It adds no approval stage; skip redundant passes over short status text.
 <!-- canonical:writing-rules:end -->
 
-Author, audit, or polish a README.md for clarity, conciseness, and scannable structure. Reads the repo state first; picks a collapse pattern by doc type; proposes diffs and applies on approval.
+Author, audit, or polish a README.md for clarity and scannable structure. Read repository truth first. Explicit author/polish requests authorize local edits; audit/propose stays read-only. Carry this target and mode through a nested prose pass without another approval prompt. Publication is a separate action.
 
 Additional context from the user: $ARGUMENTS
 
@@ -174,6 +166,8 @@ Underused pattern — most npm READMEs list signatures as flat headings and forc
 
 ## Subcommands
 
+Resolve natural-language author/polish/audit intent before these shorthand defaults. An invoking parent passes the user's existing target and mode; empty tool arguments do not reset an authorized polish to audit or create authority to edit another file.
+
 | Invocation | Mode |
 |------------|------|
 | `/write-clear-readme` | Default — if `README.md` exists, audit. Else, author from repo state. |
@@ -204,7 +198,7 @@ The canonical *Writing rules* block already requires invoking `/humanize-en` aft
 
 ## Author mode
 
-1. **Inspect repo** — read `package.json` / `Cargo.toml`, top-level folders, entry points, `CLAUDE.md` if present. Identify what the README must cover (install, usage, API surface, architecture, license).
+1. **Inspect repo** — read its manifest, relevant entry points and active instruction entrypoint (AGENTS.md, CLAUDE.md or local equivalent). Identify what the README must cover (install, usage, API surface, architecture, license).
 2. **Map audiences** — list the implicit reader for each major section (first-time installer, daily user, maintainer, agent reading CLAUDE.md context). Multi-audience files are candidates for Pattern A.
 3. **Step 0 — Content shape** (BEFORE picking a collapse pattern):
    - Can content be cut? Sections that no longer earn their place.
@@ -253,7 +247,7 @@ The canonical *Writing rules* block already requires invoking `/humanize-en` aft
    - Install / Quick Start / Requirements inside a `<details>` → must surface.
 8. **Report** — bullet list of findings (split structure vs clarity vs content-shape suggestions) + proposed diff.
 9. **Verify rendering after edits** — view the rendered output before declaring done.
-10. **Apply on request** — edit `README.md` only after explicit user approval.
+10. **Audit boundary** — report the proposed changes without editing README.md. A later explicit fix request authorizes applying its named scope.
 
 ## Polish mode
 
@@ -270,11 +264,11 @@ Wording-only pass. Structure stays as-is — only the prose changes.
    - Replace numeric content-counts with qualitative descriptors.
 3. **Strip AI traces** — for English content, invoke `/humanize-en` on the result (see *AI-tell removal — skill-specific notes* above). Skip if the skill is unavailable or the content is non-English.
 4. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
-5. **Report** — propose a diff. NEVER apply without explicit approval.
+5. **Apply and report** — apply the authorized wording changes, verify rendering and present the diff. If the user requested a proposal only, report it without modifying the target.
 
 ## Rules
 
-- NEVER auto-apply changes without user approval.
+- Preserve the authorized target and mode: explicit author/polish edits; audit/propose does not. A filepath or casual README mention alone grants no edit authority.
 - NEVER collapse Install / Quick Start / Requirements — what a first-time reader needs is never behind a click.
 - NEVER nest `<details>` blocks — GitHub renders nested disclosure unreliably.
 - NEVER wrap a group heading or a TOC anchor target inside `<details>` — a collapsed heading vanishes from the visual scan, and auto-expand on anchor jumps is not reliable across renderers.

@@ -53,10 +53,13 @@ class TestBloatCategories(unittest.TestCase):
                     self.assertIsInstance(pattern, str)
                     self.assertGreater(len(pattern), 0)
 
-    def test_linter_enforced_triggers_eslint(self):
-        hits = scan_bloat(["Use eslint and prettier"])
+    def test_linter_enforced_triggers_generic_formatting(self):
+        hits = scan_bloat(["Format code properly"])
         cats = [h["category"] for h in hits]
         self.assertIn("linter-enforced", cats)
+
+    def test_tool_choice_is_not_bloat(self):
+        self.assertEqual(scan_bloat(["Use Biome for linting and formatting."]), [])
 
     def test_marketing_triggers_we_believe(self):
         hits = scan_bloat(["We believe in clean code."])
@@ -109,6 +112,11 @@ class TestMasking(unittest.TestCase):
 
 
 class TestImportResolution(unittest.TestCase):
+    def test_literal_imports_are_not_resolved(self):
+        with tempfile.TemporaryDirectory() as td:
+            text = '`@missing.md`\n```md\n@also-missing.md\n```\n@real-missing.md\n'
+            self.assertEqual(check_imports(text, Path(td)),
+                             [{"line": 5, "path": "real-missing.md"}])
     def test_resolves_existing_relative(self):
         with tempfile.TemporaryDirectory() as td:
             td = Path(td)

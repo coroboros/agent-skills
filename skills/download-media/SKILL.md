@@ -1,14 +1,14 @@
 ---
 name: download-media
-description: Download video or audio from ~1800 sites (YouTube, Vimeo, SoundCloud, Twitch, X…) with the `yt-dlp` CLI — full videos, mp3 audio, playlists, time-range clips, subtitles, capped resolutions. Use whenever the user wants to download, save, grab, or rip a video/audio/playlist from a URL, extract a song as mp3, clip a segment, or fetch subtitles — even when they just say "download this", "get the audio", or "save this playlist".
+description: Download video, audio, playlists, clips or subtitles from a supported URL using yt-dlp. Use when the user wants media files on disk; use MarkItDown for text extraction and the loop skills for local loop editing.
 when_to_use: When the user has a media URL and wants the file on disk — video, audio-only, playlist, clip, or subtitles. Keywords — download video, yt-dlp, youtube, save video, extract audio, mp3, rip, playlist, clip, subtitles, 1080p. Skip when the user wants the transcript or text content (/markitdown), wants to loop or re-encode a local file (/video-loop, /audio-loop), or targets DRM-protected streaming services (Netflix, Disney+, Spotify…) — yt-dlp does not bypass DRM and neither does this skill.
 argument-hint: "[-a] [-b] [-p] [-i] [-c A-B] [-u langs] [-r height] [-d dir] <url> [yt-dlp args]"
 allowed-tools: Bash(bash *) Bash(yt-dlp *) Bash(command *) Read
 license: MIT
+compatibility: "Requires bash and an installed yt-dlp CLI. FFmpeg is required for audio extraction, clipping and applicable merges; some extractors require additional documented runtimes or authentication."
 metadata:
   author: coroboros
-  sources:
-    - github.com/yt-dlp/yt-dlp
+  sources: "github.com/yt-dlp/yt-dlp"
 ---
 
 # Download Media
@@ -50,16 +50,16 @@ Default download: `-t mp4` preset — h264/aac preferred, remuxed to mp4, plays 
 
 ## Workflow
 
-1. **Empty `$ARGUMENTS`** → propose the most recent media URL from session context and confirm. Ask only when none is detectable.
+1. Resolve the media URL from arguments or unambiguous session context. Ask only when it is missing or ambiguous.
 2. Run the helper:
 
    `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere.
 
    ```bash
-   bash "$SKILL_DIR"/scripts/download-media.sh $ARGUMENTS
+   bash "$SKILL_DIR"/scripts/download-media.sh -a 'https://example.com/watch?v=123&list=456'
    ```
 
-   Always single-quote the URL in the command — YouTube URLs routinely carry `&` and `?`, which the shell otherwise interprets.
+   Parse arguments as data and quote each URL, path and flag value separately. Never splice raw `$ARGUMENTS` into shell code or use `eval`; URL metacharacters such as `&` must remain literal.
 
 3. The script emits `RESULT: key=value` lines — one `path` per downloaded file, then `files`, `dest`, `slug` (order not guaranteed; parse by key). With `-i` it prints yt-dlp's format table instead.
 4. Parse the `RESULT:` lines and produce the report below.

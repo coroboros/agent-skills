@@ -1,16 +1,13 @@
 ---
 name: claude-md
-description: Create and optimize CLAUDE.md memory files or .claude/rules/ modular rules for Claude Code projects. Covers file hierarchy, content structure, path-scoped rules, best practices, and anti-patterns. Use when working with CLAUDE.md files, .claude/rules directories, setting up new projects, or improving Claude Code's context awareness — even when the user just says "memory file" or mentions Claude instructions without naming the filename.
+description: Create, audit or update CLAUDE.md and .claude/rules/ instructions for Claude Code. Use for instruction ownership, imports, path-scoped rules or memory configuration; use agent-creator for subagent definitions.
 when_to_use: When the user wants to create, clean up, or update Claude Code memory files. Routes via `$ARGUMENTS` — `init` (scaffold minimal CLAUDE.md), `optimize` (deep cleanup of bloat), `revise` (capture session learnings). Keywords — CLAUDE.md, memory file, instructions file, .claude/rules, optimize CLAUDE, init CLAUDE, revise CLAUDE, auto memory, MEMORY.md, subagent memory. Without a subcommand, treat the argument as free-form guidance about memory files. Skip for subagent system prompts and .claude/agents/ configs — use /agent-creator.
-argument-hint: [init | optimize | revise | task description]
+argument-hint: "[init | optimize | revise | task description]"
 license: MIT
-compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
+compatibility: "Authors Claude Code instruction and memory files. Python 3 and bash are required for bundled checks; runtime loading behavior must be verified in the target Claude Code version."
 metadata:
   author: coroboros
-  sources:
-    - code.claude.com/docs/en/memory
-    - github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management
-    - github.com/Melvynx/aiblueprint
+  sources: "code.claude.com/docs/en/memory; github.com/anthropics/claude-plugins-official/tree/main/plugins/claude-md-management; github.com/Melvynx/aiblueprint"
 ---
 
 # CLAUDE.md
@@ -18,21 +15,21 @@ metadata:
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
 
-These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+Apply these rules to emitted prose: docs, comments, commit messages, PR bodies, and release notes.
 
-- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Match surrounding punctuation, capitalization, and formatting.
 - Every sentence changes the reader's understanding. Cut it otherwise.
-- Front-load the verb — "Creates", not "This helps you create".
-- Concrete over abstract. Lists for ≥3 enumerable items.
+- Lead with the action or outcome.
+- Use concrete language and lists when they improve comparison or sequence.
 - Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
 - No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
 - No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
-- After drafting English prose, invoke `/humanize-en` if installed.
+- For substantive English prose, use `/humanize-en` if installed with the existing scope and authorization. It adds no approval stage; skip redundant passes over short status text.
 <!-- canonical:writing-rules:end -->
 
 ## Core Principle
 
-Memory files consume tokens every session. Keep them minimal — include only what the agent cannot discover on its own or what a tool doesn't already enforce (linter, TypeScript, tests).
+Memory files consume tokens every session. Keep high-value project conventions, commands and boundaries concise. Discoverability alone is not a reason to delete guidance that prevents a demonstrated mistake.
 
 Three mechanisms carry knowledge across sessions:
 
@@ -97,7 +94,7 @@ The `.claude/rules/` directory splits instructions into focused markdown files.
 
 - **Use `.claude/rules/` when:** many concerns, different rules for different file types, team maintains different areas
 - **Use CLAUDE.md when:** tiny project, universal rules, single source of truth
-- **Combine both (hybrid)** for most projects — CLAUDE.md stays slim and `@`-imports the active rules, giving humans a visible TOC while the rules carry the content. See *Workflow > Storage Strategy* below for when to pick which.
+- **Combine both (hybrid)** for most projects — CLAUDE.md stays slim and indexes conditional rules with ordinary links; use eager `@` imports only for universal content. See *Workflow > Storage Strategy* below for when to pick which.
 
 Path-scoped rules use YAML frontmatter:
 
@@ -118,7 +115,7 @@ See [references/rules-directory-guide.md](references/rules-directory-guide.md) f
 
 ## Content Structure
 
-The 6 sections every CLAUDE.md should have and the 6 bloat categories to avoid (linter rules, agent-discoverable, marketing/vision, redundant specs, verbose prose, generic best-practices): [references/optimize-guide.md](references/optimize-guide.md).
+Optional sections and six candidate bloat categories to review (linter rules, agent-discoverable, marketing/vision, redundant specs, verbose prose, generic best-practices): [references/optimize-guide.md](references/optimize-guide.md).
 
 ## CLAUDE.md-specific writing rules
 
@@ -155,7 +152,7 @@ See [references/prompting-techniques.md](references/prompting-techniques.md) for
 
 ## Size Limits
 
-Target **under 200 lines** per file. Longer files consume more context and reduce adherence — directives start getting lost.
+Target **under 200 lines** per file. This official guideline is a review signal, not a measured universal adherence threshold.
 
 When exceeding, split via `@path` imports or `.claude/rules/`:
 
@@ -167,7 +164,7 @@ When exceeding, split via `@path` imports or `.claude/rules/`:
 @docs/testing-guide.md
 ```
 
-Imports load eagerly at launch alongside the referencing file. Relative and absolute paths work, `~` expands to home, maximum depth is 5 hops. External imports (outside the project) trigger a one-time approval dialog on first encounter.
+Imports load eagerly at launch alongside the referencing file. Relative and absolute paths work, `~` expands to home, maximum depth is four hops. External imports (outside the project) trigger a one-time approval dialog on first encounter.
 
 ## Auto Memory
 
@@ -175,13 +172,11 @@ Auto memory layout, loading caps, settings keys, env overrides, and subagent mem
 
 ## Workflow
 
-**ALWAYS ASK FIRST: Storage Strategy**
+**Storage strategy**
 
-Before creating or updating memory files, use AskUserQuestion:
+Preserve the established owner and layout for an authorized update. For a new file, use the simplest layout that fits the brief: a single file for universal guidance, or a slim index plus `.claude/rules/` for conditional concerns. Ask only when a material storage migration or user-owned decision is unresolved. An audit request remains read-only; explicit memory permissions still apply.
 
-- **Option 1: Single CLAUDE.md** — tiny project, one file carries everything
-- **Option 2: Hybrid (CLAUDE.md slim + `.claude/rules/`)** *(recommended default)* — CLAUDE.md stays small: intro + `@`-imports of the active rules + a short *At a glance* for repo-specific divergences. Rules carry the actual content and can be path-scoped. Zero duplication, since rules load eager and CLAUDE.md doesn't repeat them.
-- **Option 3: Mostly `.claude/rules/`** — every rule is path-scoped and CLAUDE.md has nothing universal worth stating at the top level.
+Use ordinary links for path-scoped rules so they remain conditional. Eager `@` imports load universal content and do not provide progressive disclosure.
 
 *CLAUDE.md and non-path-scoped `.claude/rules/*.md` load at launch; path-scoped rules (`paths:` frontmatter) load on-demand when Claude reads matching files. Either way the slim-hub pattern doesn't lose content, it places it in focused files instead of one long CLAUDE.md.*
 
@@ -204,13 +199,13 @@ Before creating or updating memory files, use AskUserQuestion:
 | Problem | Solution |
 |---------|----------|
 | Claude ignores instructions | Check specificity and placement first — move the rule to the top of its section; add one emphatic marker only for a genuine constraint |
-| Context overflow | Use `/clear`, split into `.claude/rules/` |
+| Context overflow | Use host compaction and recover task state; split conditional guidance into `.claude/rules/` |
 | Instructions conflict | Consolidate, use hierarchy (root vs subtree) |
 | Path rules not applying | Verify glob pattern matches target files |
 | Debug which instructions load | Use the `InstructionsLoaded` hook to log files, timing, and reasons |
 | Monorepo picks up irrelevant files | Add `claudeMdExcludes` glob patterns in `.claude/settings.local.json` |
 | Memory files not loading from `--add-dir` | Set `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` — `--add-dir` alone gives file access, this env var adds CLAUDE.md/rules loading |
-| CLAUDE.md guidance ignored for security-critical rules | CLAUDE.md is guidance, not enforcement. Use `--append-system-prompt` for strict-compliance automation, or push rules into `permissions.deny`/`sandbox.enabled` settings |
+| CLAUDE.md guidance ignored for security-critical rules | CLAUDE.md is guidance, not enforcement. Use applicable permission, sandbox or hook enforcement; adding system-prompt text does not enforce a security boundary |
 
 **Tips:**
 
@@ -221,28 +216,28 @@ Before creating or updating memory files, use AskUserQuestion:
 
 The skill supports three argument-driven workflows via `$ARGUMENTS`. `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing this SKILL.md elsewhere. Load the matching step file when the argument is present:
 
-- **`init`** — Scaffold a minimal CLAUDE.md: detect the project, draft the file, write after user approval; the Rules section starts empty. See [steps/init.md](steps/init.md). Optional layout scaffold: `bash "$SKILL_DIR"/scripts/init_structure.sh <mode>` writes starter rule stubs — use only when the user asks for a pre-seeded layout.
-- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `python3 "$SKILL_DIR"/scripts/audit_claude_md.py <path>` — the JSON hit-list is your fix list. Read `references/optimize-guide.md` for the WHY behind each category.
+- **`init`** — Scaffold a minimal CLAUDE.md: detect the project, preserve established rules, then draft and write within the user's authorized scope. See [steps/init.md](steps/init.md). Optional layout scaffold: `bash "$SKILL_DIR"/scripts/init_structure.sh <mode>` writes starter rule stubs — use only when the user asks for a pre-seeded layout.
+- **`optimize`** — Deep cleanup of a bloated CLAUDE.md. See [steps/optimize.md](steps/optimize.md). Always start with `python3 "$SKILL_DIR"/scripts/audit_claude_md.py <path>` — the JSON report contains candidates requiring semantic review. Read `references/optimize-guide.md` for the WHY behind each category.
 - **`revise`** — Capture session learnings into CLAUDE.md. See [steps/revise.md](steps/revise.md).
 
 Without a subcommand, treat the argument as free-form guidance about memory files and answer from the sections above.
 
 ## Reference Guides
 
-- **Optimization guide**: [references/optimize-guide.md](references/optimize-guide.md) — research-backed bloat checklist, 6 removal categories, before/after examples
+- **Optimization guide**: [references/optimize-guide.md](references/optimize-guide.md) — evidence-guided bloat review, 6 removal categories, before/after examples
 - **Rules directory**: [references/rules-directory-guide.md](references/rules-directory-guide.md) — complete `.claude/rules/` guide with path-scoping, YAML syntax, symlinks, migration
 - **Prompting techniques**: [references/prompting-techniques.md](references/prompting-techniques.md) — emphasis strategies, clarity techniques, constraint patterns
 - **Section templates**: [references/section-templates.md](references/section-templates.md) — copy-paste templates for each section type
-- **Full example**: [references/full-example.md](references/full-example.md) — full production SaaS CLAUDE.md
+- **Full example**: [references/full-example.md](references/full-example.md) — compact project-specific CLAUDE.md example
 - **Project patterns**: [references/project-patterns.md](references/project-patterns.md) — Next.js, Express, Python, Monorepo patterns
 - **Auto memory**: [references/auto-memory.md](references/auto-memory.md) — layout, loading caps, settings keys, env overrides, subagent memory
 - **Script schemas**: [references/schemas.md](references/schemas.md) — JSON / RESULT shapes for the three deterministic scripts (audit, validate, init)
 
 ## Deterministic scripts
 
-- `scripts/audit_claude_md.py` — line-count + 6-category bloat scan + `@import` resolver. Run first for optimize — the JSON output is your hit-list; revise consults it when drift is suspected. Python 3.7+.
+- `scripts/audit_claude_md.py` — line-count + 6-category bloat scan + `@import` resolver. Run first for optimize — the JSON output proposes review candidates; revise consults it when drift is suspected. Python 3.7+.
 - `scripts/validate_rule_file.py` — YAML frontmatter + `paths:` glob validator for `.claude/rules/*.md`. Python 3.7+.
-- `scripts/init_structure.sh` — idempotent scaffold for the three storage strategies (`single`, `hybrid`, `rules-only`). Never overwrites.
+- `scripts/init_structure.sh` — idempotent scaffold for the three storage strategies (`single`, `hybrid`, `rules-only`). Preserves existing files by default; `--force` replaces them and requires applicable authorization.
 
 ## See also
 
@@ -250,4 +245,4 @@ Without a subcommand, treat the argument as free-form guidance about memory file
 
 ## About
 
-`claude-md` contains the reserved substring `claude`. This is intentional: the agentskills.io open standard reserves `anthropic` / `claude` in skill names but permits a narrow exception for first-party filename conventions, declared in the skill body. This skill operates directly on the first-party `CLAUDE.md` filename; alternatives (`memory-md`, `ctx-md`) lose essential semantic clarity.
+`claude-md` contains the substring `claude`, reserved by this repository's naming policy. The local exception covers first-party filename conventions: this skill operates directly on `CLAUDE.md`. The restriction and exception are repository policy, not agentskills.io requirements.

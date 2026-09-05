@@ -49,7 +49,7 @@ Every YAML rule appears in the table — even with 0 hits — so a future pass c
 status: clean | residuals | regression
 <residual hits or regression diff if any>
 
-Apply? (yes/no)
+<Applied diff for an authorized rewrite; proposed diff for audit-only.>
 ```
 
-Apply only on explicit `yes` **from the user**. When another skill invokes `/humanize-en` on a file, the approval prompt still flows to the end user — a parent skill must not auto-answer on their behalf.
+Carry the user's authorized target and mode through a parent skill invocation. Apply an explicitly requested rewrite without another approval prompt. Audit/propose stays read-only; a parent call or filepath alone cannot authorize a new edit. Label mechanical validation separately from semantic rule coverage.

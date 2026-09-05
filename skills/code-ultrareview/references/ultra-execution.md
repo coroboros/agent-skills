@@ -64,7 +64,7 @@ Produces an independently manifested mutation-findings stream. Axis preparation 
 | Per-language tools | directly declared project `stryker run` (JS/TS) · PATH `mutmut run` with project config (Python) · PATH Maven or Gradle with declared Pitest integration (JVM) |
 | Output axis | `tests` |
 | Severity | `Medium` (🟠) |
-| Confidence | `100` (deterministic — skips Phase 4) |
+| Confidence | `0` (unassessed observation — requires Phase 4 context validation) |
 | Default timeout | 600 s (override via `--timeout` or `MUTATION_TIMEOUT`) |
 
 ### Dispatch
@@ -93,7 +93,7 @@ All parsed findings emit to `<output-dir>/mutation-findings.jsonl` with the cano
   "location": "<file>:<line>[:<col>]",
   "finding": "Surviving or uncovered mutant (<mutatorName>): <description>",
   "recommendation": "Add execution coverage or an assertion that catches the mutation.",
-  "confidence": 100,
+  "confidence": 0,
   "source_tool": "stryker" | "mutmut" | "pitest"
 }
 ```
@@ -113,7 +113,7 @@ Activates the planning-artifact reconciliation branch of the Intent axis. The or
 | Entry point | `scripts/derivation/run.py` |
 | Classifications | `GAP` / `SCOPE-ADD` / `DECISION-OVERRIDE` / `CONSISTENT` (LLM-assigned) |
 | Default severity | `GAP: Medium` · `SCOPE-ADD: Low` · `DECISION-OVERRIDE: Medium` · `CONSISTENT: —` |
-| Stale-artifact handling | `> 30 days` caps severity at `Low`; auto-discovered artifacts older than 90 days are summary-only. Explicit sources always emit their extracted claims. `--strict` disables freshness caps and per-artifact limits |
+| Stale-artifact handling | `> 30 days` caps severity at `Low`; auto-discovered artifacts older than 90 days are summary-only. Explicit sources always emit their extracted claims. `--strict` disables historical freshness caps; extracted claim coverage is never capped |
 | Allowlist file | `.derivation-ignore` (parsed by `derivation/_common.py:load_ignore`) |
 
 ### Input forms

@@ -1,22 +1,22 @@
 # Claude Code Skill Extensions
 
-Claude Code extends the [Agent Skills open standard](./agentskills-spec.md) with harness-specific frontmatter fields. These are **Claude Code only** — skills relying on them are not portable to Claude.ai or the Claude API without degradation.
+Claude Code extends the [Agent Skills open standard](./agentskills-spec.md) with host-specific fields. Support depends on both the runtime and the installation path.
 
-Reference: `coroboros/archivist/docs/code/code-skills.md`.
+Reference: [Claude Code skills](https://code.claude.com/docs/en/skills), checked 2026-09-05. Verify a mirror's source URL before using it; the local `code-skills.md` currently describes Agent SDK skills.
 
 ## Claude Code-specific frontmatter
 
 | Field | Purpose |
 |-------|---------|
-| `when_to_use` | Additional trigger context, appended to `description` in the per-turn skill listing. The combined `description` + `when_to_use` text is capped by the `maxSkillDescriptionChars` setting (default 1536; requires Claude Code v2.1.105+ — see `code-settings.md`). Keep `description` self-sufficient for triggering: `when_to_use` does not travel to other agents. |
+| `when_to_use` | Additional trigger context. Current Claude Code listings truncate combined text at 1,536 characters. Keep `description` self-sufficient for other hosts. |
 | `argument-hint` | Autocomplete hint for arguments. Example: `"[-s] <topic>"`. |
 | `disable-model-invocation` | `true` = only the user can invoke via `/name`. Use for commit/deploy/PR skills. |
 | `user-invocable` | `false` = hide from `/` menu, only Claude auto-invokes. Use for background knowledge skills. |
-| `model` | Force a specific model (`haiku`, `sonnet`, `opus`) for the skill session. |
-| `effort` | `low`, `medium`, `high`, `xhigh`, `max`. Overrides session effort. |
+| `model` | Runtime model override; this repository leaves it unset to inherit the session. |
+| `effort` | Runtime effort override, with model-dependent levels; this repository leaves it unset. |
 | `context` | `fork` = run in a forked subagent context. |
 | `agent` | With `context: fork`, which subagent type to use (`Explore`, `Plan`, `general-purpose`, or a custom agent). |
-| `hooks` | PreToolUse/PostToolUse hooks scoped to the skill's lifecycle. |
+| `hooks` | Registers session hooks when invoked; consult the current lifecycle and `once` behavior. |
 | `paths` | Glob patterns — skill auto-loads only when working with matching files. |
 | `shell` | `bash` (default) or `powershell` for inline `` !`cmd` `` execution. |
 
@@ -33,11 +33,12 @@ Reference: `coroboros/archivist/docs/code/code-skills.md`.
 
 ## Portability note
 
-Claude Code-only extensions (`argument-hint`, `when_to_use`, `$ARGUMENTS`, `paths`, `hooks`, `` !`cmd` ``, `shell`, `context`, `agent`, `model`, `effort`, `disable-model-invocation`, `user-invocable`) do not travel to Claude.ai, Claude desktop, or the SDK. `allowed-tools` is also Claude Code CLI-only per the SDK skills doc. Per the official spec, skills are portable by default (`name` + `description` only); any extension narrows scope.
+Claude.ai uploads, the Skills API, and official packaging accept the specification's six fields and can reject extensions. The Agent SDK documents its own loading behavior, including support for `allowed-tools` on project and personal skills. This differs from the Skills API. See [Agent SDK skills](https://code.claude.com/docs/en/agent-sdk/skills).
 
-**Repo scope convention** — two tiers, declared in frontmatter (not in the README table):
+**Repository convention:**
 
-- **Portable** — no Claude-only runtime mechanics in the body (subagents, MCP tools, interactive UI). Claude-only *frontmatter* extensions may remain: spec-lenient clients ignore unknown fields, so they are inert elsewhere.
-- **Harness-coupled** — the body leans on Claude Code mechanics, each with a graceful-degradation clause.
+- Name actual tool and host requirements in `compatibility`; a subagent or MCP requirement is not inherently exclusive to Claude Code.
+- When optional host mechanics are unavailable, state the supported fallback and its limits. A self-review is not an isolated reviewer.
+- Do not assume unknown fields are ignored everywhere or that shell substitutions execute on another host. Verify the target loader and adapt argument and script-path handling through its available tools.
 
-Harness-coupled skills declare their intended environment via the top-level spec-canonical `compatibility:` field; portable skills omit it. See `skill-authoring.md` → *Post-generation conformance → Frontmatter* for the canonical text and the tier rule.
+See `skill-authoring.md` for conformance and behavioral verification. A valid folder layout alone does not prove runtime compatibility.

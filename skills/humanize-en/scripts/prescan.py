@@ -275,11 +275,13 @@ def main():
         add_help=True,
     )
     parser.add_argument("path", help="path to a prose file (or '-' for stdin)")
-    parser.add_argument(
+    brand_input = parser.add_mutually_exclusive_group()
+    brand_input.add_argument(
         "--brand",
         metavar="<voice-doc>",
         help="path to a BRAND-VOICE.md; activates brand-aware detection",
     )
+    brand_input.add_argument("--rules-json", help="resolved rules from extract_rules.py --resolved-json")
     parser.add_argument(
         "--strict-code-only",
         action="store_true",
@@ -296,18 +298,18 @@ def main():
             return 1
         text = path.read_text(encoding="utf-8")
 
-    has_brand = bool(args.brand)
+    has_brand = bool(args.brand or args.rules_json)
     hits = scan(text, strict_code_only=args.strict_code_only, attach_source=has_brand)
 
     if has_brand:
         try:
-            from brand_prescan import load_brand_rules, scan_brand
-            rules = load_brand_rules(args.brand)
-        except FileNotFoundError as exc:
+            from brand_prescan import load_brand_rules, load_resolved_rules, scan_brand
+            rules = load_resolved_rules(args.rules_json) if args.rules_json else load_brand_rules(args.brand)
+        except OSError as exc:
             print(f"error: {exc}", file=sys.stderr)
             return 1
         except ValueError as exc:
-            print(f"error: brand-voice YAML invalid: {exc}", file=sys.stderr)
+            print(f"error: invalid brand rules: {exc}", file=sys.stderr)
             return 1
         hits.extend(scan_brand(text, rules, strict_code_only=args.strict_code_only))
 

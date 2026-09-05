@@ -36,10 +36,10 @@ The MCP tool is authorised through Claude Code's permission layer, not via the s
 3. If empty, error:
    > "No Markdown files in `<dir>`."
 4. If the count is ≤ 5, read each file directly with `Read`.
-5. If the count is > 5, dispatch a `general-purpose` subagent (or your harness's equivalent) with:
+5. For a large corpus, use an available authorized subagent for independent aggregation, or read bounded groups locally. The optional delegation brief is:
    > "Read every `.md` file under `<dir>` and produce a single Markdown document concatenating their content with a `## <relative-path>` heading per file. Skip files with no prose (less than 50 chars of non-frontmatter content)."
 
-The subagent is used past 5 files to keep the main skill's context clean — the aggregated draft can be 10K+ lines for a large brand archive.
+Retain the source manifest and report unread or excluded material. A missing subagent does not block local reads or justify claiming coverage of skipped files.
 
 ### `-f <file>` — Single MD file
 
@@ -52,7 +52,7 @@ Symbolic links are followed — there is no special handling. Files larger than 
 
 ### Interview mode (no flag)
 
-When no source flag is present, dispatch `references/interview-questions.md` and ask the eight canonical questions one at a time via `AskUserQuestion`. The aggregated answers become the single source contribution.
+When no source flag is present, use `references/interview-questions.md` as a bank for consequential gaps in the existing brief. Batch those gaps through available question tooling or plain text. The answers become the source contribution.
 
 ## Aggregating multiple sources
 
@@ -60,7 +60,7 @@ When two or more sources are passed:
 
 1. Resolve each independently per the above.
 2. Concatenate into a single working draft, ordered by flag precedence: `-f`, `-d`, `-u`, `-n`, `(interview)`. The LLM receives the working draft with explicit headers per source.
-3. Synthesise the canonical format. When sources conflict (e.g., one says "use 'we'", another says "never 'we'"), the skill flags the conflict to the user via `AskUserQuestion`. No silent override.
+3. Synthesise the canonical format. Resolve conflicts using explicit user corrections and designated source authority, and report that decision. Ask only when a material conflict remains unresolved, such as incompatible voice identities from equally authoritative sources.
 4. Record contributing sources in `voice.source_urls` (URL or path) for audit and for future `update` runs.
 
 ## Per-source contribution summary

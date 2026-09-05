@@ -1,17 +1,14 @@
 ---
 name: brand-voice
-description: Govern the BRAND-VOICE.md — extract a brand's writing voice from URL, Notion page, MD file/directory, or interview into a structured executable doc; update incrementally; diff versions; validate the canonical format; show testable rules. Supports multi-voice via `voice.extends` (founder on corporate, persona on institutional, multi-host) with `_replace`/`_remove` overrides. Consumed by writing skills via `-f` (e.g. `humanize-en`). Use when defining, extracting, refreshing, validating, or inspecting a brand's writing voice — "create a brand voice doc", "extract voice from this site", "tone of voice", "writing style guide", "BRAND-VOICE.md", "founder voice", "persona voice", "multi-voice".
+description: Create, refresh, compare and validate BRAND-VOICE.md from web, Notion, local prose or an interview. Use for brand voice, writing style guide, founder/persona voice and voice.extends inheritance. Preserve manual sections and resolve source conflicts. Applying an existing voice to prose belongs to humanize-en -f.
 when_to_use: Routes via `$ARGUMENTS` first token — `extract` (sources → BRAND-VOICE.md; `--extends <parent>` scaffolds a child), `update` (refresh from new sources), `diff` (regression check; single-arg form when child has `voice.extends`), `validate` / `lint` / `check` (walks chain), `show` (testable rules; `--chain`/`--explain`/`--raw` for inheritance). Skip when the user wants to apply or check prose against an existing voice (rewrite, humanize, "does this match") — invoke `/humanize-en -f BRAND-VOICE.md` instead.
 argument-hint: "[extract|update|diff|validate|show] [-s] [-o <path>] [-u <url>] [-n <id|url>] [-d <dir>] [-f <file>] [refs|paths]"
 license: MIT
-compatibility: "Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."
+compatibility: "Requires filesystem access and Python 3.10+ for bundled validation and inheritance tools. Web and Notion sources require corresponding read capabilities. Interviews use the host's supported question mechanism; local-source work does not require those connectors."
 allowed-tools: Read Write Edit Grep Glob WebFetch AskUserQuestion Bash(jq *) Bash(test *) Bash(wc *) Bash(find *) Bash(python3 *) Bash(git *) Bash(mktemp *)
 metadata:
   author: coroboros
-  sources:
-    - github.com/google-labs-code/design.md
-    - en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing
-    - every.to/on-every/introducing-spiral-v3-an-ai-writing-partner-with-taste
+  sources: "github.com/google-labs-code/design.md; en.wikipedia.org/wiki/Wikipedia:Signs_of_AI_writing; every.to/on-every/introducing-spiral-v3-an-ai-writing-partner-with-taste"
 ---
 
 # Brand Voice
@@ -19,16 +16,16 @@ metadata:
 <!-- canonical:writing-rules:start -->
 ## Important — Writing rules
 
-These rules govern every prose artifact this skill emits — READMEs, CHANGELOGs, commit messages, PR bodies, release notes, doc paragraphs, non-trivial comments. Apply them at draft time, verify before output.
+Apply these rules to emitted prose: docs, comments, commit messages, PR bodies, and release notes.
 
-- Match the surrounding style — punctuation, capitalization, backtick conventions, em-dash vs parens, bullet style.
+- Match surrounding punctuation, capitalization, and formatting.
 - Every sentence changes the reader's understanding. Cut it otherwise.
-- Front-load the verb — "Creates", not "This helps you create".
-- Concrete over abstract. Lists for ≥3 enumerable items.
+- Lead with the action or outcome.
+- Use concrete language and lists when they improve comparison or sequence.
 - Assert positively. Reserve negation for real constraints (`NEVER commit secrets`).
 - No marketing words: powerful, robust, seamlessly, leverage, unlock, comprehensive, delightful.
 - No AI tells: delve, tapestry, intricate, pivotal, testament, underscore, crucial, garner, showcase, additionally, moreover, furthermore, indeed.
-- After drafting English prose, invoke `/humanize-en` if installed.
+- For substantive English prose, use `/humanize-en` if installed with the existing scope and authorization. It adds no approval stage; skip redundant passes over short status text.
 <!-- canonical:writing-rules:end -->
 
 Govern `BRAND-VOICE.md` — the canonical writing voice document for a brand. Two layers: YAML frontmatter (machine-readable normative rules consumed by writing skills) plus eleven prose sections (human-readable rationale). Same split as `DESIGN.md` and the same `design-system` skill pattern: a canonical file at the project root, CLI-style subcommands for the lifecycle.
@@ -60,7 +57,7 @@ When `-s` is passed alongside `extract`, the skill also writes a copy to `~/.age
 
 ### Cross-repo distribution
 
-When a brand spans multiple repositories (a www repo, an iOS repo, a docs repo, a marketing site), the same `BRAND-VOICE.md` should govern all of them. Pick one pattern and document it in each project's `CLAUDE.md`:
+When a brand spans repositories, choose a shared-source pattern and document it in each authorized project's active instruction entrypoint (AGENTS.md, CLAUDE.md or its local equivalent). Identify other consumers without editing projects outside the request:
 
 - **Brand workspace canonical** — keep `BRAND-VOICE.md` at the brand workspace root (e.g. `~/<brand>/BRAND-VOICE.md`). Each subproject references it via absolute path: `/humanize-en -f ~/<brand>/BRAND-VOICE.md draft.md`. Simplest. Best when subprojects share a local workspace.
 - **Monorepo** — `packages/brand/BRAND-VOICE.md` consumed by every app in the monorepo. Single PR for cross-cutting voice changes.
@@ -99,7 +96,7 @@ Sources are combinable — pass any number of `-u`, `-n`, `-d`, `-f`. The skill 
 | `-n <id\|url>` | Notion page | Notion MCP fetch tool (page + linked sub-pages, depth 1) — no MCP: export to Markdown and use `-d` |
 | `-d <dir>` | Folder of MD/MDX | `Glob <dir>/**/*.md` → aggregate |
 | `-f <file>` | Single MD/MDX/TXT | `Read` direct |
-| (none, with `extract`) | Interview | 8 canonical questions via `AskUserQuestion` (when unavailable, ask in plain text) |
+| (none, with `extract`) | Interview | Use the question bank for consequential gaps not already answered by the brief |
 
 Full resolution rules — including failure handling, conflicts, MCP unavailability, large-folder fan-out, and contribution summary — live in [`references/source-resolution.md`](./references/source-resolution.md).
 
@@ -143,13 +140,13 @@ Brand voice is consumed by writing skills via `-f`. The current consumer is `hum
 
 Two ways for a consumer to read the rules:
 
-- **Invoke `extract_rules.py --full`** — preferred. The script flattens the YAML to plain text, automatically resolves any `voice.extends` chain, applies `_replace` and `_remove` overrides, and emits a 50–150 line block ready for inclusion in an LLM prompt. This is what `humanize-en -f` does as of the inheritance release.
+- **Invoke `extract_rules.py --resolved-json`** when semantic and mechanical consumers must share rules, including `humanize-en -f`. It resolves `voice.extends`, `_replace` and `_remove` once; read and validate against that same mapping. `--full` remains the human-readable format for inspection.
 
   ```bash
-  python3 "$SKILL_DIR"/scripts/extract_rules.py --full ./BRAND-VOICE.md
+  python3 "$SKILL_DIR"/scripts/extract_rules.py --resolved-json ./BRAND-VOICE.md
   ```
 
-- **`Read` the YAML frontmatter directly** — fallback when the consumer's `allowed-tools` does not include `Bash`, or when the consumer wants raw structure. The consumer parses the YAML and uses `forbidden_lexicon`, `rewrite_rules`, `sentence_norms`, `forbidden_patterns`, `pronouns`, `core_attributes`, `contexts` directly. This path does **not** resolve `voice.extends` — child files appear as-written.
+- **Read local YAML directly** when no resolver is available and no inheritance is declared. This path does not resolve `voice.extends`; inherited input requires resolved output before a consumer can claim full rule coverage. A local semantic read is not a mechanical validation result.
 
 Both shapes are documented in [`references/schemas.md`](./references/schemas.md) § extract_rules.py. The `--legacy` flag emits the v1 minimal output (byte-identical to the pre-inheritance shape) for any external consumer pinned to it.
 
@@ -165,7 +162,7 @@ python3 "$SKILL_DIR"/scripts/voice_lint.py ./BRAND-VOICE.md
 
 Verdicts: `GREEN` (zero errors, zero warnings), `YELLOW` (warnings only — acceptable but flagged), `RED` (errors — block). Output is JSON per [`references/schemas.md`](./references/schemas.md) § voice_lint.py.
 
-`extract` and `update` lint before writing. RED → fix and re-lint without prompting the user. YELLOW → present warnings to the user and proceed on confirmation.
+`extract` and `update` lint before writing. RED → fix and re-lint. YELLOW → proceed with the authorized write and report warnings; acceptable warnings do not reopen consent. Audit/diff/validate remain read-only.
 
 ## Default workflow (no subcommand)
 
@@ -182,9 +179,9 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 
 - **Canonical file is git-versioned.** Treat `./BRAND-VOICE.md` as a code asset. Diff before merge. The git history is the audit trail.
 - **Lint before write.** Every `extract` and `update` runs `voice_lint.py` on the synthesised content before the user is asked to approve. RED never reaches disk.
-- **Never overwrite.** `extract` refuses to overwrite an existing file. `update` always shows a diff and asks for explicit `yes`. `diff` is read-only by definition.
+- **Respect the requested mode.** `extract` refuses an existing target and routes a requested refresh to `update`. An authorized `update` applies a validated diff while preserving manual sections; audit/propose and `diff` remain read-only. A source path alone grants no write authority.
 - **Manual sections are sacred.** A section marked `<!-- manual: true -->` is preserved verbatim by `update`. Do not re-synthesise.
-- **Conflicts surface, never override.** When two sources disagree, surface via `AskUserQuestion`. When a source contradicts the existing doc during `update`, surface. No silent picks.
+- **Resolve by source authority.** Apply the user's explicit correction or designated authoritative source and report the resolution. Ask only for materially different identities or rules whose authority remains unresolved; a routine requested value refresh needs no second confirmation.
 - **Output paths follow the repo contract.** Default canonical at `./BRAND-VOICE.md`. Pipeline copies under `~/.agents/output/{project}/brand-voice/brand-voice-{slug}.md` only when `-s` is passed.
 
 ## When to defer to another skill
@@ -203,7 +200,7 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 - [`references/interview-questions.md`](./references/interview-questions.md) — eight canonical questions for `extract` with no source flag.
 - [`references/schemas.md`](./references/schemas.md) — JSON shape for `voice_lint.py`, plain-text shape for `extract_rules.py`. Stable contract for downstream consumers.
 - [`scripts/voice_lint.py`](./scripts/voice_lint.py) — validates a `BRAND-VOICE.md`, walks `voice.extends` chain, emits `chain` and `merged_stats` when inheritance applies. Python 3.7+, no third-party deps.
-- [`scripts/extract_rules.py`](./scripts/extract_rules.py) — emits flat testable rules. Resolves `voice.extends` chain by default. `--full` (default) includes `core_attributes`/`contexts`/`source_urls`; `--legacy` emits the v1 minimal output. Consumed by `humanize-en -f`.
+- [`scripts/extract_rules.py`](./scripts/extract_rules.py) — resolves inheritance; `--full` prints readable rules, `--legacy` the v1 format, and `--resolved-json` the shared model/mechanical mapping consumed by humanize-en.
 - [`scripts/measure_corpus.py`](./scripts/measure_corpus.py) — measures stylometric stats from a prose corpus; `--as-sentence-norms` emits a `sentence_norms` dict (or `null` below the 30-sentence threshold) for `extract` to use in place of estimated bounds. stdlib only.
 - [`scripts/lint_all.py`](./scripts/lint_all.py) — globs every `BRAND-VOICE*.md` under a root and lints each. Single-command audit for the parent-change blast-radius problem: a parent edit that breaks N children surfaces as N RED verdicts. CI-friendly; recommended in pre-merge hooks.
 - [`scripts/utils.py`](./scripts/utils.py) — shared I/O helpers, chain resolution (`resolve_extends_chain`), merge engine (`merge_voice_dicts`, `apply_replace_overrides`, `apply_remove_overrides`). Not invoked directly.
@@ -214,4 +211,4 @@ The default workflow exists to avoid silent state-modifying actions. Every write
 2. **A structurally invalid parent passes chain resolution but fails lint when linted directly.** Fix: lint every file in the chain via `scripts/lint_all.py`, not just the target; block writes if any ancestor is RED.
 3. **`_replace` / `_remove` only apply to fields in `REPLACE_ALLOWED_FIELDS` / `REMOVE_ALLOWED_FIELDS`** (`scripts/utils.py:334-352`). Overrides on other fields (e.g., `voice`, `source_urls`, `signature_traits`) no-op at merge and surface only at lint time. Always run `voice_lint.py` on the child after override edits.
 4. **Chains over 5 hops fail with `extends-depth-exceeded`** (`scripts/utils.py:332`: `MAX_EXTENDS_DEPTH = 5`). Fix: keep chains short (≤3 hops); flatten when a child needs more than 2 ancestors.
-5. **`extract_rules.py` path mismatch breaks `humanize-en -f` silently.** Consumers try three candidates and degrade to universal patterns if none resolve. Symlink or copy the script when your install path is non-standard.
+5. **Resolver discovery:** consumers should find the installed skill through the host before trying known paths. humanize-en accepts local rules standalone but rejects unresolved inheritance; use `--resolved-json` and the exact extraction/rerun guidance instead of copying the resolver or dropping parent rules.

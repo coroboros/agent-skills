@@ -84,7 +84,7 @@ Cited evidence that grounded the decision, capped at the load-bearing findings â
 
 ### WS-2: {workstream title}
 
-[Same structure as WS-1. Repeat for each workstream â€” 3-7 total.]
+[Same structure as WS-1. Repeat for each independently deliverable outcome; one workstream is valid.]
 
 ---
 

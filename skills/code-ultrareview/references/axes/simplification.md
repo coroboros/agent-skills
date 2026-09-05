@@ -45,7 +45,7 @@ From `scripts/battery_ingest.py:TOOL_TO_AXIS`:
 - `dupl` — Go duplication.
 - `cargo-machete` — unused Rust dependencies.
 
-All tool findings carry `confidence: 100` and skip validators. The LLM judges whether to remove or wire up.
+Tool observations carry `confidence: 0` until contextual validation establishes whether removal, wiring, or no change is warranted.
 
 ## Severity calibration
 
@@ -59,12 +59,12 @@ Cap severity at 🟠 Medium for stylistic simplification calls (over-engineering
 
 | `repo_kind` | Behavior |
 |-------------|----------|
-| `skills` | Bundled `scripts/` get full simplification review. Pure-prompt skills (SKILL.md only, no scripts) → axis emits zero findings; the `Repo: skills` header carries the context. |
+| `skills` | Bundled `scripts/` get full simplification review. Prompt-only skills receive review for redundant instructions, contradictory gates, unnecessary workflow steps, and complexity without outcome benefit. |
 | `app`, `library` | Full review. |
 | `python` | Full review; `vulture` findings feed in. |
 | `rust` | Full review; `cargo-machete` findings feed in. Inline `#[cfg(test)]` modules are not dead code. |
 | `go` | Full review; `deadcode` / `gocyclo` / `dupl` feed in. |
-| `docs` | No executable surface — axis emits zero findings. |
+| `docs` | Review duplication and unnecessary complexity that materially obscure the document's purpose. |
 | `monorepo` | Per-workspace specialization parked; subagent treats as a code repo. |
 | `unknown` | Full review with all available tool inputs. |
 

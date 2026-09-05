@@ -10,13 +10,12 @@ next_step: null
 ## MANDATORY EXECUTION RULES (READ FIRST):
 
 - 🛑 NEVER claim checks pass when they don't
-- 🛑 NEVER skip any validation step
-- ✅ ALWAYS run typecheck, lint, and tests
+- Run project-required checks and the behavior checks appropriate to the change; report unavailable commands explicitly.
 - ✅ ALWAYS verify each acceptance criterion
-- ✅ ALWAYS fix failures before proceeding
+- Fix task-caused failures. Identify baseline failures separately; preserve unrelated work and report any required check still blocked.
 - 📋 YOU ARE A VALIDATOR, not an implementer
 - 💬 FOCUS on "Does it work correctly?"
-- 🚫 FORBIDDEN to proceed with failing checks
+- Do not claim passing checks or complete verification when required evidence is missing.
 
 ## EXECUTION PROTOCOLS:
 
@@ -68,12 +67,12 @@ From previous steps:
 Proof: <typecheck cmd> exits 0, <lint cmd> exits 0, <test cmd> exits 0.
 Derivation lens returns CONSISTENT or only DECISION-OVERRIDE with documented rationale.
 No file outside the planned scope is modified.
-Stop after 15 turns.
+Continue while a concrete authorized step can improve closure; report a blocker when no such step remains.
 ```
 
 Resolve `<typecheck cmd>`, `<lint cmd>`, `<test cmd>` from § 2 "Discover Available Commands" before emission. If `{acceptance_criteria}` is empty (trivial task), substitute `(none — task trivially completes when checks pass)`.
 
-Command tokens must land verbatim in the transcript — the Haiku evaluator behind `/goal` only judges what it sees, so paraphrases like "tests pass" defeat the gate.
+Record actual command output verbatim and its exit status so the outcome gate can assess evidence.
 
 If `{goal_mode}` = false, skip this step entirely. If `/goal` is unavailable in your harness, skip the goal gate and proceed.
 
@@ -98,11 +97,11 @@ Look for: `typecheck`, `lint`, `test`, `build`, `format` (or equivalents).
 
 **3.0 Derivation lens**
 
-Load `references/derivation-lens.md` and run the lens — code-ultrareview's Python orchestrator if detected, else the inline fallback. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence. With `{save_mode}` = false there is no `02-plan.md` — reconcile against the approved plan from the step-02 conversation instead.
+Load `references/derivation-lens.md` and run its self-contained review. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence. With `{save_mode}` = false there is no `02-plan.md` — reconcile against the approved plan from the step-02 conversation instead.
 
 **Gating:**
 
-- **GAP** findings → **MUST PASS**. Workflow blocks; surface planned-but-missing items; user resolves each (implement OR amend plan + AC) before completion.
+- **GAP** findings → **MUST PASS**. Completion blocks until the authorized missing work is implemented or a concrete blocker is reported. Do not ask again for already authorized fixes.
 - **SCOPE-ADD** findings → continue (advisory). Escalate to **Medium and require user acknowledgement** when the addition matches a `## Not Included` entry from the plan's negative scope.
 - **DECISION-OVERRIDE** findings → continue. Surface for user judgment.
 - **CONSISTENT** → no finding; counted in coverage.
@@ -127,7 +126,7 @@ Run the project's typecheck command.
 Run the project's lint command.
 
 **MUST PASS.** If fails:
-1. Try auto-fix variant first (e.g., `--fix` or `--write`)
+1. Inspect whether failures were introduced by the task; scope any auto-fix to task-owned files
 2. Manually fix remaining
 3. Re-run until passing
 
@@ -151,8 +150,8 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 
 - Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough.
 - Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
-- `{economy_mode}` = true → skip the subagent; self-refute in a fresh pass instead.
-- Harness without subagents → same fallback: self-refute in a fresh pass.
+- `{economy_mode}` = true → skip the subagent; perform a separate shared-context self-check instead; do not call it independent verification.
+- Harness without subagents → same shared-context fallback; disclose the reduced independence.
 
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 
@@ -166,7 +165,7 @@ Verify each item:
 - [ ] Any blocked tasks have explanation
 
 **Tests Passing:**
-- [ ] All existing tests pass
+- [ ] Required and affected checks pass; baseline failures and unavailable checks are identified
 - [ ] New tests written for new functionality
 - [ ] No skipped tests without reason
 
@@ -182,11 +181,11 @@ Verify each item:
 
 ### 5. Format Code
 
-Run the project's format command if available.
+Format task-owned changes using the repository's configuration when required, before final verification.
 
 ### 6. Final Verification
 
-Re-run typecheck and lint commands. Both MUST pass.
+After the last edit, rerun the checks its changes invalidate, including behavior tests when affected. Reuse still-valid results; do not repeat unchanged checks for ceremony.
 
 ### 7. Present Validation Results
 
@@ -268,9 +267,9 @@ Run: `bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "c
 
 ## VALIDATION PROTOCOLS:
 
-- Run EVERY validation command
-- Fix failures IMMEDIATELY
-- Don't proceed until all green
+- Run project-required and change-relevant checks
+- Fix task-caused failures and report unrelated baseline failures
+- Do not claim complete verification while required checks remain blocked
 - Verify EACH acceptance criterion
 - Document all results
 
@@ -281,5 +280,5 @@ Run: `bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "c
 This is the final step. After validation passes, the APEX workflow is complete.
 
 <critical>
-Remember: NEVER claim completion with failing checks - fix everything first!
+Report actual outcomes: passed, failed, unavailable, or not applicable. Fix authorized regressions; never fabricate clean verification.
 </critical>

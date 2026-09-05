@@ -12,9 +12,9 @@ Most non-trivial questions need at least two of these. Skip an angle only when i
 
 ## Triangulate, don't cherry-pick
 
-A single source is anecdote. Three converging sources is signal. One source contradicting two is a flag worth surfacing in the artifact.
+Judge evidence by authority, directness, methodology, and independence. An official specification can establish its own contract alone; several reposts are not independent corroboration.
 
-- For each load-bearing claim, name at least two sources that agree, or note "single source — assumption".
+- Cite the evidence supporting each material claim. Seek independent corroboration for comparative or empirical claims; disclose uncertainty when corroboration is unavailable.
 - Where sources diverge, record the divergence in the Assumption ledger. The divergence is more informative than the convergence.
 - Newer trumps older when methodology is comparable. Methodology trumps recency when not.
 
@@ -34,7 +34,7 @@ A quality tag rates the source type; provenance rates its interest. For each loa
 
 Premortem framing, generic best practices, common gotchas for well-known libraries — the model already carries these. Use research to ground the *specific* call: this codebase, this version, this constraint.
 
-Every run grounds the call in ≥1 codebase + ≥1 external angle — the floor stands even when the framing feels settled, unless `{economy_mode}` — and it binds harnesses without subagents too: run both passes yourself, sequentially. Perceived clarity is exactly where un-audited assumptions hide; forge is invoked deliberately for thinking, so there is no settled-enough-to-skip path.
+Choose research angles according to the actual unresolved questions. Do not manufacture codebase research for a non-code decision or external research for a question fully settled by repository evidence.
 
 ## When to widen the net
 

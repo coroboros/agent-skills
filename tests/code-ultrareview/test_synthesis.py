@@ -713,7 +713,7 @@ class TestPositives(unittest.TestCase):
 
 
 class TestToolFindingsConcat(unittest.TestCase):
-    def test_tool_findings_appear_in_report(self):
+    def test_rejected_raw_tool_findings_are_not_resurrected(self):
         tool = {
             "axis": "documentation",
             "severity": "Low",
@@ -726,16 +726,12 @@ class TestToolFindingsConcat(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             stdout, _, rc = _run_synthesize(
                 _scope(),
-                [],
+                [{**tool, "confidence": 0, "meta": {"validator_outcome": "demoted"}}],
                 output_dir=Path(tmp),
                 tool_findings=[tool],
             )
         self.assertEqual(rc, 0, stdout)
-        self.assertIn("Trailing whitespace", stdout)
-        # Routed to 🟢 Low under Findings.
-        green_offset = stdout.index("### 🟢 Low")
-        next_section = stdout.index("###", green_offset + 1)
-        self.assertIn("Trailing whitespace", stdout[green_offset:next_section])
+        self.assertNotIn("Trailing whitespace", stdout)
 
 
 # ---------------------------------------------------------------------------
@@ -908,7 +904,7 @@ class TestRenderLayerRegression(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             stdout, stderr, rc = _run_synthesize(
                 scope,
-                [],
+                [mutation],
                 output_dir=Path(tmp),
                 mutation_findings=[mutation],
             )

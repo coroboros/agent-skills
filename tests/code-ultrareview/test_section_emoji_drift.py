@@ -197,14 +197,16 @@ class TestEvalsJsonIsValid(unittest.TestCase):
                     for item in expectations
                 ))
 
-    def test_skill_frontmatter_uses_canonical_harness_compatibility(self):
+    def test_skill_frontmatter_declares_required_review_capabilities(self):
         text = (SKILL_DIR / "SKILL.md").read_text(encoding="utf-8")
         frontmatter = text.split("---", 2)[1]
-        self.assertIn(
-            'compatibility: "Optimized for Claude Code; degrades gracefully '
-            'on any agent implementing the Agent Skills standard."',
-            frontmatter,
+        compatibility = next(
+            line for line in frontmatter.splitlines()
+            if line.startswith("compatibility:")
         )
+        for requirement in ("Python 3.10+", "analyzers", "isolated-agent support"):
+            self.assertIn(requirement, compatibility)
+        self.assertNotIn("degrades gracefully", compatibility)
 
 
 class TestTerminalEchoRuleMirroredInThreePlaces(unittest.TestCase):

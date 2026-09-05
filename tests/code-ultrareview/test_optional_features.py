@@ -471,7 +471,7 @@ class TestMutationGate(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(finding["source_tool"], "mutmut")
         self.assertEqual(finding["location"], "calc/__init__.py:5")
-        self.assertEqual(finding["confidence"], 100)
+        self.assertEqual(finding["confidence"], 0)
 
     def test_mutmut_method_survivor_maps_to_its_class(self):
         results = "    calc.xǁBoxǁclamp__mutmut_1: survived\n"

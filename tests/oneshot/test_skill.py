@@ -49,7 +49,7 @@ class TestCircuitBreakerDocumented(unittest.TestCase):
         body = _body()
         # Match `### N. Complexity check (circuit breaker)` through next `### ` or `## `
         m = re.search(
-            r"^###\s+[\w.]+\s+Complexity check.*?circuit breaker.*?\n(.*?)(?=^###?\s|\Z)",
+            r"^###\s+[\w.]+\s+Complexity check.*?replan when needed.*?\n(.*?)(?=^###?\s|\Z)",
             body,
             re.DOTALL | re.MULTILINE | re.IGNORECASE,
         )
@@ -70,7 +70,7 @@ class TestCircuitBreakerDocumented(unittest.TestCase):
     def test_section_names_forge_as_escalation(self):
         section = self._circuit_breaker_section()
         self.assertIsNotNone(section, "circuit-breaker section missing")
-        self.assertIn("/forge", section,
+        self.assertIn("already-authorized", section,
                       "/forge not mentioned within the circuit-breaker section")
 
     def test_section_describes_signals(self):
@@ -128,8 +128,8 @@ class TestConstraintsSection(unittest.TestCase):
         "One task only",
         "No comments",
         "No refactoring",
-        "No documentation files",
-        "Stuck after 2 attempts",
+        "Necessary documentation only",
+        "Progress-based recovery",
     ]
 
     def test_constraints_section_exists(self):

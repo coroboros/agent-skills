@@ -21,7 +21,7 @@ A **bespoke signature** is a mechanic that could only belong to *this* world. Th
 
 ## The signature lives on the make-or-break surface
 
-A bespoke mechanic buried below the fold does not save the build. The hero is the first impression and the largest single driver of the score (`SKILL.md` step 8, the hero chunk); the signature belongs there. A page whose hero runs a *category* medium — a scrubbed stock clip, a parallax, a plain fade — while the one bespoke moment waits in section four is a category-hero build, and R1 scores it OFF-TRACK however good the buried moment is. Two ways out, both legitimate: the hero's own medium *is* the signature (the object turns in the hero, the material answers the pointer in the hero), or the signature is pulled up so the first screen carries it. "Foreshadow it above, pay it off below" is not the same as placing it below — the payoff itself must reach the make-or-break surface, not just a hint of it.
+The first viewport must establish the committed world through a distinctive composition and medium. The default is a signature payoff in that viewport. A selected archetype or explicit brief may place its spectacle later, such as the brutalist studio-index footer; declare that arc in DESIGN.md and assess the hero against its own committed role. A generic opener cannot borrow quality from an unrelated effect farther down. Judge coherence with the chosen arc, rather than failing every deferred payoff mechanically.
 
 ## The signature is distributed, over a live substrate
 

@@ -239,6 +239,6 @@ The DESIGN.md is long-form — eight prose sections plus YAML. Truncation is the
 - Outputting a token-namespace skeleton when the request is for full DESIGN.md
 - Showing the first and last sections while skipping the middle
 - Describing what a section *would* contain instead of writing it
-- Ending mid-section without the continuation marker
+- Ending mid-section without a checkpoint identifying the unfinished work
 
-**Continuation marker** for legitimate token-ceiling splits: finish at a clean section boundary, then end with `[PAUSED — N of 8 sections complete. Send "continue" to resume from: <next section name>]`. On `continue`, pick up exactly there with no recap, no rewrite, no compression. The marker is the only acceptable form of split output.
+**Context continuation:** checkpoint the completed section count and next section at a clean boundary in the existing artifact; use the harness's available compaction or continuation. Resume without rewriting completed content or dropping scope. Only request a user continuation when the actual harness cannot continue autonomously, and label the result incomplete.

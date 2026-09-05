@@ -42,12 +42,12 @@ Correctness is an LLM-judgment axis and always runs even though its filtered too
 
 | `repo_kind` | Behavior |
 |-------------|----------|
-| `skills` | Docstring drift reframes from "code vs docstring" to "bundled `scripts/` vs SKILL.md spec". SKILL.md is the canonical spec — it cannot drift from itself. Fire when SKILL.md declares a flag absent from a script's parser, or an output schema the script doesn't emit. Pure-prompt skills (no `scripts/`) emit zero drift findings. |
+| `skills` | Docstring drift reframes from "code vs docstring" to "bundled `scripts/` vs SKILL.md spec". Check SKILL.md against its accepted purpose and internal instructions as well as scripts and references. Fire when SKILL.md declares a flag absent from a script's parser, or an output schema the script doesn't emit. Prompt-only skills can contain contradictory instructions, impossible tool contracts, or gates that prevent their accepted outcome. |
 | `app`, `library` | Existing behavior — code vs docstring vs README claim. |
 | `python` | Triple-quoted docstrings are the surface. |
 | `rust` | `///` doc comments are the surface. |
 | `go` | `// godoc` comments are the surface. |
-| `docs` | No executable surface — axis emits zero findings; the report's `Repo: docs` header carries the context. |
+| `docs` | Check consequential contradictions, incorrect examples, and instructions that fail their documented purpose. |
 | `monorepo` | Per-workspace specialization parked at MVP; subagent applies the most-permissive ruleset (treat as code repo). |
 | `unknown` | Existing behavior. |
 

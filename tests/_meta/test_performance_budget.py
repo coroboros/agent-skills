@@ -78,15 +78,13 @@ class TestExtractRulesBudget(unittest.TestCase):
 
 
 class TestValidateSpecBudget(unittest.TestCase):
-    """`spec/scripts/validate_spec.py` runs on every spec.md before apex
+    """`forge/scripts/validate_spec.py` runs on every spec.md before apex
     consumes it. The validator builds a workstream graph and runs
     cycle-detection — a quadratic regression here would surface as
     visible latency in the workflow cluster."""
 
     def setUp(self):
-        self.script = SKILLS / "spec" / "scripts" / "validate_spec.py"
-        if not self.script.is_file():
-            self.skipTest(f"validate_spec.py not present at {self.script}")
+        self.script = SKILLS / "forge" / "scripts" / "validate_spec.py"
 
     def _make_realistic_spec(self, td: Path) -> Path:
         """A 5-workstream linear-dependency spec — exercises split_blocks,

@@ -1,50 +1,17 @@
 # claude-md revise
 
-Capture session learnings into CLAUDE.md. Triggered when `$ARGUMENTS` contains "revise".
+Capture confirmed session learnings into the requested instruction owner. Persistent-memory writes follow the user's explicit permissions; invoking this workflow for a particular file does not authorize every memory store.
 
-When drift is suspected, run `python3 "$SKILL_DIR"/scripts/audit_claude_md.py <path>` first — its JSON pinpoints the bloat categories to target (`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere).
+## Select durable facts
 
-## Step 1: Reflect on the session
+Use verified commands, recurring corrections, non-obvious ownership and demonstrated environment constraints. Exclude one-off task state, secrets, speculative lessons and facts already adequately documented elsewhere.
 
-Review the conversation for knowledge that would help future sessions:
+## Locate the owner
 
-- Commands discovered or used
-- Code patterns followed
-- Testing approaches that worked
-- Environment or configuration quirks
-- Gotchas and warnings encountered
-- Repeated corrections the user made
+Preserve existing ownership: team instructions in the shared file, personal guidance in the permitted local file, conditional concerns in scoped rules. Prefer a concise update to the existing statement over another copy.
 
-## Step 2: Find target files
+## Apply and verify
 
-Locate all `CLAUDE.md` and `CLAUDE.local.md` files. Decide where each addition belongs:
+If the user requested the update, apply it within that scope and show the diff. For a review-only request, present the candidate without writing. Ask only when the target or a material shared/private boundary remains unresolved.
 
-- `CLAUDE.md` — Team-shared (checked into git)
-- `CLAUDE.local.md` — Personal/local only (gitignored)
-- `.claude/rules/` — If the learning is path-scoped
-
-## Step 3: Draft additions
-
-Keep concise — one line per concept. Format: `` `<command or pattern>` — `<brief description>` ``
-
-Skip:
-
-- Obvious information the agent discovers itself
-- One-off fixes unlikely to recur
-- Verbose explanations (one-liner suffices)
-
-## Step 4: Present diffs
-
-For each proposed addition, show:
-
-````
-### Update: ./CLAUDE.md
-**Why:** [one-line reason]
-```diff
-+ [the addition]
-```
-````
-
-## Step 5: Apply with approval
-
-Ask the user what to apply. Only edit files they approve.
+Check that referenced paths and commands exist and that additions do not contradict current instructions. Use the audit script when bloat or import drift is suspected; its heuristic matches require semantic judgment.

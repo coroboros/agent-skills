@@ -156,7 +156,7 @@ class TestRoutingBoundary(unittest.TestCase):
         self.assertRegex(routing.lower(), r"single[- ]token")
 
     def test_never_touches_backend(self):
-        self.assertIn("backend, data, infra → never", self._routing().lower())
+        self.assertIn("backend, data and infra remain with the engineering owner", self._routing().lower())
 
     def test_empty_dir_routes_to_scaffold(self):
         self.assertIn("/scaffold", self._routing())
@@ -177,7 +177,7 @@ class TestAutoTriggerInWhenToUse(unittest.TestCase):
     def test_auto_triggers_from_line_one(self):
         wtu = self._when_to_use().lower()
         self.assertIn("auto-trigger", wtu)
-        self.assertIn("take the lead", wtu)
+        self.assertIn("requested scope", wtu)
 
     def test_routes_single_token_and_ignores_backend(self):
         wtu = self._when_to_use().lower()

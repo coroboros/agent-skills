@@ -16,6 +16,7 @@ Flags (see references/schemas.md § extract_rules.py for full spec):
     --explain                    annotate each item with `# from <relpath>` provenance.
                                  Default output is byte-stable (LLM-prompt determinism).
     --explain-json               emit structured provenance JSON instead of plain text.
+    --resolved-json              emit merged rules for both LLM and mechanical consumers.
     --allow-extends-outside-skill  suppress the warning when chain escapes the skill dir.
 
 Empty fields are omitted. Designed for inclusion in a downstream LLM prompt without
@@ -349,11 +350,17 @@ def main():
         help="emit structured provenance JSON instead of plain text",
     )
     parser.add_argument(
+        "--resolved-json", action="store_true",
+        help="emit the resolved rule mapping as JSON for downstream validation",
+    )
+    parser.add_argument(
         "--allow-extends-outside-skill", action="store_true",
         help="suppress 'extends-path-outside-skill' warning when chain escapes skill dir",
     )
     args = parser.parse_args()
 
+    if args.resolved_json and (not args.resolve_extends or args.explain_json or args.legacy):
+        parser.error("--resolved-json requires chain resolution and cannot combine with --explain-json or --legacy")
     if args.legacy and args.full:
         print("error: --legacy and --full are mutually exclusive", file=sys.stderr)
         return 1
@@ -382,7 +389,10 @@ def main():
         return 1
 
     voice = data.get("voice") if isinstance(data.get("voice"), dict) else {}
-    has_extends = isinstance(voice.get("extends"), str) and voice.get("extends")
+    has_extends = "extends" in voice
+    if args.resolved_json and has_extends and args.path == "-":
+        print("error: inherited rules require a file path to resolve relative parents", file=sys.stderr)
+        return 1
 
     chain = []
     merged = data
@@ -400,6 +410,13 @@ def main():
     provenance = {}
     if (args.explain or args.explain_json) and chain and has_extends:
         provenance = compute_provenance(chain, merged)
+
+    if args.resolved_json:
+        merged = dict(merged)
+        merged["voice"] = dict(merged.get("voice") or {})
+        merged["voice"].pop("extends", None)
+        sys.stdout.write(json.dumps(merged, ensure_ascii=False, indent=2) + "\n")
+        return 0
 
     if args.explain_json:
         sys.stdout.write(_explain_json(chain, merged, provenance))

@@ -1,13 +1,13 @@
 # Auto Memory
 
-Claude Code v2.1.59+ adds a parallel memory system: **auto memory**. Claude saves notes for itself (build commands, debugging insights, preferences) as it works. You don't write anything — Claude decides what's worth remembering.
+Claude Code v2.1.59+ adds a parallel memory system: **auto memory**. Claude saves notes for itself (build commands, debugging insights, preferences) as it works. Automatic notes follow the host settings and the user's memory permissions; do not infer authorization for another host's persistent memory.
 
 ## Layout and loading
 
 - **Location**: `~/.claude/projects/<project>/memory/MEMORY.md` — machine-local, per git repo, shared across worktrees of the same repo.
 - **Loaded per session**: first 200 lines (or 25 KB) of `MEMORY.md`. Topic files (`debugging.md`, `patterns.md`, …) load on-demand when Claude reads them.
 - **Toggle**: `/memory` exposes an auto-memory toggle. Setting-level: `autoMemoryEnabled` (default `true`). Env override: `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`.
-- **Custom location**: `autoMemoryDirectory` in user or local settings (rejected from project settings for safety).
+- **Custom location**: `autoMemoryDirectory` in supported settings scopes, including project settings after workspace trust. Verify the installed version and current official memory documentation.
 
 ## How it pairs with CLAUDE.md
 
@@ -20,7 +20,7 @@ Run `/memory` to see both in one place.
 
 ## Subagent memory
 
-Subagents can maintain their own memory too — configure via `memory: user|project|local` in the subagent frontmatter. Stored at `~/.claude/agent-memory/<name>/`. See Claude Code subagent docs (`/en/sub-agents#enable-persistent-memory`) for details.
+Subagents can maintain their own memory too — configure via `memory: user|project|local` in the subagent frontmatter. User scope stores under `~/.claude/agent-memory/<name>/`; project scope uses `.claude/agent-memory/<name>/`; local scope uses `.claude/agent-memory-local/<name>/`. See Claude Code subagent docs (`/en/sub-agents#enable-persistent-memory`) for details.
 
 ## Drift note
 

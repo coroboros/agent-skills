@@ -1,12 +1,12 @@
 {
   "skill_name": "award-design",
-  "description": "Behavioural evaluation set for the award-design skill, direction first. A default run ends with the direction and builds nothing: design-plan.md with SPINES: before SEED: (the roll's stdout pasted verbatim, reproducible from its printed key), the six-block contract (THESIS / OWN-WORLD / STORY / FIRST-VIEWPORT / FORM+SEED / SIGNATURE, closed by FINISH), the R1 concept gate, a full DESIGN.md, and LADDER: — build chunks in the references/chunk-template.md shape (Read first · Implement · Verify · Out of scope · Report), ordered shell → hero → sections → award surfaces → pages → review. A chunk run builds that chunk alone under its gates (scanner, render-floor sweep, detector, measured performance) and writes its Report into the ladder row; the review chunk owns the ship label (READY only via the reviewer's synthesis or the human's yes; REVIEWED-SAME-CONTEXT otherwise). Plus routing (dashboards and everyday no-award work to frontend-dev, single-token tweaks to design-system, backend out), the scoped run inside a healthy DESIGN.md, the thin-DESIGN.md alert, the scope-change hand-back, the WebGL scene as one delegated chunk, the legacy uplift through retrofit.md, the empty-directory scaffold, and the standalone review mode. Re-run: one with-skill subagent per case (frozen skill copy, prompt verbatim), grade the produced artifacts against expected_output — never a protocol narration; chunk cases (2, 3, 4, 12) also need a human eye on the rendered artifact. Chunk cases describe DESIGN.md and design-plan.md at the project root; `files` carries no fixture (the schema lists paths relative to the skill root only), so token fidelity against those files is not graded — a runner that wants it places the two files under evals/files/ and lists them.",
+  "description": "Behavioral cases distinguish direction-only, selected chunks, full builds and read-only review. Run cases against frozen before/after skills with the same task, tools and fixtures; grade observed artifacts and evidence, not protocol narration. Keep missing browser measurements and reviewer independence visible. The existing gate scripts and committed brand/archetype remain the quality contract.",
   "evals": [
     {
       "id": 1,
-      "name": "direction-run-ends-with-design-md-and-ladder",
+      "name": "full-build-continues-after-direction",
       "prompt": "Build me an award-winning brutalist developer-tools landing page. Black-and-white, monospace, raw. Make it fast — I want to see the site, not a spec.",
-      "expected_output": "The run ends with the direction and no page. design-plan.md beside DESIGN.md holds SPINES: (5-7 one-line candidate spines, each naming its replayable moment) written before a SEED: block that pastes direction_roll.py's stdout verbatim (key, assigned index, reproduce command), and rerunning the printed command yields the same index; the six-block contract (THESIS / OWN-WORLD / STORY / FIRST-VIEWPORT / FORM+SEED / SIGNATURE, closed by FINISH) sits under it, R1 refutes the concept from a fresh context, and a full DESIGN.md is authored per references/design-md-anatomy.md with the signature choreography as a beat table. LADDER: lists the chunks in the references/chunk-template.md shape (`### <id> — <title>`, Read first, Implement, Verify, Out of scope, Report), ordered shell, hero, sections, award surfaces, review, each naming its mechanic, its references by file and heading, and its own Verify; the chunk count is stated and matches the rows. No build file exists when the run ends — 'make it fast' and 'I want to see the site' change nothing: the direction run builds nothing, the chunks build one per executor run. Building the site in this run, or a direction that is the model's own unrolled favorite, is the named failure.",
+      "expected_output": "Establish the authorized brutalist direction in DESIGN.md and design-plan.md under the existing roll, anchor, concept and ladder contracts, preserving the user's explicit black-and-white commitment. Then the task owner executes the ladder sequentially and reaches the final review without asking for continuation. A direction-only artifact or textual handoff is incomplete for this request. Keep gate failures and unavailable rendered evidence explicit; do not label an unverified build complete.",
       "files": []
     },
     {
@@ -34,7 +34,7 @@
       "id": 5,
       "name": "thin-design-md-alerts-and-runs-full-path",
       "prompt": "Add a testimonials section to my award-winning landing page. The DESIGN.md at the root is this, in full:\n\n---\nname: Northwind\ncolors:\n  ground: '#F4F1EA'\n  ink: '#1B1B1B'\n  accent: '#C8442B'\ntypography:\n  display: 'Fraunces'\n  body: 'Söhne'\n---\n# Overview\nWarm editorial, confident.",
-      "expected_output": "Alerts before anything else: the DESIGN.md is thin — no spacing scale, no type ramp, no motion language, no signature choreography — named item by item, and is never silently regenerated or patched in place. Runs the full path rather than a scoped run: design-plan.md with SPINES: before SEED:, the anchor composed around the drawn seed unless the existing ground and accent are an explicit brand commitment (then they win on sight), the six-block contract, R1, a DESIGN.md regenerated whole per references/design-md-anatomy.md that carries the existing palette and faces forward, and LADDER: with the testimonials section as one of its chunks. Builds nothing in this run; the testimonials section arrives when its chunk runs.",
+      "expected_output": "Name the missing design contract fields and preserve the existing palette and typography as established brand. Resolve only the design information needed to implement the requested testimonials section, documenting an explicit amendment if the direction must change. Complete the authorized section and its applicable checks; do not require another turn just to execute a planned chunk or silently redesign unrelated surfaces.",
       "files": []
     },
     {
@@ -55,28 +55,28 @@
       "id": 8,
       "name": "single-token-tweak-routes-to-design-system",
       "prompt": "Change the primary button color to #1E5EFF across the site. There's a DESIGN.md at the root.",
-      "expected_output": "Redirects to /design-system: a single-token change (one color) is its job. Opens no design-plan.md, runs no roll, writes no DESIGN.md, no ladder, no chunk, and does not restyle the button by hand with the literal; the only output is the hand-off naming /design-system and the token to change.",
+      "expected_output": "Load and execute design-system under the existing authorization. Update the primary button token in DESIGN.md first, validate and propagate within the requested site. No award roll, art-direction ladder or unrelated redesign. The result is the applied token change, not a textual referral.",
       "files": []
     },
     {
       "id": 9,
       "name": "backend-request-refused",
       "prompt": "Add a Stripe webhook handler and a subscriptions table (Drizzle + Neon) to my Next.js app so the pricing page can charge cards.",
-      "expected_output": "Declines the whole request: backend, data, and infra are never award-design's work, and no frontend feature with a real visual surface is asked for. Opens no design-plan.md, runs no roll, writes no DESIGN.md, no ladder, no chunk; writes neither the handler nor the migration. The only output is the refusal naming the boundary — backend, data, infra, never.",
+      "expected_output": "Identify that this skill supplies no backend workflow and return those tasks to the engineering owner without inventing art-direction work. The overall task owner continues the authorized handler/migration through the available engineering workflow; award-design neither claims to implement backend nor cancels the user's action request.",
       "files": []
     },
     {
       "id": 10,
       "name": "dashboard-routed-to-frontend-dev",
       "prompt": "Design our award-winning internal admin dashboard for the customer-success team. Lots of tables and metrics.",
-      "expected_output": "Routes instead of building: a dashboard is outside this skill's surfaces at any ambition, award ask or not. Opens no design-plan.md, runs no roll, writes no DESIGN.md, no ladder, no chunk; styles no table or metric surface. The only output is the hand-off naming the boundary and /frontend-dev when installed.",
+      "expected_output": "Load and execute installed frontend-dev for the dashboard: no award roll or marketing ladder. Build the authorized tables/metrics UI with applicable states and rendered checks. A textual referral alone is incomplete; missing tools remain scoped gaps.",
       "files": []
     },
     {
       "id": 11,
       "name": "immersive-scene-ladder-carries-one-webgl-chunk",
-      "prompt": "Cinematic, scroll-driven launch site for a hardware product — full-screen 3D hero, the model assembles as you scroll. Award-worthy.",
-      "expected_output": "Reads 'cinematic/3D/scrolltelling' as immersive-cinematic and runs the full path: design-plan.md with SPINES: before SEED: (the roll's stdout verbatim), the six-block contract whose SIGNATURE commits the scroll-driven assembly as verb · medium · trigger · replay behavior (trigger scroll, never pointer-gated), R1, a full DESIGN.md per references/design-md-anatomy.md with the assembly as its beat table. LADDER: carries the 3D scene as one chunk — the page's single climax, with at least one rest beside it — whose Read first names references/ingredients/web3d-for-sites.md (the delegation contract), the Three.js skeleton from references/skeletons.md, and the stack-facts.md Three.js rows (fetch-class: current docs fetched, never training memory), and whose Verify carries the measured 60fps target on the signature. The run ends with DESIGN.md and design-plan.md with its ladder: no scene is written, no subagent is dispatched, no page is built — the scene arrives when its chunk runs.",
+      "prompt": "Create the art direction and build ladder only; do not build yet. Cinematic, scroll-driven launch site for a hardware product — full-screen 3D hero, the model assembles as you scroll. Award-worthy.",
+      "expected_output": "Produce direction and ladder only, with immersive-cinematic's continuous medium and selected peak law, current API sourcing, a self-contained WebGL chunk and measured verification requirements. Preserve the concept/roll/anchor contracts. Do not dispatch a builder or create a scene/page: the explicit direction-only boundary ends this request.",
       "files": []
     },
     {
@@ -90,21 +90,28 @@
       "id": 13,
       "name": "redesign-uses-brand-extraction-and-ends-with-ladder",
       "prompt": "award-design -u https://coroboros.com — redesign it. Keep the spirit, refresh the execution.",
-      "expected_output": "Runs references/brand-extraction.md first: the live site is the archetype seed — it informs, the brief decides. Reads the mode as redesign-preserve from 'keep the spirit', asking once only if preserve-vs-overhaul genuinely diverges. An explicit brand commitment from the extraction wins on sight over the anchor draw. A redesign runs the full path — design-plan.md with SPINES: before SEED:, the six-block contract, R1, a regenerated DESIGN.md per references/design-md-anatomy.md, LADDER: — and ends with DESIGN.md and design-plan.md with its ladder, building no page: the live site is untouched until its chunks run.",
+      "expected_output": "Observe the existing brand using available supported browser capabilities and references/brand-extraction.md. Preserve its established identity while refreshing execution. Build the direction and ladder, then execute the authorized local redesign through review. No publishing authority is implied. Missing live observations remain explicit; do not invent extracted brand facts.",
       "files": []
     },
     {
       "id": 14,
       "name": "legacy-uplift-routes-through-retrofit",
       "prompt": "Uplift our existing marketing site in ./site — Astro, four pages, Inter everywhere, pure black on white. Keep the structure (same pages, same sections), modernize the execution.",
-      "expected_output": "Reads this as a legacy uplift and loads references/retrofit.md before any direction work; the mode is redesign-preserve, asked once only if genuinely ambiguous. The existing Astro stack stays: the brief prescribes its own stack, and references/foundations.md §Stack adapts, never migrates. Runs the full path rather than a scoped run: design-plan.md with SPINES: before SEED:, the six-block contract, R1, a full DESIGN.md per references/design-md-anatomy.md that carries neither Inter on the display face nor pure #000/#fff — match-and-refuse, overridden only by an explicit client clause quoted in the DESIGN.md, and 'keep the structure' is not one — and LADDER: with the shell, the hero, the sections, the award surfaces, each of the four pages, and the review last. Ends with DESIGN.md and design-plan.md with its ladder and builds nothing: ./site is untouched until its chunks run.",
+      "expected_output": "Read references/retrofit.md and preserve Astro, the four pages and existing section structure. Apply the user's execution uplift under established brand decisions, selected archetype and generic defaults in that order. Build the planned changes and run applicable rendered review; do not stop at the ladder or silently treat a generic aesthetic rule as authority to discard committed brand tokens.",
       "files": []
     },
     {
       "id": 15,
       "name": "empty-directory-scaffolds-then-ends-with-direction",
       "prompt": "Build the launch site for Meridian, a sleep-tracking ring — make it award-level. The project folder is empty.",
-      "expected_output": "Empty directory: runs /scaffold when installed, else bootstraps per references/foundations.md §Stack (the locked craft layer, the framework keyed to the archetype), then returns to the path. Reads the room, writes design-plan.md with SPINES: before SEED: (the roll's stdout verbatim), the six-block contract, R1, a full DESIGN.md per references/design-md-anatomy.md, and LADDER: from the shell to the review chunk. Ends with the direction — DESIGN.md and design-plan.md with its ladder — and builds no page: no chunk runs in this run; the chunks build one per executor run.",
+      "expected_output": "Execute available scaffold or the instructed stack's official bootstrap, then establish direction and execute the authorized launch-site ladder through final review. The empty folder is not a reason to stop after naming a skill. Preserve measured gates and any missing-capability verdict ceilings.",
+      "files": []
+    },
+    {
+      "id": 16,
+      "name": "direction-only-stops-before-build",
+      "prompt": "Give me the art direction and build ladder for an award-level brutalist developer-tools landing page. Do not implement any page yet.",
+      "expected_output": "Produce DESIGN.md and design-plan.md with their direction/ladder contracts and required available concept evidence. Stop before any build chunk or page implementation. The full-build continuation rule cannot override the explicit direction-only request.",
       "files": []
     }
   ]

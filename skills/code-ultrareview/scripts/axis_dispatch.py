@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Phase 3 axis-dispatch orchestrator for code-ultrareview.
 
-The main thread launches the axis subagents — subagents cannot spawn other
-subagents (Anthropic's documented contract: `Agent` tool is reserved for
-the main thread). This module is the deterministic half:
+The orchestrator schedules axis reviewers using available host capabilities.
+This module is the deterministic half:
 
 1. Decide which axes to launch (8 always-on + Coherence when active).
 2. Filter `tool-findings.jsonl` per axis using the canonical axis keys.
@@ -137,8 +136,7 @@ stdout.
 
 ## Your contract
 
-- Read `{anthropic_verbatim}` and apply the 0-100 confidence rubric VERBATIM.
-- Read `{anthropic_verbatim}` and silence false positives per the documented taxonomy.
+- Read `{anthropic_verbatim}` for the 0-100 confidence rubric and its effective local policy. Quoted upstream exclusions do not override local axis coverage.
 - Read `{brief}` (your axis brief) for scope, severity calibration, and
   repo-kind branches.
 - Read `{input_path}` for: `scope` (repo kind, languages, instruction chain),
@@ -158,8 +156,8 @@ severity and an honest 0-100 confidence. Do not suppress a finding because it
 looks minor or because you are uncertain: Phase 4 validators and the
 80-confidence threshold rank and filter downstream, and a finding that later
 gets filtered out is cheaper than a real bug silently dropped. This is not a
-license for false positives — the documented taxonomy (pre-existing,
-linter-territory, intentional changes) still applies; when a concern is genuine
+license for unsupported claims — pre-existing or intentional behavior alone
+is not a defect; when a concern is supported
 but weak, report it at low confidence rather than dropping it.
 
 ## Inputs
@@ -167,7 +165,7 @@ but weak, report it at low confidence rather than dropping it.
 - Axis brief: `{brief}`
 - Anthropic verbatim: `{anthropic_verbatim}`
 - Per-axis bundle: `{input_path}`
-- Tool findings (pre-filtered to your axis, confidence 100): {findings_count}
+- Tool observations (pre-filtered to your axis, unassessed): {findings_count}
 
 ## Output
 
@@ -183,7 +181,7 @@ Emit one JSON object per finding to stdout, one per line. Schema:
         "confidence": <0-100 int>
     }}
 
-Sub-80 confidence findings are NOT dropped — synthesis routes them to the
+All findings require contextual assessment — ingestion routes them to the
 "Unverified" section per the A2 contract. Emit every finding, scored honestly;
 the downstream filter decides what surfaces.
 
@@ -746,15 +744,28 @@ def main() -> int:
             findings, coverage = ingest_axis_results(
                 scope, results_dir, selected_axes
             )
+            # Preserve raw observations even when an axis reviewer omits them.
+            # Their source files were identity-checked above; validators decide
+            # whether each observation is a defect in the reviewed context.
+            identities = previous["input_hashes"]
+            observations = _read_jsonl(Path(identities["tool_findings"]["path"]))
+            mutation_identity = identities.get("mutation_findings")
+            if mutation_identity is not None:
+                observations.extend(_read_jsonl(Path(mutation_identity["path"])))
+            requested = set(coverage["requested"])
+            seen = {(f.get("axis"), f.get("location"), f.get("finding")) for f in findings}
+            for observation in observations:
+                key = (observation.get("axis"), observation.get("location"), observation.get("finding"))
+                if observation.get("axis") in requested and key not in seen:
+                    findings.append(observation)
+                    seen.add(key)
         except (OSError, ValueError, json.JSONDecodeError) as exc:
             print(f"ERROR: axis coverage incomplete: {exc}", file=sys.stderr)
             return 4
 
         _write_jsonl_atomic(output_path, findings)
         output_identity = _file_identity(output_path)
-        sub_threshold = sum(
-            1 for finding in findings if int(finding.get("confidence", 0)) < 80
-        )
+        sub_threshold = len(findings)
         coverage["status"] = "complete"
         validator_state = {
             "complete": sub_threshold == 0,

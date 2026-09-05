@@ -76,6 +76,38 @@ def _make_input(out_dir, name="in.mp4", duration=4, size="64x64", rate=10):
 class ArgParsingTests(unittest.TestCase):
     """Argument handling — no ffmpeg required."""
 
+    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
+    def test_webm_source_preserved_before_encoding(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "input.webm"
+            src.write_bytes(b"source must survive before probing")
+            before = src.read_bytes()
+            for flags in ([], ["-C"], ["-o", str(Path(td) / ".")]):
+                with self.subTest(flags=flags):
+                    result = _run(str(src), *flags)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn("would overwrite input", result.stderr)
+                    self.assertEqual(src.read_bytes(), before)
+                    self.assertFalse((Path(td) / "input-opt.mp4").exists())
+
+    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
+    def test_output_alias_to_source_preserved(self):
+        with tempfile.TemporaryDirectory() as td:
+            src = Path(td) / "input.mp4"
+            src.write_bytes(b"original")
+            target = Path(td) / "input.webm"
+            for alias in ("symlink", "hardlink"):
+                with self.subTest(alias=alias):
+                    if alias == "symlink":
+                        target.symlink_to(src)
+                    else:
+                        os.link(src, target)
+                    result = _run(str(src))
+                    self.assertEqual(result.returncode, 1)
+                    self.assertIn("would overwrite input", result.stderr)
+                    self.assertEqual(src.read_bytes(), b"original")
+                    target.unlink()
+
     def test_script_exists_and_is_executable(self):
         self.assertTrue(SCRIPT.is_file(), f"missing script: {SCRIPT}")
 

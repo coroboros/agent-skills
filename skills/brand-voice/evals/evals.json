@@ -1,0 +1,26 @@
+{
+  "skill_name": "brand-voice",
+  "evals": [
+    {
+      "id": 1,
+      "name": "authorized-refresh-keeps-manual-sections",
+      "prompt": "Update BRAND-VOICE.md from the supplied new brief. The brief explicitly changes the founder pronoun default to first-person singular. Preserve the marked manual section exactly.",
+      "expected_output": "Apply the explicit source correction without another consent request, preserve the marked manual section byte-for-byte, validate the candidate, apply and report the diff. Report acceptable warnings without asking to proceed. Ask only for a remaining material source-authority conflict.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "large-local-source-without-subagents",
+      "prompt": "Extract a brand voice from the supplied folder of six Markdown sources. No subagent tool is available. Create BRAND-VOICE.md locally.",
+      "expected_output": "Read the sources in bounded local groups, preserve source coverage accounting, synthesize and validate the authorized artifact. Do not block because the file count exceeds five or claim to have dispatched an unavailable subagent. Any unread or failed source remains explicit.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "malformed-parent-reference-blocks-resolution",
+      "prompt": "Use this brand file for a prose rewrite: its frontmatter contains voice.extends: [parent.md]. Resolve inherited rules before editing.",
+      "expected_output": "Read references/canonical-format.md for the inheritance contract. Refuse to label a child-only mapping as resolved: the extractor must exit nonzero with the invalid path type and emit no rules JSON. Explain the required single parent path correction and leave dependent prose edits pending.",
+      "files": []
+    }
+  ]
+}

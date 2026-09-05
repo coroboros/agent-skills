@@ -37,11 +37,12 @@ from __future__ import annotations
 
 import json
 import re
+import shlex
 import sys
 from pathlib import Path
 
-FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
-PATHS_KEY_RE = re.compile(r"^paths:\s*(.*)$", re.MULTILINE)
+FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---(?:\n|\Z)", re.DOTALL)
+PATHS_KEY_RE = re.compile(r"^paths:[ \t]*(.*)$", re.MULTILINE)
 LIST_ITEM_RE = re.compile(r"^\s*-\s+(.+)$")
 GLOB_OK_RE = re.compile(r"^[\w./*{},\[\]!\- ]+$")
 
@@ -56,15 +57,14 @@ def parse_paths(frontmatter):
     # Inline list form: `paths: [a, b]`.
     if inline.startswith("[") and inline.endswith("]"):
         inside = inline[1:-1]
-        raw_items = [s.strip() for s in inside.split(",") if s.strip()]
-        items = []
-        for raw in raw_items:
-            if (raw.startswith('"') and raw.endswith('"')) or (
-                raw.startswith("'") and raw.endswith("'")
-            ):
-                raw = raw[1:-1]
-            items.append(raw)
-        return True, items
+        lexer = shlex.shlex(inside, posix=True)
+        lexer.whitespace = ","
+        lexer.whitespace_split = True
+        lexer.commenters = ""
+        return True, [item.strip() for item in lexer]
+
+    if inline:
+        raise ValueError("`paths:` must be a complete inline list or a block list")
 
     # Block list form — lines starting with `-` below `paths:`.
     lines = frontmatter.splitlines()
@@ -110,12 +110,19 @@ def main():
     has_paths = False
     paths_out = []
 
+    if text.startswith("---\n") and not has_frontmatter:
+        errors.append("frontmatter opening delimiter has no closing `---`")
+
     if has_frontmatter:
         frontmatter = fm_match.group(1)
         if frontmatter.strip() == "":
             errors.append("frontmatter block is empty (`---` bookends with no content)")
 
-        declared, paths = parse_paths(frontmatter)
+        try:
+            declared, paths = parse_paths(frontmatter)
+        except ValueError as exc:
+            errors.append(str(exc))
+            declared, paths = True, []
         has_paths = declared
         if declared:
             if not paths:

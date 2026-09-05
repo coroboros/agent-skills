@@ -31,7 +31,7 @@ From `scripts/battery_ingest.py:_semgrep_axis`:
   - `n-plus-one-sequelize.yml` — JS Sequelize N+1.
   - `sync-io-async-py.yml` — sync I/O in Python async.
 
-All tool findings carry `confidence: 100` and skip validators.
+All tool matches enter as observations at `confidence: 0` and require contextual validation.
 
 ## Severity calibration
 

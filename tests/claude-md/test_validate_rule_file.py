@@ -46,6 +46,10 @@ class TestParsePaths(unittest.TestCase):
         self.assertTrue(declared)
         self.assertEqual(items, ["src/**/*.ts", "test/**/*.ts"])
 
+    def test_quoted_brace_glob_keeps_comma(self):
+        self.assertEqual(parse_paths('paths: ["src/**/*.{ts,tsx}", \'test/**/*.py\']'),
+                         (True, ["src/**/*.{ts,tsx}", "test/**/*.py"]))
+
     def test_block_list(self):
         fm = "paths:\n  - 'src/**/*.ts'\n  - test/**/*.ts\n"
         declared, items = parse_paths(fm)
@@ -65,6 +69,24 @@ class TestParsePaths(unittest.TestCase):
 
 
 class TestCLI(unittest.TestCase):
+    def test_unclosed_frontmatter_rejected(self):
+        path = _write_temp('---\npaths: ["src/**/*.ts"]\n# rule\n')
+        try:
+            r = _run(path)
+            self.assertEqual(r.returncode, 1)
+            self.assertIn("closing", r.stdout)
+        finally:
+            path.unlink()
+
+    def test_malformed_inline_quote_rejected(self):
+        path = _write_temp('---\npaths: ["src/**/*.ts]\n---\n')
+        try:
+            r = _run(path)
+            self.assertEqual(r.returncode, 1)
+            self.assertFalse(json.loads(r.stdout)["summary"]["ok"])
+        finally:
+            path.unlink()
+
     def test_no_args_exits_2(self):
         r = subprocess.run([sys.executable, str(SCRIPT)], capture_output=True, text=True, timeout=30)
         self.assertEqual(r.returncode, 2)

@@ -148,9 +148,11 @@ class TestMotifFiller(unittest.TestCase):
 
 
 class TestCodeReviewGate(unittest.TestCase):
-    def test_code_review_file_overrides_design_md(self):
+    def test_code_review_preserves_brand_and_escalates_real_defects(self):
         cr = _read("code-review.md")
-        self.assertIn("override the design.md", cr)
+        self.assertIn("correctness and accessibility defects require remediation", cr)
+        self.assertIn("explicit brief and established brand", cr)
+        self.assertIn("cannot silently rewrite a committed design", cr)
 
     def test_five_checks_present(self):
         cr = _read("code-review.md")

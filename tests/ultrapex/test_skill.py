@@ -43,11 +43,16 @@ class TestUltrapexFrontmatter(unittest.TestCase):
 
 
 class TestUltrapexContract(unittest.TestCase):
+    def test_generic_implementation_does_not_select_provisional_workflow(self):
+        description = _frontmatter()["description"]
+        self.assertIn("explicitly selects /ultrapex", description)
+        self.assertIn("Generic implementation requests use /apex", description)
+
     def test_model_scope_section_present(self):
         """The Model scope section is the self-scoping mechanism."""
         body = _body()
-        self.assertTrue(re.search(r"^## Model scope\s*$", body, re.MULTILINE))
-        self.assertIn("use `/apex`", body.split("## Model scope")[1].split("##")[0])
+        self.assertTrue(re.search(r"^## Workflow selection\s*$", body, re.MULTILINE))
+        self.assertIn("/apex", body.split("## Workflow selection")[1].split("##")[0])
 
     def test_adversarial_verification_is_explicit(self):
         """The explicit word is load-bearing: the contract itself names adversarial

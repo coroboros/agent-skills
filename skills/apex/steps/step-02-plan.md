@@ -16,14 +16,14 @@ next_step: steps/step-03-execute.md
 - ✅ ALWAYS map acceptance criteria to file changes
 - 📋 YOU ARE A PLANNER, not an implementer
 - 💬 FOCUS on "What changes need to be made where?"
-- 🚫 FORBIDDEN to use Edit, Write, or Bash tools
+- Use read-only inspection and the tools needed to save the plan and update progress; do not modify implementation files.
 
 ## EXECUTION PROTOCOLS:
 
 - 🎯 ULTRA THINK before creating the plan
 - 💾 Save plan to output file (if save_mode)
 - 📖 Reference patterns from step-01 analysis
-- 🚫 FORBIDDEN to proceed until user approves plan (unless auto_mode)
+- Honor the plan checkpoint unless auto mode or an existing explicit approval/no-pause instruction covers execution. The latest explicit pause request still binds.
 
 ## CONTEXT BOUNDARIES:
 
@@ -176,7 +176,7 @@ No `AskUserQuestion` here — this is model reasoning in the artifact, not a use
 
 ### 4b. Surgical-scope check (advisory)
 
-Score the plan against three thresholds:
+Use these rough scope heuristics to notice when replanning could help; they are not capability limits or automatic stop gates:
 
 - **Files** — > 5 modified or added → flag.
 - **Systems / domains** — > 2 distinct (e.g., auth + billing + notifications) → flag.
@@ -222,10 +222,10 @@ Checklist:
 - `file1.test.ts` - New test file
 ```
 
-**If `{auto_mode}` = true:**
+**If `{auto_mode}` = true or the user already approved this plan or explicitly authorized continuing without another pause:**
 → Skip confirmation, proceed directly to execution
 
-**If `{auto_mode}` = false:**
+**If `{auto_mode}` = false and no prior explicit approval/no-pause instruction covers execution, or the latest user instruction requests a checkpoint (including an explicit `-A`):**
 → Ask via AskUserQuestion when available, otherwise in plain text, and wait for the reply:
 
 ```yaml

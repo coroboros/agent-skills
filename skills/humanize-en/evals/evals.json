@@ -1,0 +1,26 @@
+{
+  "skill_name": "humanize-en",
+  "evals": [
+    {
+      "id": 1,
+      "name": "inherited-polish-authorization",
+      "prompt": "The user asked: Rewrite the supplied README for concise English, preserving all code and claims. The parent writing skill has drafted the authorized target and invokes humanize-en on that same file. Complete the prose pass.",
+      "expected_output": "Read the target, perform the authorized prose edit and applicable checks, preserve code/links/claims and report the diff. No second Apply yes/no prompt is issued. Do not extend the target or publication scope.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "audit-file-stays-unchanged",
+      "prompt": "Audit the supplied README for AI writing tells. Propose improvements, but do not modify it.",
+      "expected_output": "Return findings and a proposed rewrite/diff, optionally validating a temporary candidate. The original file is byte-identical afterward. A prose filepath and mechanical checks do not turn an audit into edit authority.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "contextual-pattern-and-missing-parent",
+      "prompt": "Humanize this engineering README using our inherited brand rules. It uses important in a quoted API warning and lists three actual platform limits. The brand parent path does not exist.",
+      "expected_output": "Consult references/patterns.md to distinguish literal technical content from rhetorical AI tells; preserve the quote and factual list. Refuse to perform a supposedly brand-compliant rewrite with an unresolved parent. Report the exact failed resolution and missing path, and keep dependent edits pending until the brand input is repaired.",
+      "files": []
+    }
+  ]
+}

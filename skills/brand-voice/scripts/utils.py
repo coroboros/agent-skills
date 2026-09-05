@@ -435,8 +435,13 @@ def resolve_extends_chain(start_path, max_depth=MAX_EXTENDS_DEPTH):
 
         voice = data.get("voice") if isinstance(data.get("voice"), dict) else {}
         parent_ref = voice.get("extends")
-        if not isinstance(parent_ref, str) or not parent_ref:
+        if "extends" not in voice:
             break
+        if not isinstance(parent_ref, str) or not parent_ref.strip():
+            raise ExtendsError(
+                "extends-parent-invalid", current,
+                "voice.extends must be a non-empty path string",
+            )
 
         if depth + 1 > max_depth:
             raise ExtendsError("extends-depth-exceeded", current, f"max_depth={max_depth}")

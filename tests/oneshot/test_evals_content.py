@@ -21,10 +21,10 @@ class TestCircuitBreakerScenarios(unittest.TestCase):
     case OR the trigger set is doc-only."""
 
     SCENARIOS = {
-        "multi-file": ("5 files", ">5 files", "multi-file", "files across", "8 files"),
+        "multi-file": ("file count", "multi-file", "files across"),
         "multi-system": (">2 distinct systems", "2 distinct systems", "auth + billing",
                          "api, the web app, and the mobile"),
-        "cross-cutting": ("cross-cutting", "database migration", "migration + multi-component"),
+        "cross-cutting": ("cross-cutting", "migration conventions", "database migration"),
     }
 
     def test_each_trigger_has_a_case(self):

@@ -1,6 +1,6 @@
 ---
 name: design-system
-description: Govern an existing DESIGN.md during UI work. Enforce token-backed colors, typography, spacing, and radius when the file exists; steps aside when it does not. Use for token-affecting edits and seven subcommands, four backed by the canonical CLI — audit, diff, export, spec, migrate, init, and extension drift checks. CLI-backed operations stop with exact remediation when the canonical validator is unavailable or invalid.
+description: Govern DESIGN.md tokens during UI edits, or audit, diff, export, inspect, migrate and initialize a design system. Enforce the existing token contract when present; absent DESIGN.md does not block ordinary UI work. Canonical CLI operations require their declared validator and report exact remediation when unavailable.
 when_to_use: When the user asks to change colors, typography, spacing, corner radius, shadows, component styles, layout, or any visual aspect of the UI. When creating new components or pages. When editing existing UI files. When the user changes the theme or references visual tokens in an existing DESIGN.md. Full redesigns / new visual direction → /award-design. Everyday UI work with no DESIGN.md → /frontend-dev when installed. When linting, diffing, exporting, porting, or initializing a DESIGN.md file. When DESIGN.md uses extension namespaces (motion, shadows, etc.) — run `audit-extensions` to validate them against the globals.css `@theme` mirror. Keywords — audit, check, lint, diff, export, spec, migrate, init, audit-extensions, DESIGN.md, tokens, extended tokens. For empty directories, run `/scaffold` first (then `/award-design` for a DESIGN.md) before invoking this skill.
 argument-hint: "[audit|diff|export|spec|migrate|init|audit-extensions] [flags] [path]"
 paths:
@@ -13,12 +13,11 @@ paths:
   - DESIGN.md
   - tailwind.config.*
 license: MIT
+compatibility: "Requires filesystem and shell access with Python 3.10+. CLI-backed audit, diff, export and spec require the declared canonical design.md validator; unavailable or malformed output blocks those verdicts with exact remediation."
 allowed-tools: Read Write Edit Grep Glob Bash(command *) Bash(bash *) Bash(git *) Bash(mktemp *) Bash(wc *) Bash(tr *)
 metadata:
   author: coroboros
-  sources:
-    - github.com/google-labs-code/design.md
-    - www.designtokens.org
+  sources: "github.com/google-labs-code/design.md; www.designtokens.org"
 ---
 
 # Design System
@@ -104,7 +103,7 @@ DESIGN.md is written for both agents and humans. These principles govern every s
 - Map tokens to CSS custom properties in the global stylesheet
 - Map tokens to `tailwind.config.ts theme.extend` — or generate via `/design-system export tailwind`
 - Never use arbitrary Tailwind values (`text-[13px]`, `bg-[#abc]`) when a token exists
-- Never introduce values absent from DESIGN.md — use the closest token and flag to the user
+- Use existing DESIGN.md tokens in code. An authorized token change updates DESIGN.md first, then propagates to code through the workflow below; do not invent inline values.
 - **Extended tokens** — values outside the canonical 5 namespaces (`motion`, `shadows`, `aspectRatios`, `heights`, `containers`, `breakpoints`, `zIndex`, `borderWidths`, `opacity`, `scrollTriggers`) live as top-level YAML namespaces, are validated by convention via `/design-system audit-extensions`, and are mirrored to `globals.css` `@theme`. Upstream accepts unknown component properties with a warning, but this skill deliberately forbids using them to bind extension semantics because exporters and consumers do not share a contract for those keys. Reference extensions in prose instead (for example, `{motion.duration-reveal-slow}`). See `references/extended-tokens.md`
 - Dark mode: the Google spec has no dedicated mode concept. Use **semantic tokens** in a single DESIGN.md (e.g., `surface`, `on-surface`, `inverse-surface`, `inverse-on-surface`) and let the framework's CSS custom properties map each semantic name to the right value per mode. The Google-published `atmospheric-glass` example follows this pattern — one file, both modes via semantic naming. Avoid dual-file setups (DESIGN.md + DESIGN.dark.md) unless the brand truly diverges between modes
 - Shared brand across projects: same DESIGN.md, framework-specific implementation. Distribution patterns — pick one and document it in the applicable project instructions (`AGENTS.md`, `CLAUDE.md`, or equivalent):
@@ -180,7 +179,7 @@ Any visual change — colors, typography, spacing, radius, shadows, component st
    - Re-export Tailwind theme (`/design-system export tailwind`) or update `theme.extend` by hand
    - Update CSS custom properties in the global stylesheet
    - Update components using raw values — components referencing tokens by name pick up the new value automatically
-5. **Shared brand** — if the DESIGN.md is shared across projects, propagate to all, then step 4 in each.
+5. **Shared brand** — identify affected consumers. Propagate and run step 4 only in projects covered by the user's authorization; report other consumers and the change they need without editing them.
 
 Examples of token-affecting changes:
 - "Change CTA color" → `colors.*` + Colors prose + every `components:` entry referencing the old color

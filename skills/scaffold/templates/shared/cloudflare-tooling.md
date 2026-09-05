@@ -1,60 +1,26 @@
 # Cloudflare Tooling
 
-Two CLIs drive Cloudflare work on this project. Install globally if missing: `pnpm add -g wrangler cf`.
+Use the project's declared Wrangler dependency through `pnpm exec wrangler`. The optional `cf` CLI is for platform operations when installed and documented by the project; inspect its help before use. Do not install a second global Wrangler to bypass a missing project dependency.
 
-## Scope split
+## Scope
 
-- `wrangler` — Workers-scoped. Reads `wrangler.jsonc`. Commands: `deploy`, `tail`, `dev`, `kv`, `r2`, `d1`, `secret`, `types`, `whoami`.
-- `cf` — Platform-scoped, agent-optimized. Commands: `zones`, `dns`, `registrar`, `accounts`, `agent-context`, `schema`, `auth`.
-
-Rule of thumb: **code → `wrangler`, infra/platform → `cf`**.
+Wrangler reads `wrangler.jsonc` for Workers development, builds, bindings and deployment. Zone/DNS operations may require the platform CLI or API. Select the command for the requested resource and inspect its current help; local and remote flags vary by subcommand.
 
 ## Authentication
 
-The user owns auth. Never attempt to authenticate on the user's behalf.
+Reuse existing authorized credentials and inspect account identity before a write. If authentication is missing, explain the required interactive setup and let the user complete it. These are ordinary shell commands; Claude Code's optional `!` prefix is not required by other hosts:
 
-Suggest these interactive commands (prefix `! ` so the user's shell runs them in-session):
-
-```
-! wrangler login
-! cf auth login
+```bash
+pnpm exec wrangler whoami
+pnpm exec wrangler login
 ```
 
-Verify:
-
-```
-! wrangler whoami
-! cf accounts list
-```
+For an installed `cf` CLI, consult `cf auth --help` for its supported login flow. Do not print tokens or switch accounts without authorization.
 
 ## Images
 
-Two distinct Cloudflare products — pick the right one.
+Choose image storage and transformation only when the brief needs them. Cloudflare Images, Image Transformations and R2 are distinct products; verify current limits, pricing, cache behavior and account configuration in the [official documentation](https://developers.cloudflare.com/images/) before activation. A scaffold does not provision public buckets, domains or paid products.
 
-- **Image Transformations** (`/cdn-cgi/image/...`) — URL-driven transforms over any HTTP origin. **Default choice.** Pricing: 5K/mo free + $0.50/1K transformations. First hit per URL billable, edge-cached forever after.
-- **Cloudflare Images** (the product) — premium UI + storage + delivery, separate billing. Costlier at our scale. **Avoid unless the user explicitly opts in** for the dashboard UX.
+## Mutations
 
-Pattern for R2-backed media:
-
-1. Upload originals to R2 (e.g. `r2://MEDIA/listings/{uuid}/hero.jpg`).
-2. Bind the bucket to a public custom domain via R2 → Public Access → Custom Domain (`cdn.<tld>`). $0 egress.
-3. Serve transformed variants from the main domain via `next/image` + a custom loader hitting `/cdn-cgi/image/`.
-
-```ts
-// src/lib/cf-image-loader.ts
-const ORIGIN = process.env.NEXT_PUBLIC_IMAGE_ORIGIN; // "https://cdn.<tld>"
-export default function cfLoader({ src, width, quality }) {
-  return `/cdn-cgi/image/width=${width},quality=${quality ?? 80},format=auto/${ORIGIN}${src}`;
-}
-```
-
-Cache-Control on transformed URLs: `public, max-age=31536000, immutable` — width + quality in the URL make every variant a unique cache key.
-
-## Destructive commands
-
-Never run without explicit user confirmation:
-
-- `wrangler delete`, `wrangler kv key delete`, `wrangler r2 object delete`, `wrangler d1 execute` with DDL
-- `cf dns records delete`, `cf zones delete`, `cf registrar ... transfer`
-
-Prefer read-only inspection first (`wrangler tail`, `cf dns records list`) before any mutation.
+Inspect the exact resource first and preserve the user's approved scope. Destructive commands, publication, provider activation and credential changes require applicable authorization. A prior explicit approval for a named operation remains valid within that scope; unrelated destructive actions need a new decision. Local fixture validation does not authorize production writes.

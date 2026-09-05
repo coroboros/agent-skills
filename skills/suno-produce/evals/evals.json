@@ -1,0 +1,33 @@
+{
+  "skill_name": "suno-produce",
+  "evals": [
+    {
+      "id": 1,
+      "name": "explicit-four-track-ep",
+      "prompt": "Create a four-track instrumental ambient EP about a winter train journey. Use soft analog synths; each track should be about three minutes. Write the Suno prompt artifacts locally.",
+      "expected_output": "Produce one ALBUM.md and four TRACK.md files without reconfirming album mode. State routine composition assumptions, validate all artifacts and preserve the artifact-only boundary. No generation or upload occurs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "sparse-but-actionable-brief",
+      "prompt": "Write a Suno prompt for a short instrumental ambient sketch. Choose the mood and textures yourself.",
+      "expected_output": "Use the explicit creative discretion, state routine assumptions and produce a validated TRACK.md. Do not ask merely because fewer than three of five dimensions are supplied; do not invent voice-consent or rights facts.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "nonmusical-copy-routes-away",
+      "prompt": "Rewrite these three product landing-page paragraphs for concise English. There is no song, lyric, audio or Suno target.",
+      "expected_output": "Redirect to an applicable prose-writing workflow and preserve the existing edit authority. Do not create TRACK.md or ask for BPM, key, track length or vocal settings.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "lyrics-consult-songwriting-contract",
+      "prompt": "Create a Suno TRACK.md for an original hopeful folk song about returning home, with a repeatable hook and singable verses. Choose the arrangement details.",
+      "expected_output": "Read references/songwriting-craft.md and references/track-schema.md; write original lyrics with deliberate stress, meter and hook structure, supply the required artifact fields, validate the candidate, and apply the authorized local result without a new planning checkpoint.",
+      "files": []
+    }
+  ]
+}

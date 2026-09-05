@@ -127,11 +127,13 @@ class TestLadderInThePath(unittest.TestCase):
         self.assertIn("`references/chunk-template.md`", _load_map(),
                       "the template load is priced like every other reference")
 
-    def test_step_nine_builds_nothing(self):
+    def test_finish_preserves_requested_scope(self):
         step = _step(9)
-        self.assertIn("**Finish.**", step)
-        self.assertIn("builds nothing", step)
-        self.assertIn("one per executor run", step)
+        self.assertIn("Direction-only ends here", step)
+        self.assertIn("building nothing", step)
+        self.assertIn("executes the ladder's chunks in order", step)
+        self.assertIn("without requesting continuation", step)
+        self.assertIn("user-selected chunk remains one chunk", step)
 
 
 class TestChunkRunSurface(unittest.TestCase):
