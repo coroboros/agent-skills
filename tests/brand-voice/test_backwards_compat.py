@@ -74,14 +74,19 @@ class TestByteIdentity(unittest.TestCase):
                            else REPO_ROOT.parent / "BRAND-VOICE.md")
         if explicit_voice:
             self.assertTrue(workspace_voice.is_file(),
-                            f"BRAND_VOICE_TEST_FILE is not a file: {workspace_voice}")
+                            "BRAND_VOICE_TEST_FILE must point to an existing file")
         if not workspace_voice.is_file():
-            self.skipTest(f"no workspace BRAND-VOICE.md at {workspace_voice}")
-        v1 = self._run_v1(workspace_voice)
-        legacy = self._run_legacy(workspace_voice)
-        self.assertEqual(v1.returncode, 0, f"v1 failed: {v1.stderr}")
-        self.assertEqual(legacy.returncode, 0, f"legacy failed: {legacy.stderr}")
-        self.assertEqual(v1.stdout, legacy.stdout)
+            self.skipTest("external fixture is not configured or available")
+        # External fixtures may be private; failure logs must not echo their data.
+        try:
+            v1 = self._run_v1(workspace_voice)
+            legacy = self._run_legacy(workspace_voice)
+        except (OSError, subprocess.TimeoutExpired):
+            raise self.failureException("external fixture extraction could not finish") from None
+        self.assertEqual(v1.returncode, 0, "v1 extraction failed for external fixture")
+        self.assertEqual(legacy.returncode, 0, "legacy extraction failed for external fixture")
+        self.assertTrue(v1.stdout == legacy.stdout,
+                        "external fixture extraction results differ")
 
 
 if __name__ == "__main__":
