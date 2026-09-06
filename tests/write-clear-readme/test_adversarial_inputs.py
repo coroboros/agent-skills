@@ -17,7 +17,7 @@ SCRIPTS = REPO_ROOT / "skills" / "write-clear-readme" / "scripts"
 SCRIPT = SCRIPTS / "audit_readme.py"
 sys.path.insert(0, str(SCRIPTS))
 
-from audit_readme import audit, slugify  # noqa: E402
+from audit_readme import audit, mask_fenced_code, slugify  # noqa: E402
 
 
 def _run(path):
@@ -148,6 +148,70 @@ class TestAnchorResolutionEdgeCases(unittest.TestCase):
             report["anchors"]["unresolved"], [],
             "anchor inside <details> not resolved — auditor missed nested headings",
         )
+
+
+class TestFencedListExamples(unittest.TestCase):
+    def test_balanced_example_in_list_is_literal_and_preserves_following_content(self):
+        for item, indent in (("1. Use this example:", "    "),
+                             ("- Use this example:", "    "),
+                             ("1. Use this example:", "\t"),
+                             ("1.\tUse this example:", "\t"),
+                             ("1. Outer item\n   - Use this example:", "      ")):
+            with self.subTest(item=item):
+                example = (
+                    f"{item}\n\n{indent}```html\n{indent}<details>\n"
+                    f"{indent}<summary>Expand — Example</summary>\n"
+                    f"{indent}</details>\n{indent}```\n"
+                )
+                self.assertEqual(audit(example)["summary"]["findings"], 0)
+                text = example + "\n## Actual heading\n[Actual](#actual-heading)\nPowerful tools.\n"
+                report = audit(text)
+                self.assertEqual(report["anchors"]["unresolved"], [])
+                self.assertEqual(report["summary"]["findings"], 1)
+                self.assertEqual(report["bloat"][0]["line"], text.splitlines().index("Powerful tools.") + 1)
+                masked = mask_fenced_code(text)
+                self.assertEqual(len(masked), len(text))
+                self.assertEqual([i for i, char in enumerate(masked) if char == "\n"],
+                                 [i for i, char in enumerate(text) if char == "\n"])
+
+    def test_unclosed_list_fence_ends_when_the_container_ends(self):
+        for boundary in ("## Actual heading", "2. Next item"):
+            with self.subTest(boundary=boundary):
+                text = (
+                    "1. Example:\n\n    ```html\n"
+                    "    <details><summary>Expand — Example</summary></details>\n\n"
+                    f"{boundary}\n\n"
+                    "<details>\n<summary>Expand — Actual</summary>\n</details>\n"
+                    "Powerful tools.\n"
+                )
+                report = audit(text)
+                self.assertEqual(report["summary"]["findings"], 3)
+                self.assertEqual(report["details"]["summary_missing_br"], [{"line": 9}])
+                self.assertEqual(report["summary_quality"]["expand_prefix"],
+                                 [{"line": 9, "summary": "Expand — Actual"}])
+                self.assertEqual(report["bloat"][0]["line"], 11)
+
+    def test_list_fence_closing_uses_container_indent_not_opening_indent(self):
+        text = (
+            "1. Example:\n\n     ```html\n"
+            "   <details><summary>Expand — Example</summary></details>\n"
+            "   ```\n   Powerful tools.\n"
+        )
+        report = audit(text)
+        self.assertEqual(report["summary"]["findings"], 1)
+        self.assertEqual(report["bloat"][0]["line"], 6)
+
+    def test_shorter_inner_fences_do_not_end_long_list_examples(self):
+        for fence in ("````", "~~~~"):
+            with self.subTest(fence=fence):
+                text = (
+                    f"- Example:\n\n    {fence}html\n    {fence[:3]}\n"
+                    "    <details><summary>Expand — Example</summary></details>\n"
+                    f"    {fence}\n\nPowerful tools.\n"
+                )
+                report = audit(text)
+                self.assertEqual(report["summary"]["findings"], 1)
+                self.assertEqual(report["bloat"][0]["line"], 8)
 
 
 class TestBloatPatternsAdversarial(unittest.TestCase):

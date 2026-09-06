@@ -126,18 +126,38 @@ def _blank(m):
 def mask_fenced_code(text):
     """Mask fenced blocks, including longer and unclosed fences, keeping offsets."""
     fence = None
+    fence_indent = 0
+    list_indents = []
     lines = []
     for line in text.splitlines(keepends=True):
+        view = line.expandtabs(4)
+        indent = len(view) - len(view.lstrip(" "))
+        # An unclosed fence ends with its list container, not the document.
+        if fence is not None and line.strip() and indent < fence_indent:
+            fence = None
         if fence is None:
-            opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", line)
+            if line.strip():
+                while list_indents and indent < list_indents[-1]:
+                    list_indents.pop()
+            container_indent = list_indents[-1] if list_indents else 0
+            content = view[container_indent:]
+            item = re.match(r"^ {0,3}(?:[-+*]|\d{1,9}[.)])( +)(?=\S)", content)
+            if item:
+                padding = len(item[1]) if len(item[1]) <= 4 else 1
+                container_indent += item.start(1) + padding
+                list_indents.append(container_indent)
+                content = view[container_indent:]
+            opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", content)
             if opening and not (opening[1][0] == "`" and "`" in opening[2]):
                 fence = opening[1]
+                fence_indent = container_indent
                 lines.append("".join("\n" if c == "\n" else " " for c in line))
             else:
                 lines.append(line)
         else:
             lines.append("".join("\n" if c == "\n" else " " for c in line))
-            if re.match(rf"^ {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}\s*$", line):
+            if re.match(rf"^ {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}\s*$",
+                        view[fence_indent:]):
                 fence = None
     return "".join(lines)
 
