@@ -16,6 +16,7 @@ These instructions OVERRIDE the default behavior in all steps to save tokens by 
 **Purpose:** Reduce token usage for users on limited plans.
 
 **Trade-offs:**
+
 - Avoids subagent overhead; actual cost depends on the task
 - ✅ Faster execution (no agent overhead)
 - Preserve the same accepted outcomes and required evidence
@@ -105,6 +106,7 @@ Economy exploration strategy:
 ### Override 4: Skip Optional Steps
 
 **In economy mode, skip or minimize:**
+
 - Redundant documentation reads after a current authoritative source resolves the question
 - Optional background research unrelated to the accepted outcomes
 

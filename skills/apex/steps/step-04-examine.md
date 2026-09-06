@@ -126,6 +126,7 @@ Run the project's typecheck command.
 Run the project's lint command.
 
 **MUST PASS.** If fails:
+
 1. Inspect whether failures were introduced by the task; scope any auto-fix to task-owned files
 2. Manually fix remaining
 3. Re-run until passing
@@ -165,6 +166,7 @@ Verify each item:
 - [ ] Any blocked tasks have explanation
 
 **Tests Passing:**
+
 - [ ] Required and affected checks pass; baseline failures and unavailable checks are identified
 - [ ] New tests written for new functionality
 - [ ] No skipped tests without reason

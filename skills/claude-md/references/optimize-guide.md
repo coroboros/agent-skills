@@ -13,7 +13,7 @@ Read the target and instructions it actually routes to. Inspect relevant command
 The deterministic audit reports six categories, not automatic deletion instructions:
 
 | Candidate | Decision to verify |
-|---|---|
+| --- | --- |
 | Linter-enforced rule | Does configured tooling enforce the same behavior? Keep the command or tool choice if it is needed to invoke that enforcement. |
 | Obvious repository information | Does the pointer prevent a likely mistake or expensive rediscovery? Keep useful entry points; remove redundant inventories. |
 | Marketing or vision | Does it affect product or writing decisions in this repository? Move business prose to its owner rather than losing an accepted constraint. |

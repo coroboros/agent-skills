@@ -172,9 +172,7 @@ Auto memory layout, loading caps, settings keys, env overrides, and subagent mem
 
 ## Workflow
 
-**Storage strategy**
-
-Preserve the established owner and layout for an authorized update. For a new file, use the simplest layout that fits the brief: a single file for universal guidance, or a slim index plus `.claude/rules/` for conditional concerns. Ask only when a material storage migration or user-owned decision is unresolved. An audit request remains read-only; explicit memory permissions still apply.
+**Storage strategy:** Preserve the established owner and layout for an authorized update. For a new file, use the simplest layout that fits the brief: a single file for universal guidance, or a slim index plus `.claude/rules/` for conditional concerns. Ask only when a material storage migration or user-owned decision is unresolved. An audit request remains read-only; explicit memory permissions still apply.
 
 Use ordinary links for path-scoped rules so they remain conditional. Eager `@` imports load universal content and do not provide progressive disclosure.
 

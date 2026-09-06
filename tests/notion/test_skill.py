@@ -51,7 +51,7 @@ class TestRoutingContract(unittest.TestCase):
 
     def test_cli_exceptions_section_present(self):
         body = _body()
-        self.assertIn("### Use the `ntn` CLI when its capabilities fit:", body,
+        self.assertIn("### Use the `ntn` CLI when its capabilities fit", body,
                       "missing CLI exceptions subsection in Routing")
 
     def test_each_cli_required_case_named(self):

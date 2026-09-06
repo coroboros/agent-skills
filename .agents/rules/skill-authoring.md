@@ -27,11 +27,13 @@ The local review rubric covers eight axes: description and triggering, progressi
 - Set `metadata.author: coroboros`. Omit per-skill versions; history and repository releases own versioning.
 - Declare actual environment requirements in `compatibility` when needed (1–500 characters). Name required tools, host features, and limited fallback behavior. Omit it only when no special environment requirement needs stating. Do not promise universal graceful degradation.
 - Keep metadata values strings. Cite external work in `metadata.sources` as one quoted string, separating multiple references with semicolons:
+
   ```yaml
   metadata:
     author: coroboros
     sources: "https://github.com/microsoft/markitdown"
   ```
+
 - Inherit the session model and effort; do not pin either in skill frontmatter.
 - Use plain Markdown headings. Keep the skill entrypoint under 500 lines and approximately 5,000 tokens; move detail into clearly routed supporting files.
 - Embed the declared canonical prose, label-hygiene, execution, and verification blocks. Edit their owning `skill-*-rules.md` files, then run `scripts/sync_writing_rules.py`; independent installs need their own copies.

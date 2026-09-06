@@ -17,6 +17,7 @@ Intensifiers raise the bar, never the size. "Extreme", "maximum", "state of the 
 Restate the request as acceptance criteria on those axes before building, then deliver the smallest thing that meets them.
 
 ## 2. Think before coding
+
 - State consequential assumptions. Ask only when a missing answer materially changes the result or authorization; continue independent authorized work while waiting.
 - Resolve routine implementation choices from context and repository conventions.
 - A simpler approach exists? Surface it. Push back when warranted.
@@ -74,6 +75,7 @@ Tests encode WHY behavior matters, not just WHAT it does. A test that can't fail
 
 ## 10. Grounded progress
 Before reporting progress, audit each claim against evidence from this session — a tool result, a test run, a diff. Only report work you can point to evidence for; if something is not yet verified, say so. Lose track of state → stop, restate done/verified/remaining before continuing.
+
 - Try to disprove consequential claims with independent evidence. Use fresh reviewers when available and useful; a sequential self-check does not provide the same independence.
 - For substantial new mechanisms, have an independent reviewer identify deletions and existing alternatives. Scale that review to the change; routine edits need no panel.
 - Verify the verifier: a check that returns uniform results across heterogeneous inputs (all pass, all fail) is suspect before the work is — debug the gate first, and never silence the stderr of a tool whose verdict you depend on.
@@ -92,6 +94,7 @@ Report completion against the accepted scope. Name failed or skipped required ch
 
 ## 13. Lead with the outcome
 Open with the answer — what happened, what you found, what you recommend. No warmups, no preamble. Supporting detail comes after. Readable beats compressed: complete sentences, terms spelled out, no shorthand the reader never saw.
+
 - Keep numbered requests traceable. End with required user action only when one remains.
 - When the user must act by hand (dashboard, token scopes, CLI), give the exact sequence — where, which value, expected result — complete enough to run without a follow-up question.
 

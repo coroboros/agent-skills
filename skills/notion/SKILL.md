@@ -32,7 +32,7 @@ Inspect the active tool descriptions. Depending on the connector, supported oper
 - Batch up to 100 rows in one `notion-create-pages` call
 - Semantic search across connected sources (Slack, GDrive, GitHub, Jira, MS Teams, Sharepoint, OneDrive, Linear)
 
-### Use the `ntn` CLI when its capabilities fit:
+### Use the `ntn` CLI when its capabilities fit
 
 - **File upload to Notion** — `ntn files create` when the active MCP lacks upload support.
 - **Notion Workers / serverless** — `ntn workers …` when needed tools are absent from the MCP.
@@ -53,7 +53,7 @@ Defer to these — do not embed their content in the skill body. Each is the sin
 | What | Where |
 |---|---|
 | MCP overview + setup (start here for newcomers) | https://developers.notion.com/guides/mcp/overview |
-| MCP capability evolution | https://developers.notion.com/page/changelog |
+| MCP capability evolution | [Notion changelog](https://developers.notion.com/page/changelog) |
 | MCP tool DSL syntax (per tool) | The tool's own description in the active session — read it before first use |
 | Notion-flavored Markdown spec | MCP resource `notion://docs/enhanced-markdown-spec` |
 | `ntn` CLI installation | https://developers.notion.com/cli/get-started/installation |
@@ -73,7 +73,7 @@ These operational checks supplement the live tool schemas. Verify version-sensit
 
 ## Maintenance
 
-This skill encodes routing rules, the pre-flight, and the operational checks above. Per-tool syntax → tool descriptions; CLI commands → `ntn --help`; Markdown rules → the `notion://docs/enhanced-markdown-spec` resource; capability evolution → https://developers.notion.com/page/changelog; auth → the CLI docs URL. A new MCP tool or `ntn` subcommand requires no skill update — discovery happens via the tool or CLI itself.
+This skill encodes routing rules, the pre-flight, and the operational checks above. Per-tool syntax → tool descriptions; CLI commands → `ntn --help`; Markdown rules → the `notion://docs/enhanced-markdown-spec` resource; capability evolution → [Notion changelog](https://developers.notion.com/page/changelog); auth → the CLI docs URL. A new MCP tool or `ntn` subcommand requires no skill update — discovery happens via the tool or CLI itself.
 
 ## Privacy
 
