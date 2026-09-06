@@ -86,17 +86,33 @@ For an N-track album, scaffold the `tracks/01-{slug}/`, `tracks/02-{slug}/`, …
 
 ### 7. Validate, then write
 
-Write every draft to a temp folder first, keeping the canonical filename — [`../scripts/validate.py`](../scripts/validate.py) dispatches on it (e.g. `/tmp/suno-draft/TRACK.md`; in album mode, mirror the project layout under the temp folder so one directory walk covers ALBUM.md and every TRACK.md). The final path receives content only after the verdict.
+Allocate a unique temp folder for this invocation so parallel projects cannot
+overwrite each other's drafts:
+
+```bash
+python3 -c 'import tempfile; print(tempfile.mkdtemp(prefix="suno-draft-"))'
+```
+
+Keep the printed absolute path as `$DRAFT_DIR` (substitute that literal path when
+shell state does not persist). Write drafts there with canonical filenames because
+[`../scripts/validate.py`](../scripts/validate.py) dispatches on them. In album
+mode, mirror the project layout under `$DRAFT_DIR` so one directory walk covers
+ALBUM.md and every TRACK.md. Validate that directory for an album; for a single
+track use:
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ```bash
-python3 "$SKILL_DIR"/scripts/validate.py /tmp/suno-draft/TRACK.md
+python3 "$SKILL_DIR"/scripts/validate.py "$DRAFT_DIR/TRACK.md"
 ```
 
 - **GREEN** (exit 0) → `mv` the draft into place, no surfacing in summary.
 - **YELLOW** (exit 2) → `mv` the draft into place, warnings included in user-facing summary verbatim.
 - **RED** (exit 1) → block the move. Fix the issue in the temp draft (re-tighten descriptor count, trim Lyrics, drop SFX brackets) and re-validate — the final path is never touched by RED content. Do not ask the user — the model fixes and retries up to twice. If still RED on the third attempt, surface the validator output and stop.
+
+Move only the validated drafts from this invocation's `$DRAFT_DIR`; remove its
+empty staging folders after success and keep drafts on failure. Create a given
+target project one invocation at a time.
 
 ### 8. Emit `.gitignore` if missing
 

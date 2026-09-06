@@ -32,8 +32,15 @@
     {
       "id": 5,
       "name": "revision-preserves-gapped-archives",
-      "prompt": "Revise the supplied TRACK.md to soften the chorus. versions contains v1.md and v3.md with different earlier takes, plus v99-notes.md. Keep all prior takes.",
-      "expected_output": "Choose v4.md from the maximum numeric version and archive the current bytes using exclusive creation. Preserve every prior archive and the canonical take until the candidate validates. Report archive errors or collisions without overwriting anything.",
+      "prompt": "Revise the supplied TRACK.md to soften the chorus. versions contains v1.md and v4.md with different earlier takes, plus v99-notes.md. Keep all prior takes.",
+      "expected_output": "Choose v5.md from the maximum numeric version and archive the current bytes using exclusive creation. Preserve every prior archive and the canonical take until the candidate validates. Report archive errors or collisions without overwriting anything.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "independent-project-drafts-stay-isolated",
+      "prompt": "Create two separate short instrumental ambient singles, one about dawn rain and one about the last train home. Work on both drafts before finalizing either project.",
+      "expected_output": "Allocate a separate unique staging directory for each project, retain canonical filenames, validate each exact staged draft and install its corresponding bytes. Clean only the completed invocation's staging folders. Keep failed candidates for correction; never reuse a shared fixed temp path.",
       "files": []
     },
     {

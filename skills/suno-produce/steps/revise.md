@@ -12,6 +12,8 @@ Archive the current `TRACK.md` and emit a refined one based on listener feedback
 ### 1. Resolve and read
 
 - Resolve `<path>` to its `TRACK.md`. Error out if missing — suggest `create` instead.
+- Revise a given `TRACK.md` one invocation at a time; independent tracks may be
+  revised in parallel.
 - Read the existing TRACK.md, the iteration log, and any sibling `ALBUM.md` and bound `ARTIST.md` (if `-f` is passed or the parent project has one).
 
 ### 2. Determine next version number
@@ -91,19 +93,33 @@ Example:
 
 ### 7. Validate the candidate
 
-Write the revised candidate to a temp folder first, keeping the canonical filename — the validator dispatches on it (e.g. `/tmp/suno-revise/TRACK.md`). Update frontmatter `revised: YYYY-MM-DD` in the candidate; leave `created:` untouched.
+Allocate a unique temp folder for this invocation so another track's revision
+cannot replace the candidate between validation and installation:
+
+```bash
+python3 -c 'import tempfile; print(tempfile.mkdtemp(prefix="suno-revise-"))'
+```
+
+Keep the printed absolute path as `$REVISION_DIR` (substitute that literal path
+when shell state does not persist). Write the revised candidate to
+`$REVISION_DIR/TRACK.md`, keeping the canonical filename because the validator
+dispatches on it. Update frontmatter `revised: YYYY-MM-DD` in the candidate; leave
+`created:` untouched.
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ```bash
-python3 "$SKILL_DIR"/scripts/validate.py /tmp/suno-revise/TRACK.md
+python3 "$SKILL_DIR"/scripts/validate.py "$REVISION_DIR/TRACK.md"
 ```
 
 Same RED/YELLOW/GREEN handling as `create`. RED (exit 1) blocks the move in step 8 — `{path}/TRACK.md` still holds the previous take, never touched by RED content. Fix the temp candidate and re-validate; no re-archiving needed (only the candidate is re-synthesised; `versions/v{N+1}.md` stays as the previous take).
 
 ### 8. Write the new TRACK.md
 
-On GREEN or YELLOW (exit 0 or 2), `mv` the validated candidate over `{path}/TRACK.md`. The archived `versions/v{N+1}.md` is the previous take, untouched; the new TRACK.md is the current best.
+On GREEN or YELLOW (exit 0 or 2), `mv` that same `$REVISION_DIR/TRACK.md` over
+`{path}/TRACK.md`, then remove this invocation's empty temp folder. Keep the
+candidate on failure. The archived `versions/v{N+1}.md` is the previous take,
+untouched; the new TRACK.md is the current best.
 
 ### 9. Print the user-facing summary
 
