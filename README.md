@@ -232,7 +232,7 @@ Adaptive implementation selected explicitly with `/ultrapex`. It carries a task 
 
 **What it does**
 
-Defines acceptance evidence before editing, preserves user corrections, and adapts implementation details within the authorized scope. Independent work can run concurrently when the host supports it. Consequential findings are challenged, fixes are rechecked, and every acceptance criterion is closed against the final artifact. Missing independent review is reported as a limitation. No mandatory ledger or model-identity routing is added; comparative performance remains unestablished.
+Defines acceptance evidence before editing, preserves user corrections, and adapts implementation details within the authorized scope. Independent work can run concurrently when the host supports it. Consequential findings are challenged, fixes are rechecked, and every acceptance criterion is closed against the final artifact. Missing independent review is reported as a limitation. Uses the session's model and effort.
 
 ---
 
@@ -416,7 +416,7 @@ Art direction for ambitious landing pages, portfolios, and marketing sites. Esta
 /award-design review https://example.com                             # audit an existing site
 ```
 
-A direction-only request ends with DESIGN.md and `design-plan.md`. A full-build request continues through `/frontend-dev` implementation and director review under the task owner's responsibility, using the authorization already given. `chunk <id>` forwards the selected chunk to the builder and stops after its checks and result. `-u <url>` uses the observed brand as an archetype seed. `review <url|path>` is read-only. Missing required measurements or independent review remain explicit limitations.
+A direction-only request ends with DESIGN.md and `design-plan.md`. A full-build request continues through `/frontend-dev` implementation and director review within the approved scope. `chunk <id>` forwards the selected chunk to the builder and stops after its checks and result. `-u <url>` uses the observed brand as an archetype seed. `review <url|path>` is read-only. Missing required measurements or independent review remain explicit limitations.
 
 **Archetypes**
 
@@ -769,7 +769,7 @@ Three artifact tiers, scaffolded progressively:
 
 - **TRACK.md** — always emitted. The unit of Suno generation: copy-paste-ready Style of Music + Lyrics + Exclude Styles + Sliders, plus rationale and iteration log.
 - **ALBUM.md** — emitted only when album mode is detected from the brief. Holds concept, arc, tracklist with BPM/key flow, transitions.
-- **ARTIST.md** — optional artist-identity layer, **artist-scoped** (one file referenced from many album folders via `-f`). Declares Voice profile, Custom Model, recurring instrumentation, rights/compliance posture. The filename is `ARTIST.md` rather than the alternative `MUSIC.md` because the contents describe an artist persona, not music — a deliberate evolution of the open standard.
+- **ARTIST.md** — optional artist-identity layer, **artist-scoped** (one file referenced from many album folders via `-f`). Declares Voice profile, Custom Model, recurring instrumentation, rights/compliance posture.
 
 On request, `create` also draws on a songwriting-craft reference (song structure, rhyme, meter, hook, prosody) to help write singable lyrics — supplied lyrics stay verbatim.
 
@@ -803,7 +803,7 @@ On request, `create` also draws on a songwriting-craft reference (song structure
 2. Resolves routine musical choices from the brief and asks only for consequential missing information; preserves supplied lyrics and actual voice-consent boundaries
 3. Synthesises Style of Music (4–7 descriptors, 5 classes), Lyrics (Tier 1 bracket metatags, parenthetical performance cues), Exclude Styles (cap 3), Sliders (per-genre defaults from the operator reference)
 4. Adjusts for Voice / Custom Model — drops vocal descriptors and redundant style cues; raises Audio Influence to 70–90%
-5. Validates every write through `scripts/validate.py` — RED never reaches disk
+5. Validates each draft through `scripts/validate.py` before publishing it to the target path; RED blocks publication
 6. Archives prior takes under `versions/v{N}.md` on `revise`; keeps the audio takes (`audio/`) gitignored
 
 **Validator (multi-type)**

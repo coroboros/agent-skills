@@ -157,7 +157,7 @@ Media and publishing, fashion brands with story-driven commerce, cultural instit
 
 Read alongside `foundations.md` (typography systems, OKLCH, animation toolkit), `anti-patterns.md` (no `<div>`-button soup, no stock photography, no centered-hero-with-generic-headline template), `audit-rubric.md` (Typography 8+ is the entry bar in this archetype), `exemplars.md` (Anthropic, Substack, The New Yorker, Notion).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/`: `archetypes/editorial.md`.
+Sources for the claims below are listed in the public research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/`: `archetypes/editorial.md`.
 
 ## Effect palette — what this line's winners ship
 

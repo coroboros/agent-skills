@@ -144,7 +144,7 @@ Automotive launches, luxury brands with a sensory story, entertainment and film,
 
 Read alongside `foundations.md` (typography, OKLCH, animation toolkit), `production-hardening.md` (cross-browser shipping, iOS as canary), `ingredients/web3d-for-sites.md` (the material and lighting fidelity floor), `audit-rubric.md` (Awwwards judging criteria), `exemplars.md` (broader visual catalog).
 
-Provenance for every claim below — the researcher rounds and the fresh-context refutations that corrected them — lives in the public research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/`: `archetypes/immersive-cinematic.md` and `analysis/scrub-fidelity-floor.md`.
+Sources for the claims below are listed in the public research corpus of `github.com/coroboros/research`, under `articles/award-winning-websites-2025-2030/`: `archetypes/immersive-cinematic.md` and `analysis/scrub-fidelity-floor.md`.
 
 ## Effect palette — what this line's winners ship
 
