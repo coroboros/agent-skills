@@ -18,7 +18,7 @@ python3 scripts/preflight_scan.py <build-dir> --archetype <archetype>
 - Every **REVIEW** hit: judge it against the catalog and record the call.
 - The scanner **catches, it never clears** — a clean scan ticks no box below.
 
-**The detector runs beside the scanner.** With a browser rung that evaluates JS, inject `assets/detector.js` into the rendered page and run `awardDetector.run({face, archetype})` (`references/detector.md`). Detector FAILs are fix-only: no prose override clears one. Its REVIEW findings (dead sections, homeopathic responses, unmeasured elements) are evidence handed to R2, not boxes here — and the elements R2 drives are sampled by the reviewer from the detector's substrate census, never the builder's shortlist.
+**The detector runs beside the scanner.** With a browser rung that evaluates JS, inject `assets/detector.js` into the rendered page and run `awardDetector.run({face, archetype})` (`references/detector.md`). Detector FAILs are fix-only: no prose override clears one. The documented three-line H1 exception must be configured before measurement with `h1MaxLines: 3` and `h1OverrideReason` quoting the client clause and DESIGN.md reference; its H1-OVERRIDE REVIEW and effective options remain in the verdict. Its other REVIEW findings (dead sections, homeopathic responses, unmeasured elements) are evidence handed to R2, not boxes here — and the elements R2 drives are sampled by the reviewer from the detector's substrate census, never the builder's shortlist.
 
 ## 2. Tells
 
@@ -36,7 +36,7 @@ Catalog: `anti-patterns.md`. One violation reads as AI-generated regardless of e
 - [ ] Hero carries a real visual (photography / generated / 3D / deliberate type-as-image)
 - [ ] No fake-div product screenshots — real capture or honest labeled placeholder
 - [ ] Zero 2px+ colored side-stripe accents on cards `(scanner: SIDE-STRIPE)`
-- [ ] Hero H1 lands in ≤2 lines (3 takes a written override) `(detector: H1-LINES)`
+- [ ] Hero H1 lands in ≤2 lines; the explicit client exception permits 3 only with the configured reason and H1-OVERRIDE REVIEW. Cite the effective ceiling, never a canonical two-line pass under the exception. `(detector: H1-LINES)`
 
 ## 3. Consistency locks (page-wide, binary)
 

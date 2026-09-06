@@ -10,11 +10,12 @@ The block below — including the two HTML-comment markers — is inserted verba
 <!-- canonical:execution-discipline:start -->
 ## Important — Engineering discipline
 
-These rules govern how this skill changes code — apply them whenever it writes, edits, or proposes a fix.
+Apply these rules when writing, editing, or proposing code.
 
-- Minimal scope. Only what's directly requested or clearly necessary — no extra files, no abstraction for one use, no configurability nobody asked for, no error handling for states that can't happen. Validate at system boundaries; trust internal code.
-- General solution, not the test cases. Implement the real logic for all valid inputs; never hard-code to inputs or bolt on workaround scripts to make a test pass. Tests verify the solution; they don't define it. A test is wrong? Say so — don't bend correct code to a broken test.
-- Investigate before claiming. Never speculate about code you haven't opened; read the referenced file before answering. Ground every claim in what you actually read, not a plausible guess.
+- Solve the accepted problem with the smallest complete change. Reuse existing mechanisms; preserve unrelated work. Validate external inputs and real failure states.
+- Read the affected implementation, callers, and shared utilities before editing. Ground code claims in inspected evidence.
+- Implement the general behavior. Tests must distinguish correct behavior from the defect; never hard-code to fixtures or preserve a demonstrably wrong test.
+- Carry scope, corrections, and existing authorization through handoffs. Run applicable required checks; repeat them only for changed behavior or unresolved failures.
 <!-- canonical:execution-discipline:end -->
 ```
 
@@ -33,7 +34,7 @@ The sync script and the parity test read this list:
 - frontend-dev
 - oneshot
 
-Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design authors a DESIGN.md and the build ladder, then builds each ladder chunk as code, so it is declared, not excluded.
+Scope rule — skills that write, edit, or propose code (implementation, review, applied fixes). Skills whose primary output is a per-project content artifact (BRAND-VOICE.md, CLAUDE.md, README.md, TRACK.md, agent config, a forge planning file) or a short tooling status report are deliberately excluded. award-design directs the design, proposes technical implementation in its build ladder and reviews the result; frontend-dev implements the chunks. The block applies to those technical proposals and reviews without making award-design the builder.
 
 ## Excluded skills (with reason)
 

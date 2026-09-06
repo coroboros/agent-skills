@@ -3,6 +3,7 @@
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -50,6 +51,46 @@ class TestLegacy(unittest.TestCase):
         r = _run("--legacy", "--full", str(FIXTURES / "parent-corp.md"))
         self.assertNotEqual(r.returncode, 0)
         self.assertIn("mutually exclusive", r.stderr)
+
+
+class TestResolvedJson(unittest.TestCase):
+    def test_malformed_inheritance_never_emits_resolved_rules(self):
+        for value in ("true", "123", "[parent.md]", "null", '""'):
+            for in_parent in (False, True):
+                with self.subTest(value=value, in_parent=in_parent), tempfile.TemporaryDirectory() as tmp:
+                    root = Path(tmp)
+                    invalid = f"---\nvoice:\n  name: Invalid\n  extends: {value}\n---\n"
+                    (root / "parent.md").write_text(invalid)
+                    child = root / "child.md"
+                    child.write_text("---\nvoice:\n  name: Child\n  extends: parent.md\n---\n" if in_parent else invalid)
+                    result = _run("--resolved-json", str(child))
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertEqual(result.stdout, "")
+                    self.assertIn("extends-parent-invalid", result.stderr)
+                    self.assertIn("non-empty path string", result.stderr)
+
+    def test_emits_effective_rules_without_extends_directive(self):
+        r = _run("--resolved-json", str(FIXTURES / "child-founder.md"))
+        self.assertEqual(r.returncode, 0, r.stderr)
+        data = json.loads(r.stdout)
+        self.assertNotIn("extends", data["voice"])
+        self.assertIn("synergies", data["forbidden_lexicon"])
+        self.assertNotIn("passionate", data["forbidden_lexicon"])
+        self.assertEqual(data["pronouns"]["forbid"], [])
+
+    def test_cannot_label_child_only_output_resolved(self):
+        r = _run("--resolved-json", "--no-resolve-extends", str(FIXTURES / "child-founder.md"))
+        self.assertNotEqual(r.returncode, 0)
+        self.assertEqual(r.stdout, "")
+        self.assertIn("requires chain resolution", r.stderr)
+
+    def test_inherited_stdin_requires_a_base_path(self):
+        r = subprocess.run([sys.executable, str(SCRIPT), "--resolved-json", "-"],
+                           input=(FIXTURES / "child-founder.md").read_text(),
+                           capture_output=True, text=True, timeout=30)
+        self.assertNotEqual(r.returncode, 0)
+        self.assertEqual(r.stdout, "")
+        self.assertIn("require a file path", r.stderr)
 
 
 class TestResolveExtends(unittest.TestCase):

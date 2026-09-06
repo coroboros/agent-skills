@@ -88,14 +88,14 @@ class TestGoalFlag(unittest.TestCase):
         """step-04-examine.md emits the /goal directive in a new § 0 sub-step."""
         self.assertIn("### 0. Emit /goal directive", self.step_04)
         self.assertIn("/goal All AC verified", self.step_04)
-        self.assertIn("Stop after 15 turns", self.step_04)
+        self.assertNotIn("Stop after 15 turns", self.step_04)
 
     def test_goal_directive_requires_verbatim_commands(self):
         """The /goal template forces verbatim command output, not paraphrases."""
         idx_goal = self.step_04.find("### 0. Emit /goal directive")
         idx_next = self.step_04.find("### 1.", idx_goal)
         body = self.step_04[idx_goal:idx_next]
-        self.assertIn("verbatim", body.lower(), "Step-04 must require verbatim command tokens")
+        self.assertIn("actual command output", body.lower())
 
     def test_goal_directive_handles_empty_ac(self):
         """Empty AC fall back to a documented placeholder."""

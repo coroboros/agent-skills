@@ -28,6 +28,10 @@ Exit codes: `0` scan complete (hits or not), `1` argument or I/O error.
 
 ## prescan hit list (brand-aware)
 
+Both scripts accept mutually exclusive `--brand <voice-doc>` (local rules only) and `--rules-json <rules.json>` (the complete mapping emitted by `brand-voice/scripts/extract_rules.py --resolved-json`). The LLM reads that same mapping. Raw inherited input is rejected with extraction/install guidance; missing/malformed explicit input never yields clean. `clean` describes zero mechanical hits, not full semantic compliance.
+
+The consumer requires a non-empty `voice.name` and validates the shapes of supported lists and mappings. Optional rules, empty lists and semantic-only fields are valid. Provenance `--explain-json` envelopes are rejected; use `--resolved-json`. Input failures exit `1` in prescan and `2` in validate, with a diagnostic instead of a hit report.
+
 Emitted when `scripts/prescan.py --brand <voice-doc> <file>` is invoked. Universal hits gain a `source: "universal"` discriminator so callers can split the merged array; brand hits use a string `pattern` slug, carry `source: "brand"`, and add `rule_id` so the coverage report can attribute each rewrite to the originating YAML rule.
 
 ```json

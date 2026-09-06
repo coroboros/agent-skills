@@ -305,7 +305,7 @@ class TestShipReadyFloor(unittest.TestCase):
         """The plumbing never outranks the thing it plumbs: the review drives
         the signature before it offers the floor."""
         review = self._review_gate()
-        sig = review.find("The signature as a real user")
+        sig = review.find("Test the signature's declared behavior as a real user")
         floor_ref = review.find("ship-ready-floor.md")
         self.assertNotEqual(sig, -1, "the driven signature must appear in the review gate")
         self.assertNotEqual(floor_ref, -1, "ship-ready-floor must be referenced in the review gate")

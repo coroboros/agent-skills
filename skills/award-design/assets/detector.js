@@ -13,6 +13,7 @@
     { id: 'HOMEOPATHIC', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'SECTION-DEAD', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'UNMEASURED-JS', severity: 'REVIEW', box: 'live-substrate' },
+    { id: 'UNMEASURED-CSS', severity: 'REVIEW', box: 'live-substrate' },
     { id: 'CONTACT-GLOBAL-SQUASH', severity: 'FAIL', box: 'contact-response' },
     { id: 'CONTRAST', severity: 'FAIL', box: 'a11y-floor' },
     { id: 'UNCOMPUTABLE-BG', severity: 'REVIEW', box: 'a11y-floor' },
@@ -22,6 +23,7 @@
     { id: 'NAV-HERO-SURFACE', severity: 'REVIEW', box: 'nav-over-hero' },
     { id: 'TOKEN-CONFORM', severity: 'REVIEW', box: 'token-drift' },
     { id: 'H1-LINES', severity: 'FAIL', box: 'hero-h1-lines' },
+    { id: 'H1-OVERRIDE', severity: 'REVIEW', box: 'hero-h1-lines' },
     { id: 'IDLE-CHANNEL', severity: 'REVIEW', box: 'breathes-at-rest' },
     { id: 'IMG-BROKEN', severity: 'FAIL', box: 'assets-real' },
     { id: 'H-OVERFLOW', severity: 'FAIL', box: 'no-h-scroll' },
@@ -37,6 +39,7 @@
   const SELECTOR_CAP = 15;
   const PEAK_WINDOW_MS = 600;
   const EPS = 1e-4;
+  const STATE_PSEUDO = /:hover|:focus-visible/;
 
   // ---------------------------------------------------------------- pure core
 
@@ -394,7 +397,35 @@
     return (sample.emptyFraction || 0) > f.voidFraction ? 'DEAD' : 'ALIVE';
   }
 
-  const api = { FLOORS, VOID_FLOORS, RULES, srgbToOklab, relativeLuminance, contrastRatio, parseColor, parseTransform, classifyDelta, classifyContact, classifyNavHero, largestEmptyFraction, classifyVoid, diffChannels, peakChannels };
+  function runOptions(raw) {
+    if (raw === undefined) raw = {};
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new TypeError('run options must be an object');
+    const names = ['face', 'archetype', 'floors', 'h1MaxLines', 'h1OverrideReason'];
+    for (const key of Object.keys(raw)) {
+      if (!names.includes(key)) throw new TypeError('unknown run option: ' + key);
+    }
+    for (const key of ['face', 'archetype', 'h1OverrideReason']) {
+      if (raw[key] != null && typeof raw[key] !== 'string') throw new TypeError(key + ' must be a string');
+    }
+    const supplied = raw.floors === undefined ? {} : raw.floors;
+    if (!supplied || typeof supplied !== 'object' || Array.isArray(supplied)) throw new TypeError('floors must be an object');
+    const floors = Object.assign({}, FLOORS);
+    for (const [key, value] of Object.entries(supplied)) {
+      if (!Object.hasOwn(FLOORS, key) || !Number.isFinite(value) ||
+          value <= (key === 'scale' ? 1 : 0) || (['deltaL', 'opacity'].includes(key) && value > 1)) {
+        throw new TypeError('invalid floor: ' + key);
+      }
+      floors[key] = value;
+    }
+    const h1MaxLines = raw.h1MaxLines === undefined ? 2 : raw.h1MaxLines;
+    const h1OverrideReason = raw.h1OverrideReason == null ? null : raw.h1OverrideReason.trim();
+    if (![2, 3].includes(h1MaxLines)) throw new TypeError('h1MaxLines must be 2 or the documented client exception, 3');
+    if (h1MaxLines === 3 && !h1OverrideReason) throw new TypeError('h1MaxLines: 3 requires h1OverrideReason quoting the client clause and DESIGN.md reference');
+    if (h1MaxLines === 2 && h1OverrideReason) throw new TypeError('h1OverrideReason requires h1MaxLines: 3');
+    return { face: raw.face || null, archetype: raw.archetype || null, floors, h1MaxLines, h1OverrideReason };
+  }
+
+  const api = { FLOORS, VOID_FLOORS, RULES, srgbToOklab, relativeLuminance, contrastRatio, parseColor, parseTransform, classifyDelta, classifyContact, classifyNavHero, largestEmptyFraction, classifyVoid, diffChannels, peakChannels, runOptions, nestedSelectors, splitCarrier };
 
   if (typeof window === 'undefined') {
     if (typeof module !== 'undefined' && module.exports) module.exports = api;
@@ -471,21 +502,58 @@
     return parts.map((p) => p.trim()).filter(Boolean);
   }
 
-  const STATE_PSEUDO = /:hover|:focus-visible/;
+  function nestedSelectors(selector, parent) {
+    if (!parent) return selector;
+    const context = ':is(' + parent + ')';
+    return splitSelectors(selector).map((part) => {
+      let out = '', quote = null, bracket = 0, replaced = false;
+      for (let i = 0; i < part.length; i++) {
+        const c = part[i];
+        if (c === '\\') { out += c + (part[++i] || ''); continue; }
+        if (quote) { out += c; if (c === quote) quote = null; continue; }
+        if (c === '"' || c === "'") { quote = c; out += c; continue; }
+        if (c === '[') bracket++;
+        if (c === ']') bracket--;
+        if (c === '&' && bracket === 0) { out += context; replaced = true; }
+        else out += c;
+      }
+      return replaced ? out : context + ' ' + out;
+    }).join(', ');
+  }
 
   // carrier = the compound that carries :hover (the element the pointer touches);
   // trailing = the rest of the selector (the descendant that responds).
   function splitCarrier(selector) {
+    const unknown = { carrier: null, trailing: '', unmeasured: true };
+    // Only the routing copy is unwrapped. The injected probe keeps :is() and
+    // its native nesting specificity. A single leading branch can be expanded
+    // without moving the hover carrier onto the parent's final descendant.
+    while (selector.startsWith(':is(')) {
+      let depth = 1, end = 4, quote = null;
+      for (; end < selector.length && depth; end++) {
+        if (selector[end] === '\\') { end++; continue; }
+        if (quote) { if (selector[end] === quote) quote = null; continue; }
+        if (selector[end] === '"' || selector[end] === "'") { quote = selector[end]; continue; }
+        if (selector[end] === '(') depth++;
+        else if (selector[end] === ')') depth--;
+      }
+      const inner = selector.slice(4, end - 1);
+      if (!STATE_PSEUDO.test(inner)) break;
+      if (depth || splitSelectors(inner).length !== 1) return unknown;
+      selector = inner + selector.slice(end);
+    }
+    if ((selector.match(/:hover|:focus-visible/g) || []).length !== 1) return unknown;
     const idx = selector.search(STATE_PSEUDO);
     let end = selector.length;
     let depth = 0;
-    for (let i = idx; i < selector.length; i++) {
+    for (let i = 0; i < selector.length; i++) {
       const c = selector[i];
+      if (i === idx && depth) return unknown; // state inside another function
       if (c === '(' || c === '[') depth++;
       else if (c === ')' || c === ']') depth--;
-      else if (depth === 0 && (c === ' ' || c === '>' || c === '+' || c === '~')) { end = i; break; }
+      else if (i > idx && depth === 0 && (c === ' ' || c === '>' || c === '+' || c === '~')) { end = i; break; }
     }
-    const strip = (s) => s.replace(/:hover|:focus-visible/g, '').replace(/::?[a-z-]+(\([^)]*\))?$/i, '').trim();
+    const strip = (s) => s.replace(/:hover|:focus-visible/g, '').replace(/::[a-z-]+(\([^)]*\))?$/i, '').trim();
     let carrier = strip(selector.slice(0, end));
     if (!carrier) carrier = '*';
     let trailing = selector.slice(end).replace(/^[\s>+~]+/, '').trim();
@@ -494,25 +562,26 @@
   }
 
   function collectStateRules() {
-    const rules = [];
+    const rules = [], unmeasuredRules = [];
     let sheets = 0, opaqueSheets = 0;
-    const walk = (list) => {
+    const walk = (list, parent) => {
       for (const rule of Array.from(list)) {
         if (rule.styleSheet) {
           // @import — the nested sheet never appears in document.styleSheets.
           try { walk(rule.styleSheet.cssRules); } catch (e) { opaqueSheets++; }
           continue;
         }
-        if (rule.selectorText !== undefined && rule.style) {
-          const sel = rule.selectorText;
-          if (!STATE_PSEUDO.test(sel)) continue;
+        if (rule.style && (rule.selectorText !== undefined || parent)) {
+          const sel = rule.selectorText === undefined ? parent : nestedSelectors(rule.selectorText, parent);
           for (const part of splitSelectors(sel)) {
             if (!STATE_PSEUDO.test(part)) continue;
             const { carrier, trailing } = splitCarrier(part);
+            if (!carrier) { if (/:hover/.test(part)) unmeasuredRules.push(part); continue; }
             const probeSelector = part.replace(/:hover|:focus-visible/g, '.' + PROBE_CLASS);
             rules.push({ selector: part, probeSelector, carrier, trailing, css: rule.style.cssText,
               hover: /:hover/.test(part) });
           }
+          if (rule.cssRules && rule.cssRules.length) walk(rule.cssRules, sel);
           continue;
         }
         if (rule.cssRules && rule.cssRules.length) {
@@ -521,7 +590,7 @@
             try { if (!CSS.supports(rule.conditionText)) continue; } catch (e) { /* keep walking */ }
           }
           if (typeof CSSKeyframesRule !== 'undefined' && rule instanceof CSSKeyframesRule) continue;
-          walk(rule.cssRules);
+          walk(rule.cssRules, parent);
         }
       }
     };
@@ -533,7 +602,7 @@
       try { list = sheet.cssRules; } catch (e) { opaqueSheets++; continue; }
       if (list) walk(list);
     }
-    return { rules, sheets, opaqueSheets };
+    return { rules, sheets, opaqueSheets, unmeasuredRules, unresolvedStateSelectors: 0 };
   }
 
   function safeMatches(el, selector) {
@@ -563,13 +632,26 @@
     document.head.appendChild(styleEl);
 
     const candidates = new Set(document.querySelectorAll(NATIVE_INTERACTIVE));
+    const unmeasuredCss = new Set();
+    for (const selector of collected.unmeasuredRules) {
+      try {
+        for (const target of document.querySelectorAll(selector.replace(/:hover|:focus-visible/g, ''))) {
+          unmeasuredCss.add(target);
+          target.querySelectorAll(NATIVE_INTERACTIVE).forEach((el) => unmeasuredCss.add(el));
+          for (let el = target.parentElement; el; el = el.parentElement) {
+            if (el.matches(NATIVE_INTERACTIVE) || getComputedStyle(el).cursor === 'pointer') unmeasuredCss.add(el);
+          }
+        }
+      } catch (e) { collected.unresolvedStateSelectors++; }
+    }
+    for (const el of unmeasuredCss) candidates.add(el);
     for (const r of hoverRules) {
       if (r.carrier === '*' || r.carrier === 'html' || r.carrier === 'body') continue;
       try { document.querySelectorAll(r.carrier).forEach((el) => candidates.add(el)); } catch (e) { /* invalid derived selector */ }
     }
 
-    const counts = { probed: 0, ok: 0, dead: 0, homeopathic: 0, unmeasuredJs: 0 };
-    const selectors = { ok: [], dead: [], homeopathic: [], unmeasuredJs: [] };
+    const counts = { probed: 0, ok: 0, dead: 0, homeopathic: 0, unmeasuredJs: 0, unmeasuredCss: 0 };
+    const selectors = { ok: [], dead: [], homeopathic: [], unmeasuredJs: [], unmeasuredCss: [] };
     let capped = false;
 
     for (const el of candidates) {
@@ -580,7 +662,7 @@
       const matching = hoverRules.filter((r) => safeMatches(el, r.carrier));
       const hasStateRule = matching.length > 0;
       const hasAffordance = el.matches(NATIVE_INTERACTIVE) || cs.cursor === 'pointer';
-      if (!hasStateRule && !hasAffordance) continue;
+      if (!hasStateRule && !hasAffordance && !unmeasuredCss.has(el)) continue;
 
       const targets = [el];
       for (const r of matching) {
@@ -600,7 +682,8 @@
 
       let channels = null;
       for (let i = 0; i < targets.length; i++) channels = maxChannels(channels, diffChannels(before[i], after[i]));
-      const cls = classifyDelta({ hasStateRule, hasAffordance, pageHasJs, channels }, floors);
+      const cls = unmeasuredCss.has(el) || collected.unresolvedStateSelectors ? 'UNMEASURED-CSS' :
+        classifyDelta({ hasStateRule, hasAffordance, pageHasJs, channels }, floors);
       if (cls === 'SKIP') continue;
 
       counts.probed++;
@@ -626,6 +709,9 @@
       } else if (cls === 'UNMEASURED-JS') {
         counts.unmeasuredJs++;
         if (selectors.unmeasuredJs.length < SELECTOR_CAP) selectors.unmeasuredJs.push(path);
+      } else if (cls === 'UNMEASURED-CSS') {
+        counts.unmeasuredCss++;
+        if (selectors.unmeasuredCss.length < SELECTOR_CAP) selectors.unmeasuredCss.push(path);
       }
     }
 
@@ -636,7 +722,11 @@
         counts.unmeasuredJs + ' element(s) carry affordance with zero CSS delta — possibly JS-driven; drive each with a real hover, then awardDetector.measure(sel) (tier 2)'));
     }
 
-    const measured = counts.probed - counts.unmeasuredJs;
+    if (collected.unmeasuredRules.length) {
+      findings.push(finding('UNMEASURED-CSS', selectors.unmeasuredCss.join(', '),
+        'state carrier could not be derived safely; drive these targets and related controls: ' + collected.unmeasuredRules.join('; ')));
+    }
+    const measured = counts.probed - counts.unmeasuredJs - counts.unmeasuredCss;
     if (measured > 0 && (counts.ok === 0 || counts.dead + counts.homeopathic > measured / 2)) {
       findings.push(finding('SUBSTRATE-DEAD', 'page',
         'of ' + measured + ' measured interactive elements: ' + counts.ok + ' OK, ' + counts.dead +
@@ -950,7 +1040,11 @@
     }
   }
 
-  function checkH1Lines(findings) {
+  function checkH1Lines(findings, options) {
+    if (options.h1MaxLines === 3) {
+      findings.push(finding('H1-OVERRIDE', 'document',
+        'canonical ceiling 2; effective ceiling 3 under the explicit client exception: ' + options.h1OverrideReason));
+    }
     for (const h1 of document.querySelectorAll('h1')) {
       if (!isRendered(h1)) continue;
       const range = document.createRange();
@@ -962,9 +1056,9 @@
       for (const r of rects) {
         if (r.top - lastTop > r.height * 0.6) { lines++; lastTop = r.top; }
       }
-      if (lines > 2) {
+      if (lines > options.h1MaxLines) {
         findings.push(finding('H1-LINES', cssPath(h1),
-          'h1 wraps to ' + lines + ' line boxes at ' + window.innerWidth + 'px — 2 is the committed ceiling'));
+          'h1 wraps to ' + lines + ' line boxes at ' + window.innerWidth + 'px — ' + options.h1MaxLines + ' is the effective ceiling (canonical: 2)'));
       }
     }
   }
@@ -1068,8 +1162,8 @@
   }
 
   async function run(options) {
-    options = options || {};
-    const floors = Object.assign({}, FLOORS, options.floors || {});
+    options = runOptions(options);  // validate before any DOM read or mutation
+    const floors = options.floors;
     await document.fonts.ready;
     const findings = [];
     const all = Array.from(document.querySelectorAll('body *')).slice(0, MAX_SCAN);
@@ -1089,7 +1183,7 @@
     checkNavBorder(all, findings);
     checkNavHeroSurface(all, findings);
     checkTokenConform(all, findings);
-    checkH1Lines(findings);
+    checkH1Lines(findings, options);
     checkImages(findings);
     checkOverflow(findings);
     checkTapTargets(findings);
@@ -1099,7 +1193,10 @@
       detector: 'award-design',
       version: 1,
       viewport: { w: window.innerWidth, h: window.innerHeight },
-      options: { face: options.face || null, archetype: options.archetype || null },
+      options,
+      policy: { canonicalFloors: Object.assign({}, FLOORS), canonicalH1MaxLines: 2,
+        floorsOverridden: Object.keys(FLOORS).some((key) => floors[key] !== FLOORS[key]),
+        h1Overridden: options.h1MaxLines === 3 },
       findings,
       substrate: hoverNone ? {
         skipped: 'touch emulation — hover probes void; judge the touch channel by driving taps (tier 2)'
@@ -1109,10 +1206,12 @@
         dead: substrate.counts.dead,
         homeopathic: substrate.counts.homeopathic,
         unmeasuredJs: substrate.counts.unmeasuredJs,
+        unmeasuredCss: substrate.counts.unmeasuredCss,
         capped: substrate.counts.capped,
         selectors: substrate.selectors
       },
-      coverage: { sheets: collected.sheets, opaqueSheets: collected.opaqueSheets, probedRules: collected.rules.length },
+      coverage: { sheets: collected.sheets, opaqueSheets: collected.opaqueSheets, probedRules: collected.rules.length,
+        unmeasuredStateRules: collected.unmeasuredRules.length, unresolvedStateSelectors: collected.unresolvedStateSelectors },
       footer: FOOTER
     };
   }
@@ -1144,33 +1243,57 @@
     return new Promise((resolve) => {
       const peaks = pairs.map(() => null);
       const start = performance.now();
-      let frames = 0;
+      let frames = 0, raf;
+      const finish = () => {
+        cancelAnimationFrame(raf);
+        clearTimeout(timeout);
+        resolve({ peaks, frames });
+      };
+      const timeout = setTimeout(finish, windowMs + 100);
       const tick = () => {
         for (let i = 0; i < pairs.length; i++) {
           peaks[i] = peakChannels(peaks[i], diffChannels(pairs[i].rest, snapshotChannels(pairs[i].el)));
         }
         frames++;
-        if (performance.now() - start < windowMs) requestAnimationFrame(tick);
-        else resolve({ peaks, frames });
+        if (performance.now() - start < windowMs) raf = requestAnimationFrame(tick);
+        else finish();
       };
-      requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     });
   }
 
-  // Tier-2 peak-hold: same two-call protocol as measure, but the second call
-  // samples over a window instead of once — for transients that settle before
-  // a single read lands (a 140 ms press spring reads zero after settle).
-  async function measurePeak(selector, windowMs) {
+  // Arm before the real input. The second call reads the stored sampling
+  // promise, so a transient that settled between tool calls is not lost.
+  async function measurePeak(selector, windowMs, trigger) {
+    if (windowMs !== undefined && (!Number.isFinite(windowMs) || windowMs <= 0)) {
+      return { selector, error: 'windowMs must be a positive finite number' };
+    }
+    trigger = trigger === undefined ? 'pointerdown' : trigger;
+    if (!['pointerdown', 'pointerenter', 'keydown', 'click'].includes(trigger)) {
+      return { selector, error: 'trigger must be pointerdown, pointerenter, keydown or click' };
+    }
     const el = document.querySelector(selector);
     if (!el) return { selector, error: 'no element matches' };
-    window.__adRest = window.__adRest || {};
-    if (!window.__adRest[selector]) {
-      window.__adRest[selector] = snapshotChannels(el);
-      return { selector, rest: true, note: 'rest snapshot stored — drive the transient, then call measurePeak again' };
+    window.__adPeak = window.__adPeak || {};
+    const entry = window.__adPeak[selector];
+    if (!entry) {
+      const armed = { rest: snapshotChannels(el), done: null, event: null, windowMs: windowMs || PEAK_WINDOW_MS };
+      const start = (event) => {
+        armed.event = event.type;
+        armed.done = samplePeak([{ el, rest: armed.rest }], armed.windowMs);
+      };
+      el.addEventListener(trigger, start, { once: true });
+      window.__adPeak[selector] = armed;
+      return { selector, armed: true, trigger, windowMs: armed.windowMs,
+        note: 'rest stored; sampler armed on ' + trigger + ' — drive the real input, then call measurePeak again' };
     }
-    const result = await samplePeak([{ el, rest: window.__adRest[selector] }], windowMs || PEAK_WINDOW_MS);
+    if (!entry.done) return { selector, error: 'armed but no input landed — drive a real hover, press or key, then read again' };
+    const result = await entry.done;
+    delete window.__adPeak[selector];
+    if (!result.frames) return { selector, error: 'no animation frames sampled; repeat in a visible foreground page' };
     const channels = result.peaks[0];
-    return { selector, channels, frames: result.frames, classification: classifyMeasured(channels) };
+    return { selector, channels, frames: result.frames, event: entry.event, windowMs: entry.windowMs,
+      classification: classifyMeasured(channels) };
   }
 
   // Contact protocol: the first call stores rest snapshots for the object and
@@ -1201,6 +1324,7 @@
     if (!entry.done) return { selector, error: 'armed but no press landed on the object — drive a real click/press, then read again' };
     const result = await entry.done;
     delete window.__adContact[selector];
+    if (!result.frames) return { selector, error: 'no animation frames sampled; repeat in a visible foreground page' };
     const object = result.peaks[0];
     const secondaries = entry.secondaries.map((name, i) => ({ selector: name, channels: result.peaks[i + 1] }));
     if (el.matches('canvas') || el.querySelector('canvas')) {

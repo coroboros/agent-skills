@@ -99,6 +99,49 @@ def file_identity(path: Path) -> dict:
             "bytes": len(data)}
 
 
+def read_reconcile_payload(scope: dict) -> dict | None:
+    coverage = scope.get("reconcile_coverage")
+    if coverage is None:
+        return None
+    if not isinstance(coverage, dict) or coverage.get("complete") is not True:
+        raise ValueError("requested reconcile coverage is incomplete; rerun reconciliation")
+    output = coverage.get("output")
+    expected_digest = coverage.get("sha256")
+    expected_count = coverage.get("finding_count")
+    path = verify_file_identity(
+        {"path": output, "sha256": expected_digest}, "reconcile result"
+    )
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict) or payload.get("lens") != "derivation":
+        raise ValueError("reconcile result is not a derivation payload")
+    artifacts = payload.get("artifacts")
+    findings = payload.get("findings")
+    if not isinstance(artifacts, list) or not isinstance(findings, list):
+        raise ValueError("reconcile result has an invalid schema")
+    if isinstance(expected_count, bool) or not isinstance(expected_count, int):
+        raise ValueError("reconcile coverage has an invalid finding count")
+    if len(findings) != expected_count:
+        raise ValueError("reconcile result finding count does not match coverage")
+    for artifact in artifacts:
+        if (
+            not isinstance(artifact, dict)
+            or not isinstance(artifact.get("path"), str)
+            or not isinstance(artifact.get("claim_count"), int)
+            or isinstance(artifact.get("claim_count"), bool)
+            or artifact["claim_count"] < 0
+        ):
+            raise ValueError("reconcile result contains an invalid artifact")
+    for finding in findings:
+        if (
+            not isinstance(finding, dict)
+            or finding.get("classification") != "UNCLASSIFIED"
+            or not isinstance(finding.get("finding"), str)
+            or not finding["finding"].strip()
+        ):
+            raise ValueError("reconcile result contains an invalid finding")
+    return payload
+
+
 def output_identity(path: Path) -> dict:
     identity = file_identity(path)
     identity["finding_count"] = sum(

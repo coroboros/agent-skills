@@ -13,14 +13,14 @@
       "id": 2,
       "name": "cli-required-file-upload",
       "prompt": "Upload screenshot.png from my desktop to the Notion page about Q4 mockups.",
-      "expected_output": "Skill triggers, recognises file upload as one of the five CLI-required cases (the MCP has no upload tool), and routes to `ntn files create`. If `ntn` is missing, prints the install URL (https://developers.notion.com/cli/get-started/installation) and the auth URL (https://developers.notion.com/cli/get-started/authentication), then stops — never auto-installs on the user's behalf.",
+      "expected_output": "Inspects the active Notion connector for upload support. Uses an available supported MCP operation or ntn files create when that capability is missing. If the applicable CLI is absent, provides the official installation and authentication URLs and exact next step without auto-installing or exposing credentials.",
       "files": []
     },
     {
       "id": 3,
       "name": "cli-required-headless-ci",
       "prompt": "I need a daily Notion sync running from my GitHub Actions workflow — no interactive Claude session available there.",
-      "expected_output": "Skill routes to the `ntn` CLI rather than the MCP — headless / CI is one of the five CLI-required cases because the MCP requires an interactive Claude session. Recommends `NOTION_API_TOKEN=…` (token in `.envrc` gitignored, `chmod 600`, never committed) plus `--json` and `--yes` flags for non-interactive output and confirmations. Does not echo the token anywhere.",
+      "expected_output": "Uses the supported ntn CLI flow for the requested GitHub Actions script, with secrets stored in the CI secret store and supported non-interactive flags verified from CLI help. Does not claim MCP requires an interactive Claude session or put credentials in tracked files. No service activation or deployment beyond the request.",
       "files": []
     },
     {
@@ -34,7 +34,14 @@
       "id": 5,
       "name": "batch-rows-over-loop",
       "prompt": "Add these 80 task rows from my CSV to the Sprint database in Notion.",
-      "expected_output": "Skill runs the pre-flight (`notion-fetch`es the Sprint data source to retrieve the current SQLite-style schema, including case-sensitive property names and any expanded keys like `date:Due:start` or `__YES__` / `__NO__` for checkboxes), then issues a single `notion-create-pages` batch call (gotcha #3 — up to 100 rows per call), not a per-row loop. Maps the CSV columns to the schema explicitly rather than guessing.",
+      "expected_output": "Fetches the Sprint data-source schema, maps all CSV columns without guessing and checks the active create-pages batch limit. Uses batching when the tools and user's authorization/readback constraints permit it; reports and verifies the actual resulting rows.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "codex-mcp-capability-routing",
+      "prompt": "I am using Codex with notion-fetch available. Read the current Engineering page and summarize its open decisions.",
+      "expected_output": "Uses the available Notion MCP in Codex, fetches the requested page and summarizes it without forcing ntn, requiring Claude or writing anything.",
       "files": []
     }
   ]

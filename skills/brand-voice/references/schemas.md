@@ -46,6 +46,8 @@ Stable contracts. Other skills consume these outputs; changes here are breaking 
 
 `source`, `source_path`, and `parent_errors` are optional on every error/warning. `chain` and `merged_stats` are top-level optionals — present only when `voice.extends` resolved successfully. Order in `chain` is root-first.
 
+`voice_lint.py <candidate> --target-path <destination>` validates candidate content at its intended final identity without writing it. Relative parents and cycles use the destination path; ancestors are read from disk. Extract and update use this mode before replacing a canonical file.
+
 ### Verdict semantics
 
 - **GREEN** — zero errors, zero warnings. Ship it.
@@ -89,13 +91,15 @@ Stable contracts. Other skills consume these outputs; changes here are breaking 
 
 ## `extract_rules.py` output
 
+`--resolved-json` emits the complete merged rule mapping for both LLM reading and downstream mechanical validation. It uses the existing inheritance resolver, removes the resolved `voice.extends` directive, and fails on an unresolved chain. It cannot combine with `--no-resolve-extends`, `--legacy` or `--explain-json`; inherited stdin requires a file path for relative parents. This mapping is distinct from the provenance-oriented `--explain-json` format.
+
 Plain text, line-oriented, designed for `cat | grep | head` pipelines and for inclusion in a downstream LLM prompt without JSON parsing.
 
 ### CLI flags
 
 | Flag | Default | Effect |
 |---|---|---|
-| `--full` | on | Emit the full output (legacy fields + `core_attributes`, `contexts`, `source_urls`). Required for `humanize-en`'s `-f` parity. |
+| `--full` | on | Emit the full human-readable output (legacy fields + `core_attributes`, `contexts`, `source_urls`). Use `--resolved-json` for humanize-en's shared model/mechanical rule input. |
 | `--legacy` | off | Emit the v1 minimal output. **Byte-identical** to the pre-extends shape — for any external consumer pinned to it. Mutually exclusive with `--full`. |
 | `--resolve-extends` | on (when `voice.extends` is set) | Walk the chain and emit merged rules. |
 | `--no-resolve-extends` | off | Skip chain resolution; emit child-only rules. |

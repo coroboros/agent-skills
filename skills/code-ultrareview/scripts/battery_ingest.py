@@ -3,7 +3,7 @@
 
 Reads raw outputs from the deterministic tool battery (`run_battery.sh`) and
 emits canonical findings as JSONL. One parser per tool. Every finding carries
-`confidence: 100` — tool findings are deterministic and skip the Phase 4
+`confidence: 0` — tool observations require contextual assessment in Phase 4
 validator phase.
 
 Routing matrix (TOOL_TO_AXIS) maps each tool to one of the 8 axes:
@@ -24,7 +24,7 @@ Canonical finding schema:
         "line_start": int,
         "line_end": int,
         "severity": "High" | "Medium" | "Low",
-        "confidence": 100,
+        "confidence": 0,
         "axis": str,
         "source_tool": str,
         "message": str,
@@ -48,7 +48,7 @@ import sys
 from pathlib import Path
 from typing import Callable
 
-CONFIDENCE = 100
+CONFIDENCE = 0
 PERF_RULE_PREFIX = "code-ultrareview-"
 
 # Canonical axis routing per tool.
@@ -870,7 +870,7 @@ def filter_to_changed_files(
     Some analyzers necessarily inspect repository-wide state (for example
     Knip, deadcode, Atlas, and cargo-machete). Their reports are still useful,
     but unchanged-file findings are pre-existing debt and must not be promoted
-    to confidence 100 in a diff review.
+    as task-introduced defects in a diff review.
     """
     repo = repo.resolve()
 

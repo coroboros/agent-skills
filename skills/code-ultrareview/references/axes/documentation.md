@@ -95,7 +95,7 @@ From `scripts/battery_ingest.py:TOOL_TO_AXIS`:
 - `markdownlint-cli2` — Markdown lint findings.
 - `vale` — prose lint when `.vale.ini` is present.
 
-Both carry `confidence: 100` and skip validators. The prose-hygiene LLM judgment layer sits on top of these signals.
+Both carry `confidence: 0` until contextual validation. The prose-hygiene LLM judgment layer sits on top of these signals.
 
 ## Severity calibration
 

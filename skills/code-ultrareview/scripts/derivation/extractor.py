@@ -16,6 +16,8 @@ from ._common import Claim
 
 # AC items inside a section whose heading matches /Acceptance criteria/i.
 AC_SECTION_HEADER = re.compile(r"^(#{1,6})\s+.*acceptance\s+criteria", re.IGNORECASE)
+AC_FIELD_HEADER = re.compile(r"^\*\*Acceptance\s+criteria:\*\*(?:\s.*)?$", re.IGNORECASE)
+FIELD_HEADER = re.compile(r"^\*\*[^*]+:\*\*(?:\s.*)?$")
 AC_ITEM = re.compile(r"^\s*-\s*\[[ xX]\]\s+(.+?)\s*$")
 
 # Goal items inside a "Goals" / "Objectives" section.
@@ -45,61 +47,68 @@ def extract_claims(markdown: str) -> list:
     lines = markdown.splitlines()
     state: str | None = None
     state_depth: int = 0
+    active_claim: Claim | None = None
+    item_indent = 0
 
     for idx, line in enumerate(lines, start=1):
+        if AC_FIELD_HEADER.match(line):
+            state = "ac"
+            state_depth = 0
+            active_claim = None
+            continue
         ac_match = AC_SECTION_HEADER.match(line)
         if ac_match:
             state = "ac"
             state_depth = len(ac_match.group(1))
+            active_claim = None
             continue
         goal_match = GOAL_SECTION_HEADER.match(line)
         if goal_match:
             state = "goal"
             state_depth = len(goal_match.group(1))
+            active_claim = None
             continue
         decision_match = DECISION_SECTION_HEADER.match(line)
         if decision_match:
             state = "decision"
             state_depth = len(decision_match.group(1))
+            active_claim = None
             continue
         task_match = TASK_SECTION_HEADER.match(line)
         if task_match:
             state = "task"
             state_depth = 0
+            active_claim = None
             continue
 
         # Sibling/parent heading closes the section.
         new_section = re.match(r"^(#{1,6})\s+", line)
         if new_section:
+            active_claim = None
             new_depth = len(new_section.group(1))
-            if state is not None and new_depth <= state_depth:
+            if state is not None and (state_depth == 0 or new_depth <= state_depth):
                 state = None
 
-        # `**Bold:**` standalone closes the Tasks-style section.
-        if state == "task" and re.match(r"^\*\*[\w\d ]+:\*\*\s*$", line):
-            if not TASK_SECTION_HEADER.match(line):
-                state = None
+        # Canonical Forge fields end at the next field, including inline notes.
+        if state_depth == 0 and FIELD_HEADER.match(line):
+            state = None
+            active_claim = None
 
-        if state == "ac":
-            m = AC_ITEM.match(line)
-            if m:
-                claims.append(Claim(kind="ac", text=m.group(1).strip(), source_line=idx))
-        elif state == "task":
-            m = TASK_ITEM.match(line)
-            if m:
-                claims.append(Claim(kind="task", text=m.group(1).strip(), source_line=idx))
-        elif state == "goal":
-            m = GOAL_ITEM.match(line)
-            if m:
-                text = m.group(1).strip()
-                if text:
-                    claims.append(Claim(kind="goal", text=text, source_line=idx))
-        elif state == "decision":
-            m = DECISION_ITEM.match(line)
-            if m:
-                text = m.group(1).strip()
-                if text:
-                    claims.append(Claim(kind="decision", text=text, source_line=idx))
+        pattern = {"ac": AC_ITEM, "task": TASK_ITEM,
+                   "goal": GOAL_ITEM, "decision": DECISION_ITEM}.get(state)
+        match = pattern.match(line) if pattern else None
+        indent = len(line) - len(line.lstrip())
+        if match:
+            active_claim = Claim(kind=state, text=match.group(1).strip(), source_line=idx)
+            claims.append(active_claim)
+            item_indent = indent
+        elif line.strip():
+            if active_claim is not None and indent > item_indent:
+                # Normal Markdown list continuations often carry the When/Then
+                # outcome; dropping them loses the actual acceptance condition.
+                active_claim.text += "\n" + line.strip()
+            else:
+                active_claim = None
 
     return claims
 

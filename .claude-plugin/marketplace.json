@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "AI agent skills for Claude Code and compatible agents — workflow, coding, design, Claude Code meta, media, productivity, and writing",
-    "version": "6.0.1"
+    "version": "6.1.0"
   },
   "plugins": [
     {
@@ -23,7 +23,7 @@
     },
     {
       "name": "coding-skills",
-      "description": "Coding workflow — scaffold projects and code-ultrareview (eight-axis judgment review with Haiku validators and JSONL output)",
+      "description": "Project scaffolding and eight-axis code review with contextual validation and JSONL output",
       "source": "./",
       "strict": false,
       "skills": [

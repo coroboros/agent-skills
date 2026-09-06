@@ -26,6 +26,7 @@ import argparse
 import hashlib
 import math
 import os
+import shlex
 import sys
 from pathlib import Path
 
@@ -83,12 +84,12 @@ def draw_challengers(scope, key, archetype):
 
 
 def repro_command(count, key, scope, archetype, reroll):
-    parts = [f"python3 {SCRIPT_REL} {count} --from {key} --scope {scope}"]
+    parts = ['python3', SCRIPT_REL, str(count), '--from', key, '--scope', scope]
     if archetype:
-        parts.append(f"--archetype {archetype}")
+        parts.extend(['--archetype', archetype])
     if reroll:
-        parts.append(f"--reroll {reroll}")
-    return " ".join(parts)
+        parts.extend(['--reroll', str(reroll)])
+    return ' '.join(shlex.quote(part) for part in parts)
 
 
 def archetype_block(archetype):

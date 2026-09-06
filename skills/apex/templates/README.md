@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains template files used to initialize APEX workflow outputs when save mode (`-s`) is enabled. This template system significantly reduces token usage by moving repetitive content out of step files.
+This directory contains template files used to initialize APEX workflow outputs when save mode (`-s`) is enabled. The templates keep saved state consistent across steps.
 
 ## Template Files
 
@@ -88,60 +88,6 @@ bash scripts/update-progress.sh "01-add-auth" "02" "plan" "in_progress"
 **Status Values:**
 - `in_progress` → `⏳ In Progress`
 - `complete` → `✓ Complete`
-
-## Token Savings
-
-### Before Optimization
-
-Each step file contained full template content inline:
-
-```markdown
-### 1. Initialize Save Output (if save_mode)
-
-**If `{save_mode}` = true:**
-
-Create `{output_dir}/01-analyze.md`:
-```markdown
-# Step 01: Analyze
-
-**Task:** {task_description}
-**Started:** {ISO timestamp}
-
----
-
-## Context Discovery
-```
-
-Update `00-context.md` progress:
-```markdown
-| 01-analyze | ⏳ In Progress | {timestamp} |
-```
-```
-
-**Token cost per step:** ~200 tokens × 5 steps = ~1,000 tokens
-
-### After Optimization
-
-Step files now reference templates and scripts:
-
-```markdown
-### 1. Initialize Save Output (if save_mode)
-
-**If `{save_mode}` = true:**
-
-The file `{output_dir}/01-analyze.md` has already been created by the setup script.
-
-Update progress (`$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere):
-```bash
-bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "01" "analyze" "in_progress"
-```
-
-Append your findings to `01-analyze.md` as you work.
-```
-
-**Token cost per step:** ~50 tokens × 5 steps = ~250 tokens
-
-**Total savings:** ~750 tokens per workflow execution (75% reduction)
 
 ## How It Works
 

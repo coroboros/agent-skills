@@ -231,6 +231,18 @@ class TestShimmedWrapper(unittest.TestCase):
         self.assertIn("RESULT: saved=false", r.stdout)
         self.assertFalse((self.cwd / ".agents").exists())
 
+    def test_save_collision_preserves_existing_output(self):
+        source = self._write_input("existing.pdf")
+        first = self._run("-s", str(source))
+        self.assertEqual(first.returncode, 0, first.stderr)
+        path = Path(next(line.removeprefix("RESULT: path=") for line in
+                         first.stdout.splitlines() if line.startswith("RESULT: path=")))
+        path.write_text("valuable prior output")
+        second = self._run("-s", str(source))
+        self.assertEqual(second.returncode, 2)
+        self.assertIn("output already exists", second.stderr)
+        self.assertEqual(path.read_text(), "valuable prior output")
+
     def test_lowercase_s_overrides_uppercase_S(self):
         """Symmetric — `-S -s` ends with SAVE=1."""
         f = self._write_input("doc.txt")

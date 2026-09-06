@@ -137,12 +137,8 @@ class TestThresholdSsot(unittest.TestCase):
 class TestFilterSubThreshold(unittest.TestCase):
 
     def test_confidence_100_excluded(self):
-        """Spec AC: Validators NEVER run on confidence-100 tool findings."""
-        out = run_validators.filter_sub_threshold([
-            {"confidence": 100, "source_tool": "semgrep"},
-            {"confidence": 100, "source_tool": "knip"},
-        ])
-        self.assertEqual(out, [])
+        findings = [{"confidence": 100, "source_tool": "semgrep"}, {"confidence": 100, "source_tool": "knip"}]
+        self.assertEqual(run_validators.filter_sub_threshold(findings), findings)
 
     def test_confidence_0_included(self):
         """Zero is a valid uncertain score and must receive validation."""
@@ -150,16 +146,12 @@ class TestFilterSubThreshold(unittest.TestCase):
         self.assertEqual(out, [{"confidence": 0}])
 
     def test_confidence_at_threshold_excluded(self):
-        """80 is already verified; no validator pass needed."""
-        out = run_validators.filter_sub_threshold([{"confidence": 80}])
-        self.assertEqual(out, [])
+        findings = [{"confidence": 80}]
+        self.assertEqual(run_validators.filter_sub_threshold(findings), findings)
 
     def test_confidence_above_threshold_excluded(self):
-        out = run_validators.filter_sub_threshold([
-            {"confidence": 85},
-            {"confidence": 95},
-        ])
-        self.assertEqual(out, [])
+        findings = [{"confidence": 85}, {"confidence": 95}]
+        self.assertEqual(run_validators.filter_sub_threshold(findings), findings)
 
     def test_sub_80_above_zero_included(self):
         findings = [
@@ -181,7 +173,7 @@ class TestFilterSubThreshold(unittest.TestCase):
         ]
         out = run_validators.filter_sub_threshold(findings)
         ids = {f["id"] for f in out}
-        self.assertEqual(ids, {"zero", "keep", "keep2"})
+        self.assertEqual(ids, {"tool", "zero", "keep", "verified", "keep2"})
 
 
 # ---------------------------------------------------------------------------
@@ -466,8 +458,8 @@ class TestBuildValidatorPrompt(unittest.TestCase):
 
     def test_cites_false_positive_taxonomy(self):
         prompt = self._build()
-        self.assertIn("false positives", prompt)
-        self.assertIn("documented taxonomy", prompt)
+        self.assertIn("Quoted upstream exclusions", prompt)
+        self.assertIn("do not override local coverage", prompt)
 
     def test_cites_instruction_re_check_requirement(self):
         prompt = self._build()
@@ -602,11 +594,11 @@ class TestPrepare(unittest.TestCase):
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
             # Every sub-80 finding, including confidence zero, is bundled.
-            self.assertEqual(result["count"], 3)
-            self.assertEqual(len(result["bundles"]), 3)
+            self.assertEqual(result["count"], 5)
+            self.assertEqual(len(result["bundles"]), 5)
 
             zero_bundle = json.loads(
-                Path(result["bundles"][1]["input_path"]).read_text(
+                Path(result["bundles"][2]["input_path"]).read_text(
                     encoding="utf-8"
                 )
             )
@@ -651,12 +643,12 @@ class TestPrepare(unittest.TestCase):
                 diff_text="", output_dir=output_dir,
                 skill_dir=SKILL_DIR, repo_dir=Path(td),
             )
-            self.assertEqual(result["count"], 1)
-            # The single bundle's finding must be the sub-80 one, not the tool.
+            self.assertEqual(result["count"], 2)
+            # Tool observations must receive contextual validation too.
             bundle_path = Path(result["bundles"][0]["input_path"])
             bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-            self.assertEqual(bundle["finding"]["location"], "src/auth.ts:42")
-            self.assertNotEqual(bundle["finding"].get("source_tool"), "semgrep")
+            self.assertEqual(bundle["finding"]["location"], "src/q.py:22")
+            self.assertEqual(bundle["finding"].get("source_tool"), "semgrep")
 
 
 # ---------------------------------------------------------------------------
@@ -1007,7 +999,8 @@ class TestCliIngest(unittest.TestCase):
             results_path.write_text(
                 "\n".join(json.dumps(r) for r in [
                     {"run_id": run_id, "index": 0, "score": 90, "reason": "promote"},
-                    {"run_id": run_id, "index": 1, "score": 40, "reason": "demote"},
+                    {"run_id": run_id, "index": 1, "score": 90, "reason": "promote"},
+                    {"run_id": run_id, "index": 2, "score": 40, "reason": "demote"},
                 ]) + "\n",
                 encoding="utf-8",
             )
@@ -1022,7 +1015,7 @@ class TestCliIngest(unittest.TestCase):
                     "finding_count": len(findings),
                 },
                 "validator_coverage": {
-                    "complete": False, "expected": 2, "completed": 0,
+                    "complete": False, "expected": 3, "completed": 0,
                     "run_id": run_id,
                     "input_hashes": {
                         "diff": _identity(diff_path),
@@ -1052,7 +1045,7 @@ class TestCliIngest(unittest.TestCase):
             self.assertEqual(outcomes, ["promoted", "demoted"])
             scope = json.loads(scope_path.read_text(encoding="utf-8"))
             self.assertTrue(scope["coverage_complete"])
-            self.assertEqual(scope["validator_coverage"]["completed"], 2)
+            self.assertEqual(scope["validator_coverage"]["completed"], 3)
 
     def test_failed_rerun_invalidates_stale_validator_state_and_output(self):
         with tempfile.TemporaryDirectory() as td:

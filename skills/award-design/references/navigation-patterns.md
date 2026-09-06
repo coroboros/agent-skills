@@ -2,7 +2,7 @@
 
 The canonical implementation behind `award-imperatives.md` #2. The imperative states the *rule* — a real nav, quiet and persistent by default, direction-reactive only where content density earns it, or a full-screen overlay that is itself an editorial moment. This file is the *proven pattern* for the scroll-aware header and for the surface machine both registers share, so the build reproduces award-grade behavior instead of re-deriving it (and re-shipping a hero-anchor list that scrolls away — the tell this closes).
 
-Load when the design_plan commits a scroll-aware header. A full-screen overlay menu is the alternative register (see the archetype table at the bottom); the two are not mixed on one build.
+Load when the design_plan commits a scroll-aware header or overlay menu. An overlay can compose with a header carrying its trigger; their behavior follows the selected archetype register below.
 
 ## The one idea: two orthogonal axes, never conflated
 

@@ -1,7 +1,8 @@
 ---
 name: scaffold
-description: 'Bootstrap a new web project on a strictly opinionated Cloudflare Workers stack — Next.js 16 or Astro 6, TypeScript strict, pnpm, Biome, Tailwind. Use whenever the user asks to start, bootstrap, initialize, or scaffold a site/app in an empty or new directory. No fallbacks: skip for existing projects with package.json or framework config, non-Cloudflare deployments, Vercel/Netlify, ESLint/Prettier, or stack substitutions.'
+description: 'Create a new Next.js or Astro project on the bundled Cloudflare Workers stack with pnpm, Biome and Tailwind. Use for an empty target directory; skip existing applications and requests for a different stack.'
 license: MIT
+compatibility: "Requires bash, jq, pnpm and a Node.js version accepted by the bundled preflight. Creates an empty-target Cloudflare project and installs its requested dependencies; provider activation and deployment require separate applicable authorization."
 metadata:
   author: coroboros
 ---
@@ -56,7 +57,7 @@ Writes opinionated configs (`biome.json`, `.worktreeinclude`, canonical `AGENTS.
 - Use pnpm.
 - Treat `target=occupied` as a hard stop; this skill creates new projects only.
 - Preserve framework-generated `README.md`; leave project-specific documentation and Git initialization to the user.
-- For project-level decisions the scaffold deliberately does not make (i18n, dual auth, search, rich text, OG, MT, theme persistence, cache invalidation, admin uploads, CRM sync), read `"$SKILL_DIR"/references/decisions.md` and surface the relevant ones to the user after the summary report.
+- Read `"$SKILL_DIR"/references/decisions.md` only when the brief requires an application decision beyond scaffolding. Record established choices; ask only for a material unresolved decision. Do not add a mandatory questionnaire after a completed scaffold.
 
 ### astro-cloudflare specifics
 

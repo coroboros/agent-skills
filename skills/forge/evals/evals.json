@@ -1,12 +1,12 @@
 {
   "skill_name": "forge",
-  "description": "Behavioural evaluation set for the forge skill. Cases pin the four-phase Hunt/Judge/Decide/Forge flow, the Decision-default routing with the six Spec-promotion conditions, the three-tier Decide model, the always-deep research floor with its automatic premortem-gap second round, the adversarial panel + bounded convergence, the kill-criteria and research-findings sections, the pre-save audit + validator gate pair, the revision pause, and the /apex bridge.",
+  "description": "Decision and spec routing, proportional evidence gathering, contextual critique, authorization inheritance, and schema validation.",
   "evals": [
     {
       "id": 1,
       "name": "build-verb-promotes-to-spec-shape",
       "prompt": "/forge add user authentication with OAuth and email/password",
-      "expected_output": "The `add` verb in the idea fires the Spec promotion rule. Output is a `# Spec:` artifact with a Decision header (chosen approach + rationale, runner-up + what would flip it, Surfaced forks for any load-bearing call, Escalated forks for user-owned ones), an Assumption ledger tagging each load-bearing assumption verified fact / assumption / inherited convention, then Overview, Goals, Non-goals, Background, 3-7 ### WS-N workstreams each with Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, Acceptance criteria, plus Execution order.",
+      "expected_output": "The `add` verb in the idea fires the Spec promotion rule. Output is a `# Spec:` artifact with a Decision header (chosen approach + rationale, runner-up + what would flip it, Surfaced forks for any load-bearing call, Escalated forks for user-owned ones), an Assumption ledger tagging each load-bearing assumption verified fact / assumption / inherited convention, then Overview, Goals, Non-goals, Background, one or more ### WS-N workstreams each with Priority (P0/P1/P2), Complexity (S/M/L/XL), Description, Tasks, Acceptance criteria, plus Execution order.",
       "files": []
     },
     {
@@ -27,14 +27,14 @@
       "id": 4,
       "name": "diverges-before-evaluating",
       "prompt": "/forge should we move our background jobs off Cloudflare Queues",
-      "expected_output": "Phase 2 (Judge) produces at least 3 approaches that differ in mechanism (not three variants of one), states why each is structurally distinct, and includes one option that removes or stops something and one that inverts the obvious default. No scoring or 'recommended' label is applied during divergence — evaluation is deferred to the stress-test.",
+      "expected_output": "Phase 2 (Judge) identifies viable approaches with distinct mechanisms and states which constraints each serves. Include keeping the current system when it remains viable. Compare the actual choices without inventing alternatives to satisfy a minimum count.",
       "files": []
     },
     {
       "id": 5,
       "name": "stress-test-then-adversarial-panel-and-convergence",
       "prompt": "/forge should we adopt a Turborepo monorepo for our 4 services",
-      "expected_output": "The stress-test runs a premortem written in the past tense (assume the approach has already failed; list every plausible cause) and steelmans the runner-up — the strongest honest case for the second-best approach plus the specific condition under which it would win. Then the Adversarial panel + convergence step launches 3-5 `general-purpose` critics in one parallel message, each a clean context (leader summary + runner-up summary + premortem failures only — no deliberation history) holding ONE distinct lens (overengineering, assumption audit, do-nothing, runner-up's hidden win, premortem gaps). The orchestrator merges the findings, dedups by target, and scores each rebuttal 1-5 on the Concession Threshold; surviving findings get one fresh skeptic each in a convergence round bounded to <=2 rounds. Each finding is folded into the Decision, refuted in writing at >=4, or filed in Risks / Open questions — never silently dropped. The methodology routes to references/adversarial-panel.md.",
+      "expected_output": "Stress-test against the original brief, constraints, and evidence. Select relevant independent critics for material risks; zero findings is valid. Resolve each finding with correction, counterevidence, or an explicit unresolved risk. An author score cannot clear a dispute.",
       "files": []
     },
     {
@@ -69,7 +69,7 @@
       "id": 10,
       "name": "revision-pause-after-spec-save",
       "prompt": "/forge -s add search functionality to the docs site",
-      "expected_output": "After writing the Spec, walking the pre-save audit, saving to disk, and running the schema validator, the skill presents a one-paragraph summary and asks: 'Spec is ready. Want to revise anything before /apex implements WS-1?' Then it WAITS. Revisions are applied inline, re-saved, re-audited, re-validated. Only after the user approves (or stays silent) does the `/apex -f <output_file> implement WS-1` bridge appear. The skill implements no code. The pause is skipped only under -a.",
+      "expected_output": "Save and validate the spec. Pause only for a requested planning checkpoint or missing implementation authorization. Silence is never approval. Continue an existing build mandate without asking again.",
       "files": []
     },
     {
@@ -83,7 +83,7 @@
       "id": 12,
       "name": "auto-mode-decides-and-emits-without-pausing",
       "prompt": "/forge -a -s build an internal documentation site for the engineering team",
-      "expected_output": "Under -a, the skill skips Q&A in Hunt (no clarify questions) and skips the Revision pause in Phase 4 (the user opted into commit-and-emit). It makes reasonable assumptions on open forks and records them in the Assumption ledger, surfaces load-bearing calls in the Decision header, escalates only what is genuinely user-owned, and proceeds to a complete Spec artifact with the apex bridge. No human-in-the-loop pause is shown.",
+      "expected_output": "Under auto mode resolve reversible details within existing scope, record material assumptions, and finish the artifact. User-owned decisions or missing authorization remain pending while independent work continues.",
       "files": []
     },
     {
@@ -97,7 +97,7 @@
       "id": 14,
       "name": "too-many-workstreams-suggests-split",
       "prompt": "/forge rebuild the entire admin dashboard: auth, RBAC, billing, analytics, audit log, settings, notifications, and a public API",
-      "expected_output": "When the work decomposes into more than 7 workstreams, the skill recommends splitting it into multiple plans rather than producing one bloated artifact. It does not silently emit 12 workstreams.",
+      "expected_output": "Decompose the accepted scope into natural, dependency-aware workstreams. Split an oversized workstream or plan when that improves independent execution and verification, preserving the full requested outcome. A count over seven does not itself require splitting or dropping work.",
       "files": []
     },
     {
@@ -118,28 +118,28 @@
       "id": 17,
       "name": "adversarial-panel-catches-overengineering",
       "prompt": "/forge -s build a job queue with priorities, dead-letter queues, exponential backoff, idempotency tokens, distributed tracing, and circuit breakers for our weekly cron",
-      "expected_output": "Phase 2's Adversarial panel runs the overengineering/simplicity lens as one of its 3-5 clean-context critics (leader + runner-up + premortem only — no deliberation history), asking where the overengineering is and whether the simplest answer is to NOT build this. For a weekly cron with no scale yet, that lens surfaces 'this is a setTimeout problem masquerading as Kafka' or equivalent. The convergence round confirms the finding (a fresh skeptic fails to kill it); the leader flips toward a simpler approach, or the finding is refuted in writing at >=4, or it is filed as a Risk / Open question. The finding is not silently dropped.",
+      "expected_output": "Use the simplicity lens to test whether the proposed infrastructure serves the actual scale and constraints. Ground findings in evidence; no minimum critic count or author score determines the result.",
       "files": []
     },
     {
       "id": 18,
       "name": "economy-mode-skips-subagents-including-panel",
       "prompt": "/forge -e -s add search functionality",
-      "expected_output": "Under -e (economy mode), the skill skips the Hunt research floor (Explore + general-purpose) AND skips the Phase 2 Adversarial panel + convergence — economy_mode is the only escape hatch from always-deep, and the user opted out of token / latency cost. Hunt uses direct tools (Read, Glob, Grep) instead. The artifact still emits the full Spec with Decision header, Assumption ledger (tagged with the panel skip as an `[assumption]` line), and workstreams. The downgrade is acknowledged, not silent.",
+      "expected_output": "Economy mode uses direct research and a separate self-check. Preserve necessary evidence and accepted outcomes; disclose that the check shares the author's context.",
       "files": []
     },
     {
       "id": 19,
       "name": "research-floor-forces-min-two-agents",
       "prompt": "/forge should we name the cache key by user id or by session id",
-      "expected_output": "The question looks settled at first glance, but forge is invoked deliberately, so there is no zero-agent path. Hunt launches at least 1 Explore (how cache keys are derived in this codebase, prior decisions via git log) + 1 general-purpose (keying pitfalls — collisions, invalidation, multi-device session churn) — the research floor. Only -e (economy_mode) would skip it. The call is grounded in what was read, not asserted from framing.",
+      "expected_output": "Research the actual cache-key contract and unresolved failure modes. Delegate only concrete independent questions when that adds value. There is no minimum agent count or mandatory external pass for a question resolved by repository evidence.",
       "files": []
     },
     {
       "id": 20,
       "name": "convergence-bounded-to-two-rounds",
       "prompt": "/forge should we shard the events table by tenant now or defer it",
-      "expected_output": "After the panel, findings that survive the Concession Threshold barrier (rebuttal scored < 4) each get one fresh skeptic in a convergence round that kills the finding (refute in writing) or confirms it (escalate to a flip condition or a risk). The loop stops when findings degrade to nitpicks or after 2 rounds total — forge emits a bounded plan, not an unbounded refute loop. The methodology routes to references/adversarial-panel.md.",
+      "expected_output": "Resolve material disputes through evidence. Request a targeted independent check only when it can resolve a specific remaining question; otherwise disclose uncertainty. No score or forced finding quota establishes truth.",
       "files": []
     },
     {
@@ -160,7 +160,42 @@
       "id": 23,
       "name": "premortem-gap-triggers-auto-second-research-round",
       "prompt": "/forge should we move session storage from cookies to Redis",
-      "expected_output": "When the Phase 2 premortem surfaces a failure mode no Hunt source covered (for example Redis eviction silently logging users out under memory pressure), forge launches one more research agent on that specific failure mode before Decide. The second round is automatic, not optional — the premortem-gap widen rule in references/research-discipline.md. The new finding is folded into the Risks or the Decision, not left as an un-researched premortem bullet.",
+      "expected_output": "When the premortem exposes a consequential unresearched failure mode, follow references/research-discipline.md to investigate that specific gap before deciding. Use a concrete independent research task when useful and available, or direct evidence otherwise. Incorporate the result or explicitly preserve the unresolved uncertainty.",
+      "files": []
+    },
+    {
+      "id": 24,
+      "name": "authorized-build-without-persistent-save",
+      "prompt": "GO implement the accepted redirect correction. Use /forge -S to prepare the small plan first, then finish the change; do not save a persistent plan artifact.",
+      "expected_output": "Write and validate a temporary Spec, then pass its absolute path to /apex -f for the authorized implementation. Keep the temporary file available until consumed. Do not stop at a rerun-with-s note or introduce a new implementation approval; respect an explicit later checkpoint if given.",
+      "files": []
+    },
+    {
+      "id": 25,
+      "name": "convergence-checks-source-against-author-claim",
+      "prompt": "The critic says the plan drops the required retry-idempotency guarantee. The author replies that the guarantee is unnecessary. Review that rebuttal against the original brief, which explicitly requires idempotent retries.",
+      "expected_output": "Use references/subagent-prompts.md to give the convergence skeptic the brief, constraints and relevant source artifacts alongside the finding and rebuttal. Inspect that evidence and confirm the omitted requirement; author confidence cannot remove an accepted criterion. Do not forward unrelated panel findings.",
+      "files": []
+    },
+    {
+      "id": 26,
+      "name": "binary-choice",
+      "prompt": "Use /forge to decide whether to retain the present cache or remove it. Product constraints rule out replacing it, and these are the only two viable options.",
+      "expected_output": "Compare the two viable options against the constraints and record the actual runner-up and tradeoff. Do not fabricate a third architecture to satisfy a numerical minimum.",
+      "files": []
+    },
+    {
+      "id": 27,
+      "name": "economy-evidence-gap",
+      "prompt": "Use /forge -e for this small configuration decision. One vendor behavior remains unverified and no independent agent tool is available.",
+      "expected_output": "Investigate the consequential gap directly using available authoritative evidence. Do not require extra agents or claim a critic was run. If the behavior cannot be verified, preserve the uncertainty and its decision consequence.",
+      "files": []
+    },
+    {
+      "id": 28,
+      "name": "respect-taste-owner",
+      "prompt": "Use /forge to plan the page. I have chosen the existing brand palette. A new illustration style is still undecided and I have not delegated that taste decision.",
+      "expected_output": "Preserve the already chosen palette without reopening approval. Advance independent planning, then present the material illustration choice to the user instead of silently choosing or declaring implementation complete.",
       "files": []
     }
   ]

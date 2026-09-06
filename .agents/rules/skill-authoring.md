@@ -1,124 +1,66 @@
 # Skill Authoring Workflow
 
-Creating, updating, or evaluating a skill in this repo requires the **official Anthropic `skill-creator` skill**. It is the canonical authoring tool, covers the full [best practices guide](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf), and includes the eval/iteration loop we do not reimplement.
+Use the **official Anthropic `skill-creator` skill** when creating, updating, or evaluating a skill in this repository. It owns the authoring and evaluation workflow; the review requirements below are additional **maintainer policy**, not an Anthropic rubric.
 
 ## Source of truth
 
-- Official skill: `github.com/anthropics/skills/skills/skill-creator`
-- Installed path (typical): `~/.agents/skills/skill-creator/`
-- Reference docs: invoke skill `/ask-analyst` if present
+- Official skill: [anthropics/skills](https://github.com/anthropics/skills/tree/main/skills/skill-creator)
+- Typical installation: `~/.agents/skills/skill-creator/`
+- Official [Agent Skills specification](https://agentskills.io/specification) and [Claude Code skills reference](https://code.claude.com/docs/en/skills)
+- Use `/ask-archivist` for the Anthropic documentation mirror. Check each file's source URL and snapshot freshness; a filename alone does not establish which product it describes.
 
-Up-to-date mirrors of the official Anthropic documentation in the monorepo:
+## Authoring and review
 
-- `coroboros/archivist/docs/insights/skills-complete-guide-to-building-skills-for-claude.md` — authoring guide
-- `coroboros/archivist/docs/insights/skills-how-anthropic-uses-skills.md` — skill categories + internal patterns
-- `coroboros/archivist/docs/developer/developer-agents-and-tools-agent-skills-*.md` — API spec + best practices
-- `coroboros/archivist/docs/code/code-skills.md` — Claude Code skill features
+1. Read the existing skill, relevant bundled files, callers, and applicable repository rules. Define the behavior being changed and concrete acceptance checks.
+2. Apply the edit and its conformance changes together, including README and evaluation cases where affected.
+3. Invoke the official `skill-creator` for a fresh review of the final changed behavior before commit. Provide the absolute skill path and changes since the previous pass. Specify a full audit, regression check, fresh-eyes read, or description evaluation. Include these rules: `agentskills-spec.md`, `claude-code-skills.md`, `skill-authoring.md`, `repo-conventions.md`.
+4. Review the findings on their merits. Fix demonstrated in-scope defects, refute false positives with evidence, and report material limitations. A subjective preference or out-of-scope suggestion is not automatically a required edit.
+5. After a correction, review the affected behavior and its interactions again. Reuse unchanged evidence; a new spelling edit does not invalidate an unrelated runtime check.
 
-## When to invoke skill-creator — strict loop
+**Exit criterion:** the final artifact meets the accepted scope, required checks pass, and no demonstrated in-scope defect remains unresolved. A user-accepted limitation must remain visible; do not label it verified or silently defer it.
 
-**Every edit to a `SKILL.md` or any of its bundled files (`references/`, `scripts/`, `templates/`, `assets/`) triggers a fresh `/skill-creator` invocation before commit.** No exceptions, no trivial-change carve-out — if the edit was not worth a review pass, it was not worth making.
+The local review rubric covers eight axes: description and triggering, progressive disclosure, rule clarity, internal consistency, size, spec conformance, pattern coverage, and example quality. GREEN / YELLOW / RED may summarize evidence, but colors do not substitute for findings and do not force cosmetic unanimity. Use fresh context for independent review of consequential changes when the host supports it; disclose the limitation otherwise.
 
-### The loop
+## Frontmatter and layout
 
-1. **Edit** — apply the draft or fix.
-2. **Invoke `/skill-creator`** with four fields, every time:
-   - *Skill path* — absolute path to the folder.
-   - *What changed* — the fixes applied since the previous pass (or *"initial draft"* on first call).
-   - *Specific ask* — one of: full audit / regression check / fresh-eyes read / description optimisation. Pick per the table below.
-   - *Rules to verify against* — `agentskills-spec.md`, `claude-code-skills.md`, `skill-authoring.md`, `repo-conventions.md`.
-3. **Read the verdict** — GREEN / YELLOW / RED on each of the 8 canonical axes (description & triggering, progressive disclosure, rule clarity, internal consistency, size & budget, spec conformance, pattern coverage, example quality), with `file:line` findings and a priority action list.
-4. **Apply every non-GREEN finding** in the current PR. RED and YELLOW both block commit — there is no "follow-up" bucket.
-5. **Restart at step 1** for any further edit, including fix-to-a-fix. Fresh invocation every iteration is how regressions surface.
+- Use canonical fields from [agentskills-spec.md](./agentskills-spec.md), plus documented Claude Code extensions where applicable. Custom fields belong under `metadata`.
+- Set `metadata.author: coroboros`. Omit per-skill versions; history and repository releases own versioning.
+- Declare actual environment requirements in `compatibility` when needed (1–500 characters). Name required tools, host features, and limited fallback behavior. Omit it only when no special environment requirement needs stating. Do not promise universal graceful degradation.
+- Keep metadata values strings. Cite external work in `metadata.sources` as one quoted string, separating multiple references with semicolons:
 
-**Exit criterion.** Commit only when `/skill-creator` returns **GREEN on every axis**. Two-to-three iterations to GREEN is normal.
+  ```yaml
+  metadata:
+    author: coroboros
+    sources: "https://github.com/microsoft/markitdown"
+  ```
 
-The loop exists because single-shot edits routinely leave stale cross-references, self-flagging examples, unreachable branches, and cross-section contradictions that only surface under fresh-eyes review — skipping the invocation costs more in downstream regressions than it saves upfront.
+- Inherit the session model and effort; do not pin either in skill frontmatter.
+- Use plain Markdown headings. Keep the skill entrypoint under 500 lines and approximately 5,000 tokens; move detail into clearly routed supporting files.
+- Embed the declared canonical prose, label-hygiene, execution, and verification blocks. Edit their owning `skill-*-rules.md` files, then run `scripts/sync_writing_rules.py`; independent installs need their own copies.
+- Keep user documentation in the root README, not per-skill READMEs. Do not add `.skill` packages or per-skill install instructions.
 
-### Ask, by situation
+## Repository integration
 
-| Situation | Ask |
-|-----------|-----|
-| New skill from scratch | Full audit on the 8 canonical axes |
-| Adding a feature or pattern | Regression audit of the diff against prior state |
-| Fixing a finding from the previous pass | Regression check — did the fix hold? Any new drift? |
-| Wording polish or de-duplication | Fresh-eyes read end-to-end |
-| Optimising description for triggering | `run_loop.py` description optimisation |
-| Evaluating quantitatively (objective outputs only) | Eval viewer + benchmark pipeline |
+Check the root README table, per-skill details, examples, requirements, and pipeline diagram against the final behavior. Update only affected claims. Verify flag names, output paths, explicit `-f` handoffs, and standalone installation without assumed sibling files.
 
-A vague ask returns vague feedback.
+## Verification
 
-## Post-generation conformance
+Tests of bundled scripts live in `tests/<skill-name>/`; cross-skill invariants live in `tests/_meta/`. Behavioral examples in `skills/<name>/evals/` describe expected skill behavior and do not prove it was executed.
 
-Once the loop returns GREEN, align the skill with this repo before committing:
+- For deterministic behavior changes, add or update a regression test when existing checks cannot distinguish the defect from the fix. Reuse adequate tests for refactors; do not add tests that only mirror implementation.
+- Test thin wrappers' own contracts: arguments, exit codes, output paths, and overwrite guards. Use applicable installed CLIs for integration evidence.
+- For instruction changes, exercise representative prompts and near misses with the official creator's evaluation workflow. Use its viewer and benchmark scripts for measured comparisons; do not build a replacement framework.
+- Record the actual model, host, snapshot, and available tools for behavioral runs. Static checks and same-model councils are not cross-model benchmarks. Compare outcomes and scope, not just prose length.
+- Use the official description optimization loop only with a model and runtime it actually supports. Do not pass another provider's model name to the Claude CLI.
 
-1. **Frontmatter**
-   - Keep only: `name`, `description`, `license`, `compatibility`, `metadata`, `allowed-tools` (from [agentskills-spec](./agentskills-spec.md)), plus Claude Code extensions (from [claude-code-skills](./claude-code-skills.md)) if the skill is Claude Code-scoped.
-   - Any custom fields go under `metadata:`.
-   - Add `metadata.author: coroboros`. Do **not** add `metadata.version` — skills are co-versioned through the repo tags and the `marketplace.json` version. Per-skill versions create drift (every release, only touched skills get bumped, others lag behind — confusing to readers). `git log skills/<name>/` is the authoritative change history.
-   - Declare intended environment via the top-level spec-canonical `compatibility:` field (max 500 chars) — two tiers, enforced by `tests/_meta/test_skill_frontmatter.py`. Portable skills (no Claude-only runtime mechanics in the body — frontmatter extensions are inert on spec-lenient clients) **omit the field** — the spec says most skills do not need it. Harness-coupled skills use exactly: `"Optimized for Claude Code; degrades gracefully on any agent implementing the Agent Skills standard."` — same text across all coupled skills so readers can scan it consistently.
-   - When the skill wraps or adapts external work (a CLI, a published methodology, another skill), cite via `metadata.sources` as a YAML list of URLs or short references. Example:
-     ```yaml
-     metadata:
-       sources:
-         - github.com/microsoft/markitdown
-     ```
-     Skip when the skill is an original internal methodology with no external source.
+Run `python3 -m unittest discover tests/` before reporting done and before commit. Report skips and their reasons, baseline failures, and unavailable external checks. Required failures block a complete verification claim; passing tests do not replace behavioral evidence.
 
-2. **Body**
-   - Plain Markdown headings only. No XML sections (`<objective>`, `<workflow>`, etc.).
-   - Reference supporting files (`steps/`, `references/`, `scripts/`) from SKILL.md with clear guidance on when to read them.
-   - Under 500 lines, under 5,000 tokens.
-   - For prose-emitting skills, embed the canonical writing-rules block per [`skill-prose-rules.md`](./skill-prose-rules.md). For skills whose primary outputs are shipped artifacts (code, commits, PR bodies, review prose), also embed the label-hygiene block per [`skill-label-hygiene-rules.md`](./skill-label-hygiene-rules.md). The same `scripts/sync_writing_rules.py` propagates both; the parity test `tests/_meta/test_skill_writing_rules.py` enforces byte-level conformity for each rule independently.
+## Independent review before a multi-skill PR
 
-3. **File layout**
-   - No `README.md` inside the skill folder. User-facing docs live in the root `README.md` only.
-   - No trailing `.skill` package, no per-skill install instructions.
+For a refactor touching multiple skills, run a fresh read-only review before opening the PR. Use the host's isolated reviewer capability, or explicitly report its absence. Provide the exact diff or snapshot, modified skills, request and corrections, accepted scope, the four canonical rules above, and verification evidence.
 
-4. **Repo integration**
-   - Update the root `README.md` skills table and per-skill details section.
-   - **Audit the README section for staleness** — every touch on a SKILL.md must verify that the README's listed flags, usage examples, workflow steps, and requirements still match. README drift is easy to miss when focus is on the skill itself; it's the cheapest bug to introduce and the easiest to catch at this step.
-   - Update the pipeline diagram if the skill chains with others.
-   - Verify cross-references (flag names, output paths, `-f` contracts) are consistent.
+Ask the reviewer to find contradictions, missed defects, stale README claims, broken standalone references, and unnecessary mechanisms. Resolve substantive findings as above and recheck any resulting edits. Review completion does not authorize commit, push, merge, or publication.
 
-## Testing requirement
+## Avoid duplicated infrastructure
 
-Tests live at the repo root in `tests/<skill-name>/` (placement rule documented in [`repo-conventions.md`](./repo-conventions.md#testing)). The universal `tests/_meta/` suite covers cross-skill invariants (frontmatter conformity, file references, marketplace.json parity, README parity) automatically — every skill is included.
-
-**Per-skill requirement, best effort**:
-
-- **Code-bearing skills** (any folder under `skills/<name>/scripts/` with substantial deterministic logic — parsing, scoring, regex matching, merging, graph operations) — any change to those scripts MUST add or update unit tests in `tests/<skill-name>/` in the same PR. Catches silent regressions when patterns drift, schemas mutate, or exit codes flip.
-- **Thin wrappers** (shell scripts orchestrating an external CLI) — tests should pin the wrapper's own contract: argument parsing, exit code mapping, output schema (`RESULT: key=value` lines), self-overwrite guards. Don't test the wrapped CLI.
-- **Pure-prompt skills** (no `scripts/` folder) — the universal `tests/_meta/` suite covers the floor. Add per-skill structural tests in `tests/<skill-name>/` only when there's a non-obvious invariant worth pinning (reference-file completeness, internal table consistency, escalation contract documented in SKILL.md).
-
-**Run before commit**: `python3 -m unittest discover tests/ -v` — all GREEN required. The `/skill-creator` loop's GREEN exit criterion does not replace this — `skill-creator` reviews the SKILL.md contract; the test suite verifies the implementation. CI re-runs the same suite on every PR via `.github/workflows/ci.yml` — red CI blocks merge.
-
-**When tests legitimately can't be added** (e.g., a doc-only edit), state so in the PR body. The default is "tests added"; "no tests because X" is the exception that needs justification.
-
-## Audit before PR
-
-For any refactor touching more than one skill, run an Explore-agent audit before opening the PR. This catches frontmatter drift, description staleness, and bug regressions before they land.
-
-Brief the agent with:
-
-1. The branch name and the modified skills — point it at `git log main..<branch>` for the commits.
-2. The optimization axes taken (progressive disclosure, description triggers, subagents, bug fixes, etc.).
-3. Axes intentionally NOT taken, with rationale (no subagents, no flag convention, no extraction) — helps the agent avoid false positives.
-4. The four canonical rules to verify against: `agentskills-spec.md`, `claude-code-skills.md`, `skill-authoring.md`, `repo-conventions.md`.
-5. Per-skill checks:
-   - Frontmatter correctness (canonical fields only + Claude Code extensions as applicable, `metadata.author: coroboros`, **no `metadata.version`**, no reserved names)
-   - Description quality (WHAT + WHEN, triggers discoverable, not generic)
-   - `when_to_use` where applicable (keywords, skip conditions, return value)
-   - Workflow correctness (step order, no hardcoded assumptions that break across project configs)
-   - Size budget (<500 lines, <5000 tokens)
-   - Cross-skill consistency (shared sections align across the refactored set)
-   - **Tests** — `python3 -m unittest discover tests/<skill-name>/` GREEN; if scripts changed and no test was added, justified in the PR body
-6. Expected verdict format: `GREEN` / `YELLOW` / `RED` per skill with 2–4 bullet findings (file:line when applicable), plus a one-line overall verdict. Keep the report under ~500 words.
-
-**Merge gate.** GREEN per skill → proceed with the PR. YELLOW → fix in a follow-up step before merge. RED → block the PR and re-work.
-
-## What NOT to do
-
-- Do not build a custom skill-creator wrapper. The official one is comprehensive.
-- Do not copy the skill-creator's `.skill` packaging into this repo — we distribute via git + `npx skills add`.
-- Do not duplicate skill-creator's eval infrastructure. Invoke it directly when needed.
+Use the official creator and its evaluation tools directly. Do not build a custom wrapper, copy its packaging workflow into this git-distributed repository, or add an orchestration layer solely to enforce this policy.

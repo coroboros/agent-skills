@@ -6,7 +6,7 @@ Usage:
     audit_claude_md.py <path>
 
 Checks:
-  - Line count vs the 200-line target (over 200 degrades adherence)
+  - Line count vs the 200-line guideline (a review signal, not a quality verdict)
   - 6 bloat categories (linter-enforced rules, marketing/vision,
     obvious info, verbose explanations, redundant specs, generic
     best practices) — each with a regex catalog
@@ -41,8 +41,6 @@ TARGET_LINES = 200
 
 BLOAT_CATEGORIES = {
     "linter-enforced": [
-        r"\beslint\b", r"\bprettier\b", r"\bbiome\b",
-        r"typescript[- ]strict",
         r"use\s+strict\s+typing",
         r"format\s+code\s+properly",
         r"run\s+(?:npm|pnpm|yarn)\s+(?:lint|format)\s+before\s+commit",
@@ -83,7 +81,10 @@ BLOAT_CATEGORIES = {
     ],
 }
 
-IMPORT_RE = re.compile(r"@([^\s@]+\.md)")
+# Direct, whitespace-free @paths of any extension. A preceding word/path
+# character means an email or embedded token, not an import. Surrounding prose
+# punctuation is not part of the path; unusual filenames need a host check.
+IMPORT_RE = re.compile(r"(?<![\w./@+-])@([^\s@<>\"'`]+)")
 
 
 def mask_protected(text):
@@ -118,9 +119,12 @@ def scan_bloat(lines):
 
 
 def check_imports(text, source_dir):
+    text = mask_protected(text)
     broken = []
     for m in IMPORT_RE.finditer(text):
-        path = m.group(1)
+        path = m.group(1).rstrip(".,;:!?)]}")
+        if not path:
+            continue
         expanded = Path(path).expanduser()
         if not expanded.is_absolute():
             expanded = source_dir / expanded

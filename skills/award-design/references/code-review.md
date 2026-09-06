@@ -2,7 +2,7 @@
 
 A short, deterministic code pass in the review chunk, after the pre-flight boxes and before the R2 review. The build can look pixel-perfect and still carry a finish layer that only shows in the source: raw hex where a token exists, px where the scale says rem, a native control the design step actively asked for. This pass catches that band — mechanically, so it is cheap and repeatable. It enforces two lists: **adoption** of the modern-web baseline (`modern-web-baseline.md` — OKLCH, rem, tokens, factorization) and **rejection** of the tells (`anti-patterns.md` — native controls, `not-allowed`). Best practices to adopt, tells to ban; do not conflate them.
 
-**This gate can override the DESIGN.md.** The design-authoring step can *prescribe* the very tells the build then ships — a native select, a `not-allowed` cursor, a hardcoded color. When a DESIGN.md instruction collides with a rule here, this pass wins and the DESIGN.md line is corrected (`design-md-anatomy.md` forbids those prescriptions at the source). A gate that defers to a wrong spec is not a gate.
+**Resolve conflicts by their owner.** Correctness and accessibility defects require remediation even when prescribed in DESIGN.md. Creative preferences follow the explicit brief and established brand, then the selected archetype, then this gate's generic defaults. A gate may propose a concrete amendment, but cannot silently rewrite a committed design because it prefers another aesthetic. Audit-only reports the amendment without applying it.
 
 Run each check across the shipped CSS/JS/HTML. A hit is fixed or written into the verdict with a brief-tied justification.
 

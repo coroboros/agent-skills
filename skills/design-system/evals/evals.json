@@ -64,6 +64,27 @@
       "prompt": "Run /design-system audit DESIGN.md --strict when only anti-patterns.md is present in the award-design install and exemplars.md is missing.",
       "expected_output": "Stops before presenting any standard or strict audit verdict, names exemplars.md as the missing catalog, and prints `npx skills add coroboros/agent-skills --skill award-design` with the alternatives to repair the install or drop `--strict`. It emits no partial strict result. The same hard stop applies when exemplars.md exists but anti-patterns.md is missing.",
       "files": []
+    },
+    {
+      "id": 9,
+      "name": "explicit-init-does-not-reconfirm",
+      "prompt": "Run /design-system init to create a generic DESIGN.md starter. award-design is installed, but I want the generic starter.",
+      "expected_output": "Execute the selected generic init under its existing-file and validation checks without asking whether to use award-design or whether to continue. Do not create a broader art direction or label unavailable validator output clean.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "shared-brand-scope-stays-authorized",
+      "prompt": "Change the accent token in this repository's DESIGN.md and propagate it here. The brand file is also consumed by two other repositories; leave those repositories alone.",
+      "expected_output": "Update and validate the local token and authorized code consumers. Identify the two other consumers and report their needed change without editing them. No global propagation or renewed permission question for the already authorized local change.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "extension-export-is-json-not-css",
+      "prompt": "Fix a missing --shadow-lifted mirror from DESIGN.md while preserving globals.css. The canonical Tailwind exporter is available and emits {\"theme\":{\"extend\":{\"colors\":{},\"fontFamily\":{},\"fontSize\":{},\"borderRadius\":{},\"spacing\":{}}}}.",
+      "expected_output": "Use the documented YAML-to-CSS mapping to merge the authorized shadow variable into @theme; canonical JSON does not contain extension tokens and is never redirected into globals.css. Audit names/references and inspect values separately. If showing v3 integration, merge exported.theme.extend, not the full outer object.",
+      "files": []
     }
   ]
 }

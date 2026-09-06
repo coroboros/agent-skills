@@ -149,6 +149,24 @@ class TrackValidationTests(unittest.TestCase):
         _, report, _ = run_validator(FIXTURES_DIR / "track-red" / "TRACK.md")
         self.assertIsNotNone(find_check(report, "slider_range"))
 
+    def test_declared_slider_values_cannot_escape_validation(self):
+        base = (FIXTURES_DIR / "track-green" / "TRACK.md").read_text()
+        cases = {"-1": "slider_range", "101": "slider_range", "NaN": "slider_value",
+                 "inf": "slider_value", "loud": "slider_value", "": "slider_value",
+                 "40oops": "slider_value", "9" * 400: "slider_value",
+                 "0": None, "100": None, "42.5": None, "+40": None, "40%": None}
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "TRACK.md"
+            for value, expected in cases.items():
+                with self.subTest(value=value):
+                    target.write_text(base.replace("**Weirdness**: 40", f"**Weirdness**: {value}"))
+                    rc, report, error = run_validator(target)
+                    self.assertEqual(rc, 1 if expected else 0, str(report) + error)
+                    if expected:
+                        self.assertIsNotNone(find_check(report, expected))
+                    else:
+                        self.assertEqual(report["errors"], [])
+
 
 class CopyrightContractTests(unittest.TestCase):
     """Artist-citation patterns are RED. Title-case pairs in Style are YELLOW.

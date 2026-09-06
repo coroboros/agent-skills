@@ -31,6 +31,7 @@ import argparse
 import hashlib
 import math
 import os
+import shlex
 import sys
 
 SCRIPT_REL = "scripts/anchor.py"
@@ -149,7 +150,7 @@ def report(key, brief_class):
     pool_size = len(pool_for(brief_class))
     return "\n".join([
         f"── ANCHOR ── key={key} brief-class={brief_class} pool={pool_size} → {seed['id']}",
-        f"reproduce: python3 {SCRIPT_REL} --from {key} --brief-class {brief_class}",
+        f"reproduce: python3 {SCRIPT_REL} --from {shlex.quote(key)} --brief-class {brief_class}",
         "",
         f"material      {seed['material']}",
         f"family        {seed['palette_family']}",

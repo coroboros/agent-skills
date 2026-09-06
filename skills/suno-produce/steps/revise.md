@@ -12,20 +12,42 @@ Archive the current `TRACK.md` and emit a refined one based on listener feedback
 ### 1. Resolve and read
 
 - Resolve `<path>` to its `TRACK.md`. Error out if missing — suggest `create` instead.
+- Revise a given `TRACK.md` one invocation at a time; independent tracks may be
+  revised in parallel.
 - Read the existing TRACK.md, the iteration log, and any sibling `ALBUM.md` and bound `ARTIST.md` (if `-f` is passed or the parent project has one).
 
 ### 2. Determine next version number
 
-Count files matching `versions/v*.md` in the project folder. Next version is `v{N+1}` where `N` is the count. First revision archives the initial as `v1`.
+Read existing names matching `v<number>.md` in `versions/`. Next version is `v{N+1}` where `N` is the greatest numeric suffix, or zero when none exists. Gaps and unrelated filenames do not reuse a prior number. First revision archives the initial as `v1`.
 
 ### 3. Archive the current take
 
-Copy current `TRACK.md` to `versions/v{N+1}.md` verbatim. Use `cp`, not `mv` — the new TRACK.md will overwrite in step 8, and the archive must exist before that happens.
+Copy current `TRACK.md` to `versions/v{N+1}.md` verbatim with exclusive creation. The canonical take stays in place until step 8. Use the standard library's `xb` mode so an existing archive can never be overwritten, including a destination created concurrently:
 
 ```bash
-mkdir -p {path}/versions
-cp {path}/TRACK.md {path}/versions/v{N+1}.md
+python3 - "{path}" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+track_dir = Path(sys.argv[1])
+content = (track_dir / "TRACK.md").read_bytes()
+versions = track_dir / "versions"
+versions.mkdir(exist_ok=True)
+numbers = [int(match.group(1)) for entry in versions.iterdir()
+           if (match := re.fullmatch(r"v([0-9]+)\.md", entry.name))]
+archive = versions / f"v{max(numbers, default=0) + 1}.md"
+with archive.open("xb") as output:
+    try:
+        output.write(content)
+    except OSError:
+        archive.unlink()
+        raise
+print(archive)
+PY
 ```
+
+Keep the emitted archive path for the revision report. Any archive error stops the revision before the canonical file changes; a collision is reported, never retried by overwriting it.
 
 ### 4. Parse feedback into change axes
 
@@ -71,19 +93,33 @@ Example:
 
 ### 7. Validate the candidate
 
-Write the revised candidate to a temp folder first, keeping the canonical filename — the validator dispatches on it (e.g. `/tmp/suno-revise/TRACK.md`). Update frontmatter `revised: YYYY-MM-DD` in the candidate; leave `created:` untouched.
+Allocate a unique temp folder for this invocation so another track's revision
+cannot replace the candidate between validation and installation:
+
+```bash
+python3 -c 'import tempfile; print(tempfile.mkdtemp(prefix="suno-revise-"))'
+```
+
+Keep the printed absolute path as `$REVISION_DIR` (substitute that literal path
+when shell state does not persist). Write the revised candidate to
+`$REVISION_DIR/TRACK.md`, keeping the canonical filename because the validator
+dispatches on it. Update frontmatter `revised: YYYY-MM-DD` in the candidate; leave
+`created:` untouched.
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ```bash
-python3 "$SKILL_DIR"/scripts/validate.py /tmp/suno-revise/TRACK.md
+python3 "$SKILL_DIR"/scripts/validate.py "$REVISION_DIR/TRACK.md"
 ```
 
 Same RED/YELLOW/GREEN handling as `create`. RED (exit 1) blocks the move in step 8 — `{path}/TRACK.md` still holds the previous take, never touched by RED content. Fix the temp candidate and re-validate; no re-archiving needed (only the candidate is re-synthesised; `versions/v{N+1}.md` stays as the previous take).
 
 ### 8. Write the new TRACK.md
 
-On GREEN or YELLOW (exit 0 or 2), `mv` the validated candidate over `{path}/TRACK.md`. The archived `versions/v{N+1}.md` is the previous take, untouched; the new TRACK.md is the current best.
+On GREEN or YELLOW (exit 0 or 2), `mv` that same `$REVISION_DIR/TRACK.md` over
+`{path}/TRACK.md`, then remove this invocation's empty temp folder. Keep the
+candidate on failure. The archived `versions/v{N+1}.md` is the previous take,
+untouched; the new TRACK.md is the current best.
 
 ### 9. Print the user-facing summary
 
@@ -95,7 +131,7 @@ On GREEN or YELLOW (exit 0 or 2), `mv` the validated candidate over `{path}/TRAC
 
 ## Edge cases
 
-- **Feedback is contradictory** ("more energy in the chorus, but quieter") — surface the contradiction via `AskUserQuestion` (when `AskUserQuestion` is unavailable, ask in plain text and wait for the reply). Pick the resolution; do not paper over.
+- **Feedback appears contradictory** — first distinguish its musical dimensions: more rhythmic energy and lower loudness can coexist. State a routine interpretation and revise; ask through available question tooling or plain text only when the intended result remains irreconcilable or materially ambiguous.
 - **Feedback names a section that doesn't exist** ("the bridge feels off" but there is no `[Bridge]`) — surface, ask whether to add one or whether the user means a different section.
 - **Feedback targets audio that the prompt cannot reach** ("the vocals sound autotuned" when no autotune is in the prompt) — note that Suno's voice synthesis can introduce unsolicited processing; suggest adding `no autotune` to Exclude Styles, or attaching a Voice profile.
 - **No `versions/` directory yet** — first revise on a v0 track. Create the directory; archive the v0 TRACK.md as `versions/v1.md`.

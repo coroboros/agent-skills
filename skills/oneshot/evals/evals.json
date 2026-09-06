@@ -7,7 +7,9 @@
       "name": "single-file-trivial-edit",
       "prompt": "Add a console.log of the user id at the top of the login function in src/auth/login.ts.",
       "expected_output": "Single-file edit. Workflow: brief Glob/Grep to locate the function, Edit to insert the log, run lint + typecheck. Output report follows the documented format: ## Done block with Task, Files changed, Validation lines.",
-      "files": ["src/auth/login.ts"]
+      "files": [
+        "src/auth/login.ts"
+      ]
     },
     {
       "id": 2,
@@ -20,14 +22,14 @@
       "id": 3,
       "name": "circuit-breaker-fires-on-multi-file",
       "prompt": "Rewrite the authentication system to support OAuth, magic links, and SAML SSO across the API, the web app, and the mobile app.",
-      "expected_output": "After Explore, the complexity check fires (>5 files, >2 distinct systems, cross-cutting). Skill stops, warns the user with a concrete reason, and recommends `/apex <task>` or `/forge -s <task>` instead. Waits for explicit confirmation before continuing.",
+      "expected_output": "Explain why broader planning is needed, then continue authorized work using /apex when available. Pause only for missing authorization or a user-owned decision; file count alone is not a blocker.",
       "files": []
     },
     {
       "id": 4,
       "name": "circuit-breaker-fires-on-cross-cutting",
       "prompt": "Add a new column to the users table — store last_active timestamp and update the auth flow + admin dashboard to display it.",
-      "expected_output": "Complexity check fires on cross-cutting concerns (database migration + multi-component change). Recommends `/forge` to plan the migration steps and rollback strategy.",
+      "expected_output": "Inspect migration conventions, dependent callers, verification and rollback, then continue authorized implementation using the appropriate workflow.",
       "files": []
     },
     {
@@ -35,13 +37,22 @@
       "name": "stays-in-scope",
       "prompt": "Fix the typo in the welcome email template (welcome.txt).",
       "expected_output": "Single-file Edit, no tangential improvements. Does NOT refactor the surrounding template, does NOT add comments, does NOT improve unrelated style. Output report shows exactly one file changed.",
-      "files": ["welcome.txt"]
+      "files": [
+        "welcome.txt"
+      ]
     },
     {
       "id": 6,
-      "name": "stops-after-two-attempts",
+      "name": "recovery-follows-progress",
       "prompt": "Update the deployment script to use the new Cloudflare Workers API. (The script has unfamiliar legacy patterns.)",
-      "expected_output": "If after 2 attempts the change still fails (lint, typecheck, or behaviour), the skill reports the blocker and stops. Does not thrash with a third attempt. Output cites the specific failure mode and suggests a heavier-weight skill (`/apex` or `/forge`) for next iteration.",
+      "expected_output": "Use current documentation and specific diagnostics to repair the failure. Continue while a new concrete experiment can advance the task; report exact evidence only when a real blocker remains.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "assessment-only-stays-read-only",
+      "prompt": "Use /oneshot only to assess whether correcting the password-reset redirect fits a small change. Do not edit files yet.",
+      "expected_output": "Inspects the redirect handler and affected callers, explains the smallest complete change and applicable checks, then stops and reports the assessment. Preserves the explicit read-only boundary; the workflow's implementation default does not authorize edits.",
       "files": []
     }
   ]

@@ -16,9 +16,10 @@ These instructions OVERRIDE the default behavior in all steps to save tokens by 
 **Purpose:** Reduce token usage for users on limited plans.
 
 **Trade-offs:**
-- ✅ Uses ~70% fewer tokens
+
+- Avoids subagent overhead; actual cost depends on the task
 - ✅ Faster execution (no agent overhead)
-- ⚠️ Less thorough exploration
+- Preserve the same accepted outcomes and required evidence
 - ⚠️ No parallel research
 - ⚠️ May miss some context
 
@@ -75,13 +76,13 @@ Instead of launching exploration agents, use this pattern:
    - Grep: pattern in specific directory
 
 3. Read to examine found files:
-   - Read the most relevant 3-5 files
+   - Read relevant files, callers, and dependencies until the change is understood
    - Focus on files matching the task
 
 4. WebSearch ONLY if:
    - Library documentation needed
    - Unknown API or pattern
-   - Limit to 1-2 searches max
+   - Follow the host's current-documentation requirements
 ```
 
 ---
@@ -105,10 +106,9 @@ Economy exploration strategy:
 ### Override 4: Skip Optional Steps
 
 **In economy mode, skip or minimize:**
-- Extensive documentation research (use existing knowledge)
-- Web searches for common patterns (use best practices you know)
-- Multiple rounds of exploration (one round is enough)
-- Deep pattern analysis (quick scan is sufficient)
+
+- Redundant documentation reads after a current authoritative source resolves the question
+- Optional background research unrelated to the accepted outcomes
 
 **Always do:**
 - Find the files to modify
@@ -132,7 +132,7 @@ Economy validation:
    - [ ] Follows existing patterns
    - [ ] Error handling present
    - [ ] No security issues
-4. Skip exhaustive full-suite runs
+4. Run full-suite checks when the repository requires them or changed behavior warrants them
 ```
 
 </override_rules>
@@ -149,8 +149,8 @@ INSTEAD OF: parallel Explore + general-purpose subagents
 DO:
 1. Glob "**/*{keyword}*" for task-related files
 2. Grep for specific patterns in src/
-3. Read top 3-5 most relevant files
-4. Skip web research unless stuck
+3. Read relevant files and their affected callers
+4. Look up current documentation whenever required or uncertainty affects the change
 ```
 
 ### Step 02: Plan (Economy)
@@ -168,7 +168,7 @@ Same as default - execution doesn't use agents
 INSTEAD OF: Comprehensive examination
 DO:
 1. Run typecheck + lint
-2. Run only affected tests
+2. Run affected tests and repository-required checks
 3. Quick manual review
 4. Skip coverage analysis
 ```
@@ -193,7 +193,7 @@ This reminds both the agent and the user that economy mode is active.
 Economy mode is successful when:
 - No Task tool calls with subagent_type
 - Direct Glob/Grep/Read usage instead
-- Fewer than 3 WebSearch calls total
+- Required current-documentation questions resolved
 - Implementation still correct and working
 - Tests pass for affected files
 </success_metrics>

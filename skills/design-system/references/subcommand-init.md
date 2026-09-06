@@ -25,7 +25,7 @@ If `/award-design` is installed, the best init path is:
 /award-design <brief>                 # full archetype recommendation + atmosphere + DESIGN.md
 ```
 
-`init` is explicitly the lighter fallback — no brief discussion, no archetype debate, just a starter file the user can fill in. If the user invokes `init` when `award-design` is installed, suggest the richer path once, then proceed with `init` if the user confirms.
+`init` is the lighter fallback: a starter file without a full art-direction exercise. An explicit `init` already selects this mode; proceed without renewed confirmation. Mention `award-design` only when its richer direction would help, without blocking the requested init.
 
 ## Workflow
 
@@ -37,7 +37,7 @@ If `/award-design` is installed, the best init path is:
 2. **Check `/award-design` availability**. If present and user hasn't opted into `init`, surface the suggestion.
 3. **Select template**:
    - No archetype → generic minimal template (primary neutral palette, Inter typography, 4px radius scale, 8px spacing base, button + card + input components)
-   - Archetype given → recommend `/award-design` (see *On archetype flavors* below) and only proceed with the generic template if the user confirms
+   - Archetype given → explain that init produces the generic template, then perform the explicit init; use `/award-design` only when the user requests the richer direction
 4. **Preflight the canonical CLI before any write**. Source `scripts/designmd-runtime.sh` and call `require_designmd` with the intended audit rerun command. On failure, surface `remediation` and `rerun`, then stop. Do not create a partial target or substitute a manual audit.
 5. **Write a candidate temp file** next to the requested destination. Never write the final path yet.
 6. **Run audit on the candidate**: `bash "$SKILL_DIR"/scripts/audit.sh <candidate>`. A minimal template should lint with ≤ 2 warnings (`orphaned-tokens`, `missing-sections` is acceptable for placeholders). Any CLI, schema, or audit failure deletes the candidate and leaves the final path untouched.
@@ -137,9 +137,9 @@ The template is intentionally sparse — enough to lint green with info-level fi
 
 If a user runs `/design-system init <archetype>`, treat the archetype argument as a hint and recommend the richer path:
 
-> `/award-design` would produce a complete, archetype-flavored DESIGN.md for a `<archetype>` design — with a full palette tuned to the archetype, typography pairing, component specs, and atmosphere scores. Proceed with `/design-system init` (generic template) only if you want a bare-bones scaffold to hand-edit.
+> `/design-system init` creates the generic starter requested. `/award-design` is available for a complete archetype-specific direction.
 
-If the user confirms the generic path, proceed with the template above (no archetype flavor). If they redirect to `/award-design`, delegate there.
+Proceed with the explicit init and the template above. If the user redirects to `/award-design`, load and execute that skill within the revised scope.
 
 ## Post-init guidance
 

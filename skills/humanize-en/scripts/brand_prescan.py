@@ -32,6 +32,7 @@ Requires Python 3.7+. No third-party dependencies.
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from pathlib import Path
@@ -281,8 +282,7 @@ def load_brand_rules(path):
     """Read a BRAND-VOICE.md file and return its frontmatter dict.
 
     Raises FileNotFoundError if the path does not resolve, ValueError on
-    YAML parse errors. Returns an empty dict if no frontmatter is present
-    (caller decides whether to escalate)."""
+    YAML parse errors, missing frontmatter or unresolved inheritance."""
     p = Path(path)
     if not p.is_file():
         raise FileNotFoundError(f"brand-voice doc not found: {path}")
@@ -291,7 +291,7 @@ def load_brand_rules(path):
     if text.startswith("﻿"):
         text = text[1:]
     if not text.startswith("---\n"):
-        return {}
+        raise ValueError("brand document has no YAML frontmatter")
     lines = text.splitlines(keepends=True)
     end_idx = None
     for i in range(1, len(lines)):
@@ -299,9 +299,69 @@ def load_brand_rules(path):
             end_idx = i
             break
     if end_idx is None:
-        return {}
+        raise ValueError("brand document has unclosed YAML frontmatter")
     frontmatter = "".join(lines[1:end_idx])
-    return parse_yaml_minimal(frontmatter)
+    rules = parse_yaml_minimal(frontmatter)
+    _require_local_rules(rules)
+    return rules
+
+
+def _require_local_rules(rules):
+    if not isinstance(rules, dict):
+        raise ValueError("brand rules must be a mapping")
+    voice = rules.get("voice") or {}
+    if not isinstance(voice, dict):
+        raise ValueError("voice must be a mapping")
+    if "extends" in voice:
+        raise ValueError(
+            "unresolved voice.extends: run brand-voice/scripts/extract_rules.py "
+            "--resolved-json <voice-doc> > <rules.json>, then rerun with "
+            "--rules-json <rules.json>; install brand-voice if unavailable: "
+            "npx skills add coroboros/agent-skills --skill brand-voice"
+        )
+    if "merged" in rules:
+        raise ValueError(
+            "provenance JSON is not a rule mapping; rerun extract_rules.py "
+            "--resolved-json <voice-doc> and pass that output to --rules-json"
+        )
+    if not isinstance(voice.get("name"), str) or not voice["name"].strip():
+        raise ValueError("voice.name must be a non-empty string")
+
+    # Check the consumer boundary, not the full authoring schema. Optional
+    # semantic-only fields and empty rule lists remain valid; no merging here.
+    def string_list(value, field):
+        if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+            raise ValueError(f"{field} must be a list of strings")
+
+    for field in ("forbidden_lexicon", "required_lexicon", "forbidden_patterns"):
+        if field in rules:
+            string_list(rules[field], field)
+    for field in ("sentence_norms", "contexts", "pronouns", "lexical_exceptions"):
+        if field in rules and not isinstance(rules[field], dict):
+            raise ValueError(f"{field} must be a mapping")
+    for field, keys in (("pronouns", ("forbid",)),
+                        ("lexical_exceptions", ("acronyms", "compound_idioms"))):
+        for key in keys:
+            if key in rules.get(field, {}):
+                string_list(rules[field][key], f"{field}.{key}")
+    for field in ("core_attributes", "rewrite_rules"):
+        if field not in rules:
+            continue
+        items = rules[field]
+        if not isinstance(items, list) or any(not isinstance(item, dict) for item in items):
+            raise ValueError(f"{field} must be a list of mappings")
+        if field == "rewrite_rules":
+            for index, rule in enumerate(items):
+                for key in ("rule_id", "reject", "accept"):
+                    if not isinstance(rule.get(key), str):
+                        raise ValueError(f"rewrite_rules[{index}].{key} must be a string")
+
+
+def load_resolved_rules(path):
+    """Consume the authoritative resolver's output without reimplementing merging."""
+    rules = json.loads(Path(path).read_text(encoding="utf-8"))
+    _require_local_rules(rules)
+    return rules
 
 
 def merge_lexical_exceptions(rules):

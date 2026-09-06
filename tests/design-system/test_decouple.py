@@ -92,7 +92,7 @@ class TestOwnershipRule(unittest.TestCase):
         assert desc is not None, "description frontmatter missing"
         text = desc.group(1).lower()
         self.assertTrue(
-            "steps aside" in text or "never forces or authors" in text,
+            "does not block ordinary ui work" in text or "steps aside" in text,
             "description must surface the step-aside / ownership rule for triggering",
         )
 
@@ -114,12 +114,9 @@ class TestNoExtractSubcommand(unittest.TestCase):
             "no `extract` subcommand may be referenced",
         )
 
-    def test_subcommand_count_pinned_at_seven(self):
-        """The description pins seven subcommands — an eighth (e.g. extract) breaks this guard."""
-        self.assertIn(
-            "seven subcommands, four backed by the canonical CLI", _frontmatter(),
-            "the description must pin the subcommand count at seven",
-        )
+    def test_subcommand_set_comes_from_routing_table(self):
+        for verb in ["audit", "diff", "export", "spec", "migrate", "init", "audit-extensions"]:
+            self.assertIn(f"`{verb}`", _routing_table())
 
 
 class TestCrossAgentRuntimeContracts(unittest.TestCase):

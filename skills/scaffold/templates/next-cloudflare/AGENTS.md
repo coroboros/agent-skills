@@ -1,6 +1,6 @@
 # Project: [Project Name]
 
-See @package.json for available scripts.
+See `package.json` for available scripts and installed versions.
 
 ## Rule Index
 Read the matching rule before planning or editing that surface:
@@ -10,9 +10,7 @@ Read the matching rule before planning or editing that surface:
 ## Architecture
 - Framework: Next.js 16 (App Router) on Cloudflare Workers via @opennextjs/cloudflare
 - Styling: Tailwind CSS v4 — tokens in the `@theme` block of `src/app/globals.css` (Tailwind v4 has no `tailwind.config.ts`)
-- DB: Neon Postgres via Drizzle ORM — schema in `src/db/schema/`
-- Auth: Better-Auth — config in `src/lib/auth.ts`
-- Validation: Zod schemas colocated with features in `src/features/[name]/schemas.ts`
+- Installed application dependencies: Neon/Drizzle, Better-Auth and Zod. Their schema, auth configuration and feature files are not created by the scaffold; add them only for requested application work.
 
 ## Next.js 16 — read the docs, not training data
 APIs moved in 16 and most training data predates it. Before writing routing / cache / config code, read `node_modules/next/dist/docs/`:
@@ -61,7 +59,7 @@ pnpm design:audit     # Validate DESIGN.md with the project-local canonical CLI
 - Feature-based colocation: `src/features/[name]/` groups components, actions, schemas, hooks
 - Server Actions + Zod for mutations, NOT API routes (unless consumed by external clients)
 - Default to Server Components — `use client` only when strictly required
-- Images: R2 + custom subdomain + custom `next/image` loader → `/cdn-cgi/image/` (Image Transformations, NOT the Cloudflare Images product — see `.agents/rules/cloudflare-tooling.md` § Images)
+- Images: choose storage and transformation for the actual brief; the scaffold provisions neither public media nor an image product. See `.agents/rules/cloudflare-tooling.md` § Images.
 - ISR: OpenNext R2 incremental cache + KV tag cache — bindings use OpenNext's hardcoded names (`NEXT_INC_CACHE_R2_BUCKET`, `NEXT_TAG_CACHE_KV`); wrong names fail silently (see `open-next.config.ts`)
 
 ## Environment
@@ -70,4 +68,4 @@ pnpm design:audit     # Validate DESIGN.md with the project-local canonical CLI
 
 ## Testing
 - Vitest for unit/integration, Playwright for E2E (`pnpm test:e2e`)
-- Write a failing test before fixing a bug
+- For behavioral fixes, use a discriminating regression check and run required project checks. Installed test dependencies do not imply application fixtures or production access are configured.

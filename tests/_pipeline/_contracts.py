@@ -33,7 +33,7 @@ CLUSTERS = {
         "producer_output": "BRAND-VOICE.md",
         "consumer": "humanize-en",
         "consumer_reader_script": "extract_rules.py",
-        # Keys humanize-en reads from extract_rules --explain-json output.
+        # Optional provenance view; mechanical consumers use --resolved-json.
         "explain_json_required_keys": ("chain", "merged"),
         "merged_required_sections": ("forbidden_lexicon", "lexical_exceptions"),
         "forbidden_entry_required_keys": ("source", "value"),

@@ -4,15 +4,15 @@ Cross-cutting technical reference for award-winning web design. Read alongside t
 
 ## Tokenization boundary
 
-Code samples in this file (CSS custom properties, animation values, scroll patterns) are illustrative — the *concrete numeric values* belong in the DESIGN.md tokens, not authored ad-hoc in component CSS. Canonical 5 namespaces (`colors`, `typography`, `rounded`, `spacing`, `components`) cover most surface; for motion durations, shadow scales, aspect ratios, viewport heights, container widths, breakpoints, z-index layers, border weights, opacity ramps, and scroll triggers, use the spec-blessed extension namespaces documented in [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Components bind only to the 8 canonical property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — in the DESIGN.md; extension tokens are referenced from prose only. The CSS-side mirror is generated and validated by `/design-system audit-extensions`.
+Code samples in this file (CSS custom properties, animation values, scroll patterns) are illustrative — the *concrete numeric values* belong in the DESIGN.md tokens, not authored ad-hoc in component CSS. Canonical 5 namespaces (`colors`, `typography`, `rounded`, `spacing`, `components`) cover most surface; for motion durations, shadow scales, aspect ratios, viewport heights, container widths, breakpoints, z-index layers, border weights, opacity ramps, and scroll triggers, use the spec-blessed extension namespaces documented in [design-system's extended-tokens reference](https://github.com/coroboros/agent-skills/blob/main/skills/design-system/references/extended-tokens.md). Components bind only to the 8 canonical property tokens (`backgroundColor`, `textColor`, `typography`, `rounded`, `padding`, `size`, `height`, `width`) — in the DESIGN.md; extension tokens are referenced from prose only. Author the CSS mirror from those resolved tokens and merge it into the existing stylesheet; `/design-system audit-extensions` checks parity. The Tailwind export is configuration JSON, not generated extension CSS.
 
 ## Stack — lock the craft, key the framework
 
 Lock the craft layer; derive the framework from the archetype; adapt to existing projects; keep hosting orthogonal.
 
-- **Locked universal craft** (every build, every framework): GSAP + CSS scroll-driven animations + View Transitions API + variable fonts + OKLCH. These run identically anywhere. Lenis is the tier norm where the archetype's palette line commits wheel smoothing — never universal: Bento's canon is native scroll, and the archetype line governs (`award-imperatives.md` #3).
-- **Framework by archetype**: Astro for content/perf archetypes (Minimalist, Editorial, Corporate-Luxury, Bento) — zero-JS by default is the LCP win; TanStack Start (React on Vite + Nitro) for motion/3D archetypes (Immersive, Experimental, Bold, Spatial-Organic) — React Three Fiber and Motion are native there. Motion (Framer) and R3F belong to the TanStack path only; on Astro, motion is GSAP + CSS scroll-driven inside islands.
-- **Existing project's stack wins** — adapt, never migrate. A content archetype whose signature is sustained interactive 3D promotes to the TanStack path (the signature outranks the perf default).
+- **Shared craft toolkit**: variable fonts, OKLCH, CSS scroll-driven animations, View Transitions and GSAP where the chosen mechanic needs it. Select supported techniques for the committed stack; GSAP is conditional, not a dependency on every build. Lenis is the tier norm where the archetype's palette line commits wheel smoothing — never universal: Bento's canon is native scroll, and the archetype line governs (`award-imperatives.md` #3).
+- **Framework by register**: Astro for content/perf registers (Minimalist, Editorial, Corporate-Luxury, Bento and reading-first Experimental) — zero JS by default keeps the critical path lean; TanStack Start (React on Vite + Nitro) for committed motion/3D registers (Immersive, Experimental, Bold, Spatial-Organic) — React Three Fiber and Motion are native there. Motion's React APIs and R3F belong to React components, including an existing React project; non-React surfaces use CSS or an appropriate vanilla engine. Follow the committed project architecture.
+- **Existing project's stack wins** — adapt, never migrate. For a new project, a content archetype whose signature needs sustained interactive 3D may choose the TanStack path instead of the content default.
 - **Pin** the TanStack Start version — resolve the current release line before scaffolding (`external-truth.md`'s ladder; `stack-facts.md` holds the row and says why it is not carried as a number). Vite-path replacements for `next/*`: fonts via Fontsource / unplugin-fonts, images via vite-imagetools / unpic or a host image loader.
 - **Host orthogonal** via Nitro (40+ deploy presets). `/scaffold` is one optional Cloudflare deploy preset, never assumed.
 
@@ -166,7 +166,7 @@ These are the wirings a build reproduces wrong from memory. Each whole-file form
 | View Transitions API | native page and element morphs, both document scopes | §F |
 | IntersectionObserver reveal | the fire-once content reveal that persists | §G |
 
-### CSS Scroll-Driven Animations (off the main thread)
+### CSS Scroll-Driven Animations
 
 `animation-timeline: view()` / `scroll()` with `animation: <name> linear both` and an `animation-range` — the right tool for *decorative* motion, reversible for free because progress *is* scroll position. The canonical code and the load-bearing details (`linear` deliberate, `both` fill, stagger by range not delay, `view()` vs `scroll(root block)`) are `motion-palette.md`; content reveals never scrub — bound to visibility they re-hide on scroll-up — and route to `skeletons.md` §G. The emerging `animation-trigger` primitive and every support figure: `stack-facts.md`.
 
@@ -278,9 +278,9 @@ Best for high-Variance archetypes (Editorial, Bold/Maximal, Experimental). Avoid
 
 ### WebGL
 
-**Three.js** for maximum control. **React Three Fiber + Drei** for React. **OGL** for lightweight shaders. The WebGPU renderer is the current path for object counts a WebGL scene cannot hold; it falls back to WebGL2 on its own, and the bootstrap is `skeletons.md` §E. Every revision number, package name, and bundle size for this row and the motion libraries below it: `stack-facts.md` — none of them is stable enough to carry here.
+**Three.js** for maximum control. **React Three Fiber + Drei** for React. **OGL** for lightweight shaders. Evaluate the WebGPU renderer for the scene's measured needs, initialize its supported WebGL2 fallback and keep a poster until a frame renders; the bootstrap is `skeletons.md` §E. Every revision number, package name, and bundle size for this row and the motion libraries below it: `stack-facts.md` — none of them is stable enough to carry here.
 
-Locked universal layer (every framework): GSAP + CSS scroll-driven + View Transitions + variable fonts + OKLCH; Lenis joins where the archetype's palette line commits wheel smoothing (Bento's canon is native scroll — the archetype line governs). Motion (Framer) and React Three Fiber are React-path (TanStack Start) only — never on Astro paths; see *Stack* above.
+Use the shared craft toolkit where the mechanic and committed stack call for it; see *Stack* above. Lenis joins only where the archetype commits wheel smoothing. React-specific examples are optional on React surfaces; they do not require adding React to another stack.
 
 ### Spring physics — canonical values
 
@@ -458,15 +458,20 @@ Native `<select>` elements need explicit `background-color` and `color` in dark 
 
 ### prefers-reduced-motion
 
-Zero the durations — never kill transforms. A `transform: none !important` wildcard destroys transform-carried *state* (the nav's `translateY(-100%)` hidden position, an open panel's resting offset); reduced motion strips transitions and keeps state, so everything still flips, it just snaps (navigation-patterns.md, interaction-signatures.md):
+Reduce transitions while preserving state. A `transform: none !important` wildcard destroys transform-carried *state* (the nav's `translateY(-100%)` hidden position, an open panel's resting offset). Stop decorative loops; shortening an infinite animation alone makes it repeat faster. One-shot state animations may complete once with negligible duration (navigation-patterns.md, interaction-signatures.md):
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .gradient-bg { animation: none !important; }
 }
 ```
 
-For JS: detect preference, disable smooth scroll, reduce particles, simplify transitions.
+Mark other decorative loops with their own static reduced-motion rules. Keep content visible and test state changes with the preference enabled. For JS, detect preference changes, disable smooth scroll and stop decorative loops through their owning lifecycle; restore the ordinary policy when the preference changes back.
 
 ### Non-negotiables
 

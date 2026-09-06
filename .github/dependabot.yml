@@ -1,5 +1,12 @@
 version: 2
 updates:
+  - package-ecosystem: pip
+    directory: /.github/skill-scanner
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
   - package-ecosystem: github-actions
     directory: /
     schedule:

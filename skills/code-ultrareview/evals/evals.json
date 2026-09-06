@@ -1,6 +1,6 @@
 {
   "skill_name": "code-ultrareview",
-  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the 5-phase pipeline (scope → atomic deterministic tool battery → 8 axis reviewers → fresh-context validators on sub-80 → synthesis), the 8 always-on axes plus conditional Coherence, the canonical report shape, deferrals, no-silent-drop routing, repo-kind classification, opt-in build/mutation/reconciliation/writer gates, exact remediation, and reference routing. Applicable analyzer coverage is fail-closed: tools resolve only from project declarations or installed PATH binaries, never through runtime package resolution, and missing or invalid coverage blocks every verdict.",
+  "description": "Behavioural evaluation set for the code-ultrareview skill. Cases pin the 5-phase pipeline (scope → atomic deterministic tool battery → 8 axis reviewers → fresh-context validators on every observation → synthesis), the 8 always-on axes plus conditional Coherence, the canonical report shape, deferrals, no-silent-drop routing, repo-kind classification, opt-in build/mutation/reconciliation/writer gates, exact remediation, and reference routing. Applicable analyzer coverage is fail-closed: tools resolve only from project declarations or installed PATH binaries, never through runtime package resolution, and missing or invalid coverage blocks every verdict.",
   "evals": [
     {
       "id": 1,
@@ -250,7 +250,7 @@
       "id": 35,
       "name": "reconcile-caps-stale-artifact-severity",
       "prompt": "/code-ultrareview --reconcile <spec-from-100-days-ago>",
-      "expected_output": "Artifact freshness > 90 days. The Intent axis emits no per-claim findings — only the artifact entry shows in the `## 📐 Derivation coverage` table (with freshness `100d` or similar). Severity caps for 31–90 day artifacts: classification semantics unchanged, but severity drops to Low regardless. `--strict` flag disables both caps.",
+      "expected_output": "The explicitly selected artifact remains fully in scope even after 90 days. Emit every extracted claim for contextual assessment; do not suppress accepted criteria or cap their final consequence-based severity because of age. Freshness caps apply only to auto-discovered historical context.",
       "files": []
     },
     {
@@ -312,13 +312,13 @@
       "id": 42,
       "name": "mutation-and-reconcile-remain-atomic",
       "prompt": "Run /code-ultrareview --mutation-test --reconcile gh:pr:42 on a Gradle JVM project that changes src/main/java/App.java. Initially the info.solidsoft.pitest plugin is absent. After configuring it, GitHub CLI cannot fetch PR 42. Finally rerun with an available but stale PR artifact containing explicit intent claims.",
-      "expected_output": "Mutation and explicitly requested intent evidence are both atomic gates; after remediation, stale explicit evidence keeps its claims with the documented severity cap.",
+      "expected_output": "Mutation and explicitly requested intent evidence are both atomic gates; after remediation, stale explicit evidence keeps all its claims for consequence-based assessment.",
       "files": [],
       "expectations": [
         "The missing Gradle plugin exits 3 before mutation, axis review, or synthesis; guidance names info.solidsoft.pitest, the PATH-installed `gradle --offline --no-daemon pitest` runner, and the exact Code Ultrareview rerun without suggesting Maven or a project wrapper.",
         "The skill never installs or resolves a mutation package at runtime and emits no verdict while mutation coverage is incomplete.",
         "The unavailable explicit gh:pr:42 source exits 3 with gh installation, authentication, and reference checks plus an instruction to rerun with the same --reconcile value.",
-        "No Intent synthesis or verdict is emitted while the requested source is missing; once fetched, stale explicit evidence retains extracted claims instead of becoming summary-only, and stale-derived severity remains capped by policy."
+        "No Intent synthesis or verdict is emitted while the requested source is missing; once fetched, stale explicit evidence retains extracted claims instead of becoming summary-only, and explicit acceptance retains consequence-based severity."
       ]
     },
     {
@@ -333,6 +333,27 @@
         "After the config exists, Stryker runs from packages/a and report paths are normalized back to repository-relative packages/a paths.",
         "Exit 7 fails the mutation gate with the exact lockfile restore or install command plus the exact Code Ultrareview rerun; no mutation-findings.jsonl or repository verdict is published."
       ]
+    },
+    {
+      "id": 44,
+      "name": "canonical-forge-spec",
+      "prompt": "Review this implementation with --reconcile pointing to a validated Forge Spec whose workstreams express acceptance criteria below the bold Acceptance Criteria label. No optional reconcile summary was supplied.",
+      "expected_output": "Extract the canonical Forge criteria, bind the reconciled source to axis input, assess the retained claims against the implementation, and render Derivation coverage from the verified artifact. Do not report zero requirements because the section label is bold, or claim semantic verification from extraction counts alone.",
+      "files": []
+    },
+    {
+      "id": 45,
+      "name": "reconcile-artifact-swap",
+      "prompt": "Axis review has completed. Before synthesis the reconcile JSON is replaced by another internally valid artifact and a reassuring legacy reconcile-summary file is supplied. Finish the review.",
+      "expected_output": "Reject the changed reconcile identity against the axis input hash and stop synthesis until evidence is rebuilt and reviewed. The legacy summary cannot replace canonical evidence or supply unverified coverage.",
+      "files": []
+    },
+    {
+      "id": 46,
+      "name": "real-regression-test",
+      "prompt": "Write the accepted regression test in this repository using its existing node:test runner. The reviewed test imports the affected function and asserts the required behavior. No Vitest dependency exists.",
+      "expected_output": "Supply the reviewed runner-native test content and repository-relative destination to the writer. Preview and create the exact test without guessing a framework or inserting an unconditional failure. Verify that the same test fails for the reported behavior before the fix and passes after it. Refuse missing test content or an escaping destination.",
+      "files": []
     }
   ]
 }

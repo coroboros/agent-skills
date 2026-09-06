@@ -16,7 +16,7 @@ Do not use this to clone a site. The goal is to capture visual language, then ev
 
 ## Inspection checklist
 
-Observe the live site before writing anything. If `dev-browser` CLI is available (the browser rung declared in `external-truth.md`), use it to screenshot and inspect computed styles. If not, ask the user to paste computed CSS, or describe what they see.
+Observe the live site through the available browser capability resolved in `external-truth.md`. Use its supported screenshot and computed-style inspection operations. Only request missing user-supplied CSS or visual context after checking available tools; state exactly what could not be observed and avoid inventing it.
 
 For each item, record what you verified:
 

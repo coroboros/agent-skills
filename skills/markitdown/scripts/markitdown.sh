@@ -87,6 +87,10 @@ if [[ $SAVE -eq 1 ]]; then
   OUT_DIR="${HOME}/.agents/output/${PROJECT}/markitdown/$SLUG"
   mkdir -p "$OUT_DIR"
   OUT_FILE="$OUT_DIR/${STEM}.md"
+  if [[ -e "$OUT_FILE" || -L "$OUT_FILE" ]]; then
+    echo "ERR: output already exists: $OUT_FILE — preserve it or explicitly authorize replacement before rerunning" >&2
+    exit 2
+  fi
   markitdown ${ARGS[@]+"${ARGS[@]}"} "$INPUT" -o "$OUT_FILE"
   BYTES=$(wc -c < "$OUT_FILE" | tr -d ' ')
   echo "RESULT: path=$OUT_FILE"

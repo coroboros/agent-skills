@@ -1,0 +1,40 @@
+{
+  "skill_name": "apex",
+  "evals": [
+    {
+      "id": 1,
+      "name": "inherit-approved-plan",
+      "prompt": "The plan is already approved. GO implement it and run the required checks without asking again. Use /apex with saved state.",
+      "expected_output": "Preserve prior approval during initialization. Execute the accepted plan and examine the result without repeating plan or validation permission questions. Report actual criterion evidence and any real blocker.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "latest-explicit-checkpoint-wins",
+      "prompt": "Earlier I approved autonomous execution. For this next change use /apex -A and pause after showing the plan before implementation.",
+      "expected_output": "Analyzes the task and prepares the concrete plan, then waits for the user's requested approval before implementation. Earlier autonomy does not override the new pause request.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "dirty-worktree-criterion-closure",
+      "prompt": "Implement the accepted feature in a worktree containing an unrelated staged edit. One criterion already works, one needs a new untracked file, and the baseline test suite has an unrelated failure.",
+      "expected_output": "Record the starting revision and dirty state, preserve unrelated work, inspect final behavior for every criterion including the already satisfied one, and include the new file in review. Load references/derivation-lens.md during examination and reconcile the complete change against the approved plan. Fix introduced failures and report the baseline failure accurately without expanding scope or claiming all checks pass.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "remove-unneeded-flag",
+      "prompt": "During /apex examination you find a feature flag introduced by this task that has no accepted criterion or deployment need. The same file contains an unrelated user edit. Complete the authorized task.",
+      "expected_output": "Use the derivation lens to classify the flag as SCOPE-ADD, remove the unnecessary task-owned addition, preserve the unrelated edit, and rerun affected verification. Do not merely recommend removal or overwrite the whole file.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "literal-template-text",
+      "prompt": "Use /apex with saved state for a documentation correction whose task description includes the literal strings {{task_description}} and {{timestamp}} on separate lines.",
+      "expected_output": "Initialize the saved state successfully and preserve the task text exactly. Template expansion handles only original template markers and never recursively interprets markers inside inserted task text or hangs.",
+      "files": []
+    }
+  ]
+}

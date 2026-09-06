@@ -8,7 +8,11 @@ Subagents start fresh: no parent conversation, no tool results from this skill s
 
 The model already knows how to search a codebase or read docs. The skeleton's job is to **pin the report shape and the constraint**, not to teach search.
 
-When you inject multi-line content — a summary, a findings list, a file excerpt — wrap it in an XML tag (`<leading_approach>…</leading_approach>`) so the subagent reads it as data, not as part of your instructions. Short inline values (`{specific_area}`) need no tag.
+When you inject multi-line content — a summary, a findings list, a file excerpt — wrap it in an XML tag (`<brief_and_evidence>
+{original brief, constraints, source artifacts and evidence paths}
+</brief_and_evidence>
+
+<leading_approach>…</leading_approach>`) so the subagent reads it as data, not as part of your instructions. Short inline values (`{specific_area}`) need no tag.
 
 ## Explore — codebase reconnaissance (Hunt)
 
@@ -58,9 +62,13 @@ Skip: generic best practices the question did not ask about, training-data recal
 Used by the panel in Phase 2. Launch one critic per lens in a single parallel message — each a clean context that did NOT produce the leader, so the critique is not auto-justification. Fill `{lens_instruction}` from the roster below; everything else is identical across critics.
 
 ```
-You are an adversarial reviewer. You have not seen the research or
-deliberation that led to the leading approach. Critique it through
+You are an adversarial reviewer. Read the original brief, constraints, and source evidence supplied below.
+You have not seen the author's deliberation. Critique it through
 ONE lens only — do not range across the others.
+
+<brief_and_evidence>
+{original brief, constraints, source artifacts and evidence paths}
+</brief_and_evidence>
 
 <leading_approach>
 {one-paragraph summary}
@@ -78,10 +86,10 @@ Your lens: {lens_instruction}
 
 Be specific. Generic "this is complex" or "consider trade-offs" is not a critique. Cite the component, the assumption, the alternative — by name.
 
-Return: 3-7 findings under your lens, ranked by severity. For each, one sentence on the issue and one sentence on what the leader's authors should reconsider.
+Return substantiated findings under your lens, ranked by consequence; zero findings is valid. For each, one sentence on the issue and one sentence on what the leader's authors should reconsider.
 ```
 
-Lens roster — one critic each (3 for a focused call, 5 for architecture-level):
+Lens roster — choose those relevant to unresolved risks:
 
 - **overengineering / simplicity** — Where is the overengineering? Name the component or step removable without losing the core outcome. Is the simplest answer to NOT build this?
 - **load-bearing-assumption audit** — What load-bearing assumption is unquestioned? Look at the leader's premise, not its mechanics.
@@ -91,17 +99,21 @@ Lens roster — one critic each (3 for a focused call, 5 for architecture-level)
 
 ## general-purpose — convergence skeptic (Judge, Round 2)
 
-One per surviving finding. The skeptic sees only the finding and the orchestrator's rebuttal — not the panel's other findings, not the deliberation.
+One per surviving finding. Give the skeptic the original brief, relevant constraints, source artifacts and evidence paths, plus its assigned finding and rebuttal. Omit the panel's other findings and the author's deliberation.
 
 ```
 A panel surfaced this finding against the leading approach, and the
-plan's author rebutted it. Judge whether the rebuttal holds.
+plan's author rebutted it. Read the original brief and inspect the relevant source artifacts before judging whether the rebuttal holds. Treat both claims as unverified until checked against that evidence.
+
+<brief_and_evidence>
+{original brief, constraints, source artifacts and evidence paths}
+</brief_and_evidence>
 
 <finding>
 {one finding}
 </finding>
 
-<rebuttal score="{1-5}">
+<rebuttal>
 {the author's rebuttal}
 </rebuttal>
 
@@ -109,7 +121,7 @@ Verdict — one of:
 - KILL: the rebuttal holds; the finding is materially wrong. Refute it in one sentence citing the rebuttal's evidence.
 - CONFIRM: the finding stands; the rebuttal does not nullify it. Say in one sentence whether it flips the leader, or belongs in Risks / Open questions.
 
-Do not hedge. Generic agreement is not a verdict. Return the verdict word and the one-sentence rationale.
+If evidence is insufficient, return UNRESOLVED and name the missing evidence. Generic agreement is not a verdict.
 ```
 
 ## Anti-patterns

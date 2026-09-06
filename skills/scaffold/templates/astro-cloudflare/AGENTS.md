@@ -1,6 +1,6 @@
 # Project: [Project Name] — Acquisition Site
 
-See @package.json for available scripts.
+See `package.json` for available scripts and installed versions.
 
 ## Rule Index
 Read the matching rule before planning or editing that surface:

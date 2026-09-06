@@ -158,7 +158,9 @@ import { SplitText } from 'gsap/SplitText';   // ships in the public package; se
 gsap.registerPlugin(SplitText, ScrollTrigger);
 
 export function initHeadlineReveal(headline) {    // an element, so it can also be the trigger
-  const split = SplitText.create(headline, {
+  const mm = gsap.matchMedia();
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+    const split = SplitText.create(headline, {
     type: 'lines, words',
     mask: 'lines',        // per-line overflow wrapper — the clean rise, no hand-rolled clip-path
     autoSplit: true,      // re-splits when the web font lands or the container width changes
@@ -173,13 +175,15 @@ export function initHeadlineReveal(headline) {    // an element, so it can also 
         scrollTrigger: { trigger: headline, start: 'top 80%', once: true },
       });
     },
-  });
+    });
 
-  return () => split.revert();   // restores the original markup
+    return () => split.revert(); // query flip restores readable, unsplit markup
+  });
+  return () => mm.revert();
 }
 ```
 
-Critical points: `SplitText.create()` is the current factory, `autoSplit` plus a *returned* tween from `onSplit` is the pair that survives a late font load, `mask: 'lines'` supplies the overflow wrapper the rise needs, `aria: 'auto'` keeps the headline readable to a screen reader, `once: true` makes this a fire-once content reveal that persists, and `split.revert()` is the teardown.
+Critical points: `SplitText.create()` is the current factory, `autoSplit` plus a *returned* tween from `onSplit` survives a late font load, `mask: 'lines'` supplies the overflow wrapper, `aria: 'auto'` preserves accessible text, and `once: true` persists the reveal. `gsap.matchMedia()` skips splitting under reduced motion and reverts the split when that preference changes; `mm.revert()` owns unmount cleanup.
 
 Common failure: `new SplitText('.headline', { type: 'chars' })` followed by a separate `gsap.from(split.chars, …)` — the split is measured before `font-display: swap` swaps the face, so the lines re-flow under already-positioned characters and the headline reveals in the wrong shape; the fix is the `autoSplit` + `onSplit`-returns-the-tween form above, which re-splits and re-runs on the swap.
 
@@ -195,19 +199,25 @@ export async function initScene(canvas, { poster } = {}) {
 
   const renderer = new THREE.WebGPURenderer({ canvas, antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));   // 3× costs fill rate and buys no sharpness
-  await renderer.init();   // requests the WebGPU adapter, or falls back to WebGL2 — always awaited
+  try {
+    await renderer.init(); // requests WebGPU, or falls back to WebGL2
+  } catch (error) {
+    renderer.dispose();
+    console.error('Scene initialization failed; keeping the poster.', error);
+    return { destroy() {} };
+  }
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
   camera.position.z = 4;
-  scene.add(new THREE.Mesh(
-    new THREE.IcosahedronGeometry(1, 3),
-    new THREE.MeshStandardNodeMaterial({ roughness: 0.35 }),
-  ));
+  const geometry = new THREE.IcosahedronGeometry(1, 3); // wiring demo; replace with the committed asset
+  const material = new THREE.MeshStandardNodeMaterial({ roughness: 0.35 });
+  scene.add(new THREE.Mesh(geometry, material));
   scene.add(new THREE.DirectionalLight(0xffffff, 2.5));
 
   const resize = () => {
     const { clientWidth: w, clientHeight: h } = canvas;
+    if (w <= 0 || h <= 0) return;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);   // false: never write inline style onto the canvas
@@ -215,7 +225,20 @@ export async function initScene(canvas, { poster } = {}) {
   resize();
   addEventListener('resize', resize);
 
-  const frame = () => renderer.render(scene, camera);
+  let failed = false;
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  const frame = () => {
+    try {
+      if (canvas.clientWidth <= 0 || canvas.clientHeight <= 0) return;
+      renderer.render(scene, camera);
+      if (poster) poster.dataset.sceneReady = ''; // only after a successful render
+    } catch (error) {
+      failed = true;
+      if (poster) delete poster.dataset.sceneReady;
+      sync();
+      console.error('Scene rendering failed; keeping the poster.', error);
+    }
+  };
 
   // Off-screen AND background tabs pay nothing. Two independent booleans, ANDed:
   // one shared flag would let a tab-return restart the loop on an off-screen
@@ -224,30 +247,38 @@ export async function initScene(canvas, { poster } = {}) {
   let visible = document.visibilityState === 'visible';
   let running = false;
   function sync() {
-    const next = onScreen && visible;
+    const next = onScreen && visible && !motion.matches && !failed;
     if (next === running) return;
     running = next;
     renderer.setAnimationLoop(running ? frame : null);
   }
   const io = new IntersectionObserver(([entry]) => { onScreen = entry.isIntersecting; sync(); });
   const onVisibility = () => { visible = document.visibilityState === 'visible'; sync(); };
+  const onMotion = () => {
+    if (motion.matches && poster) delete poster.dataset.sceneReady;
+    sync();
+  };
   io.observe(canvas);
   document.addEventListener('visibilitychange', onVisibility);
-  if (poster) poster.dataset.sceneReady = '';   // fade the poster out in CSS, once the first frame is real
+  motion.addEventListener('change', onMotion);
 
   return {
     destroy() {
       renderer.setAnimationLoop(null);
       io.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
+      motion.removeEventListener('change', onMotion);
       removeEventListener('resize', resize);
+      geometry.dispose();
+      material.dispose();
       renderer.dispose();
+      if (poster) delete poster.dataset.sceneReady;
     },
   };
 }
 ```
 
-Critical points: `renderer.init()` is async and must be awaited before the first render, the poster paints first so the scene never owns LCP, `setPixelRatio` is capped at 2, `setSize(w, h, false)` leaves the canvas sized by CSS, the visibility and intersection flags are ANDed so the loop runs only when the canvas is both on screen and in a foreground tab, and `destroy()` clears the animation loop *and* disposes the renderer.
+Critical points: await `renderer.init()`, retain the poster through the first successful render and on failure, cap pixel ratio, and leave CSS sizing intact. Intersection, visibility and reduced-motion state jointly govern the loop. `destroy()` removes listeners and disposes the renderer and its owned geometry/material; dispose additional scene assets through this same path.
 
 Common failure: `new THREE.WebGPURenderer(...)` followed immediately by `renderer.render(scene, camera)` with no `await renderer.init()` — the backend is not up, so `render()` throws outright (`.render() called before the backend is initialized`) and the page is blank, not merely stuttering; the fix is the awaited `init()` above, with the poster holding the frame until it resolves.
 
@@ -297,13 +328,13 @@ Common failure: `view-transition-name: detail-media` written as a static rule on
 ## G. Fire-once IO reveal
 
 ```css
-/* Base state is VISIBLE. A dead script, a parse error, or a blocked bundle must
-   never blank the page — the hidden state exists only under the JS-added class. */
+/* Base state is visible. Readiness belongs to the initialized observer,
+   not an unrelated head script that merely proves JavaScript is enabled. */
 .reveal { opacity: 1; }
 
 @media (prefers-reduced-motion: no-preference) {
-  html.js .reveal { opacity: 0; transform: translateY(1.25rem); }
-  html.js .reveal[data-shown] {
+  .reveal[data-reveal-ready]:not([data-shown]) { opacity: 0; transform: translateY(1.25rem); }
+  .reveal[data-shown] {
     opacity: 1;
     transform: none;
     transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
@@ -311,32 +342,53 @@ Common failure: `view-transition-name: detail-media` written as a static rule on
 }
 ```
 
-```html
-<!-- In <head>, inline and render-blocking. A deferred module would let the browser
-     paint the visible base first, then blank the in-view reveals when the class
-     lands — a flash on exactly the slow connections this pattern is here for. -->
-<script>document.documentElement.classList.add('js');</script>
-```
-
 ```javascript
 export function initReveals(root = document) {
-  const io = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      entry.target.setAttribute('data-shown', '');
-      io.unobserve(entry.target);   // arrives once and STAYS — content never re-hides on scroll-up
+  const elements = [...root.querySelectorAll('.reveal')];
+  const motion = matchMedia('(prefers-reduced-motion: reduce)');
+  let io;
+  const showAll = () => {
+    if (io) io.disconnect();
+    for (const el of elements) {
+      el.setAttribute('data-shown', '');
+      el.removeAttribute('data-reveal-ready');
     }
-  }, { rootMargin: '0px 0px -10% 0px' });
-
-  for (const el of root.querySelectorAll('.reveal')) io.observe(el);
-
-  return () => io.disconnect();
+  };
+  const onMotion = () => { if (motion.matches) showAll(); };
+  try {
+    if (motion.matches) { showAll(); return showAll; }
+    io = new IntersectionObserver((entries) => {
+      try {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          entry.target.setAttribute('data-shown', '');
+          io.unobserve(entry.target); // fire once, then persist
+        }
+      } catch (error) {
+        showAll();
+        console.error('Reveal update failed; showing content.', error);
+      }
+    }, { rootMargin: '0px 0px -10% 0px' });
+    for (const el of elements) {
+      if (el.getBoundingClientRect().top < innerHeight) {
+        el.setAttribute('data-shown', ''); // delayed initialization never hides visible copy
+      } else {
+        io.observe(el);
+        el.setAttribute('data-reveal-ready', ''); // only after registration succeeds
+      }
+    }
+    motion.addEventListener('change', onMotion);
+  } catch (error) {
+    showAll();
+    console.error('Reveal initialization failed; showing content.', error);
+  }
+  return () => { motion.removeEventListener('change', onMotion); showAll(); };
 }
 ```
 
-Critical points: the hidden state is gated twice — behind `prefers-reduced-motion: no-preference` and behind the `html.js` class — that class is set by a render-blocking inline script so the hidden state is in place before first paint, `unobserve` on first intersection is what makes the reveal persist, the negative `rootMargin` delays the trigger until the element is properly in the reading zone, and no scroll listener is involved anywhere.
+Critical points: hide only offscreen elements registered with the live observer, under `prefers-reduced-motion: no-preference`. Already-visible text stays shown if initialization arrives late. `unobserve` makes the reveal persist; failure, teardown and a reduced-motion change restore all content. No head readiness marker or scroll listener is needed.
 
-Common failure: `.reveal { opacity: 0 }` authored in base CSS with the observer adding the visible class — a reduced-motion user, a no-JS load, or one thrown error above the observer leaves the whole page blank, and it scans clean in every screenshot taken with JS working; the fix is the visible base plus the `html.js` guard above.
+Common failure: hiding under a head script's `html.js` marker while a later observer bundle fails leaves content blank despite JavaScript being enabled; the fix is visible base CSS plus readiness owned by successful observer initialization and fail-visible cleanup.
 
 ## Cross-references
 

@@ -27,15 +27,15 @@ class TestExternalTruthLadder(unittest.TestCase):
         self.truth = _read("external-truth.md")
 
     def test_three_rungs_in_order(self):
-        rungs = ["**Installed skill.**", "**Offer the install.**", "**Fetch current docs.**"]
+        rungs = ["**Available capability and installed skill.**", "**Fetch current docs.**", "**Missing prerequisite.**"]
         positions = [self.truth.find(r) for r in rungs]
         self.assertTrue(all(p != -1 for p in positions),
                         "all three ladder rungs must be present")
         self.assertEqual(positions, sorted(positions), "ladder rungs out of order")
 
     def test_offer_is_once_and_never_stalls(self):
-        self.assertIn("once", self.truth)
-        self.assertIn("Never stall the build", self.truth)
+        self.assertIn("Continue unaffected work", self.truth)
+        self.assertIn("silence cannot", self.truth)
 
     def test_docs_rung_requires_citation(self):
         self.assertIn("Cite what was actually read", self.truth,
@@ -61,11 +61,11 @@ class TestCapabilityMap(unittest.TestCase):
         self.assertIn("npx skills add https://github.com/greensock/gsap-skills",
                       self.truth)
 
-    def test_modern_web_guidance_row_with_skill_less_fallback(self):
+    def test_modern_web_docs_fallback_does_not_resolve_a_package(self):
         self.assertIn("npx skills add https://github.com/GoogleChrome/modern-web-guidance",
                       self.truth)
-        self.assertIn("npx -y modern-web-guidance@latest search", self.truth,
-                      "the docs fallback must work without the skill installed")
+        self.assertIn("Current MDN and official browser-platform documentation", self.truth)
+        self.assertNotIn("npx -y modern-web-guidance@latest", self.truth)
 
     def test_gate_is_proportional_to_usage(self):
         self.assertIn("static minimalist page loads none of this", self.truth,
@@ -82,12 +82,12 @@ class TestCapabilityMap(unittest.TestCase):
         """Rendering proof resolves like a heavy layer: MCP → dev-browser →
         webwright → install offer; only a declined offer degrades."""
         self.assertIn("## Browser verification", self.truth)
-        self.assertIn("npm install -g dev-browser && dev-browser install", self.truth)
+        self.assertIn("Harness-native browser", self.truth)
         for candidate in ("Chrome DevTools MCP", "dev-browser", "webwright"):
             with self.subTest(candidate=candidate):
                 self.assertIn(candidate, self.truth)
-        self.assertIn("*declined* offer", self.truth,
-                      "only a declined install offer may degrade the gate")
+        self.assertIn("missing rendered proof or required measurements limits the verdict", self.truth)
+        self.assertIn("one available browser tool does not prove all of them", self.truth)
 
 
 class TestPreflightGateStructure(unittest.TestCase):

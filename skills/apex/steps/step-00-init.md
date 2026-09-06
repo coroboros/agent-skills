@@ -27,7 +27,7 @@ next_step: steps/step-01-analyze.md
 
 ## CONTEXT BOUNDARIES:
 
-- This is the FIRST step - no previous context exists
+- This is the first workflow step; earlier conversation, authorization, corrections, and saved task state still apply.
 - User input contains flags and task description
 - Output folder may or may not exist
 - Don't assume anything about the codebase yet

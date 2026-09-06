@@ -1,6 +1,6 @@
 # Orchestration
 
-Main-thread orchestration details for Phase 3 (axis review) and Phase 4 (validation). Subagents cannot spawn other subagents; the main thread launches both axis reviewers and fresh-context validators.
+Main-thread orchestration details for Phase 3 (axis review) and Phase 4 (validation). The orchestrator schedules axis reviewers and validators within actual host capabilities; no universal nesting or concurrency limit is assumed.
 
 ## Phase 3 — axis review
 
@@ -28,7 +28,7 @@ The orchestrator prepares per-axis bundles via `scripts/axis_dispatch.py prepare
 
   `git diff --no-index` exits 1 whenever the files differ — always here — so the `|| true` keeps `set -e` shells running.
 
-Phase 1 also records target-side added/modified hunks in `scope.json["changed_line_ranges"]`. Phase 2 uses that map to exclude pre-existing line-level analyzer findings from confidence-100 coverage; manifest/API analyzers remain path-scoped because their reported line is not authoritative.
+Phase 1 also records target-side added/modified hunks in `scope.json["changed_line_ranges"]`. Phase 2 uses that map to exclude pre-existing line-level analyzer findings from changed-line observation coverage; manifest/API analyzers remain path-scoped because their reported line is not authoritative.
 
 ### Prepare the bundles
 
@@ -55,7 +55,7 @@ Each subagent emits findings as JSONL on stdout, one finding per line, against t
 
 **Coverage, not filtering.** Axis reviewers maximize coverage at the finding stage — they report low-severity and uncertain findings with an honest confidence rather than self-filtering on importance. Phase 4 validators plus the 80-confidence threshold do the ranking; the A2 contract surfaces sub-80 findings in `### ⚠️ Unverified`. The split is deliberate: a finder told to be conservative suppresses real bugs, so confidence filtering lives downstream of finding, never inside it.
 
-**Conditional Coherence.** `axis_dispatch prepare` adds Coherence to the bundle list when `scope.json["activates_coherence"]` is true (still within the 10-parallel concurrency cap). When inactive, the report header surfaces `Coherence axis: inactive`.
+**Conditional Coherence.** `axis_dispatch prepare` adds Coherence to the bundle list when `scope.json["activates_coherence"]` is true (schedule within available host slots). When inactive, the report header surfaces `Coherence axis: inactive`.
 
 **Selected-axis integrity.** `axis_dispatch ingest` cross-checks the requested axes recorded during `prepare` against any explicit ingest selection. A mismatch exits 2 before merging output, so an omitted or substituted axis cannot produce a scoped verdict.
 
@@ -73,7 +73,7 @@ python3 "$SKILL_DIR"/scripts/axis_dispatch.py ingest \
 
 ## Phase 4 — validation
 
-The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one fresh-context validator per finding in the same message — a Haiku `Task` on Claude Code or the harness's isolated-agent equivalent — batched ≤10 parallel.
+The orchestrator prepares per-finding validator bundles via `scripts/run_validators.py prepare`, then launches one fresh-context validator per finding in the same message — an isolated agent using the inherited host model. Bundle groups contain at most 10 items; schedule each group within the actual host slot limit.
 
 ```bash
 python3 "$SKILL_DIR"/scripts/run_validators.py prepare \
@@ -93,7 +93,7 @@ python3 "$SKILL_DIR"/scripts/run_validators.py ingest \
   --output <validated-findings.jsonl>
 ```
 
-Prepare refuses incomplete axis coverage. Both commands invalidate any prior validator success; ingest also removes the previous validated output, requires exactly one valid `{run_id, index, score, reason}` result for every prepared sub-80 finding, verifies that the diff and axis-findings SHA-256 identities still match preparation, and publishes only after the complete set validates.
+Prepare refuses incomplete axis coverage. Both commands invalidate any prior validator success; ingest also removes the previous validated output, requires exactly one valid `{run_id, index, score, reason}` result for every prepared finding, verifies that the diff and axis-findings SHA-256 identities still match preparation, and publishes only after the complete set validates.
 
 Each validator:
 
@@ -101,11 +101,11 @@ Each validator:
 2. Re-checks that a cited project instruction actually exists in `instruction_chain`. Demotes with explicit reason if not found (`Instruction rule not found at <path>`).
 3. Stays read-only — no Write / Edit / Bash, no nested subagent spawn.
 
-**Confidence threshold = 80** (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Tool-battery findings (confidence 100) skip the validator phase — they are deterministic.
+**Confidence threshold = 80** (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`). Every observation receives contextual validation, including tool matches and high-confidence author claims. The score is a local reporting heuristic, not proof or calibrated probability.
 
 Confidence `0` is a valid uncertain finding, not an omission sentinel. It receives a validator bundle and either gets promoted or remains explicit under `### ⚠️ Unverified`.
 
-**Typical runtime.** 5-15 sub-80 findings → one batch → ~30-60s total. Latency is dominated by isolated-validator launch overhead, not inference; 25+ findings spread over 2-3 batches stay under ~2 min.
+**Runtime.** Depends on scope, evidence access, and host concurrency; no fixed duration is guaranteed.
 
 **A2 contract.** No sub-80 finding silently dropped. Each one is promoted to ≥80, demoted with reason, or surfaced in `### ⚠️ Unverified` with the validator's reason text.
 

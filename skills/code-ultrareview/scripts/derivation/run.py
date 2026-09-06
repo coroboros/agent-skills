@@ -302,6 +302,7 @@ def run(repo: Path, inputs: list, ignore: IgnoreFile,
             "path": artifact.path,
             "kind": artifact.kind,
             "freshness_days": artifact.freshness_days,
+            "required": artifact.required,
             "claim_count": len(claims),
         })
         if not claims:
@@ -312,15 +313,11 @@ def run(repo: Path, inputs: list, ignore: IgnoreFile,
             and not strict
         ):
             continue
-        # Cap to ≤5 findings per artifact (Risk #2 — overcorrection guard).
-        emitted = 0
         for claim in claims:
-            if emitted >= 5 and not strict:
-                break
             if _ignore_match(ignore, artifact, claim.text):
                 continue
             severity = classify_severity_by_freshness(
-                DEFAULT_SEVERITY[UNCLASSIFIED], artifact.freshness_days,
+                DEFAULT_SEVERITY[UNCLASSIFIED], 0 if artifact.required else artifact.freshness_days,
             )
             findings.append(Finding(
                 classification=UNCLASSIFIED,
@@ -335,7 +332,6 @@ def run(repo: Path, inputs: list, ignore: IgnoreFile,
                 artifact_path=artifact.path,
                 artifact_freshness_days=artifact.freshness_days,
             ).to_dict())
-            emitted += 1
     if total_claims == 0:
         raise ReconcileCoverageError(
             "resolved reconcile sources contain no extractable Acceptance "

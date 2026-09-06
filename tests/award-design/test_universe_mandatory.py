@@ -145,13 +145,13 @@ class TestDesignMdAuthoredAndAdapted(unittest.TestCase):
         self.assertIn("eight ordered prose sections", _ref("design-md-anatomy.md"))
 
     def test_adapts_to_existing_design_md(self):
-        self.assertIn("A bounded change inside a healthy DESIGN.md adopts the universe",
+        self.assertIn("A bounded change adopts the existing universe",
                       _section("Routing"))
 
     def test_alerts_when_existing_design_md_is_thin(self):
         routing = _section("Routing")
-        self.assertIn("alert, never silently regenerate", routing)
-        self.assertIn("thin = missing a spacing scale", routing)
+        self.assertIn("documentation gap, not permission to redesign", routing)
+        self.assertIn("missing spacing, type, motion or signature decisions", routing)
 
     def test_design_system_governs_after_the_build(self):
         self.assertIn("/design-system", _section("Routing"))
@@ -200,7 +200,7 @@ class TestDesignPlanCommit(unittest.TestCase):
         verify = _section("Verify, then ship")
         self.assertIn("after each chunk, inject `assets/render-floor.js`", verify)
         self.assertIn("sweep 375/768/1024/1440/1920", verify)
-        self.assertIn("one browser session per run", verify)
+        self.assertIn("Reuse one browser session", verify)
 
     def test_conformance_loop_is_bounded(self):
         """The gate is a loop, not a single look — and a bounded one: one fix
@@ -225,8 +225,9 @@ class TestDesignPlanCommit(unittest.TestCase):
         The build paces the page like a score: one climax, at least one rest."""
         path = _path()
         self.assertIn("paced like a score", path)
-        self.assertIn("with one climax", path)
-        self.assertIn("at least one rest", path)
+        self.assertIn("selected archetype's peak law", path)
+        self.assertIn("generic default: one climax and one rest", path)
+        self.assertIn("allow two peaks", path)
 
     def test_mobile_intent_committed(self):
         imp = _ref("award-imperatives.md")
@@ -234,7 +235,7 @@ class TestDesignPlanCommit(unittest.TestCase):
         self.assertIn("a re-thought performance of the same idea", imp)
 
     def test_build_loads_optical_craft(self):
-        self.assertIn("Apply `references/optical-craft.md` while building", _path(),
+        self.assertIn("The builder applies `references/optical-craft.md` during implementation", _path(),
                       "optical craft is installed during the build, never detected after")
 
 
@@ -245,7 +246,10 @@ class TestReviewGate(unittest.TestCase):
 
     def test_review_invoked_by_subcommand(self):
         self.assertIn("`award-design review <url|path>` → run `references/gate/review.md` "
-                      "standalone on the target", _section("Routing"))
+                      "read-only", _section("Routing"))
+        self.assertIn("use the finish review including its contract checks and verdict", _section("Routing"))
+        self.assertIn("otherwise use its standalone audit", _section("Routing"))
+        self.assertIn("An explicitly standalone audit stays an audit", _ref("gate/review.md"))
 
     def test_review_refutes_never_confirms(self):
         self.assertIn("The reviewer refutes; it never confirms", _ref("gate/concept.md"))
@@ -328,7 +332,7 @@ class TestStackMapping(unittest.TestCase):
         self.assertIn("prescribes its own stack wins", body,
                       "a brief that prescribes its own stack overrides the routing")
 
-    def test_locked_universal_craft(self):
+    def test_available_craft_toolkit(self):
         stack = self._stack_detail()
         for craft in ("GSAP", "Lenis", "View Transitions", "variable fonts", "OKLCH"):
             with self.subTest(craft=craft):
@@ -350,10 +354,11 @@ class TestStackMapping(unittest.TestCase):
             with self.subTest(archetype=archetype):
                 self.assertIn(archetype, line)
 
-    def test_motion_framer_and_r3f_on_tanstack_path_only(self):
-        self.assertRegex(
-            self._stack_detail(),
-            r"(Motion/Framer \+ R3F|Motion \(Framer\).*R3F).*TanStack path only")
+    def test_react_tools_require_a_react_context(self):
+        stack = self._stack_detail()
+        self.assertRegex(stack, r"Motion.*R3F.*React")
+        self.assertNotIn("TanStack path only", stack)
+        self.assertIn("non-React surfaces use CSS or an appropriate vanilla engine", stack)
 
     def test_existing_stack_wins_no_migration(self):
         stack = self._stack_detail()

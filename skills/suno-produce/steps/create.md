@@ -16,12 +16,7 @@ Scan the brief for multi-track signals:
 - Words: "EP", "album", "record", "mixtape", "side A / side B", explicit track counts ("4-track", "5 songs"), or numbered track lists in the brief.
 - Plural "tracks" or "songs" with no qualifier → ambiguous; ask.
 
-If detected, run `AskUserQuestion` once with two options to confirm (when `AskUserQuestion` is unavailable, ask in plain text and wait for the reply):
-
-- **Album / EP mode (recommended)** — produce `ALBUM.md` with concept and tracklist, plus per-track folders under `tracks/`.
-- **Single track only** — produce a single `TRACK.md` and ignore the multi-track signals.
-
-If not detected, proceed in single-track mode without asking.
+An explicit album, EP, numbered track list or track count selects album mode: produce `ALBUM.md` and per-track folders under `tracks/` without renewed confirmation. Ask through available question tooling or plain text only when plural intent or the requested scope remains ambiguous. Otherwise proceed in single-track mode.
 
 ### 2. Read ARTIST.md if bound
 
@@ -36,7 +31,7 @@ If `-f` is missing, treat as no artist binding. Skip these defaults.
 
 ### 3. Auto-detect sufficient specification
 
-Count how many of the five anchor dimensions the brief provides:
+Use these dimensions to identify information that would materially change the requested result:
 
 | Dimension | Detection signal |
 |-----------|------------------|
@@ -46,10 +41,7 @@ Count how many of the five anchor dimensions the brief provides:
 | Length target | Time-format like "3:30", or "single", "long-form", "sketch" |
 | References | Era ("late-90s", "2010s"), regional scene ("Bristol post-punk"), or sound-fingerprint description |
 
-When `ARTIST.md` is bound, vocal direction counts as supplied.
-
-- **≥ 3 dimensions** → skip the interview, proceed directly to synthesis.
-- **< 3 dimensions** → run `AskUserQuestion` for the missing ones (max 4 questions, multi-select where applicable, recommended option first). One round only — do not loop.
+Reuse ARTIST.md defaults when bound. State routine musical assumptions and proceed; batch only consequential unresolved questions. Do not infer rights or voice consent from a musical assumption, and do not ask merely because fewer than three dimensions are stated.
 
 ### 4. Synthesise the prompt block
 
@@ -88,23 +80,39 @@ The `revise` step appends entries with the same shape.
 
 ### 6. Assemble ALBUM.md if album mode
 
-When album mode was confirmed in step 1, produce `ALBUM.md` alongside the per-track files. Schema in `references/track-schema.md` § ALBUM. Sections: concept, arc (opening / development / climax / closing), tracklist (numbered, each line: `nn. Title — BPM — key — feel`), transitions (key changes, BPM ramps, cross-fades), rights-and-distribution placeholder.
+When step 1 selects album mode, produce `ALBUM.md` alongside the per-track files. Schema in `references/track-schema.md` § ALBUM. Sections: concept, arc (opening / development / climax / closing), tracklist (numbered, each line: `nn. Title — BPM — key — feel`), transitions (key changes, BPM ramps, cross-fades), rights-and-distribution placeholder.
 
 For an N-track album, scaffold the `tracks/01-{slug}/`, `tracks/02-{slug}/`, … directories. Synthesise each TRACK.md in the same pass — the album arc informs each track's Rationale section, and the tracklist transitions get cross-referenced from each TRACK.md's iteration log.
 
 ### 7. Validate, then write
 
-Write every draft to a temp folder first, keeping the canonical filename — [`../scripts/validate.py`](../scripts/validate.py) dispatches on it (e.g. `/tmp/suno-draft/TRACK.md`; in album mode, mirror the project layout under the temp folder so one directory walk covers ALBUM.md and every TRACK.md). The final path receives content only after the verdict.
+Allocate a unique temp folder for this invocation so parallel projects cannot
+overwrite each other's drafts:
+
+```bash
+python3 -c 'import tempfile; print(tempfile.mkdtemp(prefix="suno-draft-"))'
+```
+
+Keep the printed absolute path as `$DRAFT_DIR` (substitute that literal path when
+shell state does not persist). Write drafts there with canonical filenames because
+[`../scripts/validate.py`](../scripts/validate.py) dispatches on them. In album
+mode, mirror the project layout under `$DRAFT_DIR` so one directory walk covers
+ALBUM.md and every TRACK.md. Validate that directory for an album; for a single
+track use:
 
 `$SKILL_DIR` = this skill's folder — `${CLAUDE_SKILL_DIR}` in Claude Code, the directory containing the skill's SKILL.md elsewhere.
 
 ```bash
-python3 "$SKILL_DIR"/scripts/validate.py /tmp/suno-draft/TRACK.md
+python3 "$SKILL_DIR"/scripts/validate.py "$DRAFT_DIR/TRACK.md"
 ```
 
 - **GREEN** (exit 0) → `mv` the draft into place, no surfacing in summary.
 - **YELLOW** (exit 2) → `mv` the draft into place, warnings included in user-facing summary verbatim.
 - **RED** (exit 1) → block the move. Fix the issue in the temp draft (re-tighten descriptor count, trim Lyrics, drop SFX brackets) and re-validate — the final path is never touched by RED content. Do not ask the user — the model fixes and retries up to twice. If still RED on the third attempt, surface the validator output and stop.
+
+Move only the validated drafts from this invocation's `$DRAFT_DIR`; remove its
+empty staging folders after success and keep drafts on failure. Create a given
+target project one invocation at a time.
 
 ### 8. Emit `.gitignore` if missing
 
@@ -143,6 +151,6 @@ End with: `When you've listened, run /suno-produce revise {path} "<feedback>"` �
 - **Brief is in a non-English language target** (e.g., "make me a French chanson") — write Lyrics in the target language directly. Avoid `[Bilingual]` and similar tags — they don't work alone. See [`../references/style-and-lyrics.md`](../references/style-and-lyrics.md) § *Languages and code-switching*.
 - **Brief asks for SFX in lyrics** ("with applause", "with vinyl crackle") — Style-field texture instead, never Lyrics-field bracket. SFX brackets are unreliable. Note in Rationale that the user can layer specific SFX in Suno Studio after generation.
 - **Brief asks for bar counts** ("8-bar verse") — bar-count tags don't work in Lyrics; honour rate < 30%. Surface that bar-count work belongs in Suno Studio's section editor, not in this prompt.
-- **Brief contradicts ARTIST.md** (e.g., ARTIST.md declares female vocal but brief asks for male) — surface the conflict via `AskUserQuestion`. Override only on confirmation. Never silently pick.
+- **Brief changes ARTIST.md defaults** — apply an explicit musical override and report it. Ask only when the intended identity/profile remains ambiguous; do not infer voice consent or rights from a musical preference. Preserve the bound source file unless its update is requested.
 - **Existing TRACK.md at the target path** — refuse to overwrite. Suggest `revise` instead. The `create` verb writes only to fresh paths.
 - **Project folder collision** — if `{slug}/` exists with non-skill content, refuse. Ask for an explicit slug.

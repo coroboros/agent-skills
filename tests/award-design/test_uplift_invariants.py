@@ -63,10 +63,9 @@ class TestOutputDisciplineSection(unittest.TestCase):
                               f"anti-patterns.md output discipline must carry marker: {marker}")
 
     def test_continuation_marker_documented(self):
-        self.assertIn("PAUSED", self.section,
-                      "output discipline must document the [PAUSED — N of 8 ...] marker")
-        self.assertIn("continue", self.section,
-                      "output discipline must instruct resume via 'continue'")
+        self.assertIn("checkpoint completed sections", self.section)
+        self.assertIn("available compaction/continuation", self.section)
+        self.assertIn("only if the actual harness cannot resume autonomously", self.section)
 
     def test_routes_to_anti_patterns_full_list(self):
         # The SKILL.md section is the summary; the full ban catalog lives
@@ -98,13 +97,9 @@ class TestAntiPatternsOutputDiscipline(unittest.TestCase):
                               f"output discipline must keep ban category: {category}")
 
     def test_continuation_marker_format_pinned(self):
-        # Pin the exact marker shape — any drift breaks the resume contract
-        # documented in SKILL.md.
-        self.assertRegex(
-            self.section,
-            r"\[PAUSED\s*[—\-]\s*N\s+of\s+8\s+sections\s+complete",
-            "anti-patterns.md must pin the [PAUSED — N of 8 sections complete] marker",
-        )
+        self.assertIn("checkpoint the completed section count", self.section)
+        self.assertIn("Only request a user continuation when the actual harness cannot continue autonomously", self.section)
+        self.assertIn("label the result incomplete", self.section)
 
 
 class TestPremiumPatternsNumbering(unittest.TestCase):

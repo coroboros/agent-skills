@@ -32,10 +32,10 @@
      CONSOLE-ERROR       whatever threw while the sweep was running
 
    TEXT-OVERLAP exempts DOM nesting only — an element and its own ancestor share
-   a box by construction. Two UNRELATED elements are judged on geometry alone,
-   including the case where one box sits wholly inside the other: a citation
-   printing inside a label column's box is the most total form of text on text,
-   and it is judged like any other pair.
+   a box by construction. Two UNRELATED elements are compared using their
+   direct text-node line rectangles, never their full-width border boxes.
+   Overlapping layout boxes with separated left/right labels are not evidence
+   of text overlap. Range rectangles approximate glyph extents, not painted ink.
    TEXT-CLIPPED measures the GLYPH box (range client rects), not the border box:
    a block element never grows past its containing block, so a nowrap heading in
    a narrower overflow:hidden parent has an in-bounds rect and out-of-bounds
@@ -313,6 +313,21 @@
     return found ? { left, top, right, bottom } : null;
   }
 
+  function directTextRects(el) {
+    const rects = [];
+    for (const node of el.childNodes) {
+      if (node.nodeType !== 3 || !node.textContent.trim()) continue;
+      const range = document.createRange();
+      const text = node.textContent;
+      range.setStart(node, text.length - text.trimStart().length);
+      range.setEnd(node, text.trimEnd().length);
+      for (const rect of range.getClientRects()) {
+        if (rect.width >= 0.5 && rect.height >= 0.5) rects.push(rect);
+      }
+    }
+    return rects;
+  }
+
   function textCandidates(root) {
     const isFixed = makeFixedCheck();
     const all = root.querySelectorAll('*');
@@ -327,7 +342,8 @@
       if (!isVisible(el)) continue;
       const fixed = isFixed(el);
       if (fixed) fixedExcluded++;
-      out.push({ el, cs: getComputedStyle(el), rect: el.getBoundingClientRect(), text, fixed });
+      out.push({ el, cs: getComputedStyle(el), rect: el.getBoundingClientRect(),
+        inkRects: directTextRects(el), text, fixed });
     }
     // Both caps are reported, and against the counts they actually truncate —
     // comparing survivors to the pre-filter scan cap would report a truncated
@@ -343,7 +359,11 @@
   // that start before it ends. A full pairwise pass over a 11,577px page is not
   // affordable inside one evaluate call.
   function checkTextOverlap(candidates, findings) {
-    const items = candidates.filter((c) => !c.fixed && rectArea(c.rect) > 0)
+    const items = candidates.filter((c) => !c.fixed && c.inkRects.length)
+      .map((c) => Object.assign({}, c, { rect: c.inkRects.reduce((box, r) => ({
+        left: Math.min(box.left, r.left), top: Math.min(box.top, r.top),
+        right: Math.max(box.right, r.right), bottom: Math.max(box.bottom, r.bottom)
+      }), { left: Infinity, top: Infinity, right: -Infinity, bottom: -Infinity }) }))
       .sort((a, b) => a.rect.top - b.rect.top);
     let count = 0, pairs = 0;
     for (let i = 0; i < items.length && count < FINDING_CAP; i++) {
@@ -353,17 +373,26 @@
         if (b.rect.top >= a.rect.bottom - TOL.overlapPx) break;
         pairs++;
         const related = a.el.contains(b.el) || b.el.contains(a.el);
-        const pair = classifyRectPair(a.rect, b.rect, null, related);
-        if (pair.verdict !== 'OVERLAP') continue;
+        if (related) continue;
+        let collision = null;
+        for (const aInk of a.inkRects) {
+          for (const bInk of b.inkRects) {
+            const pair = classifyRectPair(aInk, bInk);
+            if (pair.verdict === 'OVERLAP') { collision = { pair, aInk, bInk }; break; }
+          }
+          if (collision) break;
+        }
+        if (!collision) continue;
+        const { pair, aInk, bInk } = collision;
         count++;
         findings.push(finding('TEXT-OVERLAP', cssPath(a.el) + ' × ' + cssPath(b.el), {
-          a: boxOf(a.rect), b: boxOf(b.rect),
+          a: boxOf(aInk), b: boxOf(bInk),
           overlapW: r2(pair.overlapW), overlapH: r2(pair.overlapH),
           overlapArea: r2(pair.overlapArea), ratioOfSmaller: r2(pair.ratio),
           aText: a.text.slice(0, 40), bText: b.text.slice(0, 40)
-        }, 'two text boxes cut into each other by ' + Math.round(pair.overlapW) + '×' +
+        }, 'two unrelated text-line rectangles overlap by ' + Math.round(pair.overlapW) + '×' +
           Math.round(pair.overlapH) + 'px (' + Math.round(pair.ratio * 100) +
-          '% of the smaller box) — neither contains the other, so this prints as text on text'));
+          '% of the smaller text rectangle)'));
         if (count >= FINDING_CAP) break;
       }
     }

@@ -47,6 +47,8 @@ Per `references/source-resolution.md`. Aggregate into a working draft.
 
 For each YAML field:
 
+The current request and designated source authority resolve intended changes. The conflict rules below require a question only when materially different values remain unresolved after applying that authority. Report resolved changes in the diff; do not ask again for a value the user explicitly requested.
+
 - **`voice.source_urls`** — append new entries, deduplicate.
 - **`voice.last_updated`** — bump to today's ISO date.
 - **`forbidden_lexicon`** — union of old and new. Surface conflicts (a term in old's `required_lexicon` and new's `forbidden_lexicon`) via `AskUserQuestion`.
@@ -86,16 +88,16 @@ Manual sections preserved
 -------------------------
 Section 12 (Brand mythology) — unchanged
 
-Apply? (yes/no)
+<Applied update, or proposed diff when the user requested review only.>
 ```
 
-The user must answer `yes` explicitly.
+The authorized update proceeds after validation; audit/propose stays read-only.
 
 ### 6. Lint and write
 
 - Build the merged file in a temp file.
-- `voice_lint.py` — must return 0 (GREEN/YELLOW). RED → fix and re-lint.
-- On user `yes`: write the merged file to the target path. Manual sections are already preserved by the merge step (§4) — the write is a straight replace of the synthesised content.
+- Run `python3 "$SKILL_DIR"/scripts/voice_lint.py <candidate> --target-path <target>` — must return 0 (GREEN/YELLOW). This validates the candidate bytes at the final target identity, including relative parents and cycles; a temp filename alone is not sufficient. RED → fix and re-lint without touching the target or its ancestors.
+- Write the validated candidate under the existing update authorization. Preserve manual sections verbatim through the merge (§4) and report the applied diff.
 
 ### 7. Post-write report
 

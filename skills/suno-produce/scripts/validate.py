@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -334,7 +335,7 @@ def offset_to_line(text, offset):
 def parse_sliders(body):
     """Find numeric slider values under `## Sliders`. Strips `**` and `__` markdown
     emphasis before matching so `- **Weirdness**: 40` parses cleanly. Returns a
-    list of (name, value, line_in_body)."""
+    list of (name, numeric_value_or_None, line_in_body, raw_value)."""
     out = []
     lines = body.splitlines()
     in_sliders = False
@@ -346,13 +347,18 @@ def parse_sliders(body):
             if line.startswith("## "):
                 break
             clean = line.replace("**", "").replace("__", "")
-            m = re.search(
-                r"\b(weirdness|style\s*influence|audio\s*influence|styleweight|audioweight|weirdnessconstraint)\b"
-                r"\s*[:=]?\s*(\d+(?:\.\d+)?)",
+            m = re.match(
+                r"^\s*(?:[-*+]\s+)?(weirdness|style\s*influence|audio\s*influence|styleweight|audioweight|weirdnessconstraint)\b"
+                r"\s*[:=]?\s*(.*)$",
                 clean, re.IGNORECASE,
             )
             if m:
-                out.append((m.group(1), float(m.group(2)), i + 1))
+                raw = m.group(2).split()[0] if m.group(2).strip() else ""
+                number = re.fullmatch(r"[+-]?(?:\d+(?:\.\d+)?|\.\d+)%?", raw)
+                value = float(raw.rstrip("%")) if number else None
+                if value is not None and not math.isfinite(value):
+                    value = None
+                out.append((m.group(1), value, i + 1, raw))
     return out
 
 
@@ -608,8 +614,16 @@ def check_track(path):
                 "fix": "Cap exclusions at three; positives define, negatives refine",
             })
 
-    for slider_name, value, line_in_body in parse_sliders(body):
-        if value < 0 or value > 100:
+    for slider_name, value, line_in_body, raw in parse_sliders(body):
+        if value is None:
+            errors.append({
+                "check": "slider_value",
+                "line": fm_offset + line_in_body,
+                "value": raw,
+                "expected": "a finite number from 0 to 100",
+                "fix": f"Supply a numeric value for {slider_name.strip()}",
+            })
+        elif value < 0 or value > 100:
             errors.append({
                 "check": "slider_range",
                 "line": fm_offset + line_in_body,

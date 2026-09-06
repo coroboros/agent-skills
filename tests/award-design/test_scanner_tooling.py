@@ -168,6 +168,18 @@ class TestImgNativeRes(unittest.TestCase):
 
 
 class TestEaseOvershoot(unittest.TestCase):
+    def test_mjs_is_collected_and_matches_the_js_control(self):
+        code = "window.addEventListener('scroll', () => {});\nconst ease = 'elastic.out(1, 0.3)';\n"
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            module = root / 'motion.mjs'
+            module.write_text(code, encoding='utf-8')
+            mjs, _ = scan.scan_paths([str(root)])
+            module.rename(root / 'motion.js')
+            js, _ = scan.scan_paths([str(root)])
+        self.assertEqual(_rule_ids(mjs), _rule_ids(js))
+        self.assertTrue({'SCROLL-LISTENER', 'EASE-OVERSHOOT'} <= _rule_ids(mjs))
+
     """The register verdict is imposed (one register page-wide) but lives in
     the DESIGN.md the scanner excludes — so every overshoot/elastic curve is
     named as REVIEW for the reviewer to judge, and nothing FAILs."""

@@ -123,11 +123,49 @@ def _blank(m):
     return "".join("\n" if c == "\n" else " " for c in m.group(0))
 
 
+def mask_fenced_code(text):
+    """Mask fenced blocks, including longer and unclosed fences, keeping offsets."""
+    fence = None
+    fence_indent = 0
+    list_indents = []
+    lines = []
+    for line in text.splitlines(keepends=True):
+        view = line.expandtabs(4)
+        indent = len(view) - len(view.lstrip(" "))
+        # An unclosed fence ends with its list container, not the document.
+        if fence is not None and line.strip() and indent < fence_indent:
+            fence = None
+        if fence is None:
+            if line.strip():
+                while list_indents and indent < list_indents[-1]:
+                    list_indents.pop()
+            container_indent = list_indents[-1] if list_indents else 0
+            content = view[container_indent:]
+            item = re.match(r"^ {0,3}(?:[-+*]|\d{1,9}[.)])( +)(?=\S)", content)
+            if item:
+                padding = len(item[1]) if len(item[1]) <= 4 else 1
+                container_indent += item.start(1) + padding
+                list_indents.append(container_indent)
+                content = view[container_indent:]
+            opening = re.match(r"^ {0,3}(`{3,}|~{3,})(.*)$", content)
+            if opening and not (opening[1][0] == "`" and "`" in opening[2]):
+                fence = opening[1]
+                fence_indent = container_indent
+                lines.append("".join("\n" if c == "\n" else " " for c in line))
+            else:
+                lines.append(line)
+        else:
+            lines.append("".join("\n" if c == "\n" else " " for c in line))
+            if re.match(rf"^ {{0,3}}{re.escape(fence[0])}{{{len(fence)},}}\s*$",
+                        view[fence_indent:]):
+                fence = None
+    return "".join(lines)
+
+
 def mask_code_only(text):
     """Blank out fenced code and inline code. Preserves HTML tags for
     structural scans (<details>, <summary>, <br>)."""
-    text = re.sub(r"```.*?```", _blank, text, flags=re.DOTALL)
-    text = re.sub(r"~~~.*?~~~", _blank, text, flags=re.DOTALL)
+    text = mask_fenced_code(text)
     text = re.sub(r"`[^`\n]+`", _blank, text)
     return text
 
@@ -177,14 +215,18 @@ def audit(text):
     structural = mask_code_only(text)
     line_count = text.count("\n") + 1
 
-    # Scan RAW text, not masked: headings can sit anywhere, including inside details.
-    headings = []
-    for m in HEADING_RE.finditer(text):
-        line_num = text.count("\n", 0, m.start()) + 1
-        heading_text = m.group(2)
-        headings.append((line_num, heading_text, slugify(heading_text)))
-
-    known_slugs = {slug for _, _, slug in headings}
+    # Keep rendered headings inside details and their inline code text; code
+    # examples create no anchors. Deduplicate in document order, including
+    # collisions with naturally suffixed headings such as "Usage-1".
+    heading_anchor_pos = {}
+    for m in HEADING_RE.finditer(mask_fenced_code(text)):
+        base = slugify(m.group(2))
+        slug = base
+        suffix = 0
+        while slug in heading_anchor_pos:
+            suffix += 1
+            slug = f"{base}-{suffix}"
+        heading_anchor_pos[slug] = m.start()
 
     details_opens = [m.start() for m in DETAILS_OPEN_RE.finditer(structural)]
     details_closes = [m.start() for m in DETAILS_CLOSE_RE.finditer(structural)]
@@ -216,20 +258,13 @@ def audit(text):
                 return True
         return False
 
-    # Anchor links analysis. First-occurrence wins — earlier h2 anchors beat
-    # later h4 collisions, matching GitHub's slug-deduplication intent.
+    # Use the same rendered-heading index for existence and target location.
     unresolved = []
     inside_details_info = []
-    heading_anchor_pos = {}
-    for m in HEADING_RE.finditer(text):
-        slug = slugify(m.group(2))
-        if slug not in heading_anchor_pos:
-            heading_anchor_pos[slug] = m.start()
-
-    for m in ANCHOR_LINK_RE.finditer(text):
+    for m in ANCHOR_LINK_RE.finditer(structural):
         slug = m.group("anchor")
         line_num = text.count("\n", 0, m.start()) + 1
-        if slug not in known_slugs:
+        if slug not in heading_anchor_pos:
             unresolved.append({"line": line_num, "anchor": slug})
         else:
             target_pos = heading_anchor_pos.get(slug)

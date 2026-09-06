@@ -77,8 +77,8 @@ class TestUniversalContract(unittest.TestCase):
             with self.subTest(tool=tool):
                 raw = _read(next(FIXTURES.glob(f"{tool}.*")).name)
                 for f in bi.ingest_one(tool, raw):
-                    self.assertEqual(f["confidence"], 100,
-                                     f"{tool}: confidence must be 100")
+                    self.assertEqual(f["confidence"], 0,
+                                     f"{tool}: confidence must be unassessed")
 
     def test_every_finding_severity_is_canonical(self):
         for tool in bi.PARSERS:
@@ -504,7 +504,7 @@ class TestCli(unittest.TestCase):
             # Every line must have the canonical schema.
             for f in lines:
                 self.assertIn("axis", f)
-                self.assertEqual(f["confidence"], 100)
+                self.assertEqual(f["confidence"], 0)
 
     def test_ingest_single_tool(self):
         r = subprocess.run(

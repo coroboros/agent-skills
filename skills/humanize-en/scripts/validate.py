@@ -85,16 +85,18 @@ def _hit_signature(hit):
     )
 
 
-def validate(path, brand_path=None, baseline_hits=None, strict_code_only=False):
+def validate(path, brand_path=None, baseline_hits=None, strict_code_only=False, rules_json=None):
     """Re-scan `path` and return a validation result dict per the schema above."""
     text = Path(path).read_text(encoding="utf-8")
 
-    has_brand = bool(brand_path)
+    if brand_path and rules_json:
+        raise ValueError("choose --brand or --rules-json, not both")
+    has_brand = bool(brand_path or rules_json)
     residuals = prescan_scan(text, strict_code_only=strict_code_only, attach_source=has_brand)
 
     if has_brand:
-        from brand_prescan import load_brand_rules, scan_brand
-        rules = load_brand_rules(brand_path)
+        from brand_prescan import load_brand_rules, load_resolved_rules, scan_brand
+        rules = load_resolved_rules(rules_json) if rules_json else load_brand_rules(brand_path)
         residuals.extend(scan_brand(text, rules, strict_code_only=strict_code_only))
 
     universal_count = sum(1 for h in residuals if h.get("source") != "brand")
@@ -134,8 +136,10 @@ def main():
         prog="validate.py",
     )
     parser.add_argument("path", help="path to the rewritten prose file")
-    parser.add_argument("--brand", metavar="<voice-doc>",
+    brand_input = parser.add_mutually_exclusive_group()
+    brand_input.add_argument("--brand", metavar="<voice-doc>",
                         help="BRAND-VOICE.md to enforce alongside universal patterns")
+    brand_input.add_argument("--rules-json", help="resolved rules from extract_rules.py --resolved-json")
     parser.add_argument("--baseline", metavar="<hits.json>",
                         help="prescan output captured BEFORE the rewrite, "
                              "for regression detection")
@@ -169,6 +173,7 @@ def main():
             brand_path=args.brand,
             baseline_hits=baseline,
             strict_code_only=args.strict_code_only,
+            rules_json=args.rules_json,
         )
     except FileNotFoundError as exc:
         print(f"error: {exc}", file=sys.stderr)
@@ -180,7 +185,7 @@ def main():
         print(f"error: cannot read file: {exc}", file=sys.stderr)
         return 2
     except ValueError as exc:
-        print(f"error: brand-voice YAML invalid: {exc}", file=sys.stderr)
+        print(f"error: invalid brand rules: {exc}", file=sys.stderr)
         return 2
 
     print(json.dumps(result, ensure_ascii=False, indent=2))

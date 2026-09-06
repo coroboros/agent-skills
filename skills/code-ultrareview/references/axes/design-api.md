@@ -33,7 +33,7 @@ From `scripts/battery_ingest.py:TOOL_TO_AXIS`:
 - `oasdiff` — OpenAPI breaking-change detector. Levels: `3 = ERR` (🔴 High) · `2 = WARN` (🟠 Medium) · `1 = INFO` (🟢 Low).
 - `atlas` — DB migration lint. All atlas diagnostics → 🔴 High by default.
 
-All tool findings carry `confidence: 100` and skip validators.
+All tool matches enter as observations at `confidence: 0` and require contextual validation.
 
 ## Severity calibration
 

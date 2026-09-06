@@ -152,14 +152,12 @@ class TestAxis8SignatureOnMakeOrBreakSurface(unittest.TestCase):
     def test_signature_invention_places_it_on_the_hero(self):
         sig = _read("signature-invention.md")
         self.assertIn("make-or-break surface", sig)
-        self.assertIn("below the fold", sig)
+        self.assertIn("default is a signature payoff in that viewport", sig)
 
     def test_placement_binds_at_r1(self):
         sig = _read("signature-invention.md")
-        self.assertIn("the signature belongs there", sig,
-                      "the signature lands on the hero, not section four")
-        self.assertIn("r1 scores it off-track", sig,
-                      "a category-hero build is refuted at R1, whatever waits below")
+        self.assertIn("selected archetype or explicit brief may place its spectacle later", sig)
+        self.assertIn("generic opener cannot borrow quality", sig)
 
     def test_imperative_one_binds_placement(self):
         imp = _read("award-imperatives.md")

@@ -6,7 +6,7 @@
       "id": 1,
       "name": "everyday-page-runs-commit-ritual",
       "prompt": "Add a public changelog page to our product site (Astro). Entries grouped by month, latest on top. Make it look nice.",
-      "expected_output": "Opens with the five-line commit ritual in the response — SURFACE (Read or Browse, named with the composition it implies), WORLD (the product's own vocabulary as the identity source), TYPE (two named faces, no Inter/Roboto/Arial on display), COLOR (ground, ink, one accent as values — no pure #000/#fff), SIGNATURE (one deliberate moment) — every line carrying a concrete value or proper noun, then copies the block into a comment at the top of the first file touched. Builds the page under the hard floors (snapped type scale, body ≥16px, 45–75ch measure, base-4 spacing, separation by spacing before borders or shadows) with real copy and no fingerprint element. States and the ship checklist are ticked; the page is verified from screenshots at 375, 768, and 1440, or the missing browser tooling is declared. 'Make it look nice' stays in this lane — no /award-design hand-off, no DESIGN.md authored.",
+      "expected_output": "Read the existing site's neighboring direction and project instructions. Build the changelog page in Astro, inheriting the site's design where established. If a new direction is needed, state it briefly in the response or existing design artifact, never a process comment in source. Validate the changed page at applicable widths and interactions; page metadata is in scope, unrelated site 404 work is not.",
       "files": []
     },
     {
@@ -20,28 +20,28 @@
       "id": 3,
       "name": "ladder-chunk-runs-under-its-own-verify",
       "prompt": "/award-design is not installed here. DESIGN.md and design-plan.md are at the project root from an earlier award-design run. Run this chunk:\n\n### s3-faq — the objections section\n\n**Read first**\n- `DESIGN.md` §2 Colors · §3 Typography\n- design_plan: the contract (THESIS)\n\n**Implement**\n1. An objections section — five real questions, one-paragraph answers, accordion collapsed by default.\n2. Tokens by DESIGN.md name only.\n3. Reduced-motion: no height animation, instant toggle.\n\n**Verify**\n- `python3 <skill root>/scripts/preflight_scan.py src/components/Faq.astro --archetype editorial` → 0 FAIL\n- render-floor sweep 375/768/1024/1440/1920 on / → 0 FAIL\n- screenshots 1440 and 375 attached\n\n**Out of scope**\n- the pricing band above",
-      "expected_output": "Runs the chunk as written and nothing more: implements only what Implement states (the accordion with tokens by DESIGN.md name and the reduced-motion branch), leaves the pricing band untouched, and runs the chunk's own Verify verbatim instead of the skill's fresh-pixels section. The preflight scanner and render-floor gates name scripts from the absent /award-design install, so each unavailable gate is a declared gap in the Report — named, never asserted as passed. The Report lands in the ladder row and the run stops at the chunk boundary: no next chunk, no ritual, no direction work. With /award-design installed, the same paste would be handed to its chunk mode instead of running here.",
+      "expected_output": "Runs the chunk as written and nothing more: implements only what Implement states (the accordion with tokens by DESIGN.md name and the reduced-motion branch), leaves the pricing band untouched, and runs the chunk's own Verify verbatim instead of the skill's fresh-pixels section. The preflight scanner and render-floor gates name scripts from the absent /award-design install, so each unavailable gate is a declared gap in the Report — named, never asserted as passed. The Report lands in the ladder row and the run stops at the chunk boundary: no next chunk, no ritual, no direction work. With award-design installed, the same chunk still runs in frontend-dev; resolve its verification resources through host skill discovery.",
       "files": []
     },
     {
       "id": 4,
       "name": "award-ask-hands-off",
       "prompt": "Build our new agency site — it has to be award-winning, Awwwards-level, a real signature piece. Start with the homepage.",
-      "expected_output": "Hands off instead of building: 'award-winning' and 'signature' are ceiling vocabulary, so the run recommends `/award-design` with the brief and writes no page, no ritual, no DESIGN.md. If /award-design is reported absent from the session, the response says the award lane is missing and delivers the everyday version under this skill's floors — never labeling it an award piece.",
+      "expected_output": "Load installed award-design for the needed homepage direction, then return implementation to frontend-dev. The task owner sequences the authorized ladder and returns to the director for visual review with actual evidence. A textual referral or direction-only artifact does not complete the full-build request. If the director is absent, identify the unmet award requirement and complete only useful authorized work without an award-complete claim.",
       "files": []
     },
     {
       "id": 5,
       "name": "single-token-routes-to-design-system",
       "prompt": "Change the accent color to #1E5EFF everywhere. There's a DESIGN.md at the root.",
-      "expected_output": "Redirects to /design-system: one color is a single-token change, and with a DESIGN.md present the token changes there, never in an inline literal. The run writes no UI code, runs no ritual, and its only output is the hand-off naming /design-system and the token to change.",
+      "expected_output": "Load and execute design-system, update the authorized accent token in DESIGN.md first, run its applicable validation and propagate within the authorized project. Report the applied change; do not stop after naming the receiving skill or edit unrelated consumer repositories.",
       "files": []
     },
     {
       "id": 6,
       "name": "dashboard-is-the-lane",
       "prompt": "Design our internal admin dashboard for the customer-success team. Lots of tables and metrics. No DESIGN.md in the repo.",
-      "expected_output": "Takes the work — an internal dashboard is this skill's lane, not an award ask. The ritual's SURFACE line names Monitor: dense data grid, scannable numbers, hierarchy driven by what changed, and no hero — a hero on a dashboard is the named compositional failure. Tables get real column labels, data views ship loading, empty, and error states, and the floors hold (two faces, snapped scale, one accent on the working actions, focus-visible, ≥44px targets). No hand-off to /award-design and no refusal: the dashboard is built here.",
+      "expected_output": "Build the dashboard using Monitor composition: tables/metrics and hierarchy, no marketing hero. State needed direction briefly without source-comment ritual. Implement actual control/data states; do not invent a marketing signature or site 404. Verify keyboard use, affected responsive layouts and console behavior.",
       "files": []
     },
     {
@@ -55,14 +55,14 @@
       "id": 8,
       "name": "fingerprint-dodged-on-neutral-brief",
       "prompt": "Design a features page for our AI meeting-notes SaaS. Nothing fancy, just clean and modern.",
-      "expected_output": "The neutral brief is where the reflex page appears, so the ritual names the first instinct — purple-to-blue gradient, Inter display, three equal cards, an icon above every feature title — and chooses against it, deriving WORLD from meeting-notes material (transcripts, timestamps, margins, highlighter marks) rather than a SaaS template. The built page contains none of the ten fingerprint items: no eyebrow labels, no glassmorphism, no invented round stats, no center-stacked default, no nested cards. 'Clean and modern' is treated as a mood, not a decision — the ritual's lines carry the concrete values that replace it.",
+      "expected_output": "Read the surrounding site and preserve its established direction. If a new direction is needed, choose concrete subject-derived composition, type and color decisions in the response or existing design artifact. Apply fingerprint defaults where the brief/design is silent; do not invent stats or introduce a mandatory source-comment ritual. Build and verify the requested features page.",
       "files": []
     },
     {
       "id": 9,
       "name": "empty-directory-scaffolds-first",
       "prompt": "Build a marketing site for my woodworking studio. The project folder is completely empty.",
-      "expected_output": "Routes to /scaffold first — an empty directory gets a project skeleton before any UI work — then returns to this skill's path: the ritual (WORLD drawn from the studio's materials — grain, joinery, shop-drawing vocabulary), the Persuade composition with the conversion lines, the floors, and the fresh-pixels verify. If /scaffold is absent from the session, the gap is named and the user is asked how to bootstrap rather than inventing a project layout silently.",
+      "expected_output": "Run the installed scaffold skill and return to the frontend task. If absent, inspect instructions and the requested stack and use its documented official scaffolding path, stating routine assumptions. Ask only for an unresolved consequential choice. Complete the authorized site and applicable rendered checks; missing tools remain explicit evidence gaps.",
       "files": []
     },
     {
@@ -76,7 +76,7 @@
       "id": 11,
       "name": "design-md-discovered-mid-build",
       "prompt": "Continue the pricing page: last session committed the five ritual lines as a comment at the top of src/pages/pricing.astro and built the hero. Since then a DESIGN.md landed at the project root — nobody has read it yet. Finish the page.",
-      "expected_output": "Stops before building further: the DESIGN.md wins retroactively. Reads it, adopts its tokens, revises the committed ritual lines to match them, and reconciles the hero already built — no inline literal survives beside a token the file names — then continues under the tokens. No second ritual runs; the hard floors apply only where the file is silent.",
+      "expected_output": "Read the newly available DESIGN.md before further edits and reconcile the requested pricing page with its tokens. Continue the page under that contract, updating existing direction notes where necessary without creating another ritual or expanding into unrelated historical cleanup. Perform applicable rendered checks and report any unavailable evidence.",
       "files": []
     },
     {
@@ -88,9 +88,23 @@
     },
     {
       "id": 13,
-      "name": "chunk-hands-to-award-design-when-installed",
+      "name": "ready-award-chunk-stays-with-builder",
       "prompt": "/award-design is installed in this session. DESIGN.md and design-plan.md are at the project root. Run this chunk:\n\n### s2-proof — the proof band\n\n**Read first**\n- `DESIGN.md` §2 Colors\n\n**Implement**\n1. A proof band under the hero: three named customer quotes, tokens by DESIGN.md name.\n\n**Verify**\n- render-floor sweep 375/768/1440 on / → 0 FAIL\n\n**Out of scope**\n- the hero above",
-      "expected_output": "Hands the chunk to /award-design chunk mode instead of running it here — it owns the gate scripts. Writes no UI code under this skill, runs no ritual, substitutes no Verify of its own; the only output is the hand-off naming /award-design chunk mode with the pasted chunk.",
+      "expected_output": "Frontend-dev implements the supplied proof-band chunk itself, despite award-design being installed. Resolve any director-owned resources through host discovery, use only supplied customer quotes and committed tokens, run the supplied Verify and report into the selected row. Do not route the ready chunk back for direction, expand into another chunk or invent unmeasured passes.",
+      "files": []
+    },
+    {
+      "id": 14,
+      "name": "component-fix-does-not-expand-site-scope",
+      "prompt": "Fix the clipped focus outline on this existing navigation link. Keep the visual identity and all other pages unchanged.",
+      "expected_output": "Inspect the link and surrounding styles, repair its focus outline and drive keyboard focus at the affected widths. Do not add loading/disabled state machinery, a favicon, a 404 page, a signature effect or process comments.",
+      "files": []
+    },
+    {
+      "id": 15,
+      "name": "complete-ladder-continues-through-builder",
+      "prompt": "Implement all remaining build rows of design-plan.md. The award-design direction is approved; shell, hero and proof remain. Finish with the director's review. Do not redesign the approved direction.",
+      "expected_output": "Frontend-dev executes the authorized remaining build rows in order, reusing resolved director references and their Verify/Report contracts, then invokes the available award-design visual review. Do not stop after the shell, route ready build rows back for direction or request another continuation approval. Missing capabilities remain explicit.",
       "files": []
     }
   ]

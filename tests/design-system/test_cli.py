@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import stat
 import subprocess
 import tempfile
@@ -309,6 +310,21 @@ class TestExportUsage(_TmpMixin, unittest.TestCase):
 
 
 class TestExportCliPropagation(_TmpMixin, unittest.TestCase):
+    def test_documented_v3_merge_uses_the_validated_export_map(self):
+        _make_stub(self.fake_bin, "designmd", f"#!/bin/sh\nprintf '%s\\n' '{TAILWIND_EXPORT}'\n")
+        output = self.tmp / "tailwind.theme.json"
+        result = _run("export.sh", "tailwind", str(self._design_md()), str(output), fake_bin=self.fake_bin)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        exported = json.loads(output.read_text())
+        reference = (SCRIPTS.parent / "references/subcommand-export.md").read_text()
+        example = re.search(r"```typescript\n(.*?)\n```", reference, re.DOTALL).group(1)
+        imported_name = re.search(r"import (\w+) from", example).group(1)
+        expression = re.search(r"extend:\s*([\w.]+)", example).group(1).split(".")
+        value = {imported_name: exported}
+        for key in expression:
+            value = value[key]
+        self.assertEqual(set(value), {"colors", "fontFamily", "fontSize", "borderRadius", "spacing"})
+
     def test_success_emits_full_schema(self):
         # Stub writes to stdout, which the script redirects into the output file.
         _make_stub(self.fake_bin, "designmd", f"#!/bin/sh\nprintf '%s\\n' '{TAILWIND_EXPORT}'\nexit 0\n")

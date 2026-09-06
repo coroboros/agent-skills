@@ -3,7 +3,7 @@
 Verbatim review primitives carried from Anthropic's official `code-review` plugin. Used by:
 
 - Phase 3 axis reviewers — score each finding against the 0-100 rubric.
-- Phase 4 fresh-context validators — re-score sub-80 findings and re-check the project-instruction citation.
+- Phase 4 fresh-context validators — assess every observation and re-check the project-instruction citation.
 - Phase 5 synthesis — tier classification (`Important` / `Nit` / `Pre-existing`).
 
 **Drift surveillance.** Every block below carries a `## Source` line + `Last verified: 2026-05-26`. The test `tests/code-ultrareview/test_anthropic_verbatim.py` enforces byte-for-byte parity against the upstream source file when that file is present. Quarterly re-verification: open the source, diff against the block, update if needed, bump the date.
@@ -79,8 +79,10 @@ Examples of false positives:
 
 ## Application in code-ultrareview
 
-- **Phase 3 axis reviewers** — every axis subagent prompt cites the 0-100 rubric verbatim AND the false-positive taxonomy. Findings scored 0-100. Out-of-scope concerns (security, runtime perf, flaky tests) are excluded from axis output and surface in the closing "What I did NOT check" section.
-- **Phase 4 fresh-context validators** — receive a sub-80 finding + the rubric + the applicable instruction snippet. Re-score 0-100. Demote with reason when the cited rule is not present in `instruction_chain`.
+- **Effective local policy** — the blocks above are preserved upstream quotations, not universal harness rules. Cover supported low-severity and uncertain findings, validate tool observations, and schedule all requested axes within available host slots. Do not suppress a supported concern solely because the quotation calls it a nit or a linter issue. Severity follows consequence; confidence is a reporting heuristic, not a probability.
+
+- **Phase 3 axis reviewers** — prompts cite the rubric as background and apply this local policy. Findings scored 0-100. Out-of-scope concerns (security, runtime perf, flaky tests) are excluded from axis output and surface in the closing "What I did NOT check" section.
+- **Phase 4 fresh-context validators** — receive each observation + the rubric + the applicable instruction snippet. Re-score 0-100. Demote with reason when the cited rule is not present in `instruction_chain`.
 - **Phase 5 synthesis** — tier classification reads the score. `Important` = confidence ≥ 80 AND severity High/Medium. `Nit` = ≥ 80 AND Low. `Pre-existing` = `finding.pre_existing == true`. Verdict (Ship / Fix-then-ship / Needs work) ignores sub-80 — the A2 contract surfaces them in `### ⚠️ Unverified` without affecting the verdict.
 
 ## Why these blocks
@@ -88,6 +90,6 @@ Examples of false positives:
 | Block | Why carry it |
 |-------|--------------|
 | 0-100 rubric | Reproducibility — every validator scores against the same yardstick. The 80-threshold gate (`scripts/synthesis_core.py:CONFIDENCE_THRESHOLD`) is meaningful only if the rubric is stable. |
-| HIGH SIGNAL criteria | Sets the bar for what an axis is allowed to flag — large bugs and direct project-instruction violations, not stylistic nitpicks. |
-| False-positive taxonomy | The 8-class list is the explicit "don't flag this" contract. Linter-territory issues, intentional changes, and pre-existing problems are silenced at source instead of cluttering the report. |
+| HIGH SIGNAL criteria | Historical upstream approach; local axis scope and coverage policy determine what to review. |
+| False-positive taxonomy | Historical upstream exclusions. Local policy retains supported low-severity concerns and routes tool matches for contextual validation. |
 | Agent assumption rule | The skill is read-only judgment review. Build/typecheck run separately in CI; this rule keeps Phase 3 focused on judgment, not execution. |

@@ -14,10 +14,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _helpers import get_skill_dirs, load_frontmatter  # noqa: E402
 
 KEBAB_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
-CANONICAL_COMPATIBILITY = (
-    "Optimized for Claude Code; degrades gracefully on any agent "
-    "implementing the Agent Skills standard."
-)
 RESERVED_NAME_EXCEPTIONS = {"claude-md"}
 
 
@@ -77,6 +73,18 @@ class TestDescriptionField(unittest.TestCase):
 
 
 class TestMetadataField(unittest.TestCase):
+    def test_metadata_is_string_mapping(self):
+        """The open standard requires string keys and string values."""
+        for skill in get_skill_dirs():
+            with self.subTest(skill=skill.name):
+                fm, _ = load_frontmatter(skill)
+                meta = fm.get("metadata", {})
+                self.assertIsInstance(meta, dict)
+                for key, value in meta.items():
+                    self.assertIsInstance(key, str)
+                    self.assertIsInstance(value, str,
+                                          f"{skill.name}: metadata.{key} must be a string")
+
     def test_metadata_author_is_coroboros(self):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
@@ -96,19 +104,18 @@ class TestMetadataField(unittest.TestCase):
 
 
 class TestCompatibilityField(unittest.TestCase):
-    """Per the spec, most skills do not need `compatibility` — portable skills omit
-    it. Harness-coupled skills declare the canonical text; this pins it against
-    per-skill drift."""
+    """Check the spec's field shape; behavioral review verifies the requirements."""
 
-    def test_compatibility_absent_or_canonical(self):
+    def test_compatibility_absent_or_bounded_requirements(self):
         for skill in get_skill_dirs():
             with self.subTest(skill=skill.name):
                 fm, _ = load_frontmatter(skill)
                 compat = fm.get("compatibility")
-                if compat is None:
-                    continue  # portable skill — field omitted by policy
-                self.assertEqual(compat, CANONICAL_COMPATIBILITY,
-                                 f"{skill.name}: non-canonical compatibility text")
+                if "compatibility" not in fm:
+                    continue
+                self.assertIsInstance(compat, str)
+                self.assertTrue(compat.strip(), "compatibility must not be empty")
+                self.assertLessEqual(len(compat), 500)
 
 
 class TestNoModelEffortPins(unittest.TestCase):
@@ -124,7 +131,7 @@ class TestNoModelEffortPins(unittest.TestCase):
 
 
 class TestNoXMLMarkupInFrontmatter(unittest.TestCase):
-    """The spec forbids XML markup in frontmatter (e.g., `<workflow>...</workflow>`).
+    """Repository policy forbids XML markup (e.g., `<workflow>...</workflow>`).
     Angle brackets inside argument-hint placeholders (`<file-path>`) are conventional
     and not XML markup — only closing tags (`</word>`) and self-closing (`<word/>`)
     unambiguously indicate XML, so that's what we forbid."""

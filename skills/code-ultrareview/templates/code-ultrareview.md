@@ -105,18 +105,21 @@ Coverage boundaries — explicit by design.
 
 ## 📐 Derivation coverage
 
-_Present only when `--reconcile` resolved to non-empty input. Reports artifact coverage + classification counts._
+_Present only with a verified `--reconcile` artifact. Synthesis generates this section from the artifact bound to the axis run; a separate summary file is unnecessary._
 
-| Field | Value |
-|-------|-------|
-| Artifacts compared | {N} ({list with freshness — e.g. `forge-foo.md (2d)`}) |
-| AC coverage | {verified}/{total} acceptance criteria |
-| GAP | {N} ({N high-confidence}) |
+| Artifact | Freshness (days) | Claims extracted |
+| --- | --- | --- |
+| {artifact path} | {days or unknown} | {N} |
+
+Artifacts supplied: {N}. Claims extracted: {N}. Claims submitted to Intent: {N}.
+
+| Retained finding classification | Count |
+| --- | --- |
+| GAP | {N} |
 | SCOPE-ADD | {N} |
 | DECISION-OVERRIDE | {N} |
-| CONSISTENT | {N} |
 
-**Notable callouts:** {top 1–3 highest-severity findings, one line each}
+Extraction and submission counts are input coverage. Per-claim verified and CONSISTENT totals are unavailable from the axis result schema; zero retained findings does not measure those totals.
 
 ---
 
@@ -128,7 +131,7 @@ _Present only when `--apply-safe` was used._
 |--------|--------|---------|
 | version_sync | applied · skipped · no-op · refusing | `package.json`, `marketplace.json` |
 | description_sync | applied · skipped · no-op · refusing: partial-agreement | `package.json`, `marketplace.json` |
-| failing_test_writer | applied · skipped · refusing: existing-test | `tests/<bug-id>.{py,ts}` |
+| failing_test_writer | applied · skipped · refusing | {reviewed project-relative test path} |
 
 ---
 

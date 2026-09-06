@@ -126,15 +126,14 @@ class TestScopedPath(unittest.TestCase):
 
     def test_scaling_keeps_the_gates(self):
         scoped = self._scoped()
-        self.assertIn("never silently regenerate", scoped)
-        self.assertIn("runs the chunk's full Verify plus a scoped review", scoped,
-                      "a scoped run still sweeps and still reviews")
+        self.assertIn("preserve established choices", scoped)
+        self.assertIn("hand it to the builder, then review the affected pages", scoped)
 
-    def test_full_protocol_triggers_enumerated(self):
+    def test_thin_document_does_not_authorize_a_redesign(self):
         scoped = self._scoped()
-        for trigger in ("A redesign", "missing or thin DESIGN.md", "new page family"):
-            with self.subTest(trigger=trigger):
-                self.assertIn(trigger, scoped)
+        self.assertIn("documentation gap, not permission to redesign", scoped)
+        self.assertIn("only missing decisions needed by the requested surface", scoped)
+        self.assertIn("authorized new visual direction", scoped)
 
     def test_scaling_is_declared(self):
         scoped = self._scoped()
@@ -156,7 +155,7 @@ class TestRoutingBoundary(unittest.TestCase):
         self.assertRegex(routing.lower(), r"single[- ]token")
 
     def test_never_touches_backend(self):
-        self.assertIn("backend, data, infra → never", self._routing().lower())
+        self.assertIn("backend, data and infra remain with the engineering owner", self._routing().lower())
 
     def test_empty_dir_routes_to_scaffold(self):
         self.assertIn("/scaffold", self._routing())
@@ -177,7 +176,7 @@ class TestAutoTriggerInWhenToUse(unittest.TestCase):
     def test_auto_triggers_from_line_one(self):
         wtu = self._when_to_use().lower()
         self.assertIn("auto-trigger", wtu)
-        self.assertIn("take the lead", wtu)
+        self.assertIn("requested scope", wtu)
 
     def test_routes_single_token_and_ignores_backend(self):
         wtu = self._when_to_use().lower()

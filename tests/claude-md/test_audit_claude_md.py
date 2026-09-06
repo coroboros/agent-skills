@@ -53,10 +53,13 @@ class TestBloatCategories(unittest.TestCase):
                     self.assertIsInstance(pattern, str)
                     self.assertGreater(len(pattern), 0)
 
-    def test_linter_enforced_triggers_eslint(self):
-        hits = scan_bloat(["Use eslint and prettier"])
+    def test_linter_enforced_triggers_generic_formatting(self):
+        hits = scan_bloat(["Format code properly"])
         cats = [h["category"] for h in hits]
         self.assertIn("linter-enforced", cats)
+
+    def test_tool_choice_is_not_bloat(self):
+        self.assertEqual(scan_bloat(["Use Biome for linting and formatting."]), [])
 
     def test_marketing_triggers_we_believe(self):
         hits = scan_bloat(["We believe in clean code."])
@@ -109,6 +112,28 @@ class TestMasking(unittest.TestCase):
 
 
 class TestImportResolution(unittest.TestCase):
+    def test_extensionless_json_and_markdown_imports_resolve_from_source(self):
+        with tempfile.TemporaryDirectory() as td:
+            source = Path(td) / "instructions"
+            source.mkdir()
+            names = ["README", "package.json", "guide.md"]
+            text = "See " + ", ".join("@" + name for name in names) + "."
+            self.assertEqual([hit["path"] for hit in check_imports(text, source)], names)
+            for name in names:
+                (source / name).write_text("content", encoding="utf-8")
+            self.assertEqual(check_imports(text, source), [])
+
+    def test_email_and_protected_non_markdown_examples_are_not_imports(self):
+        with tempfile.TemporaryDirectory() as td:
+            text = "user@example.com `@README`\n```text\n@package.json\n```\n<!-- @hidden -->\n(@missing.json)"
+            self.assertEqual(check_imports(text, Path(td)),
+                             [{"line": 6, "path": "missing.json"}])
+
+    def test_literal_imports_are_not_resolved(self):
+        with tempfile.TemporaryDirectory() as td:
+            text = '`@missing.md`\n```md\n@also-missing.md\n```\n@real-missing.md\n'
+            self.assertEqual(check_imports(text, Path(td)),
+                             [{"line": 5, "path": "real-missing.md"}])
     def test_resolves_existing_relative(self):
         with tempfile.TemporaryDirectory() as td:
             td = Path(td)

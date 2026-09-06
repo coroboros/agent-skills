@@ -110,6 +110,7 @@ if [[ -z "$DEST" ]]; then
   DEST="${HOME}/.agents/output/${PROJECT}/download-media/${SLUG}"
 fi
 mkdir -p "$DEST"
+DEST=$(cd "$DEST" && pwd -P)
 
 ARGS=(-P "$DEST" "$PL_FLAG")
 [[ $PLAYLIST -eq 1 ]] && ARGS+=(-o "%(playlist_title)s/%(playlist_index)03d - %(title)s [%(id)s].%(ext)s")
@@ -121,7 +122,13 @@ elif [[ $BEST -eq 0 && $HAVE_FFMPEG -eq 1 ]]; then
 fi
 
 # Filter composes with the mp4 preset's sort: -f narrows the set, -S orders inside it.
-[[ -n "$HEIGHT" ]] && ARGS+=(-f "bv*[height<=${HEIGHT}]+ba/b[height<=${HEIGHT}]")
+if [[ $HAVE_FFMPEG -eq 0 ]]; then
+  FORMAT=b
+  [[ -n "$HEIGHT" ]] && FORMAT="b[height<=${HEIGHT}]"
+  ARGS+=(-f "$FORMAT")  # complete video+audio file; split streams need a merger
+elif [[ -n "$HEIGHT" ]]; then
+  ARGS+=(-f "bv*[height<=${HEIGHT}]+ba/b[height<=${HEIGHT}]")
+fi
 [[ -n "$SECTION" ]] && ARGS+=(--download-sections "*${SECTION}")
 [[ -n "$SUBS" ]] && ARGS+=(--write-subs --write-auto-subs --sub-langs "$SUBS")
 

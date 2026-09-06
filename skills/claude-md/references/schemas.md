@@ -6,6 +6,8 @@ Contracts for the deterministic scripts under `scripts/`. Both scripts emit a JS
 
 Emitted by `scripts/audit_claude_md.py <path>`.
 
+Heuristic matches are candidates for semantic review. `summary.ok` describes the scanner result, not instruction quality or an automatic deletion verdict.
+
 ```json
 {
   "lines": 317,
@@ -36,7 +38,7 @@ Emitted by `scripts/audit_claude_md.py <path>`.
 
 ## validate_rule_file report
 
-Emitted by `scripts/validate_rule_file.py <path>`.
+Emitted by `scripts/validate_rule_file.py <path>`. The check covers delimiters and the supported `paths:` string-list subset, not unrelated YAML keys. A successful result is not full YAML validation. Quote YAML indicators and brace/bracket globs in inline lists.
 
 ```json
 {
@@ -50,7 +52,7 @@ Emitted by `scripts/validate_rule_file.py <path>`.
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `has_frontmatter` | boolean | File starts with a `---` frontmatter block. |
+| `has_frontmatter` | boolean | A complete delimited frontmatter block was found. An unclosed opening delimiter produces an error. |
 | `has_paths` | boolean | Frontmatter contains a `paths:` key. |
 | `paths` | string[] | Extracted glob strings (empty when `has_paths` is false). |
 | `errors` | string[] | One message per validation failure (unclosed frontmatter, malformed list, suspicious glob characters). |
@@ -87,4 +89,4 @@ RESULT: ok=partial hint=--force to overwrite
 | `skipped` | summary | integer | Count of files left untouched. |
 | `ok` | summary | `true` / `partial` | `true` on clean run; `partial` when at least one file was skipped — the line also carries `hint=--force to overwrite`. |
 
-Exit codes: `0` when all targets were written (`ok=true`); `1` when at least one was skipped (`ok=partial`); `2` on unknown mode or argument error.
+Exit codes: `0` when all targets were written (`ok=true`); `1` on a skipped target (`ok=partial`), unknown mode or missing target directory; `2` for usage/help.

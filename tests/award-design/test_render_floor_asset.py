@@ -294,7 +294,9 @@ class TestTextCollisionGeometry(unittest.TestCase):
         exemption exists in two places and only one of them is tested."""
         source = ASSET.read_text(encoding="utf-8")
         self.assertIn("const related = a.el.contains(b.el) || b.el.contains(a.el);", source)
-        self.assertIn("classifyRectPair(a.rect, b.rect, null, related)", source)
+        self.assertIn("if (related) continue;", source)
+        self.assertIn("classifyRectPair(aInk, bInk)", source)
+        self.assertNotIn("classifyRectPair(a.rect, b.rect", source)
 
     def test_subpixel_touch_is_clear(self):
         a = {"left": 0, "top": 0, "right": 100, "bottom": 20}

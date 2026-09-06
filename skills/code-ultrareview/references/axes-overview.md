@@ -48,7 +48,7 @@ Rationale for the order:
 An axis is one category of code-review concern, mapped 1:1 to an LLM subagent that owns that concern. Each subagent receives:
 
 - `scope.json` — repo kind, languages, instruction chain, files touched.
-- `tool-findings.jsonl` filtered to its own axis — deterministic tool output (confidence 100) from Phase 2.
+- `tool-findings.jsonl` filtered to its own axis — unassessed tool observations (confidence 0) from Phase 2.
 - The diff itself (clean tree → `git diff <base> <target>`; dirty tree → `git diff HEAD` + untracked).
 - Its axis brief (`references/axes/<axis-name>.md`) defining repo-kind branches and HIGH SIGNAL criteria.
 

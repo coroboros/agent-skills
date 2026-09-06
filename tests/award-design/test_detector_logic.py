@@ -35,6 +35,43 @@ def _node(expr):
 
 @unittest.skipUnless(shutil.which("node"), "node not on PATH")
 class TestPureCore(unittest.TestCase):
+    def test_effective_options_disclose_canonical_and_changed_floors(self):
+        normal = _node('d.runOptions()')
+        changed = _node('d.runOptions({floors:{scale:1.01}})')
+        self.assertEqual(normal['floors']['scale'], 1.04)
+        self.assertEqual(changed['floors']['scale'], 1.01)
+        self.assertEqual(changed['floors']['translatePx'], 2)
+        self.assertEqual(normal['h1MaxLines'], 2)
+        self.assertIsNone(normal['h1OverrideReason'])
+
+    def test_h1_exception_is_bounded_and_requires_a_reason(self):
+        options = _node('d.runOptions({h1MaxLines:3,h1OverrideReason:"Client clause; DESIGN.md#hero"})')
+        self.assertEqual(options['h1MaxLines'], 3)
+        self.assertIn('DESIGN.md', options['h1OverrideReason'])
+        for raw in ('{h1MaxLines:4}', '{h1MaxLines:3}', '{h1MaxLines:"3"}',
+                    '{h1MaxLines:3,h1OverrideReason:" "}', '{h1OverrideReason:"unused"}',
+                    '{floors:{scale:NaN}}', '{floors:{opacity:0}}', '{floors:{scale:1}}',
+                    '{floors:{typo:2}}', '{floors:null}', '[]', '{h1maxlines:3}'):
+            with self.subTest(raw=raw):
+                result = _node(f'(() => {{ try {{ d.runOptions({raw}); return null; }} catch (e) {{ return e.message; }} }})()')
+                self.assertTrue(result)
+
+    def test_nested_selectors_keep_context_and_carrier(self):
+        deep = _node('d.splitCarrier(d.nestedSelectors("& .inner", "#nested:hover .outer"))')
+        self.assertEqual(deep, {'carrier': '#nested', 'trailing': '.outer .inner'})
+        self.assertEqual(_node('d.nestedSelectors("& .inner", "#nested:hover .outer")'),
+                         ':is(#nested:hover .outer) .inner')
+        for selector in (':is(#a:hover .outer, #b:hover .outer) .inner', '.card:has(button:hover)'):
+            with self.subTest(selector=selector):
+                self.assertTrue(_node(f'd.splitCarrier({json.dumps(selector)})')['unmeasured'])
+        self.assertEqual(_node('d.nestedSelectors("&:hover", "#nested")'), ':is(#nested):hover')
+        self.assertEqual(_node('d.nestedSelectors(".child:hover", ".a, .b")'), ':is(.a, .b) .child:hover')
+        self.assertEqual(_node('d.nestedSelectors("&:hover > span", ".parent")'), ':is(.parent):hover > span')
+        self.assertEqual(_node('d.splitCarrier(":is(.parent:hover) > span")'),
+                         {'carrier': '.parent', 'trailing': 'span'})
+        self.assertEqual(_node('d.nestedSelectors(\'[data-symbol="&"]:hover\', ".parent")'),
+                         ':is(.parent) [data-symbol="&"]:hover')
+
     def test_module_exports(self):
         keys = _node("Object.keys(d)")
         for name in ("FLOORS", "VOID_FLOORS", "RULES", "srgbToOklab", "relativeLuminance",

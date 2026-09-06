@@ -36,7 +36,8 @@ class TestMovingWindowLaw(unittest.TestCase):
     def test_off_main_thread_claim_corrected(self):
         mp = _read("motion-palette.md")
         self.assertIn(
-            "only when the clip's parameters are not tracked per input frame", mp)
+            "native timeline timing does not guarantee compositor execution or a frame rate", mp)
+        self.assertIn("verify the actual target path with a trace", mp)
 
     def test_fixed_background_corollary(self):
         self.assertIn("never `background-attachment: fixed`",

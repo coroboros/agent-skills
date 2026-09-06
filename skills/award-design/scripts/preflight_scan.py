@@ -48,7 +48,7 @@ REVIEW = "REVIEW"
 
 # Text-bearing sources (visible copy + markup) vs all scannable sources.
 TEXT_EXTS = {".html", ".htm", ".jsx", ".tsx", ".vue", ".svelte", ".astro", ".mdx", ".md"}
-CODE_EXTS = TEXT_EXTS | {".js", ".ts", ".css", ".scss"}
+CODE_EXTS = TEXT_EXTS | {".js", ".mjs", ".ts", ".css", ".scss"}
 EXCLUDED_DIRS = {"node_modules", ".git", ".next", ".astro", "coverage", "vendor", "__pycache__",
                  "dist", "build", ".output", ".nuxt", ".svelte-kit", ".vercel"}
 

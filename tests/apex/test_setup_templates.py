@@ -153,6 +153,21 @@ class TestMetacharSafety(unittest.TestCase):
 
     NASTY = "pipe|amp&backslash\\slash/dollar$quote\"apos'brace{close}"
 
+    def test_template_markers_inside_values_are_not_expanded(self):
+        description = "Document {{task_description}} twice {{task_description}}\nKeep {{timestamp}} and {{original_input}} literal."
+        original = "{{task_id}} remains a literal input token"
+        with tempfile.TemporaryDirectory() as t:
+            proj, home = Path(t) / "proj", Path(t) / "home"
+            proj.mkdir()
+            home.mkdir()
+            result = _run("markers", description, "false", "true", "false", "false",
+                          "false", "", original, cwd=proj, home=home)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            task = next((home / ".agents/output" / _project(proj) / "apex").iterdir())
+            context = (task / "00-context.md").read_text()
+            self.assertIn(description, context)
+            self.assertIn(original, context)
+
     def test_metachars_render_literally_in_context(self):
         with tempfile.TemporaryDirectory() as t:
             proj = Path(t) / "proj"

@@ -21,7 +21,7 @@ Reconcile planning artifacts (forge plans, apex plans, PR body, issue body, `doc
 | `GAP` | Planning artifact specified X; the diff does not deliver X | Medium |
 | `SCOPE-ADD` | The diff includes X; planning artifact is silent on X | Low |
 | `DECISION-OVERRIDE` | Planning resolved decision X; the diff implements Y instead | Medium |
-| `CONSISTENT` | Claim verified in the diff (no finding row; counted in coverage) | — |
+| `CONSISTENT` | Claim verified in the diff (no finding row; the result schema does not emit a per-claim count) | — |
 
 Severity for `GAP` escalates to High when the artifact is a forge plan AND the claim is a numbered acceptance criterion.
 
@@ -43,8 +43,8 @@ Multiple inputs: `--reconcile @auto,gh:pr:42`.
 | Age | Behavior |
 |-----|----------|
 | ≤ 30 days | Default severity from the table above |
-| 31–90 days | Cap severity at `Low` regardless of classification |
-| > 90 days | Skip findings entirely — artifact appears in the coverage summary only |
+| 31–90 days | Auto-discovered historical context: cap at `Low`; explicitly accepted criteria retain consequence-based severity |
+| > 90 days | Auto-discovered history is summary-only; explicitly selected or currently accepted criteria remain in scope |
 
 The `--strict` flag disables both caps. Per-repo `.derivation-ignore` overrides allow path or claim allowlists (parser in `scripts/derivation/_common.py:load_ignore`).
 

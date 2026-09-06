@@ -1,0 +1,54 @@
+{
+  "skill_name": "suno-produce",
+  "evals": [
+    {
+      "id": 1,
+      "name": "explicit-four-track-ep",
+      "prompt": "Create a four-track instrumental ambient EP about a winter train journey. Use soft analog synths; each track should be about three minutes. Write the Suno prompt artifacts locally.",
+      "expected_output": "Produce one ALBUM.md and four TRACK.md files without reconfirming album mode. State routine composition assumptions, validate all artifacts and preserve the artifact-only boundary. No generation or upload occurs.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "sparse-but-actionable-brief",
+      "prompt": "Write a Suno prompt for a short instrumental ambient sketch. Choose the mood and textures yourself.",
+      "expected_output": "Use the explicit creative discretion, state routine assumptions and produce a validated TRACK.md. Do not ask merely because fewer than three of five dimensions are supplied; do not invent voice-consent or rights facts.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "nonmusical-copy-routes-away",
+      "prompt": "Rewrite these three product landing-page paragraphs for concise English. There is no song, lyric, audio or Suno target.",
+      "expected_output": "Redirect to an applicable prose-writing workflow and preserve the existing edit authority. Do not create TRACK.md or ask for BPM, key, track length or vocal settings.",
+      "files": []
+    },
+    {
+      "id": 4,
+      "name": "lyrics-consult-songwriting-contract",
+      "prompt": "Create a Suno TRACK.md for an original hopeful folk song about returning home, with a repeatable hook and singable verses. Choose the arrangement details.",
+      "expected_output": "Read references/songwriting-craft.md and references/track-schema.md; write original lyrics with deliberate stress, meter and hook structure, supply the required artifact fields, validate the candidate, and apply the authorized local result without a new planning checkpoint.",
+      "files": []
+    },
+    {
+      "id": 5,
+      "name": "revision-preserves-gapped-archives",
+      "prompt": "Revise the supplied TRACK.md to soften the chorus. versions contains v1.md and v4.md with different earlier takes, plus v99-notes.md. Keep all prior takes.",
+      "expected_output": "Choose v5.md from the maximum numeric version and archive the current bytes using exclusive creation. Preserve every prior archive and the canonical take until the candidate validates. Report archive errors or collisions without overwriting anything.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "independent-project-drafts-stay-isolated",
+      "prompt": "Create two separate short instrumental ambient singles, one about dawn rain and one about the last train home. Work on both drafts before finalizing either project.",
+      "expected_output": "Allocate a separate unique staging directory for each project, retain canonical filenames, validate each exact staged draft and install its corresponding bytes. Clean only the completed invocation's staging folders. Keep failed candidates for correction; never reuse a shared fixed temp path.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "mastering-and-research-are-not-artist-bindings",
+      "prompt": "I have a forge music-research brief and a recorded song that needs mastering. Should I pass the research report as -f and use audio-loop for mastering?",
+      "expected_output": "Explain that -f binds ARTIST.md and the research findings belong in ordinary brief context. audio-loop is for matching website-loop work, not mastering; identify the missing appropriate audio capability without pretending to perform mastering or generating audio through Suno.",
+      "files": []
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Interview mode — eight canonical questions
 
-Used when `extract` is invoked with no source flag. The skill asks each question via `AskUserQuestion`, one at a time. Answers are stitched into a complete `BRAND-VOICE.md` with `voice.source: "interview"`.
+Used when `extract` has no source flag. Reuse answers in the current brief and treat these as a question bank. Batch consequential gaps through the host's question mechanism or plain text; do not interview again for known facts. Answers produce `BRAND-VOICE.md` with `voice.source: "interview"`.
 
 The questions are ordered from structural (cheap to answer, high signal) to subjective (hard to answer, calibrating). Stop asking once enough signal has been captured — questions 7 and 8 are optional if the user is fatigued or short on time.
 
@@ -32,7 +32,7 @@ Populates `required_lexicon:`. Skip if the user has nothing — the field is opt
 
 > Five words or phrases the brand never uses. (Examples: game-changing, leverage, journey, solution.)
 
-Seeds `forbidden_lexicon:`. The skill expands the list with common AI-tells (em-dash crutch, marketing taxonomy, hedge words) after the user's input — confirm before saving.
+Seeds `forbidden_lexicon:`. Derive additions from the requested voice and explain them; do not silently convert general writing preferences into brand prohibitions.
 
 ## Question 6 — Pronouns and address
 
@@ -58,9 +58,9 @@ Adds entries to `voice.source_urls` (or notes inline samples in `## 11. Referenc
 
 ## After the interview
 
-The skill drafts `BRAND-VOICE.md`, presents the YAML frontmatter and section headings only (not the full prose), and asks for approval before writing.
+The skill drafts and validates `BRAND-VOICE.md`, then writes the authorized creation and reports the source decisions and warnings. A requested proposal remains a draft and does not modify the target.
 
-If approved, the skill writes the file and prints next steps: *"Review prose sections, fill in counter-examples (section 10), then run `/brand-voice show` to confirm the rules look right."*
+Include a pointer to the complete artifact so the user can review both its rules and prose.
 
 ## Skipping questions
 

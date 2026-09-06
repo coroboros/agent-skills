@@ -441,12 +441,14 @@ class TestFailingTestWriter(unittest.TestCase):
                 repo, bug_id="zone-id-bug",
                 repro="parseZoneId('illegal%') should reject",
                 expected_failure="parser accepts invalid chars",
+                test_content="from parser import parse_zone_id\nassert parse_zone_id('illegal%') is None\n",
+                test_path="tests/test_zone_id_bug.py",
                 yes=True,
             )
             self.assertEqual(result["status"], "applied")
             target = repo / result["target"]
             self.assertTrue(target.exists())
-            self.assertIn("zone_id_bug", target.read_text(encoding="utf-8"))
+            self.assertEqual(target.read_text(), "from parser import parse_zone_id\nassert parse_zone_id('illegal%') is None\n")
 
     def test_writes_typescript_test_file(self):
         with tempfile.TemporaryDirectory() as t:
@@ -459,10 +461,13 @@ class TestFailingTestWriter(unittest.TestCase):
                 repo, bug_id="overflow",
                 repro="add(MAX_INT, 1) wraps to negative",
                 expected_failure="overflow not detected",
+                test_content="import { test } from 'node:test';\n// project-reviewed test body\n",
+                test_path="src/overflow.spec.ts",
                 yes=True,
             )
             self.assertEqual(result["status"], "applied")
-            self.assertTrue(result["target"].endswith(".test.ts"))
+            self.assertEqual(result["target"], "src/overflow.spec.ts")
+            self.assertNotIn("vitest", (repo / result["target"]).read_text())
 
     def test_refuses_to_overwrite_existing_test(self):
         with tempfile.TemporaryDirectory() as t:
@@ -473,6 +478,7 @@ class TestFailingTestWriter(unittest.TestCase):
             result = failing_test_writer.write(
                 repo, bug_id="zone-id-bug",
                 repro="…", expected_failure="…", yes=True,
+                test_content="assert True\n", test_path="tests/test_zone_id_bug.py",
             )
             self.assertEqual(result["status"], "refusing: existing-test")
             self.assertEqual(existing.read_text(encoding="utf-8"), "# existing\n")
@@ -487,8 +493,53 @@ class TestFailingTestWriter(unittest.TestCase):
                 result = failing_test_writer.write(
                     repo, bug_id="bug-x",
                     repro="…", expected_failure="…", yes=False,
+                    test_content="assert True\n", test_path="tests/test_bug_x.py",
                 )
         self.assertEqual(result["status"], "skipped")
+
+    def test_missing_reviewed_content_refuses_without_writing(self):
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            result = failing_test_writer.write(repo, "bug", "repro", "bad result", yes=True)
+            self.assertEqual(result["status"], "refusing: missing-test-content")
+            self.assertEqual(list(repo.iterdir()), [])
+
+    def test_project_path_cannot_escape_through_parent_or_symlink(self):
+        with tempfile.TemporaryDirectory() as t:
+            root = Path(t)
+            repo, outside = root / "repo", root / "outside"
+            repo.mkdir()
+            outside.mkdir()
+            (repo / "tests").symlink_to(outside, target_is_directory=True)
+            for path in ("../outside/test.py", str(outside / "test.py"), "tests/test.py"):
+                result = failing_test_writer.write(
+                    repo, "bug", "repro", "failure", yes=True,
+                    test_content="assert True\n", test_path=path,
+                )
+                self.assertEqual(result["status"], "refusing: invalid-test-path")
+            self.assertEqual(list(outside.iterdir()), [])
+
+    def test_reviewed_test_fails_on_defect_and_passes_after_implementation_fix(self):
+        content = "from calculator import add\nassert add(2, 3) == 5, 'addition must preserve both operands'\n"
+        with tempfile.TemporaryDirectory() as t:
+            repo = Path(t)
+            implementation = repo / "calculator.py"
+            implementation.write_text("def add(a, b):\n    return a - b\n")
+            result = failing_test_writer.write(
+                repo, "addition", "add(2, 3)", "expected 5", yes=True,
+                test_content=content, test_path="test_addition.py",
+            )
+            self.assertEqual(result["status"], "applied")
+            target = repo / result["target"]
+            self.assertEqual(target.read_bytes(), content.encode())
+            command = [sys.executable, "-B", str(target)]
+            red = subprocess.run(command, cwd=repo, capture_output=True, text=True, timeout=15)
+            self.assertNotEqual(red.returncode, 0)
+            self.assertIn("addition must preserve both operands", red.stderr)
+            implementation.write_text("def add(a, b):\n    return a + b\n")
+            green = subprocess.run(command, cwd=repo, capture_output=True, text=True, timeout=15)
+            self.assertEqual(green.returncode, 0, green.stderr)
+            self.assertEqual(target.read_bytes(), content.encode())
 
 
 # ---------------------------------------------------------------------------

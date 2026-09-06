@@ -28,7 +28,7 @@ class MutationFailure(RuntimeError):
 def finding(tool: str, location: str, text: str, recommendation: str) -> dict:
     return {"axis": "tests", "severity": "Medium", "location": location,
             "finding": text, "recommendation": recommendation,
-            "confidence": 100, "source_tool": tool}
+            "confidence": 0, "source_tool": tool}
 
 
 def command_text(command: list[str]) -> str:

@@ -74,6 +74,7 @@ write_if_new() {
   WRITTEN=$((WRITTEN + 1))
 }
 
+# shellcheck disable=SC2016 # Backticks belong to the generated Markdown.
 CLAUDE_MD_MINIMAL='# Project
 
 ## Tech stack
@@ -87,6 +88,7 @@ CLAUDE_MD_MINIMAL='# Project
 - [Critical, project-specific constraint]
 '
 
+# shellcheck disable=SC2016 # Backticks belong to the generated Markdown.
 CLAUDE_MD_HYBRID='# Project
 
 ## Tech stack
@@ -97,8 +99,8 @@ CLAUDE_MD_HYBRID='# Project
 - `npm test` — run tests
 
 ## Rules
-@.claude/rules/style.md
-@.claude/rules/testing.md
+- [Source rules](.claude/rules/style.md) — TypeScript source files
+- [Test rules](.claude/rules/testing.md) — test and spec files
 '
 
 RULES_STYLE='---

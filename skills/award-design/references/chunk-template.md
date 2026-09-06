@@ -1,8 +1,12 @@
 # Chunk template — the ladder's unit of work
 
-A chunk is one executor run: the director fills the form below into the design_plan under `LADDER:`, the executor (this skill in chunk mode, `/apex`, `/ultrapex`, or any agent) runs it and writes the Report back into the row. The DESIGN.md is the grammar; a chunk implements and verifies one slice of it. A DESIGN.md rule with no chunk that implements *and* verifies it does not exist.
+A chunk is one executor run: award-design fills the form into the design_plan under `LADDER:`, frontend-dev implements it and writes Report back into the row. A calling process such as `/apex` or `/ultrapex` owns sequencing; an already authorized executor can run the self-contained prompt if the builder skill is unavailable. The final visual-review row returns to award-design's read-only review. The DESIGN.md is the grammar; a build chunk implements and verifies one slice of it. A DESIGN.md rule with no chunk that implements *and* verifies it does not exist.
+
+Resolve `<skill root>` through the host's installed award-design entry and pass that location with the chunk. `references/`, `scripts/` and `assets/` below belong to that root, not the project or frontend-dev installation. If a referenced resource is unavailable, report the exact gap; never guess a sibling path or replace its evidence with a pass.
 
 ## The form
+
+This form's Read first order is for build chunks. For the final review row, replace it with `references/gate/review.md` and the target URL: the fresh reviewer inventories the rendered pages before opening DESIGN.md, the direction contract, source comments or mechanical reports. It then reads those artifacts and runs the finish review. Make this order explicit in the generated row; do not prepend the build chunk's design reading to an independent review.
 
 ```markdown
 ### <id> — <title>                       # shell · hero · s1-<section> … · loader · nav · cursor · footer · transitions · sound · <page> · review
@@ -33,6 +37,8 @@ A chunk is one executor run: the director fills the form below into the design_p
 **Report** (written into the ladder row when done)
 - status: done | blocked — <reason> · deviations from Implement, each with its reason · gate outputs verbatim · open questions
 ```
+
+The detector defaults to a 2-line hero H1. Only a client clause quoted in DESIGN.md can select `run({h1MaxLines: 3, h1OverrideReason: '<quoted clause and DESIGN.md reference>'})`; retain `H1-OVERRIDE` REVIEW in Report. More than 3 lines still fails. This is an explicit reported exception, not a pass against the canonical 2-line limit.
 
 ## Order and sizing
 

@@ -47,16 +47,17 @@ class TestSubjectTemperature(unittest.TestCase):
 class TestAmbientChannel(unittest.TestCase):
     def test_interaction_signatures_third_channel(self):
         ix = _read("interaction-signatures.md")
-        self.assertIn("the page breathes at rest", ix)
-        self.assertIn("reads embalmed between interactions", ix)
+        self.assertIn("ambient life follows the archetype", ix)
+        self.assertIn("minimalist may declare ambient absence", ix)
 
     def test_density_read_commits_the_idle_channel(self):
-        self.assertIn("one ambient idle channel", _gate("review.md"))
+        self.assertIn("a reading register may be static", _gate("review.md"))
+        self.assertIn("a declared live scene must sustain its medium", _gate("review.md"))
 
     def test_review_density_read_carries_the_channel(self):
         r = _gate("review.md")
         self.assertIn("the density read follows", r)
-        self.assertIn("live channels", r)
+        self.assertIn("judge missing declared choreography", r)
 
 
 class TestTravellingThread(unittest.TestCase):

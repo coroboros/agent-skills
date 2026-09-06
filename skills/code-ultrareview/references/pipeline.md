@@ -18,7 +18,7 @@ Use the recipe in `orchestration.md` to produce the exact `diff.patch` consumed 
 
 ## Phase 2: analyzer battery
 
-Run `scripts/run_battery.sh`. Dispatch depends on changed files, languages, selected axes, and analyzer configuration. Line-aware reports are filtered to target-side changed hunks; manifest and API analyzers remain path-scoped. Deterministic findings enter at confidence 100.
+Run `scripts/run_battery.sh`. Dispatch depends on changed files, languages, selected axes, and analyzer configuration. Line-aware reports are filtered to target-side changed hunks; manifest and API analyzers remain path-scoped. Tool matches enter as unassessed observations at confidence 0.
 
 A JavaScript package declaration at the repository root or one workspace covering every tool-relevant input is authoritative. Execute its direct or workspace-hoisted project binary, or use offline `yarn run -B` for Yarn Plug'n'Play projects that deliberately have no `node_modules/.bin`. Multiple declarations or mixed declared and undeclared package scopes block until the dependency is declared once at the root; preflight prints the exact root package-manager command. If a declared binary is unavailable, restore the existing dependency graph with the detected package manager and lockfile. Only an undeclared analyzer may use an already installed `PATH` command or receive an add-dependency instruction. Never use `npx`, `pnpm dlx`, `bunx`, `yarn dlx`, `uvx`, or another runtime package resolver.
 
@@ -42,10 +42,10 @@ Mutation, build verification, and reconcile maintain independent coverage state.
 Follow `orchestration.md` exactly:
 
 1. Prepare every selected axis, launch isolated reviewers in parallel when supported, and ingest only a complete valid result set.
-2. Prepare one fresh-context validator per sub-80 finding. Promote, demote with a reason, or retain it under `### ⚠️ Unverified`; never silently drop it.
+2. Prepare one fresh-context validator per finding. Promote, demote with a reason, or retain it under `### ⚠️ Unverified`; never silently drop it.
 3. Synthesize only after all requested coverage is complete. Deduplicate exact findings, apply axis precedence, compute the verdict, and emit the canonical Markdown plus Conventional Comments JSONL.
 
-Tool findings skip validators because their validated reports enter at confidence 100. Validators stay read-only and cannot spawn nested agents. Without isolated agents, run sequential fresh passes with the same ingest and no-silent-drop contracts.
+Tool and mutation observations pass through axis ingestion and contextual validation, even if an axis reviewer omits them. Validators stay read-only and inherit the host model. Schedule within available slots. Without isolated agents, use separate self-check passes and explicitly report their shared context and reduced independence.
 
 ## Trust and coverage boundaries
 

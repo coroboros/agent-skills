@@ -114,7 +114,7 @@ class TestRulesSection(unittest.TestCase):
     fork the user came to think about)."""
 
     REQUIRED_RULES = [
-        ("Never implement", ("Never implement", "not code changes", "no code")),
+        ("Planning scope", ("Planning scope", "existing implementation mandate")),
         ("Three tiers in Decide", ("Three tiers in Decide", "Surface", "surface")),
         ("Audit and validate", ("Audit and validate", "pre-save audit", "validate_spec")),
     ]
@@ -304,25 +304,15 @@ class TestAdversarialPanel(unittest.TestCase):
 
     def test_adversarial_step_in_phase_2(self):
         section = self._judge_section()
-        self.assertRegex(
-            section, self.ADVERSARIAL_HEADER,
-            "Phase 2 must include the **Adversarial panel + convergence** step",
-        )
-        self.assertRegex(
-            section.lower(), r"general-purpose.+clean context",
-            "Panel must spawn general-purpose critics with a clean context",
-        )
+        self.assertRegex(section, self.ADVERSARIAL_HEADER)
+        self.assertIn("original user brief", section)
+        self.assertIn("source artifacts and evidence", section)
 
     def test_panel_fans_out_multiple_lensed_critics(self):
-        """Round 1 launches 3-5 critics, one per lens, in one parallel
-        message — the depth upgrade over the prior single one-shot critic."""
-        section = self._judge_section().lower()
-        self.assertIn("3-5", section,
-                      "Phase 2 must launch a 3-5 critic panel (Round 1)")
-        self.assertIn("lens", section,
-                      "Panel critics must each carry a distinct lens")
-        self.assertIn("parallel", section,
-                      "Panel critics launch in one parallel message")
+        section = self._judge_section()
+        self.assertIn("material uncertainty", section)
+        self.assertIn("Select lenses for the actual risks", section)
+        self.assertIn("lower independence", section)
 
     def test_convergence_round_bounded(self):
         """Round 2 converges on surviving findings, bounded to <=2 rounds —
@@ -335,12 +325,11 @@ class TestAdversarialPanel(unittest.TestCase):
             "Convergence must be bounded to <=2 rounds",
         )
 
-    def test_adversarial_default_on_with_economy_skip(self):
-        """ON by default; skipped under economy_mode. The economy flag
-        is the user's opt-out for token/latency reasons."""
+    def test_adversarial_review_scales_with_uncertainty_and_discloses_fallback(self):
+        """Economy changes independence, not the need to investigate uncertainty."""
         section = self._judge_section()
-        self.assertIn("ON by default", section,
-                      "Adversarial step must declare 'ON by default'")
+        self.assertIn("Challenge material uncertainty", section)
+        self.assertIn("shared-context self-check with lower independence", section)
         self.assertIn("economy_mode", section,
                       "Adversarial step must document the economy_mode skip")
 
@@ -361,13 +350,8 @@ class TestResearchFloor(unittest.TestCase):
         return m.group(1)
 
     def test_floor_documented(self):
-        section = self._subagent_section().lower()
-        self.assertIn("floor", section,
-                      "Subagent strategy must state the research floor")
-        self.assertIn("1 explore", section,
-                      "Floor must require >=1 Explore agent")
-        self.assertIn("1 general-purpose", section,
-                      "Floor must require >=1 general-purpose agent")
+        self.assertIn("no minimum agent count", _body())
+        self.assertIn("unresolved questions", _body())
 
     def test_no_zero_agent_skip_row(self):
         section = self._subagent_section()
@@ -384,13 +368,7 @@ class TestResearchFloor(unittest.TestCase):
                       "economy_mode must be named as the floor's escape hatch")
 
     def test_rules_section_pins_floor(self):
-        m = re.search(r"## Rules\s*\n(.*?)(?=^##\s|\Z)", _body(),
-                      re.DOTALL | re.MULTILINE)
-        self.assertIsNotNone(m, "## Rules section missing")
-        assert m is not None
-        rules = m.group(1).lower()
-        self.assertIn("never skim hunt", rules,
-                      "Rules must pin the never-skim-Hunt research floor")
+        self.assertIn("a research or agent quota is not proof", _body())
 
 
 class TestPreSaveAuditAndRevisionPause(unittest.TestCase):

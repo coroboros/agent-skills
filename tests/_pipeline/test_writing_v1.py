@@ -46,9 +46,8 @@ class TestExtractRulesFlowsToHumanize(unittest.TestCase):
         # `passionate` must be removed from the merged output.
         self.assertNotIn("passionate", r.stdout)
 
-    def test_explain_json_shape_humanize_can_consume(self):
-        """humanize-en may consume --explain-json — verify the keys it depends
-        on (chain + merged with provenance) are present and stable."""
+    def test_explain_json_preserves_rule_provenance(self):
+        """The optional provenance view remains available for rule inspection."""
         r = subprocess.run(
             [sys.executable, str(EXTRACT_RULES), "--explain-json",
              str(BRAND_VOICE_FIXTURES / "child-founder.md")],
@@ -100,19 +99,20 @@ class TestLexicalExceptionsCrossSkill(unittest.TestCase):
 
 
 class TestHumanizeDocumentsExtractRulesPath(unittest.TestCase):
-    """humanize-en's SKILL.md must document the extract_rules.py resolution
-    chain plus a graceful fallback when brand-voice is not installed."""
+    """Document installed discovery and the shared resolved-rule input."""
 
     def test_skill_references_extract_rules_script(self):
         text = HUMANIZE_SKILL.read_text(encoding="utf-8")
         self.assertIn(WV1["consumer_reader_script"], text)
-        # Sibling install path is the first fallback the skill walks.
-        self.assertIn("brand-voice/scripts/extract_rules.py", text)
+        self.assertIn("scripts/extract_rules.py", text)
+        self.assertIn("--resolved-json", text)
+        self.assertIn("--rules-json", text)
 
     def test_skill_documents_fallback_for_missing_brand_voice(self):
         text = HUMANIZE_SKILL.read_text(encoding="utf-8").lower()
-        # Fallback path: read voice doc directly via Read, parse YAML inline.
         self.assertIn("fallback", text)
+        self.assertIn("local-only", text)
+        self.assertIn("inherited input requires the resolver", text)
 
 
 if __name__ == "__main__":

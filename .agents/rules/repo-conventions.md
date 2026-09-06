@@ -33,7 +33,7 @@ Skill scratch output is **global** — never inside a working tree, so it cannot
 - **Structured producers keep their shape** under the same `~/.agents/output/{project}/{skill}/` prefix: apex → ordered `{NN-feature}/` task dirs (`-r` resume needs ordering); markitdown / audio-loop → per-input `{slug}/` subfolders; design-system → per-subcommand `{sub}/`. Only single-file producers take the `{skill}-{slug}.md` filename.
 - **Path handoff — no magic.** A producer reports the **fully-expanded absolute path** (`$HOME` and the project root resolved) and inlines that literal path in any bridge command it suggests. Scripts compute and echo the absolute path; skills surface it verbatim. Committed artifacts (SKILL.md, README, commit/PR bodies) use the `~/.agents/output/{project}/{skill}/…` placeholder form — the privacy rule forbids a real home path in shared files; the expanded path is in-session only.
 
-Future skills MUST adopt this scheme — it is a conformance gate in the skill-authoring loop. A skill that writes inside a working tree is a review failure.
+Use this scheme for scratch reports and intermediate state. Requested deliverables belong at their intended project or user-selected path: application code, DESIGN.md, BRAND-VOICE.md, CLAUDE.md, README.md, and media assets are not scratch output. Honor host filesystem permissions and report the actual output path.
 
 ## Pipeline chaining
 
@@ -53,7 +53,7 @@ Skills install standalone — `npx skills add coroboros/agent-skills --skill <na
 
 - **Forbidden** — a relative path escaping the skill folder (`../<other>/…`, `../../<other>/…`) or a raw repo path (`skills/<other>/…`). On a solo install the target does not exist and the `Read` fails.
 - **Cite by external link** — point at the source of truth: the canonical upstream (the DESIGN.md format lives at `github.com/google-labs-code/design.md`) or, for our own elaboration, the blob URL `https://github.com/coroboros/agent-skills/blob/main/skills/<other>/references/<file>.md` paired with the sibling by slash-name (`/<other>`).
-- **Optional runtime cooperation** — when a skill *uses* a sibling at runtime (a script, a governance handoff), detect-or-degrade: try `"$SKILL_DIR"/../<other>/…`, then `~/.claude/skills/<other>/…`, then `~/.agents/skills/<other>/…`, and on miss state the fallback and continue. `humanize-en` (`extract_rules.py`) and `apex` (the code-ultrareview orchestrator) are the reference implementations.
+- **Optional runtime cooperation** — discover an installed sibling through the host or documented installation paths. On miss, use a documented fallback only if it preserves the needed behavior. If a required capability is unavailable, name the gap and return unaffected work as partial; never claim equivalent verification. Keep any fallback resolver authoritative within the installed skill rather than copying a sibling's parser.
 
 code-ultrareview's Documentation axis flags a raw `skills/<other>/…` citation — the standing audit for drift.
 
@@ -69,7 +69,7 @@ npx skills add coroboros/agent-skills
 npx skills add coroboros/agent-skills --skill <name>
 ```
 
-No `.skill` packages, no bespoke installer. The installer copies the skill folder into the user's Claude Code skills directory.
+No `.skill` packages or bespoke installer. The installer copies selected skill folders to the selected supported agent's installation location; do not assume every installation targets Claude Code.
 
 ## Plugin marketplace
 
@@ -161,18 +161,18 @@ Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tes
 Two workflows trigger on every pull request and push to `main`:
 
 - `.github/workflows/ci.yml` runs the full `unittest` suite. Branch protection on `main` requires the `tests` status check — red tests block merge.
-- `.github/workflows/scan-skills.yml` calls Cisco's `skill-scanner` reusable workflow (policy `balanced`, fail-on `critical`) against the `skills/` tree. SHA-pinned to a tagged release; Dependabot opens a PR weekly when a new version lands.
+- `.github/workflows/scan-skills.yml` runs Cisco's `skill-scanner` recursively against the full `skills/` tree, including overlap checks (policy `balanced`, fail-on `critical`). SARIF uploads also run after scan failures. `.github/skill-scanner/requirements.txt` pins the scanner package version; actions are SHA-pinned. Dependabot checks both weekly. The upstream reusable workflow installs the latest package regardless of its workflow SHA, so it does not pin the scanner runtime.
 
 ## Spec validation posture
 
-`skills-ref validate` (the agentskills.io reference validator) rejects any frontmatter field outside the spec's six — including the Claude Code extensions (`when_to_use`, `argument-hint`, …) this repo uses deliberately. It is therefore NOT a CI gate. The real cross-client hazard is unparseable YAML, which `tests/_meta/test_skill_frontmatter.py` already catches by parsing every frontmatter; clients are required by the spec's own implementation guide to ignore unknown fields (Codex's loader provably does).
+Strict validators and upload paths may reject Claude Code extensions outside the specification's six fields. This repository deliberately permits documented extensions, so `skills-ref validate` is not the CI gate. `tests/_meta/test_skill_frontmatter.py` checks the repository's supported frontmatter subset; it is not a complete YAML parser or a cross-host loading test. Verify the actual target loader before claiming compatibility. See the official [Claude Code portability table](https://code.claude.com/docs/en/skills#using-skill-frontmatter-outside-claude-code).
 
 ## Skill scope declaration
 
 Scope lives in the `compatibility` frontmatter field, not in the README table:
 
-- **omitted** — portable: open-standard frontmatter, portable body, runs on any spec-honoring agent.
-- **canonical string present** — Claude Code-optimized; degrades gracefully elsewhere. The exact text and tier rule live in `skill-authoring.md` → *Post-generation conformance*.
+- **omitted** — no special environment requirement needs stating; this is not proof of universal host compatibility.
+- **present** — concrete tool, runtime, or host requirements, with only the fallback behavior the skill actually supports. The field is bounded to 500 characters; see `skill-authoring.md`.
 
 ## Context efficiency
 

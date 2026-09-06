@@ -16,6 +16,7 @@ import hashlib
 import importlib.util
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -242,15 +243,15 @@ class TestBuildPrompt(unittest.TestCase):
         )
         self.assertIn("references/anthropic-verbatim.md", prompt)
         self.assertIn("0-100 confidence rubric", prompt)
-        self.assertIn("VERBATIM", prompt)
+        self.assertIn("effective local policy", prompt)
 
     def test_prompt_cites_false_positive_taxonomy(self):
         prompt = axis_dispatch.build_axis_prompt(
             axis="simplification", findings_count=0,
             skill_dir=SKILL_DIR, input_path=self.input_path,
         )
-        self.assertIn("false positives", prompt)
-        self.assertIn("documented taxonomy", prompt)
+        self.assertIn("Quoted upstream exclusions", prompt)
+        self.assertIn("do not override local axis coverage", prompt)
 
     def test_prompt_cites_agent_assumption_rule(self):
         # Verbatim agent-assumption rule: do not check build signal.
@@ -291,7 +292,7 @@ class TestBuildPrompt(unittest.TestCase):
             axis="correctness", findings_count=7,
             skill_dir=SKILL_DIR, input_path=self.input_path,
         )
-        self.assertIn("Tool findings (pre-filtered to your axis, confidence 100): 7", prompt)
+        self.assertIn("Tool observations (pre-filtered to your axis, unassessed): 7", prompt)
 
     def test_prompt_forbids_write_edit(self):
         prompt = axis_dispatch.build_axis_prompt(
@@ -950,6 +951,52 @@ class TestCliPrepare(unittest.TestCase):
 
 
 class TestCliIngest(unittest.TestCase):
+    def test_omitted_tool_observation_still_requires_validation(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            scope_path = root / "scope.json"
+            findings_path = root / "tool-findings.jsonl"
+            diff_path = root / "diff.patch"
+            observation = {
+                "axis": "correctness", "severity": "High",
+                "location": "src/x.ts:1", "finding": "Potential defect",
+                "recommendation": "Verify the caller contract",
+                "confidence": 0, "source_tool": "semgrep",
+            }
+            raw = json.dumps(observation) + "\n"
+            findings_path.write_text(raw, encoding="utf-8")
+            diff_path.write_text("diff --git a/x b/x", encoding="utf-8")
+            scope_path.write_text(json.dumps({
+                **_scope_fields(), "repo_kind": "app",
+                "languages": ["typescript"], "activates_coherence": False,
+                "instruction_chain": [], "tools_skipped": [], "tools_missing": [],
+                "tool_coverage": _tool_coverage(findings_path, raw),
+            }), encoding="utf-8")
+            prepare = subprocess.run([
+                sys.executable, str(SCRIPT), "prepare", "--scope", str(scope_path),
+                "--findings", str(findings_path), "--diff", str(diff_path),
+                "--output-dir", str(root / "run"), "--axes", "correctness",
+            ], capture_output=True, text=True)
+            self.assertEqual(prepare.returncode, 0, prepare.stderr)
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            results = root / "results"
+            results.mkdir()
+            (results / "correctness.jsonl").write_text(json.dumps({
+                "run_id": scope["axis_coverage"]["run_id"],
+                "axis": "correctness", "no_findings": True,
+            }) + "\n", encoding="utf-8")
+            output = root / "axis-findings.jsonl"
+            ingest = subprocess.run([
+                sys.executable, str(SCRIPT), "ingest", "--scope", str(scope_path),
+                "--results-dir", str(results), "--output", str(output),
+                "--axes", "correctness",
+            ], capture_output=True, text=True)
+            self.assertEqual(ingest.returncode, 0, ingest.stderr)
+            self.assertEqual([json.loads(line) for line in output.read_text().splitlines()], [observation])
+            scope = json.loads(scope_path.read_text(encoding="utf-8"))
+            self.assertEqual(scope["validator_coverage"]["expected"], 1)
+            self.assertFalse(scope["validator_coverage"]["complete"])
+
     def test_failed_rerun_invalidates_stale_axis_state_and_output(self):
         import subprocess
 

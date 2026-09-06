@@ -10,13 +10,12 @@ The block below — including the two HTML-comment markers — is inserted verba
 <!-- canonical:label-hygiene:start -->
 ## Critical — Label hygiene
 
-Internal planning labels are author coordinates, not reader coordinates. Strip them from every shipped artifact this skill emits — code, comments, commit subjects/bodies, PR titles/descriptions, release notes, doc paragraphs, non-trivial comments.
+Remove private planning labels and process narration from shipped code and prose. State the domain behavior directly.
 
-- **Workstream and task labels** — `WS-N`, `Phase-A`, `Step-3`, issue or ticket numbers, plan phase names from the source spec, issue body, or planning artifact. Translate to the domain noun (`Runs the battery script (WS-2)` → `Runs the battery script`). <!-- noqa: internal-label -->
-- **Process language** — "the rebuild", "the prior `<file>`", "carried verbatim from", "the cleanup pass", "the audit", "spec AC" standalone. Replace with the concrete fact (`carries the routing from the prior aggregation` → `routes via the merge keys in the synthesis module`). <!-- noqa: internal-label -->
-- **Plan-internal references** — "as the brief says", "per the workstream", "from the forge artifact". Drop the reference; state the fact directly.
+- **Planning labels** — replace `WS-N`, `Phase-A`, `Step-3`, and private plan names with domain terms. <!-- noqa: internal-label -->
+- **Process narration** — remove authoring history and references that require private planning context. Explain the resulting behavior or constraint.
 
-Carve-outs — literal `WS-N` is legitimate where the skill IS the format authority (forge templates, apex rule documentation). Reviewer-facing dev docs (e.g. `MIGRATION.md` under `tests/<skill>/`) may reference deleted artifacts by their author-time names.
+Keep useful issue links, public ticket identifiers, user-requested traceability, and labels where the artifact defines that format. Reviewer-facing migration docs may name deleted artifacts.
 <!-- canonical:label-hygiene:end -->
 ```
 

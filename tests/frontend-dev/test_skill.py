@@ -1,4 +1,4 @@
-"""frontend-dev — the everyday-lane contract documented in SKILL.md must remain stable."""
+"""frontend-dev — everyday UI and directed build chunks retain their scope."""
 
 import re
 import sys
@@ -38,12 +38,14 @@ def _section(heading):
 
 
 class TestFrontmatterTier(unittest.TestCase):
-    """frontend-dev ships portable: no compatibility string, no paths globs
+    """frontend-dev declares its capabilities without paths globs
     (paths would double-fire with design-system on the same UI files), no
     pinned model."""
 
-    def test_no_compatibility_field(self):
-        self.assertIsNone(_frontmatter().get("compatibility"))
+    def test_compatibility_names_rendering_limit(self):
+        compatibility = _frontmatter().get("compatibility")
+        self.assertIn("interactive browser", compatibility)
+        self.assertIn("verification gaps", compatibility)
 
     def test_no_paths_field(self):
         self.assertNotRegex(_body(), r"(?m)^paths:",
@@ -72,12 +74,14 @@ class TestBriefTiers(unittest.TestCase):
         self.assertTrue(0 <= chunk < design < ritual,
                         f"tiers out of order: {chunk}, {design}, {ritual}")
 
-    def test_chunk_defers_to_award_design_when_installed(self):
-        self.assertIn("hand the chunk to its chunk mode", self._tiers())
+    def test_ready_chunk_stays_with_the_builder(self):
+        self.assertIn("Implement the selected chunk", self._tiers())
+        self.assertIn("Do not route a ready build chunk back for direction", self._tiers())
+        self.assertIn("Stop at the selected chunk boundary", self._tiers())
 
     def test_chunk_verify_runs_verbatim_with_declared_gaps(self):
         tiers = self._tiers()
-        self.assertIn("run its Verify verbatim", tiers)
+        self.assertIn("Verify as written", tiers)
         self.assertIn("declared gap", tiers)
 
     def test_token_changes_route_to_design_system(self):
@@ -85,8 +89,7 @@ class TestBriefTiers(unittest.TestCase):
 
 
 class TestCommitRitual(unittest.TestCase):
-    """Five named lines, in order, committed to the response AND the first
-    file's top comment — the anti-reflex mechanism the lane is built on."""
+    """Direction belongs in the response/design artifact, not source comments."""
 
     RITUAL_LINES = ["SURFACE:", "WORLD:", "TYPE:", "COLOR:", "SIGNATURE:"]
 
@@ -103,11 +106,11 @@ class TestCommitRitual(unittest.TestCase):
         self.assertEqual(positions, sorted(positions),
                          "ritual lines out of order")
 
-    def test_lines_land_in_a_file_comment(self):
-        self.assertIn("comment at the top of the first file", self._ritual())
+    def test_direction_does_not_pollute_source_code(self):
+        self.assertIn("Keep process commentary out of source code", self._ritual())
 
-    def test_first_instinct_named_and_rejected(self):
-        self.assertIn("first instinct is already spent", self._ritual())
+    def test_direction_uses_existing_artifact(self):
+        self.assertIn("response or the existing project design artifact", self._ritual())
 
     def test_edit_inherits_neighboring_direction(self):
         self.assertIn("inherits the neighboring direction", self._ritual())
@@ -170,9 +173,9 @@ class TestStatesAndShip(unittest.TestCase):
 
     def test_interactive_and_data_states(self):
         section = self._section()
-        self.assertIn("ships five states", section)
-        self.assertIn("ships three", section)
-        for state in ["default", "hover", "focus-visible", "disabled",
+        self.assertIn("states the component can actually reach", section)
+        self.assertIn("Do not invent loading/disabled", section)
+        for state in ["default", "hover", "focus", "disabled",
                       "loading", "empty", "error"]:
             with self.subTest(state=state):
                 self.assertIn(state, section)
@@ -180,7 +183,7 @@ class TestStatesAndShip(unittest.TestCase):
     def test_ship_checklist_items(self):
         section = self._section()
         for item in ["verify widths", "favicon", "404", "alt text",
-                     "skip link", "console errors", "signature moment"]:
+                     "skip link", "console errors", "signature"]:
             with self.subTest(item=item):
                 self.assertIn(item, section)
 

@@ -239,7 +239,7 @@ class TestDestinationAndResults(_ShimCase):
         r = self._run(self.URL)
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         dest = (self.home / ".agents" / "output" / _project(self.cwd)
-                / "download-media" / "v-dqw4w9wgxcq")
+                / "download-media" / "v-dqw4w9wgxcq").resolve()
         self.assertIn(f"RESULT: dest={dest}", r.stdout)
         self.assertTrue(dest.is_dir())
         argv = self._argv()
@@ -248,13 +248,21 @@ class TestDestinationAndResults(_ShimCase):
         self.assertFalse((self.cwd / ".agents").exists())
 
     def test_dest_override(self):
-        custom = self.cwd / "media"
+        custom = (self.cwd / "media").resolve()
         r = self._run("-d", str(custom), self.URL)
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         self.assertIn(f"RESULT: dest={custom}", r.stdout)
         argv = self._argv()
         self.assertEqual(argv[argv.index("-P") + 1], str(custom))
         self.assertFalse((self.home / ".agents").exists())
+
+    def test_relative_destination_is_canonical_in_argv_and_result(self):
+        result = self._run("-d", "media", self.URL)
+        expected = str((self.cwd / "media").resolve())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn(f"RESULT: dest={expected}", result.stdout)
+        argv = self._argv()
+        self.assertEqual(argv[argv.index("-P") + 1], expected)
 
     def test_result_schema_single_file(self):
         r = self._run(self.URL)
@@ -351,6 +359,16 @@ class TestNoFfmpeg(_ShimCase):
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         self.assertIn("WARN: ffmpeg not found", r.stderr)
         self.assertNotIn("-t", self._argv())
+        self.assertEqual(self._argv()[self._argv().index("-f") + 1], "b")
+
+    def test_resolution_cap_keeps_only_complete_formats_with_or_without_best(self):
+        for flags in (("-r", "1080"), ("-b", "-r", "1080")):
+            with self.subTest(flags=flags):
+                result = self._run(*flags, self.URL)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                argv = self._argv()
+                self.assertEqual(argv[argv.index("-f") + 1], "b[height<=1080]")
+                self.assertNotIn("-t", argv)
 
     def test_info_mode_skips_ffmpeg_gate(self):
         """`-i` downloads nothing — it must not die on the -a ffmpeg check."""

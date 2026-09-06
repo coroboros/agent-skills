@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# audio-loop.sh — produce a web-ready seamless audio loop (FLAC)
+# audio-loop.sh — normalize and encode an existing audio loop as FLAC
 #
 # Usage:
 #   audio-loop.sh <input> [-t <lufs>] [-o <out_dir>] [-B]
@@ -66,11 +66,12 @@ BASENAME=$(basename "$INPUT")
 STEM="${BASENAME%.*}"
 [[ -z "$OUT_DIR" ]] && OUT_DIR=$(dirname "$INPUT_ABS")
 mkdir -p "$OUT_DIR"
+OUT_DIR=$(cd "$OUT_DIR" && pwd -P)
 
 OUTPUT="$OUT_DIR/${STEM}.flac"
 
 # Reprocessing a FLAC in its own directory would clobber the source — catch upfront.
-if [[ "$INPUT_ABS" == "$OUTPUT" ]]; then
+if [[ "$INPUT_ABS" == "$OUTPUT" || "$INPUT_ABS" -ef "$OUTPUT" ]]; then
   echo "error: output would overwrite input ($OUTPUT). Pass -o <dir> to write elsewhere." >&2
   exit 1
 fi
@@ -99,8 +100,7 @@ if [[ "$CHANNELS" -eq 2 ]]; then
   DELTA_DB=$(awk -v l="$L_RMS" -v r="$R_RMS" 'BEGIN { printf "%.3f", r - l }')
   ABS_DELTA=$(awk -v d="$DELTA_DB" 'BEGIN { printf "%.3f", (d < 0) ? -d : d }')
 
-  # Threshold: correct above 1 dB. Below that, JND research on sustained
-  # ambient content shows the imbalance isn't reliably perceptible.
+  # The 1 dB threshold is this workflow's default; -B preserves intentional asymmetry.
   if [[ $NO_BALANCE -eq 0 ]] && awk -v a="$ABS_DELTA" 'BEGIN { exit !(a > 1.0) }'; then
     if awk -v d="$DELTA_DB" 'BEGIN { exit !(d > 0) }'; then
       GAIN=$(awk -v d="$DELTA_DB" 'BEGIN { printf "%.6f", 10 ^ (-d / 20) }')
@@ -113,8 +113,10 @@ if [[ "$CHANNELS" -eq 2 ]]; then
   fi
 fi
 
+# Bound frames after loudnorm/resampling: FFmpeg 9 can otherwise send a whole
+# short clip as one frame exceeding FLAC's block size. p=0 preserves sample count.
 ffmpeg -y -hide_banner -loglevel warning -i "$INPUT_ABS" \
-  -af "${PAN_FILTER}loudnorm=I=${LUFS_TARGET}:TP=-2:LRA=7,aresample=${SAMPLE_RATE}" \
+  -af "${PAN_FILTER}loudnorm=I=${LUFS_TARGET}:TP=-2:LRA=7,aresample=${SAMPLE_RATE},asetnsamples=n=4608:p=0" \
   -c:a flac -compression_level 8 \
   "$OUTPUT"
 
@@ -135,9 +137,10 @@ OUTPUT_BYTES=$(stat -f%z "$OUTPUT" 2>/dev/null || stat -c%s "$OUTPUT")
 
 # Loudness outside ±1 LUFS of target means loudnorm didn't converge — fail the
 # call so the caller doesn't ship a mis-leveled loop.
-LUFS_OK=1
+LUFS_OK=0
 LUFS_DELTA=""
-if [[ -n "${OUT_LUFS:-}" ]]; then
+if [[ "${OUT_LUFS:-}" =~ ^-?[0-9]+([.][0-9]+)?$ ]]; then
+  LUFS_OK=1
   LUFS_DELTA=$(awk -v o="$OUT_LUFS" -v t="$LUFS_TARGET" 'BEGIN { d = o - t; printf "%.3f", (d < 0 ? -d : d) }')
   if awk -v d="$LUFS_DELTA" 'BEGIN { exit !(d > 1.0) }'; then
     LUFS_OK=0
