@@ -1,7 +1,7 @@
 ---
 name: step-04-examine
 description: Self-check - run tests, verify AC, audit implementation quality, complete workflow
-prev_step: steps/step-03-execute.md
+prev_step: steps/step-03b-refine.md
 next_step: null
 ---
 
@@ -26,7 +26,7 @@ next_step: null
 
 ## CONTEXT BOUNDARIES:
 
-- Implementation from step-03 is complete
+- Implementation from step-03, refined in step-03b, is complete
 - Tests may or may not pass yet
 - Type errors may exist
 - Focus is on verification, not new implementation
@@ -149,12 +149,23 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 
 **Stakes gate:**
 
-- Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough.
+- Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough. A change that § 3.5 covers is never trivial.
 - Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
 - `{economy_mode}` = true → skip the subagent; perform a separate shared-context self-check instead; do not call it independent verification.
 - Harness without subagents → same shared-context fallback; disclose the reduced independence.
 
+**Defects only.** Tell the skeptic to report a failing input, an unmet criterion or a trust-boundary gap, each with file:line and a reproduction. Robustness additions, validation of internal values, new abstractions and style are not findings: a reviewer asked for gaps always finds some, and chasing them rebuilds the bloat Refine removed. Fix a confirmed defect within the accepted scope with the smallest change `references/quality-lens.md` allows; report a defect outside that scope for the user.
+
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
+
+**3.5 Security check (trust-boundary changes only)**
+
+Run it when the task's changes touch authentication or authorization, parsing of external input, SQL, shell, HTML, path or redirect construction, secrets or cryptography, uploads, cookies or CORS. Use exactly one backend:
+
+- `/security-review` when the host provides it, `git rev-parse --verify origin/HEAD` succeeds, and every task change is committed; it reviews committed branch changes against origin's default branch. Fix findings in this task's changes; report the others without touching them.
+- Otherwise add the lens's `Security floor` to the skeptic's refutation targets (in economy mode, to the shared-context self-check). This path also covers uncommitted and untracked task changes.
+
+Security findings are fixed or reported, never dropped.
 
 ### 4. Self-Audit Checklist
 
@@ -171,15 +182,16 @@ Verify each item:
 - [ ] New tests written for new functionality
 - [ ] No skipped tests without reason
 
-**Patterns Followed:**
-- [ ] Code follows existing patterns
-- [ ] Error handling consistent
-- [ ] Naming conventions match
+**Quality Evidence** — each line cites its artifact; `references/quality-lens.md` defines the rules:
+- [ ] Budget: planned vs actual from the task diff (files, exported symbols, abstractions, dependencies, config keys); each excess removed or classified by the derivation lens
+- [ ] Refine: the step-03b record shows its backend, net line delta and a verdict for every finding, or its skip reason
+- [ ] Comments: added comment lines counted from the diff; each carries a why, the rest deleted
+- [ ] Skills: each skill the plan bound has its result recorded
+- [ ] Patterns: conventions recorded in Analyze are followed; error handling and naming match their neighbors
 
 **Deliverable Hygiene** — checklist gate for the `## Critical — Label hygiene` canonical block in SKILL.md and the expanded rule in `step-03-execute.md`. All three must stay in sync.
 - [ ] No internal labels (workstream `WS-N`, task IDs, plan phase names) in code, comments, commit/PR text, or docs the change ships
 - [ ] No references to the plan, spec, postmortem, APEX phases, or scratch-file paths in shipped artifacts
-- [ ] Comments explain a why the code cannot — no comment that merely restates the next line
 
 ### 5. Format Code
 
@@ -199,6 +211,8 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 **Tests:** ✓ {X}/{X} passing
 **Format:** ✓ Applied
 **Adversarial self-check:** ✓ {N findings resolved | skipped — trivial change}
+**Security check:** ✓ {backend, N findings resolved | not triggered}
+**Quality:** net {±N} lines (refine −{M}) · budget files {a}/{b}, deps {a}/{b} · comments +{N}
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
@@ -221,6 +235,7 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 - Typecheck: ✓ Passed
 - Lint: ✓ Passed
 - Tests: ✓ Passed
+- Quality: net {±N} lines (refine −{M}) · budget files {a}/{b}, deps {a}/{b} · comments +{N}
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 

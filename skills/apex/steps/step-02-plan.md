@@ -77,9 +77,10 @@ Append plan to `{output_dir}/02-plan.md` as you work.
 
 Mental simulation:
 - Walk through the implementation step by step
+- Walk the build ladder in `references/quality-lens.md` for each capability, starting from Analyze's `Reuse inventory`
 - Identify all files that need changes
 - Determine logical order (dependencies first)
-- Consider edge cases and error handling
+- Consider the edge cases real callers produce and where each error is handled
 - Plan test coverage
 
 ### 3. Clarify Ambiguities
@@ -106,50 +107,48 @@ questions:
 
 ### 4. Create Detailed Plan
 
-**Structure by FILE, not by feature:**
+**Structure by FILE, not by feature.** Each file entry binds the quality lens to that change: what it reuses, what it leaves out, and the control that applies there. The example is reuse-first on purpose; a new file or abstraction appears only with a recorded reason.
 
 ```markdown
 ## Implementation Plan: {task_description}
 
 ### Overview
-[1-2 sentences: High-level strategy and approach]
+[1-2 sentences: strategy and the lowest build-ladder rung that meets the criteria]
 
 ### Prerequisites
-- [ ] Prerequisite 1 (if any)
-- [ ] Prerequisite 2 (if any)
+- [ ] Prerequisite (if any)
 
 ---
 
 ### File Changes
 
-#### `src/path/file1.ts`
-- Add `functionName` that handles X
-- Extract logic from Y (follow pattern in `example.ts:45`)
-- Handle error case: [specific scenario]
-- Consider: [edge case or important context]
+#### `src/billing/invoice.ts`
+- Change: add `lateFee(invoice, now)` beside `applyFee` (pattern at `fees.ts:12`)
+- Reuse: rung 2 — `fees.ts:12 applyFee`, `money.ts:8 round`
+- Leave out: rate config flag (one consumer), docstring
+- Checks: pure calculation; I/O stays in `routes/invoice.ts`
 
-#### `src/path/file2.ts`
-- Update imports to include new module
-- Call `functionName` in existing flow at line ~42
-- Update types: Add `NewType` interface
+#### `src/routes/invoice.ts`
+- Change: call `lateFee` in the existing GET handler at line ~42
+- Reuse: rung 2 — the `invoiceParams` schema at line 12 already validates the request
+- Leave out: new endpoint, response envelope changes
+- Checks: trust boundary — unknown invoice ids keep the existing 404 path
 
-#### `src/path/file3.ts` (NEW FILE)
-- Create utility for Z
-- Export: `utilityFunction`, `HelperType`
-- Pattern: Follow `similar-util.ts` structure
+---
+
+### Design budget
+New files 0 · exported symbols 1 · abstractions 0 · dependencies 0 · config keys 0 · est. net lines +25
+Count production code; tests follow the Testing Strategy. Justify each non-zero item in one clause.
+
+### Skills
+- `<installed skill>` — load before editing `<file>` (from Analyze's `Applicable skills`), or `none`
 
 ---
 
 ### Testing Strategy
 
-**New tests:**
-- `src/path/file1.test.ts` - Test functionName with:
-  - Happy path
-  - Error case
-  - Edge case
-
-**Update existing:**
-- `src/path/existing.test.ts` - Add test for new flow
+One focused test per accepted criterion or changed behavior, sized like the neighboring tests. No tests that mirror the implementation; scratch checks stay uncommitted.
+- `src/billing/invoice.test.ts` — AC1 fee after the due date; AC2 no fee before it
 
 ---
 
@@ -170,7 +169,7 @@ questions:
 After writing the plan but before verification, stress-test it inline. Write directly to `02-plan.md`:
 
 - **Premortem** — one bullet: "6 months out, this plan failed AC1 because ___." Imagine the failure as already certain — surfaces more failure modes than "what could go wrong?".
-- **Alternative** — one bullet: "Is there a simpler file-change path that hits 80% of the AC?" Name the alternative concretely, then state why the leading plan still wins.
+- **Alternative** — name a simpler file-change path concretely. Adopt it when it meets every AC; keep the leading plan only for a named criterion or risk the alternative misses.
 
 No `AskUserQuestion` here — this is model reasoning in the artifact, not a user prompt. Interactive mode (`-i`) handles user pauses separately.
 
@@ -195,6 +194,43 @@ This is within apex's design scope. Consider `/forge` for explicit decomposition
 
 Advisory only — never blocks step-02. The check is the dogfood for solo apex runs without an upstream forge plan; apex documents its own scope when it grows.
 
+### 4c. Kill council
+
+The author defends its own plan; a reviewer that did not write it, and never proposes additions, catches the reinvented helper and the speculative layer before any code exists. Skip the council when the plan touches one file and adds no file, exported symbol, dependency or config key; record `Council: skipped — minimal plan`.
+
+Give one fresh-context `general-purpose` subagent the prompt below, without your deliberation:
+
+```
+You are the kill council for an implementation plan you did not write.
+Never propose features, checks or abstractions; report an uncovered
+criterion as GAP.
+
+<brief>{task, accepted criteria, negative scope}</brief>
+<reuse_inventory>{Analyze's Reuse inventory}</reuse_inventory>
+<plan>{file entries and Design budget}</plan>
+<lens>{Build ladder and Minimum structure from references/quality-lens.md}</lens>
+
+You have read access. Verify every reuse claim in code or docs before reporting it.
+Lenses, in order:
+1. Kill — which criterion needs no new code (existing behavior, configuration, nothing)?
+2. Reuse — for each new function, module, type, dependency or config key, does a lower rung already provide it?
+3. Shrink — which planned file, symbol, parameter or branch can go while every criterion holds?
+
+One line per finding:
+KILL|REUSE|SHRINK <plan element> → <replacement | remove> — evidence: <file:line | doc | criterion>
+GAP <criterion> — no planned change satisfies it
+End with `budget: files N→M, symbols N→M, deps N→M` or `Plan is minimal.`
+Zero findings is valid. No style, naming or robustness suggestions.
+```
+
+Disposition — record each finding under `## Kill council` in `02-plan.md`:
+
+- **Apply before approval:** REUSE and SHRINK findings with verified evidence that keep every criterion; every GAP.
+- **User-owned:** a KILL of an element that carries a criterion, or any finding that changes the approach or negative scope. Present it at the plan checkpoint. With `{auto_mode}`, record it and deliver the requested outcome with the simplest compliant plan, unless proceeding conflicts with a documented constraint or makes the work unsafe or useless; then pause for the user.
+- **Rejected:** one line of evidence each. No finding disappears without a verdict.
+
+Economy mode or no subagents: run the same three lenses yourself in the same format and label the section `shared-context self-check`.
+
 ### 5. Verify Plan Completeness
 
 Checklist:
@@ -204,6 +240,8 @@ Checklist:
 - [ ] Test coverage - all paths have test strategy
 - [ ] In scope - no scope creep
 - [ ] AC mapped - every criterion has implementation
+- [ ] Reuse bound - every file entry names its rung; every non-zero budget item has a reason
+- [ ] Council resolved - every finding applied, user-owned, or rejected with evidence (or the skip recorded)
 
 ### 6. Present Plan for Approval
 
@@ -215,6 +253,8 @@ Checklist:
 **Files to modify:** {count} files
 **New files:** {count} files
 **Tests:** {count} test files
+**Design budget:** files {n} · symbols {n} · abstractions {n} · deps {n} · config {n}
+**Kill council:** {applied} applied · {user_owned} for your decision · {rejected} rejected (or skipped — minimal plan)
 
 **Estimated changes:**
 - `file1.ts` - Major changes (add function, handle errors)
@@ -274,6 +314,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 ✅ Logical dependency order established
 ✅ All acceptance criteria mapped to changes
 ✅ Test strategy defined
+✅ Design budget set and kill council findings dispositioned
 ✅ User approved plan (or auto-approved)
 ✅ NO code written or modified
 ✅ Output saved (if save_mode)
@@ -283,6 +324,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 ❌ Organizing by feature instead of file
 ❌ Vague actions like "add feature" or "fix issue"
 ❌ Missing test strategy
+❌ A new file, abstraction or dependency without a recorded rung and reason
 ❌ Not mapping to acceptance criteria
 ❌ Starting to write code (that's step 3!)
 ❌ **CRITICAL**: Not using AskUserQuestion for approval (when it is available)

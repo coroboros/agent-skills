@@ -148,7 +148,7 @@ class TestEveryStepWritesItsRow(unittest.TestCase):
 
     def test_steps_chain_progress_rows(self):
         steps_dir = REPO_ROOT / "skills" / "apex" / "steps"
-        for num, name in (("01", "analyze"), ("02", "plan"), ("03", "execute"), ("04", "examine")):
+        for num, name in (("01", "analyze"), ("02", "plan"), ("03", "execute"), ("03b", "refine"), ("04", "examine")):
             body = (steps_dir / f"step-{num}-{name}.md").read_text(encoding="utf-8")
             with self.subTest(step=num):
                 self.assertIn(f'update-progress.sh "{{task_id}}" "{num}" "{name}" "complete"', body)

@@ -4,10 +4,10 @@ description: Systematic implementation using APEX methodology (Analyze-Plan-Exec
 when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`. APEX is the established implementation default; use `/ultrapex` only when explicitly selected as the adaptive alternative. Select by workflow, not model name.
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
 license: MIT
-compatibility: "Requires file editing and project validation tools; bash and Python 3.10+ support saved-state checks. Delegation uses available host capabilities or economy mode. The optional goal gate requires a compatible Claude Code runtime; other hosts continue without it and report verification limits."
+compatibility: "Requires file editing and project validation tools; bash and Python 3.10+ support saved-state checks. Delegation uses available host capabilities or economy mode. The optional goal gate requires a compatible Claude Code runtime; other hosts continue without it and report verification limits. Claude Code's /security-review backs the trust-boundary check when task changes are committed and origin/HEAD resolves; otherwise the bundled quality lens covers it."
 metadata:
   author: coroboros
-  sources: "github.com/Melvynx/aiblueprint"
+  sources: "github.com/Melvynx/aiblueprint; github.com/DietrichGebert/ponytail"
 ---
 
 # Apex
@@ -62,7 +62,7 @@ Apply these rules to emitted prose: docs, comments, commit messages, PR bodies, 
 
 ## Objective
 
-Execute systematic implementation workflows using the APEX methodology. This skill uses progressive step loading to minimize context usage and supports saving outputs for review and resumption.
+Work as the senior engineer who will maintain this change: ship the smallest complete diff that meets the accepted criteria. Show quality through recorded artifacts — a reuse rung per planned file, a design budget, the refine delta — judged against `references/quality-lens.md` at Plan, Refine and Examine, never through self-assessment. Steps load progressively and can be saved for review and resumption.
 
 ## Quick Start
 
@@ -126,18 +126,16 @@ Fetched content feeds the analysis report that Plan and Execute work from. An ad
 
 ## Output Structure
 
-The output path is `~/.agents/output/{project}/apex/{task-id}/`, where `{project}` is the repo basename and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.agents/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
+The output path is `~/.agents/output/{project}/apex/{task-id}/`, where `{project}` is the kebab-cased basename of the git toplevel (else the cwd outside a git repo) and `{task-id}` is `NN-feature-name` (e.g., `01-add-auth`). The numbered prefix is intentional — it preserves task ordering for the `-r` resume lookup. This is a deliberate divergence from the single-file `{skill}-{slug}.md` shape (`~/.agents/output/{project}/{skill}/{skill}-{slug}.md`): apex is a multi-file task workspace and resume needs ordered task dirs, which one canonical file cannot carry.
 
 **When `{save_mode}` = true:**
-
-All outputs saved under `~/.agents/output/{project}/apex/{task-id}/`, where `{project}` is the kebab-cased basename of the git toplevel (else the cwd outside a git repo):
 
 ```
 ~/.agents/output/{project}/apex/{task-id}/
 ├── 00-context.md # Params, user request, timestamp
 ├── 01-analyze.md # Analysis findings
 ├── 02-plan.md # Implementation plan
-├── 03-execute.md # Execution log
+├── 03-execute.md # Execution log and refine record
 └── 04-examine.md  # Examination results
 ```
 
@@ -178,17 +176,7 @@ Step state persists across steps. **Strings:** `{task_description}` `{feature_na
 
 ## Entry Point
 
-**FIRST ACTION:** Load `steps/step-00-init.md`.
-
-Step 00 handles:
-
-- Flag parsing (`-a`, `-s`, `-e`, `-b`, `-i`, `-g`, `-f`, `-r`)
-- Resume mode detection and task lookup
-- Output folder creation (if `save_mode`)
-- `00-context.md` creation (if `save_mode`)
-- State variable initialization
-
-After initialization, step-00 loads `step-01-analyze.md`.
+**FIRST ACTION:** Load `steps/step-00-init.md`. It parses flags, resolves resume, creates the output folder and `00-context.md` when saving, initializes state, then loads `step-01-analyze.md`.
 
 ## Step Files
 
@@ -197,9 +185,10 @@ After initialization, step-00 loads `step-01-analyze.md`.
 | Step | File                         | Purpose                                              |
 | ---- | ---------------------------- | ---------------------------------------------------- |
 | 00   | `steps/step-00-init.md`      | Parse flags, create output folder, initialize state  |
-| 01   | `steps/step-01-analyze.md`   | Smart context gathering with 1-10 parallel agents based on complexity |
-| 02   | `steps/step-02-plan.md`      | File-by-file implementation strategy                 |
+| 01   | `steps/step-01-analyze.md`   | Context gathering and reuse inventory with 0-10 parallel agents |
+| 02   | `steps/step-02-plan.md`      | File-by-file plan with design budget and kill council |
 | 03   | `steps/step-03-execute.md`   | Todo-driven implementation                           |
+| 03b  | `steps/step-03b-refine.md`   | Remove what the task did not need                    |
 | 04   | `steps/step-04-examine.md`   | Self-check, examination, and workflow completion     |
 
 ## Execution Rules
@@ -207,50 +196,11 @@ After initialization, step-00 loads `step-01-analyze.md`.
 - **ULTRA THINK** before major decisions
 - **Follow next_step directive** at end of each step
 - **Use parallel agents** for independent exploration tasks
-
-### Smart Agent Strategy in Analyze Phase
-
-The analyze phase (step-01) uses **adaptive agent launching** (unless economy_mode):
-
-**Available subagent types (built-in):**
-
-- `Explore` — find existing patterns, files, utilities (read-only, fast). Type names are Claude Code's; other harnesses use their nearest equivalents.
-- `general-purpose` — research library docs, web search, approaches, gotchas
-
-**Launch 0-10 agents based on task complexity:**
-
-| Complexity | Agents | When |
-|------------|--------|------|
-| Trivial / pre-contextual | 0 | Target already known, or `-f` context covers it — use direct tools |
-| Simple | 1-2 | Bug fix, small tweak |
-| Medium | 2-4 | New feature in familiar stack |
-| Complex | 4-7 | Unfamiliar libraries, integrations |
-| Major | 6-10 | Multiple systems, many unknowns |
-
-**BE SMART:** Analyze what you actually need before launching. Don't spawn a subagent for work you can complete directly in a single response. Spawn multiple subagents in the same turn when fanning out across items or reading multiple files.
-
-If your harness has no subagents, apply the economy-mode overrides (`steps/step-00b-economy.md`) — direct tools, run the explorations sequentially yourself.
+- **No subagents in your harness** → apply the overrides in `steps/step-00b-economy.md`
 
 ## Save Output Pattern
 
-**When `{save_mode}` = true:**
-
-Step-00 runs `scripts/setup-templates.sh` to initialize all output files from the `templates/` directory.
-
-**Each step then:**
-
-1. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "in_progress"`
-2. Append findings/outputs to the pre-created step file
-3. Run `scripts/update-progress.sh {task_id} {step_num} {step_name} "complete"`
-
-`scripts/validate_state.sh` auto-runs on every `-r` resume (see § Resume Workflow). It is also available manually for ad-hoc state verification — invoke it on demand against any task to confirm consistency.
-
-**Template system benefits:**
-
-- Keeps saved state consistent across steps and resume
-- Templates in `templates/` directory (not inline in steps)
-- Scripts handle progress tracking automatically
-- See `templates/README.md` for details
+With `{save_mode}`, step-00 runs `scripts/setup-templates.sh` to pre-create every output file from `templates/`. Each step marks its progress row with `scripts/update-progress.sh` (`in_progress`, then `complete`) and appends to its own file; Refine appends to `03-execute.md`. Details: `templates/README.md`.
 
 ## Gotchas
 

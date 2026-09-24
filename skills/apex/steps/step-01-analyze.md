@@ -178,9 +178,11 @@ Task: {task_description}
 
 ---
 
-### 🎯 STEP 3B: CHOOSE YOUR SUBAGENTS (1-10)
+### 🎯 STEP 3B: CHOOSE YOUR SUBAGENTS (0-10)
 
 **Available Subagent Types (built-in):**
+
+Type names are Claude Code's; other harnesses use their nearest equivalents.
 
 | Type | Use When |
 |------|----------|
@@ -215,6 +217,7 @@ Report:
 2. Patterns used for similar features
 3. Relevant utilities
 4. Test patterns
+5. Existing owners, installed dependencies (with manifest version) and standard-library or platform APIs that already provide {capability}
 
 DO NOT suggest implementations.
 ```
@@ -273,9 +276,13 @@ Combine results into structured context:
 - **Validation**: Uses zod schemas in `schemas/` folder
 - **Error handling**: Throws custom ApiError classes
 
-### Utilities Available
-- `src/lib/auth.ts` - JWT sign/verify functions
-- `src/lib/db.ts` - Prisma client instance
+### Reuse inventory
+- `src/lib/auth.ts:12` - JWT sign/verify functions
+- `src/lib/db.ts:3` - Prisma client instance
+- `zod@3.23` (installed) - request schemas; `crypto.randomUUID` (platform) - ids
+
+### Applicable skills
+- Installed domain-knowledge skills (framework, platform, library best practices) whose description matches an affected area, read from the host's skill list; `none` when nothing matches. Workflow, review and implementation skills stay out: apex owns the workflow, and Examine selects the security backend.
 
 ### Similar Implementations
 - `src/auth/login.ts:42` - Login flow (reference for patterns)
@@ -371,7 +378,8 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progres
 
 ✅ Related files identified with paths and line numbers
 ✅ Existing patterns documented with specific examples
-✅ Available utilities noted
+✅ Reuse inventory recorded (owners, installed deps, platform APIs)
+✅ Applicable installed skills listed
 ✅ Dependencies listed
 ✅ Acceptance criteria inferred
 ✅ NO planning or implementation decisions made

@@ -132,6 +132,8 @@ Economy validation:
    - [ ] Follows existing patterns
    - [ ] Error handling present
    - [ ] No security issues
+   - [ ] Reuse targets honored; design budget met or deviations recorded
+   - [ ] Refine record present; added comments each carry a why
 4. Run full-suite checks when the repository requires them or changed behavior warrants them
 ```
 
@@ -150,17 +152,23 @@ DO:
 1. Glob "**/*{keyword}*" for task-related files
 2. Grep for specific patterns in src/
 3. Read relevant files and their affected callers
-4. Look up current documentation whenever required or uncertainty affects the change
+4. Read the dependency manifest for installed packages that already provide the capability
+5. Look up current documentation whenever required or uncertainty affects the change
 ```
 
 ### Step 02: Plan (Economy)
 ```
-Same as default - planning doesn't use agents
+Same as default; the kill council takes its shared-context fallback (§ 4c)
 ```
 
 ### Step 03: Execute (Economy)
 ```
 Same as default - execution doesn't use agents
+```
+
+### Step 03b: Refine (Economy)
+```
+Same as default; the reviewer takes its shared-context fallback (§ 3)
 ```
 
 ### Step 04: eXamine (Economy)

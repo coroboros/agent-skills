@@ -14,7 +14,7 @@ Compare every accepted criterion with the final implementation and its evidence.
 | Tag | Evidence | Response |
 | --- | --- | --- |
 | `GAP` | An accepted outcome remains unmet or unverified | Complete the authorized work or verification. If blocked, report the missing outcome and cause; do not claim completion. |
-| `SCOPE-ADD` | A change does not serve an accepted outcome | Remove task-owned unnecessary changes. If useful but outside authorization or expressly excluded, surface the concrete decision for the user. |
+| `SCOPE-ADD` | A change does not serve an accepted outcome, or adds a file, abstraction, dependency or config key beyond the plan's `Design budget` without a recorded deviation | Remove task-owned unnecessary changes. If useful but outside authorization or expressly excluded, surface the concrete decision for the user. |
 | `DECISION-OVERRIDE` | Implementation differs from the plan | Record the reason and evidence. Continue for reversible implementation details within scope; escalate only a user-owned decision or authorization boundary. |
 | `CONSISTENT` | Final behavior and evidence satisfy the criterion | Record the supporting file or check. |
 

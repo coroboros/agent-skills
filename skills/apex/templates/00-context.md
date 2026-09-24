@@ -40,4 +40,5 @@ _To be defined in step-01-analyze.md_
 | 01-analyze | ⏸ Pending | |
 | 02-plan | ⏸ Pending | |
 | 03-execute | ⏸ Pending | |
+| 03b-refine | ⏸ Pending | |
 | 04-examine | ⏸ Pending | |

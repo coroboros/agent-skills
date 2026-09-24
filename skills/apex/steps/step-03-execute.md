@@ -2,7 +2,7 @@
 name: step-03-execute
 description: Todo-driven implementation - execute the plan file by file
 prev_step: steps/step-02-plan.md
-next_step: steps/step-04-examine.md
+next_step: steps/step-03b-refine.md
 ---
 
 # Step 3: Execute (Implementation)
@@ -104,11 +104,14 @@ ALWAYS read the file before modifying:
 **3.3 Implement Changes**
 ```
 Make changes specified in the plan:
-- Follow patterns from step-01 analysis
+- Load the skills the plan binds to this file before editing it; apply their rules within this task's scope and authorization, never their own workflow or gates
+- Follow patterns from step-01 analysis and the entry's Reuse target
 - Use exact names from plan
 - Handle error cases as specified
 - Keep comments and names free of internal scaffolding (see **Deliverable hygiene** below)
 ```
+
+Draft to the standard in `references/quality-lens.md` from the first edit; Refine removes what slips through, it does not replace writing it right. Before adding a file, helper, dependency or config key the plan does not list, check its `Reuse` and `Design budget`; an addition you still need is a recorded deviation that Examine will weigh.
 
 **3.4 Mark Complete Immediately**
 - Mark todo complete RIGHT AFTER finishing
@@ -166,7 +169,7 @@ Fix any errors immediately.
 **Todos:** {X}/{Y} complete
 ```
 
-Proceed to examination as part of the authorized implementation. Pause here only when the user explicitly requested a checkpoint before validation.
+Proceed to refine and examination as part of the authorized implementation. Pause here only when the user explicitly requested a checkpoint before validation.
 
 ### 7. Complete Save Output (if save_mode)
 
@@ -179,7 +182,7 @@ Append to `{output_dir}/03-execute.md`:
 **Status:** ✓ Complete
 **Files modified:** {count}
 **Todos completed:** {count}
-**Next:** step-04-examine.md
+**Next:** step-03b-refine.md
 **Timestamp:** {ISO timestamp}
 ```
 
@@ -187,8 +190,10 @@ then:
 
 ```bash
 bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "complete"
-bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
+bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03b" "refine" "in_progress"
 ```
+
+A progress table without a `03b-refine` row (saved before Refine existed) marks `"04" "examine" "in_progress"` instead; Refine still runs.
 
 ---
 
@@ -200,7 +205,7 @@ Everything you write — code, comments, commit subjects, PR and issue bodies, d
 
 - **Translate internal labels into domain facts.** A spec's `WS-3`, an issue's task ID, a plan's phase name are *your* coordinates, not the reader's. Write `add token refresh on 401`, never `WS-3` or `the plan's step 2` — in commit subjects, code comments, and prose alike.
 - **Don't cite the machinery.** No references to the plan, spec, postmortem, the APEX phases, or scratch-file paths (`~/.agents/output/...`) in anything that ships — the reader can't open them, so the pointer is a dead end.
-- **Comment the why, never the what.** Keep a comment only when it carries what the code cannot: a non-obvious constraint, the cause of a workaround, a governing spec clause. Delete any comment that just restates the line below it.
+- **Comment the why, never the what.** Keep a comment only when it carries what the code cannot: a non-obvious constraint, the cause of a workaround, a governing spec clause. Delete any comment that just restates the line below it. `references/quality-lens.md` § Comments owns the full rule.
 
 Test each line: would it still make sense to someone reading only the final diff, with no access to the plan? If not, it's scaffolding — rewrite it as a domain fact or cut it.
 
@@ -238,7 +243,7 @@ Test each line: would it still make sense to someone reading only the final diff
 
 ## NEXT STEP:
 
-After implementation complete, load `./step-04-examine.md`
+After implementation complete, load `./step-03b-refine.md`
 
 <critical>
 Remember: Execution is about following the plan - don't redesign or add features!
