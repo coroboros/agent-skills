@@ -164,7 +164,7 @@ def fetch_pr_body_text(repo: Path, number: str | None = None) -> str:
 
 
 def fetch_issue_body_text(owner_repo: str, number: str) -> str:
-    """Return an issue body as text via `gh api repos/<o>/<r>/issues/<N>`.
+    """Return an issue body as text via `gh issue view <N> --repo <o>/<r>`.
 
     Used by `run.py` when --reconcile resolves to `gh:issue:owner/repo#N`
     or a GitHub issue URL.
@@ -173,8 +173,8 @@ def fetch_issue_body_text(owner_repo: str, number: str) -> str:
         return ""
     try:
         r = subprocess.run(
-            ["gh", "api", f"repos/{owner_repo}/issues/{number}",
-             "--jq", ".body"],
+            ["gh", "issue", "view", number, "--repo", owner_repo,
+             "--json", "body", "--jq", ".body"],
             capture_output=True, text=True, timeout=GH_TIMEOUT_S,
         )
     except (subprocess.SubprocessError, OSError):
