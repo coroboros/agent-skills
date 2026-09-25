@@ -127,7 +127,7 @@ An explicit `--axes` subset must include `intent` when reconciliation is request
 | `<path>` | Explicit file or directory |
 | `gh:pr:<N>` | PR by number via `gh api` |
 | `gh:issue:<owner>/<repo>#<N>` | Issue by reference |
-| GitHub issue URL | Parsed → `gh api` |
+| GitHub issue URL | Parsed → `gh issue view` |
 
 Multiple inputs via comma: `--reconcile @auto,gh:pr:42`. Every explicit path, `@pr`, PR number, issue reference, or issue URL is atomic: unavailable sources exit 3; malformed or claim-free explicit artifacts exit 4. `@auto` requires at least one discoverable source and validates every resolved artifact before Intent review.
 

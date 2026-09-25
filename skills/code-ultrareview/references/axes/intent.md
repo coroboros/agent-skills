@@ -34,7 +34,7 @@ Severity for `GAP` escalates to High when the artifact is a forge plan AND the c
 | `<path>` | Explicit file or directory |
 | `gh:pr:<N>` | PR by number |
 | `gh:issue:<owner>/<repo>#<N>` | Issue by reference |
-| GitHub issue URL | Parsed → `gh api` |
+| GitHub issue URL | Parsed → `gh issue view` |
 
 Multiple inputs: `--reconcile @auto,gh:pr:42`.
 

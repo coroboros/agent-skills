@@ -17,8 +17,8 @@ Input forms:
     @pr              — current branch's PR body (via `gh pr view`)
     <path>           — explicit file or directory
     gh:pr:<N>        — PR by number (current repo, via `gh`)
-    gh:issue:owner/repo#N — issue by ref (via `gh api`)
-    https://github.com/owner/repo/issues/N — issue URL (parsed → gh api)
+    gh:issue:owner/repo#N — issue by ref (via `gh issue view`)
+    https://github.com/owner/repo/issues/N — issue URL (parsed → gh issue view)
 """
 
 from __future__ import annotations
