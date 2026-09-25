@@ -1,3 +1,12 @@
+# Skill Quality Lens
+
+Canonical review instrument for the implementation workflows. Each declared skill carries a byte-identical copy at `references/quality-lens.md`, so the lens travels on independent install and loads only when a step needs it. The `tests/_meta/test_skill_writing_rules.py` test enforces parity; the `scripts/sync_writing_rules.py` script writes the copies.
+
+## Canonical block
+
+The block below — including the two HTML-comment markers — is the whole content of each declared skill's `references/quality-lens.md`. Each skill binds it to its own checkpoints: planning applies the build ladder and a design budget, a refine pass removes what the task did not need, and verification reports the evidence.
+
+```markdown
 <!-- canonical:quality-lens:start -->
 # Quality lens — the code a senior engineer would ship
 
@@ -92,3 +101,44 @@ A verification reviewer (skeptic, refuter) reports defects only: a failing input
 
 Reject a simplification that nests ternaries, packs logic denser than its neighbors, changes accepted behavior or a pre-existing public signature, or needs a comment to be understood. Readability wins over line count.
 <!-- canonical:quality-lens:end -->
+```
+
+## Why a reference file, not a SKILL.md block
+
+The lens is a rubric of about fifty rules. As a SKILL.md block it would push the other canonical blocks past the placement cap and spend always-loaded tokens on rules only planning, refine and verification read. A synced reference file keeps one owner and progressive loading.
+
+## Declared quality-lens skills
+
+The sync script and the parity test read this list:
+
+- apex
+- ultrapex
+- oneshot
+
+Scope rule — process skills that own an implementation workflow end to end. Skills that implement under one of them inherit the lens from the process skill.
+
+## Excluded skills (with reason)
+
+- frontend-dev — owns the visual floor; when it builds under `/oneshot`, `/apex` or `/ultrapex`, the process skill carries the lens.
+- award-design — directs the design and reviews the rendered result; frontend-dev builds under a process skill.
+- code-ultrareview — user-invoked review with its own simplification axis and severity model.
+- forge — thinking-only; never implements.
+- agent-creator — emits agent config, not code.
+- design-system — governs DESIGN.md tokens, not code.
+- claude-md — emits CLAUDE.md, not code.
+- brand-voice — emits BRAND-VOICE.md, not code.
+- write-clear-readme — emits README.md, not code.
+- suno-produce — emits TRACK.md / ALBUM.md, not code.
+- scaffold — runs a fixed bootstrap and emits a short status report.
+- markitdown — wraps a converter CLI and emits a short status report.
+- download-media — wraps a downloader CLI and emits a short status report.
+- notion — routes to MCP/CLI and emits a short status report.
+- audio-loop — media tooling emitting short status reports.
+- video-loop — media tooling emitting short status reports.
+- humanize-en — text scrubber; different scope entirely.
+
+## Rules for skill authors
+
+- Edit the lens here, then run `scripts/sync_writing_rules.py`; never edit a skill's copy directly.
+- Reference it from each declared skill as `references/quality-lens.md` at the checkpoints that apply it.
+- Keep the HTML-comment markers unchanged — they are the extraction contract for the sync script and the parity test.

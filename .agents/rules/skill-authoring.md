@@ -36,7 +36,7 @@ The local review rubric covers eight axes: description and triggering, progressi
 
 - Inherit the session model and effort; do not pin either in skill frontmatter.
 - Use plain Markdown headings. Keep the skill entrypoint under 500 lines and approximately 5,000 tokens; move detail into clearly routed supporting files.
-- Embed the declared canonical prose, label-hygiene, execution, and verification blocks. Edit their owning `skill-*-rules.md` files, then run `scripts/sync_writing_rules.py`; independent installs need their own copies.
+- Embed the declared canonical prose, label-hygiene, execution, and verification blocks, and carry the declared quality-lens reference. Edit their owning `skill-*-rules.md` files, then run `scripts/sync_writing_rules.py`; independent installs need their own copies.
 - Keep user documentation in the root README, not per-skill READMEs. Do not add `.skill` packages or per-skill install instructions.
 
 ## Repository integration

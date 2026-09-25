@@ -95,6 +95,7 @@ class TestWorkflowChecklist(unittest.TestCase):
         "1. Explore",       # context gathering
         "1b. Complexity",   # circuit breaker
         "2. Code",          # implementation
+        "2b. Refine",       # remove what the task did not need
         "3. Test",          # validation
     ]
 

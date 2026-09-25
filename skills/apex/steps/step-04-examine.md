@@ -143,26 +143,26 @@ Run the project's test command (scoped to affected area if possible).
 
 **If `{save_mode}` = true:** Log each result
 
-**3.4 Adversarial self-check (non-trivial changes only)**
+**3.4 Adversarial self-check (skipped for mechanical changes)**
 
 Per the `## Critical — Adversarial verification` block in SKILL.md, the context that wrote the change cannot reliably clear it. After the suite passes, spawn one fresh-context skeptic — a `general-purpose` subagent — on the diff, tasked to refute: find the bug, the missed edge case, the spec deviation. Keep it bounded; this is an in-loop self-check, not code-ultrareview's full multi-axis gate.
 
 **Stakes gate:**
 
-- Trivial or mechanical changes (formatting, a rename, a one-line fix, a doc edit) → skip; the suite is enough. A change that § 3.5 covers is never trivial.
-- Non-trivial changes (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
+- Mechanical changes as `references/quality-lens.md` defines them → skip; the suite is enough.
+- Any other change (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
 - `{economy_mode}` = true → skip the subagent; perform a separate shared-context self-check instead; do not call it independent verification.
 - Harness without subagents → same shared-context fallback; disclose the reduced independence.
 
-**Defects only.** Tell the skeptic to report a failing input, an unmet criterion or a trust-boundary gap, each with file:line and a reproduction. Robustness additions, validation of internal values, new abstractions and style are not findings: a reviewer asked for gaps always finds some, and chasing them rebuilds the bloat Refine removed. Fix a confirmed defect within the accepted scope with the smallest change `references/quality-lens.md` allows; report a defect outside that scope for the user.
+**Defects only.** Give the skeptic the lens's `Reviewing` rule; a reviewer asked for gaps always finds some. Fix a confirmed defect within the accepted scope with the smallest change `references/quality-lens.md` allows; report a defect outside that scope for the user.
 
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 
 **3.5 Security check (trust-boundary changes only)**
 
-Run it when the task's changes touch authentication or authorization, parsing of external input, SQL, shell, HTML, path or redirect construction, secrets or cryptography, uploads, cookies or CORS. Use exactly one backend:
+Run it for a trust-boundary change as the lens's `Security floor` defines it. Use exactly one backend:
 
-- `/security-review` when the host provides it, `git rev-parse --verify origin/HEAD` succeeds, and every task change is committed; it reviews committed branch changes against origin's default branch. Fix findings in this task's changes; report the others without touching them.
+- `/security-review` outside economy mode when the host provides it, `git rev-parse --verify origin/HEAD` succeeds, and every task change is committed; it reviews committed branch changes against origin's default branch. Fix findings in this task's changes; report the others without touching them.
 - Otherwise add the lens's `Security floor` to the skeptic's refutation targets (in economy mode, to the shared-context self-check). This path also covers uncommitted and untracked task changes.
 
 Security findings are fixed or reported, never dropped.
@@ -183,10 +183,10 @@ Verify each item:
 - [ ] No skipped tests without reason
 
 **Quality Evidence** — each line cites its artifact; `references/quality-lens.md` defines the rules:
-- [ ] Budget: planned vs actual from the task diff (files, exported symbols, abstractions, dependencies, config keys); each excess removed or classified by the derivation lens
-- [ ] Refine: the step-03b record shows its backend, net line delta and a verdict for every finding, or its skip reason
+- [ ] Budget: planned vs actual from the task diff (files, exported symbols, abstractions, dependencies, config keys), or `mechanical change`; each excess removed or classified by the derivation lens
+- [ ] Refine: the step-03b record shows its backend, net line delta and a verdict for every finding, or its skip reason; each finding it reported to Examine is resolved or listed in the completion summary
 - [ ] Comments: added comment lines counted from the diff; each carries a why, the rest deleted
-- [ ] Skills: each skill the plan bound has its result recorded
+- [ ] Skills: each skill the plan bound was applied, with any deviation recorded
 - [ ] Patterns: conventions recorded in Analyze are followed; error handling and naming match their neighbors
 
 **Deliverable Hygiene** — checklist gate for the `## Critical — Label hygiene` canonical block in SKILL.md and the expanded rule in `step-03-execute.md`. All three must stay in sync.
@@ -210,9 +210,9 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 **Lint:** ✓ Passed
 **Tests:** ✓ {X}/{X} passing
 **Format:** ✓ Applied
-**Adversarial self-check:** ✓ {N findings resolved | skipped — trivial change}
+**Adversarial self-check:** ✓ {N findings resolved | skipped — mechanical change}
 **Security check:** ✓ {backend, N findings resolved | not triggered}
-**Quality:** net {±N} lines (refine −{M}) · budget files {a}/{b}, deps {a}/{b} · comments +{N}
+**Quality:** net {±N} lines (refine −{M}) · budget files {a}/{b}, symbols {a}/{b}, abstractions {a}/{b}, deps {a}/{b}, config {a}/{b} · comments +{N}
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
@@ -235,7 +235,8 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 - Typecheck: ✓ Passed
 - Lint: ✓ Passed
 - Tests: ✓ Passed
-- Quality: net {±N} lines (refine −{M}) · budget files {a}/{b}, deps {a}/{b} · comments +{N}
+- Quality: net {±N} lines (refine −{M}) · budget files {a}/{b}, symbols {a}/{b}, abstractions {a}/{b}, deps {a}/{b}, config {a}/{b} · comments +{N}
+- Open items: {findings reported by Refine or the skeptic and left for the user, or none}
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 

@@ -75,6 +75,7 @@ class TestKillCouncil(unittest.TestCase):
     def test_outcome_kills_stay_user_owned_under_auto(self):
         self.assertIn("User-owned", self.council)
         self.assertIn("{auto_mode}", self.council)
+        self.assertIn("accepted criteria and negative scope stay fixed", self.council)
         self.assertIn("documented constraint", self.council)
 
     def test_minimal_plans_skip_with_a_record(self):
@@ -94,8 +95,9 @@ class TestExamineGates(unittest.TestCase):
     def test_security_check_uses_exactly_one_backend(self):
         security = _section(self.text, "**3.5 Security check", "### 4.")
         self.assertIn("exactly one backend", security)
-        # /security-review only sees committed changes against origin/HEAD;
-        # uncommitted task work must fall back to the lens's security floor.
+        self.assertIn("outside economy mode", security)
+        # /security-review diffs the branch against origin's default branch, so
+        # uncommitted task work falls back to the lens's security floor.
         self.assertIn("git rev-parse --verify origin/HEAD", security)
         self.assertIn("every task change is committed", security)
         self.assertIn("Security floor", security)

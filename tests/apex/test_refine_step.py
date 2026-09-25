@@ -163,6 +163,10 @@ class TestRefineContract(unittest.TestCase):
         self.assertIn("Signatures, options, files and tests the task itself introduced may shrink", self.text)
         self.assertIn("would change an accepted behavior or pre-existing code to Examine", self.text)
 
+    def test_user_checkpoint_follows_refine(self):
+        step_03 = (STEPS / "step-03-execute.md").read_text(encoding="utf-8")
+        self.assertIn("checkpoint the user requested before validation happens after Refine", step_03)
+
     def test_skip_still_closes_the_progress_row(self):
         self.assertIn("then run § 7 so the progress row still closes", self.text)
 

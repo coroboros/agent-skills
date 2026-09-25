@@ -46,8 +46,8 @@
     {
       "id": 7,
       "name": "refine-keeps-boundary-drops-ceremony",
-      "prompt": "/apex -a continue the CSV export task. Analyze and Plan are approved: AC1 — the export handler returns CSV with a header row; AC2 — an invalid request body raises a ValidationError. Design budget: new files 2 (an export module and the route handler), exported symbols 2, abstractions 0, dependencies 0, config keys 0. Execution is done: the uncommitted export files pass their tests. Continue from the next step.",
-      "expected_output": "Refine loads references/quality-lens.md and reviews only the task's files. It inlines the single-implementation ExporterFactory, removes the unrequested delimiter option and the comments that restate code, and keeps the request-body validation because it guards a trust boundary. It reruns the tests, records the net line delta and each rejected finding, then Examine reports planned versus actual budget.",
+      "prompt": "/apex -r 03-csv-export — a saved task whose Analyze, Plan and Execute rows are complete: AC1 — the export handler returns CSV with a header row; AC2 — an invalid request body raises a ValidationError. Design budget: new files 2 (an export module and the route handler), exported symbols 2, abstractions 0, dependencies 0, config keys 0. The uncommitted export files pass their tests.",
+      "expected_output": "Resume lands on the pending 03b-refine row. Refine loads references/quality-lens.md and reviews only the task's files. It inlines the single-implementation ExporterFactory, removes the unrequested delimiter option and the comments that restate code, and keeps the request-body validation because it guards a trust boundary. It reruns the tests, records the net line delta and each rejected finding, then Examine reports planned versus actual budget.",
       "files": []
     },
     {

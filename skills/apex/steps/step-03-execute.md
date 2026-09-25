@@ -111,7 +111,7 @@ Make changes specified in the plan:
 - Keep comments and names free of internal scaffolding (see **Deliverable hygiene** below)
 ```
 
-Draft to the standard in `references/quality-lens.md` from the first edit; Refine removes what slips through, it does not replace writing it right. Before adding a file, helper, dependency or config key the plan does not list, check its `Reuse` and `Design budget`; an addition you still need is a recorded deviation that Examine will weigh.
+Draft to the standard in `references/quality-lens.md` from the first edit; Refine removes what slips through, it does not replace writing it right. Before adding a file, helper, dependency or config key the plan does not list, check its `Reuse` and `Design budget`; an addition you still need is a deviation to record in the execution log for Examine to weigh.
 
 **3.4 Mark Complete Immediately**
 - Mark todo complete RIGHT AFTER finishing
@@ -169,7 +169,7 @@ Fix any errors immediately.
 **Todos:** {X}/{Y} complete
 ```
 
-Proceed to refine and examination as part of the authorized implementation. Pause here only when the user explicitly requested a checkpoint before validation.
+Proceed to refine as part of the authorized implementation. A checkpoint the user requested before validation happens after Refine, so the reviewed code is the code Examine validates.
 
 ### 7. Complete Save Output (if save_mode)
 

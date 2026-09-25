@@ -29,6 +29,20 @@
       "prompt": "/ultrapex fix the typo in the README install command",
       "expected_output": "Complete the trivial edit through the focused Oneshot workflow without a new permission gate or unnecessary independent-agent work.",
       "files": []
+    },
+    {
+      "id": 5,
+      "name": "reuse-and-budget",
+      "prompt": "/ultrapex add email validation to the signup and invite handlers: a malformed email raises a ValidationError on the email field.",
+      "expected_output": "The plan reuses the repository's existing isValidEmail helper and ValidationError class and states a design budget per references/quality-lens.md with no new file, helper or dependency. After the change works, a refine pass records its net line delta. The report's Verification section shows budget planned versus actual and comments added.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "refine-drops-ceremony",
+      "prompt": "/ultrapex add a CSV export handler: it returns CSV with a header row, and an invalid request body raises a ValidationError.",
+      "expected_output": "Builds a plain export function and handler without a single-implementation class, factory, unrequested delimiter option or restating comments. Keeps request-body validation at the trust boundary. A refine pass against references/quality-lens.md records its net line delta, and the refuter reports defects only.",
+      "files": []
     }
   ]
 }

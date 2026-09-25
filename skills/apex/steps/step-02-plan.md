@@ -27,7 +27,7 @@ next_step: steps/step-03-execute.md
 
 ## CONTEXT BOUNDARIES:
 
-- Context from step-01 (files, patterns, utilities) is available
+- Context from step-01 (files, patterns, reuse inventory) is available
 - Implementation has NOT started
 - User has NOT approved any changes yet
 - Plan must be complete before execution
@@ -52,7 +52,7 @@ From previous steps:
 | `{output_dir}` | Path to output (if save_mode) |
 | Files found | From step-01 codebase exploration |
 | Patterns | From step-01 pattern analysis |
-| Utilities | From step-01 utility discovery |
+| Reuse inventory | From step-01 |
 </available_state>
 
 ---
@@ -138,7 +138,7 @@ questions:
 
 ### Design budget
 New files 0 · exported symbols 1 · abstractions 0 · dependencies 0 · config keys 0 · est. net lines +25
-Count production code; tests follow the Testing Strategy. Justify each non-zero item in one clause.
+Count production code; tests follow the Testing Strategy. Justify each non-zero item in one clause; a mechanical change records `mechanical change` instead.
 
 ### Skills
 - `<installed skill>` — load before editing `<file>` (from Analyze's `Applicable skills`), or `none`
@@ -196,7 +196,7 @@ Advisory only — never blocks step-02. The check is the dogfood for solo apex r
 
 ### 4c. Kill council
 
-The author defends its own plan; a reviewer that did not write it, and never proposes additions, catches the reinvented helper and the speculative layer before any code exists. Skip the council when the plan touches one file and adds no file, exported symbol, dependency or config key; record `Council: skipped — minimal plan`.
+The author defends its own plan; a reviewer that did not write it, and never proposes additions, catches the reinvented helper and the speculative layer before any code exists. Skip the council for a mechanical change as `references/quality-lens.md` defines it, or when the plan touches one file and adds no file, exported symbol, dependency or config key; record `Council: skipped — mechanical change` or `Council: skipped — minimal plan`.
 
 Give one fresh-context `general-purpose` subagent the prompt below, without your deliberation:
 
@@ -205,28 +205,28 @@ You are the kill council for an implementation plan you did not write.
 Never propose features, checks or abstractions; report an uncovered
 criterion as GAP.
 
-<brief>{task, accepted criteria, negative scope}</brief>
+<brief>{task, accepted criteria, negative scope, Analyze's Documented constraints}</brief>
 <reuse_inventory>{Analyze's Reuse inventory}</reuse_inventory>
 <plan>{file entries and Design budget}</plan>
 <lens>{Build ladder and Minimum structure from references/quality-lens.md}</lens>
 
-You have read access. Verify every reuse claim in code or docs before reporting it.
+Work read-only: no edits, copies or scratch files. Verify every reuse claim in code or docs before reporting it.
 Lenses, in order:
-1. Kill — which criterion needs no new code (existing behavior, configuration, nothing)?
+1. Kill — which criterion needs no new code (existing behavior, configuration, nothing), and which planned element conflicts with a documented constraint?
 2. Reuse — for each new function, module, type, dependency or config key, does a lower rung already provide it?
 3. Shrink — which planned file, symbol, parameter or branch can go while every criterion holds?
 
 One line per finding:
 KILL|REUSE|SHRINK <plan element> → <replacement | remove> — evidence: <file:line | doc | criterion>
-GAP <criterion> — no planned change satisfies it
-End with `budget: files N→M, symbols N→M, deps N→M` or `Plan is minimal.`
+GAP <criterion> — no planned change or test covers it
+End with `budget: files N→M, symbols N→M, abstractions N→M, deps N→M, config N→M` or `Plan is minimal.`
 Zero findings is valid. No style, naming or robustness suggestions.
 ```
 
 Disposition — record each finding under `## Kill council` in `02-plan.md`:
 
 - **Apply before approval:** REUSE and SHRINK findings with verified evidence that keep every criterion; every GAP.
-- **User-owned:** a KILL of an element that carries a criterion, or any finding that changes the approach or negative scope. Present it at the plan checkpoint. With `{auto_mode}`, record it and deliver the requested outcome with the simplest compliant plan, unless proceeding conflicts with a documented constraint or makes the work unsafe or useless; then pause for the user.
+- **User-owned:** a KILL of an element that carries a criterion, or any finding that changes the approach or negative scope. Present it at the plan checkpoint. With `{auto_mode}`, the accepted criteria and negative scope stay fixed: adopt such a finding only when it satisfies both, otherwise record it and deliver the requested outcome. When proceeding conflicts with a documented constraint or makes the work unsafe or useless, pause for the user.
 - **Rejected:** one line of evidence each. No finding disappears without a verdict.
 
 Economy mode or no subagents: run the same three lenses yourself in the same format and label the section `shared-context self-check`.

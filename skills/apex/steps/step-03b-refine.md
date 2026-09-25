@@ -16,7 +16,7 @@ The code works; now make it the diff a senior engineer would ship. Refine only d
 - `references/quality-lens.md`.
 - `{acceptance_criteria}` and `{negative_acceptance}`.
 
-Skip a trivial or mechanical diff as step-04 § 3.4 defines it: record the reason, then run § 7 so the progress row still closes.
+Skip a mechanical change as the lens defines it: record the reason, then run § 7 so the progress row still closes.
 
 ## 1. Initialize (if save_mode)
 
@@ -47,8 +47,9 @@ never add features, checks, tests or comments.
 <lens>{references/quality-lens.md}</lens>
 <diff>{the task's hunks only}</diff>
 
-Read the surrounding code to verify every reuse or duplicate claim. Report only
-lines this task added or changed; ignore bugs and formatter-owned style.
+Work read-only. Read the surrounding code to verify every reuse or duplicate
+claim. Report only lines this task added or changed; ignore bugs and
+formatter-owned style.
 
 One line per finding:
 <tag> <file:line> — <lens rule> → <exact replacement | delete> (−N lines)
@@ -62,7 +63,7 @@ End with `net: −N lines` or `Lean already. Ship.` Zero findings is valid.
 ## 4. Apply
 
 - Apply findings that keep every accepted behavior, the public signatures that existed before the task, and the assertions that test accepted criteria. Signatures, options, files and tests the task itself introduced may shrink, merge or move with the code.
-- Reject a finding that removes an item on the lens's `Never simplified away` list or breaks a `Readability guard`; record the reason.
+- Reject a finding that removes an item on the lens's `Never simplified away` list or breaks a `Readability guards` rule; record the reason.
 - Report a finding that would change an accepted behavior or pre-existing code to Examine instead of applying it.
 - Leave pre-existing code outside the task's hunks untouched, except to call the existing owner a finding names.
 
@@ -79,7 +80,7 @@ Backend: subagent | shared-context
 Applied: <tag file:line> …
 Rejected: <finding> — <guard or evidence>
 Reported to Examine: <behavior-changing finding> …
-Net: −N lines · comments added: N (each with its why) · budget: files a/b, symbols a/b, deps a/b, config a/b
+Net: −N lines · comments added: N (each with its why) · budget: files a/b, symbols a/b, abstractions a/b, deps a/b, config a/b
 ```
 
 Run one pass. Repeated review churns code and costs more than it removes.
@@ -93,4 +94,4 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03b" "refine" "complet
 bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
 ```
 
-Proceed directly to `./step-04-examine.md`; Refine asks no questions.
+Proceed to `./step-04-examine.md`, pausing first only for a checkpoint the user requested before validation; Refine asks no questions.

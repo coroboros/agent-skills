@@ -72,6 +72,16 @@ class TestUltrapexContract(unittest.TestCase):
         """ultrapex ships no scripts; nothing should reference the env var at all."""
         self.assertNotIn("CLAUDE_SKILL_DIR", _body())
 
+    def test_refine_runs_between_build_and_verify(self):
+        shape = _body().split("## Shape of a run")[1].split("## ")[0]
+        self.assertLess(shape.index("**Build**"), shape.index("**Refine**"))
+        self.assertLess(shape.index("**Refine**"), shape.index("**Verify**"))
+
+    def test_refutation_follows_the_lens(self):
+        contract = _body().split("## The contract")[1].split("## Shape of a run")[0]
+        self.assertIn("lens's `Reviewing` rule", contract)
+        self.assertIn("lens's `Security floor`", contract)
+
     def test_size_budget(self):
         self.assertLess(len(_body().splitlines()), 500, "Agent Skills spec size guidance")
 

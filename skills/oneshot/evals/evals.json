@@ -54,6 +54,20 @@
       "prompt": "Use /oneshot only to assess whether correcting the password-reset redirect fits a small change. Do not edit files yet.",
       "expected_output": "Inspects the redirect handler and affected callers, explains the smallest complete change and applicable checks, then stops and reports the assessment. Preserves the explicit read-only boundary; the workflow's implementation default does not authorize edits.",
       "files": []
+    },
+    {
+      "id": 8,
+      "name": "reuse-existing-helper",
+      "prompt": "/oneshot add email validation to the signup handler: a malformed email raises a ValidationError on the email field.",
+      "expected_output": "Before writing code, walks the build ladder in references/quality-lens.md, finds the repository's existing isValidEmail helper and ValidationError class and reuses them. The diff adds no email regex, helper or file, adds one focused test, and no comments. The Done report carries a Refine line.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "no-speculative-options",
+      "prompt": "/oneshot add a toCsv(columns, rows) helper for the admin report export, with a test.",
+      "expected_output": "Writes a plain toCsv function that escapes commas, quotes and newlines in values. Adds no delimiter or format option, class, factory or restating comments. One focused test covers the header and escaping. Refine re-reads the diff against references/quality-lens.md, and the Done report carries a Refine line.",
+      "files": []
     }
   ]
 }

@@ -71,7 +71,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [forge](#forge) | Research, weigh approaches, decide — emit one apex-ready plan |
 | Workflow | [apex](#apex) | Structured implementation — Analyze, Plan, Execute, eXamine |
 | Workflow | [ultrapex](#ultrapex) | Explicit adaptive implementation — scoped plan, useful delegation, acceptance evidence |
-| Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Test for small, well-scoped tasks |
+| Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Refine-Test for small, well-scoped tasks |
 | Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
 | Design | [award-design](#award-design) | Art direction — DESIGN.md, build ladder, and rendered review |
@@ -234,13 +234,17 @@ Adaptive implementation selected explicitly with `/ultrapex`. It carries a task 
 
 **What it does**
 
-Defines acceptance evidence before editing, preserves user corrections, and adapts implementation details within the authorized scope. Independent work can run concurrently when the host supports it. Consequential findings are challenged, fixes are rechecked, and every acceptance criterion is closed against the final artifact. Missing independent review is reported as a limitation. Uses the session's model and effort.
+Defines acceptance evidence before editing, preserves user corrections, and adapts implementation details within the authorized scope. The plan walks a build ladder (existing owner, standard library, platform, installed dependency) and sets a design budget; once the change works, a refine pass removes what the task did not need. Both use the quality lens shared with `apex` and `oneshot`. Independent work can run concurrently when the host supports it. Consequential findings are challenged with a defects-only refuter, fixes are rechecked, and every acceptance criterion is closed against the final artifact. Missing independent review is reported as a limitation. Uses the session's model and effort.
+
+**Sources**
+
+- [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) — build ladder and delete-oriented review adapted into the quality lens
 
 ---
 
 #### oneshot
 
-Focused implementation through Explore, Code, and Test.
+Focused implementation through Explore, Code, Refine, and Test.
 
 **Usage**
 
@@ -254,14 +258,16 @@ Focused implementation through Explore, Code, and Test.
 1. **Resolve** — if input is a GitHub issue (`#N` or URL), fetches via `gh` and uses the title/body
 2. **Explore** — finds 2–3 key files, searches for patterns (no tours)
 3. **Complexity check** — replans when the change proves broader, carrying authorized work through a useful workflow handoff
-4. **Code** — follows existing codebase patterns exactly
-5. **Test** — runs required project checks and evidence that verifies the changed behavior, repairing introduced failures
+4. **Code** — walks the build ladder of the shared quality lens before writing new code, then follows existing codebase patterns exactly
+5. **Refine** — removes what the task did not need (speculative options, single-use helpers, restating comments) while keeping every accepted behavior
+6. **Test** — runs required project checks and evidence that verifies the changed behavior, repairing introduced failures
 
 One task only, without tangential refactoring. Recovery follows evidence and a justified next approach; a file-count or retry quota does not end an otherwise actionable task.
 
 **Sources**
 
 - [Melvynx/aiblueprint — oneshot](https://github.com/Melvynx/aiblueprint) — Explore/Code/Test loop with complexity escalation to `apex` or `forge`
+- [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail) — build ladder and delete-oriented review adapted into the quality lens
 
 </details>
 
@@ -1351,10 +1357,11 @@ Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing ind
 - [`skill-label-hygiene-rules.md`](./.agents/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
 - [`skill-execution-discipline-rules.md`](./.agents/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills
 - [`skill-adversarial-verification-rules.md`](./.agents/rules/skill-adversarial-verification-rules.md) — canonical adversarial-verification block embedded in skills whose output is a finding or decision
+- [`skill-quality-lens-rules.md`](./.agents/rules/skill-quality-lens-rules.md) — canonical quality lens shipped as `references/quality-lens.md` in the implementation workflows
 
 ### Canonical blocks
 
-Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.agents/rules/` (linked above). `scripts/sync_writing_rules.py` propagates all four; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
+Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.agents/rules/` (linked above). The implementation workflows (`apex`, `ultrapex`, `oneshot`) also carry the *Quality lens* as a whole reference file, `references/quality-lens.md`. `scripts/sync_writing_rules.py` propagates all five; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
 
 ---
 
