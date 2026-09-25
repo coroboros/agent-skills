@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Propagate canonical blocks from `.agents/rules/skill-{prose,label-hygiene,execution-discipline,adversarial-verification}-rules.md` into each declared SKILL.md.
+"""Propagate canonical blocks from `.agents/rules/skill-*-rules.md` into each declared skill.
 
-Four rule families share this script:
+Five rule families share this script:
 
 - `writing-rules` — style block (front-load verbs, no marketing words, no AI tells).
 - `label-hygiene` — author-coordinate vocabulary block (`WS-N`, "the rebuild", "spec AC", etc.).
 - `execution-discipline` — engineering block (minimal scope, general solutions over test-gaming, investigate before claiming).
 - `adversarial-verification` — verification block (refute-by-default, no-silent-drop, don't re-litigate settled facts).
+- `quality-lens` — the implementation workflows' review rubric, written as a whole reference file
+  (`references/quality-lens.md`) instead of a SKILL.md block.
 
 Each rule has its own canonical file, marker pair, and declared-skill list. A present block is
 replaced in-place; an absent one is inserted right after H1. Inserts prepend, so the rule iterated
@@ -17,7 +19,7 @@ label-hygiene, writing-rules.
 Idempotent — second run produces zero diff. Exit 0 on success, 1 on parse error
 (any canonical file malformed), 2 if any declared skill is missing or malformed.
 
-Output: one line per (rule, skill) — `{UPDATED|UNCHANGED|INSERTED} skills/<name>/SKILL.md (<rule_id>)`.
+Output: one line per (rule, skill) — `{UPDATED|UNCHANGED|INSERTED} skills/<name>/<target> (<rule_id>)`.
 """
 
 from __future__ import annotations
@@ -38,6 +40,7 @@ class Rule(NamedTuple):
     start_marker: str
     end_marker: str
     declared_header: str
+    target: str = "SKILL.md"
 
 
 RULES: tuple[Rule, ...] = (
@@ -68,6 +71,14 @@ RULES: tuple[Rule, ...] = (
         start_marker="<!-- canonical:adversarial-verification:start -->",
         end_marker="<!-- canonical:adversarial-verification:end -->",
         declared_header="## Declared adversarial-verification skills",
+    ),
+    Rule(
+        id="quality-lens",
+        canonical_file=RULES_DIR / "skill-quality-lens-rules.md",
+        start_marker="<!-- canonical:quality-lens:start -->",
+        end_marker="<!-- canonical:quality-lens:end -->",
+        declared_header="## Declared quality-lens skills",
+        target="references/quality-lens.md",
     ),
 )
 
@@ -139,6 +150,17 @@ def patch_skill(
     return "INSERTED"
 
 
+def sync_reference(path: Path, canonical_block: str) -> str:
+    """Write a reference file whose whole content is the canonical block."""
+    content = canonical_block + "\n"
+    if path.is_file() and path.read_text(encoding="utf-8") == content:
+        return "UNCHANGED"
+    status = "UPDATED" if path.is_file() else "INSERTED"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+    return status
+
+
 def process_rule(rule: Rule) -> list[str]:
     """Process one rule: parse its canonical file, patch every declared skill.
 
@@ -161,13 +183,18 @@ def process_rule(rule: Rule) -> list[str]:
             print(f"MISSING skills/{name}/SKILL.md ({rule.id})", file=sys.stderr)
             failures.append(name)
             continue
+        target = SKILLS_DIR / name / rule.target
         try:
-            status = patch_skill(skill_md, block, rule.start_marker, rule.end_marker)
+            status = (
+                patch_skill(skill_md, block, rule.start_marker, rule.end_marker)
+                if rule.target == "SKILL.md"
+                else sync_reference(target, block)
+            )
         except ValueError as exc:
-            print(f"ERROR skills/{name}/SKILL.md ({rule.id}): {exc}", file=sys.stderr)
+            print(f"ERROR skills/{name}/{rule.target} ({rule.id}): {exc}", file=sys.stderr)
             failures.append(name)
             continue
-        print(f"{status} skills/{name}/SKILL.md ({rule.id})")
+        print(f"{status} skills/{name}/{rule.target} ({rule.id})")
     return failures
 
 

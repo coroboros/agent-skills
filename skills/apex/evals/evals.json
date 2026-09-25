@@ -35,6 +35,62 @@
       "prompt": "Use /apex with saved state for a documentation correction whose task description includes the literal strings {{task_description}} and {{timestamp}} on separate lines.",
       "expected_output": "Initialize the saved state successfully and preserve the task text exactly. Template expansion handles only original template markers and never recursively interprets markers inside inserted task text or hangs.",
       "files": []
+    },
+    {
+      "id": 6,
+      "name": "reuse-existing-helper",
+      "prompt": "/apex -a add email validation to the signup and invite handlers: a malformed email raises a ValidationError on the email field. The repository already has an unused isValidEmail helper and a ValidationError class.",
+      "expected_output": "Analyze finds the repository's existing isValidEmail helper and ValidationError class and records them in the Reuse inventory with file:line. Each plan entry names them as its Reuse target and the Design budget adds no file, helper or dependency. The diff contains no new email regex or validation helper, adds one focused test per criterion, and Examine reports the budget as met.",
+      "files": []
+    },
+    {
+      "id": 7,
+      "name": "refine-keeps-boundary-drops-ceremony",
+      "prompt": "/apex -r 03-csv-export — a saved task whose Analyze, Plan and Execute rows are complete: AC1 — the export handler returns CSV with a header row; AC2 — an invalid request body raises a ValidationError. Design budget: new files 2 (an export module and the route handler), exported symbols 2, abstractions 0, dependencies 0, config keys 0. The uncommitted export files pass their tests. The draft wraps the writer in a single-implementation ExporterFactory, adds an unrequested delimiter option and carries comments that restate the code.",
+      "expected_output": "Resume lands on the pending 03b-refine row. Refine loads references/quality-lens.md and reviews only the task's files. It inlines the single-implementation ExporterFactory, removes the unrequested delimiter option and the comments that restate code, and keeps the request-body validation because it guards a trust boundary. It reruns the tests, records the net line delta and each rejected finding, then Examine reports planned versus actual budget.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "outcome-kill-surfaced-under-auto",
+      "prompt": "/apex -a cache the /prices endpoint responses for 24 hours to cut load on the price source. The repository's compliance document requires real-time prices.",
+      "expected_output": "Analyze finds the repository's compliance document requiring real-time prices. The kill council flags that the requested cache conflicts with that documented constraint, so apex pauses for the user's decision even under -a instead of silently rescoping or building the cache. Reuse and shrink findings that keep the accepted outcome still apply automatically.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "docs-task-uses-non-code-rules",
+      "prompt": "/apex -a consolidate the install instructions that README.md and docs/setup.md both repeat. Both files list the same three steps.",
+      "expected_output": "Keeps one owner for the complete install procedure and links the other file to it. Verifies the source instructions and link targets, preserves every step readers need, and uses a non-code budget. Refine removes repetition without introducing software checks that do not apply.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "behavioral-one-line-fix",
+      "prompt": "/apex -a -S fix calculateTotal so the percentage discount applies before tax instead of after rounding. The patch changes one arithmetic expression and no branches.",
+      "expected_output": "Treats the calculation change as behavioral, not mechanical. Checks amounts where rounding order changes the result, runs the applicable review and focused checks, and does not create saved plan files under -S.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "preserve-useful-dependency-boundary",
+      "prompt": "Refine the completed /apex change. It adds an InvoiceStore protocol with one production adapter, injected into invoice calculation so tests can avoid database I/O. The accepted plan requires that separation. The same diff adds an unused ExporterFactory and a comment that restates a return statement.",
+      "expected_output": "Retains the useful InvoiceStore boundary and removes the unused factory and restating comment. A count of implementations alone does not justify removing a contract. Verifies proposed replacements against callers and reruns only checks invalidated by actual edits.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "reuse-current-verification",
+      "prompt": "Continue /apex -a -S after Execute. The recorded typecheck, lint and focused tests passed on the current files and environment. Refine finds no justified simplification. Finish Examine.",
+      "expected_output": "Carries the still-valid command results into Examine, runs only missing verification, resolves the applicable review, and reports the actual evidence. Does not rerun unchanged checks merely because a new phase started, claim that zero removed lines proves quality, or write 02-plan.md or other saved state.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "non-code-source-verification",
+      "prompt": "/apex -a -e -S update the staff booking guide from records/service.md and keep README.md as its entry point. The guide has stale limits and a broken form link. This workspace has no application, package manifest or test runner. Preserve unrelated staged notes.",
+      "expected_output": "Uses the source record to correct the limits and procedure, resolves the form link, and keeps the entry point concise. Reviews the non-code result against the quality lens, verifies facts and links, preserves staged notes and creates no saved state. Does not invent package commands, tests or missing prerequisites for checks that do not apply.",
+      "files": []
     }
   ]
 }

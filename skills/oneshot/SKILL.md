@@ -7,7 +7,7 @@ license: MIT
 compatibility: "Requires file editing and applicable project checks. GitHub issue references require authenticated gh. Optional exploration delegation uses the host's available isolated-agent tool; otherwise explore inline."
 metadata:
   author: coroboros
-  sources: "github.com/Melvynx/aiblueprint"
+  sources: "github.com/Melvynx/aiblueprint; github.com/DietrichGebert/ponytail"
 ---
 
 # OneShot
@@ -89,19 +89,23 @@ After exploring, assess whether the accepted outcome still fits a focused change
 
 **If triggered:** explain what changed in the assessment and replan before dependent edits. Continue already-authorized reversible work, using `/apex` when its structure helps and is available. A workflow handoff does not finish the user's task: the task owner carries it through. Ask only for a real scope/authorization change, an explicit checkpoint, or input only the user can supply. If a required workflow/tool is unavailable, name the gap and complete independent authorized work. Do not broaden an explicit oneshot budget or selected-part request silently.
 
-**If not triggered:** proceed directly to CODE. No delay on the happy path.
+**If not triggered:** proceed directly to the edit.
 
-### 2. Code
+### 2. Edit
 
 Execute the changes immediately:
 
-- Follow existing codebase patterns exactly.
-- Clear variable and method names over comments.
+- Apply `references/quality-lens.md`; reuse existing content, tools and conventions before adding material.
+- Load relevant installed domain skills and follow the project's patterns.
 - Stay strictly in scope — change only what the task requires.
 
-### 3. Test
+### 2b. Refine
 
-Discover required project checks from instructions and manifests. Run applicable lint/typecheck plus the focused behavioral check that proves the accepted outcome. A text correction may need only direct verification; changed logic needs appropriate behavioral evidence. Required project checks still apply.
+Review task-owned changes and the final artifact against `references/quality-lens.md`; remove what the task did not need. Keep what the lens's `Never simplified away` protects. On a trust-boundary change, apply its `Security floor`. A mechanical change skips this pass.
+
+### 3. Verify
+
+Discover required project checks from instructions and manifests. Use the lens's `Correctness` checks for the artifact: sources, calculations, links, instructions or rendered output as applicable. Changed code needs appropriate behavioral evidence and applicable lint/typecheck. A typo may need only direct verification; required project checks still apply.
 
 - Fix introduced failures and rerun the affected checks. Report unrelated baseline failures without expanding the task.
 - Run a full suite when the project requires it or the change warrants it. Do not repeat unchanged passing checks without a new reason.
@@ -116,6 +120,7 @@ Discover required project checks from instructions and manifests. Run applicable
 
 **Task:** {what was implemented}
 **Files changed:** {list}
+**Refine:** {what was removed, or lean already}
 **Validation:** {checks actually run and what they proved; limitations if any}
 ```
 
@@ -133,7 +138,7 @@ Discover required project checks from instructions and manifests. Run applicable
 ## Constraints
 
 - **One task only** — no tangential improvements, no "while I'm here" additions.
-- **No comments** unless the logic is genuinely non-obvious.
+- **No comments** unless they carry a why the code cannot state.
 - **No refactoring** outside the immediate scope.
 - **Necessary documentation only** — update claims the requested change affects.
 - **Progress-based recovery** — after failure, inspect evidence and change the hypothesis before retrying. Continue while a justified next step exists; otherwise report the exact blocker and complete unaffected work.

@@ -11,7 +11,7 @@ This directory contains template files used to initialize APEX workflow outputs 
 | `00-context.md` | Workflow configuration and progress tracking | Always (if save_mode) |
 | `01-analyze.md` | Analysis findings | Always (if save_mode) |
 | `02-plan.md` | Implementation plan | Always (if save_mode) |
-| `03-execute.md` | Implementation log | Always (if save_mode) |
+| `03-execute.md` | Implementation log and refine record | Always (if save_mode) |
 | `04-examine.md` | Examination results and workflow completion | Always (if save_mode) |
 | `step-complete.md` | Completion marker template | Referenced in steps |
 

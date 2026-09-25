@@ -16,3 +16,7 @@ _Premortem (1 bullet) + alternative consideration (1 bullet). Inline write at st
 ## Surgical-scope check
 
 _If the plan triggers >5 files OR >2 systems OR cross-cutting concerns, a `⚠️ Scope advisory` block lands here. Otherwise blank. Advisory only — never blocks._
+
+## Kill council
+
+_KILL / REUSE / SHRINK findings with their disposition, or `Council: skipped — <reason>`._

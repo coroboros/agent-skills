@@ -1,6 +1,6 @@
 {
   "skill_name": "oneshot",
-  "description": "Behavioural evaluation set for the oneshot skill. Cases pin the Explore→Code→Test workflow, the complexity-check circuit breaker (escalation to /apex or /forge), and the disciplined output format.",
+  "description": "Focused edits, verification, scope preservation and replanning when needed.",
   "evals": [
     {
       "id": 1,
@@ -53,6 +53,27 @@
       "name": "assessment-only-stays-read-only",
       "prompt": "Use /oneshot only to assess whether correcting the password-reset redirect fits a small change. Do not edit files yet.",
       "expected_output": "Inspects the redirect handler and affected callers, explains the smallest complete change and applicable checks, then stops and reports the assessment. Preserves the explicit read-only boundary; the workflow's implementation default does not authorize edits.",
+      "files": []
+    },
+    {
+      "id": 8,
+      "name": "reuse-existing-helper",
+      "prompt": "/oneshot add email validation to the signup handler: a malformed email raises a ValidationError on the email field. The repository already has an unused isValidEmail helper and a ValidationError class.",
+      "expected_output": "Before writing code, walks the build ladder in references/quality-lens.md, finds the repository's existing isValidEmail helper and ValidationError class and reuses them. The diff adds no email regex, helper or file, adds one focused test, and no comments. The Done report carries a Refine line.",
+      "files": []
+    },
+    {
+      "id": 9,
+      "name": "no-speculative-options",
+      "prompt": "/oneshot add a toCsv(columns, rows) helper for the admin report export, with a test. Values may contain commas, quotes or newlines.",
+      "expected_output": "Writes a plain toCsv function that escapes commas, quotes and newlines in values. Adds no delimiter or format option, class, factory or restating comments. One focused test covers the header and escaping. Refine re-reads the diff against references/quality-lens.md, and the Done report carries a Refine line.",
+      "files": []
+    },
+    {
+      "id": 10,
+      "name": "non-code-calculation-check",
+      "prompt": "/oneshot refresh report.md from the confirmed counts: earlier 28 completed out of 40 received; later 40 out of 50. Keep the table, a short summary and the caveat that intake criteria changed. The current report calls this a 10% improvement. Edit only the report.",
+      "expected_output": "Calculates 70% and 80%, states the change as 10 percentage points and retains the comparability caveat without claiming a proven process improvement. Checks the calculations, edits only the report and does not add a software test suite or claim nonexistent checks passed.",
       "files": []
     }
   ]
