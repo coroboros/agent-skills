@@ -118,22 +118,9 @@ Economy exploration strategy:
 
 ---
 
-### Override 5: Leaner Validation
+### Override 5: Verification
 
-**DEFAULT:** Comprehensive examination via step-04 (Bash typecheck/lint, full test runs, self-audit)
-**ECONOMY:** Self-review without exhaustive runs
-
-```
-Economy validation:
-1. Run typecheck and lint (required)
-2. Run affected tests (required)
-3. Quick self-review checklist:
-   - [ ] No obvious bugs
-   - [ ] Follows existing patterns
-   - [ ] Error handling present
-   - [ ] No security issues
-4. Run full-suite checks when the repository requires them or changed behavior warrants them
-```
+Keep step-04's required evidence for the deliverable. Replace independent reviewers with disclosed shared-context checks; reuse passing evidence until an edit invalidates it. Economy mode does not waive required tests, source checks or rendered inspection.
 
 </override_rules>
 
@@ -148,14 +135,15 @@ Economy validation:
 INSTEAD OF: parallel Explore + general-purpose subagents
 DO:
 1. Glob "**/*{keyword}*" for task-related files
-2. Grep for specific patterns in src/
-3. Read relevant files and their affected callers
-4. Look up current documentation whenever required or uncertainty affects the change
+2. Search the relevant source, document or data locations
+3. Read affected material and its sources or consumers
+4. Identify existing owners and tools; inspect dependency manifests when code is involved
+5. Look up current documentation whenever required or uncertainty affects the change
 ```
 
 ### Step 02: Plan (Economy)
 ```
-Same as default - planning doesn't use agents
+Same as default; the step carries the council's shared-context fallback
 ```
 
 ### Step 03: Execute (Economy)
@@ -163,14 +151,14 @@ Same as default - planning doesn't use agents
 Same as default - execution doesn't use agents
 ```
 
+### Step 03b: Refine (Economy)
+```
+Same as default; the step carries the reviewer's shared-context fallback
+```
+
 ### Step 04: eXamine (Economy)
 ```
-INSTEAD OF: Comprehensive examination
-DO:
-1. Run typecheck + lint
-2. Run affected tests and repository-required checks
-3. Quick manual review
-4. Skip coverage analysis
+Same applicable checks as default; use a disclosed shared-context skeptic
 ```
 
 </step_specific_overrides>
@@ -195,5 +183,5 @@ Economy mode is successful when:
 - Direct Glob/Grep/Read usage instead
 - Required current-documentation questions resolved
 - Implementation still correct and working
-- Tests pass for affected files
+- Applicable checks pass for the final deliverable
 </success_metrics>

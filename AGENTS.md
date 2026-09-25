@@ -20,6 +20,7 @@ Public collection of installable AI agent skills for Claude Code and compatible 
 - `.agents/rules/skill-authoring.md` — official `skill-creator`, local review policy, and required verification
 - `.agents/rules/repo-conventions.md` — flags, output paths, install, plugin marketplace, test placement
 - `.agents/rules/skill-{prose,label-hygiene,execution-discipline,adversarial-verification}-rules.md` — canonical blocks synced into declaring SKILL.md bodies by `scripts/sync_writing_rules.py`
+- `.agents/rules/skill-quality-lens-rules.md` — the implementation workflows' review rubric, synced by the same script into each declaring skill's `references/quality-lens.md`
 
 ## At a glance
 

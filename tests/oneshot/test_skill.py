@@ -87,15 +87,16 @@ class TestCircuitBreakerDocumented(unittest.TestCase):
 
 class TestWorkflowChecklist(unittest.TestCase):
     """oneshot's workflow has numbered phases (0 Resolve / 1 Explore / 1b
-    Complexity / 2 Code / 3 Test). Missing or reordered phases silently
+    Complexity / 2 Edit / 3 Verify). Missing or reordered phases silently
     change the skill's behaviour."""
 
     EXPECTED_PHASES = [
         "0. Resolve",       # input resolution
         "1. Explore",       # context gathering
         "1b. Complexity",   # circuit breaker
-        "2. Code",          # implementation
-        "3. Test",          # validation
+        "2. Edit",          # implementation
+        "2b. Refine",       # remove what the task did not need
+        "3. Verify",        # validation
     ]
 
     def test_each_phase_has_h3_heading(self):

@@ -1,10 +1,12 @@
 """Parity tests for the canonical blocks embedded in declared skills.
 
-Four canonical rules share this suite — `writing-rules` (style), `label-hygiene`
+Five canonical rules share this suite — `writing-rules` (style), `label-hygiene`
 (internal-label vocabulary leakage), `execution-discipline` (how the skill changes
-code), and `adversarial-verification` (how the skill trusts its own findings). Each
-lives in its own `.agents/rules/skill-*.md` file with its own marker pair and
-declared-skill list, and propagates via `scripts/sync_writing_rules.py`. These tests
+code), `adversarial-verification` (how the skill trusts its own findings), and
+`quality-lens` (the implementation workflows' review rubric, shipped as a whole
+`references/quality-lens.md` file). Each lives in its own `.agents/rules/skill-*.md`
+file with its own marker pair and declared-skill list, and propagates via
+`scripts/sync_writing_rules.py`. These tests
 enforce byte-level parity, placement near the top, exclusion of non-declared skills,
 and absence of personal/brand-voice path leaks — once per rule.
 """
@@ -34,6 +36,7 @@ class Rule(NamedTuple):
     declared_header: str
     excluded_header: str
     expected_h2_in_block: str
+    target: str = "SKILL.md"
 
 
 CANONICAL_RULES: tuple[Rule, ...] = (
@@ -79,7 +82,21 @@ CANONICAL_RULES: tuple[Rule, ...] = (
         excluded_header="## Excluded skills (with reason)",
         expected_h2_in_block="## Critical — Adversarial verification",
     ),
+    Rule(
+        id="quality-lens",
+        canonical_file=REPO_ROOT / ".agents" / "rules" / "skill-quality-lens-rules.md",
+        start_marker="<!-- canonical:quality-lens:start -->",
+        end_marker="<!-- canonical:quality-lens:end -->",
+        declared_header="## Declared quality-lens skills",
+        excluded_header="## Excluded skills (with reason)",
+        expected_h2_in_block="# Quality lens",
+        target="references/quality-lens.md",
+    ),
 )
+
+# Placement and workflow-order checks apply to blocks embedded in SKILL.md;
+# reference-file rules own their whole target file.
+SKILL_MD_RULES = tuple(rule for rule in CANONICAL_RULES if rule.target == "SKILL.md")
 
 PLACEMENT_LINE_CAP = 70
 
@@ -167,7 +184,7 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
             block, declared, _ = _parse_canonical(rule)
             for name in declared:
                 with self.subTest(rule=rule.id, skill=name):
-                    skill_md = SKILLS_DIR / name / "SKILL.md"
+                    skill_md = SKILLS_DIR / name / rule.target
                     self.assertTrue(skill_md.is_file(), f"missing {skill_md}")
                     got = _extract_block(skill_md, rule.start_marker, rule.end_marker)
                     self.assertIsNotNone(
@@ -179,12 +196,19 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
                         f"{name} ({rule.id}): canonical block drift — "
                         f"run scripts/sync_writing_rules.py",
                     )
+                    if rule.target != "SKILL.md":
+                        self.assertEqual(
+                            skill_md.read_text(encoding="utf-8"),
+                            block + "\n",
+                            f"{name} ({rule.id}): content outside the canonical block — "
+                            f"run scripts/sync_writing_rules.py",
+                        )
 
     def test_canonical_block_placed_near_top(self):
         """Maintainer placement policy keeps shared guidance before the workflow.
         The line cap accommodates four blocks; it is not a host context guarantee.
         """
-        for rule in CANONICAL_RULES:
+        for rule in SKILL_MD_RULES:
             _, declared, _ = _parse_canonical(rule)
             for name in declared:
                 with self.subTest(rule=rule.id, skill=name):
@@ -213,12 +237,12 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
         """
         canonical_prefixes = {
             rule.expected_h2_in_block.split(" — ", 1)[0].removeprefix("## ").strip()
-            for rule in CANONICAL_RULES
+            for rule in SKILL_MD_RULES
         }
         skip_pattern = "|".join(re.escape(p) for p in sorted(canonical_prefixes))
         first_workflow_re = re.compile(rf"^## (?!(?:{skip_pattern}))", re.MULTILINE)
 
-        for rule in CANONICAL_RULES:
+        for rule in SKILL_MD_RULES:
             _, declared, _ = _parse_canonical(rule)
             for name in declared:
                 with self.subTest(rule=rule.id, skill=name):
@@ -255,7 +279,7 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
             _, declared, _ = _parse_canonical(rule)
             for name in declared:
                 with self.subTest(rule=rule.id, skill=name):
-                    text = (SKILLS_DIR / name / "SKILL.md").read_text(encoding="utf-8")
+                    text = (SKILLS_DIR / name / rule.target).read_text(encoding="utf-8")
                     self.assertEqual(
                         text.count(rule.start_marker),
                         1,
@@ -276,7 +300,13 @@ class TestExcludedSkills(unittest.TestCase):
                 with self.subTest(rule=rule.id, skill=name):
                     skill_md = SKILLS_DIR / name / "SKILL.md"
                     self.assertTrue(skill_md.is_file(), f"missing {skill_md}")
-                    text = skill_md.read_text(encoding="utf-8")
+                    target = SKILLS_DIR / name / rule.target
+                    if rule.target != "SKILL.md":
+                        self.assertFalse(
+                            target.exists(),
+                            f"{name} ({rule.id}): excluded skill carries {rule.target}",
+                        )
+                    text = target.read_text(encoding="utf-8") if target.is_file() else ""
                     self.assertNotIn(
                         rule.start_marker,
                         text,
@@ -337,7 +367,7 @@ class TestPrivacy(unittest.TestCase):
             for name in declared:
                 with self.subTest(rule=rule.id, skill=name):
                     block = _extract_block(
-                        SKILLS_DIR / name / "SKILL.md",
+                        SKILLS_DIR / name / rule.target,
                         rule.start_marker,
                         rule.end_marker,
                     )
