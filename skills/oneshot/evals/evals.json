@@ -58,14 +58,14 @@
     {
       "id": 8,
       "name": "reuse-existing-helper",
-      "prompt": "/oneshot add email validation to the signup handler: a malformed email raises a ValidationError on the email field.",
+      "prompt": "/oneshot add email validation to the signup handler: a malformed email raises a ValidationError on the email field. The repository already has an unused isValidEmail helper and a ValidationError class.",
       "expected_output": "Before writing code, walks the build ladder in references/quality-lens.md, finds the repository's existing isValidEmail helper and ValidationError class and reuses them. The diff adds no email regex, helper or file, adds one focused test, and no comments. The Done report carries a Refine line.",
       "files": []
     },
     {
       "id": 9,
       "name": "no-speculative-options",
-      "prompt": "/oneshot add a toCsv(columns, rows) helper for the admin report export, with a test.",
+      "prompt": "/oneshot add a toCsv(columns, rows) helper for the admin report export, with a test. Values may contain commas, quotes or newlines.",
       "expected_output": "Writes a plain toCsv function that escapes commas, quotes and newlines in values. Adds no delimiter or format option, class, factory or restating comments. One focused test covers the header and escaping. Refine re-reads the diff against references/quality-lens.md, and the Done report carries a Refine line.",
       "files": []
     }

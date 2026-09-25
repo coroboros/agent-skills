@@ -76,12 +76,12 @@ Convert each file change from the plan into todos:
 ```
 Plan entry:
 #### `src/auth/handler.ts`
-- Add `validateToken` function
-- Handle error case: expired token
+- Change: add `validateToken` beside `decodeToken`
+- Checks: an expired token returns 401
 
 Becomes:
-- [ ] src/auth/handler.ts: Add validateToken function
-- [ ] src/auth/handler.ts: Handle expired token error
+- [ ] src/auth/handler.ts: add validateToken
+- [ ] src/auth/handler.ts: expired token returns 401
 ```
 
 Use TodoWrite to create the full list.
@@ -104,14 +104,14 @@ ALWAYS read the file before modifying:
 **3.3 Implement Changes**
 ```
 Make changes specified in the plan:
-- Load the skills the plan binds to this file before editing it; apply their rules within this task's scope and authorization, never their own workflow or gates
+- Load the skills Analyze's Reuse inventory lists for this file's area before editing it; apply their rules within this task's scope and authorization, never their own workflow or gates
 - Follow patterns from step-01 analysis and the entry's Reuse target
 - Use exact names from plan
-- Handle error cases as specified
+- Apply the entry's Checks
 - Keep comments and names free of internal scaffolding (see **Deliverable hygiene** below)
 ```
 
-Draft to the standard in `references/quality-lens.md` from the first edit; Refine removes what slips through, it does not replace writing it right. Before adding a file, helper, dependency or config key the plan does not list, check its `Reuse` and `Design budget`; an addition you still need is a deviation to record in the execution log for Examine to weigh.
+Follow `references/quality-lens.md` from the first edit. An addition beyond the plan's Design budget, estimated net lines aside, is a deviation: log it for Examine.
 
 **3.4 Mark Complete Immediately**
 - Mark todo complete RIGHT AFTER finishing
@@ -169,7 +169,7 @@ Fix any errors immediately.
 **Todos:** {X}/{Y} complete
 ```
 
-Proceed to refine as part of the authorized implementation. A checkpoint the user requested before validation happens after Refine, so the reviewed code is the code Examine validates.
+Proceed to refine and examination as part of the authorized implementation. Pause here only when the user explicitly requested a checkpoint before validation.
 
 ### 7. Complete Save Output (if save_mode)
 
@@ -193,7 +193,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "complet
 bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03b" "refine" "in_progress"
 ```
 
-A progress table without a `03b-refine` row (saved before Refine existed) marks `"04" "examine" "in_progress"` instead; Refine still runs.
+A progress table without a `03b-refine` row (saved before Refine existed) marks `"04" "examine" "in_progress"` instead; Refine still runs in this session.
 
 ---
 
@@ -205,7 +205,7 @@ Everything you write — code, comments, commit subjects, PR and issue bodies, d
 
 - **Translate internal labels into domain facts.** A spec's `WS-3`, an issue's task ID, a plan's phase name are *your* coordinates, not the reader's. Write `add token refresh on 401`, never `WS-3` or `the plan's step 2` — in commit subjects, code comments, and prose alike.
 - **Don't cite the machinery.** No references to the plan, spec, postmortem, the APEX phases, or scratch-file paths (`~/.agents/output/...`) in anything that ships — the reader can't open them, so the pointer is a dead end.
-- **Comment the why, never the what.** Keep a comment only when it carries what the code cannot: a non-obvious constraint, the cause of a workaround, a governing spec clause. Delete any comment that just restates the line below it. `references/quality-lens.md` § Comments owns the full rule.
+- **Comment the why, never the what.** Keep a comment only when it carries what the code cannot: a non-obvious constraint, the cause of a workaround, a governing spec clause. Delete any comment that just restates the line below it.
 
 Test each line: would it still make sense to someone reading only the final diff, with no access to the plan? If not, it's scaffolding — rewrite it as a domain fact or cut it.
 

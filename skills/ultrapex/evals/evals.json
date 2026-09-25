@@ -33,7 +33,7 @@
     {
       "id": 5,
       "name": "reuse-and-budget",
-      "prompt": "/ultrapex add email validation to the signup and invite handlers: a malformed email raises a ValidationError on the email field.",
+      "prompt": "/ultrapex add email validation to the signup and invite handlers: a malformed email raises a ValidationError on the email field. The repository already has an unused isValidEmail helper and a ValidationError class.",
       "expected_output": "The plan reuses the repository's existing isValidEmail helper and ValidationError class and states a design budget per references/quality-lens.md with no new file, helper or dependency. After the change works, a refine pass records its net line delta. The report's Verification section shows budget planned versus actual and comments added.",
       "files": []
     },

@@ -150,7 +150,7 @@ If {resume_task} is NOT set, skip directly to step 3.
 
 2. **Once resolved:**
    - Read `00-context.md`'s `## Progress` table. Find the first row not marked `✓ Complete`; extract the numeric prefix from that step name (e.g., `02` from `02-plan`). Assign the integer (1–4) to `{step_num}` — the value passes to `validate_state.sh` below. Legacy tasks created before `00-init` was seeded complete show `00-init | ⏸ Pending` — treat that row as complete and take the first non-✓ row from `01` onward. Every row ✓ → the task is finished: say so and offer a re-run of step 4 (re-examine) or a fresh task.
-   - When that first non-✓ row is `03b-refine`, Execute finished: set `{step_num}` to 4 for `validate_state.sh` (it checks 01–03) and resume at `steps/step-03b-refine.md`.
+   - When that first non-✓ row is `03b-refine`, Execute finished: set `{step_num}` to 4 for `validate_state.sh` (it checks 01–03).
    - **Auto-validate state** before any restoration:
      ```bash
      bash "$SKILL_DIR"/scripts/validate_state.sh {task_id} {step_num}

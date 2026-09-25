@@ -217,7 +217,8 @@ Report:
 2. Patterns used for similar features
 3. Relevant utilities
 4. Test patterns
-5. Existing owners, installed dependencies (with manifest version) and standard-library or platform APIs that already provide {capability}
+5. Existing owners, installed dependencies (with manifest version) and standard-library or platform APIs that already provide what it needs
+6. Documented constraints (project instructions, docs, tests) that bind it
 
 DO NOT suggest implementations.
 ```
@@ -280,9 +281,7 @@ Combine results into structured context:
 - `src/lib/auth.ts:12` - JWT sign/verify functions
 - `src/lib/db.ts:3` - Prisma client instance
 - `zod@3.23` (installed) - request schemas; `crypto.randomUUID` (platform) - ids
-
-### Applicable skills
-- Installed skills whose rules match an affected area (framework, platform, library best practices, a frontend visual floor), read from the host's skill list; `none` when nothing matches. They contribute rules, never their workflow. Workflow and review skills stay out: apex owns the workflow, and Examine selects the security backend.
+- Skills: installed skills whose rules cover an affected area, or `none`; workflow and review skills stay out
 
 ### Similar Implementations
 - `src/auth/login.ts:42` - Login flow (reference for patterns)
@@ -381,8 +380,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "02" "plan" "in_progres
 
 ✅ Related files identified with paths and line numbers
 ✅ Existing patterns documented with specific examples
-✅ Reuse inventory recorded (owners, installed deps, platform APIs)
-✅ Applicable installed skills listed
+✅ Reuse inventory recorded (owners, installed deps, platform APIs, skills)
 ✅ Dependencies listed
 ✅ Acceptance criteria inferred
 ✅ NO planning or implementation decisions made

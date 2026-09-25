@@ -197,7 +197,6 @@ class TestDeclaredSkillsCarryBlock(unittest.TestCase):
                         f"run scripts/sync_writing_rules.py",
                     )
                     if rule.target != "SKILL.md":
-                        # A reference-file rule owns the whole file, not just the block.
                         self.assertEqual(
                             skill_md.read_text(encoding="utf-8"),
                             block + "\n",

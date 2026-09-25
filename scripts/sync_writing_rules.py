@@ -153,13 +153,10 @@ def patch_skill(
 def sync_reference(path: Path, canonical_block: str) -> str:
     """Write a reference file whose whole content is the canonical block."""
     content = canonical_block + "\n"
-    if path.is_file():
-        if path.read_text(encoding="utf-8") == content:
-            return "UNCHANGED"
-        status = "UPDATED"
-    else:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        status = "INSERTED"
+    if path.is_file() and path.read_text(encoding="utf-8") == content:
+        return "UNCHANGED"
+    status = "UPDATED" if path.is_file() else "INSERTED"
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(content, encoding="utf-8")
     return status
 
@@ -188,10 +185,11 @@ def process_rule(rule: Rule) -> list[str]:
             continue
         target = SKILLS_DIR / name / rule.target
         try:
-            if rule.target == "SKILL.md":
-                status = patch_skill(skill_md, block, rule.start_marker, rule.end_marker)
-            else:
-                status = sync_reference(target, block)
+            status = (
+                patch_skill(skill_md, block, rule.start_marker, rule.end_marker)
+                if rule.target == "SKILL.md"
+                else sync_reference(target, block)
+            )
         except ValueError as exc:
             print(f"ERROR skills/{name}/{rule.target} ({rule.id}): {exc}", file=sys.stderr)
             failures.append(name)

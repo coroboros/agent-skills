@@ -158,7 +158,7 @@ DO:
 
 ### Step 02: Plan (Economy)
 ```
-Same as default; the kill council takes its shared-context fallback (§ 4c)
+Same as default; the step carries the council's shared-context fallback
 ```
 
 ### Step 03: Execute (Economy)
@@ -168,7 +168,7 @@ Same as default - execution doesn't use agents
 
 ### Step 03b: Refine (Economy)
 ```
-Same as default; the reviewer takes its shared-context fallback (§ 3)
+Same as default; the step carries the reviewer's shared-context fallback
 ```
 
 ### Step 04: eXamine (Economy)

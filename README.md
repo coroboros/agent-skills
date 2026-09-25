@@ -156,7 +156,7 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 
 #### apex
 
-Systematic implementation using the APEX methodology — Analyze, Plan, Execute, eXamine — with parallel subagents, a refine pass and self-validation. A bundled quality lens (build ladder, one owner per rule, minimum structure, comment and security floors) binds each step to evidence rather than self-assessment.
+Systematic implementation using the APEX methodology — Analyze, Plan, Execute, eXamine — with parallel subagents, a refine pass and self-validation.
 
 **Usage**
 
@@ -192,10 +192,10 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 **What it does**
 
 - **Analyze** — launches 0–10 parallel subagents based on task complexity and records a reuse inventory: existing owners, installed dependencies, platform APIs and matching installed skills. Infers acceptance criteria in Given/When/Then form with explicit `## Not Included` negative scope. When `-f` points to a spec (H1 `# Spec:` + `## Workstreams`), accepts the spec's AC verbatim (closure rule) instead of re-inferring.
-- **Plan** — file-by-file strategy where each entry names its change, reuse target, what it leaves out and the control that applies, plus a numeric design budget (files, symbols, abstractions, dependencies, config keys). An inline challenge (premortem, alternative) and a fresh-context kill council that never proposes additions stress-test the plan; outcome-level kills go to the user. Surgical-scope advisory fires when the plan touches >5 files, >2 systems, or introduces cross-cutting concerns — advisory only, never blocks.
-- **Execute** — todo-driven implementation that loads plan-bound skills and checks the design budget before adding files, helpers or dependencies.
-- **Refine** — a fresh reviewer that did not write the diff (a disclosed self-review in economy mode) deletes, reuses or shrinks task code while keeping every accepted behavior. Trust-boundary validation, security and requested behavior are never simplified away; the net line delta is recorded.
-- **eXamine** — reconciles every accepted criterion with the final artifact, covering committed, staged, unstaged, and relevant untracked changes while preserving prior work. Classifies gaps, scope additions (including budget overruns), and decision overrides; required evidence remains explicit. Runs required and affected checks, a defects-only skeptic, and a security check on trust-boundary changes (Claude Code's `/security-review` when the task's changes are committed and `origin/HEAD` resolves, otherwise the lens's security floor). Reports planned versus actual budget, the refine delta and added comments. Optional `/goal` support follows the actual host.
+- **Plan** — file-by-file strategy where each entry names its change, reuse target, what it leaves out and the checks that apply, plus a numeric design budget. An inline challenge (premortem, alternative) and a fresh-context kill council that never proposes additions stress-test the plan; outcome-level kills go to the user. Surgical-scope advisory fires when the plan touches >5 files, >2 systems, or introduces cross-cutting concerns — advisory only, never blocks.
+- **Execute** — todo-driven implementation that loads the skills Analyze listed and logs any addition beyond the design budget as a deviation.
+- **Refine** — a fresh reviewer that did not write the diff (a disclosed self-review in economy mode) reports what to delete, reuse or shrink in the task's code, and apex applies what keeps every accepted behavior. Trust-boundary validation, security and requested behavior are never simplified away; the net line delta is recorded.
+- **eXamine** — reconciles every accepted criterion with the final artifact, covering committed, staged, unstaged, and relevant untracked changes while preserving prior work. Classifies gaps, scope additions (including budget overruns), and decision overrides; required evidence remains explicit. Runs required and affected checks, and a defects-only skeptic that also checks the security floor on trust-boundary changes. Reports planned versus actual budget, the refine delta and added comments. Optional `/goal` support follows the actual host.
 - **Resume** — `-r` auto-validates state via `validate_state.sh` before restoration; partial or corrupt task dirs fail loud rather than cascade.
 
 Accepts output from `forge` via `-f` and works standalone. Existing explicit plan approval or a no-pause instruction carries through initialization; the user's latest explicit checkpoint or `-A` remains binding.

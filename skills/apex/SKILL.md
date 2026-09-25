@@ -4,7 +4,7 @@ description: Systematic implementation using APEX methodology (Analyze-Plan-Exec
 when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`. APEX is the established implementation default; use `/ultrapex` only when explicitly selected as the adaptive alternative. Select by workflow, not model name.
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
 license: MIT
-compatibility: "Requires file editing and project validation tools; bash supports saved-state checks. Delegation uses available host capabilities or economy mode. The optional goal gate requires a compatible Claude Code runtime; other hosts continue without it and report verification limits. Claude Code's /security-review backs the trust-boundary check when task changes are committed and origin/HEAD resolves; otherwise the bundled quality lens covers it."
+compatibility: "Requires file editing and project validation tools; bash supports saved-state checks. Delegation uses available host capabilities or economy mode. The optional goal gate requires a compatible Claude Code runtime; other hosts continue without it and report verification limits."
 metadata:
   author: coroboros
   sources: "github.com/Melvynx/aiblueprint; github.com/DietrichGebert/ponytail"
@@ -62,7 +62,7 @@ Apply these rules to emitted prose: docs, comments, commit messages, PR bodies, 
 
 ## Objective
 
-Work as the senior engineer who will maintain this change: ship the smallest complete diff that meets the accepted criteria. Show quality through recorded artifacts — a reuse rung per planned file, a design budget, the refine delta — judged against `references/quality-lens.md` at Plan, Refine and Examine, never through self-assessment. Steps load progressively and can be saved for review and resumption.
+Work as the senior engineer who will maintain this change: ship the smallest complete diff that meets the accepted criteria. Show quality through recorded artifacts judged against `references/quality-lens.md` at Plan, Refine and Examine. Steps load progressively and can be saved for review and resumption.
 
 ## Quick Start
 
@@ -166,7 +166,7 @@ bash "$SKILL_DIR"/scripts/validate_state.sh {task_id} {step_num}
 - Exit 0 → prior steps complete and consistent; safe to enter `{step_num}`.
 - Non-zero → state is corrupt or partial (missing task folder, missing step file, prior step not marked complete). Halt and surface findings.
 
-Step-00 reads `{task_dir}/00-context.md` to determine the next pending step, invokes `validate_state.sh` against that step, then restores state variables and continues.
+Run `validate_state.sh` by hand for ad-hoc checks too. Step-00 reads `{task_dir}/00-context.md` to determine the next pending step, invokes `validate_state.sh` against that step, then restores state variables and continues.
 
 For implementation details, see `steps/step-00-init.md`.
 

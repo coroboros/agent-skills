@@ -7,7 +7,7 @@ next_step: steps/step-04-examine.md
 
 # Step 3b: Refine
 
-The code works; now make it the diff a senior engineer would ship. Refine only deletes, reuses or shrinks, and every accepted behavior survives it. The context that wrote the code judges it generously, so a reviewer that did not write it, and may only remove work, provides the counterweight. Examine then validates the refined code.
+Refine only deletes, reuses or shrinks the task's code; every accepted behavior survives. One pass, no questions.
 
 ## Inputs
 
@@ -16,7 +16,7 @@ The code works; now make it the diff a senior engineer would ship. Refine only d
 - `references/quality-lens.md`.
 - `{acceptance_criteria}` and `{negative_acceptance}`.
 
-Skip a mechanical change as the lens defines it: record the reason, then run § 7 so the progress row still closes.
+Skip a mechanical change as the lens defines it: record the reason, then run the Complete calls so the progress row closes.
 
 ## 1. Initialize (if save_mode)
 
@@ -28,11 +28,9 @@ Progress calls in this step apply when the table has a `03b-refine` row; tasks s
 bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03b" "refine" "in_progress"
 ```
 
-## 2. Measure
+## 2. Tools
 
-- Compare the task diff with the `Design budget`: new files, exported symbols, abstractions, dependencies, config keys, net lines.
-- Count the comment lines the task added.
-- Run the project's lint on changed files, plus dead-code or duplication tools only when the project already declares them. Never install or resolve a package to run a check.
+Run the dead-code or duplication tools the project already declares on changed files, if any, and pass their findings to the reviewer. Never install or resolve a package to run a check.
 
 ## 3. Review
 
@@ -46,6 +44,7 @@ never add features, checks, tests or comments.
 <budget>{Design budget and Leave out lists}</budget>
 <lens>{references/quality-lens.md}</lens>
 <diff>{the task's hunks only}</diff>
+<tools>{findings from the Tools step, or none}</tools>
 
 Work read-only. Read the surrounding code to verify every reuse or duplicate
 claim. Report only lines this task added or changed; ignore bugs and
@@ -53,37 +52,31 @@ formatter-owned style.
 
 One line per finding:
 <tag> <file:line> — <lens rule> → <exact replacement | delete> (−N lines)
-Tags: delete · reuse · stdlib · native · yagni · dry · shrink · efficiency ·
-altitude · comment · prose (prose includes planning labels and process
-narration in shipped text)
+Tags: delete · reuse · shrink · dry · efficiency · comment · prose
 
 End with `net: −N lines` or `Lean already. Ship.` Zero findings is valid.
 ```
 
 ## 4. Apply
 
-- Apply findings that keep every accepted behavior, the public signatures that existed before the task, and the assertions that test accepted criteria. Signatures, options, files and tests the task itself introduced may shrink, merge or move with the code.
-- Reject a finding that removes an item on the lens's `Never simplified away` list or breaks a `Readability guards` rule; record the reason.
-- Report a finding that would change an accepted behavior or pre-existing code to Examine instead of applying it.
-- Leave pre-existing code outside the task's hunks untouched, except to call the existing owner a finding names.
+- Apply findings unless they remove an item on the lens's `Never simplified away` list; record the reason for each rejection. Signatures, options, files and tests the task itself introduced may shrink, merge or move with the code.
+- Report a finding that would change pre-existing code outside the task to Examine instead of applying it.
 
 ## 5. Re-check
 
-Run typecheck, lint and the affected tests. A failure reverts the finding that caused it; Refine never fixes forward. Step-04 runs the full validation afterwards.
+Run typecheck, lint and the affected tests. A failure reverts the finding that caused it; Refine never fixes forward.
 
 ## 6. Record
 
-With `{save_mode}`, append to `## Refine` in `{output_dir}/03-execute.md`; otherwise state it in the conversation for Examine:
+With `{save_mode}`, append a `## Refine` section to `{output_dir}/03-execute.md`; otherwise state it in the conversation for Examine:
 
 ```
 Backend: subagent | shared-context
 Applied: <tag file:line> …
-Rejected: <finding> — <guard or evidence>
-Reported to Examine: <behavior-changing finding> …
-Net: −N lines · comments added: N (each with its why) · budget: files a/b, symbols a/b, abstractions a/b, deps a/b, config a/b
+Rejected: <finding> — <reason>
+Reported to Examine: <finding> …
+Net: −N lines
 ```
-
-Run one pass. Repeated review churns code and costs more than it removes.
 
 ## 7. Complete
 
@@ -94,4 +87,4 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03b" "refine" "complet
 bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_progress"
 ```
 
-Proceed to `./step-04-examine.md`, pausing first only for a checkpoint the user requested before validation; Refine asks no questions.
+Proceed to `./step-04-examine.md`.

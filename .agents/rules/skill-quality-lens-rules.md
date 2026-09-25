@@ -4,17 +4,19 @@ Canonical review instrument for the implementation workflows. Each declared skil
 
 ## Canonical block
 
-The block below — including the two HTML-comment markers — is the whole content of each declared skill's `references/quality-lens.md`. Each skill binds it to its own checkpoints: planning applies the build ladder and a design budget, a refine pass removes what the task did not need, and verification reports the evidence.
+The block below, markers included, is the entire file.
 
 ```markdown
 <!-- canonical:quality-lens:start -->
-# Quality lens — the code a senior engineer would ship
+# Quality lens — the change a senior engineer would ship
 
-The review instrument for planning, refining and verifying a change. Each rule names a violation a reviewer can point to on a specific line. Scope: lines the task adds or changes. Pre-existing code outside the task stays untouched unless the plan reuses it.
+Scope: lines the task adds or changes. Pre-existing code outside the task stays untouched unless the plan reuses it.
+
+Code, including scripts and tests, takes every section; its design budget counts new files, exported symbols, abstractions, dependencies, config keys and net lines. Docs, prose and instruction files take Mechanical changes, One owner, Names and prose, Security floor, Never simplified away and Reviewing; configuration also takes Minimum structure. Their budget counts new files, sections, config keys and net lines.
 
 ## Mechanical changes
 
-Formatting, a rename, a one-line fix that changes no control flow, or a text edit needs no design budget, council or refine pass; its checks suffice. A trust-boundary change (§ Security floor) is never mechanical.
+Formatting, a rename that changes no public contract, a one-line fix that changes no control flow, or a typo fix that changes no documented behavior, instruction or configuration value needs no design budget, council or refine pass; its checks suffice. A trust-boundary change is never mechanical.
 
 ## Build ladder
 
@@ -72,8 +74,8 @@ Violations: restating the code or its name; history or process words (new, now, 
 ## Names and prose
 
 - Violation: a name without domain meaning (`data`, `info`, `manager`, `util`) or with process meaning (`new`, `v2`, `temp`, `fixed`).
-- Messages, logs and docs state one fact per sentence. Violation: a sentence removable without loss, or wording banned by SKILL.md § Writing rules.
-- Docs change only when behavior, configuration or a public contract changes.
+- Messages, logs and docs state one fact per sentence. Violation: a sentence removable without loss, or wording the skill's Writing rules ban.
+- In a code task, docs change only when behavior, configuration or a public contract changes.
 
 ## Efficiency
 
@@ -92,20 +94,14 @@ No secrets in code, logs or client bundles. Parameterized queries. Shell command
 - Security controls and accessibility attributes, including keyboard paths.
 - Behavior an accepted criterion or the user requested.
 - Tests that distinguish correct behavior from the defect.
+- Public signatures that existed before the task.
+- Readability: no nested ternaries, logic denser than its neighbors, or code that needs a comment to be understood.
 
 ## Reviewing
 
-A verification reviewer (skeptic, refuter) reports defects only: a failing input, an unmet criterion or a trust-boundary gap, each with file:line and a reproduction. A simplification reviewer (council, refine) reports only removals, reuses and shrinks; the council also flags an uncovered criterion as GAP. Neither proposes robustness additions, validation of internal values, new abstractions or style; chasing them rebuilds the bloat refine removes.
-
-## Readability guards
-
-Reject a simplification that nests ternaries, packs logic denser than its neighbors, changes accepted behavior or a pre-existing public signature, or needs a comment to be understood. Readability wins over line count.
+A verification reviewer (skeptic, refuter) reports defects only: a failing input, an unmet criterion or a trust-boundary gap, each with file:line and a reproduction or concrete execution trace. A missing handler for a failure real callers hit is a defect. A simplification reviewer (council, refine) reports only removals, reuses and shrinks. Neither proposes robustness additions, validation of internal values, new abstractions or style.
 <!-- canonical:quality-lens:end -->
 ```
-
-## Why a reference file, not a SKILL.md block
-
-The lens is a rubric of about fifty rules. As a SKILL.md block it would push the other canonical blocks past the placement cap and spend always-loaded tokens on rules only planning, refine and verification read. A synced reference file keeps one owner and progressive loading.
 
 ## Declared quality-lens skills
 

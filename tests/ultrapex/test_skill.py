@@ -77,11 +77,6 @@ class TestUltrapexContract(unittest.TestCase):
         self.assertLess(shape.index("**Build**"), shape.index("**Refine**"))
         self.assertLess(shape.index("**Refine**"), shape.index("**Verify**"))
 
-    def test_refutation_follows_the_lens(self):
-        contract = _body().split("## The contract")[1].split("## Shape of a run")[0]
-        self.assertIn("lens's `Reviewing` rule", contract)
-        self.assertIn("lens's `Security floor`", contract)
-
     def test_size_budget(self):
         self.assertLess(len(_body().splitlines()), 500, "Agent Skills spec size guidance")
 

@@ -95,14 +95,14 @@ After exploring, assess whether the accepted outcome still fits a focused change
 
 Execute the changes immediately:
 
-- Walk the build ladder in `references/quality-lens.md` before writing new code: an existing owner, the standard library, a platform built-in or an installed dependency comes first.
+- Walk the build ladder in `references/quality-lens.md` before writing new code.
 - Follow existing codebase patterns exactly.
 - Clear variable and method names over comments.
 - Stay strictly in scope — change only what the task requires.
 
 ### 2b. Refine
 
-Re-read the lines your diff adds or changes against `references/quality-lens.md` and remove what the task did not need: speculative options, single-use helpers or wrappers, restating comments, unrequested debug output. Keep every accepted behavior and what the lens's `Readability guards` and `Never simplified away` protect. On a trust-boundary change, also check the diff against the lens's `Security floor` and fix violations. A mechanical change as the lens defines it skips this pass. Test runs on the refined code.
+Re-read the lines your diff adds or changes against `references/quality-lens.md` and remove what the task did not need. Keep what the lens's `Never simplified away` protects. On a trust-boundary change, also check the diff against the lens's `Security floor` and fix violations. A mechanical change as the lens defines it skips this pass.
 
 ### 3. Test
 
@@ -139,7 +139,7 @@ Discover required project checks from instructions and manifests. Run applicable
 ## Constraints
 
 - **One task only** — no tangential improvements, no "while I'm here" additions.
-- **No comments** unless they carry a why the code cannot state (lens § Comments).
+- **No comments** unless they carry a why the code cannot state.
 - **No refactoring** outside the immediate scope.
 - **Necessary documentation only** — update claims the requested change affects.
 - **Progress-based recovery** — after failure, inspect evidence and change the hypothesis before retrying. Continue while a justified next step exists; otherwise report the exact blocker and complete unaffected work.

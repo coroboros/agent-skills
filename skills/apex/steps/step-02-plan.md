@@ -107,7 +107,7 @@ questions:
 
 ### 4. Create Detailed Plan
 
-**Structure by FILE, not by feature.** Each file entry binds the quality lens to that change: what it reuses, what it leaves out, and the control that applies there. The example is reuse-first on purpose; a new file or abstraction appears only with a recorded reason.
+**Structure by FILE, not by feature.** Each entry names its change, reuse rung, what it leaves out and the checks that apply.
 
 ```markdown
 ## Implementation Plan: {task_description}
@@ -116,7 +116,8 @@ questions:
 [1-2 sentences: strategy and the lowest build-ladder rung that meets the criteria]
 
 ### Prerequisites
-- [ ] Prerequisite (if any)
+- [ ] Prerequisite 1 (if any)
+- [ ] Prerequisite 2 (if any)
 
 ---
 
@@ -137,17 +138,14 @@ questions:
 ---
 
 ### Design budget
-New files 0 · exported symbols 1 · abstractions 0 · dependencies 0 · config keys 0 · est. net lines +25
-Count production code; tests follow the Testing Strategy. Justify each non-zero item in one clause; a mechanical change records `mechanical change` instead.
-
-### Skills
-- `<installed skill>` — load before editing `<file>` (from Analyze's `Applicable skills`), or `none`
+New files 0 · exported symbols 1 (`lateFee`, called from the route) · abstractions 0 · dependencies 0 · config keys 0 · est. net lines +25
+Count the items `references/quality-lens.md` names for the task type; in code, count production code and let tests follow the Testing Strategy. Justify each non-zero item in one clause; a mechanical change records `mechanical change` instead.
 
 ---
 
 ### Testing Strategy
 
-One focused test per accepted criterion or changed behavior, sized like the neighboring tests. No tests that mirror the implementation; scratch checks stay uncommitted.
+One focused test per accepted criterion or changed behavior, including each error path the change handles, sized like the neighboring tests; update existing tests whose behavior changes. No tests that mirror the implementation; scratch checks stay uncommitted.
 - `src/billing/invoice.test.ts` — AC1 fee after the due date; AC2 no fee before it
 
 ---
@@ -196,19 +194,18 @@ Advisory only — never blocks step-02. The check is the dogfood for solo apex r
 
 ### 4c. Kill council
 
-The author defends its own plan; a reviewer that did not write it, and never proposes additions, catches the reinvented helper and the speculative layer before any code exists. Skip the council for a mechanical change as `references/quality-lens.md` defines it, or when the plan touches one file and adds no file, exported symbol, dependency or config key; record `Council: skipped — mechanical change` or `Council: skipped — minimal plan`.
+Skip the council for a mechanical change as `references/quality-lens.md` defines it, or when the plan touches one file and its Design budget is zero apart from net lines; record `Council: skipped — <reason>`.
 
 Give one fresh-context `general-purpose` subagent the prompt below, without your deliberation:
 
 ```
 You are the kill council for an implementation plan you did not write.
-Never propose features, checks or abstractions; report an uncovered
-criterion as GAP.
+Never propose features, checks or abstractions.
 
 <brief>{task, accepted criteria, negative scope, Analyze's Documented constraints}</brief>
 <reuse_inventory>{Analyze's Reuse inventory}</reuse_inventory>
 <plan>{file entries and Design budget}</plan>
-<lens>{Build ladder and Minimum structure from references/quality-lens.md}</lens>
+<lens>{references/quality-lens.md}</lens>
 
 Work read-only: no edits, copies or scratch files. Verify every reuse claim in code or docs before reporting it.
 Lenses, in order:
@@ -218,14 +215,13 @@ Lenses, in order:
 
 One line per finding:
 KILL|REUSE|SHRINK <plan element> → <replacement | remove> — evidence: <file:line | doc | criterion>
-GAP <criterion> — no planned change or test covers it
-End with `budget: files N→M, symbols N→M, abstractions N→M, deps N→M, config N→M` or `Plan is minimal.`
+End with each changed Design budget item as `item N→M`, or `Plan is minimal.`
 Zero findings is valid. No style, naming or robustness suggestions.
 ```
 
 Disposition — record each finding under `## Kill council` in `02-plan.md`:
 
-- **Apply before approval:** REUSE and SHRINK findings with verified evidence that keep every criterion; every GAP.
+- **Apply before approval:** REUSE and SHRINK findings with verified evidence that keep every criterion.
 - **User-owned:** a KILL of an element that carries a criterion, or any finding that changes the approach or negative scope. Present it at the plan checkpoint. With `{auto_mode}`, the accepted criteria and negative scope stay fixed: adopt such a finding only when it satisfies both, otherwise record it and deliver the requested outcome. When proceeding conflicts with a documented constraint or makes the work unsafe or useless, pause for the user.
 - **Rejected:** one line of evidence each. No finding disappears without a verdict.
 
@@ -240,7 +236,7 @@ Checklist:
 - [ ] Test coverage - all paths have test strategy
 - [ ] In scope - no scope creep
 - [ ] AC mapped - every criterion has implementation
-- [ ] Reuse bound - every file entry names its rung; every non-zero budget item has a reason
+- [ ] Reuse bound - every code file entry names its rung; every non-zero budget item has a reason
 - [ ] Council resolved - every finding applied, user-owned, or rejected with evidence (or the skip recorded)
 
 ### 6. Present Plan for Approval
@@ -253,8 +249,8 @@ Checklist:
 **Files to modify:** {count} files
 **New files:** {count} files
 **Tests:** {count} test files
-**Design budget:** files {n} · symbols {n} · abstractions {n} · deps {n} · config {n}
-**Kill council:** {applied} applied · {user_owned} for your decision · {rejected} rejected (or skipped — minimal plan)
+**Design budget:** {each item with its count}
+**Kill council:** {applied} applied · {user_owned} for your decision · {rejected} rejected (or skipped — {reason})
 
 **Estimated changes:**
 - `file1.ts` - Major changes (add function, handle errors)
@@ -314,7 +310,6 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 ✅ Logical dependency order established
 ✅ All acceptance criteria mapped to changes
 ✅ Test strategy defined
-✅ Design budget set and kill council findings dispositioned
 ✅ User approved plan (or auto-approved)
 ✅ NO code written or modified
 ✅ Output saved (if save_mode)
@@ -324,7 +319,6 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 ❌ Organizing by feature instead of file
 ❌ Vague actions like "add feature" or "fix issue"
 ❌ Missing test strategy
-❌ A new file, abstraction or dependency without a recorded rung and reason
 ❌ Not mapping to acceptance criteria
 ❌ Starting to write code (that's step 3!)
 ❌ **CRITICAL**: Not using AskUserQuestion for approval (when it is available)

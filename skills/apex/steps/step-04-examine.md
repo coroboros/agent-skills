@@ -154,18 +154,13 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 - `{economy_mode}` = true → skip the subagent; perform a separate shared-context self-check instead; do not call it independent verification.
 - Harness without subagents → same shared-context fallback; disclose the reduced independence.
 
-**Defects only.** Give the skeptic the lens's `Reviewing` rule; a reviewer asked for gaps always finds some. Fix a confirmed defect within the accepted scope with the smallest change `references/quality-lens.md` allows; report a defect outside that scope for the user.
+**Defects only.** Give the skeptic the lens's `Reviewing` rule. Fix a confirmed defect within the accepted scope with the smallest change `references/quality-lens.md` allows.
 
 **No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 
 **3.5 Security check (trust-boundary changes only)**
 
-Run it for a trust-boundary change as the lens's `Security floor` defines it. Use exactly one backend:
-
-- `/security-review` outside economy mode when the host provides it, `git rev-parse --verify origin/HEAD` succeeds, and every task change is committed; it reviews committed branch changes against origin's default branch. Fix findings in this task's changes; report the others without touching them.
-- Otherwise add the lens's `Security floor` to the skeptic's refutation targets (in economy mode, to the shared-context self-check). This path also covers uncommitted and untracked task changes.
-
-Security findings are fixed or reported, never dropped.
+For a trust-boundary change as the lens's `Security floor` defines it, add that section to the skeptic's refutation targets (in economy mode or without subagents, to the shared-context self-check). Security findings are fixed or reported, never dropped.
 
 ### 4. Self-Audit Checklist
 
@@ -183,15 +178,15 @@ Verify each item:
 - [ ] No skipped tests without reason
 
 **Quality Evidence** — each line cites its artifact; `references/quality-lens.md` defines the rules:
-- [ ] Budget: planned vs actual from the task diff (files, exported symbols, abstractions, dependencies, config keys), or `mechanical change`; each excess removed or classified by the derivation lens
+- [ ] Budget: each Design budget item planned vs actual from the task diff, or `mechanical change`; each excess removed or classified by the derivation lens
 - [ ] Refine: the step-03b record shows its backend, net line delta and a verdict for every finding, or its skip reason; each finding it reported to Examine is resolved or listed in the completion summary
-- [ ] Comments: added comment lines counted from the diff; each carries a why, the rest deleted
-- [ ] Skills: each skill the plan bound was applied, with any deviation recorded
-- [ ] Patterns: conventions recorded in Analyze are followed; error handling and naming match their neighbors
+- [ ] Skills: each skill Analyze listed was applied, with any deviation recorded
+- [ ] Patterns: naming, error handling and structure match neighboring code (Analyze's record)
 
 **Deliverable Hygiene** — checklist gate for the `## Critical — Label hygiene` canonical block in SKILL.md and the expanded rule in `step-03-execute.md`. All three must stay in sync.
 - [ ] No internal labels (workstream `WS-N`, task IDs, plan phase names) in code, comments, commit/PR text, or docs the change ships
 - [ ] No references to the plan, spec, postmortem, APEX phases, or scratch-file paths in shipped artifacts
+- [ ] Comments explain a why the code cannot — no comment that merely restates the next line
 
 ### 5. Format Code
 
@@ -211,8 +206,8 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 **Tests:** ✓ {X}/{X} passing
 **Format:** ✓ Applied
 **Adversarial self-check:** ✓ {N findings resolved | skipped — mechanical change}
-**Security check:** ✓ {backend, N findings resolved | not triggered}
-**Quality:** net {±N} lines (refine −{M}) · budget files {a}/{b}, symbols {a}/{b}, abstractions {a}/{b}, deps {a}/{b}, config {a}/{b} · comments +{N}
+**Security check:** ✓ {N findings resolved | not triggered}
+**Quality:** net {±N} lines (refine −{M}) · budget {each item actual/planned} · comments +{N} added by the diff
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
 
@@ -235,7 +230,7 @@ After the last edit, rerun the checks its changes invalidate, including behavior
 - Typecheck: ✓ Passed
 - Lint: ✓ Passed
 - Tests: ✓ Passed
-- Quality: net {±N} lines (refine −{M}) · budget files {a}/{b}, symbols {a}/{b}, abstractions {a}/{b}, deps {a}/{b}, config {a}/{b} · comments +{N}
+- Quality: net {±N} lines (refine −{M}) · budget {each item actual/planned} · comments +{N} added by the diff
 - Open items: {findings reported by Refine or the skeptic and left for the user, or none}
 
 **Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}

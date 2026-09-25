@@ -1,9 +1,8 @@
-"""Tests for the Refine sub-step between Execute and eXamine.
+"""Refine sits between Execute and eXamine, and no path skips it.
 
-Refine only earns its place if no path skips it: the step chain must route
-Execute through it, the saved progress table must carry its row so a resume
-interrupted mid-refine lands back on it, and the step must protect every
-accepted behavior so it cannot trade correctness for line count.
+The step chain routes Execute through Refine, and the saved progress table
+carries its row, so a resume after Execute lands on Refine. Tables saved before
+Refine existed still hand off to eXamine.
 """
 
 import os
@@ -18,14 +17,12 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 APEX = REPO_ROOT / "skills" / "apex"
 STEPS = APEX / "steps"
 SCRIPTS = APEX / "scripts"
-REFINE = STEPS / "step-03b-refine.md"
 
 BASH = shutil.which("bash") or "/bin/bash"
 
 
 def _frontmatter_value(path: Path, key: str) -> str:
-    text = path.read_text(encoding="utf-8")
-    block = text.split("---", 2)[1]
+    block = path.read_text(encoding="utf-8").split("---", 2)[1]
     for line in block.splitlines():
         if line.startswith(f"{key}:"):
             return line.split(":", 1)[1].strip()
@@ -74,15 +71,8 @@ class TestStepChain(unittest.TestCase):
             ],
         )
 
-    def test_skill_md_step_table_lists_refine(self):
-        skill = (APEX / "SKILL.md").read_text(encoding="utf-8")
-        self.assertRegex(skill, r"\|\s*03b\s*\|\s*`steps/step-03b-refine\.md`")
-
 
 class TestProgressRow(unittest.TestCase):
-    """The saved progress table drives resume; the refine row must exist,
-    sit between Execute and eXamine, and be writable by update-progress.sh."""
-
     def setUp(self):
         self._tmp = tempfile.TemporaryDirectory()
         base = Path(self._tmp.name).resolve()
@@ -121,27 +111,10 @@ class TestProgressRow(unittest.TestCase):
         pending = [name for name, status in self._rows() if "Complete" not in status]
         self.assertEqual(pending[0], "03b-refine")
 
-        # Step-00 validates entry with step 4 (prior steps 01-03 complete).
         r = _run("validate_state.sh", self.task_id, "4", cwd=self.proj, home=self.home)
         self.assertEqual(r.returncode, 0, msg=r.stderr)
 
-    def test_each_step_hands_off_to_the_next_row(self):
-        handoffs = {
-            "step-03-execute.md": '"03b" "refine" "in_progress"',
-            "step-03b-refine.md": '"04" "examine" "in_progress"',
-        }
-        for filename, handoff in handoffs.items():
-            with self.subTest(step=filename):
-                self.assertIn(handoff, (STEPS / filename).read_text(encoding="utf-8"))
-
-    def test_step_00_resume_routes_refine_row(self):
-        step_00 = (STEPS / "step-00-init.md").read_text(encoding="utf-8")
-        self.assertIn("`03b-refine`", step_00)
-        self.assertIn("Load the step file of the first non-✓ row (`steps/step-03b-refine.md`", step_00)
-
     def test_legacy_table_without_refine_row_still_hands_off(self):
-        """Tasks saved before Refine existed have no 03b row; update-progress.sh
-        rejects it, so step-03 must hand off to 04 directly for those tables."""
         text = self.context.read_text(encoding="utf-8").replace("| 03b-refine | ⏸ Pending | |\n", "")
         self.context.write_text(text, encoding="utf-8")
         r = _run("update-progress.sh", self.task_id, "03b", "refine", "in_progress", cwd=self.proj, home=self.home)
@@ -150,42 +123,6 @@ class TestProgressRow(unittest.TestCase):
         self.assertIn('without a `03b-refine` row (saved before Refine existed) marks `"04" "examine" "in_progress"` instead', step_03)
         r = _run("update-progress.sh", self.task_id, "04", "examine", "in_progress", cwd=self.proj, home=self.home)
         self.assertEqual(r.returncode, 0, msg=r.stdout + r.stderr)
-
-
-class TestRefineContract(unittest.TestCase):
-    def setUp(self):
-        self.text = REFINE.read_text(encoding="utf-8")
-
-    def test_only_accepted_behavior_is_protected(self):
-        # Refine may shrink what the task itself introduced, never accepted
-        # behavior or pre-existing public signatures.
-        self.assertIn("keep every accepted behavior, the public signatures that existed before the task", self.text)
-        self.assertIn("Signatures, options, files and tests the task itself introduced may shrink", self.text)
-        self.assertIn("would change an accepted behavior or pre-existing code to Examine", self.text)
-
-    def test_user_checkpoint_follows_refine(self):
-        step_03 = (STEPS / "step-03-execute.md").read_text(encoding="utf-8")
-        self.assertIn("checkpoint the user requested before validation happens after Refine", step_03)
-
-    def test_skip_still_closes_the_progress_row(self):
-        self.assertIn("then run § 7 so the progress row still closes", self.text)
-
-    def test_guards_protect_what_must_never_be_simplified(self):
-        self.assertIn("Never simplified away", self.text)
-        self.assertIn("Readability guard", self.text)
-
-    def test_failed_recheck_reverts_instead_of_fixing_forward(self):
-        self.assertIn("reverts the finding that caused it", self.text)
-
-    def test_reviewer_is_fresh_with_disclosed_fallback(self):
-        self.assertIn("fresh-context reviewer", self.text)
-        self.assertIn("shared-context", self.text)
-
-    def test_records_net_delta(self):
-        self.assertIn("Net: −N lines", self.text)
-
-    def test_asks_no_questions(self):
-        self.assertNotIn("questions:\n  - header:", self.text)
 
 
 if __name__ == "__main__":

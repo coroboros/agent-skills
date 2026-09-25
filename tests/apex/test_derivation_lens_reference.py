@@ -53,6 +53,10 @@ class TestDerivationLensReference(unittest.TestCase):
             "Cited upstream taxonomy file must exist",
         )
 
+    def test_unrecorded_budget_overrun_is_scope_add(self):
+        row = next(line for line in self.ref.splitlines() if line.startswith("| `SCOPE-ADD`"))
+        self.assertIn("Design budget", row)
+
     def test_reference_documents_detection_protocol(self):
         for source in ("committed", "staged", "unstaged", "untracked", "initial worktree status"):
             self.assertIn(source, self.ref)
