@@ -12,11 +12,11 @@ The block below, markers included, is the entire file.
 
 Scope: lines the task adds or changes. Pre-existing code outside the task stays untouched unless the plan reuses it.
 
-Code, including scripts and tests, takes every section; its design budget counts new files, exported symbols, abstractions, dependencies, config keys and net lines. Docs, prose and instruction files take Mechanical changes, One owner, Names and prose, Security floor, Never simplified away and Reviewing; configuration also takes Minimum structure. Their budget counts new files, sections, config keys and net lines.
+Code, including scripts and tests, takes every section. The code budget counts new production files, exported symbols, abstractions, dependencies, config keys and net lines; test changes follow the testing strategy. Docs, prose and instruction files take Mechanical changes, One owner, Names and prose, Security floor, Never simplified away and Reviewing; configuration also takes Minimum structure. Their budget counts new files, sections, config keys and net lines.
 
 ## Mechanical changes
 
-Formatting, a rename that changes no public contract, a one-line fix that changes no control flow, or a typo fix that changes no documented behavior, instruction or configuration value needs no design budget, council or refine pass; its checks suffice. A trust-boundary change is never mechanical.
+Behavior-preserving formatting, internal renames and typo fixes need no design budget, council or refine pass; their checks suffice. Changes to calculations, documented behavior, instructions, configuration values or trust boundaries are not mechanical, even on one line.
 
 ## Build ladder
 
@@ -40,20 +40,20 @@ A new dependency is justified only when it replaces substantial owned code; name
 
 ## Minimum structure (KISS, YAGNI)
 
-Violations:
+Report these only when a concrete simpler replacement preserves the contract, readability and necessary dependency boundaries:
 
-- An interface, abstract class or generic with one implementation or one type argument.
+- An interface, abstract class or generic that adds no useful contract or dependency boundary. Implementation or type-parameter counts alone do not establish a violation.
 - A helper with one call site, unless its name states a domain concept the inline code hides or it keeps a decision apart from I/O.
 - A wrapper that only delegates or renames.
 - An option, flag, environment variable or parameter without a second consumer or an accepted criterion. Injected dependencies are exempt.
 - A branch for input no criterion or real caller produces.
-- A factory, registry or plugin point without two concrete variants in the diff.
+- A factory, registry or plugin point with no current requirement for selection, lifecycle management or extension.
 - A compatibility shim where the direct change meets the contract.
 - Debug output or temporary scaffolding no criterion requested, left in shipped code.
 
 ## Responsibilities (pragmatic SOLID)
 
-- Violation: one function that parses, decides and persists. Keep I/O at the edges and decisions pure.
+- Keep domain decisions testable apart from I/O. Report mixed responsibilities when they obscure a rule or couple independent changes; a short handler may coordinate parsing, a decision and persistence without new layers.
 - Violation: a hidden global or service locator. Pass dependencies explicitly.
 - Violation: inheritance where composition or a plain function serves.
 - Violation: logic at the wrong altitude — a domain rule inside a route or UI handler, or a caller-specific branch inside a shared module.
@@ -99,7 +99,7 @@ No secrets in code, logs or client bundles. Parameterized queries. Shell command
 
 ## Reviewing
 
-A verification reviewer (skeptic, refuter) reports defects only: a failing input, an unmet criterion or a trust-boundary gap, each with file:line and a reproduction or concrete execution trace. A missing handler for a failure real callers hit is a defect. A simplification reviewer (council, refine) reports only removals, reuses and shrinks. Neither proposes robustness additions, validation of internal values, new abstractions or style.
+A verification reviewer (skeptic, refuter) reports defects: a failing input, an unmet criterion or a trust-boundary gap, each with file:line and a reproduction or concrete execution trace. Necessary validation or error handling may fix a demonstrated defect. A simplification reviewer (council, refine) reports removals, reuses and shrinks with a concrete replacement preserving the contract. Neither invents requirements or reports style preferences. Counts and line deltas describe scope; they do not prove quality.
 <!-- canonical:quality-lens:end -->
 ```
 

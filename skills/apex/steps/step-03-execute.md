@@ -104,7 +104,7 @@ ALWAYS read the file before modifying:
 **3.3 Implement Changes**
 ```
 Make changes specified in the plan:
-- Load the skills Analyze's Reuse inventory lists for this file's area before editing it; apply their rules within this task's scope and authorization, never their own workflow or gates
+- Load the skills Analyze's Reuse inventory lists for this file's area before editing it; follow their relevant implementation and validation instructions within this task's scope and existing authorization
 - Follow patterns from step-01 analysis and the entry's Reuse target
 - Use exact names from plan
 - Apply the entry's Checks

@@ -95,6 +95,8 @@ Look for: `typecheck`, `lint`, `test`, `build`, `format` (or equivalents).
 
 ### 3. Run Validation Suite
 
+Reuse successful checks from Execute or Refine when their inputs and environment are unchanged. Run missing checks and rerun those invalidated by later edits or unresolved failures; the sections below name required evidence, not repeated commands.
+
 **3.0 Derivation lens**
 
 Load `references/derivation-lens.md` and run its self-contained review. Compare the diff against `{output_dir}/02-plan.md` and classify each divergence. With `{save_mode}` = false there is no `02-plan.md` — reconcile against the approved plan from the step-02 conversation instead.
@@ -156,7 +158,7 @@ Per the `## Critical — Adversarial verification` block in SKILL.md, the contex
 
 **Defects only.** Give the skeptic the lens's `Reviewing` rule. Fix a confirmed defect within the accepted scope with the smallest change `references/quality-lens.md` allows.
 
-**No silent drop.** Each skeptic finding either gets fixed (re-run the suite), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
+**No silent drop.** Each skeptic finding either gets fixed (rerun affected checks), is refuted in writing here, or is filed as a known limitation in the completion summary. A finding that vanishes without a verdict is a defect. Don't re-litigate settled, already-tested behavior — spend the effort on what the change actually puts at risk.
 
 **3.5 Security check (trust-boundary changes only)**
 
@@ -178,6 +180,7 @@ Verify each item:
 - [ ] No skipped tests without reason
 
 **Quality Evidence** — each line cites its artifact; `references/quality-lens.md` defines the rules:
+
 - [ ] Budget: each Design budget item planned vs actual from the task diff, or `mechanical change`; each excess removed or classified by the derivation lens
 - [ ] Refine: the step-03b record shows its backend, net line delta and a verdict for every finding, or its skip reason; each finding it reported to Examine is resolved or listed in the completion summary
 - [ ] Skills: each skill Analyze listed was applied, with any deviation recorded

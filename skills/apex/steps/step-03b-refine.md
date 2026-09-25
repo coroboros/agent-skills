@@ -36,7 +36,7 @@ Run the dead-code or duplication tools the project already declares on changed f
 
 Give one fresh-context reviewer (a `general-purpose` subagent) the prompt below with the task's hunks, not the author's reasoning. Economy mode or no subagents: run the same prompt yourself, count call sites with search instead of judging from memory, and label the record `shared-context`.
 
-```
+```text
 Review a finished diff you did not write. Remove what the task did not need;
 never add features, checks, tests or comments.
 
@@ -54,28 +54,28 @@ One line per finding:
 <tag> <file:line> — <lens rule> → <exact replacement | delete> (−N lines)
 Tags: delete · reuse · shrink · dry · efficiency · comment · prose
 
-End with `net: −N lines` or `Lean already. Ship.` Zero findings is valid.
+End with the estimated net line change or `No justified simplification found.` Zero findings is valid; verification belongs to Examine.
 ```
 
 ## 4. Apply
 
-- Apply findings unless they remove an item on the lens's `Never simplified away` list; record the reason for each rejection. Signatures, options, files and tests the task itself introduced may shrink, merge or move with the code.
+- Verify each proposed replacement against its callers and the lens's `Never simplified away` list before applying it; record the evidence for each rejection. Signatures, options, files and tests the task itself introduced may shrink, merge or move with the code when their accepted contracts survive.
 - Report a finding that would change pre-existing code outside the task to Examine instead of applying it.
 
 ## 5. Re-check
 
-Run typecheck, lint and the affected tests. A failure reverts the finding that caused it; Refine never fixes forward.
+Rerun checks invalidated by an applied refinement; retain still-valid results from Execute. If a refinement causes a failure, restore only that refinement and recheck. Report unrelated or baseline failures separately. With no edits, carry the existing evidence into Examine.
 
 ## 6. Record
 
 With `{save_mode}`, append a `## Refine` section to `{output_dir}/03-execute.md`; otherwise state it in the conversation for Examine:
 
-```
+```text
 Backend: subagent | shared-context
 Applied: <tag file:line> …
 Rejected: <finding> — <reason>
 Reported to Examine: <finding> …
-Net: −N lines
+Net: ±N lines
 ```
 
 ## 7. Complete

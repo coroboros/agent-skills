@@ -63,6 +63,27 @@
       "prompt": "/apex -a consolidate the install instructions that README.md and docs/setup.md both repeat. Both files list the same three steps.",
       "expected_output": "Applies the non-code rules of references/quality-lens.md: one owner for the install steps with the other file linking to it, a budget counting files, sections and net lines, and no code-only fields such as exported symbols or dependencies. Refine removes restated prose and keeps every step a reader needs.",
       "files": []
+    },
+    {
+      "id": 10,
+      "name": "behavioral-one-line-fix",
+      "prompt": "/apex -a -S fix calculateTotal so the percentage discount applies before tax instead of after rounding. The patch changes one arithmetic expression and no branches.",
+      "expected_output": "Treats the calculation change as behavioral, not mechanical. Checks amounts where rounding order changes the result, runs the applicable review and focused checks, and does not create saved plan files under -S.",
+      "files": []
+    },
+    {
+      "id": 11,
+      "name": "preserve-useful-dependency-boundary",
+      "prompt": "Refine the completed /apex change. It adds an InvoiceStore protocol with one production adapter, injected into invoice calculation so tests can avoid database I/O. The accepted plan requires that separation. The same diff adds an unused ExporterFactory and a comment that restates a return statement.",
+      "expected_output": "Retains the useful InvoiceStore boundary and removes the unused factory and restating comment. A count of implementations alone does not justify removing a contract. Verifies proposed replacements against callers and reruns only checks invalidated by actual edits.",
+      "files": []
+    },
+    {
+      "id": 12,
+      "name": "reuse-current-verification",
+      "prompt": "Continue /apex -a -S after Execute. The recorded typecheck, lint and focused tests passed on the current files and environment. Refine finds no justified simplification. Finish Examine.",
+      "expected_output": "Carries the still-valid command results into Examine, runs only missing verification, resolves the applicable review, and reports the actual evidence. Does not rerun unchanged checks merely because a new phase started, claim that zero removed lines proves quality, or write 02-plan.md or other saved state.",
+      "files": []
     }
   ]
 }

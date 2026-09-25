@@ -164,12 +164,12 @@ One focused test per accepted criterion or changed behavior, including each erro
 
 ### 4a. Challenge the plan (inline, no user gate)
 
-After writing the plan but before verification, stress-test it inline. Write directly to `02-plan.md`:
+After writing the plan but before verification, stress-test it inline. Record this in the saved plan when `{save_mode}` is true, otherwise in the conversation:
 
 - **Premortem** — one bullet: "6 months out, this plan failed AC1 because ___." Imagine the failure as already certain — surfaces more failure modes than "what could go wrong?".
 - **Alternative** — name a simpler file-change path concretely. Adopt it when it meets every AC; keep the leading plan only for a named criterion or risk the alternative misses.
 
-No `AskUserQuestion` here — this is model reasoning in the artifact, not a user prompt. Interactive mode (`-i`) handles user pauses separately.
+Record the decision and its evidence, not private deliberation. Interactive mode (`-i`) handles user pauses separately.
 
 ### 4b. Surgical-scope check (advisory)
 
@@ -179,7 +179,7 @@ Use these rough scope heuristics to notice when replanning could help; they are 
 - **Systems / domains** — > 2 distinct (e.g., auth + billing + notifications) → flag.
 - **Cross-cutting concerns** — database migration, API + client coupled changes, auth/permission rewrite → flag any.
 
-If any threshold trips, append a `⚠️ Scope advisory` block to `02-plan.md`:
+If any threshold trips, append a `⚠️ Scope advisory` block to the saved plan or conversation:
 
 ```
 ⚠️ Scope advisory
@@ -219,7 +219,7 @@ End with each changed Design budget item as `item N→M`, or `Plan is minimal.`
 Zero findings is valid. No style, naming or robustness suggestions.
 ```
 
-Disposition — record each finding under `## Kill council` in `02-plan.md`:
+Disposition — record each finding under `Kill council` in the saved plan when `{save_mode}` is true, otherwise in the conversation:
 
 - **Apply before approval:** REUSE and SHRINK findings with verified evidence that keep every criterion.
 - **User-owned:** a KILL of an element that carries a criterion, or any finding that changes the approach or negative scope. Present it at the plan checkpoint. With `{auto_mode}`, the accepted criteria and negative scope stay fixed: adopt such a finding only when it satisfies both, otherwise record it and deliver the requested outcome. When proceeding conflicts with a documented constraint or makes the work unsafe or useless, pause for the user.
