@@ -22,6 +22,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 DERIVATION_DIR = REPO_ROOT / "skills" / "code-ultrareview" / "scripts" / "derivation"
@@ -340,6 +341,50 @@ class TestRunResolveInputs(unittest.TestCase):
         self.assertEqual(len(artifacts), 1)
         self.assertEqual(artifacts[0].kind, "issue-body")
         self.assertIn("foo/bar#42", artifacts[0].path)
+
+
+class TestFetchIssueBody(unittest.TestCase):
+    def test_issue_references_preserve_body_and_use_explicit_repo_without_shell(self):
+        body = "\n## Acceptance criteria\n- [ ] Preserve café and trailing whitespace.  \n\n"
+        with mock.patch.object(auto_detect, "_gh_available", return_value=True), \
+                mock.patch.object(auto_detect.subprocess, "run") as execute:
+            execute.return_value = subprocess.CompletedProcess([], 0, body, "")
+            for reference in ("gh:issue:example/project#42",
+                              "https://github.com/example/project/issues/42"):
+                with self.subTest(reference=reference):
+                    artifact, = run_module.resolve_inputs(Path.cwd(), [reference])
+                    self.assertEqual(run_module._read_artifact_text(artifact, Path.cwd()), body)
+                    args, options = execute.call_args
+                    self.assertEqual(args[0], [
+                        "gh", "issue", "view", "42", "--repo", "example/project",
+                        "--json", "body", "--jq", ".body",
+                    ])
+                    self.assertFalse(options.get("shell", False))
+                    self.assertTrue(options["text"])
+                    self.assertTrue(options["capture_output"])
+                    self.assertGreater(options["timeout"], 0)
+
+    def test_failed_fetch_discards_partial_body(self):
+        with mock.patch.object(auto_detect, "_gh_available", return_value=True), \
+                mock.patch.object(auto_detect.subprocess, "run", return_value=
+                                  subprocess.CompletedProcess([], 1, "partial body", "failed")):
+            self.assertEqual(auto_detect.fetch_issue_body_text("example/project", "42"), "")
+
+    def test_timeout_and_missing_executable_return_unavailable(self):
+        for error in (subprocess.TimeoutExpired("gh", 5), FileNotFoundError("gh")):
+            with self.subTest(error=type(error).__name__), \
+                    mock.patch.object(auto_detect, "_gh_available", return_value=True), \
+                    mock.patch.object(auto_detect.subprocess, "run", side_effect=error):
+                self.assertEqual(auto_detect.fetch_issue_body_text("example/project", "42"), "")
+
+    def test_unavailable_or_disabled_gh_does_not_start_process(self):
+        for executable, skip in ((None, ""), ("/test/gh", "1")):
+            with self.subTest(executable=executable, skip=skip), \
+                    mock.patch.dict(os.environ, {"DERIVATION_SKIP_GH": skip}), \
+                    mock.patch.object(auto_detect.shutil, "which", return_value=executable), \
+                    mock.patch.object(auto_detect.subprocess, "run") as execute:
+                self.assertEqual(auto_detect.fetch_issue_body_text("example/project", "42"), "")
+                execute.assert_not_called()
 
 
 class TestRunOrchestratorFixtures(unittest.TestCase):
