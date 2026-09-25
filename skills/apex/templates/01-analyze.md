@@ -11,7 +11,7 @@ _Findings will be appended here as exploration progresses..._
 
 ## Inferred Acceptance Criteria
 
-_AC entries in Given/When/Then form. At least one happy-path and one error-path AC mandatory. One edge/boundary AC recommended. Skipped entirely when § 0a Spec AC closure applies (AC inherited verbatim from the spec)._
+_Observable outcomes with failure and boundary cases where applicable. Inherit criteria verbatim when § 0a Spec AC closure applies._
 
 ## Not Included (negative scope)
 

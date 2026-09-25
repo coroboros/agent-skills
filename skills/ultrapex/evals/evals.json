@@ -43,6 +43,13 @@
       "prompt": "/ultrapex add a CSV export handler: it returns CSV with a header row, and an invalid request body raises a ValidationError.",
       "expected_output": "Builds a plain export function and handler without a single-implementation class, factory, unrequested delimiter option or restating comments. Keeps request-body validation at the trust boundary. A refine pass against references/quality-lens.md records its net line delta, and the refuter reports defects only.",
       "files": []
+    },
+    {
+      "id": 7,
+      "name": "non-code-rendered-check",
+      "prompt": "/ultrapex -S update the existing editable SVG headcount chart from the supplied records. Keep the accessible title, department names, values and white background. Make the chart readable at its native size; add no tooling or other deliverables.",
+      "expected_output": "Checks values and bar proportions against the source, simplifies only task-owned changes, and renders and inspects the chart with available tools. Verifies labels remain visible and the accessible title survives. Reports unavailable rendering as missing evidence rather than treating SVG parsing as visual verification.",
+      "files": []
     }
   ]
 }

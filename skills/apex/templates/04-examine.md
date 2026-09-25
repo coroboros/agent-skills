@@ -11,4 +11,4 @@ _Validation results will be appended here..._
 
 ## Derivation Lens
 
-_GAP / SCOPE-ADD / DECISION-OVERRIDE / CONSISTENT findings appended here by step-04 § 3.0, before typecheck. GAP blocks completion; task-added SCOPE-ADD requires existing authorization or a user decision, while unrelated pre-existing work stays advisory unless it conflicts with negative scope; DECISION-OVERRIDE surfaces for user judgment._
+_Findings and evidence from step-04 § 3.0. Resolve gaps, unnecessary task-owned additions and material deviations under the derivation lens; preserve unrelated work._

@@ -7,11 +7,11 @@ next_step: steps/step-04-examine.md
 
 # Step 3b: Refine
 
-Refine only deletes, reuses or shrinks the task's code; every accepted behavior survives. One pass, no questions.
+Remove duplication and unnecessary structure from task-owned changes while preserving the required result. One pass within the accepted scope.
 
 ## Inputs
 
-- The task's own changes since the starting revision recorded in Analyze: commits, staged and unstaged hunks, and untracked task files. Pre-existing user edits stay out of scope.
+- The task's changes since the starting revision and worktree status recorded in Analyze, including relevant untracked files. Inspect the final artifact when a text diff cannot show its content or presentation. Pre-existing user edits stay out of scope.
 - The plan's `Design budget` and `Leave out` lists.
 - `references/quality-lens.md`.
 - `{acceptance_criteria}` and `{negative_acceptance}`.
@@ -34,33 +34,33 @@ Run the dead-code or duplication tools the project already declares on changed f
 
 ## 3. Review
 
-Give one fresh-context reviewer (a `general-purpose` subagent) the prompt below with the task's hunks, not the author's reasoning. Economy mode or no subagents: run the same prompt yourself, count call sites with search instead of judging from memory, and label the record `shared-context`.
+Give one fresh-context reviewer (a `general-purpose` subagent) the prompt below with the changes and artifact access, not the author's reasoning. Economy mode or no subagents: use the same prompt yourself, verify reuse with search, and label the record `shared-context`.
 
 ```text
-Review a finished diff you did not write. Remove what the task did not need;
+Review the completed changes. Remove what the task did not need;
 never add features, checks, tests or comments.
 
 <criteria>{acceptance criteria and negative scope}</criteria>
 <budget>{Design budget and Leave out lists}</budget>
 <lens>{references/quality-lens.md}</lens>
-<diff>{the task's hunks only}</diff>
+<changes>{task-owned changes and final artifact paths}</changes>
 <tools>{findings from the Tools step, or none}</tools>
 
-Work read-only. Read the surrounding code to verify every reuse or duplicate
-claim. Report only lines this task added or changed; ignore bugs and
+Work read-only. Inspect surrounding content to verify reuse or duplicate
+claims. Report only task-owned changes; leave correctness defects to Examine and ignore
 formatter-owned style.
 
 One line per finding:
-<tag> <file:line> — <lens rule> → <exact replacement | delete> (−N lines)
+<tag> <file:line, section, cell or page> — <lens rule> → <replacement | delete>
 Tags: delete · reuse · shrink · dry · efficiency · comment · prose
 
-End with the estimated net line change or `No justified simplification found.` Zero findings is valid; verification belongs to Examine.
+State the estimated reduction where measurable, or `No justified simplification found.` Zero findings is valid.
 ```
 
 ## 4. Apply
 
-- Verify each proposed replacement against its callers and the lens's `Never simplified away` list before applying it; record the evidence for each rejection. Signatures, options, files and tests the task itself introduced may shrink, merge or move with the code when their accepted contracts survive.
-- Report a finding that would change pre-existing code outside the task to Examine instead of applying it.
+- Verify each replacement against its consumers, sources and the lens's `Never simplified away` list before applying it. Record evidence for rejected findings.
+- Report a finding that would change pre-existing material outside the task to Examine instead of applying it.
 
 ## 5. Re-check
 
@@ -72,10 +72,10 @@ With `{save_mode}`, append a `## Refine` section to `{output_dir}/03-execute.md`
 
 ```text
 Backend: subagent | shared-context
-Applied: <tag file:line> …
+Applied: <tag location> …
 Rejected: <finding> — <reason>
 Reported to Examine: <finding> …
-Net: ±N lines
+Reduction: <measurable change, or not applicable>
 ```
 
 ## 7. Complete

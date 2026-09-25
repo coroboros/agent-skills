@@ -71,7 +71,7 @@ Skills are grouped by plugin. Each plugin collects related skills — expand any
 | Workflow | [forge](#forge) | Research, weigh approaches, decide — emit one apex-ready plan |
 | Workflow | [apex](#apex) | Structured implementation — Analyze, Plan, Execute, eXamine |
 | Workflow | [ultrapex](#ultrapex) | Explicit adaptive implementation — scoped plan, useful delegation, acceptance evidence |
-| Workflow | [oneshot](#oneshot) | Single-pass Explore-Code-Refine-Test for small, well-scoped tasks |
+| Workflow | [oneshot](#oneshot) | Focused edits and verification for small, well-scoped tasks |
 | Coding | [scaffold](#scaffold) | Bootstrap Next.js/Astro projects on Cloudflare Workers |
 | Coding | [code-ultrareview](#code-ultrareview) | Eight-axis judgment review at full strength, in-session — fresh eyes before commit |
 | Design | [award-design](#award-design) | Art direction — DESIGN.md, build ladder, and rendered review |
@@ -191,14 +191,14 @@ Uppercase forms disable the ambient default when the skill runs with a pre-set m
 
 **What it does**
 
-- **Analyze** — launches 0–10 parallel subagents based on task complexity and records a reuse inventory: existing owners, installed dependencies, platform APIs and matching installed skills. Infers acceptance criteria in Given/When/Then form with explicit `## Not Included` negative scope. When `-f` points to a spec (H1 `# Spec:` + `## Workstreams`), accepts the spec's AC verbatim (closure rule) instead of re-inferring.
-- **Plan** — file-by-file strategy where each entry names its change, reuse target, what it leaves out and the checks that apply, plus a numeric design budget. An inline challenge (premortem, alternative) and a fresh-context kill council that never proposes additions stress-test the plan; outcome-level kills go to the user. Surgical-scope advisory fires when the plan touches >5 files, >2 systems, or introduces cross-cutting concerns — advisory only, never blocks.
-- **Execute** — todo-driven implementation that loads the skills Analyze listed and logs any addition beyond the design budget as a deviation.
-- **Refine** — a fresh reviewer that did not write the diff (a disclosed self-review in economy mode) reports what to delete, reuse or shrink in the task's code, and apex applies what keeps every accepted behavior. Trust-boundary validation, security and requested behavior are never simplified away; the net line delta is recorded.
-- **eXamine** — reconciles every accepted criterion with the final artifact, covering committed, staged, unstaged, and relevant untracked changes while preserving prior work. Classifies gaps, scope additions (including budget overruns), and decision overrides; required evidence remains explicit. Runs required and affected checks, and a defects-only skeptic that also checks the security floor on trust-boundary changes. Reports planned versus actual budget, the refine delta and added comments. Optional `/goal` support follows the actual host.
-- **Resume** — `-r` auto-validates state via `validate_state.sh` before restoration; partial or corrupt task dirs fail loud rather than cascade.
+- **Analyze** — establish acceptance criteria, exclusions and reuse opportunities.
+- **Plan** — identify changes and challenge unnecessary additions.
+- **Execute** — implement within the accepted scope.
+- **Refine** — simplify task-owned changes while preserving the required result.
+- **eXamine** — verify each accepted criterion against the final artifact.
+- **Resume** — validate saved state before continuing a task.
 
-Accepts output from `forge` via `-f` and works standalone. Existing explicit plan approval or a no-pause instruction carries through initialization; the user's latest explicit checkpoint or `-A` remains binding.
+The shared [quality lens](./skills/apex/references/quality-lens.md) covers code and non-code deliverables, including documents, data and visuals. Existing authorization carries through the workflow; an explicit checkpoint or `-A` remains binding.
 
 **Trust model**
 
@@ -234,7 +234,7 @@ Adaptive implementation selected explicitly with `/ultrapex`. It carries a task 
 
 **What it does**
 
-Defines acceptance evidence before editing, preserves user corrections, and adapts implementation details within the authorized scope. The plan walks a build ladder (existing owner, standard library, platform, installed dependency) and sets a design budget; once the change works, a refine pass removes what the task did not need. Both use the quality lens shared with `apex` and `oneshot`. Independent work can run concurrently when the host supports it. Consequential findings are challenged with a defects-only refuter, fixes are rechecked, and every acceptance criterion is closed against the final artifact. Missing independent review is reported as a limitation. Uses the session's model and effort.
+Defines acceptance evidence, implements within scope, simplifies the result and verifies completion. Uses the same quality checks as `apex` and `oneshot`, with independent review when available. Missing evidence remains explicit. See the [workflow contract](./skills/ultrapex/SKILL.md#the-contract).
 
 **Sources**
 
@@ -244,7 +244,7 @@ Defines acceptance evidence before editing, preserves user corrections, and adap
 
 #### oneshot
 
-Focused implementation through Explore, Code, Refine, and Test.
+Small changes to code or other deliverables, with focused exploration and verification.
 
 **Usage**
 
@@ -255,14 +255,7 @@ Focused implementation through Explore, Code, Refine, and Test.
 
 **What it does**
 
-1. **Resolve** — if input is a GitHub issue (`#N` or URL), fetches via `gh` and uses the title/body
-2. **Explore** — finds 2–3 key files, searches for patterns (no tours)
-3. **Complexity check** — replans when the change proves broader, carrying authorized work through a useful workflow handoff
-4. **Code** — walks the build ladder of the shared quality lens before writing new code, then follows existing codebase patterns exactly
-5. **Refine** — removes what the task did not need (speculative options, single-use helpers, restating comments) while keeping every accepted behavior
-6. **Test** — runs required project checks and evidence that verifies the changed behavior, repairing introduced failures
-
-One task only, without tangential refactoring. Recovery follows evidence and a justified next approach; a file-count or retry quota does not end an otherwise actionable task.
+Finds the edit target, makes the smallest complete change, removes unnecessary additions and verifies the result. GitHub issue references are fetched through `gh`. If the task proves broader, it replans within the existing scope and authorization.
 
 **Sources**
 
@@ -1361,7 +1354,7 @@ Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing ind
 
 ### Canonical blocks
 
-Four rule blocks are embedded verbatim in the skills that declare them — *Writing rules* (prose-emitting skills), *Label hygiene* (skills shipping code, commits, or review prose), *Engineering discipline* (code-producing skills), and *Adversarial verification* (skills whose output is a finding or decision). Each ships inside its skill folder so the rules travel on independent install (`~/.claude/rules/*` is not propagated by `npx skills add`); the canonical sources live in `.agents/rules/` (linked above). The implementation workflows (`apex`, `ultrapex`, `oneshot`) also carry the *Quality lens* as a whole reference file, `references/quality-lens.md`. `scripts/sync_writing_rules.py` propagates all five; `tests/_meta/test_skill_writing_rules.py` enforces byte parity and blocks merge on drift. Label hygiene adds a repo backstop — `tests/_meta/test_no_internal_label_leak.py` scans shipped source (per-line opt-out `# noqa: internal-label`).
+Shared rules ship inside each declaring skill so independent installs retain their instructions. Edit the canonical sources in `.agents/rules/`, then run `python3 scripts/sync_writing_rules.py`. Tests check copy parity and internal-label leaks.
 
 ---
 

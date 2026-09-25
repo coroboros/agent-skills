@@ -57,7 +57,7 @@ Before exploring, THINK about what information you need and launch the RIGHT age
 
 Before editing, record the starting revision and initial worktree status in the existing task context. Preserve staged, unstaged, and relevant untracked changes so Examine can distinguish task work from pre-existing edits.
 
-Gather ALL relevant context about WHAT CURRENTLY EXISTS in the codebase related to the task.
+Inspect the existing material, its owners, consumers and constraints. For non-code work, identify authoritative sources, intended readers, format requirements and applicable domain skills; use the examples below only where relevant.
 
 ---
 
@@ -330,8 +330,7 @@ Based on "{task_description}" and existing patterns:
 ```
 
 Rules:
-- At least one happy-path AC AND one error-path AC are mandatory.
-- One edge/boundary AC is recommended when the task surface admits it.
+- Define observable outcomes appropriate to the deliverable, including failure and boundary cases where applicable.
 - The `## Not Included` header always appears; bullets may be empty when genuinely nothing is excluded.
 - AC must be testable in the transcript — the eXamine step's derivation lens reads them.
 

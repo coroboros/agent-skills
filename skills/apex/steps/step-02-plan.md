@@ -77,11 +77,11 @@ Append plan to `{output_dir}/02-plan.md` as you work.
 
 Mental simulation:
 - Walk through the implementation step by step
-- Walk the build ladder in `references/quality-lens.md` for each capability, starting from Analyze's `Reuse inventory`
+- Identify reuse opportunities using `references/quality-lens.md` and Analyze's `Reuse inventory`; apply the code ladder when relevant
 - Identify all files that need changes
 - Determine logical order (dependencies first)
 - Consider the edge cases real callers produce and where each error is handled
-- Plan test coverage
+- Plan evidence appropriate to the deliverable: tests, source checks, calculations, rendered inspection or usage checks
 
 ### 3. Clarify Ambiguities
 
@@ -107,7 +107,7 @@ questions:
 
 ### 4. Create Detailed Plan
 
-**Structure by FILE, not by feature.** Each entry names its change, reuse rung, what it leaves out and the checks that apply.
+**Structure by file or deliverable.** Each entry names its change, reuse target, exclusions and verification. Adapt the code example below to the task.
 
 ```markdown
 ## Implementation Plan: {task_description}
@@ -139,13 +139,13 @@ questions:
 
 ### Design budget
 New files 0 · exported symbols 1 (`lateFee`, called from the route) · abstractions 0 · dependencies 0 · config keys 0 · est. net lines +25
-Count the items `references/quality-lens.md` names for the task type; in code, count production code and let tests follow the Testing Strategy. Justify each non-zero item in one clause; a mechanical change records `mechanical change` instead.
+Count the items `references/quality-lens.md` names for the task type; in code, count production code and let tests follow the Verification Strategy. Justify each non-zero item in one clause; a mechanical change records `mechanical change` instead.
 
 ---
 
-### Testing Strategy
+### Verification Strategy
 
-One focused test per accepted criterion or changed behavior, including each error path the change handles, sized like the neighboring tests; update existing tests whose behavior changes. No tests that mirror the implementation; scratch checks stay uncommitted.
+Choose evidence for each accepted criterion using the lens's `Correctness` checks. For code, cover changed behavior and handled error paths with focused tests; update existing tests where needed. Avoid tests that mirror implementation. Scratch checks stay uncommitted.
 - `src/billing/invoice.test.ts` — AC1 fee after the due date; AC2 no fee before it
 
 ---
@@ -209,9 +209,9 @@ Never propose features, checks or abstractions.
 
 Work read-only: no edits, copies or scratch files. Verify every reuse claim in code or docs before reporting it.
 Lenses, in order:
-1. Kill — which criterion needs no new code (existing behavior, configuration, nothing), and which planned element conflicts with a documented constraint?
-2. Reuse — for each new function, module, type, dependency or config key, does a lower rung already provide it?
-3. Shrink — which planned file, symbol, parameter or branch can go while every criterion holds?
+1. Kill — which criterion is already satisfied, and which planned element conflicts with a documented constraint?
+2. Reuse — which existing owner, content, data or tool already serves a planned addition?
+3. Shrink — which file, section, step or code element can go while every criterion holds?
 
 One line per finding:
 KILL|REUSE|SHRINK <plan element> → <replacement | remove> — evidence: <file:line | doc | criterion>
@@ -233,10 +233,10 @@ Checklist:
 - [ ] All files identified - nothing missing
 - [ ] Logical order - dependencies handled first
 - [ ] Clear actions - every step specific and actionable
-- [ ] Test coverage - all paths have test strategy
+- [ ] Verification - every criterion has appropriate evidence planned
 - [ ] In scope - no scope creep
 - [ ] AC mapped - every criterion has implementation
-- [ ] Reuse bound - every code file entry names its rung; every non-zero budget item has a reason
+- [ ] Reuse bound - each entry identifies applicable reuse; every non-zero budget item has a reason
 - [ ] Council resolved - every finding applied, user-owned, or rejected with evidence (or the skip recorded)
 
 ### 6. Present Plan for Approval
@@ -309,7 +309,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 ✅ Complete file-by-file plan created
 ✅ Logical dependency order established
 ✅ All acceptance criteria mapped to changes
-✅ Test strategy defined
+✅ Verification strategy defined
 ✅ User approved plan (or auto-approved)
 ✅ NO code written or modified
 ✅ Output saved (if save_mode)
@@ -318,7 +318,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 
 ❌ Organizing by feature instead of file
 ❌ Vague actions like "add feature" or "fix issue"
-❌ Missing test strategy
+❌ Missing verification strategy
 ❌ Not mapping to acceptance criteria
 ❌ Starting to write code (that's step 3!)
 ❌ **CRITICAL**: Not using AskUserQuestion for approval (when it is available)
@@ -329,7 +329,7 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "03" "execute" "in_prog
 - Include line number references from analysis
 - Every action must be specific and actionable
 - Map every AC to specific file changes
-- Plan tests alongside implementation
+- Plan verification alongside implementation
 
 ---
 

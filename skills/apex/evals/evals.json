@@ -61,7 +61,7 @@
       "id": 9,
       "name": "docs-task-uses-non-code-rules",
       "prompt": "/apex -a consolidate the install instructions that README.md and docs/setup.md both repeat. Both files list the same three steps.",
-      "expected_output": "Applies the non-code rules of references/quality-lens.md: one owner for the install steps with the other file linking to it, a budget counting files, sections and net lines, and no code-only fields such as exported symbols or dependencies. Refine removes restated prose and keeps every step a reader needs.",
+      "expected_output": "Keeps one owner for the complete install procedure and links the other file to it. Verifies the source instructions and link targets, preserves every step readers need, and uses a non-code budget. Refine removes repetition without introducing software checks that do not apply.",
       "files": []
     },
     {
@@ -83,6 +83,13 @@
       "name": "reuse-current-verification",
       "prompt": "Continue /apex -a -S after Execute. The recorded typecheck, lint and focused tests passed on the current files and environment. Refine finds no justified simplification. Finish Examine.",
       "expected_output": "Carries the still-valid command results into Examine, runs only missing verification, resolves the applicable review, and reports the actual evidence. Does not rerun unchanged checks merely because a new phase started, claim that zero removed lines proves quality, or write 02-plan.md or other saved state.",
+      "files": []
+    },
+    {
+      "id": 13,
+      "name": "non-code-source-verification",
+      "prompt": "/apex -a -e -S update the staff booking guide from records/service.md and keep README.md as its entry point. The guide has stale limits and a broken form link. This workspace has no application, package manifest or test runner. Preserve unrelated staged notes.",
+      "expected_output": "Uses the source record to correct the limits and procedure, resolves the form link, and keeps the entry point concise. Reviews the non-code result against the quality lens, verifies facts and links, preserves staged notes and creates no saved state. Does not invent package commands, tests or missing prerequisites for checks that do not apply.",
       "files": []
     }
   ]

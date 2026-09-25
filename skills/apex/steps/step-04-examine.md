@@ -7,33 +7,7 @@ next_step: null
 
 # Step 4: eXamine (Self-Check)
 
-## MANDATORY EXECUTION RULES (READ FIRST):
-
-- 🛑 NEVER claim checks pass when they don't
-- Run project-required checks and the behavior checks appropriate to the change; report unavailable commands explicitly.
-- ✅ ALWAYS verify each acceptance criterion
-- Fix task-caused failures. Identify baseline failures separately; preserve unrelated work and report any required check still blocked.
-- 📋 YOU ARE A VALIDATOR, not an implementer
-- 💬 FOCUS on "Does it work correctly?"
-- Do not claim passing checks or complete verification when required evidence is missing.
-
-## EXECUTION PROTOCOLS:
-
-- 🎯 Run all validation commands
-- 💾 Log results to output (if save_mode)
-- 📖 Check each AC against implementation
-- 🚫 FORBIDDEN to mark complete with failures
-
-## CONTEXT BOUNDARIES:
-
-- Implementation from step-03, refined in step-03b, is complete
-- Tests may or may not pass yet
-- Type errors may exist
-- Focus is on verification, not new implementation
-
-## YOUR TASK:
-
-Examine the implementation by running checks, verifying acceptance criteria, and ensuring quality.
+Verify the final deliverable against every accepted criterion using `references/quality-lens.md`. Fix task-caused failures, preserve unrelated work and report baseline failures separately. Missing required evidence blocks a claim of complete verification.
 
 ---
 
@@ -60,19 +34,19 @@ From previous steps:
 
 ### 0. Emit /goal directive (if `{goal_mode}`)
 
-**If `{goal_mode}` = true**, emit the `/goal` directive AT THE START of this step (before save initialization), populated with the discovered check commands from § 2 below and the acceptance criteria from step-01:
+If `{goal_mode}` is true and the host supports `/goal`, resolve the checks in § 2 and emit:
 
 ```
 /goal All AC verified: <AC list one per line from {acceptance_criteria}>.
-Proof: <typecheck cmd> exits 0, <lint cmd> exits 0, <test cmd> exits 0.
+Proof: <required checks and evidence appropriate to the deliverable>.
 Derivation lens returns CONSISTENT or only DECISION-OVERRIDE with documented rationale.
-No file outside the planned scope is modified.
+Task-owned changes stay within the accepted scope; unrelated initial work is preserved.
 Continue while a concrete authorized step can improve closure; report a blocker when no such step remains.
 ```
 
-Resolve `<typecheck cmd>`, `<lint cmd>`, `<test cmd>` from § 2 "Discover Available Commands" before emission. If `{acceptance_criteria}` is empty (trivial task), substitute `(none — task trivially completes when checks pass)`.
+If `{acceptance_criteria}` is empty (trivial task), substitute `(none — task trivially completes when checks pass)`.
 
-Record actual command output verbatim and its exit status so the outcome gate can assess evidence.
+Record actual command output and exit status. For other checks, state the observed result and supporting evidence in the transcript, with a source or artifact citation; the goal gate cannot inspect files itself.
 
 If `{goal_mode}` = false, skip this step entirely. If `/goal` is unavailable in your harness, skip the goal gate and proceed.
 
@@ -88,10 +62,9 @@ bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "in_prog
 
 Append results to `{output_dir}/04-examine.md` as you work.
 
-### 2. Discover Available Commands
+### 2. Select Applicable Checks
 
-Check `package.json` scripts and CLAUDE.md for the project's exact command names.
-Look for: `typecheck`, `lint`, `test`, `build`, `format` (or equivalents).
+Read project instructions, the plan and relevant manifests for required checks. Apply the lens's `Correctness` checks to the deliverable: sources, calculations, links, instructions and rendered output as relevant. Use installed domain skills and tools. Run typecheck, lint, tests or build only where applicable; distinguish a missing required tool from an inapplicable check.
 
 ### 3. Run Validation Suite
 
@@ -116,42 +89,23 @@ Log a one-line summary to `04-examine.md` (when `{save_mode}`):
 
 **3.1 Typecheck**
 
-Run the project's typecheck command.
-
-**MUST PASS.** If fails:
-1. Read error messages
-2. Fix type issues
-3. Re-run until passing
+When applicable, run the project's typecheck command. Fix task-caused failures and rerun the affected check.
 
 **3.2 Lint**
 
-Run the project's lint command.
+When applicable, run the project's lint command. Scope any fixes to task-owned changes.
 
-**MUST PASS.** If fails:
+**3.3 Artifact and behavior checks**
 
-1. Inspect whether failures were introduced by the task; scope any auto-fix to task-owned files
-2. Manually fix remaining
-3. Re-run until passing
-
-**3.3 Tests**
-
-Run the project's test command (scoped to affected area if possible).
-
-**MUST PASS.** If fails:
-1. Identify failing test
-2. Determine if code bug or test bug
-3. Fix the root cause
-4. Re-run until passing
-
-**If `{save_mode}` = true:** Log each result
+Run the remaining checks selected in § 2, including focused tests for changed code. Inspect the actual result, not just the commands or source that produced it. Record what each check proves and any unverified criterion.
 
 **3.4 Adversarial self-check (skipped for mechanical changes)**
 
-Per the `## Critical — Adversarial verification` block in SKILL.md, the context that wrote the change cannot reliably clear it. After the suite passes, spawn one fresh-context skeptic — a `general-purpose` subagent — on the diff, tasked to refute: find the bug, the missed edge case, the spec deviation. Keep it bounded; this is an in-loop self-check, not code-ultrareview's full multi-axis gate.
+Give a fresh-context skeptic (a `general-purpose` subagent) the accepted criteria, changes, final artifact and evidence. Ask it to find defects using the lens's `Correctness` and `Reviewing` rules. Keep the review bounded to the task.
 
 **Stakes gate:**
 
-- Mechanical changes as `references/quality-lens.md` defines them → skip; the suite is enough.
+- Mechanical changes as `references/quality-lens.md` defines them → skip; applicable checks suffice.
 - Any other change (new logic, control flow, a boundary, anything a reviewer would pause on) → run the skeptic.
 - `{economy_mode}` = true → skip the subagent; perform a separate shared-context self-check instead; do not call it independent verification.
 - Harness without subagents → same shared-context fallback; disclose the reduced independence.
@@ -173,77 +127,33 @@ Verify each item:
 - [ ] No tasks skipped without reason
 - [ ] Any blocked tasks have explanation
 
-**Tests Passing:**
+**Verification:**
 
 - [ ] Required and affected checks pass; baseline failures and unavailable checks are identified
-- [ ] New tests written for new functionality
+- [ ] Evidence covers each changed behavior or content claim
 - [ ] No skipped tests without reason
 
 **Quality Evidence** — each line cites its artifact; `references/quality-lens.md` defines the rules:
 
 - [ ] Budget: each Design budget item planned vs actual from the task diff, or `mechanical change`; each excess removed or classified by the derivation lens
-- [ ] Refine: the step-03b record shows its backend, net line delta and a verdict for every finding, or its skip reason; each finding it reported to Examine is resolved or listed in the completion summary
+- [ ] Refine: the record identifies the reviewer or self-review, findings and dispositions, or its skip reason
 - [ ] Skills: each skill Analyze listed was applied, with any deviation recorded
-- [ ] Patterns: naming, error handling and structure match neighboring code (Analyze's record)
+- [ ] Conventions: structure and presentation fit the surrounding material and applicable domain rules
 
 **Deliverable Hygiene** — checklist gate for the `## Critical — Label hygiene` canonical block in SKILL.md and the expanded rule in `step-03-execute.md`. All three must stay in sync.
 - [ ] No internal labels (workstream `WS-N`, task IDs, plan phase names) in code, comments, commit/PR text, or docs the change ships
-- [ ] No references to the plan, spec, postmortem, APEX phases, or scratch-file paths in shipped artifacts
+- [ ] No private plan, spec, postmortem, APEX-phase or scratch-path references in shipped artifacts; preserve public sources and requested traceability
 - [ ] Comments explain a why the code cannot — no comment that merely restates the next line
 
-### 5. Format Code
+### 5. Format and Recheck
 
-Format task-owned changes using the repository's configuration when required, before final verification.
+Apply required formatting to task-owned changes. After the last edit, rerun checks it invalidates, including rendered inspection when presentation changes. Reuse still-valid results.
 
-### 6. Final Verification
+### 6. Report the Outcome
 
-After the last edit, rerun the checks its changes invalidate, including behavior tests when affected. Reuse still-valid results; do not repeat unchanged checks for ceremony.
+State the result, changed files, checks and what they proved. Include material budget deviations, unresolved findings and unavailable required evidence. Report statuses as passed, failed, unavailable or not applicable, with the reason; never prefill success. Omit empty sections and routine counters.
 
-### 7. Present Validation Results
-
-```
-**Validation Complete**
-
-**Typecheck:** ✓ Passed
-**Lint:** ✓ Passed
-**Tests:** ✓ {X}/{X} passing
-**Format:** ✓ Applied
-**Adversarial self-check:** ✓ {N findings resolved | skipped — mechanical change}
-**Security check:** ✓ {N findings resolved | not triggered}
-**Quality:** net {±N} lines (refine −{M}) · budget {each item actual/planned} · comments +{N} added by the diff
-
-**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
-
-**Files Modified:** {list}
-
-**Summary:** All checks passing, ready for next step.
-```
-
-### 8. Complete Workflow
-
-**Show final summary:**
-
-```
-✅ APEX Workflow Complete
-
-**Task:** {task_description}
-**Task ID:** {task_id}
-
-**Validation Results:**
-- Typecheck: ✓ Passed
-- Lint: ✓ Passed
-- Tests: ✓ Passed
-- Quality: net {±N} lines (refine −{M}) · budget {each item actual/planned} · comments +{N} added by the diff
-- Open items: {findings reported by Refine or the skeptic and left for the user, or none}
-
-**Derivation lens:** GAP: 0 · SCOPE-ADD: {n} (disposition recorded) · DECISION-OVERRIDE: {n} (surfaced) · CONSISTENT: {n}
-
-**Files Modified:** {list}
-
-🎉 Implementation complete and examined!
-```
-
-### 9. Complete Save Output (if save_mode)
+### 7. Complete Save Output (if save_mode)
 
 **If `{save_mode}` = true:**
 
@@ -252,49 +162,10 @@ Append to `{output_dir}/04-examine.md`:
 ---
 ## Step Complete
 **Status:** ✓ Complete
-**Typecheck:** ✓
-**Lint:** ✓
-**Tests:** ✓
-**Workflow:** Complete
+**Verification:** {actual checks and results}
 **Timestamp:** {ISO timestamp}
 ```
 
-Run: `bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`
+Mark complete only after every accepted criterion and required check is verified:
 
----
-
-## SUCCESS METRICS:
-
-✅ Typecheck passes
-✅ Lint passes
-✅ All tests pass
-✅ All AC verified
-✅ Code formatted
-✅ User informed of status
-✅ Workflow completed
-
-## FAILURE MODES:
-
-❌ Claiming checks pass when they don't
-❌ Not running all validation commands
-❌ Skipping tests for modified code
-❌ Missing AC verification
-❌ Proceeding with failures
-
-## VALIDATION PROTOCOLS:
-
-- Run project-required and change-relevant checks
-- Fix task-caused failures and report unrelated baseline failures
-- Do not claim complete verification while required checks remain blocked
-- Verify EACH acceptance criterion
-- Document all results
-
----
-
-## WORKFLOW COMPLETE
-
-This is the final step. After validation passes, the APEX workflow is complete.
-
-<critical>
-Report actual outcomes: passed, failed, unavailable, or not applicable. Fix authorized regressions; never fabricate clean verification.
-</critical>
+`bash "$SKILL_DIR"/scripts/update-progress.sh "{task_id}" "04" "examine" "complete"`

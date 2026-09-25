@@ -1,7 +1,7 @@
 ---
 name: apex
-description: Systematic implementation using APEX methodology (Analyze-Plan-Execute-eXamine) with parallel subagents and self-validation. Use when implementing features, fixing bugs, or making code changes that benefit from structured workflow.
-when_to_use: When the task is non-trivial and benefits from analysis before coding. When multiple files are involved, the codebase is unfamiliar, or thoroughness matters more than speed. When the user says "implement", "build", "add feature" for anything beyond a quick fix. NOT for trivial single-file changes — use `/oneshot` for those. NOT for exploration or planning only — use `/forge`. APEX is the established implementation default; use `/ultrapex` only when explicitly selected as the adaptive alternative. Select by workflow, not model name.
+description: Complete substantial changes to code, documents, data or other deliverables through analysis, planning, implementation and verification. Use for tasks needing structured checkpoints or saved resumption; use /oneshot for small changes and /forge for planning only.
+when_to_use: Structured implementation across related files or unfamiliar material. APEX is the established implementation default; use /ultrapex only when explicitly selected as the adaptive alternative. Select by workflow, not model name.
 argument-hint: "[-a] [-s] [-e] [-b] [-i] [-g] [-f <context>] [-r <task-id>] <task description>"
 license: MIT
 compatibility: "Requires file editing and project validation tools; bash supports saved-state checks. Delegation uses available host capabilities or economy mode. The optional goal gate requires a compatible Claude Code runtime; other hosts continue without it and report verification limits."
@@ -62,7 +62,7 @@ Apply these rules to emitted prose: docs, comments, commit messages, PR bodies, 
 
 ## Objective
 
-Work as the senior engineer who will maintain this change: ship the smallest complete diff that meets the accepted criteria. Show quality through recorded artifacts judged against `references/quality-lens.md` at Plan, Refine and Examine. Steps load progressively and can be saved for review and resumption.
+Deliver the accepted outcome with the smallest complete change. Apply `references/quality-lens.md` at Plan, Refine and Examine. Steps load progressively; save outputs when requested.
 
 ## Quick Start
 

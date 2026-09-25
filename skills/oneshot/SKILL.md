@@ -89,24 +89,23 @@ After exploring, assess whether the accepted outcome still fits a focused change
 
 **If triggered:** explain what changed in the assessment and replan before dependent edits. Continue already-authorized reversible work, using `/apex` when its structure helps and is available. A workflow handoff does not finish the user's task: the task owner carries it through. Ask only for a real scope/authorization change, an explicit checkpoint, or input only the user can supply. If a required workflow/tool is unavailable, name the gap and complete independent authorized work. Do not broaden an explicit oneshot budget or selected-part request silently.
 
-**If not triggered:** proceed directly to CODE. No delay on the happy path.
+**If not triggered:** proceed directly to the edit.
 
-### 2. Code
+### 2. Edit
 
 Execute the changes immediately:
 
-- Walk the build ladder in `references/quality-lens.md` before writing new code.
-- Follow existing codebase patterns exactly.
-- Clear variable and method names over comments.
+- Apply `references/quality-lens.md`; reuse existing content, tools and conventions before adding material.
+- Load relevant installed domain skills and follow the project's patterns.
 - Stay strictly in scope — change only what the task requires.
 
 ### 2b. Refine
 
-Re-read the lines your diff adds or changes against `references/quality-lens.md` and remove what the task did not need. Keep what the lens's `Never simplified away` protects. On a trust-boundary change, also check the diff against the lens's `Security floor` and fix violations. A mechanical change as the lens defines it skips this pass.
+Review task-owned changes and the final artifact against `references/quality-lens.md`; remove what the task did not need. Keep what the lens's `Never simplified away` protects. On a trust-boundary change, apply its `Security floor`. A mechanical change skips this pass.
 
-### 3. Test
+### 3. Verify
 
-Discover required project checks from instructions and manifests. Run applicable lint/typecheck plus the focused behavioral check that proves the accepted outcome. A text correction may need only direct verification; changed logic needs appropriate behavioral evidence. Required project checks still apply.
+Discover required project checks from instructions and manifests. Use the lens's `Correctness` checks for the artifact: sources, calculations, links, instructions or rendered output as applicable. Changed code needs appropriate behavioral evidence and applicable lint/typecheck. A typo may need only direct verification; required project checks still apply.
 
 - Fix introduced failures and rerun the affected checks. Report unrelated baseline failures without expanding the task.
 - Run a full suite when the project requires it or the change warrants it. Do not repeat unchanged passing checks without a new reason.
