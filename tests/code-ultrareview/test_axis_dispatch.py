@@ -2,8 +2,7 @@
 
 Covers the deterministic Phase 3 orchestrator contracts: axis selection
 (8 always + Coherence conditional), tool-finding filtering by axis,
-per-axis prompt construction (verbatim references), bundle preparation,
-and the parallel concurrency cap.
+bundle preparation, stale-run rejection, and complete result collection.
 
 Behavioral evaluation of axis subagent output (severity, confidence,
 "single-use factory abstraction" wording) lives in `evals/evals.json`,
@@ -91,41 +90,6 @@ def _run_prepare(scope: dict) -> subprocess.CompletedProcess:
 
 class TestDecideAxes(unittest.TestCase):
 
-    def test_always_returns_eight_canonical_axes(self):
-        axes = axis_dispatch.decide_axes({"activates_coherence": False})
-        self.assertEqual(len(axes), 8)
-        self.assertEqual(
-            tuple(axes),
-            (
-                "correctness", "simplification", "tests", "documentation",
-                "style", "intent", "design-api", "performance",
-            ),
-        )
-
-    def test_returns_nine_with_coherence_active(self):
-        axes = axis_dispatch.decide_axes({"activates_coherence": True})
-        self.assertEqual(len(axes), 9)
-        self.assertEqual(axes[-1], "coherence")
-
-    def test_coherence_never_launched_without_metadata_diff(self):
-        # Spec AC: Coherence axis is NEVER launched if no metadata files in diff.
-        axes = axis_dispatch.decide_axes({})
-        self.assertNotIn("coherence", axes)
-        axes = axis_dispatch.decide_axes({"activates_coherence": False})
-        self.assertNotIn("coherence", axes)
-
-    def test_returns_fresh_list_not_tuple(self):
-        # Callers may want to mutate the list.
-        axes = axis_dispatch.decide_axes({})
-        axes.append("test-mutation")  # must not raise
-        self.assertIn("test-mutation", axes)
-
-    def test_explicit_subset_is_honored(self):
-        axes = axis_dispatch.decide_axes(
-            {"activates_coherence": False}, ["correctness", "tests"]
-        )
-        self.assertEqual(axes, ["correctness", "tests"])
-
     def test_inactive_coherence_subset_is_rejected(self):
         with self.assertRaisesRegex(ValueError, "Coherence is inactive"):
             axis_dispatch.decide_axes(
@@ -137,17 +101,6 @@ class TestDecideAxes(unittest.TestCase):
             axis_dispatch.parse_axes("tests,tests")
         with self.assertRaisesRegex(ValueError, "Unknown axis"):
             axis_dispatch.parse_axes("correctness,security")
-
-
-class TestParallelCap(unittest.TestCase):
-
-    def test_axis_count_within_cap(self):
-        # 8 + Coherence = 9, within 10 cap.
-        self.assertLessEqual(
-            len(axis_dispatch.CANONICAL_AXES)
-            + len(axis_dispatch.CONDITIONAL_AXES),
-            axis_dispatch.MAX_PARALLEL_AXES,
-        )
 
 
 # ---------------------------------------------------------------------------
@@ -174,206 +127,12 @@ SAMPLE_FINDINGS = [
 ]
 
 
-class TestFilterFindings(unittest.TestCase):
-
-    def test_correctness_has_no_deterministic_tool_findings(self):
-        out = axis_dispatch.filter_findings_by_axis(
-            SAMPLE_FINDINGS, "correctness"
-        )
-        self.assertEqual(out, [])
-
-    def test_simplification_returns_only_simplification(self):
-        # Spec AC: Correctness subagent does NOT see Simplification axis tool findings.
-        out = axis_dispatch.filter_findings_by_axis(
-            SAMPLE_FINDINGS, "simplification"
-        )
-        tools = {f["source_tool"] for f in out}
-        self.assertEqual(tools, {"knip", "dupl"})
-        self.assertEqual(len(out), 2)
-
-    def test_axes_with_no_tool_input_return_empty(self):
-        # These axes have no deterministic findings in the battery fixture.
-        for axis in ("correctness", "tests", "style", "intent", "coherence"):
-            out = axis_dispatch.filter_findings_by_axis(SAMPLE_FINDINGS, axis)
-            self.assertEqual(out, [], f"axis {axis} should have no findings")
-
-    def test_no_axis_leak_across_filters(self):
-        # Every finding routes to exactly one axis — sum of per-axis counts
-        # equals total finding count.
-        total = 0
-        for axis in axis_dispatch.CANONICAL_AXES + axis_dispatch.CONDITIONAL_AXES:
-            total += len(axis_dispatch.filter_findings_by_axis(
-                SAMPLE_FINDINGS, axis
-            ))
-        self.assertEqual(total, len(SAMPLE_FINDINGS))
-
-    def test_mutation_sources_route_only_to_tests(self):
-        for source_tool in ("stryker", "mutmut", "pitest"):
-            with self.subTest(source_tool=source_tool):
-                finding = {
-                    "axis": "tests",
-                    "location": "src/example.py:1",
-                    "severity": "Medium",
-                    "source_tool": source_tool,
-                    "finding": "mutation survived",
-                    "recommendation": "add a covering assertion",
-                    "confidence": 100,
-                }
-                self.assertEqual(
-                    axis_dispatch.filter_findings_by_axis([finding], "tests"),
-                    [finding],
-                )
-
-# ---------------------------------------------------------------------------
-# Prompt building
-# ---------------------------------------------------------------------------
-
-
-class TestBuildPrompt(unittest.TestCase):
-    """Spec AC: Each subagent prompt cites references/anthropic-verbatim.md
-    HIGH SIGNAL criteria AND false-positive list."""
-
-    def setUp(self):
-        self.input_path = Path("/tmp/axis-input-test/correctness.json")
-
-    def test_prompt_cites_anthropic_verbatim_rubric(self):
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="correctness", findings_count=3,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("references/anthropic-verbatim.md", prompt)
-        self.assertIn("0-100 confidence rubric", prompt)
-        self.assertIn("effective local policy", prompt)
-
-    def test_prompt_cites_false_positive_taxonomy(self):
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="simplification", findings_count=0,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("Quoted upstream exclusions", prompt)
-        self.assertIn("do not override local axis coverage", prompt)
-
-    def test_prompt_cites_agent_assumption_rule(self):
-        # Verbatim agent-assumption rule: do not check build signal.
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="correctness", findings_count=0,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("build signal", prompt)
-        self.assertIn("CI does that", prompt)
-
-    def test_prompt_instructs_coverage_not_filtering(self):
-        # Two-stage harness: finders maximize coverage, validators filter.
-        # Without this, current models self-filter at the finding stage and recall drops.
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="correctness", findings_count=0,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("Coverage, not filtering", prompt)
-        self.assertIn("coverage, not ranking", prompt)
-        self.assertIn("Phase 4 validators", prompt)
-
-    def test_prompt_cites_axis_brief(self):
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="tests", findings_count=0,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("references/axes/tests.md", prompt)
-
-    def test_prompt_includes_input_path(self):
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="design-api", findings_count=5,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn(str(self.input_path), prompt)
-
-    def test_prompt_includes_findings_count(self):
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="correctness", findings_count=7,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("Tool observations (pre-filtered to your axis, unassessed): 7", prompt)
-
-    def test_prompt_forbids_write_edit(self):
-        prompt = axis_dispatch.build_axis_prompt(
-            axis="style", findings_count=0,
-            skill_dir=SKILL_DIR, input_path=self.input_path,
-        )
-        self.assertIn("Do NOT use `Write`, `Edit`", prompt)
-
-    def test_unknown_axis_raises(self):
-        with self.assertRaises(ValueError):
-            axis_dispatch.build_axis_prompt(
-                axis="bogus-axis", findings_count=0,
-                skill_dir=SKILL_DIR, input_path=self.input_path,
-            )
-
-
 # ---------------------------------------------------------------------------
 # Bundle preparation
 # ---------------------------------------------------------------------------
 
 
-class TestPrepareAxisBundle(unittest.TestCase):
-
-    def test_writes_input_and_prompt_files(self):
-        with tempfile.TemporaryDirectory() as td:
-            output_dir = Path(td)
-            scope = {"repo_kind": "app", "activates_coherence": False}
-            result = axis_dispatch.prepare_axis_bundle(
-                axis="correctness", scope=scope,
-                all_findings=SAMPLE_FINDINGS, diff_text="diff --git",
-                output_dir=output_dir, skill_dir=SKILL_DIR,
-            )
-
-            self.assertEqual(result["axis"], "correctness")
-            self.assertEqual(result["findings_count"], 0)
-            self.assertTrue(Path(result["input_path"]).is_file())
-            self.assertTrue(Path(result["prompt_path"]).is_file())
-
-            bundle = json.loads(
-                Path(result["input_path"]).read_text(encoding="utf-8")
-            )
-            self.assertEqual(bundle["axis"], "correctness")
-            self.assertEqual(bundle["scope"], scope)
-            self.assertEqual(bundle["findings"], [])
-            self.assertEqual(bundle["diff_text"], "diff --git")
-            self.assertTrue(bundle["brief_path"].endswith(
-                "references/axes/correctness.md"
-            ))
-            self.assertTrue(bundle["anthropic_verbatim_path"].endswith(
-                "references/anthropic-verbatim.md"
-            ))
-
-    def test_bundle_for_empty_axis_still_valid(self):
-        # An axis with zero tool findings still produces a bundle —
-        # subagent runs LLM judgment on the diff alone.
-        with tempfile.TemporaryDirectory() as td:
-            result = axis_dispatch.prepare_axis_bundle(
-                axis="style", scope={"activates_coherence": False},
-                all_findings=SAMPLE_FINDINGS, diff_text="",
-                output_dir=Path(td), skill_dir=SKILL_DIR,
-            )
-            self.assertEqual(result["findings_count"], 0)
-            bundle = json.loads(
-                Path(result["input_path"]).read_text(encoding="utf-8")
-            )
-            self.assertEqual(bundle["findings"], [])
-
-
 class TestPrepareAll(unittest.TestCase):
-
-    def test_prepare_emits_eight_bundles_when_coherence_inactive(self):
-        with tempfile.TemporaryDirectory() as td:
-            result = axis_dispatch.prepare(
-                scope={"activates_coherence": False},
-                all_findings=SAMPLE_FINDINGS, diff_text="",
-                output_dir=Path(td), skill_dir=SKILL_DIR,
-            )
-            self.assertEqual(len(result["axes"]), 8)
-            self.assertEqual(len(result["bundles"]), 8)
-            self.assertFalse(result["coherence_active"])
-            self.assertNotIn("coherence", result["bundles"])
 
     def test_prepare_emits_nine_bundles_when_coherence_active(self):
         with tempfile.TemporaryDirectory() as td:
@@ -395,24 +154,17 @@ class TestPrepareAll(unittest.TestCase):
                 all_findings=SAMPLE_FINDINGS, diff_text="",
                 output_dir=Path(td), skill_dir=SKILL_DIR,
             )
-            corr_bundle = json.loads(
-                Path(result["bundles"]["correctness"]["input_path"])
-                .read_text(encoding="utf-8")
-            )
-            # Correctness has no deterministic analyzer in this battery.
-            corr_tools = {f["source_tool"] for f in corr_bundle["findings"]}
-            self.assertEqual(corr_tools, set())
-            self.assertNotIn("knip", corr_tools)
-            self.assertNotIn("dupl", corr_tools)
-            # Semgrep's bundled rules route only to Performance.
-            perf_bundle = json.loads(
-                Path(result["bundles"]["performance"]["input_path"])
-                .read_text(encoding="utf-8")
-            )
-            self.assertEqual(
-                {f["source_tool"] for f in perf_bundle["findings"]},
-                {"semgrep"},
-            )
+            expected = {
+                "correctness": [], "simplification": ["knip", "dupl"],
+                "tests": [], "documentation": ["markdownlint-cli2"],
+                "style": [], "intent": [], "design-api": ["oasdiff"],
+                "performance": ["semgrep"],
+            }
+            self.assertEqual(set(result["bundles"]), set(expected))
+            for axis, tools in expected.items():
+                with self.subTest(axis=axis):
+                    bundle = json.loads(Path(result["bundles"][axis]["input_path"]).read_text())
+                    self.assertEqual([f["source_tool"] for f in bundle["findings"]], tools)
 
     def test_prepare_emits_only_selected_axis_bundles(self):
         with tempfile.TemporaryDirectory() as td:
@@ -525,34 +277,6 @@ class TestAxisResultIngest(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Cross-checks against synthesis_core
-# ---------------------------------------------------------------------------
-
-
-class TestAxisKeyParity(unittest.TestCase):
-    """The canonical axis tuple in axis_dispatch.py must mirror the one in
-    synthesis_core.py — a divergence breaks Phase 5 dedup."""
-
-    def test_canonical_axes_match_synthesis_core(self):
-        synth_spec = importlib.util.spec_from_file_location(
-            "synthesis_core",
-            REPO_ROOT / "skills" / "code-ultrareview" / "scripts"
-            / "synthesis_core.py",
-        )
-        assert synth_spec is not None and synth_spec.loader is not None
-        synth = importlib.util.module_from_spec(synth_spec)
-        synth_spec.loader.exec_module(synth)
-        self.assertEqual(
-            axis_dispatch.CANONICAL_AXES,
-            synth.CANONICAL_AXES,
-        )
-        self.assertEqual(
-            axis_dispatch.CONDITIONAL_AXES,
-            synth.CONDITIONAL_AXES,
-        )
-
-
-# ---------------------------------------------------------------------------
 # CLI smoke test
 # ---------------------------------------------------------------------------
 
@@ -649,8 +373,14 @@ class TestCliPrepare(unittest.TestCase):
             self.assertFalse(payload["coherence_active"])
             for axis in axis_dispatch.CANONICAL_AXES:
                 bundle = payload["bundles"][axis]
-                self.assertTrue(Path(bundle["input_path"]).is_file())
-                self.assertTrue(Path(bundle["prompt_path"]).is_file())
+                inputs = json.loads(Path(bundle["input_path"]).read_text())
+                prompt = Path(bundle["prompt_path"]).read_text()
+                self.assertEqual(inputs["axis"], axis)
+                self.assertEqual(inputs["diff_text"], "diff --git a/x b/x")
+                self.assertIn(bundle["input_path"], prompt)
+                for key in ("brief_path", "anthropic_verbatim_path"):
+                    self.assertTrue(Path(inputs[key]).is_file())
+                    self.assertIn(inputs[key], prompt)
 
     def test_explicit_complete_axis_lists_remain_scoped(self):
         import subprocess

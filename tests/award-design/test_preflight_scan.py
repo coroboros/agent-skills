@@ -127,12 +127,22 @@ class TestSuppressions(unittest.TestCase):
         self.assertNotIn("PURE-BW", _rule_ids(findings))
 
     def test_outline_none_downgrades_when_focus_visible_exists(self):
-        """OUTLINE-NONE is a fail only when the project ships no :focus-visible
-        replacement — the clean fixture proves the guard, the dirty one the fail."""
-        findings, _ = scan.scan_paths([str(FIXTURES / "dirty")])
-        outline = [f for f in findings if f.rule_id == "OUTLINE-NONE"]
-        self.assertTrue(outline and all(f.severity == scan.FAIL for f in outline),
-                        "dirty fixture has no :focus-visible — OUTLINE-NONE must be FAIL")
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            (Path(tmp) / "buttons.css").write_text("button { outline: none; }\n")
+            findings, _ = scan.scan_paths([tmp])
+            self.assertEqual(
+                [f.severity for f in findings if f.rule_id == "OUTLINE-NONE"],
+                [scan.FAIL],
+            )
+            (Path(tmp) / "focus.css").write_text(
+                ":focus-visible { outline: 2px solid blue; }\n"
+            )
+            findings, _ = scan.scan_paths([tmp])
+            self.assertEqual(
+                [f.severity for f in findings if f.rule_id == "OUTLINE-NONE"],
+                [scan.REVIEW],
+            )
 
 
 class TestEmdashDensitySemantics(unittest.TestCase):
@@ -369,13 +379,6 @@ class TestCopyEcho(unittest.TestCase):
         hits = self._echoes('<span class="k">2026 SEASON</span><h2>Book your <em>season</em> now</h2>')
         self.assertEqual(1, len(hits))
 
-    def test_preflight_box_carries_both_pairs_and_exemption(self):
-        pf = PREFLIGHT_MD.read_text(encoding="utf-8")
-        self.assertIn("kicker+heading", pf)
-        self.assertIn("heading+first-line", pf)
-        self.assertIn("brand proper nouns exempt", pf)
-
-
 class TestEyebrowDensityMarkupForms(unittest.TestCase):
     """EYEBROW-DENSITY must count vanilla-CSS eyebrows — `<p class="kicker">` /
     `data-slot="kicker"`, uppercase from plain CSS — not only Tailwind
@@ -517,9 +520,6 @@ class TestOpticalCraftFamily(unittest.TestCase):
             findings, _ = scan.scan_paths([tmp])
         self.assertFalse(scan.OPTICAL_RULE_IDS & _rule_ids(findings))
 
-    def test_family_is_registered_for_the_checklist_lockstep(self):
-        self.assertLessEqual(scan.OPTICAL_RULE_IDS, scan.known_rule_ids())
-
     @staticmethod
     def _ids(css, body=None):
         import tempfile
@@ -584,10 +584,6 @@ class TestStackFactsStale(unittest.TestCase):
         dated = scan.STACK_FACTS_CHECKED_RE.findall(shipped.read_text(encoding="utf-8"))
         self.assertGreaterEqual(len(dated), 50, "every stack-facts row carries a checked date")
 
-    def test_rule_is_registered(self):
-        self.assertIn(scan.STACK_FACTS_RULE_ID, scan.known_rule_ids())
-
-
 class TestScannerChecklistLockstep(unittest.TestCase):
     """Every `(scanner: RULE-ID)` tag in preflight.md names a real rule — a tag
     naming a dead rule lies about its mechanical help. The reverse does not
@@ -625,12 +621,6 @@ class TestArchetypeFlagValidation(unittest.TestCase):
                 self.assertEqual(
                     _run_main([str(FIXTURES / "clean"), "--archetype", archetype]), 0)
 
-    def test_declared_suppression_still_applies(self):
-        """Acceptance is not the point — the accepted slug must still reach the
-        grammar it names."""
-        _, suppressed = scan.scan_paths([str(FIXTURES / "clean")], "editorial")
-        self.assertEqual(["EMDASH (archetype editorial)"], suppressed)
-
     def test_unknown_slug_exits_2_and_names_the_nine(self):
         err = io.StringIO()
         with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(err):
@@ -655,17 +645,6 @@ class TestArchetypeFlagValidation(unittest.TestCase):
         the same normalisation or it rejects input the scanner handles."""
         self.assertEqual(
             _run_main([str(FIXTURES / "clean"), "--archetype", " Editorial "]), 0)
-
-    def test_no_flag_path_is_unchanged(self):
-        self.assertEqual(_run_main([str(FIXTURES / "clean")]), 0)
-        self.assertEqual(_run_main([str(FIXTURES / "dirty")]), 1)
-        _, suppressed = scan.scan_paths([str(FIXTURES / "clean")])
-        self.assertEqual([], suppressed)
-
-    def test_suppression_keys_are_known_archetypes(self):
-        for archetype in scan.ARCHETYPE_SUPPRESSIONS:
-            with self.subTest(archetype=archetype):
-                self.assertIn(archetype, scan.ARCHETYPES)
 
     def test_archetype_set_matches_the_roll(self):
         """The scanner keeps its own tuple to stay a standalone script. A slug

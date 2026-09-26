@@ -14,10 +14,6 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SKILL_DIR = REPO_ROOT / "skills" / "humanize-en"
 SCRIPTS = SKILL_DIR / "scripts"
-sys.path.insert(0, str(SCRIPTS))
-
-from eval_patterns import evaluate_sample  # noqa: E402
-
 SCRIPT = SCRIPTS / "eval_patterns.py"
 DEFAULT_CORPUS = SKILL_DIR / "eval-corpus" / "samples"
 
@@ -35,49 +31,24 @@ class TestDefaultCorpus(unittest.TestCase):
     """The shipped corpus must pass — if it doesn't, prescan.py has regressed
     against the documented patterns or a sample's expected_hits drifted."""
 
-    def test_default_corpus_passes(self):
-        r = _run()
-        self.assertEqual(
-            r.returncode, 0,
-            f"shipped corpus failed:\nstdout={r.stdout}\nstderr={r.stderr}",
-        )
-
-    def test_default_report_summary_shape(self):
-        r = _run()
-        self.assertEqual(r.returncode, 0)
-        report = json.loads(r.stdout)
-        self.assertIn("samples", report)
-        self.assertIn("summary", report)
-        for key in ("total_samples", "passed", "failed", "pass_rate"):
-            self.assertIn(key, report["summary"])
-        self.assertGreater(
-            report["summary"]["total_samples"], 0,
-            "corpus is empty — at least one sample is shipped",
-        )
-        self.assertEqual(
-            report["summary"]["passed"], report["summary"]["total_samples"]
-        )
-        self.assertEqual(report["summary"]["pass_rate"], 1.0)
-
-    def test_each_sample_result_shape(self):
-        r = _run()
-        report = json.loads(r.stdout)
-        for sample in report["samples"]:
-            with self.subTest(sample=sample.get("id")):
-                for key in (
-                    "id",
-                    "expected_patterns",
-                    "detected_patterns",
-                    "missing",
-                    "extra",
-                    "pass",
-                ):
-                    self.assertIn(key, sample)
-                self.assertIsInstance(sample["expected_patterns"], list)
-                self.assertIsInstance(sample["detected_patterns"], list)
-                self.assertIsInstance(sample["missing"], list)
-                self.assertIsInstance(sample["extra"], list)
-                self.assertIsInstance(sample["pass"], bool)
+    def test_shipped_corpora_match_expected_patterns(self):
+        for args, corpus in (((), DEFAULT_CORPUS), (("--brand",), SKILL_DIR / "eval-corpus/brand-voice")):
+            with self.subTest(corpus=corpus.name):
+                expected_ids = {json.loads(path.read_text())["id"] for path in corpus.glob("*.json")}
+                self.assertTrue(expected_ids)
+                result = _run(*args)
+                self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+                report = json.loads(result.stdout)
+                self.assertEqual({sample["id"] for sample in report["samples"]}, expected_ids)
+                self.assertEqual(report["summary"], {
+                    "total_samples": len(expected_ids), "passed": len(expected_ids),
+                    "failed": 0, "pass_rate": 1.0,
+                })
+                for sample in report["samples"]:
+                    self.assertEqual(sample["detected_patterns"], sample["expected_patterns"])
+                    self.assertEqual(sample["missing"], [])
+                    self.assertEqual(sample["extra"], [])
+                    self.assertTrue(sample["pass"])
 
 
 class TestSampleMode(unittest.TestCase):
@@ -85,7 +56,6 @@ class TestSampleMode(unittest.TestCase):
 
     def test_single_sample_passes(self):
         sample_path = DEFAULT_CORPUS / "clean-prose-01.json"
-        self.assertTrue(sample_path.exists(), "fixture removed — test stale")
         r = _run("--sample", str(sample_path))
         self.assertEqual(
             r.returncode, 0,
@@ -143,59 +113,21 @@ class TestErrorPaths(unittest.TestCase):
         self.assertIn("error reading", r.stderr)
 
     def test_failing_sample_exits_1(self):
-        """A sample claiming a pattern prescan won't produce fails fast."""
-        with tempfile.TemporaryDirectory() as t:
-            corpus = Path(t) / "samples"
-            corpus.mkdir()
-            (corpus / "fail.json").write_text(
-                json.dumps({
-                    "id": "fail",
-                    "input": "Plain prose with no flags whatsoever.",
-                    "expected_hits": [
-                        {"pattern": 1, "label": "significance-inflation"}
-                    ],
-                })
-            )
-            r = _run("--corpus", str(corpus))
-        self.assertEqual(r.returncode, 1)
-        report = json.loads(r.stdout)
-        self.assertFalse(report["samples"][0]["pass"])
-        self.assertEqual(report["samples"][0]["missing"], [1])
-
-
-class TestEvaluateSample(unittest.TestCase):
-    """Direct tests on the evaluate_sample() helper — independent of CLI."""
-
-    def test_match_returns_pass_true(self):
-        sample = {
-            "id": "match",
-            "input": "Moreover, the data is fine.",
-            "expected_hits": [{"pattern": 7, "label": "ai-vocabulary"}],
-        }
-        result = evaluate_sample(sample)
-        self.assertTrue(result["pass"])
-        self.assertEqual(result["missing"], [])
-        self.assertEqual(result["extra"], [])
-
-    def test_missing_pattern_recorded(self):
-        sample = {
-            "id": "missing",
-            "input": "Plain.",
-            "expected_hits": [{"pattern": 1, "label": "significance-inflation"}],
-        }
-        result = evaluate_sample(sample)
-        self.assertFalse(result["pass"])
-        self.assertEqual(result["missing"], [1])
-
-    def test_extra_pattern_recorded(self):
-        sample = {
-            "id": "extra",
-            "input": "Moreover, this triggers ai-vocabulary.",
-            "expected_hits": [],
-        }
-        result = evaluate_sample(sample)
-        self.assertFalse(result["pass"])
-        self.assertIn(7, result["extra"])
+        cases = (("Plain prose.", [{"pattern": 1}], [1], []),
+                 ("Moreover, the data is fine.", [], [], [7]))
+        for text, expected, missing, extra in cases:
+            with self.subTest(text=text), tempfile.TemporaryDirectory() as t:
+                corpus = Path(t)
+                (corpus / "fail.json").write_text(json.dumps({
+                    "id": "fail", "input": text, "expected_hits": expected,
+                }))
+                result = _run("--corpus", str(corpus))
+            self.assertEqual(result.returncode, 1, result.stderr)
+            report = json.loads(result.stdout)
+            self.assertFalse(report["samples"][0]["pass"])
+            self.assertEqual(report["samples"][0]["missing"], missing)
+            self.assertEqual(report["samples"][0]["extra"], extra)
+            self.assertEqual(report["summary"]["failed"], 1)
 
 
 if __name__ == "__main__":

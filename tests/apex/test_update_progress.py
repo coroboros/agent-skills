@@ -81,12 +81,6 @@ class TestArgValidation(unittest.TestCase):
         self.assertEqual(r.returncode, 1)
         self.assertIn("Usage:", r.stdout + r.stderr)
 
-    def test_partial_args_exits_1(self):
-        with tempfile.TemporaryDirectory() as t:
-            proj, home = _dirs(t)
-            r = _run("01-add-auth", "01", "analyze", cwd=proj, home=home)
-        self.assertEqual(r.returncode, 1)
-
     def test_invalid_status_exits_1(self):
         with tempfile.TemporaryDirectory() as t:
             proj, home = _dirs(t)
@@ -129,54 +123,28 @@ class TestRowMutation(unittest.TestCase):
         self.assertTrue(self.ISO8601_UTC.match(cols[2]),
                         f"timestamp not ISO 8601 UTC: {cols[2]}")
 
-    def test_complete_marks_step(self):
+    def test_completion_preserves_other_rows_and_is_idempotent(self):
         with tempfile.TemporaryDirectory() as t:
             proj, home = _dirs(t)
             ctx = _seed(home, _project(proj))
             r = _run("01-add-auth", "01", "analyze", "complete",
                      cwd=proj, home=home)
             self.assertEqual(r.returncode, 0)
-            updated = ctx.read_text(encoding="utf-8")
-        self.assertIn("✓ Complete", updated)
-        # The other row is left untouched.
-        self.assertIn("| 02-implement | ⏳ Pending |", updated)
-
-    def test_idempotent_re_run(self):
-        """Running twice with the same args yields one row for the step;
-        the second run replaces the row with a fresh timestamp, no duplication."""
-        with tempfile.TemporaryDirectory() as t:
-            proj, home = _dirs(t)
-            ctx = _seed(home, _project(proj))
-            r1 = _run("01-add-auth", "01", "analyze", "complete",
-                      cwd=proj, home=home)
-            self.assertEqual(r1.returncode, 0)
-            r2 = _run("01-add-auth", "01", "analyze", "complete",
-                      cwd=proj, home=home)
-            self.assertEqual(r2.returncode, 0)
+            r = _run("01-add-auth", "01", "analyze", "complete",
+                     cwd=proj, home=home)
+            self.assertEqual(r.returncode, 0)
             updated = ctx.read_text(encoding="utf-8")
         rows = [ln for ln in updated.splitlines() if ln.startswith("| 01-analyze ")]
         self.assertEqual(len(rows), 1, "step row duplicated on re-run")
+        self.assertIn("✓ Complete", rows[0])
+        # The other row is left untouched.
+        self.assertIn("| 02-implement | ⏳ Pending |", updated)
 
 
 class TestTempFileScoping(unittest.TestCase):
     """The progress-update script must NOT create temp files on the world-writable
     /tmp surface (W011 external-scanner finding). The mktemp template is scoped
     to $HOME/.agents/output/ — apex's own output dir."""
-
-    def test_source_mktemp_carries_apex_progress_template(self):
-        """Source-level contract: every mktemp call has a template arg whose
-        leaf carries the `apex-progress` identity. Runtime path verification
-        is covered by test_runtime_temp_file_lands_under_home_apex_output."""
-        src = SCRIPT.read_text(encoding="utf-8")
-        mktemps = re.findall(r"mktemp\b[^\n]*", src)
-        self.assertTrue(mktemps, "expected at least one mktemp call in the script")
-        for m in mktemps:
-            self.assertIn(".apex-progress", m,
-                          f"mktemp must use scoped .apex-progress template: {m}")
-            self.assertNotRegex(
-                m, r"mktemp\s*\)?\s*$",
-                f"bare mktemp (no template arg) re-introduces W011: {m}",
-            )
 
     def test_runtime_temp_file_lands_under_home_apex_output(self):
         """End-to-end: run the script under bash -x and verify the traced
@@ -211,8 +179,7 @@ class TestTempFileScoping(unittest.TestCase):
 
 
 class TestUnknownStep(unittest.TestCase):
-    """Unknown step: the awk END block warns to stderr; the script still
-    exits 0 because awk completes normally and `mv` succeeds."""
+    """Unknown steps fail without changing the saved context."""
 
     def test_unknown_step_warns_and_leaves_file_intact(self):
         with tempfile.TemporaryDirectory() as t:

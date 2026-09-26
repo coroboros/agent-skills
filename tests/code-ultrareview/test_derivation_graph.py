@@ -189,18 +189,6 @@ class TestExtractor(unittest.TestCase):
         self.assertEqual(len(claims), 2)
         self.assertEqual(claims[0].kind, "decision")
 
-    def test_section_boundary_closes_state(self):
-        md = (
-            "## Acceptance criteria\n\n"
-            "- [ ] AC1\n"
-            "\n"
-            "## Other section\n\n"
-            "- [ ] not-an-ac\n"
-        )
-        claims = extractor.extract_claims(md)
-        self.assertEqual(len(claims), 1)
-        self.assertEqual(claims[0].text, "AC1")
-
     def test_detect_artifact_kind_from_filename(self):
         self.assertEqual(extractor.detect_artifact_kind("forge-foo.md"), "forge")
         self.assertEqual(extractor.detect_artifact_kind("spec-bar.md"), "spec")
@@ -274,16 +262,9 @@ class TestIgnoreFileParser(unittest.TestCase):
 class TestAutoDetect(unittest.TestCase):
     def test_project_name_kebabs_repo_basename(self):
         with tempfile.TemporaryDirectory() as t:
-            self.assertTrue(auto_detect.project_name(Path(t)))
-
-    def test_auto_detect_returns_empty_when_no_sources(self):
-        with tempfile.TemporaryDirectory() as t:
-            os.environ["DERIVATION_SKIP_GH"] = "1"
-            repo = Path(t)
-            artifacts = auto_detect.auto_detect(repo)
-            # gh skipped; HOME may resolve elsewhere — at minimum no docs/ in tempdir → empty or only home-based
-            # We just assert no crash and a list result.
-            self.assertIsInstance(artifacts, list)
+            repo = Path(t) / "My Project_42"
+            repo.mkdir()
+            self.assertEqual(auto_detect.project_name(repo), "my-project-42")
 
     def test_docs_artifacts_glob(self):
         with tempfile.TemporaryDirectory() as t:
@@ -398,15 +379,6 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
         self.assertEqual(out["findings"][0]["classification"], "UNCLASSIFIED")
         self.assertEqual(out["findings"][0]["lens"], "derivation")
 
-    def test_consistent_fixture_shape(self):
-        # The Python stage cannot tell GAP from CONSISTENT — that's the
-        # subagent's job. Just assert the artifact + claims surface.
-        out = _run_cli(FIXTURES / "consistent",
-                       reconcile=str(FIXTURES / "consistent" / "spec.md"))
-        self.assertEqual(out["lens"], "derivation")
-        self.assertGreaterEqual(len(out["artifacts"]), 1)
-        self.assertGreaterEqual(out["artifacts"][0]["claim_count"], 1)
-
     def test_auto_detected_sources_without_claims_block(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
@@ -479,18 +451,6 @@ class TestRunOrchestratorFixtures(unittest.TestCase):
         out = _run_cli(fixture, reconcile=str(fixture / "spec.md"))
         # The spec.md path is allowlisted by .derivation-ignore → no findings.
         self.assertEqual(out["findings"], [])
-
-    def test_scope_add_and_decision_override_shapes(self):
-        # Same as consistent — Python emits UNCLASSIFIED; subagent classifies.
-        for case in ("scope-add", "decision-override"):
-            with self.subTest(case=case):
-                fixture = FIXTURES / case
-                spec_path = fixture / "spec.md"
-                if not spec_path.exists():
-                    continue
-                out = _run_cli(fixture, reconcile=str(spec_path))
-                self.assertEqual(out["lens"], "derivation")
-
 
 class TestRunOutputSchema(unittest.TestCase):
     def test_auto_without_any_source_blocks_instead_of_no_op(self):

@@ -101,12 +101,12 @@ class TestIdempotency(unittest.TestCase):
             r1 = _run("single", t)
             self.assertEqual(r1.returncode, 0)
             tmp = Path(t)
+            expected = (tmp / "CLAUDE.md").read_bytes()
             (tmp / "CLAUDE.md").write_text("// tampered\n")
             r2 = _run("single", t, "--force")
             self.assertEqual(r2.returncode, 0,
                              f"stderr={r2.stderr}\nstdout={r2.stdout}")
-            self.assertNotEqual((tmp / "CLAUDE.md").read_text(),
-                                "// tampered\n")
+            self.assertEqual((tmp / "CLAUDE.md").read_bytes(), expected)
             self.assertIn("RESULT: ok=true", r2.stdout)
 
 

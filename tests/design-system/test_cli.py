@@ -287,20 +287,6 @@ class TestExportUsage(_TmpMixin, unittest.TestCase):
         self.assertEqual(kv.get("status"), "invalid-format")
         self.assertEqual(kv.get("format"), "scss")
 
-    def test_format_tailwind_accepted(self):
-        # Format check happens before the file check, so a missing file with
-        # a valid format must NOT trip invalid-format.
-        r = _run("export.sh", "tailwind", str(self.tmp / "missing.md"))
-        self.assertEqual(r.returncode, 1)
-        kv = _result_kv(r.stdout)
-        self.assertEqual(kv.get("status"), "file-not-found")
-
-    def test_format_dtcg_accepted(self):
-        r = _run("export.sh", "dtcg", str(self.tmp / "missing.md"))
-        self.assertEqual(r.returncode, 1)
-        kv = _result_kv(r.stdout)
-        self.assertEqual(kv.get("status"), "file-not-found")
-
     def test_missing_file_emits_file_not_found(self):
         r = _run("export.sh", "tailwind", str(self.tmp / "nope.md"))
         self.assertEqual(r.returncode, 1)

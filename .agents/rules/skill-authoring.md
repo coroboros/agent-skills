@@ -45,7 +45,7 @@ Check the root README table, per-skill details, examples, requirements, and pipe
 
 ## Verification
 
-Tests of bundled scripts live in `tests/<skill-name>/`; cross-skill invariants live in `tests/_meta/`. Behavioral examples in `skills/<name>/evals/` describe expected skill behavior and do not prove it was executed.
+Follow [Testing](./repo-conventions.md#testing) for test placement, regression value, coverage preservation, and the distinction between automated checks and behavioral evaluations.
 
 - For deterministic behavior changes, add or update a regression test when existing checks cannot distinguish the defect from the fix. Reuse adequate tests for refactors; do not add tests that only mirror implementation.
 - Test thin wrappers' own contracts: arguments, exit codes, output paths, and overwrite guards. Use applicable installed CLIs for integration evidence.
@@ -53,7 +53,7 @@ Tests of bundled scripts live in `tests/<skill-name>/`; cross-skill invariants l
 - Record the actual model, host, snapshot, and available tools for behavioral runs. Static checks and same-model councils are not cross-model benchmarks. Compare outcomes and scope, not just prose length.
 - Use the official description optimization loop only with a model and runtime it actually supports. Do not pass another provider's model name to the Claude CLI.
 
-Run `python3 -m unittest discover tests/` before reporting done and before commit. Report skips and their reasons, baseline failures, and unavailable external checks. Required failures block a complete verification claim; passing tests do not replace behavioral evidence.
+Run the repository checks required by [AGENTS.md](../../AGENTS.md#validation). Report baseline failures separately; required failures block a complete verification claim, and passing tests do not replace behavioral evidence.
 
 ## Independent review before a multi-skill PR
 

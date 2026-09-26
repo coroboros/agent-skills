@@ -205,6 +205,8 @@ class TestTokenSubstitution(unittest.TestCase):
                     0,
                     msg=f"stderr={r.stderr}\nstdout={r.stdout}",
                 )
+                package = json.loads((target / "package.json").read_text())
+                self.assertEqual(package["scripts"]["design:audit"], "designmd lint DESIGN.md")
                 self.assertTrue((target / "AGENTS.md").is_file())
                 self.assertEqual((target / "CLAUDE.md").read_text(), "@AGENTS.md\n")
                 self.assertTrue(
@@ -366,10 +368,11 @@ class TestIdempotency(unittest.TestCase):
         self.assertEqual(first.returncode, 0)
         # Mutate a written file to confirm --force restores it from template.
         biome = self.target / "biome.json"
+        expected = biome.read_bytes()
         biome.write_text("// tampered\n")
         second = _run("astro-cloudflare", "demo", str(self.target), "--force")
         self.assertEqual(second.returncode, 0, msg=f"stderr={second.stderr}")
-        self.assertNotEqual(biome.read_text(), "// tampered\n")
+        self.assertEqual(biome.read_bytes(), expected)
         self.assertIn("ok=true", second.stdout)
 
 

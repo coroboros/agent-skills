@@ -1326,7 +1326,7 @@ graph LR
 
 ## Testing
 
-Python `unittest` suite under `tests/` covers bundled scripts across every skill.
+The Python `unittest` suite in `tests/` checks repository contracts and bundled-script behavior, including CLI and cross-skill integration cases.
 
 ```bash
 # Run everything
@@ -1336,7 +1336,7 @@ python3 -m unittest discover tests/ -v
 python3 -m unittest discover tests/<skill-name>/ -v
 ```
 
-Stdlib only. See [`.agents/rules/skill-authoring.md`](./.agents/rules/skill-authoring.md) for the testing requirement.
+The test harness uses the Python standard library; some integration cases require external tools. See [testing conventions](./.agents/rules/repo-conventions.md#testing) and [validation requirements](./AGENTS.md#validation).
 
 ---
 
@@ -1355,7 +1355,7 @@ Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing ind
 - [`agentskills-spec.md`](./.agents/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
 - [`claude-code-skills.md`](./.agents/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
 - [`skill-authoring.md`](./.agents/rules/skill-authoring.md) — official Anthropic `skill-creator`, local review policy, and required verification
-- [`repo-conventions.md`](./.agents/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test placement
+- [`repo-conventions.md`](./.agents/rules/repo-conventions.md) — flag model, output paths, install, plugin marketplace, test value and placement
 - [`skill-prose-rules.md`](./.agents/rules/skill-prose-rules.md) — canonical writing-rules block embedded in every prose-emitting skill
 - [`skill-label-hygiene-rules.md`](./.agents/rules/skill-label-hygiene-rules.md) — canonical label-hygiene block embedded in skills that ship code, commits, PR bodies, and review prose
 - [`skill-execution-discipline-rules.md`](./.agents/rules/skill-execution-discipline-rules.md) — canonical execution-discipline block embedded in code-producing skills

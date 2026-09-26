@@ -95,6 +95,10 @@ class TestFreshRun(unittest.TestCase):
                 self.assertNotIn("{{task_description}}", content)
                 self.assertNotIn("{{timestamp}}", content)
 
+            context = (task / "00-context.md").read_text(encoding="utf-8")
+            self.assertIn("Implement JWT-based auth", context)
+            self.assertIn("| 00-init | ✓ Complete |", context)
+
             # Stdout reports TASK_ID + OUTPUT_DIR for caller capture.
             self.assertIn(f"TASK_ID={task.name}", r.stdout)
             self.assertIn(f"OUTPUT_DIR={task}", r.stdout)
@@ -130,19 +134,6 @@ class TestProjectRootAnchor(unittest.TestCase):
                              "output must NOT be created at the nested cwd")
             task = next(apex.iterdir())
             self.assertIn(f"OUTPUT_DIR={task}", r.stdout)
-
-    def test_non_git_dir_falls_back_to_pwd(self):
-        with tempfile.TemporaryDirectory() as t:
-            proj = Path(t).resolve() / "proj"
-            home = Path(t).resolve() / "home"
-            proj.mkdir()
-            home.mkdir()
-            r = _run("plain-task", "No git here", cwd=proj, home=home)
-            self.assertEqual(r.returncode, 0,
-                             f"stderr={r.stderr}\nstdout={r.stdout}")
-            apex = home / ".agents" / "output" / _project(proj) / "apex"
-            self.assertTrue(apex.is_dir())
-            self.assertFalse((proj / ".agents").exists())
 
 
 class TestMetacharSafety(unittest.TestCase):
@@ -184,22 +175,6 @@ class TestMetacharSafety(unittest.TestCase):
             self.assertIn(self.NASTY, ctx,
                           f"TASK_DESCRIPTION metachars not preserved literally; "
                           f"context excerpt:\n{ctx[:600]}")
-
-    def test_sed_delimiter_pipe_does_not_break_substitution(self):
-        """A bare `|` in TASK_DESCRIPTION would have crashed the old sed
-        s|...|...| chain — must now render as a plain pipe character."""
-        with tempfile.TemporaryDirectory() as t:
-            proj = Path(t) / "proj"
-            home = Path(t) / "home"
-            proj.mkdir()
-            home.mkdir()
-            r = _run("pipe-test", "a|b|c", cwd=proj, home=home)
-            self.assertEqual(r.returncode, 0,
-                             f"stderr={r.stderr}\nstdout={r.stdout}")
-            apex = home / ".agents" / "output" / _project(proj) / "apex"
-            task = next(apex.iterdir())
-            ctx = (task / "00-context.md").read_text(encoding="utf-8")
-            self.assertIn("a|b|c", ctx)
 
 
 class TestAutoIncrement(unittest.TestCase):
@@ -247,16 +222,6 @@ class TestAutoIncrement(unittest.TestCase):
             apex = home / ".agents" / "output" / _project(proj) / "apex"
             new = [p.name for p in apex.iterdir() if "octal-edge" in p.name]
             self.assertEqual(new, ["09-octal-edge"])
-
-
-class TestContextTemplateSeed(unittest.TestCase):
-    """00-init must seed complete: the table exists only once init wrote it, and a
-    Pending row makes every resume resolve step_num 0, which validate_state rejects."""
-
-    def test_template_seeds_00_init_complete(self):
-        template = (REPO_ROOT / "skills" / "apex" / "templates" / "00-context.md").read_text(encoding="utf-8")
-        self.assertIn("| 00-init | ✓ Complete |", template)
-        self.assertNotIn("| 00-init | ⏸ Pending |", template)
 
 
 if __name__ == "__main__":

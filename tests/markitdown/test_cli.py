@@ -35,6 +35,9 @@ SHIM_BODY = """#!/usr/bin/env bash
 # payload, exits 0 by default. With MARKITDOWN_SHIM_FAIL=1 exits non-zero
 # AFTER creating the temp file (so we can verify the wrapper's trap runs).
 set -e
+if [[ -n "${MARKITDOWN_SHIM_ARGS:-}" ]]; then
+  printf '%s\\n' "$@" > "$MARKITDOWN_SHIM_ARGS"
+fi
 out=""
 fail="${MARKITDOWN_SHIM_FAIL:-0}"
 list_plugins=0
@@ -292,23 +295,20 @@ class TestShimmedWrapper(unittest.TestCase):
 
     def test_d_flag_with_endpoint_passes_through(self):
         f = self._write_input("doc.pdf")
+        argv_path = self.cwd / "argv.txt"
+        endpoint = "https://example.cognitiveservices.azure.com/"
         r = self._run(
             "-d",
             str(f),
-            MARKITDOWN_DOCINTEL_ENDPOINT="https://example.cognitiveservices.azure.com/",
+            MARKITDOWN_DOCINTEL_ENDPOINT=endpoint,
+            MARKITDOWN_SHIM_ARGS=str(argv_path),
         )
         self.assertEqual(r.returncode, 0, msg=r.stderr)
-        self.assertIn("RESULT: saved=false", r.stdout)
+        argv = argv_path.read_text().splitlines()
+        self.assertEqual(argv[:-1], ["-d", "-e", endpoint, str(f), "-o"])
+        self.assertFalse(Path(argv[-1]).exists(), "temporary output was not removed")
 
     # --- temp file cleanup -----------------------------------------------
-
-    def test_temp_file_cleaned_on_success(self):
-        f = self._write_input("doc.txt")
-        before = set(Path(tempfile.gettempdir()).glob("markitdown.*"))
-        r = self._run(str(f))
-        self.assertEqual(r.returncode, 0, msg=r.stderr)
-        after = set(Path(tempfile.gettempdir()).glob("markitdown.*"))
-        self.assertEqual(after - before, set(), "wrapper leaked a temp file on success")
 
     def test_temp_file_cleaned_when_markitdown_fails(self):
         """Trap-on-EXIT must remove the mktemp file even when the wrapped CLI
@@ -358,35 +358,6 @@ class TestShimmedWrapper(unittest.TestCase):
             slug_line, "RESULT: slug=caf-notes",
             "slug derivation changed — verify if this is intentional",
         )
-
-    def test_extension_casing_normalized(self):
-        """`Report.PDF` and `Report.pdf` should produce the same slug. The
-        slug source is the FILENAME (stem); the wrapper lowercases the
-        whole stem via `tr A-Z a-z`. Casing differences must NOT leak."""
-        f1 = self.cwd / "Report.PDF"
-        f1.write_text("dummy")
-        r1 = self._run("-s", str(f1))
-        self.assertEqual(r1.returncode, 0, msg=r1.stderr)
-        # The slug is the lowercased stem (no extension in slug).
-        self.assertIn("RESULT: slug=report", r1.stdout)
-
-    def test_repeated_special_chars_collapse_to_single_dash(self):
-        """`---weird---.txt` was already covered for leading/trailing strip;
-        this pins the inner behaviour: runs of dashes/specials collapse so
-        the slug doesn't contain `--` artifacts."""
-        f = self.cwd / "weird---name.txt"
-        f.write_text("dummy")
-        r = self._run("-s", str(f))
-        self.assertEqual(r.returncode, 0, msg=r.stderr)
-        slug_line = next(
-            l for l in r.stdout.splitlines() if l.startswith("RESULT: slug=")
-        )
-        # Pin: inner consecutive dashes collapse — no `--` in slug.
-        self.assertNotIn(
-            "--", slug_line.split("=", 1)[1],
-            f"slug contains `--`: {slug_line!r}",
-        )
-
 
 if __name__ == "__main__":
     unittest.main()

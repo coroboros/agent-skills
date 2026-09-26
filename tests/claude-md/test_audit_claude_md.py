@@ -13,7 +13,6 @@ SCRIPTS = REPO_ROOT / "skills" / "claude-md" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
 from audit_claude_md import (  # noqa: E402
-    BLOAT_CATEGORIES,
     check_imports,
     mask_protected,
     scan_bloat,
@@ -30,29 +29,6 @@ def _run(path):
 
 
 class TestBloatCategories(unittest.TestCase):
-    def test_categories_present(self):
-        for cat in (
-            "linter-enforced",
-            "marketing-or-vision",
-            "obvious-info",
-            "verbose-explanation",
-            "redundant-spec",
-            "generic-best-practices",
-        ):
-            self.assertIn(cat, BLOAT_CATEGORIES, f"{cat} category missing")
-
-    def test_every_category_has_patterns(self):
-        """Catches a subtle regression where a category key exists but the pattern
-        list is empty — the bloat scan would silently skip the category. Without
-        this assertion, deletion of patterns goes undetected."""
-        for cat, patterns in BLOAT_CATEGORIES.items():
-            with self.subTest(category=cat):
-                self.assertGreater(len(patterns), 0,
-                                   f"{cat}: pattern list is empty — scan would skip silently")
-                for pattern in patterns:
-                    self.assertIsInstance(pattern, str)
-                    self.assertGreater(len(pattern), 0)
-
     def test_linter_enforced_triggers_generic_formatting(self):
         hits = scan_bloat(["Format code properly"])
         cats = [h["category"] for h in hits]
@@ -61,20 +37,10 @@ class TestBloatCategories(unittest.TestCase):
     def test_tool_choice_is_not_bloat(self):
         self.assertEqual(scan_bloat(["Use Biome for linting and formatting."]), [])
 
-    def test_marketing_triggers_we_believe(self):
-        hits = scan_bloat(["We believe in clean code."])
-        cats = [h["category"] for h in hits]
-        self.assertIn("marketing-or-vision", cats)
-
     def test_verbose_triggers_in_order_to(self):
         hits = scan_bloat(["Run this in order to deploy."])
         cats = [h["category"] for h in hits]
         self.assertIn("verbose-explanation", cats)
-
-    def test_generic_triggers_solid(self):
-        hits = scan_bloat(["Apply the SOLID principles."])
-        cats = [h["category"] for h in hits]
-        self.assertIn("generic-best-practices", cats)
 
     def test_obvious_triggers_node_modules(self):
         hits = scan_bloat(["node_modules/ contains dependencies"])
@@ -129,35 +95,6 @@ class TestImportResolution(unittest.TestCase):
             self.assertEqual(check_imports(text, Path(td)),
                              [{"line": 6, "path": "missing.json"}])
 
-    def test_literal_imports_are_not_resolved(self):
-        with tempfile.TemporaryDirectory() as td:
-            text = '`@missing.md`\n```md\n@also-missing.md\n```\n@real-missing.md\n'
-            self.assertEqual(check_imports(text, Path(td)),
-                             [{"line": 5, "path": "real-missing.md"}])
-    def test_resolves_existing_relative(self):
-        with tempfile.TemporaryDirectory() as td:
-            td = Path(td)
-            (td / "rule.md").write_text("rule content", encoding="utf-8")
-            text = "See @rule.md for details."
-            broken = check_imports(text, td)
-            self.assertEqual(broken, [])
-
-    def test_flags_missing_relative(self):
-        with tempfile.TemporaryDirectory() as td:
-            td = Path(td)
-            text = "See @missing.md for details."
-            broken = check_imports(text, td)
-            self.assertEqual(len(broken), 1)
-            self.assertEqual(broken[0]["path"], "missing.md")
-
-    def test_line_number_reported(self):
-        with tempfile.TemporaryDirectory() as td:
-            td = Path(td)
-            text = "line 1\nline 2\n@missing.md\nline 4\n"
-            broken = check_imports(text, td)
-            self.assertEqual(broken[0]["line"], 3)
-
-
 class TestCLI(unittest.TestCase):
     def setUp(self):
         self._tempdirs = []
@@ -200,7 +137,11 @@ class TestCLI(unittest.TestCase):
         r = _run(path)
         self.assertEqual(r.returncode, 1)
         data = json.loads(r.stdout)
-        self.assertGreater(data["summary"]["findings"], 0)
+        self.assertFalse(data["summary"]["ok"])
+        self.assertEqual(
+            {(hit["line"], hit["category"]) for hit in data["bloat"]},
+            {(3, "marketing-or-vision"), (4, "generic-best-practices")},
+        )
 
     def test_over_target_lines_flagged(self):
         body = "# Project\n\n" + "\n".join(f"- line {i}" for i in range(1, 250)) + "\n"

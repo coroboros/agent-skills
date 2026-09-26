@@ -124,12 +124,13 @@ class TestExplain(unittest.TestCase):
         r = _run("--explain-json", str(FIXTURES / "child-founder.md"))
         self.assertEqual(r.returncode, 0)
         data = json.loads(r.stdout)
-        self.assertIn("chain", data)
-        self.assertIn("merged", data)
-        # Each forbidden entry has a source field
-        for entry in data["merged"]["forbidden_lexicon"]:
-            self.assertIn("source", entry)
-            self.assertIn("value", entry)
+        self.assertEqual([Path(path).name for path in data["chain"]],
+                         ["parent-corp.md", "child-founder.md"])
+        self.assertEqual(data["merged"]["forbidden_lexicon"], [
+            {"value": "game-changing", "source": "parent-corp.md"},
+            {"value": "synergies", "source": "parent-corp.md"},
+            {"value": "thought leader", "source": "child-founder.md"},
+        ])
 
 
 class TestLexicalExceptions(unittest.TestCase):

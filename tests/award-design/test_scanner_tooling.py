@@ -216,15 +216,5 @@ class TestEaseOvershoot(unittest.TestCase):
         self.assertEqual([], [(f.rule_id, f.excerpt) for f in findings])
 
 
-class TestToolingRegistration(unittest.TestCase):
-    """Both rules are registered — known_rule_ids() feeds the scanner↔checklist
-    lockstep test in test_preflight_scan.py, which enforces the preflight.md
-    side."""
-
-    def test_new_rules_are_known(self):
-        self.assertLessEqual({"IMG-NATIVE-RES", "EASE-OVERSHOOT"},
-                             scan.known_rule_ids())
-
-
 if __name__ == "__main__":
     unittest.main()

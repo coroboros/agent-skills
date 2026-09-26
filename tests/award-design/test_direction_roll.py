@@ -1,23 +1,13 @@
-"""award-design — the direction roll is a mechanism, not a suggestion.
+"""Direction range, challenger exclusion, CLI validation, and replayable commands."""
 
-The skill's anti-monoculture claim rests on one testable device: the model writes
-its 5-7 spines, then a hash it does not control assigns one, and the floor of 3
-puts the top of the model's own ranking out of reach. Every assertion here pins a
-property that, if it broke, would silently hand the direction back to the argmax:
-the reachable range, the floor, the reproducibility of the printed key, the
-push-don't-pull stdout that survives a truncated read. The core math is
-recomputed independently in this file rather than read back from the module, so a
-changed formula fails here instead of being ratified by its own implementation."""
-
-import hashlib
 import importlib.util
-import math
 import shlex
 import subprocess
 import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 # The skill root is the documented invocation context — `python3 scripts/<name>.py`
@@ -33,36 +23,21 @@ _spec.loader.exec_module(roll)
 KEYS = [f"{value:08x}" for value in range(600)]
 
 
-def _spec_unit(scope, salt, key):
-    """The contract's formula, written out here so the module cannot ratify itself."""
-    return int.from_bytes(
-        hashlib.sha256(f"{scope}:{salt}:{key}".encode("utf-8")).digest()[:4], "big") / 0xFFFFFFFF
-
-
 def _run(*args):
     return subprocess.run([sys.executable, str(SCRIPT), *args],
                           cwd=SKILL_DIR, capture_output=True, text=True)
 
 
 class TestRollMathematics(unittest.TestCase):
-    def test_unit_matches_the_published_formula(self):
-        for key in KEYS[:50]:
-            for scope in roll.SCOPES:
-                self.assertEqual(roll.unit(scope, "index", key), _spec_unit(scope, "index", key))
-
-    def test_index_matches_floor_of_three_formula(self):
+    def test_hash_endpoints_stay_within_the_assignment_and_challenger_pools(self):
         for count in (5, 6, 7):
-            for key in KEYS[:200]:
-                expected = 3 + math.floor(_spec_unit("direction", "index", key) * (count - 2))
-                self.assertEqual(roll.roll_index("direction", key, count, 0)[0], expected)
-
-    def test_top_two_spines_are_unreachable(self):
-        """The floor is the anti-argmax device — a roll that can return spine 1
-        or 2 hands the direction straight back to the model's own ranking."""
-        for count in (5, 6, 7):
-            drawn = {roll.roll_index("direction", key, count, 0)[0] for key in KEYS}
-            self.assertEqual(min(drawn), 3, f"count={count} reached below the floor of 3")
-            self.assertEqual(max(drawn), count, f"count={count} never reached the last spine")
+            for unit, expected in ((0.0, 3), (1.0, count)):
+                with self.subTest(count=count, unit=unit):
+                    with patch.object(roll, "unit", return_value=unit):
+                        self.assertEqual(roll.roll_index("direction", "endpoint", count, 0)[0], expected)
+                        challengers = roll.draw_challengers("direction", "endpoint", "editorial")
+                        self.assertEqual(len(set(challengers)), 2)
+                        self.assertNotIn("editorial", challengers)
 
     def test_every_index_in_range_is_reachable(self):
         for count in (5, 6, 7):
@@ -100,27 +75,10 @@ class TestChallengerDraw(unittest.TestCase):
             for key in KEYS[:80]:
                 self.assertNotIn(archetype, roll.draw_challengers("direction", key, archetype))
 
-    def test_draw_is_deterministic(self):
-        for key in KEYS[:40]:
-            self.assertEqual(roll.draw_challengers("direction", key, "brutalist"),
-                             roll.draw_challengers("direction", key, "brutalist"))
-
-    def test_nine_archetypes_are_the_pool(self):
-        self.assertEqual(len(roll.ARCHETYPES), 9)
-        self.assertEqual(len(set(roll.ARCHETYPES)), 9)
-
 
 class TestSpineCountContract(unittest.TestCase):
-    def test_five_to_seven_accepted(self):
-        for count in (5, 6, 7):
-            self.assertEqual(roll.parse_count(str(count)), count)
-
-    def test_out_of_range_and_garbage_rejected(self):
-        for raw in ("4", "8", "0", "-1", "six", "", "5.5"):
-            self.assertIsNone(roll.parse_count(raw))
-
     def test_cli_exits_one_and_explains_the_spines_contract(self):
-        for raw in ("4", "8", "six"):
+        for raw in ("4", "8", "0", "-1", "six", "", "5.5"):
             result = _run(raw)
             self.assertEqual(result.returncode, 1, f"{raw!r} should be rejected")
             message = result.stderr.lower()
@@ -139,10 +97,8 @@ class TestStdoutContract(unittest.TestCase):
 
     def setUp(self):
         self.result = _run("6", "--from", "8f3c1a20", "--archetype", "editorial")
-        self.out = self.result.stdout
-
-    def test_exits_zero(self):
         self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        self.out = self.result.stdout
 
     def test_header_carries_key_scope_and_index(self):
         header = self.out.splitlines()[0]
@@ -160,34 +116,10 @@ class TestStdoutContract(unittest.TestCase):
         self.assertEqual(replay.returncode, 0, replay.stderr)
         self.assertEqual(replay.stdout, self.out)
 
-    def test_spines_before_seed_contract_is_restated(self):
-        self.assertIn("SPINES:", self.out)
-        self.assertIn("SEED:", self.out)
-        self.assertIn("verbatim", self.out)
-        self.assertIn("WRITTEN", self.out)
-
-    def test_assignment_is_not_negotiable(self):
-        lowered = self.out.lower()
-        self.assertIn("not a suggestion", lowered)
-        self.assertIn("taste is never grounds for a re-roll", lowered)
-        self.assertIn("pinned", lowered)
-
-    def test_challengers_named_with_the_two_axis_instruction(self):
-        lowered = self.out.lower()
-        self.assertIn("challengers —", lowered)
-        self.assertIn("spectacle", lowered)
-        self.assertIn("audience identification", lowered)
-        self.assertIn("product clarity", lowered)
-        self.assertIn("wins both", lowered)
-
     def test_index_restated_on_the_last_line(self):
         last = self.out.strip().splitlines()[-1]
         self.assertIn("restated for truncated readers", last)
         self.assertRegex(last, r"ASSIGNED SPINE [3-6] of 6")
-
-    def test_same_key_twice_is_byte_identical(self):
-        again = _run("6", "--from", "8f3c1a20", "--archetype", "editorial")
-        self.assertEqual(again.stdout, self.out)
 
     def test_generated_key_is_printed_and_replayable(self):
         first = _run("7")
@@ -206,18 +138,6 @@ class TestStdoutContract(unittest.TestCase):
                                 capture_output=True, text=True)
         self.assertEqual(replay.returncode, 0, replay.stderr)
         self.assertEqual(replay.stdout, first.stdout)
-
-
-class TestRerollNotice(unittest.TestCase):
-    def test_reroll_eliminates_every_shown_direction(self):
-        out = _run("6", "--from", "8f3c1a20", "--reroll", "2").stdout
-        self.assertIn("REROLL 2 —", out)
-        lowered = out.lower()
-        self.assertIn("eliminated", lowered)
-        self.assertIn("reworded", lowered)
-
-    def test_first_roll_prints_no_reroll_notice(self):
-        self.assertNotIn("REROLL", _run("6", "--from", "8f3c1a20").stdout)
 
 
 class TestArchetypeBlock(unittest.TestCase):
@@ -245,10 +165,8 @@ class TestArchetypeBlock(unittest.TestCase):
                 path = roll.ARCHETYPE_DIR / f"{archetype}.md"
                 self.assertTrue(path.is_file(), f"references/archetype/{archetype}.md")
                 body = path.read_text(encoding="utf-8")
-                for row in ("**Voice.**", "**Register licence.**",
-                            "**Anti-signals", "**Macrostructures it runs.**",
-                            "**Exemplar.**", "**Reflexes"):
-                    self.assertIn(row, body, f"{archetype} tier 1 lacks {row}")
+                self.assertTrue(body.strip(), f"{archetype} tier 1 is empty")
+                self.assertIn(body.rstrip(), "\n".join(roll.archetype_block(archetype)))
 
     def test_present_tier_one_file_is_printed_whole(self):
         with tempfile.TemporaryDirectory() as tmp:

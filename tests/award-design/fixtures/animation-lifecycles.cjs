@@ -28,6 +28,48 @@ function context(extra) {
   return vm.createContext({ console: { error() {} }, ...extra });
 }
 
+function lenis() {
+  const source = code('skeletons.md', '## A. Lenis + GSAP', 'initSmoothScroll');
+  for (const driver of ['ticker', 'raf', 'reduced']) {
+    const frames = new Map(), tickers = new Set(), times = [], smoothing = [];
+    let sequence = 0, instances = 0, destroyed = 0, scrollListener;
+    const ScrollTrigger = { update() {} };
+    const env = context({ ScrollTrigger,
+      matchMedia: () => ({ matches: driver === 'reduced' }),
+      requestAnimationFrame: callback => { const id = ++sequence; frames.set(id, callback); return id; },
+      cancelAnimationFrame: id => frames.delete(id),
+      gsap: driver === 'raf' ? undefined : { ticker: {
+        add: callback => tickers.add(callback), remove: callback => tickers.delete(callback),
+        lagSmoothing: (...args) => smoothing.push(args),
+      } },
+      Lenis: class {
+        constructor(options) { instances++; assert.ok(!options.autoRaf, 'Lenis must not start a second clock'); }
+        on(event, callback) { assert.equal(event, 'scroll'); scrollListener = callback; }
+        raf(time) { times.push(time); }
+        destroy() { destroyed++; }
+      },
+    });
+    vm.runInContext(source, env);
+    const rig = env.initSmoothScroll();
+    assert.equal(instances, driver === 'reduced' ? 0 : 1);
+    assert.equal(tickers.size + frames.size, driver === 'reduced' ? 0 : 1);
+    if (driver === 'ticker') {
+      assert.equal(scrollListener, ScrollTrigger.update);
+      [...tickers][0](0.25);
+      assert.deepEqual(times, [250]);
+      assert.deepEqual(smoothing, [[0]]);
+    } else if (driver === 'raf') {
+      const callback = [...frames.values()][0]; frames.clear(); callback(250);
+      assert.deepEqual(times, [250]);
+      assert.equal(frames.size, 1);
+    } else assert.equal(rig.lenis, null);
+    rig.destroy();
+    assert.equal(tickers.size + frames.size, 0);
+    assert.equal(destroyed, instances);
+    if (driver === 'ticker') assert.deepEqual(smoothing, [[0], [500, 33]]);
+  }
+}
+
 function reveal() {
   const source = code('skeletons.md', '## G. Fire-once IO reveal', 'initReveals');
   function element(top) {
@@ -229,7 +271,7 @@ function cinematic() {
   }
 }
 
-Promise.resolve(({ reveal, split, three, fiber, cinematic })[caseName]()).catch(error => {
+Promise.resolve(({ lenis, reveal, split, three, fiber, cinematic })[caseName]()).catch(error => {
   console.error(error);
   process.exitCode = 1;
 });

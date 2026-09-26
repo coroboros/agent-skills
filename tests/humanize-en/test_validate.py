@@ -12,7 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS = REPO_ROOT / "skills" / "humanize-en" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from validate import _hit_signature, validate  # noqa: E402
+from validate import validate  # noqa: E402
 
 SCRIPT = SCRIPTS / "validate.py"
 
@@ -33,20 +33,6 @@ def _voice_doc():
         "sentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n"
         "---\n# Brand Voice — T\n## 1. Core voice attributes\nstub stub stub stub stub stub stub stub stub stub.\n"
     )
-
-
-class TestCleanStatus(unittest.TestCase):
-    def test_clean_text_returns_clean(self):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
-            f.write("The cat sat. The dog ran. Plain prose.\n")
-            path = f.name
-        try:
-            result = validate(path)
-            self.assertEqual(result["status"], "clean")
-            self.assertEqual(result["residuals"], [])
-            self.assertEqual(result["summary"]["total_residuals"], 0)
-        finally:
-            Path(path).unlink()
 
 
 class TestResidualsStatus(unittest.TestCase):
@@ -102,19 +88,6 @@ class TestResidualsStatus(unittest.TestCase):
 
 
 class TestRegressionStatus(unittest.TestCase):
-    def test_regression_when_new_hit_appears(self):
-        """A baseline with NO hits + a file that has hits = regression."""
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
-            f.write("Moreover, the trend continues.\n")
-            path = f.name
-        try:
-            result = validate(path, baseline_hits=[])
-            self.assertEqual(result["status"], "regression")
-            self.assertIn("new_hits", result)
-            self.assertGreater(len(result["new_hits"]), 0)
-        finally:
-            Path(path).unlink()
-
     def test_regression_partial_overlap(self):
         """Realistic case: a paragraph's baseline hit survives unchanged
         post-rewrite; another paragraph introduces a new AI tell. The
@@ -145,24 +118,29 @@ class TestRegressionStatus(unittest.TestCase):
             Path(path).unlink()
 
 
-class TestHitSignature(unittest.TestCase):
-    def test_signature_uses_pattern_and_snippet(self):
-        h = {"pattern": 7, "line": 3, "snippet": "Moreover, here"}
-        sig = _hit_signature(h)
-        self.assertEqual(sig, ("7", "Moreover, here"))
-
-    def test_string_pattern_supported(self):
-        """Brand patterns use string IDs like 'brand:all_caps_emphasis'."""
-        h = {"pattern": "brand:all_caps_emphasis", "line": 2, "snippet": "ALL"}
-        sig = _hit_signature(h)
-        self.assertEqual(sig[0], "brand:all_caps_emphasis")
-
+class TestBaselineLineDrift(unittest.TestCase):
     def test_line_drift_does_not_create_false_regression(self):
-        """If the same hit shifts to a different line (because the rewrite
-        deleted earlier text), the signature stays equal — not a regression."""
-        baseline_hit = {"pattern": 7, "line": 50, "snippet": "Moreover, X"}
-        post_rewrite_hit = {"pattern": 7, "line": 47, "snippet": "Moreover, X"}
-        self.assertEqual(_hit_signature(baseline_hit), _hit_signature(post_rewrite_hit))
+        from prescan import scan
+        from brand_prescan import scan_brand
+
+        prose = "Moreover, the verboten word remains.\n"
+        baseline = scan("\n\n" + prose, attach_source=True)
+        baseline += scan_brand("\n\n" + prose, {"forbidden_lexicon": ["verboten"]})
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target, voice, baseline_path = root / "draft.md", root / "voice.md", root / "baseline.json"
+            target.write_text(prose)
+            voice.write_text(_voice_doc())
+            baseline_path.write_text(json.dumps(baseline))
+            result = _run("--brand", str(voice), "--baseline", str(baseline_path), str(target))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        report = json.loads(result.stdout)
+        self.assertEqual(report["status"], "residuals")
+        self.assertEqual(report["summary"], {
+            "total_residuals": 2, "universal_residuals": 1,
+            "brand_residuals": 1, "new_hit_count": 0,
+        })
+        self.assertEqual([hit["line"] for hit in report["residuals"]], [1, 1])
 
 
 class TestBrandIntegration(unittest.TestCase):

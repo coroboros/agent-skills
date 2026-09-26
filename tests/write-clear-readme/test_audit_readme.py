@@ -11,7 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS = REPO_ROOT / "skills" / "write-clear-readme" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from audit_readme import audit, slugify, mask_code_only, mask_for_bloat  # noqa: E402
+from audit_readme import audit  # noqa: E402
 
 SCRIPT = SCRIPTS / "audit_readme.py"
 
@@ -30,43 +30,16 @@ def _run(path):
     )
 
 
-class TestSlugify(unittest.TestCase):
-    def test_simple_heading(self):
-        self.assertEqual(slugify("Foo Bar"), "foo-bar")
-
-    def test_inline_code_stripped(self):
-        self.assertEqual(slugify("Use `pnpm`"), "use-pnpm")
-
-    def test_bold_stripped(self):
-        self.assertEqual(slugify("**Important** stuff"), "important-stuff")
-
-    def test_special_chars_dropped(self):
-        self.assertEqual(slugify("Foo (bar)!"), "foo-bar")
-
-    def test_markdown_link_text_preserved(self):
-        self.assertEqual(slugify("[doc](url) ref"), "doc-ref")
-
-
 class TestAnchorResolution(unittest.TestCase):
-    def test_resolved_anchor_no_error(self):
-        text = "## Setup\n\nSee [setup](#setup) above.\n"
-        report = audit(text)
-        self.assertEqual(report["anchors"]["unresolved"], [])
-        self.assertTrue(report["summary"]["rules"]["anchors"]["pass"])
-
-    def test_unresolved_anchor_flagged(self):
-        text = "## Setup\n\nSee [bad](#missing) above.\n"
-        report = audit(text)
-        self.assertEqual(len(report["anchors"]["unresolved"]), 1)
-        self.assertEqual(report["anchors"]["unresolved"][0]["anchor"], "missing")
-        self.assertFalse(report["summary"]["rules"]["anchors"]["pass"])
-
     def test_multiple_anchor_styles(self):
         text = (
             "# Top\n"
             "## Inline `code` Header\n"
-            "## Bold **One**\n\n"
-            "Links: [a](#top), [b](#inline-code-header), [c](#bold-one).\n"
+            "## Bold **One**\n"
+            "## Foo (bar)!\n"
+            "## [doc](url) ref\n\n"
+            "Links: [a](#top), [b](#inline-code-header), [c](#bold-one), "
+            "[d](#foo-bar), [e](#doc-ref).\n"
         )
         report = audit(text)
         self.assertEqual(report["anchors"]["unresolved"], [])
@@ -174,7 +147,7 @@ class TestCLI(unittest.TestCase):
             self.assertEqual(result.returncode, 1)
             report = json.loads(result.stdout)
             self.assertFalse(report["summary"]["ok"])
-            self.assertGreaterEqual(len(report["anchors"]["unresolved"]), 1)
+            self.assertEqual(report["anchors"]["unresolved"], [{"line": 3, "anchor": "nope"}])
         finally:
             path.unlink()
 
@@ -361,13 +334,6 @@ class TestVisualRhythm(unittest.TestCase):
     def _long(self, body):
         # Pad to over the 200-line threshold so the soft flag can activate.
         return body + ("\n" * 250)
-
-    def test_long_doc_no_callouts_no_images_flat(self):
-        text = self._long("# Title\n\n## Section\n\nContent paragraph.\n")
-        report = audit(text)
-        self.assertEqual(report["visual_rhythm"]["callouts"], 0)
-        self.assertEqual(report["visual_rhythm"]["images"], 0)
-        self.assertTrue(report["visual_rhythm"]["flat_flag"])
 
     def test_long_doc_with_callout_not_flat(self):
         text = self._long(

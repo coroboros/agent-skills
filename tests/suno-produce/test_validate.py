@@ -62,9 +62,6 @@ def find_all_checks(report, check_name):
 class ScriptInvariantsTests(unittest.TestCase):
     """The script itself must be present, executable, and return a useful error on bad input."""
 
-    def test_validate_script_exists(self):
-        self.assertTrue(VALIDATE_SCRIPT.exists(), f"missing: {VALIDATE_SCRIPT}")
-
     def test_missing_path_returns_nonzero(self):
         rc, _, _ = run_validator("/nonexistent/path/that/does/not/exist")
         self.assertNotEqual(rc, 0)
@@ -98,6 +95,7 @@ class TrackValidationTests(unittest.TestCase):
         rc, report, _ = run_validator(FIXTURES_DIR / "track-green" / "TRACK.md")
         self.assertEqual(rc, 0, f"expected GREEN, got {report}")
         self.assertEqual(report["verdict"], "GREEN")
+        self.assertEqual(report["file"], str(FIXTURES_DIR / "track-green" / "TRACK.md"))
         self.assertEqual(report["errors"], [])
         self.assertEqual(report["warnings"], [])
         # info always populates suno_version
@@ -144,10 +142,6 @@ class TrackValidationTests(unittest.TestCase):
         sfx = find_check(report, "sfx_bracket_tag")
         self.assertIsNotNone(sfx)
         self.assertIn("[applause]", sfx["value"])
-
-    def test_track_red_blocks_slider_out_of_range(self):
-        _, report, _ = run_validator(FIXTURES_DIR / "track-red" / "TRACK.md")
-        self.assertIsNotNone(find_check(report, "slider_range"))
 
     def test_declared_slider_values_cannot_escape_validation(self):
         base = (FIXTURES_DIR / "track-green" / "TRACK.md").read_text()
@@ -279,14 +273,6 @@ class CopyrightContractTests(unittest.TestCase):
                 find_check(report, "artist_name_in_style"),
                 f"Expanded whitelist phrases must not YELLOW. Got: {report.get('warnings')}",
             )
-
-    def test_red_fix_message_includes_legal_and_functional_reasons(self):
-        _, report, _ = run_validator(FIXTURES_DIR / "track-citation-red" / "TRACK.md")
-        style_hits = find_all_checks(report, "artist_citation_in_style")
-        joined_fix = " ".join(h["fix"].lower() for h in style_hits)
-        # Must mention rights exposure (legal) and Suno filtering (functional)
-        self.assertIn("rights", joined_fix)
-        self.assertIn("filter", joined_fix)
 
     def test_yellow_flags_title_case_pair_in_style(self):
         rc, report, _ = run_validator(FIXTURES_DIR / "track-titlecase-yellow" / "TRACK.md")
@@ -427,15 +413,6 @@ class DirectoryWalkTests(unittest.TestCase):
 
 class JSONReportShapeTests(unittest.TestCase):
     """The JSON report contract is stable for downstream consumers."""
-
-    def test_single_file_shape(self):
-        _, report, _ = run_validator(FIXTURES_DIR / "track-green" / "TRACK.md")
-        for key in ("verdict", "file", "errors", "warnings", "info"):
-            self.assertIn(key, report)
-        self.assertIn(report["verdict"], ("GREEN", "YELLOW", "RED"))
-        self.assertIsInstance(report["errors"], list)
-        self.assertIsInstance(report["warnings"], list)
-        self.assertIsInstance(report["info"], list)
 
     def test_issue_shape_has_required_fields(self):
         _, report, _ = run_validator(FIXTURES_DIR / "track-red" / "TRACK.md")

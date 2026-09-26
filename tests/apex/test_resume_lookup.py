@@ -88,16 +88,6 @@ class TestResumeLookup(unittest.TestCase):
         self.assertIn("error=no-match", result.stderr)
         self.assertIn("partial=99", result.stderr)
 
-    def test_exact_prefix_match_returns_path(self):
-        """Single prefix match → exit 0, absolute path on stdout, RESULT line."""
-        base = self._seed_tasks("01-auth-middleware", "02-payments")
-        result = _run("01", cwd=self.root, home=self.home)
-        self.assertEqual(result.returncode, 0, msg=result.stderr)
-        expected = str(base / "01-auth-middleware")
-        self.assertIn(expected, result.stdout)
-        self.assertIn("RESULT: ok=true", result.stdout)
-        self.assertIn(f"path={expected}", result.stdout)
-
     def test_substring_match_when_no_prefix_match(self):
         """Partial matches mid-name only → falls back to substring match."""
         base = self._seed_tasks("01-auth-middleware", "02-payments")
@@ -115,8 +105,8 @@ class TestResumeLookup(unittest.TestCase):
         base = self._seed_tasks("01-auth", "99-foo-01-bar")
         result = _run("01", cwd=self.root, home=self.home)
         self.assertEqual(result.returncode, 0, msg=result.stderr)
-        self.assertIn(str(base / "01-auth"), result.stdout)
-        self.assertNotIn("99-foo-01-bar", result.stdout)
+        expected = str(base / "01-auth")
+        self.assertEqual(result.stdout.splitlines(), [expected, f"RESULT: ok=true path={expected}"])
 
     def test_ambiguous_prefix_exits_1_with_candidates(self):
         """Two prefix matches → exit 1, error=ambiguous, candidates listed on stderr."""

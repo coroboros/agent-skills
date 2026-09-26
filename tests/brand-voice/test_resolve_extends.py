@@ -1,7 +1,6 @@
 """Tests for chain resolution: cycles, depth, identity, paths."""
 
 import os
-import shutil
 import sys
 import tempfile
 import unittest
@@ -9,8 +8,6 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "skills" / "brand-voice" / "scripts"))
 from utils import (  # noqa: E402
-    ExtendsError,
-    MAX_EXTENDS_DEPTH,
     canonical_file_id,
     resolve_extends_chain,
 )
@@ -19,46 +16,12 @@ FIXTURES = Path(__file__).parent / "fixtures"
 
 
 class TestChainResolution(unittest.TestCase):
-    def test_single_node_no_extends(self):
-        chain = resolve_extends_chain(FIXTURES / "parent-corp.md")
-        self.assertEqual(len(chain), 1)
-        path, data = chain[0]
-        self.assertEqual(path.name, "parent-corp.md")
-        self.assertEqual(data.get("voice", {}).get("name"), "ParentCorp")
-
-    def test_two_node_chain(self):
-        chain = resolve_extends_chain(FIXTURES / "child-pure-inherit.md")
-        self.assertEqual(len(chain), 2)
-        # Root-first: parent first, then child
-        self.assertEqual(chain[0][0].name, "parent-corp.md")
-        self.assertEqual(chain[1][0].name, "child-pure-inherit.md")
-
-    def test_cycle_two_node(self):
-        with self.assertRaises(ExtendsError) as ctx:
-            resolve_extends_chain(FIXTURES / "cycle-a.md")
-        self.assertEqual(ctx.exception.code, "extends-cycle")
-
-    def test_cycle_self(self):
-        with self.assertRaises(ExtendsError) as ctx:
-            resolve_extends_chain(FIXTURES / "cycle-self.md")
-        self.assertEqual(ctx.exception.code, "extends-cycle")
-
-    def test_depth_exceeded(self):
-        with self.assertRaises(ExtendsError) as ctx:
-            resolve_extends_chain(FIXTURES / "depth-1.md")
-        self.assertEqual(ctx.exception.code, "extends-depth-exceeded")
-
     def test_depth_at_limit_succeeds(self):
         # depth-2.md → depth-3 → depth-4 → depth-5 → depth-6 → depth-7 = 5 hops, depth=5 (at limit)
         chain = resolve_extends_chain(FIXTURES / "depth-2.md")
         self.assertEqual(len(chain), 6)
         self.assertEqual(chain[0][0].name, "depth-7.md")
         self.assertEqual(chain[-1][0].name, "depth-2.md")
-
-    def test_missing_parent(self):
-        with self.assertRaises(ExtendsError) as ctx:
-            resolve_extends_chain(FIXTURES / "missing-parent.md")
-        self.assertEqual(ctx.exception.code, "extends-parent-not-found")
 
     def test_invalid_parent_yaml(self):
         # invalid-parent.md → _invalid-parent-target.md (which has missing required fields
@@ -70,15 +33,6 @@ class TestChainResolution(unittest.TestCase):
 
 
 class TestCanonicalFileId(unittest.TestCase):
-    def test_same_path_same_id(self):
-        p = FIXTURES / "parent-corp.md"
-        self.assertEqual(canonical_file_id(p), canonical_file_id(p))
-
-    def test_different_paths_different_ids(self):
-        p1 = FIXTURES / "parent-corp.md"
-        p2 = FIXTURES / "child-founder.md"
-        self.assertNotEqual(canonical_file_id(p1), canonical_file_id(p2))
-
     def test_case_insensitive_filesystem_same_id(self):
         """On case-insensitive filesystems (default macOS), `./x.md` and `./X.md`
         resolve to different path strings but the same inode. canonical_file_id

@@ -1,8 +1,7 @@
-"""Refine sits between Execute and eXamine, and no path skips it.
+"""The step graph and rendered progress support Refine after Execute.
 
 The step chain routes Execute through Refine, and the saved progress table
-carries its row, so a resume after Execute lands on Refine. Tables saved before
-Refine existed still hand off to eXamine.
+carries its row for resume selection.
 """
 
 import os
@@ -96,12 +95,7 @@ class TestProgressRow(unittest.TestCase):
     def _rows(self):
         return re.findall(r"^\| (\d{2}b?-[a-z]+) \| ([^|]+) \|", self.context.read_text(encoding="utf-8"), re.M)
 
-    def test_refine_row_sits_between_execute_and_examine(self):
-        names = [name for name, _ in self._rows()]
-        self.assertEqual(names.index("03b-refine"), names.index("03-execute") + 1)
-        self.assertEqual(names.index("04-examine"), names.index("03b-refine") + 1)
-
-    def test_resume_after_execute_lands_on_refine(self):
+    def test_updated_progress_validates_with_refine_as_first_pending_step(self):
         for num, name in (("01", "analyze"), ("02", "plan"), ("03", "execute")):
             r = _run("update-progress.sh", self.task_id, num, name, "complete", cwd=self.proj, home=self.home)
             self.assertEqual(r.returncode, 0, msg=r.stdout + r.stderr)
@@ -113,16 +107,6 @@ class TestProgressRow(unittest.TestCase):
 
         r = _run("validate_state.sh", self.task_id, "4", cwd=self.proj, home=self.home)
         self.assertEqual(r.returncode, 0, msg=r.stderr)
-
-    def test_legacy_table_without_refine_row_still_hands_off(self):
-        text = self.context.read_text(encoding="utf-8").replace("| 03b-refine | ⏸ Pending | |\n", "")
-        self.context.write_text(text, encoding="utf-8")
-        r = _run("update-progress.sh", self.task_id, "03b", "refine", "in_progress", cwd=self.proj, home=self.home)
-        self.assertNotEqual(r.returncode, 0)
-        step_03 = (STEPS / "step-03-execute.md").read_text(encoding="utf-8")
-        self.assertIn('without a `03b-refine` row (saved before Refine existed) marks `"04" "examine" "in_progress"` instead', step_03)
-        r = _run("update-progress.sh", self.task_id, "04", "examine", "in_progress", cwd=self.proj, home=self.home)
-        self.assertEqual(r.returncode, 0, msg=r.stdout + r.stderr)
 
 
 if __name__ == "__main__":

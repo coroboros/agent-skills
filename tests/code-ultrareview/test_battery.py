@@ -113,7 +113,8 @@ def _run_battery(
     axes: Optional[str] = None,
     dry_run: bool = False,
     env: Optional[dict[str, str]] = None,
-    timeout: int = 20,
+    # Bound the whole CLI and its subprocesses, independently of analyzer deadlines.
+    timeout: int = 60,
 ) -> subprocess.CompletedProcess:
     args = [
         "bash", str(BATTERY), "--scope", str(scope), "--output-dir",
@@ -256,8 +257,8 @@ class TestInputAndDispatch(unittest.TestCase):
             stale.write_text('{"message":"stale"}\n', encoding="utf-8")
             result = _run_battery(repo, scope, output_dir=output)
             state = json.loads(scope.read_text(encoding="utf-8"))
+            self.assertFalse(stale.exists())
         self.assertEqual(result.returncode, 2)
-        self.assertFalse(stale.exists())
         self.assertFalse(state["tool_coverage"]["complete"])
         self.assertFalse(state["coverage_complete"])
 
@@ -366,8 +367,8 @@ class TestPreflightAndResolution(unittest.TestCase):
             result = _run_battery(repo, scope, bin_dir=bin_dir)
             state = json.loads(scope.read_text(encoding="utf-8"))
             plan = json.loads((repo / "out" / "tool-preflight.json").read_text())
+            self.assertFalse(marker.exists())
         self.assertEqual(result.returncode, 3)
-        self.assertFalse(marker.exists())
         self.assertEqual(_names(plan, "missing"), {"oasdiff"})
         self.assertEqual({entry["tool"] for entry in state["tools_missing"]}, {"oasdiff"})
         self.assertFalse(state["tool_coverage"]["complete"])
@@ -422,9 +423,9 @@ class TestPreflightAndResolution(unittest.TestCase):
             )
             state = json.loads(scope.read_text(encoding="utf-8"))
             invocation = analyzer_log.read_text(encoding="utf-8")
+            self.assertFalse(manager_log.exists())
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--config", invocation)
-        self.assertFalse(manager_log.exists())
         self.assertEqual(state["tool_coverage"]["executed"], ["markdownlint-cli2"])
         self.assertTrue(state["tool_coverage"]["complete"])
 
@@ -904,9 +905,9 @@ class TestAnalyzerExecution(unittest.TestCase):
                 repo, scope, bin_dir=bin_dir, axes="performance"
             )
             state = json.loads(scope.read_text(encoding="utf-8"))
+            self.assertFalse((repo / "out" / "tool-findings.jsonl").exists())
         self.assertEqual(result.returncode, 4)
         self.assertIn("could not be published atomically", result.stderr)
-        self.assertFalse((repo / "out" / "tool-findings.jsonl").exists())
         self.assertFalse(state["tool_coverage"]["complete"])
 
 

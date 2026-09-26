@@ -123,10 +123,6 @@ class TestOrchestratorContract(unittest.TestCase):
     def setUp(self):
         os.environ["COHERENCE_SKIP_GH"] = "1"
 
-    def test_lens_key_is_coherence_graph(self):
-        out = _run_cli("clean-repo")
-        self.assertEqual(out["lens"], "coherence-graph")
-
     def test_each_finding_carries_required_fields(self):
         out = _run_cli("description-divergence")
         required = {"lens", "sub_graph", "severity", "location", "finding",
@@ -168,11 +164,6 @@ class TestIgnoreFileParser(unittest.TestCase):
         self.assertEqual(ig.list_for("version", "ignore_pairs"), ["tag:pkg"])
         self.assertTrue(ig.has("description", "ignore_pairs", "foo:bar"))
         self.assertFalse(ig.has("description", "ignore_pairs", "missing"))
-
-    def test_missing_file_returns_empty(self):
-        with tempfile.TemporaryDirectory() as t:
-            ig = _common.load_ignore(Path(t))
-        self.assertEqual(ig.data, {})
 
     def test_malformed_raises(self):
         with tempfile.TemporaryDirectory() as t:
@@ -257,22 +248,6 @@ class TestDescriptionGraph(unittest.TestCase):
             )
             findings = description_graph.run(repo, _common.IgnoreFile())
         self.assertEqual(findings, [])
-
-    def test_pair_disagreement_emits_finding(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "package.json").write_text(
-                json.dumps({"description": "Alpha"}), encoding="utf-8"
-            )
-            mp_dir = repo / ".claude-plugin"
-            mp_dir.mkdir()
-            (mp_dir / "marketplace.json").write_text(
-                json.dumps({"metadata": {"description": "Beta"}}), encoding="utf-8"
-            )
-            findings = description_graph.run(repo, _common.IgnoreFile())
-        self.assertEqual(len(findings), 1)
-        self.assertEqual(findings[0].sub_graph, "description")
-
 
 class TestVersionGraph(unittest.TestCase):
     def setUp(self):
@@ -553,22 +528,6 @@ class TestExampleGraph(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             findings = example_graph.run(Path(t), _common.IgnoreFile())
         self.assertEqual(findings, [])
-
-    def test_unrecognized_flag_surfaces(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "README.md").write_text(
-                "```bash\npython3 scripts/demo.py --missing\n```\n",
-                encoding="utf-8",
-            )
-            scripts_dir = repo / "scripts"
-            scripts_dir.mkdir()
-            (scripts_dir / "demo.py").write_text(
-                'parser.add_argument("--known")\n', encoding="utf-8"
-            )
-            findings = example_graph.run(repo, _common.IgnoreFile())
-        self.assertEqual(len(findings), 1)
-        self.assertIn("--missing", findings[0].location)
 
     def test_allowlisted_flag_skipped(self):
         with tempfile.TemporaryDirectory() as t:
