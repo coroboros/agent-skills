@@ -102,7 +102,7 @@ See `.claude-plugin/marketplace.json` for the authoritative per-plugin skill lis
 ```
 coroboros/agent-skills/
 ├── README.md              # User-facing — install, skills table, pipeline
-├── AGENTS.md              # Agent-facing index — canonical rules + at-a-glance
+├── AGENTS.md              # Agent-facing constraints, rule index, validation and release
 ├── CLAUDE.md              # Thin Claude Code entrypoint — imports AGENTS.md
 ├── LICENSE.md
 ├── .agents/
@@ -125,26 +125,13 @@ coroboros/agent-skills/
 
 ## Testing
 
-Unit tests live at the repo root in `tests/<skill-name>/`, **never** inside skill folders. Rationale: `skills.sh` and Claude Code's plugin marketplace copy the entire `skills/<name>/` directory to the user's machine on install — tests inside that tree become install bloat the user pays for and never runs.
+Automated tests live in `tests/<skill-name>/`; repository-wide checks live in `tests/_meta/`. Keep them outside skill folders so installations do not include development tests and fixtures.
 
 ```
 tests/
-├── _meta/                            # Universal cross-skill tests
-│   ├── _helpers.py
-│   ├── test_skill_frontmatter.py
-│   ├── test_skill_structure.py
-│   ├── test_marketplace.py
-│   ├── test_readme_parity.py
-│   ├── test_evals_shape.py           # JSON schema for evals/evals.json
-│   ├── test_evals_content_sampling.py # refuse/escalate + reference routing
-│   ├── test_helpers_contract.py      # _helpers.py public API stability
-│   └── test_performance_budget.py    # hot-path runtime ceilings
-├── _pipeline/                        # Cross-skill cluster integration
-│   ├── _contracts.py                 # SSOT for `-f` schema keys per cluster
-│   ├── fixtures/                     # Producer→consumer fixtures
-│   └── test_*.py
+├── _meta/                            # Repository-wide contracts
 └── <skill-name>/
-    ├── __init__.py                   # Empty marker
+    ├── __init__.py                   # Required for unittest discovery
     ├── fixtures/                     # Optional test inputs
     └── test_*.py
 ```
@@ -154,7 +141,15 @@ tests/
 
 Stdlib `unittest` only — no pytest, no third-party deps. Shell scripts are tested via `subprocess.run`. Tests requiring optional CLIs (`ffmpeg`, `pnpm`, `markitdown`) use `@unittest.skipUnless(shutil.which("…"), …)` so the suite passes on any contributor's machine regardless of installed tooling.
 
-**Distinction from `evals/`** — the `skill-creator` flow places LLM behavioral evaluations (`evals/evals.json`) inside the skill folder; that's user-facing documentation of expected behavior. Unit tests of bundled scripts are dev infrastructure and live outside, never installed.
+### Test value and coverage
+
+- Choose tests by the behavior they protect and the evidence they add, at the smallest useful level. Unit and static checks remain appropriate for algorithms, schemas, installation boundaries, and canonical-copy parity.
+- Derive expected outcomes from the contract or a demonstrated defect. Observe outputs and side effects; avoid checks that only pin incidental prose, copied constants, source spelling, or a duplicate implementation of the expected result.
+- Before removing or merging a test, preserve any distinct regression it guards. Replace a brittle check when the behavior still needs coverage. Claim redundancy only against an executed test that detects the same defect; an E2E label alone is not evidence.
+- Stubs may supply dependencies and observations while production code performs the behavior under test. Cross-skill integration checks run the actual producer and consumer; place them with the consumer. Report the scope of stubbed checks accurately, including unverified browser, external-tool, or host behavior.
+- Check filesystem effects before fixture cleanup. Synchronize asynchronous tests on readiness and guarantee cleanup on failure. Separate hang guards from measured performance or termination requirements; investigate timeout failures before changing either.
+
+Behavioral cases in `skills/<name>/evals/evals.json` describe expected skill behavior. A schema check or the presence of a case does not prove that behavior was executed. Use the evaluation workflow in [skill-authoring.md](./skill-authoring.md#verification) for that evidence.
 
 ## CI
 

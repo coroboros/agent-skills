@@ -328,10 +328,10 @@ class TestMutationGate(unittest.TestCase):
                 _scope(repo, ["src/app.py"], ["python"]),
                 env={**os.environ, "PATH": "/usr/bin:/bin"},
             )
+            self.assertFalse((output / "mutation-findings.jsonl").exists())
         self.assertEqual(result.returncode, 3)
         self.assertIn("project's test environment", result.stderr)
         self.assertIn("command -v mutmut", result.stderr)
-        self.assertFalse((output / "mutation-findings.jsonl").exists())
 
     def test_declared_stryker_never_falls_back_to_global_binary(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -448,9 +448,9 @@ class TestMutationGate(unittest.TestCase):
                 _scope(repo, ["src/app.py"], ["python"]),
                 env=self._mutmut(repo, ""),
             )
+            self.assertFalse((output / "mutation-findings.jsonl").exists())
         self.assertEqual(result.returncode, 4)
         self.assertIn("zero evaluated mutants", result.stderr)
-        self.assertFalse((output / "mutation-findings.jsonl").exists())
 
     def test_mutmut_survivor_maps_to_changed_file(self):
         results = (MUTATION_FIXTURES / "mutmut-results.txt").read_text()
@@ -504,9 +504,9 @@ class TestMutationGate(unittest.TestCase):
                 _scope(repo, ["src/app.py"], ["python"]),
                 env=self._mutmut(repo, "app.x__mutmut_1: skipped\n"),
             )
+            self.assertFalse((output / "mutation-findings.jsonl").exists())
         self.assertEqual(result.returncode, 4)
         self.assertIn("incomplete mutmut results", result.stderr)
-        self.assertFalse((output / "mutation-findings.jsonl").exists())
 
     def test_pitest_maps_multi_module_reports(self):
         xml = (
@@ -556,6 +556,47 @@ class TestMutationGate(unittest.TestCase):
 
 
 class TestProcessTimeout(unittest.TestCase):
+    @staticmethod
+    def _child_pid(ready):
+        try:
+            pid = int(ready.read_text())
+        except (FileNotFoundError, ValueError):
+            return None
+        return pid if pid > 1 else None
+
+    def _wait_for_child(self, process, ready):
+        # Bound startup separately from the signal-response deadline below.
+        deadline = time.monotonic() + 30
+        while time.monotonic() < deadline:
+            pid = self._child_pid(ready)
+            if pid is not None:
+                return pid
+            if process.poll() is not None:
+                break
+            time.sleep(0.05)
+        self.fail("child did not start")
+
+    def _cleanup_process(self, process, ready, child_pid):
+        try:
+            if process.poll() is None:
+                process.terminate()
+            process.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            process.kill()
+        finally:
+            # The child owns a separate session, so killing the runner is not enough.
+            child_pid = child_pid or self._child_pid(ready)
+            if child_pid is not None:
+                try:
+                    os.killpg(child_pid, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
+            try:
+                process.communicate(timeout=10)
+            finally:
+                process.stdout.close()
+                process.stderr.close()
+
     def test_timeout_terminates_descendants(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -585,7 +626,7 @@ class TestProcessTimeout(unittest.TestCase):
             child = _executable(
                 root / "child.sh",
                 'trap \'printf forwarded > "$1"; exit 0\' TERM\n'
-                'printf ready > "$2"\n'
+                'printf "%s" "$$" > "$2"\n'
                 'while :; do sleep 1; done',
             )
             process = subprocess.Popen(
@@ -597,13 +638,14 @@ class TestProcessTimeout(unittest.TestCase):
                 stderr=subprocess.PIPE,
                 text=True,
             )
-            deadline = time.time() + 3
-            while not ready.exists() and time.time() < deadline:
-                time.sleep(0.05)
-            self.assertTrue(ready.exists(), "child did not start")
-            os.kill(process.pid, signal.SIGTERM)
-            process.communicate(timeout=5)
-            forwarded = marker.exists()
+            child_pid = None
+            try:
+                child_pid = self._wait_for_child(process, ready)
+                os.kill(process.pid, signal.SIGTERM)
+                process.communicate(timeout=5)
+                forwarded = marker.exists()
+            finally:
+                self._cleanup_process(process, ready, child_pid)
         self.assertTrue(forwarded)
         self.assertEqual(process.returncode, 143)
 
@@ -616,7 +658,7 @@ class TestProcessTimeout(unittest.TestCase):
                 root / "child.sh",
                 "trap '' TERM\n"
                 '(sleep 3; printf leaked > "$1") &\n'
-                'printf ready > "$2"\n'
+                'printf "%s" "$$" > "$2"\n'
                 "wait",
             )
             process = subprocess.Popen(
@@ -628,16 +670,17 @@ class TestProcessTimeout(unittest.TestCase):
                 stderr=subprocess.PIPE,
                 text=True,
             )
-            deadline = time.time() + 3
-            while not ready.exists() and time.time() < deadline:
-                time.sleep(0.05)
-            self.assertTrue(ready.exists(), "child did not start")
-            started = time.monotonic()
-            os.kill(process.pid, signal.SIGTERM)
-            process.communicate(timeout=5)
-            elapsed = time.monotonic() - started
-            time.sleep(1.1)
-            leaked = marker.exists()
+            child_pid = None
+            try:
+                child_pid = self._wait_for_child(process, ready)
+                started = time.monotonic()
+                os.kill(process.pid, signal.SIGTERM)
+                process.communicate(timeout=5)
+                elapsed = time.monotonic() - started
+                time.sleep(1.1)
+                leaked = marker.exists()
+            finally:
+                self._cleanup_process(process, ready, child_pid)
         self.assertEqual(process.returncode, 143)
         self.assertLess(elapsed, 4)
         self.assertFalse(leaked)

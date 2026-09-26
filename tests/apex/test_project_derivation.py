@@ -3,9 +3,9 @@
 Two contracts, both load-bearing and previously unverified (code-review
 finding #1 + #2):
 
-1. The bash kebab (`basename | tr lower | tr -cs a-z0-9 - | sed strip`) must
-   match the documented behavior on adversarial repo basenames, including the
-   empty case → `unnamed` (a basename with zero [a-z0-9] used to yield an
+1. Project names must match the documented behavior on adversarial repo
+   basenames, including the empty case → `unnamed` (a basename with zero
+   [a-z0-9] used to yield an
    empty segment and a malformed/colliding path).
 2. The four apex scripts MUST derive an IDENTICAL `{project}` for the same
    root — `setup-templates.sh:35-37` states this as a contract ("divergence
@@ -29,7 +29,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 APEX_SCRIPTS = REPO_ROOT / "skills" / "apex" / "scripts"
 BASH = shutil.which("bash") or "/bin/bash"
 
-# Basename → expected {project}. Mirrors the bash pipeline + the empty fallback.
+# Basename → expected output directory segment.
 CASES = {
     "agent-skills": "agent-skills",
     "My Repo": "my-repo",
@@ -43,10 +43,6 @@ CASES = {
 }
 
 _SEG = re.compile(r"/\.agents/output/([^/\s]+)/apex")
-
-
-def _expected(name: str) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", name.lower()).strip("-") or "unnamed"
 
 
 def _run(script: str, *args, cwd: Path, home: Path):
@@ -65,14 +61,6 @@ def _project_from(text: str):
 
 
 class TestKebabDerivation(unittest.TestCase):
-    """The Python mirror (`CASES`) and the real bash must agree, via the
-    canonical producer setup-templates.sh, for every adversarial basename."""
-
-    def test_cases_match_python_mirror(self):
-        for name, expected in CASES.items():
-            self.assertEqual(_expected(name), expected,
-                             f"mirror disagrees for {name!r}")
-
     def test_setup_templates_derives_documented_project(self):
         for name, expected in CASES.items():
             with self.subTest(basename=name), tempfile.TemporaryDirectory() as t:
@@ -111,7 +99,7 @@ class TestSiblingConsistency(unittest.TestCase):
         return _project_from(r.stdout + r.stderr)
 
     def test_four_scripts_agree(self):
-        expected = _expected(self.NAME)  # → my-weird-repo
+        expected = "my-weird-repo"
         with tempfile.TemporaryDirectory() as t:
             derived = {
                 "setup-templates.sh": self._proj(
@@ -131,8 +119,6 @@ class TestSiblingConsistency(unittest.TestCase):
                 f"{script} derived {proj!r}, expected {expected!r} — "
                 f"sibling-consistency contract broken",
             )
-        self.assertEqual(len(set(derived.values())), 1,
-                         f"scripts disagree: {derived}")
 
 
 if __name__ == "__main__":

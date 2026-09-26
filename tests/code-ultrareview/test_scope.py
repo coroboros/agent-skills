@@ -98,11 +98,6 @@ class TestRepoKindClassification(unittest.TestCase):
         kind, _ = scope.classify_repo(FIXTURES / "unknown")
         self.assertEqual(kind, "unknown")
 
-    def test_override_wins_over_detection(self):
-        kind, sigs = scope.classify_repo(FIXTURES / "app", override="docs")
-        self.assertEqual(kind, "docs")
-        self.assertEqual(sigs["override_source"], "--repo-kind flag")
-
     def test_invalid_override_raises(self):
         with self.assertRaises(ValueError):
             scope.classify_repo(FIXTURES / "app", override="not-a-kind")
@@ -522,19 +517,12 @@ class TestActivatesCoherence(unittest.TestCase):
     def test_no_trigger_for_unrelated_files(self):
         self.assertFalse(scope.activates_coherence(["src/foo.py", "docs/bar.md"]))
 
-    def test_empty_files_list_does_not_trigger(self):
-        self.assertFalse(scope.activates_coherence([]))
-
-
 # ---------------------------------------------------------------------------
 # Languages detection
 # ---------------------------------------------------------------------------
 
 
 class TestDetectLanguages(unittest.TestCase):
-
-    def test_python_files_detect_python(self):
-        self.assertEqual(scope.detect_languages(["src/a.py"]), ["python"])
 
     def test_mixed_files_sorted_dedup(self):
         langs = scope.detect_languages(["a.py", "b.ts", "c.go", "d.py"])

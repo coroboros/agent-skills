@@ -94,9 +94,6 @@ class TestSentenceNorms(unittest.TestCase):
         self.assertIn(norms["exclamation_marks"], {"allow", "forbid"})
         self.assertEqual(norms["em_dash_spacing"], "tight")
 
-    def test_thin_corpus_returns_none(self):
-        self.assertIsNone(to_sentence_norms(measure(_read("corpus-thin.md"))))
-
     def test_threshold_boundary(self):
         stats = measure(_read("corpus-measurable.md"))
         n = stats["sentence_count"]
@@ -130,19 +127,6 @@ class TestSentenceNorms(unittest.TestCase):
         self.assertIsNotNone(norms)
         self.assertIn("oxford_comma", norms)
         self.assertFalse(norms["oxford_comma"])
-
-
-class TestDeterminism(unittest.TestCase):
-    def test_same_input_identical_output(self):
-        text = _read("corpus-measurable.md")
-        self.assertEqual(measure(text), measure(text))
-
-    def test_cli_output_stable(self):
-        args = [sys.executable, str(SCRIPT), str(FIXTURES / "corpus-measurable.md")]
-        a = subprocess.run(args, capture_output=True, text=True)
-        b = subprocess.run(args, capture_output=True, text=True)
-        self.assertEqual(a.returncode, 0)
-        self.assertEqual(a.stdout, b.stdout)
 
 
 class TestCLI(unittest.TestCase):

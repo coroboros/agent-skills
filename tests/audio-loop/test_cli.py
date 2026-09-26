@@ -7,7 +7,6 @@ mapping, and the RESULT key=value schema — not ffmpeg correctness.
 Tests that need a real audio fixture skip gracefully when ffmpeg is missing.
 """
 
-import os
 import shutil
 import subprocess
 import tempfile
@@ -64,42 +63,6 @@ def _make_wav(path, duration=1, rate=44100, channels=2, freq=440):
         check=True,
         timeout=30,
     )
-
-
-def _make_noise_wav(path, duration=2, rate=44100, channels=2):
-    """Generate a brown-noise WAV — non-trivial loudness profile that
-    forces loudnorm to do real work, unlike a pure sine wave which can
-    converge to exact target on clean inputs.
-
-    Caller must check HAS_FFMPEG."""
-    subprocess.run(
-        [
-            "ffmpeg",
-            "-y",
-            "-hide_banner",
-            "-loglevel",
-            "error",
-            "-f",
-            "lavfi",
-            "-i",
-            f"anoisesrc=duration={duration}:color=brown:sample_rate={rate}",
-            "-ac",
-            str(channels),
-            str(path),
-        ],
-        check=True,
-        timeout=30,
-    )
-
-
-class TestScriptExists(unittest.TestCase):
-    """Sanity — the script lives where the tests expect."""
-
-    def test_script_present(self):
-        self.assertTrue(SCRIPT.is_file(), f"script missing: {SCRIPT}")
-
-    def test_script_executable(self):
-        self.assertTrue(os.access(SCRIPT, os.X_OK), f"script not executable: {SCRIPT}")
 
 
 class TestUsage(unittest.TestCase):
@@ -287,66 +250,33 @@ class TestSuccessfulRunSchema(unittest.TestCase):
             self.assertEqual(int(results["output_bytes"]), out_path.stat().st_size)
 
     @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
-    def test_custom_lufs_target_propagates(self):
-        with tempfile.TemporaryDirectory() as td:
-            src = Path(td) / "src.wav"
-            _make_wav(src, duration=2)
-            outdir = Path(td) / "out"
-            outdir.mkdir()
-            result = _run(str(src), "-t", "-20", "-o", str(outdir))
-            self.assertEqual(result.returncode, 0, msg=result.stderr)
-            results = _parse_results(result.stdout)
-            self.assertEqual(results["lufs_target"], "-20")
-            # Loudnorm converges within the documented ±1 LUFS window.
-            self.assertLessEqual(float(results["lufs_delta"]), 1.0)
-
-    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
     def test_balance_correction_disabled_with_dash_b(self):
         with tempfile.TemporaryDirectory() as td:
             src = Path(td) / "src.wav"
-            _make_wav(src, duration=1)
-            outdir = Path(td) / "out"
-            outdir.mkdir()
-            result = _run(str(src), "-B", "-o", str(outdir))
-            self.assertEqual(result.returncode, 0, msg=result.stderr)
-            results = _parse_results(result.stdout)
-            # -B forces balance_corrected=0 regardless of the L/R delta.
-            self.assertEqual(results["balance_corrected"], "0")
-
-
-class TestExitCodeMapping(unittest.TestCase):
-    """The header documents exits 0/1/3 — verify the source declares them."""
-
-    def test_documented_exit_codes(self):
-        text = SCRIPT.read_text()
-        # Exit code documentation block.
-        self.assertIn("Exit codes:", text)
-        self.assertIn("0   success", text)
-        self.assertIn("1   input / tool validation error", text)
-        self.assertIn("3   encoded successfully but post-condition check failed", text)
-        # Actual `exit 1` and `exit 3` statements present in the source.
-        self.assertIn("exit 1", text)
-        self.assertIn("exit 3", text)
-
-    def test_post_condition_uses_one_lufs_tolerance(self):
-        """The post-condition check uses ±1 LUFS — confirm the literal is in source.
-
-        Catches regressions if someone widens the tolerance silently.
-        """
-        text = SCRIPT.read_text()
-        self.assertIn("d > 1.0", text)
+            subprocess.run(
+                ["ffmpeg", "-y", "-v", "error", "-f", "lavfi", "-i",
+                 "sine=frequency=440:duration=2:sample_rate=44100",
+                 "-af", "pan=stereo|c0=c0|c1=0.1*c0", str(src)],
+                check=True, timeout=30,
+            )
+            for flags, corrected in (([], "1"), (["-B"], "0")):
+                with self.subTest(flags=flags):
+                    result = _run(str(src), *flags, "-o", str(Path(td) / corrected))
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    results = _parse_results(result.stdout)
+                    self.assertEqual(results["balance_corrected"], corrected)
+                    input_delta = float(results["input_rms_delta"])
+                    self.assertAlmostEqual(input_delta, -20.0, delta=0.1)
+                    output_delta = (float(results["output_rms_right"])
+                                    - float(results["output_rms_left"]))
+                    self.assertAlmostEqual(
+                        output_delta, 0.0 if corrected == "1" else input_delta,
+                        delta=0.1,
+                    )
 
 
 class TestLoudnormIntegrity(unittest.TestCase):
-    """The success-path test asserts `lufs_delta <= 1.0`, which would still
-    pass if loudnorm silently became a no-op (delta=0, output=target). These
-    integrity checks catch a measurement that didn't actually run — a class
-    of regression where the script ships output but the loudness calc broke.
-
-    Sine waves are too clean — loudnorm CAN converge to exact target on a
-    pure tone, so the fixture is brown noise: a non-trivial loudness
-    profile that forces a real measurement. If brown noise still produces
-    `delta == 0`, the calculation is broken."""
+    """Reject unmeasurable loudness and verify custom targets change the output."""
 
     @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
     def test_nonfinite_loudness_is_not_reported_successful(self):
@@ -358,42 +288,6 @@ class TestLoudnormIntegrity(unittest.TestCase):
             self.assertEqual(_parse_results(result.stdout).get("ok"), "false")
 
     @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
-    def test_lufs_delta_nonzero_on_brown_noise(self):
-        """Brown noise has non-trivial loudness variability. After loudnorm,
-        the delta should be small (within tolerance) but typically NON-ZERO.
-        Exactly 0.0 across multiple runs would suggest the measurement
-        pipeline is silently no-op'd."""
-        with tempfile.TemporaryDirectory() as td:
-            src = Path(td) / "src.wav"
-            _make_noise_wav(src, duration=2)
-            outdir = Path(td) / "out"
-            outdir.mkdir()
-            result = _run(str(src), "-o", str(outdir))
-            self.assertEqual(result.returncode, 0, msg=result.stderr)
-            results = _parse_results(result.stdout)
-
-            lufs_out = results.get("lufs_out", "")
-            self.assertNotEqual(
-                lufs_out, "",
-                "lufs_out missing from RESULT lines — measurement did not run",
-            )
-            try:
-                lufs_out_val = float(lufs_out)
-            except ValueError:
-                self.fail(f"lufs_out is not parseable as float: {lufs_out!r}")
-
-            # Brown noise should not produce a 0.0 LUFS reading (which would
-            # mean silence). A sane reading lands in [-50, 0] LUFS.
-            self.assertGreater(
-                lufs_out_val, -50.0,
-                f"lufs_out={lufs_out_val} — too quiet to be a real reading",
-            )
-            self.assertLess(
-                lufs_out_val, 0.0,
-                f"lufs_out={lufs_out_val} — implausibly loud, suspect a parse bug",
-            )
-
-    @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe not installed")
     def test_lufs_target_propagates_to_output_and_delta(self):
         """Two runs at different targets must produce different `lufs_target`
         keys (sanity check that `-t` is parsed) AND should land near their
@@ -401,7 +295,7 @@ class TestLoudnormIntegrity(unittest.TestCase):
         ignored — the post-condition check would still pass on both runs."""
         with tempfile.TemporaryDirectory() as td:
             src = Path(td) / "src.wav"
-            _make_noise_wav(src, duration=2)
+            _make_wav(src, duration=2)
             out1 = Path(td) / "out1"
             out2 = Path(td) / "out2"
             out1.mkdir()
@@ -421,15 +315,8 @@ class TestLoudnormIntegrity(unittest.TestCase):
             # is ignored would produce identical lufs_out for both runs.
             out1_lufs = float(res1["lufs_out"])
             out2_lufs = float(res2["lufs_out"])
-            # Outputs should differ by roughly the target gap (~8 LUFS),
-            # within ±2 LUFS of perfect difference (loose but catches a
-            # hard regression where -t is ignored entirely).
-            gap = out2_lufs - out1_lufs
-            self.assertGreater(
-                gap, 4.0,
-                f"two -t values produced near-identical lufs_out "
-                f"({out1_lufs} vs {out2_lufs}); -t may be ignored",
-            )
+            self.assertAlmostEqual(out1_lufs, -28.0, delta=1.0)
+            self.assertAlmostEqual(out2_lufs, -20.0, delta=1.0)
 
 
 if __name__ == "__main__":

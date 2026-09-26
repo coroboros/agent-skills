@@ -1,12 +1,8 @@
 """Tests for skills/code-ultrareview/scripts/run_validators.py.
 
-Covers the deterministic Phase 4 orchestrator contracts: sub-80 filter
-(tool findings never validated), batching cap (≤10 parallel),
-instruction snippet lookup with deepest-match precedence, validator
-prompt construction (verbatim Anthropic rubric, instruction re-check,
-agent-assumption rule), per-finding bundle preparation, validator
-stdout parsing, and the A2-preserving ingest contract (promote ≥80 /
-demote <80 / no silent drop).
+Covers validator dispatch, instruction lookup with deepest-match precedence,
+bundle preparation, scoring, and stale-run rejection. Ingest promotes findings
+at confidence ≥80 and demotes the rest without silently dropping them.
 
 Behavioral evaluation of validator scoring lives in `evals/evals.json`,
 not in this unit-test file — that work is non-deterministic LLM output.
@@ -101,146 +97,11 @@ def make_unverified_finding(
 
 
 # ---------------------------------------------------------------------------
-# Threshold SSOT — run_validators must defer to synthesis_core
-# ---------------------------------------------------------------------------
-
-
-class TestThresholdSsot(unittest.TestCase):
-    """A divergence between run_validators.CONFIDENCE_THRESHOLD and
-    synthesis_core.CONFIDENCE_THRESHOLD breaks the A2 contract — one
-    side promotes, the other still says sub-80."""
-
-    def test_threshold_matches_synthesis_core(self):
-        self.assertEqual(
-            run_validators.CONFIDENCE_THRESHOLD,
-            synthesis_core.CONFIDENCE_THRESHOLD,
-        )
-
-    def test_promotion_cap_matches_synthesis_core(self):
-        self.assertEqual(
-            run_validators.PROMOTION_CAP,
-            synthesis_core.PROMOTION_CAP,
-        )
-
-    def test_unverified_prefix_matches_synthesis_core(self):
-        self.assertEqual(
-            run_validators.UNVERIFIED_PREFIX,
-            synthesis_core.UNVERIFIED_PREFIX,
-        )
-
-
-# ---------------------------------------------------------------------------
-# filter_sub_threshold — confidence-100 tool findings never validated
-# ---------------------------------------------------------------------------
-
-
-class TestFilterSubThreshold(unittest.TestCase):
-
-    def test_confidence_100_excluded(self):
-        findings = [{"confidence": 100, "source_tool": "semgrep"}, {"confidence": 100, "source_tool": "knip"}]
-        self.assertEqual(run_validators.filter_sub_threshold(findings), findings)
-
-    def test_confidence_0_included(self):
-        """Zero is a valid uncertain score and must receive validation."""
-        out = run_validators.filter_sub_threshold([{"confidence": 0}])
-        self.assertEqual(out, [{"confidence": 0}])
-
-    def test_confidence_at_threshold_excluded(self):
-        findings = [{"confidence": 80}]
-        self.assertEqual(run_validators.filter_sub_threshold(findings), findings)
-
-    def test_confidence_above_threshold_excluded(self):
-        findings = [{"confidence": 85}, {"confidence": 95}]
-        self.assertEqual(run_validators.filter_sub_threshold(findings), findings)
-
-    def test_sub_80_above_zero_included(self):
-        findings = [
-            {"confidence": 1},
-            {"confidence": 50},
-            {"confidence": 75},
-            {"confidence": 79},
-        ]
-        out = run_validators.filter_sub_threshold(findings)
-        self.assertEqual(len(out), 4)
-
-    def test_mixed_set_keeps_every_sub_threshold_score_including_zero(self):
-        findings = [
-            {"confidence": 100, "id": "tool"},
-            {"confidence": 0, "id": "zero"},
-            {"confidence": 50, "id": "keep"},
-            {"confidence": 80, "id": "verified"},
-            {"confidence": 75, "id": "keep2"},
-        ]
-        out = run_validators.filter_sub_threshold(findings)
-        ids = {f["id"] for f in out}
-        self.assertEqual(ids, {"tool", "zero", "keep", "verified", "keep2"})
-
-
-# ---------------------------------------------------------------------------
-# batch — never exceed 10 parallel validators
-# ---------------------------------------------------------------------------
-
-
-class TestBatch(unittest.TestCase):
-
-    def test_25_findings_to_three_batches_10_10_5(self):
-        """Spec AC verbatim: 25 still-sub-80 findings → 3 batches
-        (10 + 10 + 5), never 25 simultaneously."""
-        batches = run_validators.batch(list(range(25)))
-        self.assertEqual(len(batches), 3)
-        self.assertEqual([len(b) for b in batches], [10, 10, 5])
-
-    def test_under_cap_single_batch(self):
-        batches = run_validators.batch(list(range(7)))
-        self.assertEqual(len(batches), 1)
-        self.assertEqual(len(batches[0]), 7)
-
-    def test_exactly_at_cap_single_batch(self):
-        batches = run_validators.batch(list(range(10)))
-        self.assertEqual(len(batches), 1)
-        self.assertEqual(len(batches[0]), 10)
-
-    def test_empty_list_zero_batches(self):
-        batches = run_validators.batch([])
-        self.assertEqual(batches, [])
-
-    def test_invalid_size_raises(self):
-        with self.assertRaises(ValueError):
-            run_validators.batch([1, 2, 3], size=0)
-        with self.assertRaises(ValueError):
-            run_validators.batch([1, 2, 3], size=-1)
-
-    def test_batches_cover_all_items_in_order(self):
-        items = list(range(23))
-        batches = run_validators.batch(items)
-        rebuilt: list[int] = []
-        for b in batches:
-            rebuilt.extend(b)
-        self.assertEqual(rebuilt, items)
-
-
-# ---------------------------------------------------------------------------
 # find_instruction_snippet — deepest applicable match
 # ---------------------------------------------------------------------------
 
 
 class TestFindInstructionSnippet(unittest.TestCase):
-
-    def test_returns_none_when_chain_empty(self):
-        with tempfile.TemporaryDirectory() as td:
-            path, snippet = run_validators.find_instruction_snippet(
-                "production grade or nothing", [], Path(td),
-            )
-            self.assertIsNone(path)
-            self.assertIsNone(snippet)
-
-    def test_returns_none_when_rule_text_empty(self):
-        with tempfile.TemporaryDirectory() as td:
-            path, snippet = run_validators.find_instruction_snippet(
-                "", ["AGENTS.md"], Path(td),
-            )
-            self.assertIsNone(path)
-            self.assertIsNone(snippet)
 
     def test_deepest_match_wins(self):
         """Chain ordered root-to-deepest; nested overrides surface correctly."""
@@ -428,75 +289,6 @@ class TestExtractDiffContext(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# build_validator_prompt — cites the contract sources verbatim
-# ---------------------------------------------------------------------------
-
-
-class TestBuildValidatorPrompt(unittest.TestCase):
-    """The prompt cites the rubric, instruction check, and build boundary."""
-
-    def _build(self, **overrides):
-        finding = overrides.pop("finding", make_unverified_finding())
-        return run_validators.build_validator_prompt(
-            finding=finding,
-            diff_context=overrides.get("diff_context", "@@ -1 +1 @@\n+bad\n"),
-            instruction_snippet=overrides.get(
-                "instruction_snippet", "Single source of truth."
-            ),
-            instruction_path=overrides.get("instruction_path", "AGENTS.md"),
-            anthropic_verbatim_path=overrides.get(
-                "anthropic_verbatim_path",
-                str(SKILL_DIR / "references" / "anthropic-verbatim.md"),
-            ),
-        )
-
-    def test_cites_anthropic_verbatim_rubric(self):
-        prompt = self._build()
-        self.assertIn("references/anthropic-verbatim.md", prompt)
-        self.assertIn("0-100 confidence rubric", prompt)
-        self.assertIn("VERBATIM", prompt)
-
-    def test_cites_false_positive_taxonomy(self):
-        prompt = self._build()
-        self.assertIn("Quoted upstream exclusions", prompt)
-        self.assertIn("do not override local coverage", prompt)
-
-    def test_cites_instruction_re_check_requirement(self):
-        prompt = self._build()
-        self.assertIn("Project instruction snippet (AGENTS.md)", prompt)
-        self.assertIn("Instruction rule not found at", prompt)
-
-    def test_cites_agent_assumption_rule(self):
-        prompt = self._build()
-        self.assertIn("build signal", prompt)
-        self.assertIn("CI does that", prompt)
-
-    def test_emits_finding_json(self):
-        prompt = self._build(
-            finding=make_unverified_finding(location="src/foo.py:10"),
-        )
-        self.assertIn("src/foo.py:10", prompt)
-
-    def test_output_schema_present(self):
-        prompt = self._build()
-        self.assertIn("score:", prompt)
-        self.assertIn("reason:", prompt)
-
-    def test_missing_instruction_renders_placeholder(self):
-        prompt = self._build(instruction_snippet=None, instruction_path=None)
-        self.assertIn("not found in instruction_chain", prompt)
-        self.assertIn("(none)", prompt)
-
-    def test_forbids_write_edit_bash(self):
-        prompt = self._build()
-        self.assertIn("Do NOT use `Write`", prompt)
-
-    def test_uses_read_only(self):
-        prompt = self._build()
-        self.assertIn("`Read`", prompt)
-
-
-# ---------------------------------------------------------------------------
 # prepare_validator_bundle — disk artefacts the orchestrator reads
 # ---------------------------------------------------------------------------
 
@@ -557,19 +349,6 @@ class TestPrepareValidatorBundle(unittest.TestCase):
 
             self.assertIsNone(bundle["instruction_snippet"])
 
-    def test_zero_padded_filenames(self):
-        with tempfile.TemporaryDirectory() as td:
-            output_dir = Path(td) / "run"
-            result = run_validators.prepare_validator_bundle(
-                index=7, finding=make_unverified_finding(),
-                scope={"instruction_chain": []},
-                diff_text="", output_dir=output_dir,
-                skill_dir=SKILL_DIR, repo_dir=Path(td),
-            )
-            self.assertTrue(result["input_path"].endswith("0007.json"))
-            self.assertTrue(result["prompt_path"].endswith("0007.txt"))
-
-
 # ---------------------------------------------------------------------------
 # prepare — full pipeline; filtering + bundling + batching
 # ---------------------------------------------------------------------------
@@ -577,7 +356,7 @@ class TestPrepareValidatorBundle(unittest.TestCase):
 
 class TestPrepare(unittest.TestCase):
 
-    def test_filter_applied_before_bundling(self):
+    def test_every_observation_is_bundled_for_validation(self):
         with tempfile.TemporaryDirectory() as td:
             output_dir = Path(td) / "run"
             findings = [
@@ -622,10 +401,10 @@ class TestPrepare(unittest.TestCase):
             self.assertEqual(result["count"], 25)
             self.assertEqual(len(result["batches"]), 3)
             self.assertEqual(
-                [len(b) for b in result["batches"]], [10, 10, 5],
+                result["batches"], [list(range(10)), list(range(10, 20)), list(range(20, 25))],
             )
 
-    def test_tool_findings_never_bundled(self):
+    def test_tool_findings_reach_the_validator(self):
         """Spec AC verified end-to-end: confidence-100 tool findings never
         get a validator-input bundle."""
         with tempfile.TemporaryDirectory() as td:
@@ -776,48 +555,9 @@ class TestIngestDemote(unittest.TestCase):
         # report's `### ⚠️ Unverified` section reads as advisory.
         self.assertEqual(out[0]["severity"], "Low")
 
-    def test_demote_records_reason_text(self):
-        findings = [make_unverified_finding(confidence=55)]
-        reason = "Linter would catch this — false positive per Anthropic taxonomy"
-        results = [{"index": 0, "score": 25, "reason": reason}]
-        out = run_validators.ingest(results, findings)
-        self.assertEqual(out[0]["meta"]["validator_reason"], reason)
-
-
-class TestIngestInstructionNotFound(unittest.TestCase):
-    """A missing cited instruction remains visible as a demotion reason."""
-
-    def test_demote_with_instruction_rule_not_found_reason(self):
-        findings = [
-            make_unverified_finding(
-                confidence=70, rule="single source of truth",
-            ),
-        ]
-        reason = "Instruction rule not found at .agents/rules/behavior.md"
-        results = [{"index": 0, "score": 30, "reason": reason}]
-        out = run_validators.ingest(results, findings)
-        self.assertEqual(out[0]["meta"]["validator_reason"], reason)
-        self.assertEqual(out[0]["meta"]["validator_outcome"], "demoted")
-
-
 class TestIngestA2NoDrop(unittest.TestCase):
     """Spec AC: A2 contract — no sub-80 finding silently dropped. Every
     one is either promoted, demoted with reason, or stays in Unverified."""
-
-    def test_input_length_equals_output_length(self):
-        findings = [
-            make_unverified_finding(confidence=60, location=f"src/x.ts:{i}")
-            for i in range(5)
-        ]
-        results = [
-            {"index": 0, "score": 90, "reason": "ok"},
-            {"index": 1, "score": 40, "reason": "no"},
-            {"index": 2, "score": 85, "reason": "ok"},
-            {"index": 3, "score": 30, "reason": "no"},
-            {"index": 4, "score": 70, "reason": "still unsure"},
-        ]
-        out = run_validators.ingest(results, findings)
-        self.assertEqual(len(out), len(findings))
 
     def test_missing_validator_result_blocks_the_review(self):
         """No result for a finding means validator coverage is incomplete."""

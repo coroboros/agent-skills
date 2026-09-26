@@ -6,7 +6,7 @@ Verbatim review primitives carried from Anthropic's official `code-review` plugi
 - Phase 4 fresh-context validators — assess every observation and re-check the project-instruction citation.
 - Phase 5 synthesis — tier classification (`Important` / `Nit` / `Pre-existing`).
 
-**Drift surveillance.** Every block below carries a `## Source` line + `Last verified: 2026-05-26`. The test `tests/code-ultrareview/test_anthropic_verbatim.py` enforces byte-for-byte parity against the upstream source file when that file is present. Quarterly re-verification: open the source, diff against the block, update if needed, bump the date.
+**Drift surveillance.** Every block below carries a `## Source` line + `Last verified: 2026-05-26`. Quarterly re-verification: open the source, diff against the block, update if needed, bump the date.
 
 Upstream typos (e.g. "compily") are preserved deliberately — the contract is byte-for-byte parity, not stylistic improvement on top of Anthropic's wording.
 

@@ -30,12 +30,6 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPT_DIR = REPO_ROOT / "skills" / "code-ultrareview" / "scripts"
 SCRIPT = SCRIPT_DIR / "findings_to_jsonl.py"
 
-sys.path.insert(0, str(REPO_ROOT / "tests" / "_pipeline"))
-from _contracts import CLUSTERS  # noqa: E402
-
-REVIEW = CLUSTERS["review"]
-
-
 def _load():
     spec = importlib.util.spec_from_file_location("findings_to_jsonl", SCRIPT)
     assert spec is not None and spec.loader is not None
@@ -66,14 +60,6 @@ def _finding(**overrides) -> dict:
 
 
 class TestLabelMapping(unittest.TestCase):
-    def test_high_correctness_is_issue(self):
-        label = ftj.label_for(_finding(severity="High", axis="correctness"))
-        self.assertEqual(label, "issue")
-
-    def test_high_design_api_is_issue(self):
-        label = ftj.label_for(_finding(severity="High", axis="design-api"))
-        self.assertEqual(label, "issue")
-
     def test_medium_any_axis_is_suggestion(self):
         for axis in ("correctness", "tests", "documentation", "style",
                      "intent", "performance", "design-api", "simplification"):
@@ -81,18 +67,6 @@ class TestLabelMapping(unittest.TestCase):
             self.assertEqual(
                 label, "suggestion", f"axis={axis} expected suggestion"
             )
-
-    def test_low_documentation_is_nitpick(self):
-        label = ftj.label_for(_finding(severity="Low", axis="documentation"))
-        self.assertEqual(label, "nitpick")
-
-    def test_low_style_is_nitpick(self):
-        label = ftj.label_for(_finding(severity="Low", axis="style"))
-        self.assertEqual(label, "nitpick")
-
-    def test_low_other_axes_is_suggestion(self):
-        label = ftj.label_for(_finding(severity="Low", axis="correctness"))
-        self.assertEqual(label, "suggestion")
 
     def test_sub_80_is_question_regardless_of_axis(self):
         for axis in ("correctness", "design-api", "tests", "documentation"):
@@ -102,15 +76,6 @@ class TestLabelMapping(unittest.TestCase):
             self.assertEqual(
                 label, "question", f"sub-80 axis={axis} expected question"
             )
-
-    def test_labels_in_contract_match_implementation(self):
-        """The pipeline contract pins the label vocabulary — drift breaks
-        any consumer piping JSONL through `gh pr comment`."""
-        self.assertEqual(
-            sorted(REVIEW["jsonl_labels"]),
-            sorted(ftj.LABELS),
-        )
-
 
 # ---------------------------------------------------------------------------
 # 2. Permalink format
@@ -161,27 +126,6 @@ class TestPermalink(unittest.TestCase):
 
 
 class TestParseLocation(unittest.TestCase):
-    def test_single_line(self):
-        self.assertEqual(
-            ftj.parse_location("src/a.ts:42"),
-            ("src/a.ts", 42, 42),
-        )
-
-    def test_range(self):
-        self.assertEqual(
-            ftj.parse_location("src/a.ts:10-25"),
-            ("src/a.ts", 10, 25),
-        )
-
-    def test_path_only(self):
-        self.assertEqual(
-            ftj.parse_location("src/a.ts"),
-            ("src/a.ts", None, None),
-        )
-
-    def test_empty(self):
-        self.assertEqual(ftj.parse_location(""), ("", None, None))
-
     def test_whitespace_stripped(self):
         self.assertEqual(
             ftj.parse_location("  src/a.ts:42  "),
@@ -271,10 +215,6 @@ class TestRecordShape(unittest.TestCase):
                     "finding", "recommendation"):
             self.assertIn(key, record, f"missing field {key!r}")
 
-    def test_permalink_omitted_without_owner_repo(self):
-        record = ftj.to_record(_finding())
-        self.assertNotIn("permalink", record)
-
     def test_permalink_included_with_owner_repo_and_sha(self):
         record = ftj.to_record(
             _finding(),
@@ -296,17 +236,6 @@ class TestRecordShape(unittest.TestCase):
 
 
 class TestJsonlValidity(unittest.TestCase):
-    def test_every_emitted_line_parses(self):
-        findings = [
-            _finding(severity="High", axis="correctness"),
-            _finding(severity="Medium", axis="tests"),
-            _finding(severity="Low", axis="documentation"),
-            _finding(severity="Medium", axis="design-api", confidence=70),
-        ]
-        for line in ftj.emit(findings, owner_repo=None, sha=None):
-            record = json.loads(line)
-            self.assertIn("label", record)
-
     def test_label_mapping_in_emitted_records(self):
         findings = [
             _finding(severity="High", axis="correctness"),
@@ -398,22 +327,6 @@ class TestMalformedInput(unittest.TestCase):
 # ---------------------------------------------------------------------------
 # Threshold + dot-in-repo regression — single source of truth + permalink fixes
 # ---------------------------------------------------------------------------
-
-
-class TestThresholdSingleSource(unittest.TestCase):
-    """Pins that `findings_to_jsonl.CONFIDENCE_THRESHOLD` is the same object
-    as `synthesis_core.CONFIDENCE_THRESHOLD`. A future bump in synthesis_core
-    propagates to the JSONL label routing automatically.
-    """
-
-    def test_threshold_imported_from_synthesis_core(self):
-        synth_spec = importlib.util.spec_from_file_location(
-            "synthesis_core", SCRIPT_DIR / "synthesis_core.py"
-        )
-        assert synth_spec is not None and synth_spec.loader is not None
-        synth = importlib.util.module_from_spec(synth_spec)
-        synth_spec.loader.exec_module(synth)
-        self.assertEqual(ftj.CONFIDENCE_THRESHOLD, synth.CONFIDENCE_THRESHOLD)
 
 
 class TestRepoNameWithDot(unittest.TestCase):

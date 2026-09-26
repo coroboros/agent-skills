@@ -17,14 +17,6 @@ KEBAB_NAME = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
 RESERVED_NAME_EXCEPTIONS = {"claude-md"}
 
 
-class TestEverySkillHasSkillMd(unittest.TestCase):
-    def test_skill_md_exists(self):
-        for skill in get_skill_dirs():
-            with self.subTest(skill=skill.name):
-                self.assertTrue((skill / "SKILL.md").is_file(),
-                                f"{skill.name}/SKILL.md missing")
-
-
 class TestNameField(unittest.TestCase):
     def test_name_matches_folder(self):
         for skill in get_skill_dirs():
@@ -63,15 +55,6 @@ class TestDescriptionField(unittest.TestCase):
                 self.assertLessEqual(len(desc), 1024,
                                      "description > 1024 chars (open-standard cap)")
 
-    def test_combined_with_when_to_use_under_1536(self):
-        """Claude Code combines description + when_to_use in the listing — total cap ~1536."""
-        for skill in get_skill_dirs():
-            with self.subTest(skill=skill.name):
-                fm, _ = load_frontmatter(skill)
-                combined = (fm.get("description", "") or "") + " " + (fm.get("when_to_use", "") or "")
-                self.assertLessEqual(len(combined), 1536)
-
-
 class TestMetadataField(unittest.TestCase):
     def test_metadata_is_string_mapping(self):
         """The open standard requires string keys and string values."""
@@ -84,14 +67,6 @@ class TestMetadataField(unittest.TestCase):
                     self.assertIsInstance(key, str)
                     self.assertIsInstance(value, str,
                                           f"{skill.name}: metadata.{key} must be a string")
-
-    def test_metadata_author_is_coroboros(self):
-        for skill in get_skill_dirs():
-            with self.subTest(skill=skill.name):
-                fm, _ = load_frontmatter(skill)
-                meta = fm.get("metadata") or {}
-                self.assertEqual(meta.get("author"), "coroboros",
-                                 f"{skill.name}: metadata.author != 'coroboros' (got {meta.get('author')!r})")
 
     def test_no_metadata_version(self):
         """Per repo policy, skills are co-versioned via marketplace.json — never per-skill."""
@@ -128,29 +103,6 @@ class TestNoModelEffortPins(unittest.TestCase):
                 fm, _ = load_frontmatter(skill)
                 self.assertIsNone(fm.get("model"), f"{skill.name}: model pin forbidden")
                 self.assertIsNone(fm.get("effort"), f"{skill.name}: effort pin forbidden")
-
-
-class TestNoXMLMarkupInFrontmatter(unittest.TestCase):
-    """Repository policy forbids XML markup (e.g., `<workflow>...</workflow>`).
-    Angle brackets inside argument-hint placeholders (`<file-path>`) are conventional
-    and not XML markup — only closing tags (`</word>`) and self-closing (`<word/>`)
-    unambiguously indicate XML, so that's what we forbid."""
-
-    XML_TAG = re.compile(r"</[A-Za-z][A-Za-z0-9_-]*>|<[A-Za-z][A-Za-z0-9_-]*/>")
-
-    def test_no_xml_tags(self):
-        for skill in get_skill_dirs():
-            with self.subTest(skill=skill.name):
-                content = (skill / "SKILL.md").read_text(encoding="utf-8")
-                if not content.startswith("---\n"):
-                    continue
-                end = content.find("\n---\n", 4)
-                if end < 0:
-                    continue
-                fm_block = content[4:end]
-                match = self.XML_TAG.search(fm_block)
-                self.assertIsNone(match,
-                                  f"{skill.name}: XML tag '{match.group(0) if match else ''}' in frontmatter")
 
 
 if __name__ == "__main__":

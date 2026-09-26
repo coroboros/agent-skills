@@ -22,6 +22,9 @@ class TestAnimationLifecycles(unittest.TestCase):
     def test_io_reveals_fail_visible_and_preserve_already_visible_content(self):
         self.check_recipe("reveal")
 
+    def test_lenis_uses_one_clock_and_releases_it_on_teardown(self):
+        self.check_recipe("lenis")
+
     def test_splittext_respects_preference_and_restores_markup(self):
         self.check_recipe("split")
 

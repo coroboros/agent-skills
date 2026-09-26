@@ -217,14 +217,6 @@ class TestNoCrossSkillInstallPathLeak(unittest.TestCase):
                 f"Allowlist entry does not exist on disk: {entry}",
             )
 
-    def test_inline_opt_out_marker_is_recognised(self):
-        self.assertTrue(_INLINE_OPT_OUT.search(
-            "see skills/code-ultrareview/scripts/x.py  # noqa: cross-skill-path"
-        ))
-        self.assertTrue(_INLINE_OPT_OUT.search(
-            "see `skills/code-ultrareview/scripts/x.py`  <!-- noqa: cross-skill-path -->"
-        ))
-
     def test_positive_sample_fires(self):
         """A bare `skills/<other>/...` reference must be flagged."""
         pattern = _build_pattern(("agent-creator", "apex", "code-ultrareview"))

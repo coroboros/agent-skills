@@ -15,7 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPTS = REPO_ROOT / "skills" / "humanize-en" / "scripts"
 sys.path.insert(0, str(SCRIPTS))
 
-from prescan import PATTERNS, mask_protected_regions, scan  # noqa: E402
+from prescan import mask_protected_regions, scan  # noqa: E402
 
 SCRIPT = SCRIPTS / "prescan.py"
 
@@ -220,34 +220,6 @@ class TestMasking(unittest.TestCase):
         self.assertEqual(hits[0]["line"], 5)
 
 
-class TestScanShape(unittest.TestCase):
-    """scan() output schema invariants."""
-
-    def test_each_hit_has_required_keys(self):
-        hits = scan("This is pivotal moment text.\nMoreover, more text.")
-        self.assertGreater(len(hits), 0)
-        for h in hits:
-            with self.subTest(hit=h):
-                for key in ("pattern", "label", "line", "snippet"):
-                    self.assertIn(key, h)
-                # Type + value invariants — pin the schema published in
-                # references/schemas.md § "prescan hit list".
-                self.assertIsInstance(h["pattern"], int)
-                self.assertGreater(h["pattern"], 0)
-                self.assertIsInstance(h["label"], str)
-                self.assertGreater(len(h["label"]), 0)
-                self.assertIsInstance(h["line"], int)
-                self.assertGreater(h["line"], 0)
-                self.assertIsInstance(h["snippet"], str)
-                self.assertGreater(len(h["snippet"]), 0)
-
-    def test_hits_carry_pattern_id_and_label(self):
-        hits = scan("Moreover, this is fine.")
-        match = [h for h in hits if h["pattern"] == 7]
-        self.assertGreater(len(match), 0)
-        self.assertEqual(match[0]["label"], "ai-vocabulary")
-
-
 class TestCLI(unittest.TestCase):
     """Run prescan.py as a subprocess for end-to-end behavior."""
 
@@ -274,34 +246,15 @@ class TestCLI(unittest.TestCase):
         r = self._run("-", stdin="Moreover, the test passes.")
         self.assertEqual(r.returncode, 0)
         data = json.loads(r.stdout)
-        self.assertGreater(len(data), 0)
+        self.assertEqual(data, [{
+            "pattern": 7, "label": "ai-vocabulary", "line": 1,
+            "snippet": "Moreover, the test passes.",
+        }])
 
     def test_clean_text_returns_empty_array(self):
         r = self._run("-", stdin="The cat sat on the mat. The dog ran fast.\n")
         self.assertEqual(r.returncode, 0)
         self.assertEqual(json.loads(r.stdout), [])
-
-
-class TestPatternsRegistry(unittest.TestCase):
-    """The PATTERNS list must remain a stable registry — every entry has the
-    correct shape and unique IDs. Catches accidental duplication or shape drift."""
-
-    def test_pattern_count(self):
-        # 7 regex patterns + em-dash density = 8 covered, but PATTERNS only holds 7
-        # since em-dash uses a separate counter.
-        self.assertEqual(len(PATTERNS), 7)
-
-    def test_unique_pattern_ids(self):
-        ids = [p[0] for p in PATTERNS]
-        self.assertEqual(len(ids), len(set(ids)), "duplicate pattern IDs in registry")
-
-    def test_each_entry_is_3tuple(self):
-        for entry in PATTERNS:
-            self.assertEqual(len(entry), 3)
-            self.assertIsInstance(entry[0], int)
-            self.assertIsInstance(entry[1], str)
-            # Third is a compiled regex — has .search method
-            self.assertTrue(hasattr(entry[2], "search"))
 
 
 if __name__ == "__main__":

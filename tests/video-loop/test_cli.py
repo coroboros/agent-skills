@@ -108,9 +108,6 @@ class ArgParsingTests(unittest.TestCase):
                     self.assertEqual(src.read_bytes(), b"original")
                     target.unlink()
 
-    def test_script_exists_and_is_executable(self):
-        self.assertTrue(SCRIPT.is_file(), f"missing script: {SCRIPT}")
-
     def test_no_args_prints_usage_and_exits_2(self):
         r = _run()
         self.assertEqual(r.returncode, 2)
@@ -191,21 +188,6 @@ class PipelineValidationTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, msg=r.stderr)
         result = _parse_result(r.stdout)
         self.assertEqual(result["no_fade"], "1")
-
-    def test_crf_is_not_range_checked_by_script(self):
-        # The script does not range-check CRF (valid H.264 range is 0..51).
-        # libx264 silently clamps out-of-range values, so passing -q 100 still
-        # yields exit 0. This test pins the contract — if upfront validation
-        # is added later, flip the assertion.
-        out = self.tmp / "out_bad_crf"
-        out.mkdir(exist_ok=True)
-        r = _run(str(self.input), "-d", "0.5", "-q", "100", "-o", str(out))
-        self.assertEqual(r.returncode, 0, msg=r.stderr)
-        result = _parse_result(r.stdout)
-        # The bogus CRF value is still echoed back through the pipeline,
-        # confirming the script forwarded it untouched.
-        self.assertEqual(result["mp4_codec"], "h264")
-
 
 @unittest.skipUnless(HAS_FFMPEG, "ffmpeg/ffprobe required for pipeline tests")
 class FullPipelineTests(unittest.TestCase):

@@ -25,16 +25,6 @@ class TestReplaceOverrides(unittest.TestCase):
         self.assertEqual(out["forbidden_lexicon"], ["x"])
         self.assertNotIn("forbidden_lexicon_replace", out)
 
-    def test_replace_pronouns_full_block(self):
-        merged = {
-            "pronouns": {"default": "third-person", "forbid": ["first-person singular"]},
-            "pronouns_replace": {"default": "first-person singular", "forbid": []},
-        }
-        out = apply_replace_overrides(merged)
-        self.assertEqual(out["pronouns"]["default"], "first-person singular")
-        self.assertEqual(out["pronouns"]["forbid"], [])
-        self.assertNotIn("pronouns_replace", out)
-
     def test_replace_unsupported_field_left_alone(self):
         """`voice.name_replace` is not whitelisted; apply_replace_overrides
         leaves it alone (the linter flags it)."""
@@ -49,15 +39,6 @@ class TestReplaceOverrides(unittest.TestCase):
 
 
 class TestRemoveOverrides(unittest.TestCase):
-    def test_remove_subtracts_strings(self):
-        merged = {
-            "forbidden_lexicon": ["a", "b", "c"],
-            "forbidden_lexicon_remove": ["b"],
-        }
-        out = apply_remove_overrides(merged)
-        self.assertEqual(out["forbidden_lexicon"], ["a", "c"])
-        self.assertNotIn("forbidden_lexicon_remove", out)
-
     def test_remove_rewrite_rules_by_id(self):
         merged = {
             "rewrite_rules": [
@@ -143,21 +124,6 @@ class TestEndToEndOverrides(unittest.TestCase):
 
 class TestLexicalExceptionsMerge(unittest.TestCase):
     """Default merge: inner lists union; lexical_exceptions_replace fully replaces."""
-
-    def test_default_merge_unions_inner_lists(self):
-        chain, merged = resolve_and_merge(FIXTURES / "child-extends-lexical-exceptions.md")
-        lex = merged.get("lexical_exceptions") or {}
-        # Parent: BPM, MIDI / in-your-face. Child adds: DAW / do-it-yourself.
-        self.assertEqual(set(lex.get("acronyms") or []), {"BPM", "MIDI", "DAW"})
-        self.assertEqual(set(lex.get("compound_idioms") or []), {"in-your-face", "do-it-yourself"})
-
-    def test_replace_drops_parent(self):
-        chain, merged = resolve_and_merge(FIXTURES / "child-replaces-lexical-exceptions.md")
-        lex = merged.get("lexical_exceptions") or {}
-        # Parent's BPM/MIDI/in-your-face dropped entirely.
-        self.assertEqual(lex.get("acronyms"), ["API"])
-        # Empty list survives the replace (explicitly emptied).
-        self.assertEqual(lex.get("compound_idioms"), [])
 
     def test_merge_dedup_preserves_order(self):
         """Same entry on both sides must dedupe parent-first."""

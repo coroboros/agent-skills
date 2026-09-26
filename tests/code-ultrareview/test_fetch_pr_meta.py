@@ -52,10 +52,5 @@ class TestGhPresentNotAuthOrNoPR(unittest.TestCase):
         self.assertIn("RESULT: pr_found=false", result.stdout)
 
 
-class TestScriptShape(unittest.TestCase):
-    def test_script_is_executable(self):
-        self.assertTrue(os.access(SCRIPT, os.X_OK), "script must be chmod +x")
-
-
 if __name__ == "__main__":
     unittest.main()

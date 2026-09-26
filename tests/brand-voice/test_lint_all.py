@@ -47,18 +47,6 @@ class TestDiscovery(unittest.TestCase):
         self.assertIn("not a directory", r.stderr)
 
 
-class TestSingleFile(unittest.TestCase):
-    def test_canonical_brand_voice_passes(self):
-        with tempfile.TemporaryDirectory() as t:
-            tmp = Path(t)
-            _seed(tmp, "BRAND-VOICE.md")
-            r = _run(str(tmp))
-        self.assertEqual(r.returncode, 0,
-                         f"stderr={r.stderr}\nstdout={r.stdout}")
-        self.assertIn("summary:", r.stdout)
-        self.assertIn("1 file(s)", r.stdout)
-
-
 class TestMultipleFiles(unittest.TestCase):
     def test_two_files_both_pass(self):
         with tempfile.TemporaryDirectory() as t:

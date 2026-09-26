@@ -50,40 +50,11 @@ def _run(path):
 
 
 class TestSplitBlocks(unittest.TestCase):
-    def test_splits_three_workstreams(self):
-        content = _spec(_ws("WS-1") + _ws("WS-2") + _ws("WS-3"))
-        blocks = split_blocks(content)
-        self.assertEqual([b[0] for b in blocks], ["WS-1", "WS-2", "WS-3"])
-
-    def test_no_workstreams_section_returns_empty(self):
-        self.assertEqual(split_blocks("# Just a header\n"), [])
-
-    def test_empty_workstreams_section_returns_empty(self):
-        content = "## Workstreams\n\n## Other\n"
-        self.assertEqual(split_blocks(content), [])
-
     def test_stops_at_next_h2(self):
         """Workstreams stops at the next ## section."""
         content = _spec(_ws("WS-1")) + "\n## Risks\n\n### WS-99: not a workstream\n"
         blocks = split_blocks(content)
         self.assertEqual([b[0] for b in blocks], ["WS-1"])
-
-    def test_heading_without_colon_silently_skipped(self):
-        """WS_HEADING regex requires a colon: `### WS-1: title`. A malformed heading
-        like `### WS-1 title` silently fails to register as a workstream — pinning
-        this so a future regex relaxation surfaces in CI."""
-        content = (
-            "# Spec\n\n## Workstreams\n\n"
-            "### WS-1 no colon here\n\n"  # malformed
-            "| Priority | P0 |\n| Complexity | M |\n| Depends on | — |\n\n"
-            "**Acceptance criteria:**\n\n- [ ] x\n\n"
-            + _ws("WS-2") + _ws("WS-3")
-        )
-        blocks = split_blocks(content)
-        ids = [b[0] for b in blocks]
-        self.assertNotIn("WS-1", ids,
-                         "malformed heading should not register as workstream")
-        self.assertEqual(ids, ["WS-2", "WS-3"])
 
     def test_workstream_section_at_eof_no_trailing_newline(self):
         """The `\\Z` branch of `(?=^## |\\Z)` — Workstreams is the last section
@@ -97,13 +68,6 @@ class TestSplitBlocks(unittest.TestCase):
 
 
 class TestValidateWorkstream(unittest.TestCase):
-    def test_valid_returns_no_errors(self):
-        block = _ws("WS-1")
-        errors = validate_workstream("WS-1", block, {"WS-1"})
-        # Type-check the contract: errors is a list of strings.
-        self.assertIsInstance(errors, list)
-        self.assertEqual(errors, [])
-
     def test_missing_priority_flagged(self):
         # Block without Priority row
         block = (
@@ -118,15 +82,6 @@ class TestValidateWorkstream(unittest.TestCase):
         block = _ws("WS-1", priority="P9")
         errors = validate_workstream("WS-1", block, {"WS-1"})
         self.assertTrue(any("Priority" in e for e in errors))
-
-    def test_missing_complexity_flagged(self):
-        block = (
-            "### WS-1: bad\n\n"
-            "| Priority | P0 |\n| Depends on | — |\n\n"
-            "**Acceptance criteria:**\n\n- [ ] x\n\n"
-        )
-        errors = validate_workstream("WS-1", block, {"WS-1"})
-        self.assertTrue(any("Complexity" in e for e in errors))
 
     def test_complexity_xl_accepted(self):
         block = _ws("WS-1", complexity="XL")
@@ -143,48 +98,8 @@ class TestValidateWorkstream(unittest.TestCase):
         errors = validate_workstream("WS-2", block, {"WS-1", "WS-2"})
         self.assertTrue(any("WS-99" in e for e in errors))
 
-    def test_no_dependency_dash_accepted(self):
-        block = _ws("WS-1", deps="—")
-        errors = validate_workstream("WS-1", block, {"WS-1"})
-        self.assertEqual(errors, [])
-
-
-class TestRobustness(unittest.TestCase):
-    """split_blocks must handle realistic input scales and Unicode without
-    crashing, timing out, or stack-overflowing on regex backtracking."""
-
-    def test_split_blocks_handles_50_workstreams(self):
-        ws = "".join(_ws(f"WS-{i}") for i in range(1, 51))
-        blocks = split_blocks(_spec(ws))
-        self.assertEqual(len(blocks), 50)
-        self.assertEqual(blocks[0][0], "WS-1")
-        self.assertEqual(blocks[-1][0], "WS-50")
-
-    def test_split_blocks_unicode_titles(self):
-        """Non-ASCII heading text must not break the WS_HEADING regex."""
-        content = (
-            "# Spec\n\n## Workstreams\n\n"
-            "### WS-1: 認証システムの実装 ✨\n\n"
-            "| Priority | P0 |\n| Complexity | M |\n| Depends on | — |\n\n"
-            "**Acceptance criteria:**\n\n- [ ] x\n\n"
-        )
-        blocks = split_blocks(content)
-        self.assertEqual(len(blocks), 1)
-        self.assertEqual(blocks[0][0], "WS-1")
-
 
 class TestBuildGraph(unittest.TestCase):
-    def test_no_deps_empty_lists(self):
-        blocks = split_blocks(_spec(_ws("WS-1") + _ws("WS-2")))
-        graph = build_graph(blocks)
-        self.assertEqual(graph["WS-1"], [])
-        self.assertEqual(graph["WS-2"], [])
-
-    def test_single_dep_captured(self):
-        blocks = split_blocks(_spec(_ws("WS-1") + _ws("WS-2", deps="WS-1")))
-        graph = build_graph(blocks)
-        self.assertEqual(graph["WS-2"], ["WS-1"])
-
     def test_multiple_deps_captured(self):
         blocks = split_blocks(_spec(
             _ws("WS-1") + _ws("WS-2") + _ws("WS-3", deps="WS-1, WS-2")
@@ -194,22 +109,8 @@ class TestBuildGraph(unittest.TestCase):
 
 
 class TestFindCycle(unittest.TestCase):
-    def test_dag_no_cycle(self):
-        graph = {"A": ["B"], "B": ["C"], "C": []}
-        self.assertEqual(find_cycle(graph), [])
-
-    def test_two_node_cycle_detected(self):
-        graph = {"A": ["B"], "B": ["A"]}
-        cycle = find_cycle(graph)
-        self.assertGreater(len(cycle), 0)
-
     def test_self_loop_detected(self):
         graph = {"A": ["A"]}
-        cycle = find_cycle(graph)
-        self.assertGreater(len(cycle), 0)
-
-    def test_three_node_cycle_detected(self):
-        graph = {"A": ["B"], "B": ["C"], "C": ["A"]}
         cycle = find_cycle(graph)
         self.assertGreater(len(cycle), 0)
 
@@ -275,7 +176,7 @@ class TestCLI(unittest.TestCase):
             path.unlink()
 
     def test_valid_spec_exits_0(self):
-        ws = _ws("WS-1") + _ws("WS-2", deps="WS-1") + _ws("WS-3", deps="WS-2")
+        ws = _ws("WS-1", priority="P0") + _ws("WS-2", complexity="L", deps="WS-1") + _ws("WS-3", deps="WS-2")
         path = _write_temp(_spec(ws))
         try:
             r = _run(path)

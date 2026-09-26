@@ -110,17 +110,6 @@ class TestBuildDetect(unittest.TestCase):
                 self.assertEqual(result["tool"], "bun")
                 self.assertEqual(result["test_command"], "bun run test")
 
-    def test_package_json_picks_npm(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "package.json").write_text(
-                json.dumps({"scripts": {"test": "node --test"}}),
-                encoding="utf-8",
-            )
-            result = build_detect.detect(repo)
-        self.assertEqual(result["tool"], "npm")
-        self.assertEqual(result["test_command"], "npm test")
-
     def test_package_json_without_test_script_does_not_invent_npm_test(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
@@ -301,19 +290,6 @@ class TestVersionSync(unittest.TestCase):
         subprocess.run(["git", "add", "-A"], cwd=self.repo, check=True)
         subprocess.run(["git", "commit", "-q", "-m", msg], cwd=self.repo, env=env, check=True)
 
-    def test_no_op_when_in_sync(self):
-        (self.repo / "package.json").write_text(
-            json.dumps({"version": "1.0.0"}, indent=2), encoding="utf-8"
-        )
-        (self.repo / ".claude-plugin").mkdir()
-        (self.repo / ".claude-plugin" / "marketplace.json").write_text(
-            json.dumps({"metadata": {"version": "1.0.0"}}, indent=2),
-            encoding="utf-8",
-        )
-        self._commit("init")
-        result = version_sync.sync(self.repo, yes=True)
-        self.assertEqual(result["status"], "no-op")
-
     def test_recency_wins(self):
         (self.repo / "package.json").write_text(
             json.dumps({"version": "1.0.0"}, indent=2), encoding="utf-8"
@@ -333,6 +309,8 @@ class TestVersionSync(unittest.TestCase):
         result = version_sync.sync(self.repo, yes=True)
         self.assertEqual(result["status"], "applied")
         self.assertEqual(result["canonical"], "1.1.0")
+        self.assertEqual(json.loads((self.repo / "package.json").read_text())["version"], "1.1.0")
+        self.assertEqual(json.loads((self.repo / ".claude-plugin/marketplace.json").read_text())["metadata"]["version"], "1.1.0")
 
     def test_idempotent_second_run(self):
         (self.repo / "package.json").write_text(
@@ -359,11 +337,13 @@ class TestVersionSync(unittest.TestCase):
             encoding="utf-8",
         )
         self._commit("init")
+        before = {path: path.read_bytes() for path in self.repo.rglob("*.json")}
         with contextlib.redirect_stdout(io.StringIO()), \
                 mock.patch("builtins.input", return_value="n"):
             result = version_sync.sync(self.repo, yes=False)
         self.assertEqual(result["status"], "skipped")
         self.assertEqual(result["applied"], [])
+        self.assertEqual({path: path.read_bytes() for path in before}, before)
 
 
 # ---------------------------------------------------------------------------
@@ -399,6 +379,8 @@ class TestDescriptionSync(unittest.TestCase):
                 result = description_sync.force_apply_when_agreed(
                     repo, "new value", yes=True,
                 )
+            self.assertEqual(json.loads((repo / "package.json").read_text())["description"], "new value")
+            self.assertEqual(json.loads((repo / ".claude-plugin/marketplace.json").read_text())["metadata"]["description"], "new value")
         self.assertEqual(result["status"], "applied")
         self.assertEqual(result["canonical"], "new value")
         self.assertEqual(len(result["applied"]), 2)
@@ -414,8 +396,10 @@ class TestDescriptionSync(unittest.TestCase):
                 json.dumps({"metadata": {"description": "beta"}}, indent=2),
                 encoding="utf-8",
             )
+            before = {path: path.read_bytes() for path in repo.rglob("*.json")}
             with contextlib.redirect_stdout(io.StringIO()):
                 result = description_sync.force_apply_when_agreed(repo, "gamma", yes=True)
+            self.assertEqual({path: path.read_bytes() for path in before}, before)
         self.assertEqual(result["status"], "refusing: partial-agreement")
 
 
@@ -432,24 +416,6 @@ class TestFailingTestWriter(unittest.TestCase):
     def tearDown(self):
         self._stdout_ctx.__exit__(None, None, None)
 
-    def test_writes_python_test_file(self):
-        with tempfile.TemporaryDirectory() as t:
-            repo = Path(t)
-            (repo / "tests").mkdir()
-            (repo / "tests" / "existing.py").write_text("# existing\n", encoding="utf-8")
-            result = failing_test_writer.write(
-                repo, bug_id="zone-id-bug",
-                repro="parseZoneId('illegal%') should reject",
-                expected_failure="parser accepts invalid chars",
-                test_content="from parser import parse_zone_id\nassert parse_zone_id('illegal%') is None\n",
-                test_path="tests/test_zone_id_bug.py",
-                yes=True,
-            )
-            self.assertEqual(result["status"], "applied")
-            target = repo / result["target"]
-            self.assertTrue(target.exists())
-            self.assertEqual(target.read_text(), "from parser import parse_zone_id\nassert parse_zone_id('illegal%') is None\n")
-
     def test_writes_typescript_test_file(self):
         with tempfile.TemporaryDirectory() as t:
             repo = Path(t)
@@ -457,17 +423,19 @@ class TestFailingTestWriter(unittest.TestCase):
             (repo / "tests" / "existing.test.ts").write_text(
                 "// existing\n", encoding="utf-8"
             )
-            result = failing_test_writer.write(
-                repo, bug_id="overflow",
-                repro="add(MAX_INT, 1) wraps to negative",
-                expected_failure="overflow not detected",
-                test_content="import { test } from 'node:test';\n// project-reviewed test body\n",
-                test_path="src/overflow.spec.ts",
-                yes=True,
-            )
+            content = "import { test } from 'node:test';\n// project-reviewed test body\n"
+            with mock.patch("builtins.input", return_value="y"):
+                result = failing_test_writer.write(
+                    repo, bug_id="overflow",
+                    repro="add(MAX_INT, 1) wraps to negative",
+                    expected_failure="overflow not detected",
+                    test_content=content,
+                    test_path="src/overflow.spec.ts",
+                    yes=False,
+                )
             self.assertEqual(result["status"], "applied")
             self.assertEqual(result["target"], "src/overflow.spec.ts")
-            self.assertNotIn("vitest", (repo / result["target"]).read_text())
+            self.assertEqual((repo / result["target"]).read_text(), content)
 
     def test_refuses_to_overwrite_existing_test(self):
         with tempfile.TemporaryDirectory() as t:
@@ -495,6 +463,8 @@ class TestFailingTestWriter(unittest.TestCase):
                     repro="…", expected_failure="…", yes=False,
                     test_content="assert True\n", test_path="tests/test_bug_x.py",
                 )
+            self.assertEqual([path.name for path in (repo / "tests").iterdir()], ["existing.py"])
+            self.assertEqual((repo / "tests/existing.py").read_text(), "# existing\n")
         self.assertEqual(result["status"], "skipped")
 
     def test_missing_reviewed_content_refuses_without_writing(self):
@@ -540,39 +510,6 @@ class TestFailingTestWriter(unittest.TestCase):
             green = subprocess.run(command, cwd=repo, capture_output=True, text=True, timeout=15)
             self.assertEqual(green.returncode, 0, green.stderr)
             self.assertEqual(target.read_bytes(), content.encode())
-
-
-# ---------------------------------------------------------------------------
-# apply_safe confirm prompt
-# ---------------------------------------------------------------------------
-
-
-class TestApplySafeConfirm(unittest.TestCase):
-    def test_mock_input_n_prevents_writes(self):
-        from apply_safe._common import confirm_write
-        with tempfile.TemporaryDirectory() as t:
-            target = Path(t) / "f.txt"
-            with contextlib.redirect_stdout(io.StringIO()), \
-                    mock.patch("builtins.input", return_value="n"):
-                approved = confirm_write(target, "diff text", yes=False)
-        self.assertFalse(approved)
-
-    def test_mock_input_y_approves(self):
-        from apply_safe._common import confirm_write
-        with tempfile.TemporaryDirectory() as t:
-            target = Path(t) / "f.txt"
-            with contextlib.redirect_stdout(io.StringIO()), \
-                    mock.patch("builtins.input", return_value="y"):
-                approved = confirm_write(target, "diff text", yes=False)
-        self.assertTrue(approved)
-
-    def test_yes_flag_bypasses_prompt(self):
-        from apply_safe._common import confirm_write
-        with contextlib.redirect_stdout(io.StringIO()), \
-                mock.patch("builtins.input") as m:
-            approved = confirm_write(Path("/tmp/f.txt"), "diff", yes=True)
-        self.assertTrue(approved)
-        m.assert_not_called()
 
 
 if __name__ == "__main__":

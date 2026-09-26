@@ -53,33 +53,16 @@ def _run_with_stub(behavior: str = "ok"):
 class TestStubSuccess(unittest.TestCase):
     """All `gh label create` calls succeed → exit 0."""
 
-    def test_exits_zero(self):
-        r, _ = _run_with_stub("ok")
+    def test_creates_complete_label_set_with_force(self):
+        r, log = _run_with_stub("ok")
         self.assertEqual(r.returncode, 0,
                          f"stderr={r.stderr}\nstdout={r.stdout}")
-
-    def test_creates_eight_labels(self):
-        _, log = _run_with_stub("ok")
         invocations = [l for l in log.splitlines() if l.startswith("label create")]
         self.assertEqual(len(invocations), 8,
                          f"expected 8 label invocations, got {len(invocations)}: {invocations}")
-
-    def test_all_invocations_pass_force(self):
-        _, log = _run_with_stub("ok")
-        for line in log.splitlines():
-            if line.startswith("label create"):
-                self.assertIn("--force", line, f"missing --force: {line}")
-
-    def test_full_label_set_complete(self):
-        _, log = _run_with_stub("ok")
-        names = []
-        for line in log.splitlines():
-            if not line.startswith("label create"):
-                continue
-            tokens = line.split()
-            # tokens = ["label", "create", "<name>", "--color", ...]
-            names.append(tokens[2])
-        self.assertEqual(set(names), {
+        for line in invocations:
+            self.assertIn("--force", line.split(), f"missing --force: {line}")
+        self.assertEqual({line.split()[2] for line in invocations}, {
             "P0", "P1", "P2",
             "size:S", "size:M", "size:L", "size:XL",
             "forge",
@@ -90,9 +73,9 @@ class TestStubFailure(unittest.TestCase):
     """First `gh label create` failing aborts the script under set -e."""
 
     def test_propagates_non_zero_exit(self):
-        r, _ = _run_with_stub("fail")
-        self.assertNotEqual(r.returncode, 0,
-                            "stub failure must surface as non-zero exit")
+        r, log = _run_with_stub("fail")
+        self.assertEqual(r.returncode, 4)
+        self.assertEqual(len(log.splitlines()), 1, "label creation must stop at the first failure")
 
 
 if __name__ == "__main__":

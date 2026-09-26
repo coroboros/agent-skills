@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import re
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -182,24 +183,16 @@ class TestNoInternalLabelLeak(unittest.TestCase):
                 f"Allowlist entry does not exist on disk: {entry}",
             )
 
-    def test_inline_opt_out_marker_is_recognised(self):
-        """Both `#` and `<!--` opt-out markers are recognised."""
-        self.assertTrue(_INLINE_OPT_OUT.search(
-            "Refers to WS-3 as the anti-pattern.  # noqa: internal-label"
-        ))
-        self.assertTrue(_INLINE_OPT_OUT.search(
-            "Refers to WS-3 in prose.  <!-- noqa: internal-label -->"
-        ))
-
-    def test_spec_ac_closure_is_not_a_leak(self):
-        """`Spec AC closure` is a named apex feature — must not flag."""
-        line = "Skip if § 0a Spec AC closure applied."
-        for regex, name, _ in _PATTERNS:
-            if name.startswith("spec-process"):
-                self.assertIsNone(
-                    regex.search(line),
-                    "`Spec AC closure` is a named feature and must be exempt",
-                )
+    def test_inline_opt_out_suppresses_only_marked_lines(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "skill.md"
+            path.write_text(
+                "WS-3  # noqa: internal-label\n"
+                "WS-3  <!-- noqa: internal-label -->\n"
+                "WS-3\n", encoding="utf-8",
+            )
+            hits = _scan_file(path)
+            self.assertEqual([(line, matched) for line, _, matched, _ in hits], [(3, "WS-3")])
 
     def test_bare_spec_ac_is_a_leak(self):
         """`spec AC` without `closure` after must flag."""

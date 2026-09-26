@@ -175,9 +175,10 @@ class TestPreflightEnvironment(unittest.TestCase):
         _make_stub(self.fake_bin, "node", '#!/bin/sh\necho ""\n')
         _make_stub(self.fake_bin, "pnpm", '#!/bin/sh\necho 9.0.0\n')
         r = _run(self.target, fake_bin=self.fake_bin)
-        # Must NOT be ok=true with an empty version string.
-        self.assertNotIn("RESULT: ok=true", r.stdout,
-                         "empty node version was accepted as ok=true")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("RESULT: node=unsupported", r.stdout)
+        self.assertIn("reason=invalid-version", r.stdout)
+        self.assertIn("RESULT: ok=false", r.stdout)
 
     def test_jq_missing_is_reported_before_scaffolding(self):
         sealed = self.tmp / "sealed-bin"

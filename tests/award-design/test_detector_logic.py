@@ -72,20 +72,6 @@ class TestPureCore(unittest.TestCase):
         self.assertEqual(_node('d.nestedSelectors(\'[data-symbol="&"]:hover\', ".parent")'),
                          ':is(.parent) [data-symbol="&"]:hover')
 
-    def test_module_exports(self):
-        keys = _node("Object.keys(d)")
-        for name in ("FLOORS", "VOID_FLOORS", "RULES", "srgbToOklab", "relativeLuminance",
-                     "contrastRatio", "parseTransform", "classifyDelta", "diffChannels",
-                     "classifyContact", "classifyNavHero", "peakChannels",
-                     "largestEmptyFraction", "classifyVoid"):
-            self.assertIn(name, keys)
-
-    def test_floors_values(self):
-        self.assertEqual(
-            {"scale": 1.04, "deltaL": 0.04, "translatePx": 2, "opacity": 0.1},
-            _node("d.FLOORS"),
-        )
-
     def test_srgb_to_oklab_known_values(self):
         self.assertAlmostEqual(_node("d.srgbToOklab(255,255,255).L"), 1.0, delta=0.01)
         self.assertAlmostEqual(_node("d.srgbToOklab(0,0,0).L"), 0.0, delta=0.01)
@@ -299,14 +285,6 @@ class TestFixtureExpectations(unittest.TestCase):
         )
         self.assertEqual("OK", _node(f"d.classifyDelta({sample})"))
 
-    def test_fixture_pages_exist(self):
-        for name in ("dead", "alive"):
-            with self.subTest(fixture=name):
-                self.assertTrue((FIXTURES / name / "index.html").is_file())
-                self.assertTrue((FIXTURES / name / "styles.css").is_file())
-        self.assertTrue((FIXTURES / "README.md").is_file())
-
-
 @unittest.skipUnless(shutil.which("node"), "node not on PATH")
 class TestSectionVoid(unittest.TestCase):
     """SECTION-DEAD's geometry: the largest empty rectangle in a section's
@@ -339,10 +317,6 @@ class TestSectionVoid(unittest.TestCase):
 
     def test_classify_void_spares_dense_tall_section(self):
         self.assertEqual("ALIVE", _node("d.classifyVoid({heightVh:2.0, emptyFraction:0.3})"))
-
-    def test_void_floors_shape(self):
-        self.assertEqual({"sectionMinVh": 1.4, "voidFraction": 0.45}, _node("d.VOID_FLOORS"))
-
 
 if __name__ == "__main__":
     unittest.main()

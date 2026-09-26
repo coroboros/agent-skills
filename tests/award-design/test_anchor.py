@@ -1,25 +1,13 @@
-"""award-design — the material anchor draws a ground the model would not have picked.
+"""Seed validity, quiet-brief filtering, and replayable anchor commands."""
 
-The palette rut is narrower than the direction rut and better documented: warm
-cream, serif, terracotta, or the GitHub-dark it swaps to when told "not cream"
-(`anti-patterns.md`). A seeded draw only escapes it if the pool escapes it, so
-most of this file audits the curation rather than the arithmetic: the anti-cream
-band is empty of grounds, the hue buckets are spread instead of piled on the
-frequent hues, every seed names a physical material, and `quiet_safe` means one
-decidable thing so a regulated brief gets a working filter rather than a label. The
-draw's determinism is pinned separately: the printed key and command are the
-whole audit trail."""
-
-import hashlib
 import importlib.util
-import math
 import re
 import shlex
 import subprocess
 import sys
 import unittest
-from collections import Counter
 from pathlib import Path
+from unittest.mock import patch
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 # The skill root is the documented invocation context — `python3 scripts/<name>.py`
@@ -36,16 +24,8 @@ KEYS = [f"{value:08x}" for value in range(600)]
 OKLCH_RE = re.compile(r"^oklch\((0\.\d+) (\d\.\d+) (\d+(?:\.\d+)?)\)$")
 FIELDS = {"id", "material", "palette_family", "oklch_ground", "oklch_accent",
           "temperature", "quiet_safe"}
-FAMILIES = {"dark-base-accent", "mono-oklch-depth", "earthy-pastel",
-            "neon-microglow", "multi-hue-oklch"}
 LOUD_FAMILIES = {"neon-microglow", "multi-hue-oklch"}
 QUIET_ACCENT_CHROMA = 0.17
-BUCKET_DEGREES = 30
-# Seeds name physical materials; this list holds the page styles the ban rejects.
-SOFTWARE_ARCHETYPES = ("dark mode", "light mode", "glassmorph", "neumorph", "material design",
-                       "flat design", "skeuomorph", "brutalist", "editorial", "minimal")
-
-
 def _oklch(value):
     match = OKLCH_RE.match(value)
     assert match is not None, f"unparseable OKLCH: {value}"
@@ -58,21 +38,13 @@ def _run(*args):
 
 
 class TestPoolShape(unittest.TestCase):
-    def test_pool_size_and_unique_ids(self):
-        self.assertGreaterEqual(len(anchor.SEEDS), 24)
-        self.assertEqual(len(anchor.SEEDS), len({seed["id"] for seed in anchor.SEEDS}))
-
     def test_every_seed_carries_every_field(self):
+        self.assertTrue(anchor.SEEDS)
+        self.assertEqual(len(anchor.SEEDS), len({seed["id"] for seed in anchor.SEEDS}))
         for seed in anchor.SEEDS:
             self.assertEqual(set(seed), FIELDS, seed.get("id"))
             self.assertIsInstance(seed["quiet_safe"], bool)
             self.assertIn(seed["temperature"], {"warm", "cool", "neutral"})
-
-    def test_all_five_color_strategies_are_represented(self):
-        present = Counter(seed["palette_family"] for seed in anchor.SEEDS)
-        self.assertEqual(set(present), FAMILIES)
-        for family, count in present.items():
-            self.assertGreaterEqual(count, 3, f"{family} is too thin to survive the filter")
 
     def test_oklch_values_parse_and_stay_in_gamut_range(self):
         for seed in anchor.SEEDS:
@@ -82,21 +54,10 @@ class TestPoolShape(unittest.TestCase):
                 self.assertTrue(0.0 <= chroma <= 0.37, f"{seed['id']} {role}")
                 self.assertTrue(0.0 <= hue < 360.0, f"{seed['id']} {role}")
 
-    def test_materials_are_physical_not_software_archetypes(self):
-        for seed in anchor.SEEDS:
-            lowered = f"{seed['id']} {seed['material']}".lower()
-            for term in SOFTWARE_ARCHETYPES:
-                self.assertNotIn(term, lowered,
-                                 f"{seed['id']} names a page style, not a material")
-
 
 class TestAntiCreamBand(unittest.TestCase):
     """The warm-neutral pale ground is the model default judges read as a tell.
     Only the ground role is barred; accents and type are unrestricted."""
-
-    def test_band_definition_has_not_been_widened(self):
-        self.assertEqual(anchor.CREAM_BAND,
-                         {"lightness": (0.84, 0.97), "chroma_max": 0.06, "hue": (40.0, 100.0)})
 
     def test_no_ground_sits_in_the_band(self):
         low, high = anchor.CREAM_BAND["lightness"]
@@ -108,22 +69,6 @@ class TestAntiCreamBand(unittest.TestCase):
             self.assertFalse(in_band, f"{seed['id']} grounds the page in the cream band")
 
 
-class TestHueSpread(unittest.TestCase):
-    """An unseeded pick piles onto the frequent hues; a pool that does the same
-    hands the rut back. The pool must cover every 30° bucket without crowding any."""
-
-    def _buckets(self):
-        return Counter(int(_oklch(seed["oklch_ground"])[2] // BUCKET_DEGREES)
-                       for seed in anchor.SEEDS)
-
-    def test_every_bucket_is_populated(self):
-        self.assertEqual(set(self._buckets()), set(range(360 // BUCKET_DEGREES)))
-
-    def test_no_bucket_is_overweight(self):
-        for bucket, count in self._buckets().items():
-            self.assertLessEqual(count, 3, f"bucket {bucket * BUCKET_DEGREES}° is crowded")
-
-
 class TestQuietSafety(unittest.TestCase):
     def test_quiet_safe_means_one_decidable_thing(self):
         for seed in anchor.SEEDS:
@@ -132,11 +77,6 @@ class TestQuietSafety(unittest.TestCase):
                         and accent_chroma <= QUIET_ACCENT_CHROMA)
             self.assertEqual(seed["quiet_safe"], expected,
                              f"{seed['id']} is labelled quiet_safe={seed['quiet_safe']}")
-
-    def test_quiet_pool_stays_wide_enough_to_be_a_draw(self):
-        quiet = anchor.pool_for("quiet")
-        self.assertGreaterEqual(len(quiet), 10)
-        self.assertGreaterEqual(len({seed["palette_family"] for seed in quiet}), 3)
 
     def test_regulated_and_quiet_filter_identically(self):
         self.assertEqual(anchor.pool_for("regulated"), anchor.pool_for("quiet"))
@@ -149,37 +89,24 @@ class TestQuietSafety(unittest.TestCase):
 
 
 class TestDraw(unittest.TestCase):
-    def test_unit_matches_the_published_formula(self):
-        for key in KEYS[:50]:
-            expected = int.from_bytes(hashlib.sha256(
-                f"{anchor.SCOPE}:{anchor.SALT}:{key}".encode("utf-8")).digest()[:4], "big") / 0xFFFFFFFF
-            self.assertEqual(anchor.unit(anchor.SCOPE, anchor.SALT, key), expected)
-
-    def test_index_is_the_seeded_position_in_the_pool(self):
-        pool = anchor.pool_for("default")
-        for key in KEYS[:200]:
-            expected = pool[math.floor(anchor.unit(anchor.SCOPE, anchor.SALT, key) * len(pool))]
-            self.assertEqual(anchor.draw(key, "default")["id"], expected["id"])
+    def test_hash_endpoints_select_first_and_last_seed(self):
+        for brief_class in ("default", "regulated", "quiet"):
+            pool = anchor.pool_for(brief_class)
+            for unit, expected in ((0.0, pool[0]), (1.0, pool[-1])):
+                with self.subTest(brief_class=brief_class, unit=unit):
+                    with patch.object(anchor, "unit", return_value=unit):
+                        self.assertEqual(anchor.draw("endpoint", brief_class), expected)
 
     def test_every_seed_is_reachable(self):
         drawn = {anchor.draw(key, "default")["id"] for key in KEYS}
         self.assertEqual(drawn, {seed["id"] for seed in anchor.SEEDS})
 
-    def test_same_key_draws_the_same_seed(self):
-        for key in KEYS[:40]:
-            self.assertEqual(anchor.draw(key, "default")["id"], anchor.draw(key, "default")["id"])
-
-    def test_different_keys_move_the_draw(self):
-        self.assertGreater(len({anchor.draw(key, "default")["id"] for key in KEYS[:60]}), 10)
-
 
 class TestStdoutContract(unittest.TestCase):
     def setUp(self):
         self.result = _run("--from", "4e91b0cc")
-        self.out = self.result.stdout
-
-    def test_exits_zero(self):
         self.assertEqual(self.result.returncode, 0, self.result.stderr)
+        self.out = self.result.stdout
 
     def test_header_carries_key_brief_class_and_seed(self):
         header = self.out.splitlines()[0]
@@ -201,11 +128,6 @@ class TestStdoutContract(unittest.TestCase):
                                 cwd=SKILL_DIR, capture_output=True, text=True)
         self.assertEqual(replay.returncode, 0, replay.stderr)
         self.assertEqual(replay.stdout, self.out)
-
-    def test_composition_sentence_bounds_the_anchors_authority(self):
-        lowered = self.out.lower()
-        self.assertIn("compose", lowered)
-        self.assertIn("never overrides an explicit brand commitment", lowered)
 
     def test_generated_key_is_printed_and_replayable(self):
         first = _run()

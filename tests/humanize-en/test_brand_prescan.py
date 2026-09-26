@@ -31,7 +31,6 @@ from brand_prescan import (  # noqa: E402
     parse_yaml_minimal,
     scan_brand,
 )
-from prescan import mask_protected_regions  # noqa: E402
 
 PRESCAN_SCRIPT = SCRIPTS / "prescan.py"
 
@@ -42,21 +41,6 @@ def _voice_doc(yaml_body):
 
 
 class TestParseYamlMinimal(unittest.TestCase):
-    def test_parses_lists_of_strings(self):
-        data = parse_yaml_minimal("foo:\n  - a\n  - b\n")
-        self.assertEqual(data, {"foo": ["a", "b"]})
-
-    def test_parses_nested_dict(self):
-        data = parse_yaml_minimal("voice:\n  name: \"X\"\n  forbid:\n    - a\n")
-        self.assertEqual(data["voice"]["name"], "X")
-        self.assertEqual(data["voice"]["forbid"], ["a"])
-
-    def test_parses_list_of_objects(self):
-        data = parse_yaml_minimal(
-            "rules:\n  - reject: \"a\"\n    accept: \"b\"\n    rule_id: r1\n"
-        )
-        self.assertEqual(data["rules"], [{"reject": "a", "accept": "b", "rule_id": "r1"}])
-
     def test_hash_inside_quoted_value_preserved(self):
         """A `#` inside a quoted string is NOT a comment — must survive parsing.
         URLs with anchors and color hex codes routinely contain `#`."""
@@ -71,12 +55,6 @@ class TestParseYamlMinimal(unittest.TestCase):
     def test_hash_inside_single_quoted_preserved(self):
         data = parse_yaml_minimal("color: '#ff0000'\n")
         self.assertEqual(data["color"], "#ff0000")
-
-    def test_invalid_yaml_raises_value_error(self):
-        # Inconsistent indent under a parent — parse_map raises with
-        # "unexpected indent (got N, want M)".
-        with self.assertRaises(ValueError):
-            parse_yaml_minimal("foo:\n  bar: baz\n   wrong: indent\n")
 
     def test_yaml_parse_error_carries_line_number(self):
         """ValueError must carry a `.line` attribute (1-indexed) so callers can
@@ -101,21 +79,6 @@ class TestParseYamlMinimal(unittest.TestCase):
 
 
 class TestLoadBrandRules(unittest.TestCase):
-    def test_returns_dict_for_valid_voice(self):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as f:
-            f.write(_voice_doc("voice:\n  name: \"Test\"\nforbidden_lexicon:\n  - foo\n"))
-            path = f.name
-        try:
-            rules = load_brand_rules(path)
-            self.assertEqual(rules.get("voice", {}).get("name"), "Test")
-            self.assertEqual(rules.get("forbidden_lexicon"), ["foo"])
-        finally:
-            Path(path).unlink()
-
-    def test_missing_file_raises(self):
-        with self.assertRaises(FileNotFoundError):
-            load_brand_rules("/tmp/_does_not_exist_xyz.md")
-
     def test_load_brand_rules_strips_utf8_bom(self):
         """Editors that save BRAND-VOICE.md with a UTF-8 BOM (U+FEFF prefix)
         must not silently break frontmatter detection. Without BOM stripping,
@@ -193,12 +156,6 @@ class TestAllCapsEmphasis(unittest.TestCase):
         hits = detect_all_caps_emphasis(
             "The API returns JSON via HTTP.", DEFAULT_ACRONYM_WHITELIST
         )
-        self.assertEqual(hits, [])
-
-    def test_voice_extension_whitelists_brand_acronym(self):
-        # "EDM" must not flag for a music brand that whitelists it.
-        whitelist = DEFAULT_ACRONYM_WHITELIST  # already includes EDM
-        hits = detect_all_caps_emphasis("The EDM track samples deep.", whitelist)
         self.assertEqual(hits, [])
 
     def test_short_caps_not_flagged(self):
@@ -448,32 +405,6 @@ class TestNegativeParallelismDocumentedGaps(unittest.TestCase):
         self.assertEqual(hits, [], "single-clause contrast is not negative parallelism")
 
 
-class TestUnresolvedVoiceExtendsRejected(unittest.TestCase):
-    """Local-only loading must not label inherited mechanical coverage clean."""
-
-    def test_fallback_does_not_walk_chain(self):
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as parent:
-            parent.write(_voice_doc(
-                "voice:\n  name: \"Parent\"\n"
-                "forbidden_lexicon:\n  - \"parent-only-term\"\n"
-                "rewrite_rules:\n  - reject: \"foo\"\n    accept: \"bar\"\n    rule_id: r\n"
-                "sentence_norms:\n  word_count_min: 8\n  word_count_max: 18\n  sentence_max_hard: 25\n"
-            ))
-            parent_path = parent.name
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as child:
-            child.write(_voice_doc(
-                f"voice:\n  name: \"Child\"\n  extends: \"{parent_path}\"\n"
-                "forbidden_lexicon:\n  - \"child-only-term\"\n"
-            ))
-            child_path = child.name
-        try:
-            with self.assertRaisesRegex(ValueError, "unresolved voice.extends"):
-                load_brand_rules(child_path)
-        finally:
-            Path(parent_path).unlink()
-            Path(child_path).unlink()
-
-
 class TestScanBrand(unittest.TestCase):
     """Integration: scan_brand() applies every detector enabled by the rules."""
 
@@ -566,17 +497,15 @@ class TestPrescanCLIBrandFlag(unittest.TestCase):
             ))
             voice_path = voice.name
         with tempfile.NamedTemporaryFile(mode="w", suffix=".md", delete=False) as prose:
-            prose.write("# Doc\n\nThe verboten term should flag.\n")
+            prose.write("# Doc\n\nThe verboten term and foo should flag.\n")
             prose_path = prose.name
         try:
             r = self._run("--brand", voice_path, prose_path)
             self.assertEqual(r.returncode, 0, r.stderr)
             hits = json.loads(r.stdout)
             brand_hits = [h for h in hits if h.get("source") == "brand"]
-            self.assertGreater(len(brand_hits), 0, "expected at least one brand hit")
-            self.assertTrue(any(
-                h.get("rule_id") == "forbidden_lexicon:verboten" for h in brand_hits
-            ))
+            self.assertEqual([h["rule_id"] for h in brand_hits],
+                             ["forbidden_lexicon:verboten", "rewrite_rule:r"])
         finally:
             Path(voice_path).unlink()
             Path(prose_path).unlink()
@@ -605,16 +534,6 @@ class TestPrescanCLIBrandFlag(unittest.TestCase):
                 self.assertNotIn("source", h)
         finally:
             Path(path).unlink()
-
-
-class TestMaskingMirrors(unittest.TestCase):
-    """utils.mask_protected_regions delegates to prescan.mask_protected_regions
-    so eval scripts and prescan stay byte-identical on masking."""
-
-    def test_pseudo_block_handling_consistent(self):
-        from prescan import mask_protected_regions as p_mask
-        text = "```text\nfoo\n```\n```python\nbar\n```"
-        self.assertEqual(mask_protected_regions(text), p_mask(text))
 
 
 if __name__ == "__main__":

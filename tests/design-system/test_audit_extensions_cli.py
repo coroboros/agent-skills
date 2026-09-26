@@ -19,7 +19,6 @@ SCRIPTS = REPO_ROOT / "skills" / "design-system" / "scripts"
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 
 SCRIPT_SH = SCRIPTS / "audit-extensions.sh"
-SCRIPT_PY = SCRIPTS / "audit_extensions.py"
 
 
 def _run(*args, cwd=None):
@@ -62,17 +61,6 @@ def _findings(stdout):
         kv["message"] = parts[2] if len(parts) > 2 else ""
         out.append(kv)
     return out
-
-
-class TestArtifactsExist(unittest.TestCase):
-    def test_shell_wrapper_exists(self):
-        self.assertTrue(SCRIPT_SH.is_file())
-
-    def test_python_script_exists(self):
-        self.assertTrue(SCRIPT_PY.is_file())
-
-    def test_shell_wrapper_executable(self):
-        self.assertTrue(os.access(SCRIPT_SH, os.X_OK))
 
 
 class TestArgumentValidation(unittest.TestCase):
@@ -154,12 +142,9 @@ class TestCleanFixture(unittest.TestCase):
         self.design = FIXTURES / "clean" / "DESIGN.md"
         self.css = FIXTURES / "clean" / "globals.css"
 
-    def test_exits_zero(self):
-        r = _run(str(self.design), "--css", str(self.css))
-        self.assertEqual(r.returncode, 0, msg=r.stdout + r.stderr)
-
     def test_zero_findings(self):
         r = _run(str(self.design), "--css", str(self.css))
+        self.assertEqual(r.returncode, 0, msg=r.stdout + r.stderr)
         kv = _result_kv(r.stdout)
         self.assertEqual(kv.get("errors"), "0")
         self.assertEqual(kv.get("warnings"), "0")
@@ -181,12 +166,9 @@ class TestDriftedFixture(unittest.TestCase):
         self.design = FIXTURES / "drifted" / "DESIGN.md"
         self.css = FIXTURES / "drifted" / "globals.css"
 
-    def test_exits_one(self):
-        r = _run(str(self.design), "--css", str(self.css))
-        self.assertEqual(r.returncode, 1)
-
     def test_extension_missing_css_fires(self):
         r = _run(str(self.design), "--css", str(self.css))
+        self.assertEqual(r.returncode, 1)
         rules = [f["rule"] for f in _findings(r.stdout)]
         self.assertIn("extension-missing-css", rules)
 
@@ -280,14 +262,17 @@ class TestExtensionBoundary(unittest.TestCase):
 
 
 class TestPython3Required(unittest.TestCase):
-    """The wrapper must check for python3 availability and emit a clean
-    error when missing. Verified by inspecting the wrapper source — running
-    bash without python3 on PATH is non-portable across CI environments."""
-
-    def test_wrapper_probes_python3(self):
-        text = SCRIPT_SH.read_text(encoding="utf-8")
-        self.assertIn("command -v python3", text)
-        self.assertIn("python3-missing", text)
+    def test_missing_python_reports_the_prerequisite(self):
+        with tempfile.TemporaryDirectory() as directory:
+            bin_dir = Path(directory)
+            (bin_dir / "dirname").symlink_to(shutil.which("dirname"))
+            result = subprocess.run(
+                [shutil.which("bash"), str(SCRIPT_SH), "DESIGN.md"],
+                env={**os.environ, "PATH": str(bin_dir)},
+                capture_output=True, text=True, timeout=30,
+            )
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertEqual(_result_kv(result.stdout)["status"], "python3-missing")
 
 
 if __name__ == "__main__":

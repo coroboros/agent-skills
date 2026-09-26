@@ -65,12 +65,6 @@ class TestParsePaths(unittest.TestCase):
         self.assertEqual(parse_paths('paths: ["src/**/*.{ts,tsx}", \'test/**/*.py\']'),
                          (True, ["src/**/*.{ts,tsx}", "test/**/*.py"]))
 
-    def test_block_list(self):
-        fm = "paths:\n  - 'src/**/*.ts'\n  - test/**/*.ts\n"
-        declared, items = parse_paths(fm)
-        self.assertTrue(declared)
-        self.assertEqual(items, ["src/**/*.ts", "test/**/*.ts"])
-
     def test_block_list_terminates_at_next_key(self):
         fm = "paths:\n  - src/**/*.ts\nname: x\n"
         declared, items = parse_paths(fm)

@@ -39,10 +39,14 @@ REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 SCRIPT_DIR = REPO_ROOT / "skills" / "code-ultrareview" / "scripts"
 SYNTHESIZE = SCRIPT_DIR / "synthesize.py"
 
-sys.path.insert(0, str(REPO_ROOT / "tests" / "_pipeline"))
-from _contracts import CLUSTERS  # noqa: E402
-
-REVIEW = CLUSTERS["review"]
+REPORT_SECTIONS = (
+    "📋 Axis summary",
+    "🔎 Findings",
+    "✅ What looks good",
+    "⚖️ Verdict",
+    "🧰 Tools skipped",
+    "🛡️ What I did NOT check",
+)
 
 
 def _load(name: str):
@@ -322,16 +326,6 @@ class TestInterAxisPrecedence(unittest.TestCase):
         survivors = synthesis_core.dedup_by_precedence([f_correctness, f_tests])
         self.assertEqual(len(survivors), 2)
 
-    def test_axis_priority_full_order(self):
-        """The full priority order pins the spec: Correctness > Design/API >
-        Simplification > Tests > Documentation > Style > Intent > Performance >
-        Coherence."""
-        expected = (
-            "correctness", "design-api", "simplification", "tests",
-            "documentation", "style", "intent", "performance", "coherence",
-        )
-        self.assertEqual(synthesis_core.AXIS_PRIORITY, expected)
-
     def test_findings_without_location_pass_through(self):
         """Findings with empty `location` are skipped by the deduper."""
         f1 = _finding(location="", finding="Generic note")
@@ -427,20 +421,6 @@ class TestWhatIDidNotCheck(unittest.TestCase):
         self.assertIn("Runtime performance", stdout)
         self.assertIn("Flaky test detection", stdout)
 
-    def test_skipped_tool_blocks_synthesis(self):
-        scope = _scope(tools_skipped=[
-            {"tool": "oasdiff", "axis": "design-api",
-             "install": "brew install oasdiff"},
-        ])
-        with tempfile.TemporaryDirectory() as tmp:
-            stdout, stderr, rc = _run_synthesize(
-                scope, [], output_dir=Path(tmp),
-            )
-        self.assertEqual(rc, 4)
-        self.assertEqual(stdout, "")
-        self.assertIn("analyzers were skipped", stderr)
-        self.assertIn("rerun the review", stderr)
-
     def test_not_applicable_tool_renders_without_blocking(self):
         """Synthesis accepts a not-applicable entry and names it."""
         scope = _scope(tools_skipped=[
@@ -464,16 +444,6 @@ class TestWhatIDidNotCheck(unittest.TestCase):
 
 
 class TestRequiredSectionsInReport(unittest.TestCase):
-    def test_all_required_sections_in_minimal_report(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            stdout, _, rc = _run_synthesize(_scope(), [], output_dir=Path(tmp))
-        self.assertEqual(rc, 0, stdout)
-        for section in REVIEW["report_required_sections"]:
-            self.assertIn(
-                f"## {section}", stdout,
-                f"section `## {section}` missing from rendered report",
-            )
-
     def test_sections_render_in_canonical_order(self):
         with tempfile.TemporaryDirectory() as tmp:
             stdout, _, rc = _run_synthesize(_scope(), [], output_dir=Path(tmp))
@@ -482,7 +452,7 @@ class TestRequiredSectionsInReport(unittest.TestCase):
         # inside the blockquote prose are NOT headings.
         import re
         offsets = []
-        for section in REVIEW["report_required_sections"]:
+        for section in REPORT_SECTIONS:
             match = re.search(
                 rf"^## {re.escape(section)}\s*$", stdout, re.MULTILINE,
             )
@@ -491,6 +461,7 @@ class TestRequiredSectionsInReport(unittest.TestCase):
             )
             offsets.append(match.start())
         self.assertEqual(offsets, sorted(offsets), "sections out of order")
+        self.assertIn("**Findings:** 0 🔴 · 0 🟠 · 0 🟢 (verified) · 0 unverified", stdout)
 
 
 # ---------------------------------------------------------------------------

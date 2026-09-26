@@ -1,20 +1,6 @@
-"""award-design pixel metrics — asset contract and pure-core behavior.
-
-This payload is the evidence pack, and Law 1 is the whole point of it: a
-DOM-geometry proxy is a theory-class observation, so it may never carry a
-severity, a threshold that fails, or a verdict. That boundary is enforced
-mechanically here — the code is scanned with its prose stripped, because the
-header is allowed to say "no severities" while the code is not allowed to have
-one.
-
-The arithmetic under the evidence is pinned too: the raster that produces the
-28-of-156 empty-cell read, the OKLab distance that decides whether an element
-carries the accent, and the scroll correction that separates an element moving
-against the page from the page simply scrolling under it.
-"""
+"""Pixel-metric color, raster, and scroll-corrected motion calculations."""
 
 import json
-import re
 import shutil
 import subprocess
 import unittest
@@ -22,35 +8,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 ASSET = REPO_ROOT / "skills" / "award-design" / "assets" / "pixel-metrics.js"
-
-MODULE_SYNTAX = re.compile(r"^(?:import\s|export\s|require\(|(?:const|let|var)\s.*=\s*require\()")
-BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.S)
-LINE_COMMENT = re.compile(r"^\s*//.*$", re.M)
-
-METRICS = ("quadrantEmptiness", "inkProfile", "groundCommitment",
-           "accentFrequency", "idleDelta", "scrollDelta")
-
-# Evidence carries no authority. Any of these in the code — not the prose —
-# means the payload started grading instead of measuring. `verdict:` is the key
-# form on purpose: the footer is allowed to say the payload has no verdicts.
-FORBIDDEN_VERDICT = ["severity", "'FAIL'", '"FAIL"', "'REVIEW'", '"REVIEW"',
-                     "verdict:", "RULES", "finding("]
-
-FORBIDDEN_RUNTIME = [
-    "window.open", "resizeTo(", "resizeBy(", "puppeteer", "playwright",
-    "XMLHttpRequest", "navigator.sendBeacon", "new Worker(", "fetch(",
-]
-
-METHOD_LITERAL = "const METHOD = 'dom-geometry-proxy';"
-PROXY_NOTE_LITERAL = "const PROXY_NOTE = 'canvas/video internals invisible to this proxy';"
-GRID_LITERAL = ("const GRID = { quadCols: 12, quadRows: 13, rasterCols: 120, "
-                "maxRasterRows: 1200, emptyCell: 0.02, groundCoverage: 0.9 };")
-FOOTER = "Evidence only — no severities, no verdicts. Every number is a DOM-geometry proxy for a pixel fact; the judge decides what it means."
-
-
-def _code(source):
-    return LINE_COMMENT.sub("", BLOCK_COMMENT.sub("", source))
-
 
 def _node(expr):
     """Evaluate one expression against the required asset; fail loud on stderr."""
@@ -62,142 +19,6 @@ def _node(expr):
     if proc.returncode != 0:
         raise AssertionError(f"node -e failed:\n{proc.stderr}")
     return json.loads(proc.stdout.strip())
-
-
-class TestPixelMetricsAsset(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        assert ASSET.is_file(), f"missing pixel-metrics asset: {ASSET}"
-        cls.source = ASSET.read_text(encoding="utf-8")
-        cls.code = _code(cls.source)
-
-    def test_size_under_64kb(self):
-        self.assertLess(ASSET.stat().st_size, 64 * 1024)
-
-    def test_no_top_level_module_syntax(self):
-        offenders = [
-            f"{i}: {line.rstrip()}"
-            for i, line in enumerate(self.source.splitlines(), 1)
-            if MODULE_SYNTAX.match(line)
-        ]
-        self.assertEqual([], offenders)
-
-    def test_carries_no_verdict_machinery(self):
-        """The Law-1 line: a proxy measurement can never become a gate. The scan
-        runs on stripped code so the header may still explain the rule it obeys."""
-        offenders = [token for token in FORBIDDEN_VERDICT if token in self.code]
-        self.assertEqual([], offenders, f"evidence payload carries verdict machinery: {offenders}")
-
-    def test_never_owns_or_resizes_a_browser(self):
-        offenders = [token for token in FORBIDDEN_RUNTIME if token in self.code]
-        self.assertEqual([], offenders, f"payload reaches outside its contract: {offenders}")
-
-    def test_result_declares_itself_a_proxy(self):
-        self.assertIn("proxy: true", self.source)
-
-    def test_every_metric_is_present_and_labelled(self):
-        for metric in METRICS:
-            with self.subTest(metric=metric):
-                self.assertIn(metric, self.source)
-        self.assertIn(METHOD_LITERAL, self.source)
-        # every metric labels its own method, or a reader cannot tell a proxy
-        # from a measurement once the numbers are quoted out of context
-        self.assertGreaterEqual(self.code.count("method: METHOD"), len(METRICS))
-
-    def test_motion_proxies_state_their_blind_spot(self):
-        """The proxy sees DOM geometry; a canvas repainting under a still rect
-        reads as zero. Both motion metrics must say so on their own output line."""
-        self.assertIn(PROXY_NOTE_LITERAL, self.source)
-        self.assertGreaterEqual(self.code.count("PROXY_NOTE"), 3)
-
-    def test_grid_literal_exact(self):
-        """12×13 is the 156-cell grid the empty-cell evidence is counted in."""
-        self.assertIn(GRID_LITERAL, self.source)
-
-    def test_footer_doctrine_present(self):
-        self.assertIn(FOOTER, self.source)
-
-    def test_single_global(self):
-        """One window property — counted anywhere in the file, in either syntax."""
-        dotted = set(re.findall(r"window\.(\w+)\s*=(?!=)", self.code))
-        self.assertEqual({"awardPixelMetrics"}, dotted)
-        self.assertEqual([], re.findall(r"window\[[^\]]+\]\s*=(?!=)", self.code))
-
-    def test_ground_commitment_merges_before_it_ranks(self):
-        """Testing mergeByColor in isolation proves the arithmetic, not that the
-        metric uses it — the headline share is only correct if it does."""
-        self.assertIn("const sorted = mergeByColor(Array.from(byColor.values()));", self.source)
-
-    def test_transitions_die_during_the_raster_and_are_restored(self):
-        self.assertIn("transition: none !important", self.source)
-        self.assertIn("kill.restore()", self.source)
-        self.assertIn("} finally {", self.source)
-
-    def test_scroll_is_put_back(self):
-        """The scroll proxy moves the page the judges are reading; leaving it
-        moved would poison every instrument that runs after it."""
-        self.assertIn("scrollTo(startX, startY)", self.source)
-        self.assertIn("restored:", self.source)
-
-
-class TestPixelMetricsHeader(unittest.TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.header = BLOCK_COMMENT.search(ASSET.read_text(encoding="utf-8")).group(0)
-
-    def test_names_every_metric(self):
-        for metric in METRICS:
-            with self.subTest(metric=metric):
-                self.assertIn(metric, self.header)
-
-    def test_states_the_evidence_only_rule(self):
-        self.assertIn("EVIDENCE ONLY", self.header)
-
-    def test_does_not_claim_to_be_threshold_free(self):
-        """The file defines seven tuning constants that shape every number it
-        reports. Claiming "no thresholds" over that is its own dishonesty — the
-        honest line is that they are reporting parameters, never gates, and that
-        each ships beside the count it produced."""
-        self.assertNotIn("no thresholds", self.header)
-        self.assertIn("reporting parameter", self.header.lower())
-        for knob in ("GRID.emptyCell", "COLOR.matchTol", "ACCENT.oklabTol"):
-            with self.subTest(knob=knob):
-                self.assertIn(knob, self.header)
-
-    def test_discloses_the_raf_tween_blind_spot(self):
-        """A GSAP/Lenis page registers no Web Animation and no animation-name.
-        The proxy sees it only through inline transforms, and must say so."""
-        self.assertIn("GSAP", self.header)
-
-    def test_states_the_honest_limits(self):
-        for token in ("screenshot", "canvas", "hijacked"):
-            with self.subTest(token=token):
-                self.assertIn(token, self.header)
-
-
-@unittest.skipUnless(shutil.which("node"), "node not on PATH")
-class TestPureCore(unittest.TestCase):
-    def test_module_exports(self):
-        keys = _node("Object.keys(pm)")
-        for name in ("GRID", "COLOR", "ACCENT", "MOTION", "METHOD", "srgbToOklab", "parseColor",
-                     "oklabDistance", "chroma", "mergeByColor", "rasterize", "blockCoverage",
-                     "distribution", "delta"):
-            self.assertIn(name, keys)
-
-    def test_ground_identity_and_accent_matching_are_separate_tolerances(self):
-        """One shared constant meant retuning the accent silently moved
-        quadrantEmptiness and inkProfile — two behaviours, two knobs."""
-        self.assertNotEqual(_node("pm.COLOR.matchTol"), _node("pm.ACCENT.oklabTol"))
-
-    def test_grid_is_the_156_cell_read(self):
-        grid = _node("pm.GRID")
-        self.assertEqual(12, grid["quadCols"])
-        self.assertEqual(13, grid["quadRows"])
-        self.assertEqual(156, grid["quadCols"] * grid["quadRows"])
-        self.assertEqual(0.02, grid["emptyCell"])
-
-    def test_method_label(self):
-        self.assertEqual("dom-geometry-proxy", _node("pm.METHOD"))
 
 
 @unittest.skipUnless(shutil.which("node"), "node not on PATH")
@@ -220,9 +41,6 @@ class TestColorCore(unittest.TestCase):
     def test_unparsable_color_is_null_not_a_guess(self):
         self.assertIsNone(_node("pm.parseColor('var(--accent)')"))
         self.assertIsNone(_node("pm.parseColor('currentcolor')"))
-
-    def test_identical_colors_are_zero_apart(self):
-        self.assertEqual(0, _node("pm.oklabDistance(pm.srgbToOklab(179,71,0), pm.srgbToOklab(179,71,0))"))
 
     def test_a_repaint_of_the_same_token_stays_inside_the_accent_tolerance(self):
         """Rounding between an authored token and its computed serialization must

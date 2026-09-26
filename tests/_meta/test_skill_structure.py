@@ -79,30 +79,5 @@ class TestRefPatternRegex(unittest.TestCase):
         self.assertIsNone(m)
 
 
-class TestSubdirContentExpectations(unittest.TestCase):
-    def test_scripts_dir_has_at_least_one_file(self):
-        """If scripts/ exists, it should not be empty (otherwise drop the dir)."""
-        for skill in get_skill_dirs():
-            scripts_dir = skill / "scripts"
-            if not scripts_dir.is_dir():
-                continue
-            with self.subTest(skill=skill.name):
-                non_pycache = [
-                    f for f in scripts_dir.iterdir()
-                    if f.name not in {"__pycache__", "__init__.py"}
-                ]
-                self.assertGreater(len(non_pycache), 0,
-                                   f"{skill.name}/scripts/ exists but is empty")
-
-    def test_steps_dir_has_at_least_one_file(self):
-        for skill in get_skill_dirs():
-            steps_dir = skill / "steps"
-            if not steps_dir.is_dir():
-                continue
-            with self.subTest(skill=skill.name):
-                files = list(steps_dir.iterdir())
-                self.assertGreater(len(files), 0, f"{skill.name}/steps/ exists but is empty")
-
-
 if __name__ == "__main__":
     unittest.main()

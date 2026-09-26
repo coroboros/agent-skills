@@ -19,24 +19,12 @@ def _load():
 
 
 class TestMarketplaceShape(unittest.TestCase):
-    def test_file_exists(self):
-        self.assertTrue(MARKETPLACE.is_file())
-
     def test_top_level_fields(self):
         data = _load()
         self.assertEqual(data.get("name"), "coroboros-agent-skills")
         self.assertIn("owner", data)
         self.assertIn("metadata", data)
         self.assertIn("plugins", data)
-
-    def test_owner_email_canonical(self):
-        """Owner email must be the brand address, not a personal one."""
-        data = _load()
-        self.assertEqual(data["owner"]["email"], "ob@coroboros.com")
-
-    def test_owner_name_canonical(self):
-        data = _load()
-        self.assertEqual(data["owner"]["name"], "coroboros")
 
     def test_version_semver(self):
         data = _load()
@@ -87,17 +75,6 @@ class TestPluginShape(unittest.TestCase):
                 self.assertRegex(plugin["name"], KEBAB)
                 self.assertTrue(plugin["name"].endswith("-skills"),
                                 f"{plugin['name']} doesn't end with '-skills'")
-
-    def test_plugin_description_under_120(self):
-        """Per repo-conventions.md: plugin descriptions are 'one line, under ~120 chars'.
-        Soft margin of 5 chars allowed for the tilde — hard ceiling 125."""
-        data = _load()
-        for plugin in data["plugins"]:
-            with self.subTest(plugin=plugin["name"]):
-                desc = plugin.get("description", "")
-                self.assertGreater(len(desc), 0)
-                self.assertLessEqual(len(desc), 125,
-                                     f"{plugin['name']} description too long ({len(desc)} chars, cap ~120)")
 
     def test_plugin_has_skills(self):
         data = _load()

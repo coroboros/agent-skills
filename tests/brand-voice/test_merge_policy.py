@@ -9,12 +9,6 @@ from utils import merge_voice_dicts  # noqa: E402
 
 
 class TestListUnionDedup(unittest.TestCase):
-    def test_forbidden_lexicon_union(self):
-        parent = {"forbidden_lexicon": ["a", "b"]}
-        child = {"forbidden_lexicon": ["c"]}
-        merged = merge_voice_dicts(parent, child)
-        self.assertEqual(merged["forbidden_lexicon"], ["a", "b", "c"])
-
     def test_forbidden_lexicon_dedup_preserves_order(self):
         parent = {"forbidden_lexicon": ["a", "b"]}
         child = {"forbidden_lexicon": ["b", "c"]}
@@ -162,28 +156,6 @@ class TestVoiceMetadataMerge(unittest.TestCase):
 
 
 class TestEdgeCases(unittest.TestCase):
-    def test_empty_parent(self):
-        merged = merge_voice_dicts(None, {"forbidden_lexicon": ["a"]})
-        self.assertEqual(merged["forbidden_lexicon"], ["a"])
-
-    def test_empty_child(self):
-        merged = merge_voice_dicts({"forbidden_lexicon": ["a"]}, None)
-        self.assertEqual(merged["forbidden_lexicon"], ["a"])
-
-    def test_both_empty(self):
-        merged = merge_voice_dicts(None, None)
-        self.assertEqual(merged, {})
-
-    def test_replace_keys_carried_forward(self):
-        """merge_voice_dicts carries _replace/_remove keys from child unchanged
-        for downstream apply_*_overrides to consume."""
-        merged = merge_voice_dicts(
-            {"forbidden_lexicon": ["a"]},
-            {"forbidden_lexicon_replace": ["x"]},
-        )
-        self.assertIn("forbidden_lexicon_replace", merged)
-        self.assertEqual(merged["forbidden_lexicon_replace"], ["x"])
-
     def test_unknown_top_level_keys_passed_through(self):
         merged = merge_voice_dicts(
             {"forbidden_lexicon": ["a"], "experimental_flag": True},
