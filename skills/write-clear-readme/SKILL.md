@@ -3,9 +3,9 @@ name: write-clear-readme
 description: Author, restructure, audit or polish a project README for clarity and scannability. Reads repository truth, preserves anchors and code, and verifies rendering. Explicit author/polish requests apply local changes; audit/propose stays read-only. Use for README creation, wording, structure and navigation, including skill collections and CLI/SDK docs.
 when_to_use: Useful for long human-facing docs (config READMEs, plugin monorepos), skill libraries, npm SDK references, CLI manuals, or any README showing scroll fatigue, unclear writing, or verbose passages.
 argument-hint: "[author|audit|polish] [optional path — defaults to ./README.md]"
-allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *) Bash(python3 *) Bash(basename *) Bash(test *) Bash(ls *)
+allowed-tools: Read Write Edit Grep Glob Bash(git *) Bash(jq *) Bash(python3 *) Bash(pandoc *) Bash(basename *) Bash(test *) Bash(ls *)
 license: MIT
-compatibility: "Requires project file access and Python 3.10+ for the bundled audit. Rendering checks use an available Markdown preview or browser; unavailable rendering remains an explicit verification gap."
+compatibility: "Requires project file access and Python 3.10+ for the bundled audit. Visual checks use an existing editor preview, or installed Pandoc plus an HTML viewer. Report unavailable viewer access and unsupported rendering features."
 metadata:
   author: coroboros
 ---
@@ -211,7 +211,7 @@ The canonical *Writing rules* block already requires invoking `/humanize-en` aft
 5. **Draft** — overview table at top with anchor links, Install / Quick Start / Requirements uncollapsed, chosen collapse pattern applied uniformly below. Apply the canonical *Writing rules* + *README-specific style* as you write.
 6. **Strip AI traces** — for English content, invoke `/humanize-en` on the draft (see *AI-tell removal — skill-specific notes* above). Skip if the skill is unavailable or the content is non-English.
 7. **Verify structure** — every TOC anchor resolves. Every `<details>` has a `<br>` after `<summary>`. No nested collapsibles. Install block is never inside `<details>`. Pattern applied uniformly across all peers at the chosen level. No `Expand —` in `<summary>`. No h3 above a `<details>` that repeats the `<summary>` label. No numeric counts adjacent to content nouns.
-8. **Verify rendering** — view the rendered output (GitHub preview, IDE markdown preview, or ask the user to confirm visually). Source-only checks miss visual monotony and inconsistent collapse patterns.
+8. **Verify rendering** — follow [Local rendering](#local-rendering). Source-only checks miss visual monotony and inconsistent collapse patterns.
 9. **Write** — overwrite or create `README.md`. Present the diff if it existed before.
 
 ## Audit mode
@@ -266,6 +266,23 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 4. **Preserve** all anchors, headings, code blocks, diagrams, badges, and link URLs verbatim.
 5. **Apply and report** — apply the authorized wording changes, verify rendering and present the diff. If the user requested a proposal only, report it without modifying the target.
 
+## Local rendering
+
+A private repository or unavailable GitHub login does not prevent local visual verification. Use the current working file, including uncommitted edits, and an installed renderer the host can inspect:
+
+- **Editor preview:** in VS Code, open the Markdown file and run **Markdown: Open Preview** (`Shift+Cmd+V` on macOS, `Ctrl+Shift+V` on Windows/Linux). Keep preview security enabled. Its CommonMark/markdown-it renderer is useful for layout and interactions, but is not GitHub's complete GFM pipeline. See the [official preview documentation](https://code.visualstudio.com/docs/languages/markdown#_markdown-preview).
+- **HTML fallback:** with Pandoc installed, run the following from the README's directory. It preserves raw HTML such as `<details>/<summary>` and uses GFM heading identifiers:
+
+  ```bash
+  preview_dir="$(mktemp -d)"
+  pandoc --from=gfm --to=html5 --standalone --metadata pagetitle=README \
+    README.md --output "$preview_dir/README.html"
+  ```
+
+  Keep output outside the working tree. Copy only referenced local assets into the preview directory, preserving their relative paths; for `assets/logo.png`, copy that file to `$preview_dir/assets/logo.png`. For paths starting with `../` or `/`, prefer the editor preview; otherwise preserve the document and asset layout under a common temporary root and resolve root-relative URLs explicitly. Open the HTML with an authorized local viewer. `--resource-path` alone does not rewrite HTML URLs; do not use `--embed-resources` by default, since it can fetch remote resources. If Pandoc is missing, give the applicable [installation command](https://pandoc.org/installing.html) (`brew install pandoc` on macOS), then rerun the command above; do not resolve a package at runtime. See the [Pandoc manual](https://pandoc.org/MANUAL.html).
+
+Inspect a screenshot or the live rendered view: headings, tables, code blocks, images, anchor navigation, and expanded `<details>` sections. Check the changed sections and each markup type used; HTML generation alone is not visual verification. Report the renderer and what was inspected. Neither route proves exact GitHub styling or sanitization, and unsupported features such as unrendered Mermaid remain explicit gaps. Remove temporary preview files after inspection. If no permitted viewer is available, report that specific limitation after completing the source checks.
+
 ## Rules
 
 - Preserve the authorized target and mode: explicit author/polish edits; audit/propose does not. A filepath or casual README mention alone grants no edit authority.
@@ -278,7 +295,7 @@ Wording-only pass. Structure stays as-is — only the prose changes.
 - NEVER change anchors, code blocks, or link URLs in polish mode (those are content, not prose).
 - ALWAYS add `<br>` after `<summary>` — GitHub needs it to render the first inner block.
 - ALWAYS match the existing README's style (quote convention, heading hierarchy, badge format) when editing.
-- ALWAYS verify the rendered output before declaring done (GitHub preview, IDE preview, or user confirmation).
+- ALWAYS verify the rendered output through [Local rendering](#local-rendering) before declaring visual checks complete.
 - Empty `$ARGUMENTS` follows the *Subcommands* default row above. Non-empty: first token is the subcommand, second is the path.
 
 ## Gotchas
