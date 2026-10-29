@@ -44,7 +44,7 @@ Per-scaffold steps (framework CLI, conflict removal, dependency installs, CSS-to
 bash "$SKILL_DIR"/scripts/overlay_templates.sh "{scaffold}" "{project_name}" "{project_dir}"
 ```
 
-Writes opinionated configs (`biome.json`, `.worktreeinclude`, canonical `AGENTS.md`, thin `CLAUDE.md`, `.agents/rules/`, `.node-version`, `.dev.vars.example`, `wrangler.jsonc`, framework configs), ensures Tailwind is imported, merges the shared rules into the generator's `.gitignore`, and applies the validated name plus scripts and module settings to `package.json`. Every publication uses a same-directory temporary file and rejects destination or parent symlinks. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial.
+Writes opinionated configs (`biome.json`, `.worktreeinclude`, canonical `AGENTS.md`, `.agents/rules/`, `.node-version`, `.dev.vars.example`, `wrangler.jsonc`, framework configs), ensures Tailwind is imported, merges the shared rules into the generator's `.gitignore`, and applies the validated name plus scripts and module settings to `package.json`. Every publication uses a same-directory temporary file and rejects destination or parent symlinks. Idempotent — skips existing files unless `--force`; `ok=partial` → show the skipped list, ask whether to rerun or keep partial.
 
 ### 4. Verify and summarize
 
