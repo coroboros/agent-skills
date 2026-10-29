@@ -130,19 +130,6 @@ def _extract_block(skill_md: Path, start_marker: str, end_marker: str) -> str | 
     return text[s : e + len(end_marker)]
 
 
-class TestCanonicalFiles(unittest.TestCase):
-    def test_claude_entrypoint_loads_canonical_instructions(self):
-        self.assertEqual((REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8"), "@AGENTS.md\n")
-        self.assertTrue((REPO_ROOT / "AGENTS.md").is_file())
-
-    def test_claude_behavior_adapters_match_owners(self):
-        """Both hosts must receive the same general behavior rules."""
-        for suffix in ("", "-frontier"):
-            with self.subTest(rule=suffix or "core"):
-                source = REPO_ROOT / ".agents" / "rules" / f"behavior{suffix}.md"
-                adapter = REPO_ROOT / ".claude" / "rules" / f"behave{suffix}.md"
-                self.assertEqual(source.read_bytes(), adapter.read_bytes())
-
 class TestDeclaredSkillsCarryBlock(unittest.TestCase):
     def test_every_declared_skill_carries_canonical_block_verbatim(self):
         for rule in CANONICAL_RULES:

@@ -1350,7 +1350,7 @@ Every push and PR scans the `skills/` tree with [`cisco-ai-defense/skill-scanner
 
 This repo uses the [Agent Skills specification](https://agentskills.io/specification), including string-valued metadata and optional `compatibility` requirements. Documented Claude Code extensions such as `when_to_use`, `argument-hint`, and `paths` remain where useful. Strict upload or packaging paths may reject these extensions; check the target loader. `allowed-tools` is an experimental specification field. Skills inherit the session model and effort.
 
-Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing index (Codex and every `AGENTS.md`-reading harness), [`CLAUDE.md`](./CLAUDE.md) imports it for Claude Code. Authoring conventions live in [`.agents/rules/`](./.agents/rules/):
+Repo guidance is cross-agent: [`AGENTS.md`](./AGENTS.md) is the agent-facing index, read by Claude Code, Codex and every other `AGENTS.md`-reading harness. Authoring conventions live in [`.agents/rules/`](./.agents/rules/):
 
 - [`agentskills-spec.md`](./.agents/rules/agentskills-spec.md) — canonical frontmatter, folder anatomy, size budget
 - [`claude-code-skills.md`](./.agents/rules/claude-code-skills.md) — Claude Code extensions and string substitutions
