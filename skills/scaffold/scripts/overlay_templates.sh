@@ -161,7 +161,6 @@ prepare_destination() {
 TEMPLATE_SOURCES=(
   "$TEMPLATES_DIR/shared/biome.json.template"
   "$TEMPLATES_DIR/shared/worktreeinclude"
-  "$TEMPLATES_DIR/shared/CLAUDE.md"
   "$TEMPLATES_DIR/shared/cloudflare-tooling.md"
   "$TEMPLATES_DIR/shared/node-version"
   "$TEMPLATES_DIR/shared/dev.vars.example"
@@ -169,7 +168,6 @@ TEMPLATE_SOURCES=(
 TEMPLATE_DESTINATIONS=(
   "$TARGET_DIR/biome.json"
   "$TARGET_DIR/.worktreeinclude"
-  "$TARGET_DIR/CLAUDE.md"
   "$TARGET_DIR/.agents/rules/cloudflare-tooling.md"
   "$TARGET_DIR/.node-version"
   "$TARGET_DIR/.dev.vars.example"

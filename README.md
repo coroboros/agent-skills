@@ -316,7 +316,7 @@ Shared: TypeScript strict, pnpm, Biome, Tailwind CSS.
 
 **What it does**
 
-Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, thin `CLAUDE.md` adapter, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` (award-level direction), `/frontend-dev` (implementation), and `/design-system` are optional follow-on handoffs.
+Runs the official framework CLI, preserves the generator's ignore rules while overlaying the opinionated config (Biome, Cloudflare Workers, canonical `AGENTS.md`, shared `.agents/rules/`, pnpm scripts, `.worktreeinclude` — copies dev-critical gitignored files into Claude Code worktrees), and installs the full stack. When installed, `/award-design` (award-level direction), `/frontend-dev` (implementation), and `/design-system` are optional follow-on handoffs.
 
 Installed authentication and database dependencies are starting points; the scaffold does not implement application auth or schemas. Provider activation and further architecture choices follow the requested scope.
 
