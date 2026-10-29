@@ -7,7 +7,6 @@ Use the **official Anthropic `skill-creator` skill** when creating, updating, or
 - Official skill: [anthropics/skills](https://github.com/anthropics/skills/tree/main/skills/skill-creator)
 - Typical installation: `~/.agents/skills/skill-creator/`
 - Official [Agent Skills specification](https://agentskills.io/specification) and [Claude Code skills reference](https://code.claude.com/docs/en/skills)
-- Use `/ask-archivist` for the Anthropic documentation mirror. Check each file's source URL and snapshot freshness; a filename alone does not establish which product it describes.
 
 ## Authoring and review
 
