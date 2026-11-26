@@ -39,6 +39,7 @@ Inspect the active tool descriptions. Depending on the connector, supported oper
 - **Headless / CI / non-interactive** — use the supported CLI authentication and output flags for the requested script. A CI job need not have a Claude session; absence of Claude does not imply absence of MCP elsewhere.
 - **Raw API discovery** — `ntn api ls` enumerates every endpoint. Useful when an action isn't covered by any high-level MCP tool.
 - **Shell piping** — `ntn pages get <id> --json | jq …` for ad-hoc data wrangling.
+- **Calls without a body** — `ntn api` takes its JSON body from stdin whenever stdin is not a terminal, and waits for stdin to close. Run such calls with `</dev/null`: a background task or a script whose stdin stays open otherwise waits forever.
 
 If the available MCP supports the requested operation and no CLI script is requested, stay on the MCP. If its tools are unavailable, use an installed, authenticated CLI or report the concrete missing capability. Authentication or connection setup needs the user's applicable authorization.
 
