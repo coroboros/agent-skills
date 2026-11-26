@@ -28,6 +28,20 @@
       "prompt": "Audit without editing this README: two real '## Usage' headings, a link to #usage-1, and a fenced Markdown example containing '## Ghost' with a real link outside the fence to #ghost.",
       "expected_output": "Treat #usage-1 as the second real Usage heading and report #ghost unresolved because fenced examples do not create anchors. Preserve the original file. Verify rendering when available or report that specific evidence gap.",
       "files": []
+    },
+    {
+      "id": 5,
+      "name": "private-readme-local-rendering",
+      "prompt": "Verify the rendered README in this private repository without uploading it or logging into GitHub. It has uncommitted edits, a table inside details/summary, a local assets/logo.png image and heading anchors. VS Code preview and Pandoc are already installed and a permitted viewer is available. Do not edit the README.",
+      "expected_output": "Inspect the current working file through the existing editor preview or generate GFM HTML with Pandoc outside the working tree while preserving relative asset paths. Visually inspect the table, expanded disclosure, image and anchor navigation. Preserve README content, clean up temporary output, name the renderer and avoid claiming exact GitHub parity.",
+      "files": []
+    },
+    {
+      "id": 6,
+      "name": "html-generation-is-not-visual-verification",
+      "prompt": "Audit this README without editing it. Pandoc is installed, but this host has no permitted browser, editor preview, or image-viewing capability. The README also contains a Mermaid diagram. Do not install software or ask me to log into GitHub.",
+      "expected_output": "Complete applicable source and structural checks. Do not claim that generated HTML proves visual correctness, that Mermaid was rendered, or that a local conversion exactly matches GitHub. Report unavailable viewer access and the unverified diagram specifically, without requesting login, installing software, or bypassing host restrictions.",
+      "files": []
     }
   ]
 }

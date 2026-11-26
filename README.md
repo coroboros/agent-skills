@@ -1107,7 +1107,7 @@ Author, audit, or polish a project README for clarity, structure, and anchor int
 4. **Drafts (author mode)** — overview table at top with anchors, Install / Quick Start uncollapsed, chosen pattern applied uniformly across peers; applies the canonical *Writing rules* + *README-specific style* as it writes
 5. **Audits (audit mode)** — runs the structural script (anchors, nested `<details>`, `<br>` after `<summary>`, bloat tokens, `Expand —` prefixes, stale counts adjacent to nouns, h3-above-details redundancy, visual-rhythm signal) AND scores prose against the canonical *Writing rules* + *README-specific style*. Names the silent assumption: audit checks structure, not whether the right content is in the file
 6. **Polishes (polish mode)** — wording-only pass; structure stays, prose tightens. Drops filler, replaces marketing voice, splits compound sentences, backticks code-like tokens, swaps numeric content-counts for qualitative descriptors
-7. **Verifies the rendered output** before declaring done — source-only checks miss visual monotony and inconsistent collapse
+7. **Verifies the rendered output locally** with an existing editor preview or Pandoc-generated HTML — checks tables, images, anchors and expanded sections without requiring GitHub login; reports viewer or feature gaps
 8. **Respects the selected mode** — applies authorized edits and their prose cleanup; preserves audit-only and explicit approval boundaries
 
 **Key rules**
