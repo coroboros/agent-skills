@@ -34,7 +34,7 @@
       "expected_output": "Routes to references/setup-next-cloudflare.md and references/setup-astro-cloudflare.md, verifies the canonical AGENTS.md plus thin Claude adapter, confirms that both templates use the installed skills CLI for the optional shared skill and the declared project-local designmd dependency, and stops rather than falling back to runtime package resolution when that dependency is unavailable.",
       "files": [],
       "expectations": [
-        "Both generated projects use AGENTS.md as the canonical instructions, keep CLAUDE.md as the exact @AGENTS.md adapter, and place shared rules under .agents/rules.",
+        "Both generated projects use AGENTS.md as their only instruction file, create no CLAUDE.md, and place shared rules under .agents/rules.",
         "Both generated templates document npx skills add coroboros/agent-skills --skill design-system.",
         "Both generated package script sets expose design:audit as designmd lint DESIGN.md.",
         "The one-time npx skills add command installs the shared skill only; no generated command uses npx, pnpm dlx, bunx, uvx, or @latest to execute designmd."

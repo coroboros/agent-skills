@@ -150,7 +150,7 @@ class TestTokenSubstitution(unittest.TestCase):
         out = (self.target / "AGENTS.md").read_text()
         self.assertNotIn("[Project Name]", out)
         self.assertIn("my-cool-app", out)
-        self.assertEqual((self.target / "CLAUDE.md").read_text(), "@AGENTS.md\n")
+        self.assertFalse((self.target / "CLAUDE.md").exists())
 
     def test_runtime_prerequisite_templates_are_generated(self):
         result = _run("astro-cloudflare", "my-cool-app", str(self.target))
@@ -208,7 +208,7 @@ class TestTokenSubstitution(unittest.TestCase):
                 package = json.loads((target / "package.json").read_text())
                 self.assertEqual(package["scripts"]["design:audit"], "designmd lint DESIGN.md")
                 self.assertTrue((target / "AGENTS.md").is_file())
-                self.assertEqual((target / "CLAUDE.md").read_text(), "@AGENTS.md\n")
+                self.assertFalse((target / "CLAUDE.md").exists())
                 self.assertTrue(
                     (target / ".agents/rules/cloudflare-tooling.md").is_file()
                 )
